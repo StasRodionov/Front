@@ -1,2 +1,6 @@
 server:
   port: 4445
+
+base_url:
+
+company_url: "/api/company"
