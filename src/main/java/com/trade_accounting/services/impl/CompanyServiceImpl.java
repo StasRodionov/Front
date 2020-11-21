@@ -34,23 +34,43 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyDto> getCompanies() {
-        Response<List<CompanyDto>> companies = companyApi.getCompanies(COMPANY_URL);
-        return companies.body();
+        List<CompanyDto> companies = null;
+
+        try {
+            companies = companyApi.getCompanies(COMPANY_URL).body();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return companies;
     }
 
     @Override
     public CompanyDto getCompany(String id) {
-        Response<CompanyDto> company = companyApi.getCompany(COMPANY_URL, "");
-        return company.body();
+        CompanyDto company = null;
+
+        try {
+            company = companyApi.getCompany(COMPANY_URL, "").body();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return company;
     }
 
     @Override
     public void addCompany(CompanyDto companyDto) {
-        Response<CompanyDto> addedCompany = companyApi.addCompany(COMPANY_URL, companyDto);
+        try {
+            Response<CompanyDto> addedCompany = companyApi.addCompany(COMPANY_URL, companyDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteCompany(String id) {
-        Response<CompanyDto> deletedCompany = companyApi.deleteCompany(COMPANY_URL, id);
+        try {
+            Response<CompanyDto> deletedCompany = companyApi.deleteCompany(COMPANY_URL, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
