@@ -9,7 +9,7 @@ import retrofit2.Retrofit;
 @SpringBootApplication
 public class TradeAccountingApplication {
 
-    @Value("base_url")
+    @Value("${base_url}")
     private static String BASE_URL;
 
     public static void main(String[] args) {

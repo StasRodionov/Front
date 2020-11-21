@@ -5,6 +5,7 @@ import com.trade_accounting.services.interfaces.CompanyApi;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
@@ -18,19 +19,33 @@ import java.util.List;
 @Service
 public class CompanyServiceImpl {
 
-    @Value("company_url")
+    @Value("${company_url}")
     private static String COMPANY_URL;
 
     private Retrofit retrofitClient;
 
-    CompanyApi companyApi = retrofitClient.create(CompanyApi.class);
+    @Autowired
+    public void setRetrofitClient(Retrofit retrofitClient) {
+        this.retrofitClient = retrofitClient;
+    }
 
-    Response<List<CompanyDto>> companies = companyApi.getCompanies(COMPANY_URL);
+    private CompanyApi companyApi = retrofitClient.create(CompanyApi.class);
 
-    Response<CompanyDto> company = companyApi.getCompany(COMPANY_URL, "");
+    public List<CompanyDto> getCompanies() {
+        Response<List<CompanyDto>> companies = companyApi.getCompanies(COMPANY_URL);
+        return companies.body();
+    }
 
-    Response<CompanyDto> addedCompany = companyApi.addCompany(COMPANY_URL, new CompanyDto());
+    public CompanyDto getCompany(String id) {
+        Response<CompanyDto> company = companyApi.getCompany(COMPANY_URL, "");
+        return company.body();
+    }
 
-    Response<CompanyDto> deletedCompany = companyApi.deleteCompany(COMPANY_URL, "");
+    public void addCompany(CompanyDto companyDto) {
+        Response<CompanyDto> addedCompany = companyApi.addCompany(COMPANY_URL, companyDto);
+    }
 
+    public void deleteCompany(String id) {
+        Response<CompanyDto> deletedCompany = companyApi.deleteCompany(COMPANY_URL, id);
+    }
 }
