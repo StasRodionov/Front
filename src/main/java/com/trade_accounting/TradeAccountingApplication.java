@@ -9,7 +9,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @SpringBootApplication
-@PropertySource("classpath:application.yml")
 public class TradeAccountingApplication {
 
     @Value("${base_url}")
@@ -26,5 +25,4 @@ public class TradeAccountingApplication {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
-
 }
