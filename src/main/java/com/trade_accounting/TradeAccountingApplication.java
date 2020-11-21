@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 @SpringBootApplication
 @PropertySource("classpath:application.yml")
@@ -22,6 +23,7 @@ public class TradeAccountingApplication {
     public static Retrofit getRetrofit() {
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
 
