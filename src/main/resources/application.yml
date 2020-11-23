@@ -1,6 +1,6 @@
 server:
   port: 4445
 
-base_url:
+base_url: //TODO Set real URL for backend
 
-company_url: "/api/company"
+company_url: api/company

@@ -7,11 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.List;
 
 @Data
@@ -20,47 +21,59 @@ import java.util.List;
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
-    @Value("${company_url}")
-    private static String COMPANY_URL;
+    private String companyUrl;
 
-    private Retrofit retrofitClient;
-
-    private CompanyApi companyApi = retrofitClient.create(CompanyApi.class);
+    private CompanyApi companyApi;
 
     @Autowired
-    public void setRetrofitClient(Retrofit retrofitClient) {
-        this.retrofitClient = retrofitClient;
+    public CompanyServiceImpl(Retrofit retrofitClient, Environment environment) {
+
+        companyUrl = environment.getProperty("company_url");
+
+        companyApi = retrofitClient.create(CompanyApi.class);
+
     }
 
     @Override
     public List<CompanyDto> getCompanies() {
-        List<CompanyDto> companies = null;
+        List<CompanyDto> companyDtoList = null;
 
         try {
-            companies = companyApi.getCompanies(COMPANY_URL).body();
-        } catch (Exception e) {
+            companyDtoList = companyApi.getCompanies(companyUrl).execute().body();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return companies;
+
+        return companyDtoList;
     }
 
     @Override
     public CompanyDto getCompany(String id) {
-        CompanyDto company = null;
+        CompanyDto companyDto = null;
 
         try {
-            company = companyApi.getCompany(COMPANY_URL, "").body();
-        } catch (Exception e) {
+            companyDto = companyApi.getCompany(companyUrl, id).execute().body();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return company;
+
+        return companyDto;
     }
 
     @Override
     public void addCompany(CompanyDto companyDto) {
         try {
-            Response<CompanyDto> addedCompany = companyApi.addCompany(COMPANY_URL, companyDto);
-        } catch (Exception e) {
+            Response<CompanyDto> addedCompany = companyApi.addCompany(companyUrl, companyDto).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateCompany(CompanyDto companyDto) {
+        try {
+            Response<CompanyDto> updatedCompany = companyApi.updateCompany(companyUrl, companyDto).execute();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -68,8 +81,8 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public void deleteCompany(String id) {
         try {
-            Response<CompanyDto> deletedCompany = companyApi.deleteCompany(COMPANY_URL, id);
-        } catch (Exception e) {
+            Response<CompanyDto> deletedCompany = companyApi.deleteCompany(companyUrl, id).execute();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
