@@ -15,22 +15,22 @@ import java.util.List;
 public interface CompanyApi {
 
     @Headers("Accept: application/json")
-    @GET("{url}")
-    Call<List<CompanyDto>> getCompanies(@Path("url") String url);
+    @GET("")
+    Call<List<CompanyDto>> getAll();
 
     @Headers("Accept: application/json")
-    @GET("{url}/{id}")
-    Call<CompanyDto> getCompany(@Path("url") String url, @Path("id") String id);
+    @GET("{id}")
+    Call<CompanyDto> getById(@Path("url") String id);
 
     @Headers("Accept: application/json")
-    @POST("{url}")
-    Call<CompanyDto> addCompany(@Path("url") String url, @Body CompanyDto companyDto);
+    @POST("")
+    Call<CompanyDto> add(@Body CompanyDto companyDto);
 
     @Headers("Accept: application/json")
-    @PUT("{url}")
-    Call<CompanyDto> updateCompany(@Path("url") String url, @Body CompanyDto companyDto);
+    @PUT("")
+    Call<CompanyDto> update(@Body CompanyDto companyDto);
 
     @Headers("Accept: application/json")
-    @DELETE("{url}/{id}")
-    Call<CompanyDto> deleteCompany(@Path("url") String url, @Path("id") String id);
+    @DELETE("{id}")
+    Call<CompanyDto> deleteById(@Path("id") String id);
 }

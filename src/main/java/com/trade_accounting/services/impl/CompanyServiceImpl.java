@@ -1,89 +1,146 @@
 package com.trade_accounting.services.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyApi;
 import com.trade_accounting.services.interfaces.CompanyService;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.io.IOException;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
-    private String companyUrl;
+    private final CompanyApi companyApi;
 
-    private CompanyApi companyApi;
+    private List<CompanyDto> companyDtoList;
+
+    private CompanyDto companyDto;
 
     @Autowired
-    public CompanyServiceImpl(Retrofit retrofitClient, Environment environment) {
+    public CompanyServiceImpl(@Value("${base_url}") String baseUrl, @Value("${company_url}") String companyUrl) {
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
 
-        companyUrl = environment.getProperty("company_url");
+        Retrofit retrofitClient = new Retrofit.Builder()
+                .baseUrl(baseUrl + companyUrl)
+                .client(new OkHttpClient.Builder().build())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
 
         companyApi = retrofitClient.create(CompanyApi.class);
-
     }
 
     @Override
-    public List<CompanyDto> getCompanies() {
-        List<CompanyDto> companyDtoList = null;
+    public List<CompanyDto> getAll() {
+        Call<List<CompanyDto>> companyDtoListCall = companyApi.getAll();
 
-        try {
-            companyDtoList = companyApi.getCompanies(companyUrl).execute().body();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        companyDtoListCall.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<List<CompanyDto>> call, Response<List<CompanyDto>> response) {
+                if (response.isSuccessful()) {
+                    companyDtoList = response.body();
+                } else {
+                    System.out.println("Response error " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<CompanyDto>> call, Throwable throwable) {
+                //TODO Logging
+            }
+        });
 
         return companyDtoList;
     }
 
     @Override
-    public CompanyDto getCompany(String id) {
-        CompanyDto companyDto = null;
+    public CompanyDto getById(String id) {
+        Call<CompanyDto> companyDtoCall = companyApi.getById(id);
 
-        try {
-            companyDto = companyApi.getCompany(companyUrl, id).execute().body();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        companyDtoCall.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
+                if (response.isSuccessful()) {
+                    companyDto = response.body();
+                } else {
+                    System.out.println("Response error " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
+                //TODO Logging
+            }
+        });
 
         return companyDto;
     }
 
     @Override
-    public void addCompany(CompanyDto companyDto) {
-        try {
-            Response<CompanyDto> addedCompany = companyApi.addCompany(companyUrl, companyDto).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void add(CompanyDto companyDto) {
+        Call<CompanyDto> companyDtoCall = companyApi.add(companyDto);
+
+        companyDtoCall.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
+                if (!response.isSuccessful()) {
+                    System.out.println("Response error " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
+                //TODO Logging
+            }
+        });
     }
 
     @Override
-    public void updateCompany(CompanyDto companyDto) {
-        try {
-            Response<CompanyDto> updatedCompany = companyApi.updateCompany(companyUrl, companyDto).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void update(CompanyDto companyDto) {
+        Call<CompanyDto> companyDtoCall = companyApi.update(companyDto);
+
+        companyDtoCall.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
+                if (!response.isSuccessful()) {
+                    System.out.println("Response error " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
+                //TODO Logging
+            }
+        });
     }
 
     @Override
-    public void deleteCompany(String id) {
-        try {
-            Response<CompanyDto> deletedCompany = companyApi.deleteCompany(companyUrl, id).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void deleteById(String id) {
+        Call<CompanyDto> companyDtoCall = companyApi.deleteById(id);
+
+        companyDtoCall.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
+                if (!response.isSuccessful()) {
+                    System.out.println("Response error " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
+                //TODO Logging
+            }
+        });
     }
 }

@@ -3,10 +3,10 @@ package com.trade_accounting.models.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
+import lombok.ToString;
 
-@Component
 @Data
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompanyDto {

@@ -1,21 +1,19 @@
 package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.CompanyDto;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface CompanyService {
 
-    List<CompanyDto> getCompanies();
+    List<CompanyDto> getAll();
 
-    CompanyDto getCompany(String id);
+    CompanyDto getById(String id);
 
-    void addCompany(CompanyDto companyDto);
+    void add(CompanyDto companyDto);
 
-    void updateCompany(CompanyDto companyDto);
+    void update(CompanyDto companyDto);
 
-    void deleteCompany(String id);
+    void deleteById(String id);
 
 }

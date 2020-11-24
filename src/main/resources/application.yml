@@ -1,6 +1,6 @@
 server:
   port: 4445
 
-base_url: //TODO Set real URL for backend
+base_url: https://pavler.free.beeceptor.com/
 
-company_url: api/company
+company_url: my/api/path/
