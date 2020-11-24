@@ -1,11 +1,8 @@
 package com.trade_accounting.services.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyApi;
 import com.trade_accounting.services.interfaces.CompanyService;
-import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,14 +25,10 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Autowired
     public CompanyServiceImpl(@Value("${base_url}") String baseUrl, @Value("${company_url}") String companyUrl) {
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
 
         Retrofit retrofitClient = new Retrofit.Builder()
                 .baseUrl(baseUrl + companyUrl)
-                .client(new OkHttpClient.Builder().build())
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         companyApi = retrofitClient.create(CompanyApi.class);

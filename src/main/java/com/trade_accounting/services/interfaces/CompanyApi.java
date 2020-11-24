@@ -20,7 +20,7 @@ public interface CompanyApi {
 
     @Headers("Accept: application/json")
     @GET("{id}")
-    Call<CompanyDto> getById(@Path("url") String id);
+    Call<CompanyDto> getById(@Path("id") String id);
 
     @Headers("Accept: application/json")
     @POST("")
