@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.AppConfig;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyApi;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -9,8 +10,6 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.util.List;
 
@@ -19,24 +18,24 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyApi companyApi;
 
+    private final String companyUrl;
+
     private List<CompanyDto> companyDtoList;
 
     private CompanyDto companyDto;
 
     @Autowired
-    public CompanyServiceImpl(@Value("${base_url}") String baseUrl, @Value("${company_url}") String companyUrl) {
+    public CompanyServiceImpl(@Value("${company_url}") String companyUrl, AppConfig appConfig) {
 
-        Retrofit retrofitClient = new Retrofit.Builder()
-                .baseUrl(baseUrl + companyUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        this.companyUrl = companyUrl;
 
-        companyApi = retrofitClient.create(CompanyApi.class);
+        companyApi = appConfig.retrofit.create(CompanyApi.class);
+
     }
 
     @Override
     public List<CompanyDto> getAll() {
-        Call<List<CompanyDto>> companyDtoListCall = companyApi.getAll();
+        Call<List<CompanyDto>> companyDtoListCall = companyApi.getAll(companyUrl);
 
         companyDtoListCall.enqueue(new Callback<>() {
             @Override
@@ -59,7 +58,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyDto getById(String id) {
-        Call<CompanyDto> companyDtoCall = companyApi.getById(id);
+        Call<CompanyDto> companyDtoCall = companyApi.getById(companyUrl, id);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
@@ -81,8 +80,8 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void add(CompanyDto companyDto) {
-        Call<CompanyDto> companyDtoCall = companyApi.add(companyDto);
+    public void create(CompanyDto companyDto) {
+        Call<CompanyDto> companyDtoCall = companyApi.create(companyUrl, companyDto);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
@@ -101,7 +100,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public void update(CompanyDto companyDto) {
-        Call<CompanyDto> companyDtoCall = companyApi.update(companyDto);
+        Call<CompanyDto> companyDtoCall = companyApi.update(companyUrl, companyDto);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
@@ -120,7 +119,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public void deleteById(String id) {
-        Call<CompanyDto> companyDtoCall = companyApi.deleteById(id);
+        Call<CompanyDto> companyDtoCall = companyApi.deleteById(companyUrl, id);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override

@@ -1,6 +1,6 @@
 server:
   port: 4445
 
-base_url: https://pavler.free.beeceptor.com/
+base_url: http://localhost:4444/
 
-company_url: my/api/path/
+company_url: api/company/
