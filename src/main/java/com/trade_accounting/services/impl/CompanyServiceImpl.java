@@ -1,6 +1,5 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.AppConfig;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyApi;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 import java.util.List;
 
@@ -25,11 +25,11 @@ public class CompanyServiceImpl implements CompanyService {
     private CompanyDto companyDto;
 
     @Autowired
-    public CompanyServiceImpl(@Value("${company_url}") String companyUrl, AppConfig appConfig) {
+    public CompanyServiceImpl(@Value("${company_url}") String companyUrl, Retrofit retrofit) {
 
         this.companyUrl = companyUrl;
 
-        companyApi = appConfig.retrofit.create(CompanyApi.class);
+        companyApi = retrofit.create(CompanyApi.class);
 
     }
 

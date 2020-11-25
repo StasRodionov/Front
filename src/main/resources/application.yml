@@ -1,6 +1,6 @@
 server:
   port: 4445
 
-base_url: http://localhost:4444/
+base_url: http://localhost:4444
 
-company_url: api/company/
+company_url: /api/company/

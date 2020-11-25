@@ -1,23 +1,20 @@
 package com.trade_accounting;
 
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@Data
-@Component
+@Configuration
 public class AppConfig {
 
-    public Retrofit retrofit;
-
-    public AppConfig(@Value("${base_url}") String baseUrl) {
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(baseUrl)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
+    @Bean
+    public Retrofit retrofit(@Value("${base_url}") String baseUrl) {
+        return new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
     }
+
 }
