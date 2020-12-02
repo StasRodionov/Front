@@ -17,8 +17,4 @@ public class TypeOfPriceDto {
 
     private String sortNumber;
 
-    public TypeOfPriceDto(String name, String sortNumber) {
-        this.name = name;
-        this.sortNumber = sortNumber;
-    }
 }
