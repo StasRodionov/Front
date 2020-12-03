@@ -15,8 +15,4 @@ public class RoleDto {
 
     private String sortNumber;
 
-    public RoleDto(String name, String sortNumber) {
-        this.name = name;
-        this.sortNumber = sortNumber;
-    }
 }
