@@ -8,11 +8,11 @@ public interface ImageService {
 
     List<ImageDto> getAll();
 
-    ImageDto getById(String id);
+    ImageDto getById(Long id);
 
     void create(ImageDto imageDto);
 
     void update(ImageDto imageDto);
 
-    void deleteById(String id);
+    void deleteById(Long id);
 }
