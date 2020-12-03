@@ -15,8 +15,4 @@ public class DepartmentDto {
 
     private String sortNumber;
 
-    public DepartmentDto(String name, String sortNumber){
-        this.name = name;
-        this.sortNumber = sortNumber;
-    }
 }
