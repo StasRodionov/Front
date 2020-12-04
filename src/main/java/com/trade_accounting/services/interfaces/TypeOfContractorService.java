@@ -7,6 +7,7 @@ import java.util.List;
 public interface TypeOfContractorService {
 
     List<TypeOfContractorDto> getAll();
+
     TypeOfContractorDto getById(Long id);
 
     void create(TypeOfContractorDto typeOfContractorDto);
