@@ -29,8 +29,6 @@ public class EmployeeDto {
 
     private String description;
 
-    private String image;
-
     private String email;
 
     private String password;
