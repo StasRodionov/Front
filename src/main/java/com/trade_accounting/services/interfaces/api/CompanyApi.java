@@ -20,7 +20,7 @@ public interface CompanyApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
-    Call<CompanyDto> getById(@Path("url") String url, @Path("id") String id);
+    Call<CompanyDto> getById(@Path("url") String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
     @POST("{url}")
@@ -32,5 +32,5 @@ public interface CompanyApi {
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<CompanyDto> deleteById(@Path("url") String url, @Path("id") String id);
+    Call<CompanyDto> deleteById(@Path("url") String url, @Path("id") Long id);
 }

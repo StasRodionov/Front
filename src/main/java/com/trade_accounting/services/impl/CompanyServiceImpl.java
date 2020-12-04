@@ -57,7 +57,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public CompanyDto getById(String id) {
+    public CompanyDto getById(Long id) {
         Call<CompanyDto> companyDtoCall = companyApi.getById(companyUrl, id);
 
         companyDtoCall.enqueue(new Callback<>() {
@@ -118,7 +118,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(Long id) {
         Call<CompanyDto> companyDtoCall = companyApi.deleteById(companyUrl, id);
 
         companyDtoCall.enqueue(new Callback<>() {

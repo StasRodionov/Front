@@ -8,12 +8,12 @@ public interface CompanyService {
 
     List<CompanyDto> getAll();
 
-    CompanyDto getById(String id);
+    CompanyDto getById(Long id);
 
     void create(CompanyDto companyDto);
 
     void update(CompanyDto companyDto);
 
-    void deleteById(String id);
+    void deleteById(Long id);
 
 }
