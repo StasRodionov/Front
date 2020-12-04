@@ -1,4 +1,4 @@
-package com.trade_accounting.services.interfaces;
+package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.CompanyDto;
 import retrofit2.Call;

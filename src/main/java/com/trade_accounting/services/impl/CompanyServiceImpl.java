@@ -1,7 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.services.interfaces.CompanyApi;
+import com.trade_accounting.services.interfaces.api.CompanyApi;
 import com.trade_accounting.services.interfaces.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
