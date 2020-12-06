@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,4 +32,13 @@ public class ContractorDto {
 
     private String comment;
 
+    private ContractorGroupDto contractorGroupDto;
+
+    private TypeOfContractorDto typeOfContractorDto;
+
+    private TypeOfPriceDto typeOfPriceDto;
+
+    private List<BankAccountDto> bankAccountDto;
+
+    private LegalDetailDto legalDetailDto;
 }
