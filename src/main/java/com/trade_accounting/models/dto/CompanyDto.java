@@ -42,4 +42,6 @@ public class CompanyDto {
     private String chiefAccountantSignature;
 
     private String stamp;
+
+    private LegalDetailDto legalDetailDto;
 }
