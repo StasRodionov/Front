@@ -16,21 +16,25 @@ public interface CompanyApi {
 
     @Headers("Accept: application/json")
     @GET("{url}")
-    Call<List<CompanyDto>> getAll(@Path("url") String url);
+    Call<List<CompanyDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
-    @GET("{url}/{id}")
-    Call<CompanyDto> getById(@Path("url") String url, @Path("id") Long id);
+    @GET("{url}/id/{id}")
+    Call<CompanyDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/email/{email}")
+    Call<CompanyDto> getByEmail(@Path(value = "url", encoded = true) String url, @Path("email") String email);
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<CompanyDto> create(@Path("url") String url, @Body CompanyDto companyDto);
+    Call<CompanyDto> create(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<CompanyDto> update(@Path("url") String url, @Body CompanyDto companyDto);
+    Call<CompanyDto> update(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<CompanyDto> deleteById(@Path("url") String url, @Path("id") Long id);
+    Call<CompanyDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }

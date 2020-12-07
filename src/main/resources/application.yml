@@ -3,4 +3,4 @@ server:
 
 base_url: http://localhost:4444
 
-company_url: /api/company
+company_url: api/company

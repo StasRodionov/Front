@@ -80,6 +80,29 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    public CompanyDto getByEmail(String email) {
+        Call<CompanyDto> companyDtoCall = companyApi.getByEmail(companyUrl, email);
+
+        companyDtoCall.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
+                if (response.isSuccessful()) {
+                    companyDto = response.body();
+                } else {
+                    System.out.println("Response error " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
+                //TODO Logging
+            }
+        });
+
+        return companyDto;
+    }
+
+    @Override
     public void create(CompanyDto companyDto) {
         Call<CompanyDto> companyDtoCall = companyApi.create(companyUrl, companyDto);
 
