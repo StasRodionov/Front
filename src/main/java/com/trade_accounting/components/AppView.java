@@ -12,10 +12,10 @@ import com.vaadin.flow.router.Route;
 public class AppView extends AppLayout {
 
     public AppView() {
-        addTabs();
+        addToNavbar(configurationMenu());
     }
 
-    private void addTabs() {
+    private Tabs configurationMenu() {
         VerticalLayout indicators = new VerticalLayout(VaadinIcon.TRENDING_UP.create(), new Label("Показатели"));
         indicators.getStyle().set("alignItems", "center");
 
@@ -55,7 +55,7 @@ public class AppView extends AppLayout {
         VerticalLayout profile = new VerticalLayout(VaadinIcon.USER.create(), new Label("Профиль"));
         profile.getStyle().set("alignItems", "center");
 
-        Tabs tabs = new Tabs(
+        return new Tabs(
                 new Tab(indicators),
                 new Tab(purchases),
                 new Tab(sales),
@@ -70,6 +70,5 @@ public class AppView extends AppLayout {
                 new Tab(faq),
                 new Tab(profile)
         );
-        addToNavbar(tabs);
     }
 }
