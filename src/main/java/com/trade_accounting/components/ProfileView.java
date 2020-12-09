@@ -1,18 +1,18 @@
 package com.trade_accounting.components;
 
-import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route("profile")
+@Route(value = "profile", layout = AppView.class)
 @PageTitle("Профиль")
-public class ProfileView extends AppLayout {
+public class ProfileView extends Div {
 
     public ProfileView() {
-        addToDrawer(addList());
+        add(addList());
     }
 
     private Tabs addList() {
