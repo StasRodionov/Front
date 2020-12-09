@@ -54,6 +54,7 @@ public class AppView extends AppLayout {
 
         VerticalLayout profile = new VerticalLayout(VaadinIcon.USER.create(), new Label("Профиль"));
         profile.getStyle().set("alignItems", "center");
+        profile.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
 
         return new Tabs(
                 new Tab(indicators),
