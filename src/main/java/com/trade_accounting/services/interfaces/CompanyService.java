@@ -10,6 +10,8 @@ public interface CompanyService {
 
     CompanyDto getById(Long id);
 
+    CompanyDto getByEmail(String email);
+
     void create(CompanyDto companyDto);
 
     void update(CompanyDto companyDto);
