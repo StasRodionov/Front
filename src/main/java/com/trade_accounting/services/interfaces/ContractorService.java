@@ -10,8 +10,6 @@ public interface ContractorService {
 
     ContractorDto getById(Long id);
 
-    ContractorDto getByEmail(String email);
-
     void create(ContractorDto contractorDto);
 
     void update(ContractorDto contractorDto);
