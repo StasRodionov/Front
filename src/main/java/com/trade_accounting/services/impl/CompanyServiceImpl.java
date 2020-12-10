@@ -3,6 +3,7 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.api.CompanyApi;
 import com.trade_accounting.services.interfaces.CompanyService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import retrofit2.Retrofit;
 import java.util.List;
 
 @Service
+@Slf4j
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyApi companyApi;
@@ -49,7 +51,7 @@ public class CompanyServiceImpl implements CompanyService {
 
             @Override
             public void onFailure(Call<List<CompanyDto>> call, Throwable throwable) {
-                //TODO Logging
+                log.debug("Произошла ошибка при получении списка CompanyDto");
             }
         });
 
@@ -72,7 +74,7 @@ public class CompanyServiceImpl implements CompanyService {
 
             @Override
             public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                //TODO Logging
+                log.debug("Произошла ошибка при получении CompanyDto c id = {}", id);
             }
         });
 
@@ -95,7 +97,7 @@ public class CompanyServiceImpl implements CompanyService {
 
             @Override
             public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                //TODO Logging
+                log.debug("Произошла ошибка при получении CompanyDto c email = {}", email);
             }
         });
 
@@ -116,7 +118,7 @@ public class CompanyServiceImpl implements CompanyService {
 
             @Override
             public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                //TODO Logging
+                log.debug("Произошла ошибка при отправке запроса на создание нового экземпляра {}", companyDto);
             }
         });
     }
@@ -135,7 +137,7 @@ public class CompanyServiceImpl implements CompanyService {
 
             @Override
             public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                //TODO Logging
+                log.debug("Произошла ошибка при отправке запроса на обновление экземпляра {}", companyDto);
             }
         });
     }
@@ -154,7 +156,7 @@ public class CompanyServiceImpl implements CompanyService {
 
             @Override
             public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                //TODO Logging
+                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра CompanyDto c id = {}", id);
             }
         });
     }
