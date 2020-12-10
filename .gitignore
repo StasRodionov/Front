@@ -19,6 +19,7 @@ node_modules/
 *.iws
 *.iml
 *.ipr
+/logs/
 
 ### NetBeans ###
 /nbproject/private/
