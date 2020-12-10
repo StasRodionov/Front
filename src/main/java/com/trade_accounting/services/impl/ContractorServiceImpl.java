@@ -29,10 +29,46 @@ public class ContractorServiceImpl implements ContractorService {
         this.contractorApi = retrofit.create(ContractorApi.class);
     }
 
-    @PostConstruct
-    public void test() {
-        // TODO awaiting creation ContractorRestController in trade_back
-    }
+//    @PostConstruct
+//    public void test() {
+//        create(new ContractorDto(
+//                1L,
+//                "name",
+//                "inn",
+//                "sortNumber",
+//                "phone",
+//                "fax",
+//                "email",
+//                "address",
+//                "commentToAddress",
+//                "comment",
+//                null,
+//                null,
+//                null,
+//                null,
+//                null
+//        ));
+//        getAll();
+//        update(new ContractorDto(
+//                1L,
+//                "name1",
+//                "inn1",
+//                "sortNumber1",
+//                "phone1",
+//                "fax1",
+//                "email1",
+//                "address1",
+//                "commentToAddress1",
+//                "comment1",
+//                null,
+//                null,
+//                null,
+//                null,
+//                null
+//        ));
+//        getById(1L);
+//        deleteById(1L);
+//    }
 
     @Override
     public List<ContractorDto> getAll() {
