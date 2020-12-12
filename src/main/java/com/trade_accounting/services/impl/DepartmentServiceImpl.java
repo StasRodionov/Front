@@ -11,6 +11,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -25,10 +26,18 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     DepartmentDto departmentDto;
 
-    public DepartmentServiceImpl(@Value("{department_url}") String departmentUrl, Retrofit retrofit) {
+    public DepartmentServiceImpl(@Value("${department_url}") String departmentUrl, Retrofit retrofit) {
         this.departmentUrl = departmentUrl;
         this.departmentApi = retrofit.create(DepartmentApi.class);
     }
+
+//    @PostConstruct
+//    public void init() {
+//        getAll();
+//        getById(1L);
+//        create(new DepartmentDto());
+//        deleteById(1L);
+//    }
 
     @Override
     public List<DepartmentDto> getAll() {
