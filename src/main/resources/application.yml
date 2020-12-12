@@ -4,3 +4,4 @@ server:
 base_url: http://localhost:4444
 
 company_url: api/company
+department_url: api/department
