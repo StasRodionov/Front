@@ -36,14 +36,14 @@ public class RoleServiceImpl implements RoleService {
 
     }
 
-    @PostConstruct
-    public void init(){
-        getAll();
-        getById(1L);
-        create(new RoleDto(null,"fff","ddd"));
-        update(new RoleDto(2L,"fff","ddd"));
-        deleteById(2L);
-    }
+//    @PostConstruct
+//    public void init(){
+//        getAll();
+//        getById(1L);
+//        create(new RoleDto(null,"fff","ddd"));
+//        update(new RoleDto(2L,"fff","ddd"));
+//        deleteById(2L);
+//    }
 
     @Override
     public List<RoleDto> getAll() {
@@ -61,7 +61,7 @@ public class RoleServiceImpl implements RoleService {
 
             @Override
             public void onFailure(Call<List<RoleDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка CompanyDto");
+                log.debug("Произошла ошибка при получении списка RoleDto");
             }
         });
 
@@ -84,7 +84,7 @@ public class RoleServiceImpl implements RoleService {
 
             @Override
             public void onFailure(Call<RoleDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении CompanyDto c id = {}", id);
+                log.debug("Произошла ошибка при получении RoleDto c id = {}", id);
             }
         });
 
@@ -143,7 +143,7 @@ public class RoleServiceImpl implements RoleService {
 
             @Override
             public void onFailure(Call<RoleDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра CompanyDto c id = {}", id);
+                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра RoleDto c id = {}", id);
             }
         });
     }
