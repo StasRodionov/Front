@@ -62,7 +62,7 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
 
             @Override
             public void onFailure(Call<List<TypeOfPriceDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка CompanyDto");
+                log.debug("Произошла ошибка при получении списка TypeOfPriceDto");
             }
         });
 
@@ -85,7 +85,7 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
 
             @Override
             public void onFailure(Call<TypeOfPriceDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении CompanyDto c id = {}", id);
+                log.debug("Произошла ошибка при получении TypeOfPriceDto c id = {}", id);
             }
         });
 
@@ -144,7 +144,7 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
 
             @Override
             public void onFailure(Call<TypeOfPriceDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра CompanyDto c id = {}", id);
+                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра TypeOfPriceDto c id = {}", id);
             }
         });
     }
