@@ -6,3 +6,5 @@ base_url: http://localhost:4444
 company_url: api/company
 
 bankAccount_url: api/bank/account
+
+contractorGroup_url: api/contractor/group
