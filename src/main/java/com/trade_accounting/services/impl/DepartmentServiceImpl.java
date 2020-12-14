@@ -48,14 +48,16 @@ public class DepartmentServiceImpl implements DepartmentService {
             public void onResponse(Call<List<DepartmentDto>> call, Response<List<DepartmentDto>> response) {
                 if (response.isSuccessful()) {
                     departmentDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка DepartmentDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение списка DepartmentDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<List<DepartmentDto>> call, Throwable t) {
-                // TODO logging
+                log.error("Произошла ошибка при получении ответа на запрос списка DepartmentDto", t);
             }
         });
 
@@ -71,14 +73,16 @@ public class DepartmentServiceImpl implements DepartmentService {
             public void onResponse(Call<DepartmentDto> call, Response<DepartmentDto> response) {
                 if (response.isSuccessful()) {
                     departmentDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра DepartmentDto по id= {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра DepartmentDto по id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<DepartmentDto> call, Throwable t) {
-                // TODO logging
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра DepartmentDto по id", t);
             }
         });
 
@@ -92,14 +96,17 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<DepartmentDto> call, Response<DepartmentDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание экземпляра DepartmentDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра DepartmentDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<DepartmentDto> call, Throwable t) {
-                // TODO logging
+                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра DepartmentDto", t);
             }
         });
     }
@@ -111,14 +118,17 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<DepartmentDto> call, Response<DepartmentDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление экземпляра DepartmentDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра DepartmentDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<DepartmentDto> call, Throwable t) {
-                // TODO logging
+                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра DepartmentDto", t);
             }
         });
     }
@@ -130,14 +140,17 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<DepartmentDto> call, Response<DepartmentDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление экземпляра DepartmentDto с id= {}", id);
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра DepartmentDto с id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<DepartmentDto> call, Throwable t) {
-                // TODO logging
+                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра DepartmentDto", t);
             }
         });
     }
