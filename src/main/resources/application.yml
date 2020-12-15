@@ -8,3 +8,5 @@ company_url: api/company
 contractor_url: api/contractor
 
 bankAccount_url: api/bank/account
+
+typeOfContractor_url: api/typeofcontractor
