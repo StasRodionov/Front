@@ -24,13 +24,13 @@ public interface DepartmentApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<DepartmentDto> create(@Path(value = "url", encoded = true) String url, @Body DepartmentDto departmentDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body DepartmentDto departmentDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<DepartmentDto> update(@Path(value = "url", encoded = true) String url, @Body DepartmentDto departmentDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body DepartmentDto departmentDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<DepartmentDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }

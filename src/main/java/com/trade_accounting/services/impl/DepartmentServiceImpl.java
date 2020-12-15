@@ -36,7 +36,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 //        getAll();
 //        getById(1L);
 //        create(new DepartmentDto());
-//        deleteById(1L);
+//        deleteById(2L);
 //    }
 
     @Override
@@ -91,11 +91,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void create(DepartmentDto departmentDto) {
-        Call<DepartmentDto> departmentDtoCall = departmentApi.create(departmentUrl, departmentDto);
+        Call<Void> departmentDtoCall = departmentApi.create(departmentUrl, departmentDto);
 
         departmentDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<DepartmentDto> call, Response<DepartmentDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на создание экземпляра DepartmentDto");
                 } else {
@@ -105,7 +105,7 @@ public class DepartmentServiceImpl implements DepartmentService {
             }
 
             @Override
-            public void onFailure(Call<DepartmentDto> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 log.error("Произошла ошибка при получении ответа на запрос создания экземпляра DepartmentDto", t);
             }
         });
@@ -113,11 +113,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void update(DepartmentDto departmentDto) {
-        Call<DepartmentDto> departmentDtoCall = departmentApi.update(departmentUrl, departmentDto);
+        Call<Void> departmentDtoCall = departmentApi.update(departmentUrl, departmentDto);
 
         departmentDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<DepartmentDto> call, Response<DepartmentDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на обновление экземпляра DepartmentDto");
                 } else {
@@ -127,7 +127,7 @@ public class DepartmentServiceImpl implements DepartmentService {
             }
 
             @Override
-            public void onFailure(Call<DepartmentDto> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра DepartmentDto", t);
             }
         });
@@ -135,11 +135,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void deleteById(Long id) {
-        Call<DepartmentDto> departmentDtoCall = departmentApi.deleteById(departmentUrl, id);
+        Call<Void> departmentDtoCall = departmentApi.deleteById(departmentUrl, id);
 
         departmentDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<DepartmentDto> call, Response<DepartmentDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на удаление экземпляра DepartmentDto с id= {}", id);
                 } else {
@@ -149,10 +149,9 @@ public class DepartmentServiceImpl implements DepartmentService {
             }
 
             @Override
-            public void onFailure(Call<DepartmentDto> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра DepartmentDto", t);
             }
         });
     }
 }
-
