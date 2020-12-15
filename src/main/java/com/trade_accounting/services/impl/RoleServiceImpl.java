@@ -54,14 +54,16 @@ public class RoleServiceImpl implements RoleService {
             public void onResponse(Call<List<RoleDto>> call, Response<List<RoleDto>> response) {
                 if (response.isSuccessful()) {
                     roleDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка RoleDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение списка RoleDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<List<RoleDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка RoleDto");
+                log.error("Произошла ошибка при получении ответа на запрос списка RoleDto", throwable);
             }
         });
 
@@ -77,14 +79,16 @@ public class RoleServiceImpl implements RoleService {
             public void onResponse(Call<RoleDto> call, Response<RoleDto> response) {
                 if (response.isSuccessful()) {
                     roleDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра RoleDto по id= {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра RoleDto по id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<RoleDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении RoleDto c id = {}", id);
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра RoleDto по id", throwable);
             }
         });
 
@@ -93,57 +97,66 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void create(RoleDto roleDto) {
-        Call<RoleDto> roleDtoCall = roleApi.create(roleUrl, roleDto);
+        Call<Void> roleDtoCall = roleApi.create(roleUrl, roleDto);
 
         roleDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<RoleDto> call, Response<RoleDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание экземпляра RoleDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра RoleDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<RoleDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на создание нового экземпляра {}", roleDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра RoleDto", throwable);
             }
         });
     }
 
     @Override
     public void update(RoleDto roleDto) {
-        Call<RoleDto> companyDtoCall = roleApi.update(roleUrl, roleDto);
+        Call<Void> companyDtoCall = roleApi.update(roleUrl, roleDto);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<RoleDto> call, Response<RoleDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление экземпляра RoleDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра RoleDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<RoleDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на обновление экземпляра {}", roleDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра RoleDto", throwable);
             }
         });
     }
 
     @Override
     public void deleteById(Long id) {
-        Call<RoleDto> companyDtoCall = roleApi.deleteById(roleUrl, id);
+        Call<Void> companyDtoCall = roleApi.deleteById(roleUrl, id);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<RoleDto> call, Response<RoleDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление экземпляра RoleDto с id= {}", id);
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра RoleDto с id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<RoleDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра RoleDto c id = {}", id);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра RoleDto", throwable);
             }
         });
     }

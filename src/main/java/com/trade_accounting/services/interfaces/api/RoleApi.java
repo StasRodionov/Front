@@ -24,13 +24,13 @@ public interface RoleApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<RoleDto> create(@Path(value = "url", encoded = true) String url, @Body RoleDto roleDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body RoleDto roleDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<RoleDto> update(@Path(value = "url", encoded = true) String url, @Body RoleDto roleDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body RoleDto roleDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<RoleDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
