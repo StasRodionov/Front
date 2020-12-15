@@ -24,13 +24,13 @@ public interface ContractorGroupApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<ContractorGroupDto> create(@Path(value = "url", encoded = true) String url, @Body ContractorGroupDto dto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body ContractorGroupDto dto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<ContractorGroupDto> update(@Path(value = "url", encoded = true) String url, @Body ContractorGroupDto dto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ContractorGroupDto dto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<ContractorGroupDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }

@@ -11,6 +11,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -39,14 +40,15 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
             public void onResponse(Call<List<ContractorGroupDto>> call, Response<List<ContractorGroupDto>> response) {
                 if (response.isSuccessful()) {
                     contractorGroupDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка ContractorGroupDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при отправке запроса на получение списка ContractorGroupDto: {}", response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<List<ContractorGroupDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка ContractorGroupDto");
+                log.error("Произошла ошибка при отправке запроса на получение списка ContractorGroupDto: ", throwable);
             }
         });
         return contractorGroupDtoList;
@@ -59,16 +61,19 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
         contractorGroupDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ContractorGroupDto> call, Response<ContractorGroupDto> response) {
-             if (response.isSuccessful()) {
-                 contractorGroupDto = response.body();
-             } else {
-                 System.out.println("Response error " + response.body());
-             }
+                if (response.isSuccessful()) {
+                    contractorGroupDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра ContractorGroupDto с id = {}", id);
+                } else {
+                    log.error("Произошла ошибка при отправке запроса на получение ContractorGroupDto с id = {}: {}",
+                            id, response.errorBody());
+                }
             }
 
             @Override
             public void onFailure(Call<ContractorGroupDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении ContractorGroupDto c id = {}", id);
+                log.error("Произошла ошибка при отправке запроса на получение ContractorGroupDto c id = {}: {}",
+                        id, throwable);
             }
         });
         return contractorGroupDto;
@@ -76,58 +81,79 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
 
     @Override
     public void create(ContractorGroupDto dto) {
-        Call<ContractorGroupDto> contractorGroupDtoCall = contractorGroupApi.create(contractorGroupUrl, dto);
+        Call<Void> contractorGroupDtoCall = contractorGroupApi.create(contractorGroupUrl, dto);
 
         contractorGroupDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ContractorGroupDto> call, Response<ContractorGroupDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание нового экземпляра {}", dto);
+                } else {
+                    log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}",
+                            dto, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<ContractorGroupDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на создание нового экземпляра {}", dto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}",
+                        dto, throwable);
             }
         });
     }
 
     @Override
     public void update(ContractorGroupDto dto) {
-        Call<ContractorGroupDto> contractorGroupDtoCall = contractorGroupApi.update(contractorGroupUrl, dto);
+        Call<Void> contractorGroupDtoCall = contractorGroupApi.update(contractorGroupUrl, dto);
 
         contractorGroupDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ContractorGroupDto> call, Response<ContractorGroupDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление {}", dto);
+                } else {
+                    log.error("Произошла ошибка при отправке запроса на обновление {}: {}",
+                            dto, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<ContractorGroupDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на обновление экземпляра {}", dto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при отправке запроса на обновление {}: {}",
+                        dto, throwable);
             }
         });
     }
 
     @Override
     public void deleteById(Long id) {
-        Call<ContractorGroupDto> contractorGroupDtoCall = contractorGroupApi.deleteById(contractorGroupUrl, id);
+        Call<Void> contractorGroupDtoCall = contractorGroupApi.deleteById(contractorGroupUrl, id);
 
         contractorGroupDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ContractorGroupDto> call, Response<ContractorGroupDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление ContractorGroupDto c id = {}", id);
+                } else {
+                    log.error("Произошла ошибка при отправке запроса на удаление ContractorGroupDto c id = {}: {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<ContractorGroupDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра ContractorGroupDto c id = {}", id);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при отправке запроса на удаление ContractorGroupDto c id = {}: {}",
+                        id, throwable);
             }
         });
+    }
+
+    @PostConstruct
+    public void Test() {
+        getAll();
+//        update(new ContractorGroupDto( 2L, "qwerty", "123"));
+//        create(new ContractorGroupDto( null, "барыга", "3"));
+//        getById(2L);
+//       deleteById(1L);
     }
 }
