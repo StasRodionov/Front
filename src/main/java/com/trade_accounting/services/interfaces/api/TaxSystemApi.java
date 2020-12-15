@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.BankAccountDto;
+import com.trade_accounting.models.dto.TaxSystemDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -12,25 +12,26 @@ import retrofit2.http.Path;
 
 import java.util.List;
 
-public interface BankAccountApi {
+public interface TaxSystemApi {
 
     @Headers("Accept: application/json")
     @GET("{url}")
-    Call<List<BankAccountDto>> getAll(@Path(value = "url", encoded = true) String url);
+    Call<List<TaxSystemDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
-    Call<BankAccountDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<TaxSystemDto> getById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body BankAccountDto bankAccountDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body TaxSystemDto taxSystemDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body BankAccountDto bankAccountDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body TaxSystemDto taxSystemDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
+
 }
