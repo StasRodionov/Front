@@ -41,13 +41,14 @@ public class WarehouseServiceImpl implements WarehouseService {
             public void onResponse(Call<List<WarehouseDto>> call, Response<List<WarehouseDto>> response) {
                 if (response.isSuccessful()) {
                     warehouseDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка WarehouseDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение списка WarehouseDto - {}", response.errorBody());
                 }
             }
             @Override
             public void onFailure(Call<List<WarehouseDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка WarehouseDto");
+                log.error("Произошла ошибка при получении ответа на запрос списка WarehouseDto", throwable);
             }
         });
 
@@ -65,13 +66,14 @@ public class WarehouseServiceImpl implements WarehouseService {
             public void onResponse(Call<WarehouseDto> call, Response<WarehouseDto> response) {
                 if (response.isSuccessful()) {
                     warehouseDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экзаепляра WarehouseDto с id = {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра WarehouseDto - {}", response.errorBody());
                 }
             }
             @Override
             public void onFailure(Call<WarehouseDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении WarehouseDto с id = {}", id);
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра WarehouseDto", throwable);
             }
         });
 
@@ -87,13 +89,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
             @Override
             public void onResponse(Call<WarehouseDto> call, Response<WarehouseDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание экземпляра WarehouseDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра WarehouseDto - {}", response.errorBody());
                 }
             }
             @Override
             public void onFailure(Call<WarehouseDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на создание нового экземпляра {}", warehouseDto);
+                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра WarehouseDto", throwable);
             }
         });
     }
@@ -107,13 +111,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
             @Override
             public void onResponse(Call<WarehouseDto> call, Response<WarehouseDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление экземпляра WarehouseDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра WarehouseDto - {}", response.errorBody());
                 }
             }
             @Override
             public void onFailure(Call<WarehouseDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на обновление экземпляра {}", warehouseDto);
+                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра WarehouseDto", throwable);
             }
         });
     }
@@ -127,13 +133,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
             @Override
             public void onResponse(Call<WarehouseDto> call, Response<WarehouseDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление экземпляра WarehouseDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра WarehouseDto - {}", response.errorBody());
                 }
             }
             @Override
             public void onFailure(Call<WarehouseDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра CompanyDto c id = {}", id);
+                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра WarehouseDto", throwable);
             }
         });
     }
