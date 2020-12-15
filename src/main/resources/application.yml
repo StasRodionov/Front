@@ -5,6 +5,8 @@ base_url: http://localhost:4444
 
 taxsystem_url: api/taxsystem
 
+company_url: api/company
+
 contractor_url: api/contractor
 
 bankAccount_url: api/bank/account
