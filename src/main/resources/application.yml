@@ -8,3 +8,5 @@ taxsystem_url: api/taxsystem
 contractor_url: api/contractor
 
 bankAccount_url: api/bank/account
+
+company_url: api/company

@@ -24,14 +24,14 @@ public interface TaxSystemApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<TaxSystemDto> create(@Path(value = "url", encoded = true) String url, @Body TaxSystemDto taxSystemDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body TaxSystemDto taxSystemDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<TaxSystemDto> update(@Path(value = "url", encoded = true) String url, @Body TaxSystemDto taxSystemDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body TaxSystemDto taxSystemDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<TaxSystemDto> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 
 }

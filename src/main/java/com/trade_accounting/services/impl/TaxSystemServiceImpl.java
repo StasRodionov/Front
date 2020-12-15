@@ -12,6 +12,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -41,14 +42,15 @@ public class TaxSystemServiceImpl implements TaxSystemService {
             public void onResponse(Call<List<TaxSystemDto>> call, Response<List<TaxSystemDto>> response) {
                 if (response.isSuccessful()) {
                     taxSystemDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка TaxSystemDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при отправке запроса на получение списка TaxSystemDto: {}", response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<List<TaxSystemDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка TaxSystemDto");
+                log.error("Произошла ошибка при отправке запроса на получение списка TaxSystemDto: ", throwable);
             }
         });
 
@@ -64,14 +66,17 @@ public class TaxSystemServiceImpl implements TaxSystemService {
             public void onResponse(Call<TaxSystemDto> call, Response<TaxSystemDto> response) {
                 if (response.isSuccessful()) {
                     taxSystemDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра TaxSystemDto с id = {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при отправке запроса на получение TaxSystemDto с id = {}: {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<TaxSystemDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении taxSystemDto c id = {}", id);
+                log.error("Произошла ошибка при отправке запроса на получение taxSystemDto c id = {}: {}",
+                        id, throwable);
             }
         });
         return taxSystemDto;
@@ -79,57 +84,69 @@ public class TaxSystemServiceImpl implements TaxSystemService {
 
     @Override
     public void create(TaxSystemDto taxSystemDto) {
-        Call<TaxSystemDto> taxSystemDtoCall = taxSystemApi.create(taxSystemUrl, taxSystemDto);
+        Call<Void> taxSystemDtoCall = taxSystemApi.create(taxSystemUrl, taxSystemDto);
 
         taxSystemDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<TaxSystemDto> call, Response<TaxSystemDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание нового экземпляра {}", taxSystemDto);
+                } else {
+                    log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}",
+                            taxSystemDto, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<TaxSystemDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на создание нового экземпляра {}", taxSystemDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}",
+                        taxSystemDto, throwable);
             }
         });
     }
 
     @Override
     public void update(TaxSystemDto taxSystemDto) {
-        Call<TaxSystemDto> taxSystemDtoCall = taxSystemApi.update(taxSystemUrl, taxSystemDto);
+        Call<Void> taxSystemDtoCall = taxSystemApi.update(taxSystemUrl, taxSystemDto);
 
         taxSystemDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<TaxSystemDto> call, Response<TaxSystemDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление {}", taxSystemDto);
+                } else {
+                    log.error("Произошла ошибка при отправке запроса на обновление {}: {}",
+                            taxSystemDto, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<TaxSystemDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на обновление экземпляра {}", taxSystemDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при отправке запроса на обновление {}: {}",
+                        taxSystemDto, throwable);
             }
         });
     }
 
     @Override
     public void deleteById(Long id) {
-        Call<TaxSystemDto> taxSystemDtoCall = taxSystemApi.deleteById(taxSystemUrl, id);
+        Call<Void> taxSystemDtoCall = taxSystemApi.deleteById(taxSystemUrl, id);
 
-        taxSystemDtoCall.enqueue(new Callback<>() {
+        taxSystemDtoCall.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<TaxSystemDto> call, Response<TaxSystemDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление TaxSystemDto c id = {}", id);
+                } else {
+                    log.error("Произошла ошибка при отправке запроса на удаление TaxSystemDto c id = {}: {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<TaxSystemDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление taxSystemDto c id = {}", id);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при отправке запроса на удаление TaxSystemDto c id = {}: {}",
+                        id, throwable);
             }
         });
     }
