@@ -46,14 +46,16 @@ public class PositionServiceImpl implements PositionService {
             public void onResponse(Call<List<PositionDto>> call, Response<List<PositionDto>> response) {
                 if (response.isSuccessful()) {
                     positionDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка PositionDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение списка PositionDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<List<PositionDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка PositionDto");
+                log.error("Произошла ошибка при получении ответа на запрос списка PositionDto", throwable);
             }
         });
 
@@ -69,14 +71,16 @@ public class PositionServiceImpl implements PositionService {
             public void onResponse(Call<PositionDto> call, Response<PositionDto> response) {
                 if (response.isSuccessful()) {
                     positionDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра PositionDto по id= {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра PositionDto по id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<PositionDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении PositionDto c id = {}", id);
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра PositionDto по id", throwable);
             }
         });
 
@@ -86,19 +90,22 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void create(PositionDto positionDto) {
 
-        Call<PositionDto> positionDtoCall = positionApi.create(positionUrl, positionDto);
+        Call<Void> positionDtoCall = positionApi.create(positionUrl, positionDto);
 
         positionDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<PositionDto> call, Response<PositionDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание экземпляра PositionDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра PositionDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<PositionDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на создание нового экземпляра {}", positionDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра PositionDto", throwable);
             }
         });
 
@@ -107,19 +114,22 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void update(PositionDto positionDto) {
 
-        Call<PositionDto> positionDtoCall = positionApi.update(positionUrl, positionDto);
+        Call<Void> positionDtoCall = positionApi.update(positionUrl, positionDto);
 
         positionDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<PositionDto> call, Response<PositionDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление экземпляра PositionDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра PositionDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<PositionDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на обновление экземпляра {}", positionDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра PositionDto", throwable);
             }
         });
 
@@ -128,19 +138,22 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void deleteById(Long id) {
 
-        Call<PositionDto> positionDtoCall = positionApi.deleteById(positionUrl, id);
+        Call<Void> positionDtoCall = positionApi.deleteById(positionUrl, id);
 
         positionDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<PositionDto> call, Response<PositionDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление экземпляра PositionDto с id= {}", id);
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PositionDto с id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<PositionDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра PositionDto c id = {}", id);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра PositionDto", throwable);
             }
         });
 
@@ -152,7 +165,7 @@ public class PositionServiceImpl implements PositionService {
         getById(1L);
         create(new PositionDto(null, "fff", "ddd"));
         update(new PositionDto(1L, "Генеральный директор", "1"));
-        deleteById(22L);
+        deleteById(21L);
 
     }*/
 }

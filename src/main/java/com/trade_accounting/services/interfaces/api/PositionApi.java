@@ -25,13 +25,13 @@ public interface PositionApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<PositionDto> create(@Path(value = "url", encoded = true) String url, @Body PositionDto positionDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body PositionDto positionDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<PositionDto> update(@Path(value = "url", encoded = true) String url, @Body PositionDto positionDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body PositionDto positionDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<PositionDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
