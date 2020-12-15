@@ -24,13 +24,13 @@ public interface BankAccountApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<BankAccountDto> create(@Path(value = "url", encoded = true) String url, @Body BankAccountDto bankAccountDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body BankAccountDto bankAccountDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<BankAccountDto> update(@Path(value = "url", encoded = true) String url, @Body BankAccountDto bankAccountDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body BankAccountDto bankAccountDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<BankAccountDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
