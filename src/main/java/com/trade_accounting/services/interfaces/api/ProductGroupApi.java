@@ -24,15 +24,15 @@ public interface ProductGroupApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<ProductGroupDto> create(@Path(value = "url", encoded = true) String url, @Body ProductGroupDto productGroupDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body ProductGroupDto productGroupDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<ProductGroupDto> update(@Path(value = "url", encoded = true) String url, @Body ProductGroupDto productGroupDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ProductGroupDto productGroupDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<ProductGroupDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
 
 }

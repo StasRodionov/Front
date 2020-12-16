@@ -11,6 +11,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 
@@ -29,6 +30,12 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     public ProductGroupServiceImpl(@Value("${product_group_url}") String productGroupUrl, Retrofit retrofit) {
         this.productGroupUrl = productGroupUrl;
         this.productGroupApi = retrofit.create(ProductGroupApi.class);
+    }
+
+    @PostConstruct
+    public void test(){
+        getAll();
+        deleteById(11L);
     }
 
     @Override
@@ -83,11 +90,11 @@ public class ProductGroupServiceImpl implements ProductGroupService {
 
     @Override
     public void create(ProductGroupDto dto) {
-        Call<ProductGroupDto> productGroupDtoCall = productGroupApi.create(productGroupUrl, productGroupDto);
+        Call<Void> productGroupDtoCall = productGroupApi.create(productGroupUrl, productGroupDto);
 
         productGroupDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ProductGroupDto> call, Response<ProductGroupDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на создание экземпляра ProductGroupDto");
                 } else {
@@ -97,7 +104,7 @@ public class ProductGroupServiceImpl implements ProductGroupService {
             }
 
             @Override
-            public void onFailure(Call<ProductGroupDto> call, Throwable throwable) {
+            public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос создания экземпляра ProductGroupDto", throwable);
             }
         });
@@ -105,11 +112,11 @@ public class ProductGroupServiceImpl implements ProductGroupService {
 
     @Override
     public void update(ProductGroupDto dto) {
-        Call<ProductGroupDto> productGroupDtoCall = productGroupApi.update(productGroupUrl, productGroupDto);
+        Call<Void> productGroupDtoCall = productGroupApi.update(productGroupUrl, productGroupDto);
 
         productGroupDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ProductGroupDto> call, Response<ProductGroupDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на обновление экземпляра ProductGroupDto");
                 } else {
@@ -119,7 +126,7 @@ public class ProductGroupServiceImpl implements ProductGroupService {
             }
 
             @Override
-            public void onFailure(Call<ProductGroupDto> call, Throwable throwable) {
+            public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра ProductGroupDto", throwable);
             }
         });
@@ -127,11 +134,11 @@ public class ProductGroupServiceImpl implements ProductGroupService {
 
     @Override
     public void deleteById(Long id) {
-        Call<ProductGroupDto> productGroupDtoCall = productGroupApi.deleteById(productGroupUrl, id);
+        Call<Void> productGroupDtoCall = productGroupApi.deleteById(productGroupUrl, id);
 
         productGroupDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ProductGroupDto> call, Response<ProductGroupDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на удаление экземпляра ProductGroupDto с id= {}", id);
                 } else {
@@ -141,7 +148,7 @@ public class ProductGroupServiceImpl implements ProductGroupService {
             }
 
             @Override
-            public void onFailure(Call<ProductGroupDto> call, Throwable throwable) {
+            public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра ProductGroupDto", throwable);
             }
         });
