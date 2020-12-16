@@ -32,11 +32,11 @@ public class ProductGroupServiceImpl implements ProductGroupService {
         this.productGroupApi = retrofit.create(ProductGroupApi.class);
     }
 
-    @PostConstruct
-    public void test(){
-        getAll();
-        deleteById(11L);
-    }
+//    @PostConstruct
+//    public void test(){
+//        getAll();
+//        deleteById(11L);
+//    }
 
     @Override
     public List<ProductGroupDto> getAll() {
