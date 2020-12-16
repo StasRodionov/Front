@@ -91,9 +91,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void create(DepartmentDto departmentDto) {
-        Call<Void> departmentDtoCall = departmentApi.create(departmentUrl, departmentDto);
+        Call<Void> call = departmentApi.create(departmentUrl, departmentDto);
 
-        departmentDtoCall.enqueue(new Callback<>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -113,9 +113,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void update(DepartmentDto departmentDto) {
-        Call<Void> departmentDtoCall = departmentApi.update(departmentUrl, departmentDto);
+        Call<Void> call = departmentApi.update(departmentUrl, departmentDto);
 
-        departmentDtoCall.enqueue(new Callback<>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -135,9 +135,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void deleteById(Long id) {
-        Call<Void> departmentDtoCall = departmentApi.deleteById(departmentUrl, id);
+        Call<Void> call = departmentApi.deleteById(departmentUrl, id);
 
-        departmentDtoCall.enqueue(new Callback<>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
