@@ -10,3 +10,5 @@ company_url: api/company
 contractor_url: api/contractor
 
 bank_account_url: api/bank/account
+
+legal_detail_url: api/legaldetail
