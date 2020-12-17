@@ -37,14 +37,14 @@ public class UnitServiceImpl implements UnitService {
 
     }
 
-    @PostConstruct
-    public void init(){
-        getAll();
-        getById(1L);
-        create(new UnitDto(null,"fff","ddd","aaa"));
-        update(new UnitDto(3L,"fff","ddd","aaa"));
-        deleteById(4L);
-    }
+//    @PostConstruct
+//    public void init(){
+//        getAll();
+//        getById(1L);
+//        create(new UnitDto(null,"fff","ddd","aaa"));
+//        update(new UnitDto(3L,"fff","ddd","aaa"));
+//        deleteById(4L);
+//    }
 
     @Override
     public List<UnitDto> getAll() {
