@@ -18,13 +18,13 @@ import java.util.List;
 @Slf4j
 public class DepartmentServiceImpl implements DepartmentService {
 
-    DepartmentApi departmentApi;
+    private final DepartmentApi departmentApi;
 
-    String departmentUrl;
+    private final String departmentUrl;
 
-    List<DepartmentDto> departmentDtoList;
+    private List<DepartmentDto> departmentDtoList;
 
-    DepartmentDto departmentDto;
+    private DepartmentDto departmentDto;
 
     public DepartmentServiceImpl(@Value("${department_url}") String departmentUrl, Retrofit retrofit) {
         this.departmentUrl = departmentUrl;
