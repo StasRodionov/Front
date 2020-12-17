@@ -11,6 +11,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -28,6 +29,14 @@ public class LegalDetailServiceImpl implements LegalDetailService {
     public LegalDetailServiceImpl(@Value("${legal_detail_url}") String legalDetailUrl, Retrofit retrofit) {
         this.legalDetailUrl = legalDetailUrl;
         this.legalDetailApi = retrofit.create(LegalDetailApi.class);
+    }
+
+    @PostConstruct
+    public void test() {
+        getAll();
+        getById(1L);
+        create(new LegalDetailDto());
+        deleteById(2L);
     }
 
     @Override
