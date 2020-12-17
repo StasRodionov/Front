@@ -28,7 +28,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     private BankAccountDto bankAccountDto;
 
     @Autowired
-    public BankAccountServiceImpl(@Value("${bankAccount_url}") String bankAccountUrl, Retrofit retrofit) {
+    public BankAccountServiceImpl(@Value("${bank_account_url}") String bankAccountUrl, Retrofit retrofit) {
 
         this.bankAccountUrl = bankAccountUrl;
         bankAccountApi = retrofit.create(BankAccountApi.class);
