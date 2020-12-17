@@ -65,7 +65,7 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
             public void onResponse(Call<TypeOfContractorDto> call, Response<TypeOfContractorDto> response) {
                 if (response.isSuccessful()) {
                     typeOfContractorDto = response.body();
-                    log.info("Успешно выполнен запрос на получение экзаепляра TypeOfContractorDto с id = {}", id);
+                    log.info("Успешно выполнен запрос на получение экземпляра TypeOfContractorDto с id = {}", id);
                 } else {
                     log.error("Произошла ошибка при выполнении запроса на получение экземпляра TypeOfContractorDto c id = {} - {}", id, response.errorBody());
                 }
@@ -82,12 +82,12 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
     @Override
     public void create(TypeOfContractorDto typeOfContractorDto) {
 
-        Call<TypeOfContractorDto> typeOfContractorDtoCall = typeOfContractorApi.create(typeOfContractorUrl, typeOfContractorDto);
+        Call<Void> typeOfContractorDtoCall = typeOfContractorApi.create(typeOfContractorUrl, typeOfContractorDto);
 
         typeOfContractorDtoCall.enqueue(new Callback<>() {
 
             @Override
-            public void onResponse(Call<TypeOfContractorDto> call, Response<TypeOfContractorDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на создание экземпляра TypeOfContractorDto");
                 } else {
@@ -95,7 +95,7 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
                 }
             }
             @Override
-            public void onFailure(Call<TypeOfContractorDto> call, Throwable throwable) {
+            public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос создания экземпляра TypeOfContractorDto", throwable);
             }
         });
@@ -104,12 +104,12 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
     @Override
     public void update(TypeOfContractorDto typeOfContractorDto) {
 
-        Call<TypeOfContractorDto> typeOfContractorDtoCall = typeOfContractorApi.update(typeOfContractorUrl, typeOfContractorDto);
+        Call<Void> typeOfContractorDtoCall = typeOfContractorApi.update(typeOfContractorUrl, typeOfContractorDto);
 
         typeOfContractorDtoCall.enqueue(new Callback<>() {
 
             @Override
-            public void onResponse(Call<TypeOfContractorDto> call, Response<TypeOfContractorDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на обновление экземпляра TypeOfContractorDto");
                 } else {
@@ -117,7 +117,7 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
                 }
             }
             @Override
-            public void onFailure(Call<TypeOfContractorDto> call, Throwable throwable) {
+            public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра TypeOfContractorDto", throwable);
             }
         });
@@ -126,12 +126,12 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
     @Override
     public void deleteById(Long id) {
 
-        Call<TypeOfContractorDto> typeOfContractorDtoCall = typeOfContractorApi.deleteById(typeOfContractorUrl, id);
+        Call<Void> typeOfContractorDtoCall = typeOfContractorApi.deleteById(typeOfContractorUrl, id);
 
         typeOfContractorDtoCall.enqueue(new Callback<>() {
 
             @Override
-            public void onResponse(Call<TypeOfContractorDto> call, Response<TypeOfContractorDto> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     log.info("Успешно выполнен запрос на удаление экземпляра TypeOfContractorDto с id = {}", id);
                 } else {
@@ -139,7 +139,7 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
                 }
             }
             @Override
-            public void onFailure(Call<TypeOfContractorDto> call, Throwable throwable) {
+            public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра TypeOfContractorDto", throwable);
             }
         });

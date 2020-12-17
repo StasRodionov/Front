@@ -24,13 +24,13 @@ public interface TypeOfContractorApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<TypeOfContractorDto> create(@Path(value = "url", encoded = true) String url, @Body TypeOfContractorDto typeOfContractorDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body TypeOfContractorDto typeOfContractorDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<TypeOfContractorDto> update(@Path(value = "url", encoded = true) String url, @Body TypeOfContractorDto typeOfContractorDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body TypeOfContractorDto typeOfContractorDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<TypeOfContractorDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
