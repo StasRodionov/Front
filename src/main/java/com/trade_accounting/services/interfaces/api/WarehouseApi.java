@@ -24,13 +24,13 @@ public interface WarehouseApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<WarehouseDto> create(@Path(value = "url", encoded = true) String url, @Body WarehouseDto companyDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body WarehouseDto companyDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<WarehouseDto> update(@Path(value = "url", encoded = true) String url, @Body WarehouseDto companyDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body WarehouseDto companyDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<WarehouseDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
