@@ -23,13 +23,13 @@ public interface TypeOfPriceApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<TypeOfPriceDto> create(@Path(value = "url", encoded = true) String url, @Body TypeOfPriceDto typeOfPriceDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body TypeOfPriceDto typeOfPriceDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<TypeOfPriceDto> update(@Path(value = "url", encoded = true) String url, @Body TypeOfPriceDto typeOfPriceDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body TypeOfPriceDto typeOfPriceDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<TypeOfPriceDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
