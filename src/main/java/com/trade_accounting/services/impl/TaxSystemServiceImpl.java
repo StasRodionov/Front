@@ -28,7 +28,7 @@ public class TaxSystemServiceImpl implements TaxSystemService {
     private TaxSystemDto taxSystemDto;
 
     @Autowired
-    public TaxSystemServiceImpl(@Value("${taxsystem_url}") String taxSystemUrl, Retrofit retrofit) {
+    public TaxSystemServiceImpl(@Value("${tax_system_url}") String taxSystemUrl, Retrofit retrofit) {
         taxSystemApi = retrofit.create(TaxSystemApi.class);
         this.taxSystemUrl = taxSystemUrl;
     }
