@@ -3,6 +3,7 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.api.UnitApi;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
+@Slf4j
 public class UnitServiceImpl implements UnitService {
 
     private final UnitApi unitApi;
@@ -35,14 +37,14 @@ public class UnitServiceImpl implements UnitService {
 
     }
 
-//    @PostConstruct
-//    public void init(){
-//        getAll();
-//        getById(1L);
-//        create(new UnitDto(null,"fff","ddd","aaa"));
-//        update(new UnitDto(3L,"fff","ddd","aaa"));
-//        deleteById(4L);
-//    }
+    @PostConstruct
+    public void init(){
+        getAll();
+        getById(1L);
+        create(new UnitDto(null,"fff","ddd","aaa"));
+        update(new UnitDto(3L,"fff","ddd","aaa"));
+        deleteById(4L);
+    }
 
     @Override
     public List<UnitDto> getAll() {
@@ -53,14 +55,16 @@ public class UnitServiceImpl implements UnitService {
             public void onResponse(Call<List<UnitDto>> call, Response<List<UnitDto>> response) {
                 if (response.isSuccessful()) {
                     unitDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка UnitDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение списка UnitDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<List<UnitDto>> call, Throwable throwable) {
-                //TODO Logging
+                log.error("Произошла ошибка при получении ответа на запрос списка UnitDto", throwable);
             }
         });
 
@@ -76,14 +80,16 @@ public class UnitServiceImpl implements UnitService {
             public void onResponse(Call<UnitDto> call, Response<UnitDto> response) {
                 if (response.isSuccessful()) {
                     unitDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра UnitDto по id= {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра UnitDto по id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<UnitDto> call, Throwable throwable) {
-                //TODO Logging
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра UnitDto по id", throwable);
             }
         });
 
@@ -92,57 +98,66 @@ public class UnitServiceImpl implements UnitService {
 
     @Override
     public void create(UnitDto unitDto) {
-        Call<UnitDto> unitDtoCall = unitApi.create(unitUrl, unitDto);
+        Call<Void> unitDtoCall = unitApi.create(unitUrl, unitDto);
 
         unitDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<UnitDto> call, Response<UnitDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание экземпляра UnitDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра UnitDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<UnitDto> call, Throwable throwable) {
-                //TODO Logging
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра UnitDto", throwable);
             }
         });
     }
 
     @Override
     public void update(UnitDto unitDto) {
-        Call<UnitDto> unitDtoCall = unitApi.update(unitUrl, unitDto);
+        Call<Void> unitDtoCall = unitApi.update(unitUrl, unitDto);
 
         unitDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<UnitDto> call, Response<UnitDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление экземпляра UnitDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра UnitDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<UnitDto> call, Throwable throwable) {
-                //TODO Logging
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра UnitDto", throwable);
             }
         });
     }
 
     @Override
     public void deleteById(Long id) {
-        Call<UnitDto> unitDtoCall = unitApi.deleteById(unitUrl, id);
+        Call<Void> unitDtoCall = unitApi.deleteById(unitUrl, id);
 
         unitDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<UnitDto> call, Response<UnitDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление экземпляра UnitDto с id= {}", id);
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра UnitDto с id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<UnitDto> call, Throwable throwable) {
-                //TODO Logging
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра UnitDto", throwable);
             }
         });
     }

@@ -24,14 +24,14 @@ public interface UnitApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<UnitDto> create(@Path(value = "url", encoded = true) String url, @Body UnitDto unitDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body UnitDto unitDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<UnitDto> update(@Path(value = "url", encoded = true) String url, @Body UnitDto unitDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body UnitDto unitDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<UnitDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
 }
