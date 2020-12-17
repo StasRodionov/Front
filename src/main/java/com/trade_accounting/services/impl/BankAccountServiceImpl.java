@@ -3,6 +3,7 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.api.BankAccountApi;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import retrofit2.Retrofit;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
+@Slf4j
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
 
@@ -42,14 +44,16 @@ public class BankAccountServiceImpl implements BankAccountService {
             public void onResponse(Call<List<BankAccountDto>> call, Response<List<BankAccountDto>> response) {
                 if (response.isSuccessful()) {
                     bankAccountDtoList = response.body();
+                    log.info("Успешно выполнен запрос на получение списка BankAccountDto");
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение списка BankAccountDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<List<BankAccountDto>> call, Throwable throwable) {
-                //TODO Logging
+                log.error("Произошла ошибка при получении ответа на запрос списка BankAccountDto", throwable);
             }
         });
 
@@ -66,14 +70,16 @@ public class BankAccountServiceImpl implements BankAccountService {
             public void onResponse(Call<BankAccountDto> call, Response<BankAccountDto> response) {
                 if (response.isSuccessful()) {
                     bankAccountDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра BankAccountDto по id= {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра BankAccountDto по id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<BankAccountDto> call, Throwable throwable) {
-                //TODO Logging
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра BankAccountDto по id", throwable);
             }
         });
         return bankAccountDto;
@@ -82,19 +88,22 @@ public class BankAccountServiceImpl implements BankAccountService {
     @Override
     public void create(BankAccountDto dto) {
 
-        Call<BankAccountDto> bankAccountDtoCall = bankAccountApi.create(bankAccountUrl, dto);
+        Call<Void> bankAccountDtoCall = bankAccountApi.create(bankAccountUrl, dto);
 
         bankAccountDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<BankAccountDto> call, Response<BankAccountDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание экземпляра BankAccountDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра BankAccountDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<BankAccountDto> call, Throwable throwable) {
-                //TODO Logging
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра BankAccountDto", throwable);
             }
         });
     }
@@ -102,19 +111,22 @@ public class BankAccountServiceImpl implements BankAccountService {
     @Override
     public void update(BankAccountDto dto) {
 
-        Call<BankAccountDto> bankAccountDtoCall = bankAccountApi.update(bankAccountUrl, dto);
+        Call<Void> bankAccountDtoCall = bankAccountApi.update(bankAccountUrl, dto);
 
         bankAccountDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<BankAccountDto> call, Response<BankAccountDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление экземпляра BankAccountDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра BankAccountDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<BankAccountDto> call, Throwable throwable) {
-                //TODO Logging
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра BankAccountDto", throwable);
             }
         });
     }
@@ -122,29 +134,32 @@ public class BankAccountServiceImpl implements BankAccountService {
     @Override
     public void deleteById(Long id) {
 
-        Call<BankAccountDto> bankAccountDtoCall = bankAccountApi.deleteById(bankAccountUrl, id);
+        Call<Void> bankAccountDtoCall = bankAccountApi.deleteById(bankAccountUrl, id);
 
         bankAccountDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<BankAccountDto> call, Response<BankAccountDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление экземпляра BankAccountDto с id= {}", id);
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра BankAccountDto с id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<BankAccountDto> call, Throwable throwable) {
-                //TODO Logging
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра BankAccountDto", throwable);
             }
         });
     }
 
-    @PostConstruct
+    /*@PostConstruct
     public void test() {
-        //create(new BankAccountDto(null, "15661", "Sber", "hjkhj", "446565", "465456", true, "1"));
-        //getAll();
-        //getById(1L);
-        //update(new BankAccountDto(1L, "15661", "Sber", "hjkhj", "446565", "465456", true, "1"));
-        //deleteById(1L);
-    }
+//        create(new BankAccountDto(null, "15661", "Sber", "hjkhj", "446565", "465456", true, "1"));
+//        getAll();
+//        getById(1L);
+//        update(new BankAccountDto(1L, "15661", "Sber", "hjkhj", "446565", "465456", true, "1"));
+          //deleteById(1L);
+    }*/
 }
