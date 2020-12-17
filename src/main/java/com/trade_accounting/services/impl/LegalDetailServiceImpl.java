@@ -18,13 +18,13 @@ import java.util.List;
 @Service
 public class LegalDetailServiceImpl implements LegalDetailService {
 
-    LegalDetailApi legalDetailApi;
+    private final LegalDetailApi legalDetailApi;
 
-    String legalDetailUrl;
+    private final String legalDetailUrl;
 
-    List<LegalDetailDto> legalDetailDtoList;
+    private List<LegalDetailDto> legalDetailDtoList;
 
-    LegalDetailDto legalDetailDto;
+    private LegalDetailDto legalDetailDto;
 
     public LegalDetailServiceImpl(@Value("${legal_detail_url}") String legalDetailUrl, Retrofit retrofit) {
         this.legalDetailUrl = legalDetailUrl;
@@ -35,8 +35,6 @@ public class LegalDetailServiceImpl implements LegalDetailService {
     public void test() {
         getAll();
         getById(1L);
-        create(new LegalDetailDto());
-        deleteById(2L);
     }
 
     @Override

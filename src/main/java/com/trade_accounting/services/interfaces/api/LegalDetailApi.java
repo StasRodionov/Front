@@ -14,23 +14,23 @@ import java.util.List;
 
 public interface LegalDetailApi {
 
-    @Headers("")
+    @Headers("Accept: application/json")
     @GET("{url}")
-    Call<List<LegalDetailDto>> getAll(@Path("url") String url);
+    Call<List<LegalDetailDto>> getAll(@Path(value = "url", encoded = true) String url);
 
-    @Headers("")
+    @Headers("Accept: application/json")
     @GET("{url}/{id}")
-    Call<LegalDetailDto> getById(@Path("url") String url, @Path("id") Long id);
+    Call<LegalDetailDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
-    @Headers("")
+    @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path("url") String url, @Body LegalDetailDto legalDetailDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body LegalDetailDto legalDetailDto);
 
-    @Headers("")
+    @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<Void> update(@Path("url") String url, @Body LegalDetailDto legalDetailDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body LegalDetailDto legalDetailDto);
 
-    @Headers("")
+    @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<Void> deleteById(@Path("url") String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
