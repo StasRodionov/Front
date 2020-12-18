@@ -31,11 +31,13 @@ public class LegalDetailServiceImpl implements LegalDetailService {
         this.legalDetailApi = retrofit.create(LegalDetailApi.class);
     }
 
-    @PostConstruct
-    public void test() {
-        getAll();
-        getById(1L);
-    }
+//    @PostConstruct
+//    public void test() {
+//        getAll();
+//        getById(1L);
+//        create(new LegalDetailDto());
+//        deleteById(2L);
+//    }
 
     @Override
     public List<LegalDetailDto> getAll() {
