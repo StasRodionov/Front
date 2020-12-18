@@ -13,8 +13,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class TypeOfContractorServiceImpl implements TypeOfContractorService {
 
     private final TypeOfContractorApi typeOfContractorApi;
@@ -22,9 +22,7 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
     private List<TypeOfContractorDto> typeOfContractorDtoList;
     private TypeOfContractorDto typeOfContractorDto;
 
-    @Autowired
     public TypeOfContractorServiceImpl(@Value("${type_of_contractor_url}") String typeOfContractorUrl, Retrofit retrofit) {
-
         this.typeOfContractorUrl = typeOfContractorUrl;
         typeOfContractorApi = retrofit.create(TypeOfContractorApi.class);
     }
