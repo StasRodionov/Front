@@ -23,7 +23,7 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
     private TypeOfContractorDto typeOfContractorDto;
 
     @Autowired
-    public TypeOfContractorServiceImpl(@Value("${typeOfContractor_url}") String typeOfContractorUrl, Retrofit retrofit) {
+    public TypeOfContractorServiceImpl(@Value("${typeofcontractor_url}") String typeOfContractorUrl, Retrofit retrofit) {
 
         this.typeOfContractorUrl = typeOfContractorUrl;
         typeOfContractorApi = retrofit.create(TypeOfContractorApi.class);
