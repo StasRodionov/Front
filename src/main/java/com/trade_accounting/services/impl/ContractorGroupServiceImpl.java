@@ -26,7 +26,7 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
 
     private List<ContractorGroupDto> contractorGroupDtoList;
 
-    public ContractorGroupServiceImpl(@Value("${contractorGroup_url}") String contractorGroupUrl, Retrofit retrofit) {
+    public ContractorGroupServiceImpl(@Value("${contractor_group_url}") String contractorGroupUrl, Retrofit retrofit) {
         this.contractorGroupApi = retrofit.create(ContractorGroupApi.class);
         this.contractorGroupUrl = contractorGroupUrl;
     }
