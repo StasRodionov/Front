@@ -2,9 +2,8 @@ package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.PositionDto;
 import com.trade_accounting.services.interfaces.PositionService;
-import lombok.extern.slf4j.Slf4j;
 import com.trade_accounting.services.interfaces.api.PositionApi;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -12,11 +11,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class PositionServiceImpl implements PositionService {
 
     private final PositionApi positionApi;
@@ -27,13 +25,9 @@ public class PositionServiceImpl implements PositionService {
 
     private PositionDto positionDto;
 
-    @Autowired
     public PositionServiceImpl(@Value("${position_url}") String positionUrl, Retrofit retrofit) {
-
         this.positionUrl = positionUrl;
-
         positionApi = retrofit.create(PositionApi.class);
-
     }
 
     @Override
@@ -158,14 +152,4 @@ public class PositionServiceImpl implements PositionService {
         });
 
     }
-
-    /*@PostConstruct
-    public void test() {
-        getAll();
-        getById(1L);
-        create(new PositionDto(null, "fff", "ddd"));
-        update(new PositionDto(1L, "Генеральный директор", "1"));
-        deleteById(21L);
-
-    }*/
 }
