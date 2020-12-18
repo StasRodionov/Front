@@ -14,8 +14,8 @@ import retrofit2.Retrofit;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentApi departmentApi;
@@ -30,14 +30,6 @@ public class DepartmentServiceImpl implements DepartmentService {
         this.departmentUrl = departmentUrl;
         this.departmentApi = retrofit.create(DepartmentApi.class);
     }
-
-//    @PostConstruct
-//    public void init() {
-//        getAll();
-//        getById(1L);
-//        create(new DepartmentDto());
-//        deleteById(2L);
-//    }
 
     @Override
     public List<DepartmentDto> getAll() {
