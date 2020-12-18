@@ -15,8 +15,8 @@ import retrofit2.Retrofit;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class TypeOfPriceServiceImpl implements TypeOfPriceService {
 
     private final TypeOfPriceApi typeOfPriceApi;
@@ -28,22 +28,9 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
     private TypeOfPriceDto typeOfPriceDto;
 
     public TypeOfPriceServiceImpl(@Value("${type_of_price_url}") String typeOfPriceUrl, Retrofit retrofit) {
-
         this.typeOfPriceUrl = typeOfPriceUrl;
-
         typeOfPriceApi = retrofit.create(TypeOfPriceApi.class);
-
     }
-
-//    @PostConstruct
-//    public void init(){
-//        getAll();
-//        getById(1L);
-//        create(new TypeOfPriceDto(null,"fff","ddd"));
-//        update(new TypeOfPriceDto(2L,"fffddd","ddd"));
-//        deleteById(2L);
-//    }
-
 
     @Override
     public List<TypeOfPriceDto> getAll() {
