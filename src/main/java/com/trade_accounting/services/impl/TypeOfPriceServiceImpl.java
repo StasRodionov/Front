@@ -27,8 +27,7 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
 
     private TypeOfPriceDto typeOfPriceDto;
 
-    @Autowired
-    public TypeOfPriceServiceImpl(@Value("${typeofprice_url}") String typeOfPriceUrl, Retrofit retrofit) {
+    public TypeOfPriceServiceImpl(@Value("${type_of_price_url}") String typeOfPriceUrl, Retrofit retrofit) {
 
         this.typeOfPriceUrl = typeOfPriceUrl;
 
