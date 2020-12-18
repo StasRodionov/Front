@@ -7,11 +7,11 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "counterparties", layout = AppView.class)
+@Route(value = "contractors", layout = AppView.class)
 @PageTitle("Контрагенты")
-public class CounterpartiesView extends Div{
+public class ContractorsView extends Div{
 
-    public CounterpartiesView() {
+    public ContractorsView() {
         add(addList());
     }
 

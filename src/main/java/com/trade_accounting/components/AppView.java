@@ -34,7 +34,7 @@ public class AppView extends AppLayout {
 
         VerticalLayout counterparties = new VerticalLayout(VaadinIcon.USERS.create(), new Label("Контрагенты"));
         counterparties.getStyle().set("alignItems", "center");
-        counterparties.addClickListener(e -> counterparties.getUI().ifPresent(ui -> ui.navigate("counterparties")));
+        counterparties.addClickListener(e -> counterparties.getUI().ifPresent(ui -> ui.navigate("contractors")));
 
         VerticalLayout money = new VerticalLayout(VaadinIcon.MONEY.create(), new Label("Деньги"));
         money.getStyle().set("alignItems", "center");
