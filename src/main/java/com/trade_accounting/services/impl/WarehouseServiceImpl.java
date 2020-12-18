@@ -4,7 +4,6 @@ import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.trade_accounting.services.interfaces.api.WarehouseApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -23,9 +22,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     private List<WarehouseDto> warehouseDtoList;
     private WarehouseDto warehouseDto;
 
-    @Autowired
     public WarehouseServiceImpl(@Value("${warehouse_url}") String warehouseUrl, Retrofit retrofit) {
-
         this.warehouseUrl = warehouseUrl;
         warehouseApi = retrofit.create(WarehouseApi.class);
     }

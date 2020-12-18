@@ -11,7 +11,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -30,10 +29,6 @@ public class ContractorServiceImpl implements ContractorService {
         this.contractorUrl = contractorUrl;
         this.contractorApi = retrofit.create(ContractorApi.class);
     }
-
-//    @PostConstruct
-//    public void test() {
-//    }
 
     @Override
     public List<ContractorDto> getAll() {

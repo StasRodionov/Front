@@ -4,7 +4,6 @@ import com.trade_accounting.models.dto.RoleDto;
 import com.trade_accounting.services.interfaces.RoleService;
 import com.trade_accounting.services.interfaces.api.RoleApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -12,7 +11,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -27,23 +25,10 @@ public class RoleServiceImpl implements RoleService {
 
     private RoleDto roleDto;
 
-    @Autowired
     public RoleServiceImpl(@Value("${role_url}") String roleUrl, Retrofit retrofit) {
-
         this.roleUrl = roleUrl;
-
         roleApi = retrofit.create(RoleApi.class);
-
     }
-
-//    @PostConstruct
-//    public void init(){
-//        getAll();
-//        getById(1L);
-//        create(new RoleDto(null,"fff","ddd"));
-//        update(new RoleDto(2L,"fff","ddd"));
-//        deleteById(2L);
-//    }
 
     @Override
     public List<RoleDto> getAll() {

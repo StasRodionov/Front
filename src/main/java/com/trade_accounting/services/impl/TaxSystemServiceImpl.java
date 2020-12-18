@@ -4,7 +4,6 @@ import com.trade_accounting.models.dto.TaxSystemDto;
 import com.trade_accounting.services.interfaces.TaxSystemService;
 import com.trade_accounting.services.interfaces.api.TaxSystemApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -12,7 +11,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -20,14 +18,10 @@ import java.util.List;
 public class TaxSystemServiceImpl implements TaxSystemService {
 
     private final TaxSystemApi taxSystemApi;
-
     private final String taxSystemUrl;
-
     private List<TaxSystemDto> taxSystemDtoList;
-
     private TaxSystemDto taxSystemDto;
 
-    @Autowired
     public TaxSystemServiceImpl(@Value("${tax_system_url}") String taxSystemUrl, Retrofit retrofit) {
         taxSystemApi = retrofit.create(TaxSystemApi.class);
         this.taxSystemUrl = taxSystemUrl;

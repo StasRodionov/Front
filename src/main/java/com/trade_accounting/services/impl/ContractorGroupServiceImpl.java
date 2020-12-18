@@ -11,7 +11,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -146,14 +145,5 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
                         id, throwable);
             }
         });
-    }
-
-    @PostConstruct
-    public void Test() {
-        getAll();
-//        update(new ContractorGroupDto( 2L, "qwerty", "123"));
-//        create(new ContractorGroupDto( null, "барыга", "3"));
-//        getById(2L);
-//       deleteById(1L);
     }
 }

@@ -4,7 +4,6 @@ import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.api.EmployeeApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -12,7 +11,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -20,16 +18,11 @@ import java.util.List;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeApi employeeApi;
-
     private final String employeeUrl;
-
     private List<EmployeeDto> employeeDtoList;
-
     private EmployeeDto employeeDto;
 
-    @Autowired
     public EmployeeServiceImpl(@Value("${employee_url}") String employeeUrl, Retrofit retrofit) {
-
         this.employeeUrl = employeeUrl;
         employeeApi = retrofit.create(EmployeeApi.class);
     }
@@ -155,13 +148,4 @@ public class EmployeeServiceImpl implements EmployeeService {
         });
 
     }
-
-    /*@PostConstruct
-    public void test() {
-        //create(new EmployeeDto(null, "Cruise", "Tom", "dkfjn", "1", "466765456", "123456789123", "yo", "tom@tom.ru", "123", null, null, null, null));
-        //getAll();
-        getById(1L);
-        //update(new EmployeeDto(1L,"Cruise", "Tom", "Tomm", "1", "466765456", "123456789123", "yo", "tom@tom.ru", "123", null, null, null, null));
-        deleteById(1L);
-    }*/
 }

@@ -1,10 +1,9 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.services.interfaces.api.CompanyApi;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.api.CompanyApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -26,13 +25,9 @@ public class CompanyServiceImpl implements CompanyService {
 
     private CompanyDto companyDto;
 
-    @Autowired
     public CompanyServiceImpl(@Value("${company_url}") String companyUrl, Retrofit retrofit) {
-
         this.companyUrl = companyUrl;
-
         companyApi = retrofit.create(CompanyApi.class);
-
     }
 
     @Override
