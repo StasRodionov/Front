@@ -15,8 +15,8 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 
-@Service
 @Slf4j
+@Service
 public class ProductGroupServiceImpl implements ProductGroupService {
 
     private final String productGroupUrl;

@@ -15,8 +15,8 @@ import retrofit2.Retrofit;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class UnitServiceImpl implements UnitService {
 
     private final UnitApi unitApi;

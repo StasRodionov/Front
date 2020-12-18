@@ -14,8 +14,8 @@ import retrofit2.Retrofit;
 
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseApi warehouseApi;

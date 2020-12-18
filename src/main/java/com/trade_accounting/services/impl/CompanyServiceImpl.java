@@ -14,8 +14,8 @@ import retrofit2.Retrofit;
 
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyApi companyApi;
