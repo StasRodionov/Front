@@ -4,7 +4,6 @@ import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.api.BankAccountApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -12,7 +11,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -27,7 +25,6 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     private BankAccountDto bankAccountDto;
 
-    @Autowired
     public BankAccountServiceImpl(@Value("${bank_account_url}") String bankAccountUrl, Retrofit retrofit) {
 
         this.bankAccountUrl = bankAccountUrl;
@@ -153,13 +150,4 @@ public class BankAccountServiceImpl implements BankAccountService {
             }
         });
     }
-
-    /*@PostConstruct
-    public void test() {
-//        create(new BankAccountDto(null, "15661", "Sber", "hjkhj", "446565", "465456", true, "1"));
-//        getAll();
-//        getById(1L);
-//        update(new BankAccountDto(1L, "15661", "Sber", "hjkhj", "446565", "465456", true, "1"));
-          //deleteById(1L);
-    }*/
 }

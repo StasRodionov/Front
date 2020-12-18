@@ -4,7 +4,6 @@ import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.api.UnitApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -12,11 +11,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class UnitServiceImpl implements UnitService {
 
     private final UnitApi unitApi;
@@ -27,24 +25,10 @@ public class UnitServiceImpl implements UnitService {
 
     private UnitDto unitDto;
 
-
-    @Autowired
     public UnitServiceImpl(@Value("${unit_url}") String unitUrl, Retrofit retrofit) {
-
         this.unitUrl = unitUrl;
-
         unitApi = retrofit.create(UnitApi.class);
-
     }
-
-//    @PostConstruct
-//    public void init(){
-//        getAll();
-//        getById(1L);
-//        create(new UnitDto(null,"fff","ddd","aaa"));
-//        update(new UnitDto(3L,"fff","ddd","aaa"));
-//        deleteById(4L);
-//    }
 
     @Override
     public List<UnitDto> getAll() {
