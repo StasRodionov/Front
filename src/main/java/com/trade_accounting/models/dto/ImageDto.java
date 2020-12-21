@@ -14,4 +14,5 @@ public class ImageDto {
     private String imageUrl;
 
     private String sortNumber;
+
 }
