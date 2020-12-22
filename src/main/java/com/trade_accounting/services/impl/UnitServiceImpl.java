@@ -12,6 +12,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -29,9 +30,14 @@ public class UnitServiceImpl implements UnitService {
         this.unitUrl = unitUrl;
         unitApi = retrofit.create(UnitApi.class);
     }
+//
+//    public static interface AsyncRestCallback<T> {
+//        void operationFinished(T results);
+//    }
 
     @Override
     public List<UnitDto> getAll() {
+
         Call<List<UnitDto>> unitDtoListCall = unitApi.getAll(unitUrl);
 
         unitDtoListCall.enqueue(new Callback<>() {
@@ -39,6 +45,7 @@ public class UnitServiceImpl implements UnitService {
             public void onResponse(Call<List<UnitDto>> call, Response<List<UnitDto>> response) {
                 if (response.isSuccessful()) {
                     unitDtoList = response.body();
+                   // callback.operationFinished(unitDtoList);
                     log.info("Успешно выполнен запрос на получение списка UnitDto");
                 } else {
                     log.error("Произошла ошибка при выполнении запроса на получение списка UnitDto - {}",

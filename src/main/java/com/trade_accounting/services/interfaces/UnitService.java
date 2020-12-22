@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces;
 import com.trade_accounting.models.dto.UnitDto;
 
 import java.util.List;
+import java.util.function.Function;
 
 public interface UnitService {
 
