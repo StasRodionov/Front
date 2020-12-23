@@ -36,7 +36,6 @@ public class ProfileView extends Div {
                 new Tab(new Label("Валюты")),
                 new Tab(unit)
         );
-        tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
     }
 }

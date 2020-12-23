@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -31,10 +32,16 @@ public class UnitView extends Div {
     public UnitView(UnitService unitService){
         this.unitService = unitService;
 
-        Label label = new Label("Единицы измерения");
+        HorizontalLayout layout = new HorizontalLayout();
+
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
+
+        Label label = new Label("Единицы измерения");
+
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
+
         Button buttonAdd = new Button("Единица измерения", new Icon(VaadinIcon.PLUS));
+
         Button buttonFilter = new Button("Фильтр");
 
         TextField titleField = new TextField();
@@ -42,20 +49,21 @@ public class UnitView extends Div {
 
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
-        //numberField.setReadOnly(true);
+        numberField.setWidth("45px");
 
         Button buttonEdit = new Button("Изменить", new Icon(VaadinIcon.ANGLE_DOWN));
 
         grid.setItems(unitService.getAll());
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        add(buttonQuestion);
-        add(label);
-        add(buttonRefresh);
-        add(buttonAdd);
-        add(buttonFilter);
-        add(titleField);
-        add(numberField);
-        add(buttonEdit);
+        layout.add(buttonQuestion, label, buttonRefresh, buttonAdd, buttonFilter, titleField, numberField, buttonEdit);
+        layout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        layout.setPadding(false);
+        layout.setMargin(true);
+        layout.setSpacing(true);
+        add(layout);
+
+
         add(grid);
     }
 
