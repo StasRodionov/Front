@@ -74,10 +74,12 @@ public class AppView extends AppLayout {
         );
 
         Tabs tabs =  new Tabs();
-        verticalLayouts.forEach(verticalLayout -> verticalLayout.getStyle().set("alignItems", "center"));
-        verticalLayouts.forEach(verticalLayout -> verticalLayout.setSpacing(false));
-        verticalLayouts.forEach(verticalLayout -> verticalLayout.setPadding(false));
-        verticalLayouts.forEach(verticalLayout -> tabs.add(new Tab(verticalLayout)));
+        for (VerticalLayout verticalLayout : verticalLayouts) {
+            verticalLayout.getStyle().set("alignItems", "center");
+            verticalLayout.setSpacing(false);
+            verticalLayout.setPadding(false);
+            tabs.add(new Tab(verticalLayout));
+        }
         tabs.setWidthFull();
         tabs.setFlexGrowForEnclosedTabs(1);
         return tabs;
