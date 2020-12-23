@@ -28,7 +28,7 @@ public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalcu
     private AttributeOfCalculationObjectDto attributeOfCalculationObjectDto;
 
     @Autowired
-    public AttributeOfCalculationObjectServiceImpl(@Value("${attribute_of_calculation_object_url}") String attributeOfCalculationObjectUrl, Retrofit retrofit) {
+    public AttributeOfCalculationObjectServiceImpl(@Value("${attribute_calculation_object_url}") String attributeOfCalculationObjectUrl, Retrofit retrofit) {
 
         this.attributeOfCalculationObjectUrl = attributeOfCalculationObjectUrl;
         attributeOfCalculationObjectApi = retrofit.create(AttributeOfCalculationObjectApi.class);
