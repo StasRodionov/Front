@@ -2,6 +2,7 @@ package com.trade_accounting.components;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
@@ -16,8 +17,11 @@ public class ProfileView extends Div {
     }
 
     private Tabs addList() {
+        HorizontalLayout company = new HorizontalLayout(new Label("Юр. лица"));
+        company.addClickListener(e -> company.getUI().ifPresent(ui -> ui.navigate("company")));
+
         Tabs tabs = new Tabs(
-                new Tab(new Label("Юр. лица")),
+                new Tab(company),
                 new Tab(new Label("Сотрудники")),
                 new Tab(new Label("Склады")),
                 new Tab(new Label("Валюты")),

@@ -28,13 +28,13 @@ public interface CompanyApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<CompanyDto> create(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<CompanyDto> update(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<CompanyDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }

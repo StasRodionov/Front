@@ -3,6 +3,8 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.api.CompanyApi;
+import com.vaadin.flow.component.Synchronize;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 @Slf4j
 @Service
@@ -21,7 +27,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final String companyUrl;
 
-    private List<CompanyDto> companyDtoList;
+    private List<CompanyDto> companyDtoList = new ArrayList<>();
 
     private CompanyDto companyDto;
 
@@ -33,24 +39,40 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public List<CompanyDto> getAll() {
         Call<List<CompanyDto>> companyDtoListCall = companyApi.getAll(companyUrl);
+        final Queue<Object> queue = new LinkedList<>();
 
-        companyDtoListCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<List<CompanyDto>> call, Response<List<CompanyDto>> response) {
-                if (response.isSuccessful()) {
-                    companyDtoList = response.body();
-                } else {
-                    System.out.println("Response error " + response.errorBody());
+        try {
+            companyDtoListCall.enqueue(new Callback<>() {
+                @Override
+                public void onResponse(Call<List<CompanyDto>> call, Response<List<CompanyDto>> response) {
+                    if (response.isSuccessful()) {
+                        synchronized (queue) {
+                            companyDtoList = response.body();
+                            log.info("Успешно выполнен запрос на получение списка CompanyDto");
+                            queue.add(companyDtoList);
+                            queue.notify();
+                        }
+                    } else {
+                        log.error("Произошла ошибка при выполнении запроса на получение списка CompanyDto - {}",
+                                response.errorBody());
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<List<CompanyDto>> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении списка CompanyDto");
-            }
-        });
+                @Override
+                public void onFailure(Call<List<CompanyDto>> call, Throwable throwable) {
+                    log.error("Произошла ошибка при получении ответа на запрос списка CompanyDto", throwable);
+                }
+            });
 
-        return companyDtoList;
+            synchronized (queue) {
+                while (queue.size() == 0) {
+                    queue.wait();
+                }
+                return companyDtoList;
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -62,14 +84,16 @@ public class CompanyServiceImpl implements CompanyService {
             public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
                 if (response.isSuccessful()) {
                     companyDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра CompanyDto по id= {}", id);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра CompanyDto по id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении CompanyDto c id = {}", id);
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра CompanyDto по id", throwable);
             }
         });
 
@@ -85,14 +109,16 @@ public class CompanyServiceImpl implements CompanyService {
             public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
                 if (response.isSuccessful()) {
                     companyDto = response.body();
+                    log.info("Успешно выполнен запрос на получение экземпляра CompanyDto по email= {}", email);
                 } else {
-                    System.out.println("Response error " + response.errorBody());
+                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра CompanyDto по id= {} - {}",
+                            email, response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при получении CompanyDto c email = {}", email);
+                log.error("Произошла ошибка при получении ответа на запрос экземпляра CompanyDto по email", throwable);
             }
         });
 
@@ -101,58 +127,73 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public void create(CompanyDto companyDto) {
-        Call<CompanyDto> companyDtoCall = companyApi.create(companyUrl, companyDto);
+        Call<Void> companyDtoCall = companyApi.create(companyUrl, companyDto);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на создание экземпляра CompanyDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра CompanyDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на создание нового экземпляра {}", companyDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра CompanyDto", throwable);
             }
         });
     }
 
     @Override
     public void update(CompanyDto companyDto) {
-        Call<CompanyDto> companyDtoCall = companyApi.update(companyUrl, companyDto);
+        Call<Void> companyDtoCall = companyApi.update(companyUrl, companyDto);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на обновление экземпляра CompanyDto");
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра CompanyDto - {}",
+                            response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на обновление экземпляра {}", companyDto);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра CompanyDto", throwable);
             }
         });
     }
 
     @Override
     public void deleteById(Long id) {
-        Call<CompanyDto> companyDtoCall = companyApi.deleteById(companyUrl, id);
+        Call<Void> companyDtoCall = companyApi.deleteById(companyUrl, id);
 
         companyDtoCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<CompanyDto> call, Response<CompanyDto> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println("Response error " + response.errorBody());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    log.info("Успешно выполнен запрос на удаление экземпляра CompanyDto с id= {}", id);
+                } else {
+                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра CompanyDto с id= {} - {}",
+                            id, response.errorBody());
                 }
             }
 
             @Override
-            public void onFailure(Call<CompanyDto> call, Throwable throwable) {
-                log.debug("Произошла ошибка при отправке запроса на удаление экземпляра CompanyDto c id = {}", id);
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра CompanyDto", throwable);
             }
         });
     }
+
+   /* @PostConstruct
+    public void test(){
+
+        getById(1L);
+    }*/
 }
