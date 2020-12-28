@@ -1,5 +1,6 @@
 package com.trade_accounting.components;
 
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -27,7 +28,7 @@ public class ProfileView extends Div {
                 new Tab(new Label("Валюты")),
                 new Tab(new Label("Единицы измерения"))
         );
-        tabs.setOrientation(Tabs.Orientation.VERTICAL);
+        tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
         return tabs;
     }
 }
