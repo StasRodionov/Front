@@ -11,6 +11,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -19,8 +21,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeApi employeeApi;
     private final String employeeUrl;
-    private List<EmployeeDto> employeeDtoList;
-    private EmployeeDto employeeDto;
 
     public EmployeeServiceImpl(@Value("${employee_url}") String employeeUrl, Retrofit retrofit) {
         this.employeeUrl = employeeUrl;
@@ -30,9 +30,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDto> getAll() {
 
+        List<EmployeeDto> employeeDtoList = new ArrayList<>();
+
         Call<List<EmployeeDto>> employeeDtoListCall = employeeApi.getAll(employeeUrl);
 
-        employeeDtoListCall.enqueue(new Callback<>() {
+        try {
+            employeeDtoList = employeeDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка EmployeeDto");
+        }
+/*        employeeDtoListCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<EmployeeDto>> call, Response<List<EmployeeDto>> response) {
                 if (response.isSuccessful()) {
@@ -49,15 +57,24 @@ public class EmployeeServiceImpl implements EmployeeService {
                 log.error("Произошла ошибка при получении ответа на запрос списка EmployeeDto", throwable);
             }
         });
+ */
         return employeeDtoList;
     }
 
     @Override
     public EmployeeDto getById(Long id) {
 
-        Call<EmployeeDto> employeeDtoCall = employeeApi.getById(employeeUrl, id);
+        EmployeeDto employeeDto = new EmployeeDto();
 
-        employeeDtoCall.enqueue(new Callback<>() {
+        Call<EmployeeDto> employeeDtoCall = employeeApi.getById(employeeUrl, id);
+        try {
+            employeeDto = employeeDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение экземпляра EmployeeDto");
+        }
+
+/*        employeeDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<EmployeeDto> call, Response<EmployeeDto> response) {
                 if (response.isSuccessful()) {
@@ -74,6 +91,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 log.error("Произошла ошибка при получении ответа на запрос экземпляра EmployeeDto по id", throwable);
             }
         });
+
+ */
         return employeeDto;
     }
 
@@ -82,7 +101,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Call<Void> employeeDtoCall = employeeApi.create(employeeUrl, employeeDto);
 
-        employeeDtoCall.enqueue(new Callback<>() {
+        try {
+            employeeDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание экземпляра EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра EmployeeDto");
+        }
+
+/*        employeeDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -99,6 +125,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
         });
 
+ */
+
     }
 
     @Override
@@ -106,7 +134,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Call<Void> employeeDtoCall = employeeApi.update(employeeUrl, employeeDto);
 
-        employeeDtoCall.enqueue(new Callback<>() {
+        try {
+            employeeDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на обновление экземпляра EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра EmployeeDto");
+        }
+
+/*        employeeDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -122,7 +157,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра EmployeeDto", throwable);
             }
         });
-
+ */
     }
 
     @Override
@@ -130,7 +165,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Call<Void> employeeDtoCall = employeeApi.deleteById(employeeUrl, id);
 
-        employeeDtoCall.enqueue(new Callback<>() {
+        try {
+            employeeDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на удаление экземпляра EmployeeDto с id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра EmployeeDto");
+        }
+
+/*        employeeDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -146,6 +188,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра EmployeeDto", throwable);
             }
         });
-
+ */
     }
 }

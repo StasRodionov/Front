@@ -1,5 +1,6 @@
 package com.trade_accounting.components;
 
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -14,10 +15,12 @@ import com.vaadin.flow.router.Route;
 public class ProfileView extends Div {
 
     private final UnitService unitService;
+    private final EmployeeService employeeService;
     private final Div div;
 
-    public ProfileView(UnitService unitService) {
+    public ProfileView(UnitService unitService, EmployeeService employeeService) {
         this.unitService = unitService;
+        this.employeeService = employeeService;
         div = new Div();
 
         add(configurationSubMenu(), div);
@@ -31,7 +34,10 @@ public class ProfileView extends Div {
 
         HorizontalLayout employeeLayout = new HorizontalLayout(new Label("Сотрудники"));
         employeeLayout.addClickListener(e ->
-                employeeLayout.getUI().ifPresent(ui -> div.removeAll()));
+                employeeLayout.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    div.add(new EmployeeView(employeeService));
+                }));
 
         HorizontalLayout warehouseLayout = new HorizontalLayout(new Label("Склады"));
         warehouseLayout.addClickListener(e ->
