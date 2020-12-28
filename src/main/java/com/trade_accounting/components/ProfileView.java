@@ -1,11 +1,9 @@
 package com.trade_accounting.components;
 
-import com.vaadin.flow.component.applayout.AppLayout;
+import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
@@ -15,34 +13,47 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Профиль")
 public class ProfileView extends Div {
 
-    public ProfileView() {
-        add(addList());
+    private final UnitService unitService;
+    private final Div div;
+
+    public ProfileView(UnitService unitService) {
+        this.unitService = unitService;
+        div = new Div();
+
+        add(configurationSubMenu(), div);
     }
 
-    private Tabs addList() {
-        HorizontalLayout legal = new HorizontalLayout(new Label("Юр. лица"));
-        legal.addClickListener(e -> legal.getUI().ifPresent(ui -> ui.navigate("")));
+    private Tabs configurationSubMenu() {
 
-        HorizontalLayout employees = new HorizontalLayout(new Label("Сотрудники"));
-        employees.addClickListener(e -> employees.getUI().ifPresent(ui -> ui.navigate("")));
+        HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
+        companyLayout.addClickListener(e ->
+                companyLayout.getUI().ifPresent(ui -> div.removeAll()));
 
-        HorizontalLayout wareHouse = new HorizontalLayout(new Label("Склады"));
-        wareHouse.addClickListener(e -> wareHouse.getUI().ifPresent(ui -> ui.navigate("warehouse")));
+        HorizontalLayout employeeLayout = new HorizontalLayout(new Label("Сотрудники"));
+        employeeLayout.addClickListener(e ->
+                employeeLayout.getUI().ifPresent(ui -> div.removeAll()));
 
-        HorizontalLayout currency = new HorizontalLayout(new Label("Валюты"));
-        currency.addClickListener(e -> currency.getUI().ifPresent(ui -> ui.navigate("")));
+        HorizontalLayout warehouseLayout = new HorizontalLayout(new Label("Склады"));
+        warehouseLayout.addClickListener(e ->
+                warehouseLayout.getUI().ifPresent(ui -> div.removeAll()));
 
-        HorizontalLayout units = new HorizontalLayout(new Label("Единицы измерения"));
-        units.addClickListener(e -> units.getUI().ifPresent(ui -> ui.navigate("")));
+        HorizontalLayout currencyLayout = new HorizontalLayout(new Label("Валюты"));
+        currencyLayout.addClickListener(e ->
+                currencyLayout.getUI().ifPresent(ui -> div.removeAll()));
 
-        Tabs tabs = new Tabs(
-                new Tab(legal),
-                new Tab(employees),
-                new Tab(wareHouse),
-                new Tab(currency),
-                new Tab(units)
+        HorizontalLayout unitLayout = new HorizontalLayout(new Label("Единицы измерения"));
+        unitLayout.addClickListener(e ->
+                unitLayout.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    div.add(new UnitView(unitService));
+                }));
+
+        return new Tabs(
+                new Tab(companyLayout),
+                new Tab(employeeLayout),
+                new Tab(warehouseLayout),
+                new Tab(currencyLayout),
+                new Tab(unitLayout)
         );
-        tabs.setOrientation(Tabs.Orientation.VERTICAL);
-        return tabs;
     }
 }
