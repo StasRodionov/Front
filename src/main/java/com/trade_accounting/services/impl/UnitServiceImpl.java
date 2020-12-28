@@ -11,6 +11,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +23,6 @@ public class UnitServiceImpl implements UnitService {
 
     private final String unitUrl;
 
-    private List<UnitDto> unitDtoList;
 
     private UnitDto unitDto;
 
@@ -32,9 +33,18 @@ public class UnitServiceImpl implements UnitService {
 
     @Override
     public List<UnitDto> getAll() {
+
+        List<UnitDto> unitDtoList = new ArrayList<>();
+
         Call<List<UnitDto>> unitDtoListCall = unitApi.getAll(unitUrl);
 
-        unitDtoListCall.enqueue(new Callback<>() {
+        try {
+            unitDtoList = unitDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка UnitDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка UnitDto");
+        }
+/*        unitDtoListCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<UnitDto>> call, Response<List<UnitDto>> response) {
                 if (response.isSuccessful()) {
@@ -51,7 +61,7 @@ public class UnitServiceImpl implements UnitService {
                 log.error("Произошла ошибка при получении ответа на запрос списка UnitDto", throwable);
             }
         });
-
+*/
         return unitDtoList;
     }
 
