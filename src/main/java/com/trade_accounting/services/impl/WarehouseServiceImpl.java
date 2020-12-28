@@ -11,6 +11,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -19,8 +21,8 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseApi warehouseApi;
     private final String warehouseUrl;
-    private List<WarehouseDto> warehouseDtoList;
-    private WarehouseDto warehouseDto;
+   // private List<WarehouseDto> warehouseDtoList;
+    //private WarehouseDto warehouseDto;
 
     public WarehouseServiceImpl(@Value("${warehouse_url}") String warehouseUrl, Retrofit retrofit) {
         this.warehouseUrl = warehouseUrl;
@@ -30,14 +32,25 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public List<WarehouseDto> getAll() {
 
+        List<WarehouseDto> warehouseDtoList= new ArrayList<>();
         Call<List<WarehouseDto>> warehouseDtoListCall = warehouseApi.getAll(warehouseUrl);
+
+        try {
+            warehouseDtoList.addAll(warehouseDtoListCall.execute().body());
+            log.info("Успешно выполнен запрос на получение списка WarehouseDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка WarehouseDto - {}", e);
+        }
+
+        /*Call<List<WarehouseDto>> warehouseDtoListCall = warehouseApi.getAll(warehouseUrl);
 
         warehouseDtoListCall.enqueue(new Callback<>() {
 
             @Override
             public void onResponse(Call<List<WarehouseDto>> call, Response<List<WarehouseDto>> response) {
                 if (response.isSuccessful()) {
-                    warehouseDtoList = response.body();
+                    warehouseDtoList.addAll(response.body());
+                    //warehouseDtoList = response.body();
                     log.info("Успешно выполнен запрос на получение списка WarehouseDto");
                 } else {
                     log.error("Произошла ошибка при выполнении запроса на получение списка WarehouseDto - {}", response.errorBody());
@@ -47,15 +60,24 @@ public class WarehouseServiceImpl implements WarehouseService {
             public void onFailure(Call<List<WarehouseDto>> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос списка WarehouseDto", throwable);
             }
-        });
+        });*/
 
         return warehouseDtoList;
     }
 
     @Override
     public WarehouseDto getById(Long id) {
-
+        WarehouseDto warehouseDto = null;
         Call<WarehouseDto> warehouseDtoCall = warehouseApi.getById(warehouseUrl, id);
+
+        try {
+            warehouseDto = warehouseDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экзаепляра WarehouseDto с id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение экземпляра WarehouseDto - {}", e);
+        }
+
+        /*Call<WarehouseDto> warehouseDtoCall = warehouseApi.getById(warehouseUrl, id);
 
         warehouseDtoCall.enqueue(new Callback<>() {
 
@@ -72,7 +94,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             public void onFailure(Call<WarehouseDto> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос экземпляра WarehouseDto", throwable);
             }
-        });
+        });*/
 
         return warehouseDto;
     }
@@ -82,7 +104,14 @@ public class WarehouseServiceImpl implements WarehouseService {
 
         Call<Void> warehouseDtoCall = warehouseApi.create(warehouseUrl, warehouseDto);
 
-        warehouseDtoCall.enqueue(new Callback<>() {
+        try {
+            warehouseDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание экземпляра WarehouseDto");
+        }
+        catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра WarehouseDto - {}", e);
+        }
+        /*warehouseDtoCall.enqueue(new Callback<>() {
 
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -96,7 +125,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос создания экземпляра WarehouseDto", throwable);
             }
-        });
+        });*/
     }
 
     @Override
@@ -104,7 +133,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
         Call<Void> warehouseDtoCall = warehouseApi.update(warehouseUrl, warehouseDto);
 
-        warehouseDtoCall.enqueue(new Callback<>() {
+        try {
+            warehouseDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра WarehouseDto");
+        }
+        catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра WarehouseDto - {}", e);
+        }
+
+        /*warehouseDtoCall.enqueue(new Callback<>() {
 
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -118,7 +155,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра WarehouseDto", throwable);
             }
-        });
+        });*/
     }
 
     @Override
@@ -126,7 +163,14 @@ public class WarehouseServiceImpl implements WarehouseService {
 
         Call<Void> warehouseDtoCall = warehouseApi.deleteById(warehouseUrl, id);
 
-        warehouseDtoCall.enqueue(new Callback<>() {
+        try {
+            warehouseDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра WarehouseDto");
+        }
+        catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра WarehouseDto - {}", e);
+        }
+        /*warehouseDtoCall.enqueue(new Callback<>() {
 
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -140,6 +184,6 @@ public class WarehouseServiceImpl implements WarehouseService {
             public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра WarehouseDto", throwable);
             }
-        });
+        });*/
     }
 }
