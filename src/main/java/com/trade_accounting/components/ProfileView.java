@@ -34,10 +34,8 @@ public class ProfileView extends Div {
 
         HorizontalLayout employeeLayout = new HorizontalLayout(new Label("Сотрудники"));
         employeeLayout.addClickListener(e ->
-                employeeLayout.getUI().ifPresent(ui -> {
-                    div.removeAll();
-                    div.add(new EmployeeView(employeeService));
-                }));
+                employeeLayout.getUI().ifPresent(ui -> div.removeAll()));
+
 
         HorizontalLayout warehouseLayout = new HorizontalLayout(new Label("Склады"));
         warehouseLayout.addClickListener(e ->
