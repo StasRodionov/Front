@@ -17,10 +17,10 @@ public class ProfileView extends Div {
 
     public ProfileView(UnitService unitService) {
         this.unitService = unitService;
-        add(addList());
+        add(configurationSubMenu());
     }
 
-    private Tabs addList() {
+    private Tabs configurationSubMenu() {
 
         HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
         companyLayout.addClickListener(e ->

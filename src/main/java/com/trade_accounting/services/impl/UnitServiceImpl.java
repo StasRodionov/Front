@@ -34,12 +34,12 @@ public class UnitServiceImpl implements UnitService {
     @Override
     public List<UnitDto> getAll() {
 
-        final List<UnitDto> unitDtoList = new ArrayList<>();
+        List<UnitDto> unitDtoList = new ArrayList<>();
 
         Call<List<UnitDto>> unitDtoListCall = unitApi.getAll(unitUrl);
 
         try {
-            unitDtoList.addAll(unitDtoListCall.execute().body());
+            unitDtoList = unitDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка UnitDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка UnitDto");
