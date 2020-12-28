@@ -14,41 +14,46 @@ import com.vaadin.flow.router.Route;
 public class ProfileView extends Div {
 
     private final UnitService unitService;
+    private final Div div;
 
     public ProfileView(UnitService unitService) {
         this.unitService = unitService;
-        add(configurationSubMenu());
+        div = new Div();
+
+        add(configurationSubMenu(), div);
     }
 
     private Tabs configurationSubMenu() {
 
         HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
         companyLayout.addClickListener(e ->
-                companyLayout.getUI().ifPresent(ui -> add(/* add your view class */)));
+                companyLayout.getUI().ifPresent(ui -> div.removeAll()));
 
         HorizontalLayout employeeLayout = new HorizontalLayout(new Label("Сотрудники"));
         employeeLayout.addClickListener(e ->
-                employeeLayout.getUI().ifPresent(ui -> add(/* add your view class */)));
+                employeeLayout.getUI().ifPresent(ui -> div.removeAll()));
 
         HorizontalLayout warehouseLayout = new HorizontalLayout(new Label("Склады"));
         warehouseLayout.addClickListener(e ->
-                warehouseLayout.getUI().ifPresent(ui -> add(/* add your view class */)));
+                warehouseLayout.getUI().ifPresent(ui -> div.removeAll()));
 
         HorizontalLayout currencyLayout = new HorizontalLayout(new Label("Валюты"));
-        warehouseLayout.addClickListener(e ->
-                warehouseLayout.getUI().ifPresent(ui -> add(/* add your view class */)));
+        currencyLayout.addClickListener(e ->
+                currencyLayout.getUI().ifPresent(ui -> div.removeAll()));
 
         HorizontalLayout unitLayout = new HorizontalLayout(new Label("Единицы измерения"));
         unitLayout.addClickListener(e ->
-                unitLayout.getUI().ifPresent(ui -> add(new UnitView(unitService))));
+                unitLayout.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    div.add(new UnitView(unitService));
+                }));
 
-        Tabs tabs = new Tabs(
+        return new Tabs(
                 new Tab(companyLayout),
                 new Tab(employeeLayout),
                 new Tab(warehouseLayout),
                 new Tab(currencyLayout),
                 new Tab(unitLayout)
         );
-        return tabs;
     }
 }
