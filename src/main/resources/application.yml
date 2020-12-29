@@ -25,6 +25,8 @@ employee_url: api/employee
 
 image_url: api/image
 
+legal_detail_url: api/legaldetail
+
 position_url: api/position
 
 product_group_url: api/productgroup
