@@ -15,14 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -34,10 +33,6 @@ public class ContractServiceImpl implements ContractService {
 
     private final String contractUrl;
 
-    private List<ContractDto> contractDtoList;
-
-    private ContractDto contractDto;
-
     @Autowired
     public ContractServiceImpl(@Value("${contract_url}") String contractUrl, Retrofit retrofit) {
         contractApi = retrofit.create(ContractApi.class);
@@ -46,8 +41,20 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public List<ContractDto> getAll() {
-        Call<List<ContractDto>> contractDtoListCall = contractApi.getAll(contractUrl);
 
+        List<ContractDto> contractDtoList = new ArrayList<>();
+        Call<List<ContractDto>> contractDtoListCall = contractApi.getAll(contractUrl);
+        try {
+            contractDtoList = contractDtoListCall.execute().body();
+            Objects.requireNonNull(contractDtoList).forEach(contr -> contr.setDate(contr.getContractDate()));
+            Objects.requireNonNull(contractDtoList).forEach(contr -> contr.getLegalDetailDto().
+                    setDate(contr.getLegalDetailDto().getDateOfTheCertificate()));
+
+            log.info("Успешно выполнен запрос на получение списка ContractDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка ContractDto: {}", e);
+        }
+/*
         contractDtoListCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ContractDto>> call, Response<List<ContractDto>> response) {
@@ -67,14 +74,27 @@ public class ContractServiceImpl implements ContractService {
                 log.error("Произошла ошибка при отправке запроса на получение списка ContractDto: ", throwable);
             }
         });
-
+*/
         return contractDtoList;
     }
 
     @Override
     public ContractDto getById(Long id) {
-
+        ContractDto contractDto = new ContractDto();
         Call<ContractDto> contractDtoCall = contractApi.getById(contractUrl, id);
+        try {
+            contractDto = contractDtoCall.execute().body();
+            Objects.requireNonNull(contractDto).setDate(contractDto.getContractDate());
+            Objects.requireNonNull(contractDto).getLegalDetailDto().
+                    setDate(contractDto.getLegalDetailDto().getDateOfTheCertificate());
+
+            log.info("Успешно выполнен запрос на получение экземпляра ContractDto с id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение ContractDto с id = {}: {}", id, e);
+        }
+
+        /*
+
         contractDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ContractDto> call, Response<ContractDto> response) {
@@ -97,6 +117,7 @@ public class ContractServiceImpl implements ContractService {
                         id, throwable);
             }
         });
+        */
         return contractDto;
     }
 
@@ -104,6 +125,14 @@ public class ContractServiceImpl implements ContractService {
     public void create(ContractDto contractDto) {
         Call<Void> contractDtoCall = contractApi.create(contractUrl, contractDto);
 
+        try {
+            contractDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание нового экземпляра {}", contractDto);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}", contractDto, e);
+        }
+
+/*
         contractDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -121,12 +150,21 @@ public class ContractServiceImpl implements ContractService {
                         contractDto, throwable);
             }
         });
+        */
     }
 
     @Override
     public void update(ContractDto contractDto) {
         Call<Void> contractDtoCall = contractApi.update(contractUrl, contractDto);
 
+        try {
+            contractDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на обновление {}", contractDto);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на обновление {}: {}", contractDto, e);
+        }
+
+        /*
         contractDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -144,12 +182,23 @@ public class ContractServiceImpl implements ContractService {
                         contractDto, throwable);
             }
         });
+
+         */
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> contractDtoCall = contractApi.deleteById(contractUrl, id);
 
+        try {
+            contractDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на удаление ContractDto c id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на удаление ContractDto c id = {}: {}",
+                    id, e);
+        }
+
+        /*
         contractDtoCall.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -167,8 +216,9 @@ public class ContractServiceImpl implements ContractService {
                         id, throwable);
             }
         });
-    }
 
+         */
+    }
 
 
     @PostConstruct
@@ -180,7 +230,7 @@ public class ContractServiceImpl implements ContractService {
                 "firstName", "middleName", "address", "commentToAddress", "0000000000",
                 "000", "000", "000", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now(), typeOfContractorDto);
 
-        CompanyDto company= new CompanyDto(2L, "name", "0000000000",
+        CompanyDto company = new CompanyDto(2L, "name", "0000000000",
                 "11", "000000", "000000", "email",
                 true, "address", "commentToAddress", "leader",
                 "leaderManagerPosition", "leaderSignature", "chiefAccountant",
@@ -198,12 +248,11 @@ public class ContractServiceImpl implements ContractService {
                 "comment", contractorGroupDto, typeOfContractorDto, typeOfPriceDto, Collections.singletonList(bank), legalDetailDto);
 
 
+//        create(new ContractDto(2L, "1", LocalDate.now(), company, bank, contractor, BigDecimal.valueOf(33333.0), true, "jtgnkjrtgnkrgjn ", legalDetailDto));
+//        update(new ContractDto(2L, "222", LocalDate.now(), company, bank, contractor, BigDecimal.valueOf(33333.0), false, "jtgnkjrtgnkrgjn ", legalDetailDto));
 
-        create(new ContractDto(2L, "1", LocalDate.now(), company, bank, contractor,
-                BigDecimal.valueOf(33333.0), true, "jtgnkjrtgnkrgjn ", legalDetailDto));
-
-        getById(1L);
-//        getAll();
-//        deleteById(2L);
+//        getById(1L);
+        getAll();
+        deleteById(2L);
     }
 }
