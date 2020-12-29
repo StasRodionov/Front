@@ -31,7 +31,8 @@ public class LegalDetailDto {
 
     private String numberOfTheCertificate;
 
-    private LocalDate dateOfTheCertificate;
+    // TODO
+    //private LocalDate dateOfTheCertificate;
 
     private TypeOfContractorDto typeOfContractorDto;
 
