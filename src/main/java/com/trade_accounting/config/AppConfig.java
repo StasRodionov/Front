@@ -16,5 +16,4 @@ public class AppConfig {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
-
 }
