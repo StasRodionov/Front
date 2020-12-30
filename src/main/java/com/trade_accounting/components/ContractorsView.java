@@ -20,7 +20,7 @@ public class ContractorsView extends Div{
                 new Tab(new Label("Контрагенты")),
                 new Tab(new Label("Договоры"))
         );
-        tabs.setOrientation(Tabs.Orientation.VERTICAL);
+        tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
         return tabs;
     }
 }
