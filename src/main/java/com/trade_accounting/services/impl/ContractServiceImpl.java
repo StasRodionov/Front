@@ -219,40 +219,4 @@ public class ContractServiceImpl implements ContractService {
 
          */
     }
-
-
-    @PostConstruct
-    public void Test() {
-
-
-        TypeOfContractorDto typeOfContractorDto = new TypeOfContractorDto(1L, "name", "1");
-        LegalDetailDto legalDetailDto = new LegalDetailDto(1L, "lastName",
-                "firstName", "middleName", "address", "commentToAddress", "0000000000",
-                "000", "000", "000", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now(), typeOfContractorDto);
-
-        CompanyDto company = new CompanyDto(2L, "name", "0000000000",
-                "11", "000000", "000000", "email",
-                true, "address", "commentToAddress", "leader",
-                "leaderManagerPosition", "leaderSignature", "chiefAccountant",
-                "chiefAccountantSignature", "stamp", legalDetailDto);
-
-        BankAccountDto bank = new BankAccountDto(1L, "rcbic", "bank", "address",
-                "correspondentAccount", "account", true, "1");
-
-        ContractorGroupDto contractorGroupDto = new ContractorGroupDto(1L, "name", "1");
-
-        TypeOfPriceDto typeOfPriceDto = new TypeOfPriceDto(1L, "name", "1");
-
-        ContractorDto contractor = new ContractorDto(1L, "name", "0000000000", "sortNumber",
-                "000000", "000000", "email", "address", "commentToAddress",
-                "comment", contractorGroupDto, typeOfContractorDto, typeOfPriceDto, Collections.singletonList(bank), legalDetailDto);
-
-
-//        create(new ContractDto(2L, "1", LocalDate.now(), company, bank, contractor, BigDecimal.valueOf(33333.0), true, "jtgnkjrtgnkrgjn ", legalDetailDto));
-//        update(new ContractDto(2L, "222", LocalDate.now(), company, bank, contractor, BigDecimal.valueOf(33333.0), false, "jtgnkjrtgnkrgjn ", legalDetailDto));
-
-//        getById(1L);
-        getAll();
-        deleteById(2L);
-    }
 }
