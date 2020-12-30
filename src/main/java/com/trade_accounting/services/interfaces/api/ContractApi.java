@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -12,27 +12,22 @@ import retrofit2.http.Path;
 
 import java.util.List;
 
-public interface CompanyApi {
-
+public interface ContractApi {
     @Headers("Accept: application/json")
     @GET("{url}")
-    Call<List<CompanyDto>> getAll(@Path(value = "url", encoded = true) String url);
+    Call<List<ContractDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
-    @GET("{url}/id/{id}")
-    Call<CompanyDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
-
-    @Headers("Accept: application/json")
-    @GET("{url}/email/{email}")
-    Call<CompanyDto> getByEmail(@Path(value = "url", encoded = true) String url, @Path("email") String email);
+    @GET("{url}/{id}")
+    Call<ContractDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body ContractDto contractDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body CompanyDto companyDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ContractDto contractDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")

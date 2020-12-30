@@ -11,12 +11,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 
-@Service
 @Slf4j
+@Service
 public class ProductGroupServiceImpl implements ProductGroupService {
 
     private final String productGroupUrl;
@@ -31,12 +30,6 @@ public class ProductGroupServiceImpl implements ProductGroupService {
         this.productGroupUrl = productGroupUrl;
         this.productGroupApi = retrofit.create(ProductGroupApi.class);
     }
-
-//    @PostConstruct
-//    public void test(){
-//        getAll();
-//        deleteById(11L);
-//    }
 
     @Override
     public List<ProductGroupDto> getAll() {

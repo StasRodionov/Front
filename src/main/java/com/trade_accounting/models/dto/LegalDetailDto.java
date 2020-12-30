@@ -31,9 +31,15 @@ public class LegalDetailDto {
 
     private String numberOfTheCertificate;
 
-    private LocalDate dateOfTheCertificate;
+    private String  dateOfTheCertificate;
+
+    private LocalDate date;
 
     private TypeOfContractorDto typeOfContractorDto;
+
+    public void setDate(String dateOfTheCertificate) {
+        this.date = LocalDate.parse(dateOfTheCertificate);
+    }
 
 }
 
