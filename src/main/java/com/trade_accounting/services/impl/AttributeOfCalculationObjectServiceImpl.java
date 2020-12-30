@@ -8,18 +8,43 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
 
 @Slf4j
 @Service
 public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalculationObjectService {
 
     private final AttributeOfCalculationObjectApi attributeOfCalculationObjectApi;
+
+    private final String attributeOfCalculationObjectUrl;
+
+    @Autowired
+    public AttributeOfCalculationObjectServiceImpl(@Value("${attribute_calculation_object_url}") String attributeOfCalculationObjectUrl, Retrofit retrofit) {
+        attributeOfCalculationObjectApi = retrofit.create(AttributeOfCalculationObjectApi.class);
+        this.attributeOfCalculationObjectUrl = attributeOfCalculationObjectUrl;
+    }
+
+    @Override
+    public List<AttributeOfCalculationObjectDto> getAll() {
+
+        List<AttributeOfCalculationObjectDto> attributeOfCalculationObjectDtoList = new ArrayList<>();
+        Call<List<AttributeOfCalculationObjectDto>> attributeOfCalculationObjectDtoListCall = attributeOfCalculationObjectApi.getAll(attributeOfCalculationObjectUrl);
+        try {
+            attributeOfCalculationObjectDtoList = attributeOfCalculationObjectDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка AttributeOfCalculationObjectDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка AttributeOfCalculationObjectDto: {}", e);
+        }
+
+
+    /*private final AttributeOfCalculationObjectApi attributeOfCalculationObjectApi;
 
     private final String attributeOfCalculationObjectUrl;
 
@@ -55,11 +80,23 @@ public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalcu
                 log.error("Произошла ошибка при получении ответа на запрос списка AttributeOfCalculationObject)Dto", throwable);
             }
         });
-
+*/
         return attributeOfCalculationObjectDtoList;
     }
 
     @Override
+    public AttributeOfCalculationObjectDto getById(Long id) {
+        AttributeOfCalculationObjectDto attributeOfCalculationObjectDto = new AttributeOfCalculationObjectDto();
+        Call<AttributeOfCalculationObjectDto> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.getById(attributeOfCalculationObjectUrl, id);
+        try {
+            attributeOfCalculationObjectDto = attributeOfCalculationObjectDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра AttributeOfCalculationObjectDto с id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение AttributeOfCalculationObjectDto с id = {}: {}", id, e);
+        }
+
+
+    /*@Override
     public AttributeOfCalculationObjectDto getById(Long id) {
         Call<AttributeOfCalculationObjectDto> AttributeOfCalculationDtoCall = attributeOfCalculationObjectApi.getById(attributeOfCalculationObjectUrl, id);
 
@@ -79,11 +116,23 @@ public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalcu
             public void onFailure(Call<AttributeOfCalculationObjectDto> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос экземпляра AttributeOfCalculationObjectDto по id", throwable);
             }
-        });
+        });*/
         return attributeOfCalculationObjectDto;
     }
 
     @Override
+    public void create(AttributeOfCalculationObjectDto attributeOfCalculationObjectDto) {
+        Call<Void> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.create(attributeOfCalculationObjectUrl, attributeOfCalculationObjectDto);
+
+        try {
+            attributeOfCalculationObjectDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание нового экземпляра {}", attributeOfCalculationObjectDto);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}", attributeOfCalculationObjectDto, e);
+        }
+
+
+    /*@Override
     public void create(AttributeOfCalculationObjectDto attribute) {
 
         Call<Void> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.create(attributeOfCalculationObjectUrl, attribute);
@@ -103,11 +152,23 @@ public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalcu
             public void onFailure(Call<Void> call, Throwable throwable) {
                 log.error("Произошла ошибка при получении ответа на запрос создания экземпляра AttributeOfCalculationObjectDto", throwable);
             }
-        });
+        });*/
 
     }
 
     @Override
+    public void update(AttributeOfCalculationObjectDto attributeOfCalculationObjectDto) {
+        Call<Void> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.update(attributeOfCalculationObjectUrl, attributeOfCalculationObjectDto);
+
+        try {
+            attributeOfCalculationObjectDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на обновление {}", attributeOfCalculationObjectDto);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на обновление {}: {}", attributeOfCalculationObjectDto, e);
+        }
+    }
+
+    /*@Override
     public void update(AttributeOfCalculationObjectDto attribute) {
         Call<Void> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.update(attributeOfCalculationObjectUrl, attribute);
 
@@ -128,9 +189,22 @@ public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalcu
             }
         });
 
-    }
+    }*/
 
     @Override
+    public void deleteById(Long id) {
+        Call<Void> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.deleteById(attributeOfCalculationObjectUrl, id);
+
+        try {
+            attributeOfCalculationObjectDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на удаление ContractDto c id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на удаление ContractDto c id = {}: {}",
+                    id, e);
+        }
+    }
+
+    /*@Override
     public void deleteById(Long id) {
         Call<Void> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.deleteById(attributeOfCalculationObjectUrl, id);
 
@@ -150,7 +224,7 @@ public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalcu
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра AttributeOfCalculationObjectDto", throwable);
             }
         });
-    }
+    }*/
 
 //    @PostConstruct
 //    public void test() {
