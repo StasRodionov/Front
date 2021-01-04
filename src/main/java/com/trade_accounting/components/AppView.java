@@ -6,11 +6,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 
 import java.util.List;
 
 @Route
+@PreserveOnRefresh
 public class AppView extends AppLayout {
 
     public AppView() {
@@ -28,7 +30,7 @@ public class AppView extends AppLayout {
         sales.addClickListener(e -> sales.getUI().ifPresent(ui -> ui.navigate("")));
 
         VerticalLayout products = new VerticalLayout(VaadinIcon.STOCK.create(), new Label("Товары"));
-        products.addClickListener(e -> products.getUI().ifPresent(ui -> ui.navigate("")));
+        products.addClickListener(e -> products.getUI().ifPresent(ui -> ui.navigate("goods")));
 
         VerticalLayout counterparties = new VerticalLayout(VaadinIcon.USERS.create(), new Label("Контрагенты"));
         counterparties.addClickListener(e -> counterparties.getUI().ifPresent(ui -> ui.navigate("contractors")));
