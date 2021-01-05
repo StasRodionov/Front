@@ -1,7 +1,9 @@
 package com.trade_accounting.components;
 
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
@@ -11,6 +13,9 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Route(value = "profile", layout = AppView.class)
 @PageTitle("Профиль")
@@ -37,7 +42,6 @@ public class ProfileView extends Div {
     }
 
     private Tabs configurationSubMenu() {
-
         HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
         companyLayout.addClickListener(e ->
                 companyLayout.getUI().ifPresent(ui -> {
