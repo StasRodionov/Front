@@ -26,7 +26,7 @@ public class ProductServiceImp implements ProductService {
     private final ProductApi productApi;
 
     List<ProductDto> listProducts = new ArrayList<>();
-     ProductDto productDto = new ProductDto();
+    ProductDto productDto = new ProductDto();
 
 
     ProductServiceImp(@Value("${product_url}") String productUrl, Retrofit retrofit) {
@@ -47,6 +47,7 @@ public class ProductServiceImp implements ProductService {
         System.out.print(listProducts);
         return listProducts;
     }
+
     @Override
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
@@ -82,7 +83,6 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-
     public void deleteById(Long id) {
         Call<Void> productDeleteCall = productApi.deleteById(productUrl, id);
         try {
