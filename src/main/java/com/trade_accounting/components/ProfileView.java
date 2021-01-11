@@ -30,7 +30,7 @@ public class ProfileView extends Div {
     private final Div div;
 
     public ProfileView(UnitService unitService, CompanyService companyService,
-                       EmployeeService employeeService, WarehouseService warehouseService, /*CurrencyService currencyService*/ProductService productService) {
+                       EmployeeService employeeService, WarehouseService warehouseService /*CurrencyService currencyService*/) {
         this.unitService = unitService;
         this.companyService = companyService;
         this.employeeService = employeeService;
