@@ -19,6 +19,7 @@ import java.util.Objects;
 
 @Slf4j
 @Service
+@Async
 public class ProductServiceImp implements ProductService {
 
     private final String productUrl;
@@ -34,7 +35,6 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    @Async
     public List<ProductDto> getAll() {
         Call<List<ProductDto>> productGetAllCall = productApi.getAll(productUrl);
         try {
@@ -43,10 +43,11 @@ public class ProductServiceImp implements ProductService {
         } catch (IOException e) {
             log.error("Произошла ошибка при получении списка ProductDto - {}", e);
         }
+        System.out.print("Возвращение ");
+        System.out.print(listProducts);
         return listProducts;
     }
     @Override
-    @Async
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
 
@@ -60,7 +61,6 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    @Async
     public void create(ProductDto productDto) {
         Call<Void> productCall = productApi.create(productUrl, productDto);
         try {
@@ -71,7 +71,6 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    @Async
     public void update(ProductDto productDto) {
         Call<Void> productUpdateCall = productApi.update(productUrl, productDto);
         try {
@@ -83,7 +82,7 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    @Async
+
     public void deleteById(Long id) {
         Call<Void> productDeleteCall = productApi.deleteById(productUrl, id);
         try {
