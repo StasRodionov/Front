@@ -48,10 +48,6 @@ public class ProfileView extends Div {
     }
 
     private Tabs configurationSubMenu() {
-
-        ProductDto b = productService.getById(1L);
-
-        System.out.println("Асинхрон начался");
         HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
         companyLayout.addClickListener(e ->
                 companyLayout.getUI().ifPresent(ui -> {
