@@ -13,8 +13,8 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Route(value = "profile", layout = AppView.class)
@@ -25,16 +25,22 @@ public class ProfileView extends Div {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final WarehouseService warehouseService;
+
+
+    private final ProductService productService;
+
     //TODO
     //private final CurrencyService currencyService;
     private final Div div;
 
     public ProfileView(UnitService unitService, CompanyService companyService,
-                       EmployeeService employeeService, WarehouseService warehouseService /*CurrencyService currencyService*/) {
+                       EmployeeService employeeService, WarehouseService warehouseService, /*CurrencyService currencyService*/ProductService productService) {
         this.unitService = unitService;
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.warehouseService = warehouseService;
+        this.productService = productService;
+
         //this.currencyService = currencyService;
         div = new Div();
 
@@ -42,6 +48,10 @@ public class ProfileView extends Div {
     }
 
     private Tabs configurationSubMenu() {
+
+        ProductDto b = productService.getById(1L);
+
+        System.out.println("Асинхрон начался");
         HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
         companyLayout.addClickListener(e ->
                 companyLayout.getUI().ifPresent(ui -> {

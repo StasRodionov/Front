@@ -5,6 +5,7 @@ import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.api.ProductApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -23,7 +24,7 @@ public class ProductServiceImp implements ProductService {
     private final String productUrl;
     private final ProductApi productApi;
 
-     List<ProductDto> listProducts = new ArrayList<>();
+    List<ProductDto> listProducts = new ArrayList<>();
      ProductDto productDto = new ProductDto();
 
 
@@ -34,134 +35,61 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
+    @Async
     public List<ProductDto> getAll() {
-
         Call<List<ProductDto>> productGetAllCall = productApi.getAll(productUrl);
-
-        productGetAllCall.clone().enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<List<ProductDto>> call, Response<List<ProductDto>> response) {
-                if (response.isSuccessful()) {
-                    listProducts.addAll(Objects.requireNonNull(response.body()));
-                    log.info("Успешно выполнен запрос на получение списка ProductDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение списка ProductDto - {}",
-                             response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ProductDto>> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос списка ProductDto", throwable);
-
-            }
-        });
-
+        try {
+            productGetAllCall.execute();
+        } catch (IOException e) {
+            log.error("Произошла ошибка при получении списка ProductDto - {}", e);
+        }
         return listProducts;
     }
-
-
-
     @Override
+    @Async
     public ProductDto getById(Long id) {
-
-
-
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
 
-        try {
-            productDto = productGetCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка CompanyDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка CompanyDto - {}", e);
-        }
-
-//        productGetCall.clone().enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<ProductDto> call, Response<ProductDto> response) {
-//                if (response.isSuccessful()) {
-//                    productDto = response.body();
-//                    log.info("Успешно выполнен запрос на получение ProductDto");
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}",
-//                            response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ProductDto> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос  ProductDto", throwable);
-//            }
-//        });
-
+            try {
+                productDto = productGetCall.execute().body();
+                log.info("Успешно выполнен запрос на получение ProductDto");
+            } catch (IOException e) {
+                log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e);
+            }
         return productDto;
     }
 
     @Override
+    @Async
     public void create(ProductDto productDto) {
         Call<Void> productCall = productApi.create(productUrl, productDto);
-
-        productCall.clone().enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на добавлении ProductDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на добавлении ProductDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа при добавлении ProductDto", throwable);
-            }
-        });
-
+        try {
+            productCall.execute();
+        } catch (IOException e) {
+            log.error("Произошла ошибка при создании ProductDto - {}", e);
+        }
     }
 
     @Override
+    @Async
     public void update(ProductDto productDto) {
         Call<Void> productUpdateCall = productApi.update(productUrl, productDto);
-        productUpdateCall.clone().enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на обновлении ProductDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на обновлении ProductDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа при обновлении ProductDto", throwable);
-
-            }
-        });
+        try {
+            productUpdateCall.execute();
+        } catch (IOException e) {
+            log.error("Произошла ошибка при обновлении ProductDto - {}", e);
+        }
 
     }
 
     @Override
+    @Async
     public void deleteById(Long id) {
         Call<Void> productDeleteCall = productApi.deleteById(productUrl, id);
-        productDeleteCall.clone().enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на  удалении ProductDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на удалении ProductDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа при удалении ProductDto", throwable);
-
-            }
-        });
+        try {
+            productDeleteCall.execute();
+        } catch (IOException e) {
+            log.error("Произошла ошибка при удалении ProductDto - {}", e);
+        }
     }
 }
