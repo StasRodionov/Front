@@ -25,10 +25,6 @@ public class ProfileView extends Div {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final WarehouseService warehouseService;
-
-
-    private final ProductService productService;
-
     //TODO
     //private final CurrencyService currencyService;
     private final Div div;
@@ -39,8 +35,6 @@ public class ProfileView extends Div {
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.warehouseService = warehouseService;
-        this.productService = productService;
-
         //this.currencyService = currencyService;
         div = new Div();
 
