@@ -29,7 +29,6 @@ public class ProductServiceImp implements ProductService {
 
 
     ProductServiceImp(@Value("${product_url}") String productUrl, Retrofit retrofit) {
-
         this.productUrl = productUrl;
         productApi = retrofit.create(ProductApi.class);
     }
@@ -39,7 +38,8 @@ public class ProductServiceImp implements ProductService {
     public List<ProductDto> getAll() {
         Call<List<ProductDto>> productGetAllCall = productApi.getAll(productUrl);
         try {
-            productGetAllCall.execute();
+            listProducts = productGetAllCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ProductDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при получении списка ProductDto - {}", e);
         }
