@@ -5,21 +5,16 @@ import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.api.ProductApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
-@Async
 public class ProductServiceImp implements ProductService {
 
     private final String productUrl;
@@ -43,8 +38,6 @@ public class ProductServiceImp implements ProductService {
         } catch (IOException e) {
             log.error("Произошла ошибка при получении списка ProductDto - {}", e);
         }
-        System.out.print("Возвращение ");
-        System.out.print(listProducts);
         return listProducts;
     }
 
