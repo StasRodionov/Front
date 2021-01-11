@@ -12,10 +12,10 @@ import com.vaadin.flow.router.Route;
 public class ContractorsView extends Div{
 
     public ContractorsView() {
-        add(addList());
+        add(configurationSubMenu());
     }
 
-    private Tabs addList() {
+    private Tabs configurationSubMenu() {
         Tabs tabs = new Tabs(
                 new Tab(new Label("Контрагенты")),
                 new Tab(new Label("Договоры"))
