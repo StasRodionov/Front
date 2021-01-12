@@ -11,6 +11,8 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ import java.util.List;
 
 @Route(value = "profile", layout = AppView.class)
 @PageTitle("Профиль")
-public class ProfileView extends Div {
+public class ProfileView extends Div implements AfterNavigationObserver {
 
     private final UnitService unitService;
     private final CompanyService companyService;
@@ -40,9 +42,15 @@ public class ProfileView extends Div {
 
         add(configurationSubMenu(), div);
     }
-
+    HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        companyLayout.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    div.add(new CompanyView(companyService));
+                });
+    }
     private Tabs configurationSubMenu() {
-        HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
         companyLayout.addClickListener(e ->
                 companyLayout.getUI().ifPresent(ui -> {
                     div.removeAll();
