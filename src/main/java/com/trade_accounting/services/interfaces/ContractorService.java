@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ContractorService {
 
-    List<ContractorDto> getAll();
+    List<ContractorDto> getAll() throws InterruptedException;
 
     ContractorDto getById(Long id);
 

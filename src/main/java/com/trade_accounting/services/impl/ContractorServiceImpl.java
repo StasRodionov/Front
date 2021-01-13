@@ -12,6 +12,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @Service
@@ -32,6 +33,7 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public List<ContractorDto> getAll() {
+        CountDownLatch latch = new CountDownLatch(1);
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
 
         contractorDtoListCall.enqueue(new Callback<>() {
@@ -39,6 +41,7 @@ public class ContractorServiceImpl implements ContractorService {
             public void onResponse(Call<List<ContractorDto>> call, Response<List<ContractorDto>> response) {
                 if (response.isSuccessful()) {
                     contractorDtoList = response.body();
+                    latch.countDown();
                     log.info("Успешно выполнен запрос на получение списка ContractorDto");
                 } else {
                     log.error("Произошла ошибка при выполнении запроса на получение списка ContractorDto - {}",
@@ -51,7 +54,11 @@ public class ContractorServiceImpl implements ContractorService {
                 log.error("Произошла ошибка при получении ответа на запрос списка ContractorDto", throwable);
             }
         });
-
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return contractorDtoList;
     }
 
