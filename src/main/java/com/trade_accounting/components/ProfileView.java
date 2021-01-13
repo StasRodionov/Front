@@ -45,7 +45,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
 
         add(configurationSubMenu(), div);
     }
-
+    HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
@@ -54,10 +54,13 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                 ((Tabs) e).setSelectedIndex(12);
             }
         });
+        companyLayout.getUI().ifPresent(ui -> {
+            div.removeAll();
+            div.add(new CompanyView(companyService));
+        });
     }
 
     private Tabs configurationSubMenu() {
-        HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
         companyLayout.addClickListener(e ->
                 companyLayout.getUI().ifPresent(ui -> {
                     div.removeAll();
