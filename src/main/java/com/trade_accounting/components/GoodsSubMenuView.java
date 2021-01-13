@@ -6,12 +6,14 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "goods", layout = AppView.class)
 @PageTitle("Товары")
-public class GoodsSubMenuView extends Div {
+public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
     GoodsSubMenuView() {
         add(configurationSubMenu());
@@ -35,4 +37,13 @@ public class GoodsSubMenuView extends Div {
 
     }
 
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+        appView.getChildren().forEach(e -> {
+            if (e.getClass() == Tabs.class) {
+                ((Tabs) e).setSelectedIndex(3);
+            }
+        });
+    }
 }

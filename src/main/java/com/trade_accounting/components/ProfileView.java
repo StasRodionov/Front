@@ -6,6 +6,7 @@ import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -18,10 +19,12 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "profile", layout = AppView.class)
 @PageTitle("Профиль")
 public class ProfileView extends Div implements AfterNavigationObserver {
+
 
     private final UnitService unitService;
     private final CompanyService companyService;
@@ -45,11 +48,18 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     HorizontalLayout companyLayout = new HorizontalLayout(new Label("Юр. лица"));
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+        appView.getChildren().forEach(e -> {
+            if (e.getClass() == Tabs.class) {
+                ((Tabs) e).setSelectedIndex(12);
+            }
+        });
         companyLayout.getUI().ifPresent(ui -> {
-                    div.removeAll();
-                    div.add(new CompanyView(companyService));
-                });
+            div.removeAll();
+            div.add(new CompanyView(companyService));
+        });
     }
+
     private Tabs configurationSubMenu() {
         companyLayout.addClickListener(e ->
                 companyLayout.getUI().ifPresent(ui -> {
