@@ -20,7 +20,7 @@ public class AppView extends AppLayout {
 
     private Tabs configurationMenu() {
         VerticalLayout indicators = new VerticalLayout(VaadinIcon.TRENDING_UP.create(), new Label("Показатели"));
-        indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate("")));
+        indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate("indicators")));
 
         VerticalLayout purchases = new VerticalLayout(VaadinIcon.CART.create(), new Label("Закупки"));
         purchases.addClickListener(e -> purchases.getUI().ifPresent(ui -> ui.navigate("")));
