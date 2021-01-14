@@ -42,7 +42,7 @@ public class IndicatorsView extends Div implements AfterNavigationObserver {
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
             if (e.getClass() == Tabs.class) {
-                ((Tabs) e).setSelectedIndex(3);
+                ((Tabs) e).setSelectedIndex(0);
             }
         });
     }
