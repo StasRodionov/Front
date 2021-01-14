@@ -12,7 +12,6 @@ import com.vaadin.flow.router.Route;
 import java.util.List;
 
 @Route
-@PreserveOnRefresh
 public class AppView extends AppLayout {
 
     public AppView() {
