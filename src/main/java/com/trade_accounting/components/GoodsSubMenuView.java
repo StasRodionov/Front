@@ -20,31 +20,30 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     }
 
     private Tabs configurationSubMenu() {
-        HorizontalLayout goodsLayout = new HorizontalLayout(new Label("Товары и услуги"));
-        HorizontalLayout realisationLayout = new HorizontalLayout(new Label("Оприходывания"));
-        HorizontalLayout chargesLayout = new HorizontalLayout(new Label("Списания"));
-        HorizontalLayout interventarizationLayout = new HorizontalLayout(new Label("Инвентаризация"));
-        HorizontalLayout insideOrdersLayout = new HorizontalLayout(new Label("Внутрение заказы"));
-        HorizontalLayout transferLayout = new HorizontalLayout(new Label("Перемещения"));
-        HorizontalLayout priceLayout = new HorizontalLayout(new Label("Прайс-лист"));
-        HorizontalLayout balanceLayout = new HorizontalLayout(new Label("Остататки"));
-        HorizontalLayout revenueLayout = new HorizontalLayout(new Label("Обороты"));
+        Tab goodsLayout = new Tab("Товары и услуги");
+        Tab realisationLayout = new Tab(new Label("Оприходывания"));
+        Tab chargesLayout = new Tab("Списания");
+        Tab interventarizationLayout = new Tab("Инвентаризация");
+        Tab insideOrdersLayout = new Tab("Внутрение заказы");
+        Tab transferLayout = new Tab("Перемещения");
+        Tab priceLayout = new Tab("Прайс-лист");
+        Tab balanceLayout = new Tab("Остататки");
+        Tab revenueLayout = new Tab("Обороты");
 
 
         return new Tabs(
-                new Tab(goodsLayout),
-                new Tab(realisationLayout),
-                new Tab(chargesLayout),
-                new Tab(interventarizationLayout),
-                new Tab(insideOrdersLayout),
-                new Tab(transferLayout),
-                new Tab(priceLayout),
-                new Tab(balanceLayout),
-                new Tab(revenueLayout)
+                goodsLayout,
+                realisationLayout,
+                chargesLayout,
+                interventarizationLayout,
+                insideOrdersLayout,
+                transferLayout,
+                priceLayout,
+                balanceLayout,
+                revenueLayout
         );
 
     }
-
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
