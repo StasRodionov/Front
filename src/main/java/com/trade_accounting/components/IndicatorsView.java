@@ -3,7 +3,6 @@ package com.trade_accounting.components;
 
         import com.vaadin.flow.component.html.Div;
         import com.vaadin.flow.component.html.Label;
-        import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
         import com.vaadin.flow.component.tabs.Tab;
         import com.vaadin.flow.component.tabs.Tabs;
         import com.vaadin.flow.router.AfterNavigationEvent;
@@ -20,19 +19,19 @@ public class IndicatorsView extends Div implements AfterNavigationObserver {
     }
 
     private Tabs configurationSubMenu() {
-        HorizontalLayout indicatorsLayout = new HorizontalLayout(new Label("Показатели"));
-        HorizontalLayout docsLayout = new HorizontalLayout(new Label("Документы"));
-        HorizontalLayout binLayout = new HorizontalLayout(new Label("Корзина"));
-        HorizontalLayout auditLayout = new HorizontalLayout(new Label("Аудит"));
-        HorizontalLayout filesLayout = new HorizontalLayout(new Label("Файлы"));
+        Tab indicatorsLayout = new Tab(new Label("Показатели"));
+        Tab docsLayout = new Tab(new Label("Документы"));
+        Tab binLayout = new Tab(new Label("Корзина"));
+        Tab auditLayout = new Tab(new Label("Аудит"));
+        Tab filesLayout = new Tab(new Label("Файлы"));
 
 
         return new Tabs(
-                new Tab(indicatorsLayout),
-                new Tab(docsLayout),
-                new Tab(binLayout),
-                new Tab(auditLayout),
-                new Tab(filesLayout)
+                indicatorsLayout,
+                docsLayout,
+                binLayout,
+                auditLayout,
+                filesLayout
         );
 
     }
