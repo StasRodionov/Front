@@ -3,6 +3,7 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.api.ContractorApi;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ContractorServiceImpl implements ContractorService {
         this.contractorApi = retrofit.create(ContractorApi.class);
     }
 
+    @SneakyThrows
     @Override
     public List<ContractorDto> getAll() {
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
@@ -51,7 +53,7 @@ public class ContractorServiceImpl implements ContractorService {
                 log.error("Произошла ошибка при получении ответа на запрос списка ContractorDto", throwable);
             }
         });
-
+        Thread.sleep(100);
         return contractorDtoList;
     }
 
