@@ -31,6 +31,13 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
             div.removeAll();
             div.add(new ContractorsTabView(contractorService));
+
+            AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+            appView.getChildren().forEach(e -> {
+                if (e.getClass() == Tabs.class) {
+                    ((Tabs) e).setSelectedIndex(4);
+                }
+            });
     }
 
     private Tabs configurationSubMenu() {
