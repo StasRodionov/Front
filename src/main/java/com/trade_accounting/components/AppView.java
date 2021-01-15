@@ -26,7 +26,7 @@ public class AppView extends AppLayout {
         purchases.addClickListener(e -> purchases.getUI().ifPresent(ui -> ui.navigate("")));
 
         VerticalLayout sales = new VerticalLayout(VaadinIcon.BRIEFCASE.create(), new Label("Продажи"));
-        sales.addClickListener(e -> sales.getUI().ifPresent(ui -> ui.navigate("")));
+        sales.addClickListener(e -> sales.getUI().ifPresent(ui -> ui.navigate("sells")));
 
         VerticalLayout products = new VerticalLayout(VaadinIcon.STOCK.create(), new Label("Товары"));
         products.addClickListener(e -> products.getUI().ifPresent(ui -> ui.navigate("goods")));
