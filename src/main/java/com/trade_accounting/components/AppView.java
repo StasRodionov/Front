@@ -12,7 +12,6 @@ import com.vaadin.flow.router.Route;
 import java.util.List;
 
 @Route
-@PreserveOnRefresh
 public class AppView extends AppLayout {
 
     public AppView() {
@@ -21,13 +20,13 @@ public class AppView extends AppLayout {
 
     private Tabs configurationMenu() {
         VerticalLayout indicators = new VerticalLayout(VaadinIcon.TRENDING_UP.create(), new Label("Показатели"));
-        indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate("")));
+        indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate("indicators")));
 
         VerticalLayout purchases = new VerticalLayout(VaadinIcon.CART.create(), new Label("Закупки"));
         purchases.addClickListener(e -> purchases.getUI().ifPresent(ui -> ui.navigate("")));
 
         VerticalLayout sales = new VerticalLayout(VaadinIcon.BRIEFCASE.create(), new Label("Продажи"));
-        sales.addClickListener(e -> sales.getUI().ifPresent(ui -> ui.navigate("")));
+        sales.addClickListener(e -> sales.getUI().ifPresent(ui -> ui.navigate("sells")));
 
         VerticalLayout products = new VerticalLayout(VaadinIcon.STOCK.create(), new Label("Товары"));
         products.addClickListener(e -> products.getUI().ifPresent(ui -> ui.navigate("goods")));
@@ -42,7 +41,7 @@ public class AppView extends AppLayout {
         retail.addClickListener(e -> retail.getUI().ifPresent(ui -> ui.navigate("")));
 
         VerticalLayout production = new VerticalLayout(VaadinIcon.FACTORY.create(), new Label("Производство"));
-        production.addClickListener(e -> production.getUI().ifPresent(ui -> ui.navigate("")));
+        production.addClickListener(e -> production.getUI().ifPresent(ui -> ui.navigate("production")));
 
         VerticalLayout tasks = new VerticalLayout(VaadinIcon.CHECK_SQUARE_O.create(), new Label("Задачи"));
         tasks.addClickListener(e -> tasks.getUI().ifPresent(ui -> ui.navigate("")));

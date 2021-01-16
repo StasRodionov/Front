@@ -5,12 +5,14 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "contractors", layout = AppView.class)
 @PageTitle("Контрагенты")
-public class ContractorsView extends Div {
+public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private final Div div;
 
@@ -25,6 +27,16 @@ public class ContractorsView extends Div {
         add(configurationSubMenu(), div);
     }
 
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+        appView.getChildren().forEach(e -> {
+            if (e.getClass() == Tabs.class) {
+                ((Tabs) e).setSelectedIndex(4);
+            }
+        });
+    }
     private Tabs configurationSubMenu() {
 
         Tabs tabs = new Tabs(new Tab("контрагенты"), new Tab("договоры"));
