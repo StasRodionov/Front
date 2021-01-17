@@ -42,9 +42,6 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private Tabs configurationSubMenu() {
 
-        div.removeAll();
-        div.add(new ContractorsTabView(contractorService));
-
         Tabs tabs = new Tabs(new Tab("контрагенты"), new Tab("договоры"));
 
         tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
