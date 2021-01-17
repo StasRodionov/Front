@@ -59,10 +59,6 @@ public class ContractorServiceImpl implements ContractorService {
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
         try {
             contractorDtoList = contractorDtoListCall.execute().body();
-//            Objects.requireNonNull(contractorDtoList).forEach(contr -> contr.setDate(contr.getContractorDate()));
-//            Objects.requireNonNull(contractorDtoList).forEach(contr -> contr.getLegalDetailDto().
-//                    setDate(contr.getLegalDetailDto().getDateOfTheCertificate()));
-
             log.info("Успешно выполнен запрос на получение списка ContractorDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {}", e);
