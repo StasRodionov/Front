@@ -12,7 +12,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -31,29 +34,39 @@ public class ContractorServiceImpl implements ContractorService {
         this.contractorApi = retrofit.create(ContractorApi.class);
     }
 
-    @SneakyThrows
     @Override
     public List<ContractorDto> getAll() {
+//        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
+//
+//        contractorDtoListCall.enqueue(new Callback<>() {
+//            @Override
+//            public void onResponse(Call<List<ContractorDto>> call, Response<List<ContractorDto>> response) {
+//                if (response.isSuccessful()) {
+//                    contractorDtoList = response.body();
+//                    log.info("Успешно выполнен запрос на получение списка ContractorDto");
+//                } else {
+//                    log.error("Произошла ошибка при выполнении запроса на получение списка ContractorDto - {}",
+//                            response.errorBody());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<ContractorDto>> call, Throwable throwable) {
+//                log.error("Произошла ошибка при получении ответа на запрос списка ContractorDto", throwable);
+//            }
+//        });
+        List<ContractorDto> contractorDtoList = new ArrayList<>();
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
+        try {
+            contractorDtoList = contractorDtoListCall.execute().body();
+//            Objects.requireNonNull(contractorDtoList).forEach(contr -> contr.setDate(contr.getContractorDate()));
+//            Objects.requireNonNull(contractorDtoList).forEach(contr -> contr.getLegalDetailDto().
+//                    setDate(contr.getLegalDetailDto().getDateOfTheCertificate()));
 
-        contractorDtoListCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<List<ContractorDto>> call, Response<List<ContractorDto>> response) {
-                if (response.isSuccessful()) {
-                    contractorDtoList = response.body();
-                    log.info("Успешно выполнен запрос на получение списка ContractorDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение списка ContractorDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ContractorDto>> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос списка ContractorDto", throwable);
-            }
-        });
-        Thread.sleep(100);
+            log.info("Успешно выполнен запрос на получение списка ContractorDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {}", e);
+        }
         return contractorDtoList;
     }
 
