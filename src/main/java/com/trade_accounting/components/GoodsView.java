@@ -33,12 +33,14 @@ import java.util.stream.Collectors;
 @PageTitle("Товары и услуги")
 public class GoodsView extends VerticalLayout {
 
-    private final ProductService productService;
-    private final ProductGroupService productGroupService;
+    private final transient ProductService productService;
+    private final transient ProductGroupService productGroupService;
+    private transient List<ProductGroupDto> list;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
         this.productGroupService = productGroupService;
+        list = productGroupService.getAll();
         add(upperLayout(), middleLayout());
     }
 
@@ -192,11 +194,11 @@ public class GoodsView extends VerticalLayout {
 
     List<ProductGroupDto> filterList(Long id) {
         if (id==null){
-            return productGroupService.getAll()
+            return list
                     .stream().filter(x -> x.getParentId() == null)
                     .collect(Collectors.toList());
         }else {
-            return productGroupService.getAll()
+            return list
                     .stream().filter(x -> x.getParentId() != null && x.getParentId().equals(id))
                     .collect(Collectors.toList());
         }
