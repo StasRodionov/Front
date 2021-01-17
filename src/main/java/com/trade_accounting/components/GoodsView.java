@@ -191,9 +191,15 @@ public class GoodsView extends VerticalLayout {
 
 
     List<ProductGroupDto> filterList(Long id) {
-        return productGroupService.getAll()
-                .stream().filter(x -> x.getParentId() == id)
-                .collect(Collectors.toList());
+        if (id==null){
+            return productGroupService.getAll()
+                    .stream().filter(x -> x.getParentId() == null)
+                    .collect(Collectors.toList());
+        }else {
+            return productGroupService.getAll()
+                    .stream().filter(x -> x.getParentId() != null && x.getParentId().equals(id))
+                    .collect(Collectors.toList());
+        }
     }
 
     private Accordion accordion() {
