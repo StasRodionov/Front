@@ -13,7 +13,7 @@ public class InvoiceDto {
 
     private Long id;
     private LocalDateTime date;
-    private TypeOfInvoiceDto typeOfInvoice;
+    private String  typeOfInvoice;
     private CompanyDto company;
     private ContractorDto contractor;
     private boolean isSpend;
