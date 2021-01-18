@@ -34,12 +34,10 @@ import java.util.stream.Collectors;
 public class GoodsView extends VerticalLayout {
 
     private final transient ProductService productService;
-    private final transient ProductGroupService productGroupService;
     private transient List<ProductGroupDto> list;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
-        this.productGroupService = productGroupService;
         list = productGroupService.getAll();
         add(upperLayout(), middleLayout());
     }
