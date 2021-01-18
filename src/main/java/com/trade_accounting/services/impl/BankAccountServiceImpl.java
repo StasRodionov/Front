@@ -11,6 +11,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -18,12 +20,7 @@ import java.util.List;
 public class BankAccountServiceImpl implements BankAccountService {
 
     private final BankAccountApi bankAccountApi;
-
     private final String bankAccountUrl;
-
-    private List<BankAccountDto> bankAccountDtoList;
-
-    private BankAccountDto bankAccountDto;
 
     public BankAccountServiceImpl(@Value("${bank_account_url}") String bankAccountUrl, Retrofit retrofit) {
 
@@ -32,6 +29,23 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    public List<BankAccountDto> getAll() {
+
+        List<BankAccountDto> bankAccountDtoList = new ArrayList<>();
+        Call<List<BankAccountDto>> bankAccountDtoListCall = bankAccountApi.getAll(bankAccountUrl);
+
+        try {
+            bankAccountDtoList.addAll(bankAccountDtoListCall.execute().body());
+            log.info("Успешно выполнен запрос на получение списка BankAccountDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка BankAccountDto - {}", e);
+        }
+
+        return bankAccountDtoList;
+    }
+
+
+    /*@Override
     public List<BankAccountDto> getAll() {
 
         Call<List<BankAccountDto>> bankAccountDtoListCall = bankAccountApi.getAll(bankAccountUrl);
@@ -55,9 +69,27 @@ public class BankAccountServiceImpl implements BankAccountService {
         });
 
         return bankAccountDtoList;
-    }
+    }*/
 
     @Override
+    public BankAccountDto getById(Long id) {
+
+        BankAccountDto bankAccountDto = null;
+        Call<BankAccountDto> bankAccountDtoCall = bankAccountApi.getById(bankAccountUrl, id);
+
+        try {
+            bankAccountDto = bankAccountDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра BankAccountDto по id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение экземпляра BankAccountDto по id= {} - {}",
+                    id, e);
+        }
+
+        return bankAccountDto;
+    }
+
+
+    /*@Override
     public BankAccountDto getById(Long id) {
 
         Call<BankAccountDto> bankAccountDtoCall = bankAccountApi.getById(bankAccountUrl, id);
@@ -80,9 +112,24 @@ public class BankAccountServiceImpl implements BankAccountService {
             }
         });
         return bankAccountDto;
-    }
+    }*/
 
     @Override
+    public void create(BankAccountDto bankAccountDto) {
+
+        Call<Void> bankAccountDtoCall = bankAccountApi.create(bankAccountUrl, bankAccountDto);
+
+        try {
+            bankAccountDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание экземпляра BankAccountDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра BankAccountDto - {}",
+                    e);
+        }
+    }
+
+
+    /*@Override
     public void create(BankAccountDto dto) {
 
         Call<Void> bankAccountDtoCall = bankAccountApi.create(bankAccountUrl, dto);
@@ -103,9 +150,26 @@ public class BankAccountServiceImpl implements BankAccountService {
                 log.error("Произошла ошибка при получении ответа на запрос создания экземпляра BankAccountDto", throwable);
             }
         });
-    }
+    }*/
+
 
     @Override
+    public void update(BankAccountDto bankAccountDto) {
+
+        Call<Void> bankAccountDtoCall = bankAccountApi.update(bankAccountUrl, bankAccountDto);
+
+        try {
+            bankAccountDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра BankAccountDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра BankAccountDto - {}",
+                    e);
+        }
+
+    }
+
+
+    /*@Override
     public void update(BankAccountDto dto) {
 
         Call<Void> bankAccountDtoCall = bankAccountApi.update(bankAccountUrl, dto);
@@ -126,9 +190,23 @@ public class BankAccountServiceImpl implements BankAccountService {
                 log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра BankAccountDto", throwable);
             }
         });
-    }
+    }*/
 
     @Override
+    public void deleteById(Long id) {
+
+        Call<Void> bankAccountDtoCall = bankAccountApi.deleteById(bankAccountUrl, id);
+
+        try {
+            bankAccountDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра BankAccountDto с id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра BankAccountDto с id= {} - {}",
+                    id, e);
+        }
+    }
+
+    /*@Override
     public void deleteById(Long id) {
 
         Call<Void> bankAccountDtoCall = bankAccountApi.deleteById(bankAccountUrl, id);
@@ -149,5 +227,6 @@ public class BankAccountServiceImpl implements BankAccountService {
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра BankAccountDto", throwable);
             }
         });
-    }
+    }*/
+
 }
