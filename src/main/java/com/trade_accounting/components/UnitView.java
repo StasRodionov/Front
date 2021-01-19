@@ -58,7 +58,7 @@ public class UnitView extends VerticalLayout {
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
         grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
 
-        grid.setHeight("72vh");
+        grid.setHeight("66vh");
 
         return grid;
     }
