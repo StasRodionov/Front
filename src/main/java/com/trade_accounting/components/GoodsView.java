@@ -10,10 +10,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -43,9 +42,9 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_SMALL);
-        return buttonQuestion;
+        Button button = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        return button;
     }
 
     private Button buttonRefresh() {
@@ -56,58 +55,59 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusGoods() {
         Button button = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL);
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonPlusService() {
         Button button = new Button("Услуга", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL);
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonPlusSet() {
         Button button = new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL);
-
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonPlusGroup() {
         Button button = new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL);
-
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonFilter() {
         Button button = new Button("Фильтр");
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL);
-
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonSettings() {
-        return new Button(new Icon(VaadinIcon.COG_O));
+        Button button = new Button(new Icon(VaadinIcon.COG_O));
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        return button;
     }
 
     private TextField text() {
         TextField text = new TextField();
         text.setPlaceholder("Наименование, код или артикул");
-        text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
-        text.setWidth("300px");
+        text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL, TextFieldVariant.LUMO_SMALL);
+        text.setWidth("280px");
         return text;
     }
 
 
-    private H2 title() {
-        return new H2("Товары и услуги");
+    private H5 title() {
+        H5 h5 = new H5("Товары и услуги");
+        h5.setWidth("130px");
+        return h5;
     }
 
     private NumberField numberField() {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
-        numberField.setWidth("45px");
+        numberField.setWidth("40px");
         return numberField;
     }
 
@@ -115,7 +115,6 @@ public class GoodsView extends VerticalLayout {
         Select<String> valueSelect = new Select<>();
         valueSelect.setItems("Изменить");
         valueSelect.setValue("Изменить");
-        valueSelect.setWidth("100px");
         return valueSelect;
     }
 
@@ -123,7 +122,6 @@ public class GoodsView extends VerticalLayout {
         Select<String> valueSelect = new Select<>();
         valueSelect.setItems("Печать");
         valueSelect.setValue("Печать");
-        valueSelect.setWidth("100px");
         return valueSelect;
     }
 
@@ -131,7 +129,6 @@ public class GoodsView extends VerticalLayout {
         Select<String> valueSelect = new Select<>();
         valueSelect.setItems("Импорт");
         valueSelect.setValue("Импорт");
-        valueSelect.setWidth("100px");
         return valueSelect;
     }
 
@@ -139,7 +136,6 @@ public class GoodsView extends VerticalLayout {
         Select<String> valueSelect = new Select<>();
         valueSelect.setItems("Экспорт");
         valueSelect.setValue("Экспорт");
-        valueSelect.setWidth("100px");
         return valueSelect;
     }
 
@@ -157,14 +153,16 @@ public class GoodsView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
+        HorizontalLayout printLayout = new HorizontalLayout();
+        printLayout.add(
+        numberField(), valueSelect(), valueSelectPrint());
+        printLayout.setSpacing(false);
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(), buttonPlusService(),
                 buttonPlusSet(), buttonPlusGroup(),
-                buttonFilter(), text(), numberField(), valueSelect(), valueSelectPrint(),
+                buttonFilter(), text(), printLayout,
                 valueSelectImport(),
                 valueSelectExport(), buttonSettings());
-        upperLayout.setSpacing(false);
-        upperLayout.setMargin(true);
-        upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        upperLayout.setDefaultVerticalComponentAlignment(Alignment.AUTO);
         return upperLayout;
     }
 
