@@ -16,12 +16,14 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "company", layout = AppView.class)
@@ -86,9 +88,8 @@ public class CompanyView extends VerticalLayout {
 
         Paginator paginator = getPaginator();
         Grid<CompanyDto> grid = getGrid();
-        String pagesNumber = String.valueOf(paginator.getNumberOfPages());
 
-        TextField pageNumberTextField = new TextField("", "1 из " + pagesNumber);
+        TextField pageNumberTextField = new TextField("", getGridItemsNumber(grid));
         pageNumberTextField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
 
         Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
@@ -111,12 +112,12 @@ public class CompanyView extends VerticalLayout {
                 paginator.setCurrentPage(paginator.getCurrentPage()+1);
             }
 
-            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
-
             prevPageButton.setEnabled(true);
             firstPageButton.setEnabled(true);
 
             reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
         });
 
         lastPageButton.addClickListener(e -> {
@@ -128,9 +129,9 @@ public class CompanyView extends VerticalLayout {
             prevPageButton.setEnabled(true);
             firstPageButton.setEnabled(true);
 
-            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
-
             reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
         });
 
         prevPageButton.addClickListener(e -> {
@@ -146,9 +147,9 @@ public class CompanyView extends VerticalLayout {
             nextPageButton.setEnabled(true);
             lastPageButton.setEnabled(true);
 
-            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
-
             reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
         });
 
         firstPageButton.addClickListener(e -> {
@@ -160,9 +161,9 @@ public class CompanyView extends VerticalLayout {
             nextPageButton.setEnabled(true);
             lastPageButton.setEnabled(true);
 
-            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
-
             reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
         });
 
         toolbarLow.add(firstPageButton,
@@ -243,6 +244,12 @@ public class CompanyView extends VerticalLayout {
         selector.setValue("Изменить");
         selector.setWidth("130px");
         return selector;
+    }
+
+    private String getGridItemsNumber(Grid<CompanyDto> grid) {
+        List<CompanyDto> currentDataOfGrid = grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+
+        return currentDataOfGrid.get(0).getId() + "-" + currentDataOfGrid.get(currentDataOfGrid.size()-1).getId() + " из " + data.size();
     }
 
     private void reloadGrid(Grid<CompanyDto> grid, Paginator paginator) {
