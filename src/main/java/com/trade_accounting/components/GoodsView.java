@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
 @PageTitle("Товары и услуги")
 public class GoodsView extends VerticalLayout {
 
-    private final transient ProductService productService;
-    private transient List<ProductGroupDto> list;
+    private final ProductService productService;
+    private  List<ProductGroupDto> list;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
@@ -200,7 +200,7 @@ public class GoodsView extends VerticalLayout {
         }
     }
 
-    private Accordion accordion() {
+    private Accordion accordion(){
         Accordion accordion = new Accordion();
 
         for (ProductGroupDto pG : filterList(null)
@@ -215,13 +215,13 @@ public class GoodsView extends VerticalLayout {
                     for (ProductGroupDto sub3PG : filterList(sub2PG.getId())
                     ) {
                         sub3Accordion.add(sub3PG.getName(), null)
-                                .addThemeVariants(DetailsVariant.SMALL);
+                                .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
                     }
                     sub2Accordion.add(sub2PG.getName(), sub3Accordion)
-                            .addThemeVariants(DetailsVariant.FILLED);
+                            .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
                 }
                 subAccordion.add(subPG.getName(), sub2Accordion)
-                        .addThemeVariants(DetailsVariant.REVERSE);
+                        .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
             }
             accordion.add(pG.getName(), subAccordion);
         }
