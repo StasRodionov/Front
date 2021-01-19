@@ -11,6 +11,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -21,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "company", layout = AppView.class)
 @PageTitle("Юр. лица")
-public class CompanyView extends Div {
+public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
 
