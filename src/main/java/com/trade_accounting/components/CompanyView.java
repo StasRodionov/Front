@@ -1,12 +1,14 @@
 package com.trade_accounting.components;
 
+import com.google.gson.Gson;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.vaadin.componentfactory.Paginator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -16,10 +18,16 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.awt.*;
+import java.util.List;
+
+@Slf4j
 @Route(value = "company", layout = AppView.class)
 @PageTitle("Юр. лица")
 public class CompanyView extends VerticalLayout {
@@ -35,7 +43,9 @@ public class CompanyView extends VerticalLayout {
 
     private Grid<CompanyDto> getGrid() {
         Grid<CompanyDto> grid = new Grid<>(CompanyDto.class);
-        grid.setItems(companyService.getAll());
+
+        grid.setId("companyDto-grid");
+
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.setColumns("id", "name", "inn", "address", "commentToAddress",
@@ -60,6 +70,8 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("stamp").setHeader("Печать");
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
 
+        loadGrid(getData(), grid, 1, 10);
+
         return grid;
     }
 
@@ -74,8 +86,46 @@ public class CompanyView extends VerticalLayout {
 
     private HorizontalLayout getToolbarLow() {
         HorizontalLayout toolbarLow = new HorizontalLayout();
-        toolbarLow.add(getAngleDoubleLeft(), getAngleLeft(), getTextFieldLow(), getAngleRight(), getAngleDoubleRight());
+
+        List<CompanyDto> data = getData();
+        Grid<CompanyDto> grid = getGrid();
+        Paginator paginator = getPaginator(data);
+
+        paginator.addChangeSelectedPageListener(e -> {
+            System.out.println("Page: " + paginator.getCurrentPage());
+        });
+
+
+        Button button = getAngleRight();
+        button.addClickListener(e -> {
+            System.out.println(paginator.getCurrentPage());
+            paginator.setCurrentPage(paginator.getCurrentPage()+1);
+
+            loadGrid(data, grid, paginator.getCurrentPage(), 10);
+
+            remove(getComponentAt(1));
+            addComponentAtIndex(1, grid);
+        });
+
+        toolbarLow.add(getAngleDoubleLeft(),
+                getAngleLeft(),
+                getTextFieldLow(),
+                button,
+                getAngleDoubleRight());
+
         return toolbarLow;
+    }
+
+    private List<CompanyDto> getData() {
+        return companyService.getAll();
+    }
+
+    private <T> Paginator getPaginator(List<T> data) {
+        int numberItems = data.size();
+        int itemsPerPage = 10;
+        int numberPages = numberItems / itemsPerPage;
+
+        return new Paginator(numberPages);
     }
 
     private TextField getTextFieldLow() {
@@ -160,5 +210,14 @@ public class CompanyView extends VerticalLayout {
         selector.setValue("Изменить");
         selector.setWidth("130px");
         return selector;
+    }
+
+    private <T> void loadGrid(List<T> data, Grid<T> grid, int page, int itemsPerPage) {
+        int from = (page - 1) * itemsPerPage;
+
+        int to = (from + itemsPerPage);
+        to = Math.min(to, data.size());
+
+        grid.setItems(data.subList(from, to));
     }
 }
