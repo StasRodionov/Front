@@ -19,23 +19,23 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class ContractorModalWindow extends Dialog {
 
-    private final TextField nameField = new TextField();
+    private TextField nameField = new TextField();
 
-    private final TextField phoneField = new TextField();
+    private TextField phoneField = new TextField();
 
-    private final TextField faxField = new TextField();
+    private TextField faxField = new TextField();
 
-    private final TextField emailField = new TextField();
+    private TextField emailField = new TextField();
 
-    private final TextArea addressField = new TextArea();
+    private TextArea addressField = new TextArea();
 
-    private final TextArea commentToAddressField = new TextArea();
+    private TextArea commentToAddressField = new TextArea();
 
-    private final TextArea commentField = new TextArea();
+    private TextArea commentField = new TextArea();
 
-    private final TextField innField = new TextField();
+    private TextField innField = new TextField();
 
-    private final TextField sortNumberField = new TextField();
+    private TextField sortNumberField = new TextField();
 
     private final String labelWidth = "100px";
 
