@@ -16,8 +16,8 @@ import com.vaadin.flow.router.Route;
 @Route(value = "goods", layout = AppView.class)
 @PageTitle("Товары")
 public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
-    private final transient ProductService productService;
-    private final transient ProductGroupService productGroupService;
+    private final ProductService productService;
+    private final ProductGroupService productGroupService;
 
     private final Div div;
 
