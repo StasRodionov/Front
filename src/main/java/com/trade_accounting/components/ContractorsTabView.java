@@ -113,6 +113,7 @@ public class ContractorsTabView extends VerticalLayout {
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.setHeight("66vh");
         return grid;
     }
 
