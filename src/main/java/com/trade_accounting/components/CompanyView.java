@@ -66,6 +66,7 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("stamp").setHeader("Печать");
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
 
+        grid.setHeight("66vh");
         loadItemsToGrid(grid,1);
 
         return grid;
