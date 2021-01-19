@@ -1,6 +1,5 @@
 package com.trade_accounting.components;
 
-import com.google.gson.Gson;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.componentfactory.Paginator;
@@ -8,7 +7,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -18,13 +16,11 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.awt.*;
 import java.util.List;
 
 @Slf4j
@@ -33,19 +29,19 @@ import java.util.List;
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
+    private static final int ITEMS_PER_PAGE = 100;
+    private final List<CompanyDto> data;
 
     @Autowired
     public CompanyView(CompanyService companyService) {
 
         this.companyService = companyService;
+        this.data = getData();
         add(getToolbar(), getGrid(), getToolbarLow());
     }
 
     private Grid<CompanyDto> getGrid() {
         Grid<CompanyDto> grid = new Grid<>(CompanyDto.class);
-
-        grid.setId("companyDto-grid");
-
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.setColumns("id", "name", "inn", "address", "commentToAddress",
@@ -70,7 +66,7 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("stamp").setHeader("Печать");
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
 
-        loadGrid(getData(), grid, 1, 10);
+        loadItemsToGrid(grid,1);
 
         return grid;
     }
@@ -87,67 +83,103 @@ public class CompanyView extends VerticalLayout {
     private HorizontalLayout getToolbarLow() {
         HorizontalLayout toolbarLow = new HorizontalLayout();
 
-        List<CompanyDto> data = getData();
+        Paginator paginator = getPaginator();
         Grid<CompanyDto> grid = getGrid();
-        Paginator paginator = getPaginator(data);
+        String pagesNumber = String.valueOf(paginator.getNumberOfPages());
 
-        paginator.addChangeSelectedPageListener(e -> {
-            System.out.println("Page: " + paginator.getCurrentPage());
+        TextField pageNumberTextField = new TextField("", "1 из " + pagesNumber);
+        pageNumberTextField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
+
+        Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
+        Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
+        Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
+        Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
+
+        if (paginator.getCurrentPage() == 1) {
+            firstPageButton.setEnabled(false);
+            prevPageButton.setEnabled(false);
+        }
+
+        nextPageButton.addClickListener(e -> {
+            if (paginator.getNumberOfPages() == paginator.getCurrentPage()+1) {
+                paginator.setCurrentPage(paginator.getCurrentPage()+1);
+
+                nextPageButton.setEnabled(false);
+                lastPageButton.setEnabled(false);
+            } else {
+                paginator.setCurrentPage(paginator.getCurrentPage()+1);
+            }
+
+            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
+
+            prevPageButton.setEnabled(true);
+            firstPageButton.setEnabled(true);
+
+            reloadGrid(grid, paginator);
         });
 
+        lastPageButton.addClickListener(e -> {
+            paginator.setCurrentPage(paginator.getNumberOfPages());
 
-        Button button = getAngleRight();
-        button.addClickListener(e -> {
-            System.out.println(paginator.getCurrentPage());
-            paginator.setCurrentPage(paginator.getCurrentPage()+1);
+            nextPageButton.setEnabled(false);
+            lastPageButton.setEnabled(false);
 
-            loadGrid(data, grid, paginator.getCurrentPage(), 10);
+            prevPageButton.setEnabled(true);
+            firstPageButton.setEnabled(true);
 
-            remove(getComponentAt(1));
-            addComponentAtIndex(1, grid);
+            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
+
+            reloadGrid(grid, paginator);
         });
 
-        toolbarLow.add(getAngleDoubleLeft(),
-                getAngleLeft(),
-                getTextFieldLow(),
-                button,
-                getAngleDoubleRight());
+        prevPageButton.addClickListener(e -> {
+            if (paginator.getCurrentPage()-1 == 1) {
+                paginator.setCurrentPage(paginator.getCurrentPage()-1);
+
+                prevPageButton.setEnabled(false);
+                firstPageButton.setEnabled(false);
+            } else {
+                paginator.setCurrentPage(paginator.getCurrentPage()-1);
+            }
+
+            nextPageButton.setEnabled(true);
+            lastPageButton.setEnabled(true);
+
+            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
+
+            reloadGrid(grid, paginator);
+        });
+
+        firstPageButton.addClickListener(e -> {
+            paginator.setCurrentPage(1);
+
+            prevPageButton.setEnabled(false);
+            firstPageButton.setEnabled(false);
+
+            nextPageButton.setEnabled(true);
+            lastPageButton.setEnabled(true);
+
+            pageNumberTextField.setPlaceholder(paginator.getCurrentPage() + " из " + pagesNumber);
+
+            reloadGrid(grid, paginator);
+        });
+
+        toolbarLow.add(firstPageButton,
+                prevPageButton,
+                pageNumberTextField,
+                nextPageButton,
+                lastPageButton);
 
         return toolbarLow;
     }
 
-    private List<CompanyDto> getData() {
-        return companyService.getAll();
-    }
-
-    private <T> Paginator getPaginator(List<T> data) {
-        int numberItems = data.size();
-        int itemsPerPage = 10;
-        int numberPages = numberItems / itemsPerPage;
-
+    private Paginator getPaginator() {
+        int numberPages = (int) Math.ceil((float) data.size() / ITEMS_PER_PAGE);
         return new Paginator(numberPages);
     }
 
-    private TextField getTextFieldLow() {
-        TextField text = new TextField("", "1-1 из 1");
-        text.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return text;
-    }
-
-    private Button getAngleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    }
-
-    private Button getAngleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-    }
-
-    private Button getAngleDoubleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-    }
-
-    private Button getAngleDoubleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
+    private List<CompanyDto> getData() {
+        return companyService.getAll();
     }
 
     private Button getButtonCog() {
@@ -212,10 +244,17 @@ public class CompanyView extends VerticalLayout {
         return selector;
     }
 
-    private <T> void loadGrid(List<T> data, Grid<T> grid, int page, int itemsPerPage) {
-        int from = (page - 1) * itemsPerPage;
+    private void reloadGrid(Grid<CompanyDto> grid, Paginator paginator) {
+        loadItemsToGrid(grid, paginator.getCurrentPage());
 
-        int to = (from + itemsPerPage);
+        remove(getComponentAt(1));
+        addComponentAtIndex(1, grid);
+    }
+
+    private void loadItemsToGrid(Grid<CompanyDto> grid, int page) {
+        int from = (page - 1) * ITEMS_PER_PAGE;
+
+        int to = (from + ITEMS_PER_PAGE);
         to = Math.min(to, data.size());
 
         grid.setItems(data.subList(from, to));
