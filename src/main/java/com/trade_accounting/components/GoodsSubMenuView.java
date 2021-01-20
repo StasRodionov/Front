@@ -67,5 +67,9 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 ((Tabs) e).setSelectedIndex(3);
             }
         });
+        getUI().ifPresent(ui -> {
+            div.removeAll();
+            div.add(new GoodsView(productService,productGroupService));
+        });
     }
 }
