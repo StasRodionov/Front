@@ -103,12 +103,13 @@ public class GoodsView extends VerticalLayout {
     private NumberField numberField() {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
-        numberField.setWidth("40px");
+        numberField.setWidth("35px");
         return numberField;
     }
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Изменить");
         valueSelect.setValue("Изменить");
         return valueSelect;
@@ -116,6 +117,7 @@ public class GoodsView extends VerticalLayout {
 
     private Select<String> valueSelectPrint() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Печать");
         valueSelect.setValue("Печать");
         return valueSelect;
@@ -123,6 +125,7 @@ public class GoodsView extends VerticalLayout {
 
     private Select<String> valueSelectImport() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Импорт");
         valueSelect.setValue("Импорт");
         return valueSelect;
@@ -130,6 +133,7 @@ public class GoodsView extends VerticalLayout {
 
     private Select<String> valueSelectExport() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Экспорт");
         valueSelect.setValue("Экспорт");
         return valueSelect;
@@ -152,7 +156,7 @@ public class GoodsView extends VerticalLayout {
 
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(), buttonPlusService(),
                 buttonPlusSet(), buttonPlusGroup(),
-                buttonFilter(), text(),
+                buttonFilter(), text(), numberField(), valueSelect(), valueSelectPrint(),
                 valueSelectImport(),
                 valueSelectExport(), buttonSettings());
         upperLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
