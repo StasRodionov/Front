@@ -86,7 +86,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         try {
             invoiceDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра InvoiceDto");
+            log.info("Успешно выполнен запрос на удаление экземпляра InvoiceDto с id = {}", id);
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceDto по id= {} - {}", id, e);
         }
