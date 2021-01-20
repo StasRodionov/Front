@@ -20,7 +20,6 @@ import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +33,6 @@ public class CompanyView extends VerticalLayout {
     private static final int ITEMS_PER_PAGE = 100;
     private final List<CompanyDto> data;
 
-    @Autowired
     public CompanyView(CompanyService companyService) {
 
         this.companyService = companyService;
