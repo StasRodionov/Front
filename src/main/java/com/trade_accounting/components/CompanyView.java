@@ -2,10 +2,10 @@ package com.trade_accounting.components;
 
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.vaadin.componentfactory.Paginator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -16,26 +16,32 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
 @Route(value = "company", layout = AppView.class)
 @PageTitle("Юр. лица")
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
+    private static final int ITEMS_PER_PAGE = 100;
+    private final List<CompanyDto> data;
 
-    @Autowired
     public CompanyView(CompanyService companyService) {
 
         this.companyService = companyService;
+        this.data = getData();
         add(getToolbar(), getGrid(), getToolbarLow());
     }
 
     private Grid<CompanyDto> getGrid() {
         Grid<CompanyDto> grid = new Grid<>(CompanyDto.class);
-        grid.setItems(companyService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.setColumns("id", "name", "inn", "address", "commentToAddress",
@@ -60,6 +66,9 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("stamp").setHeader("Печать");
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
 
+        grid.setHeight("66vh");
+        loadItemsToGrid(grid,1);
+
         return grid;
     }
 
@@ -74,30 +83,103 @@ public class CompanyView extends VerticalLayout {
 
     private HorizontalLayout getToolbarLow() {
         HorizontalLayout toolbarLow = new HorizontalLayout();
-        toolbarLow.add(getAngleDoubleLeft(), getAngleLeft(), getTextFieldLow(), getAngleRight(), getAngleDoubleRight());
+
+        Paginator paginator = getPaginator();
+        Grid<CompanyDto> grid = getGrid();
+
+        TextField pageNumberTextField = new TextField("", getGridItemsNumber(grid));
+        pageNumberTextField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
+
+        Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
+        Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
+        Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
+        Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
+
+        if (paginator.getCurrentPage() == 1) {
+            firstPageButton.setEnabled(false);
+            prevPageButton.setEnabled(false);
+        }
+
+        nextPageButton.addClickListener(e -> {
+            if (paginator.getNumberOfPages() == paginator.getCurrentPage()+1) {
+                paginator.setCurrentPage(paginator.getCurrentPage()+1);
+
+                nextPageButton.setEnabled(false);
+                lastPageButton.setEnabled(false);
+            } else {
+                paginator.setCurrentPage(paginator.getCurrentPage()+1);
+            }
+
+            prevPageButton.setEnabled(true);
+            firstPageButton.setEnabled(true);
+
+            reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+        });
+
+        lastPageButton.addClickListener(e -> {
+            paginator.setCurrentPage(paginator.getNumberOfPages());
+
+            nextPageButton.setEnabled(false);
+            lastPageButton.setEnabled(false);
+
+            prevPageButton.setEnabled(true);
+            firstPageButton.setEnabled(true);
+
+            reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+        });
+
+        prevPageButton.addClickListener(e -> {
+            if (paginator.getCurrentPage()-1 == 1) {
+                paginator.setCurrentPage(paginator.getCurrentPage()-1);
+
+                prevPageButton.setEnabled(false);
+                firstPageButton.setEnabled(false);
+            } else {
+                paginator.setCurrentPage(paginator.getCurrentPage()-1);
+            }
+
+            nextPageButton.setEnabled(true);
+            lastPageButton.setEnabled(true);
+
+            reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+        });
+
+        firstPageButton.addClickListener(e -> {
+            paginator.setCurrentPage(1);
+
+            prevPageButton.setEnabled(false);
+            firstPageButton.setEnabled(false);
+
+            nextPageButton.setEnabled(true);
+            lastPageButton.setEnabled(true);
+
+            reloadGrid(grid, paginator);
+
+            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+        });
+
+        toolbarLow.add(firstPageButton,
+                prevPageButton,
+                pageNumberTextField,
+                nextPageButton,
+                lastPageButton);
+
         return toolbarLow;
     }
 
-    private TextField getTextFieldLow() {
-        TextField text = new TextField("", "1-1 из 1");
-        text.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return text;
+    private Paginator getPaginator() {
+        int numberPages = (int) Math.ceil((float) data.size() / ITEMS_PER_PAGE);
+        return new Paginator(numberPages);
     }
 
-    private Button getAngleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    }
-
-    private Button getAngleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-    }
-
-    private Button getAngleDoubleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-    }
-
-    private Button getAngleDoubleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
+    private List<CompanyDto> getData() {
+        return companyService.getAll();
     }
 
     private Button getButtonCog() {
@@ -160,5 +242,27 @@ public class CompanyView extends VerticalLayout {
         selector.setValue("Изменить");
         selector.setWidth("130px");
         return selector;
+    }
+
+    private String getGridItemsNumber(Grid<CompanyDto> grid) {
+        List<CompanyDto> currentDataOfGrid = grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+
+        return currentDataOfGrid.get(0).getId() + "-" + currentDataOfGrid.get(currentDataOfGrid.size()-1).getId() + " из " + data.size();
+    }
+
+    private void reloadGrid(Grid<CompanyDto> grid, Paginator paginator) {
+        loadItemsToGrid(grid, paginator.getCurrentPage());
+
+        remove(getComponentAt(1));
+        addComponentAtIndex(1, grid);
+    }
+
+    private void loadItemsToGrid(Grid<CompanyDto> grid, int page) {
+        int from = (page - 1) * ITEMS_PER_PAGE;
+
+        int to = (from + ITEMS_PER_PAGE);
+        to = Math.min(to, data.size());
+
+        grid.setItems(data.subList(from, to));
     }
 }
