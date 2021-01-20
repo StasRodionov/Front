@@ -23,6 +23,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final WarehouseService warehouseService;
     private final CurrencyService currencyService;
     private final Div div;
+    
     public ProfileView(UnitService unitService, CompanyService companyService,
                        EmployeeService employeeService, WarehouseService warehouseService,
                        CurrencyService currencyService) {
