@@ -1,11 +1,20 @@
 package com.trade_accounting.components;
 
+import com.trade_accounting.components.modal_windows.AddEmployeeModalWindowView;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.vaadin.flow.component.ClickEvent;
+//import com.vaadin.ui.Window;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -18,15 +27,22 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.awt.*;
+
+//import java.awt.*;
+
 
 @Route(value = "employee", layout = AppView.class)
 @PageTitle("Сотрудники")
 public class EmployeeView extends VerticalLayout {
 
+    private Div div;
+
     private final EmployeeService employeeService;
 
     public EmployeeView(EmployeeService employeeService){
         this.employeeService = employeeService;
+        div = new Div();
         add(upperLayout(), grid(employeeService), lowerLayout());
     }
 
@@ -44,6 +60,32 @@ public class EmployeeView extends VerticalLayout {
 
     private Button buttonUnit(){
         Button buttonUnit = new Button("Сотрудник", new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonUnit.addClickShortcut(Key.ENTER);
+//        div = null;
+        buttonUnit.addClickListener(click -> {
+            System.out.println("Вы нажали кнопку для добавление сотрудника!");
+//            div = new Div();
+//            div = new Div();
+            div.removeAll();
+
+            AddEmployeeModalWindowView addEmployeeModalWindowView =
+                    new AddEmployeeModalWindowView(employeeService);
+            addEmployeeModalWindowView.isModal();
+            addEmployeeModalWindowView.open();
+
+
+            HorizontalLayout layoutUpper = new HorizontalLayout(new Label("Добавление сотрудника"));
+//            div.remove(layoutUpper,addEmployeeLastName(),addEmployeeFirstName(), addEmployeeMiddleName());
+//            div.add(layoutUpper,addEmployeeLastName(),addEmployeeFirstName(), addEmployeeMiddleName(),addButtonShow());
+
+            add(div);
+            div = new Div();
+//            upperLayout().removeAll();
+//            lowerLayout().removeAll();
+//            add(upperLayout(), grid(employeeService), lowerLayout());
+            grid(employeeService);
+        });
+
         return buttonUnit;
     }
 
