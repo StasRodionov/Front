@@ -96,10 +96,12 @@ public class CurrencyView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.setColumns("id", "shortName","fullName","digitalCode","letterCode");
+        grid.getColumnByKey("id").setHeader("ID");
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
         grid.getColumnByKey("digitalCode").setHeader("Цифровой код");
         grid.getColumnByKey("letterCode").setHeader("Буквенный код");
+        grid.setHeight("66vh");
         return grid;
     }
 
