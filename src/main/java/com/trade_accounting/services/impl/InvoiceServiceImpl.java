@@ -46,9 +46,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         try {
             invoiceDto = invoiceDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экзаепляра InvoiceDto с id = {}", id);
+            log.info("Успешно выполнен запрос на получение экземпляра InvoiceDto с id = {}", id);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра InvoiceDto - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение экземпляра InvoiceDto по id= {} - {}", e);
         }
         return invoiceDto;
     }
@@ -88,7 +88,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceDtoCall.execute();
             log.info("Успешно выполнен запрос на удаление экземпляра InvoiceDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceDto - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceDto по id= {} - {}", e);
         }
     }
 }
