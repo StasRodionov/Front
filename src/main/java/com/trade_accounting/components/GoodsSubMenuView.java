@@ -1,6 +1,8 @@
 package com.trade_accounting.components;
 
 
+import com.trade_accounting.services.interfaces.ProductGroupService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -14,13 +16,26 @@ import com.vaadin.flow.router.Route;
 @Route(value = "goods", layout = AppView.class)
 @PageTitle("Товары")
 public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
+    private final ProductService productService;
+    private final ProductGroupService productGroupService;
 
-    GoodsSubMenuView() {
-        add(configurationSubMenu());
+    private final Div div;
+
+    GoodsSubMenuView(ProductService productService, ProductGroupService productGroupService) {
+        this.productService = productService;
+        this.productGroupService = productGroupService;
+        div = new Div();
+        add(configurationSubMenu(), div);
     }
 
     private Tabs configurationSubMenu() {
-        Tab goodsLayout = new Tab("Товары и услуги");
+        HorizontalLayout goodsLayout = new HorizontalLayout(new Label("Товары и услуги"));
+
+        goodsLayout.addClickListener(e ->
+                goodsLayout.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    div.add(new GoodsView(productService, productGroupService));
+                }));
         Tab realisationLayout = new Tab(new Label("Оприходывания"));
         Tab chargesLayout = new Tab("Списания");
         Tab interventarizationLayout = new Tab("Инвентаризация");
@@ -32,7 +47,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
 
         return new Tabs(
-                goodsLayout,
+               new Tab(goodsLayout),
                 realisationLayout,
                 chargesLayout,
                 interventarizationLayout,

@@ -50,7 +50,7 @@ public class ContractsView extends VerticalLayout {
         grid.getColumnByKey("archive").setAutoWidth(true).setHeader("Архив");
         grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
         grid.getColumnByKey("legalDetailDto").setHeader("Реквизиты");
-
+        grid.setHeight("66vh");
         return grid;
 
     }

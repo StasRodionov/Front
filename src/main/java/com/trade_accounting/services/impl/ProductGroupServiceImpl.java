@@ -7,10 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -35,23 +34,12 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     public List<ProductGroupDto> getAll() {
         Call<List<ProductGroupDto>> productGroupDtoListCall = productGroupApi.getAll(productGroupUrl);
 
-        productGroupDtoListCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<List<ProductGroupDto>> call, Response<List<ProductGroupDto>> response) {
-                if (response.isSuccessful()) {
-                    productGroupDtoList = response.body();
-                    log.info("Успешно выполнен запрос на получение списка ProductGroupDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение списка ContractorDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ProductGroupDto>> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос списка ProductGroupDto", throwable);
-            }
-        });
+        try {
+            productGroupDtoList = productGroupDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при получении списка ProductDto - {}", e);
+        }
 
         return productGroupDtoList;
     }
@@ -60,23 +48,12 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     public ProductGroupDto getById(Long id) {
         Call<ProductGroupDto> productGroupDtoCall = productGroupApi.getById(productGroupUrl, id);
 
-        productGroupDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<ProductGroupDto> call, Response<ProductGroupDto> response) {
-                if (response.isSuccessful()) {
-                    productGroupDto = response.body();
-                    log.info("Успешно выполнен запрос на получение экземпляра ProductGroupDto по id= {}", id);
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра ProductGroupDto по id= {} - {}",
-                            id, response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ProductGroupDto> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос экземпляра ProductGroupDto по id", throwable);
-            }
-        });
+        try {
+            productGroupDto = productGroupDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e);
+        }
 
         return productGroupDto;
     }
@@ -85,65 +62,32 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     public void create(ProductGroupDto dto) {
         Call<Void> productGroupDtoCall = productGroupApi.create(productGroupUrl, productGroupDto);
 
-        productGroupDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на создание экземпляра ProductGroupDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра ProductGroupDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра ProductGroupDto", throwable);
-            }
-        });
+        try {
+            productGroupDtoCall.execute();
+        } catch (IOException e) {
+            log.error("Произошла ошибка при создании ProductDto - {}", e);
+        }
     }
 
     @Override
     public void update(ProductGroupDto dto) {
         Call<Void> productGroupDtoCall = productGroupApi.update(productGroupUrl, productGroupDto);
 
-        productGroupDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на обновление экземпляра ProductGroupDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра ProductGroupDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра ProductGroupDto", throwable);
-            }
-        });
+        try {
+            productGroupDtoCall.execute();
+        } catch (IOException e) {
+            log.error("Произошла ошибка при обновлении ProductDto - {}", e);
+        }
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> productGroupDtoCall = productGroupApi.deleteById(productGroupUrl, id);
 
-        productGroupDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на удаление экземпляра ProductGroupDto с id= {}", id);
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ProductGroupDto с id= {} - {}",
-                            id, response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра ProductGroupDto", throwable);
-            }
-        });
+        try {
+            productGroupDtoCall.execute();
+        } catch (IOException e) {
+            log.error("Произошла ошибка при удалении ProductDto - {}", e);
+        }
     }
 }
