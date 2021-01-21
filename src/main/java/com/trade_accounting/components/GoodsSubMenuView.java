@@ -47,7 +47,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
 
         return new Tabs(
-               new Tab(goodsLayout),
+                new Tab(goodsLayout),
                 realisationLayout,
                 chargesLayout,
                 interventarizationLayout,
@@ -59,6 +59,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         );
 
     }
+
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
@@ -66,6 +67,10 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
             if (e.getClass() == Tabs.class) {
                 ((Tabs) e).setSelectedIndex(3);
             }
+        });
+        getUI().ifPresent(ui -> {
+            div.removeAll();
+            div.add(new GoodsView(productService, productGroupService));
         });
     }
 }
