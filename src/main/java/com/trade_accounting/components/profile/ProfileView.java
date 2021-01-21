@@ -1,7 +1,9 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.CurrencyView;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -21,13 +23,17 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final WarehouseService warehouseService;
+    private final CurrencyService currencyService;
     private final Div div;
+    
     public ProfileView(UnitService unitService, CompanyService companyService,
-                       EmployeeService employeeService, WarehouseService warehouseService) {
+                       EmployeeService employeeService, WarehouseService warehouseService,
+                       CurrencyService currencyService) {
         this.unitService = unitService;
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.warehouseService = warehouseService;
+        this.currencyService = currencyService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -70,7 +76,8 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                     div.add(new WareHouseView(warehouseService));
                     break;
                 case "Валюты":
-                    //  нужно добавить страницу для валит
+                    div.removeAll();
+                    div.add(new CurrencyView(currencyService));
                     break;
                 case "Единицы измерения":
                     div.removeAll();

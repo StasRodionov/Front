@@ -1,6 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.ContractorsTabView;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.html.Div;
@@ -43,18 +44,18 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private Tabs configurationSubMenu() {
 
-        Tabs tabs = new Tabs(new Tab("контрагенты"), new Tab("договоры"));
+        Tabs tabs = new Tabs(new Tab("Контрагенты"), new Tab("Договоры"));
 
         tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
 
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
             switch (tabName) {
-                case "контрагенты":
+                case "Контрагенты":
                     div.removeAll();
                     div.add(new ContractorsTabView(contractorService));
                     break;
-                case "договоры":
+                case "Договоры":
                     div.removeAll();
                     div.add(new ContractsView(contractService));
             }
