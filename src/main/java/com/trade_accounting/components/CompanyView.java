@@ -17,11 +17,13 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,52 +32,80 @@ import java.util.stream.Collectors;
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
-    private static final int ITEMS_PER_PAGE = 100;
     private final List<CompanyDto> data;
+    private final Grid<CompanyDto> grid;
+
+    private static final int ITEMS_PER_PAGE = 100;
+    private final Paginator paginator;
+    private final TextField pageNumberTextField;
 
     public CompanyView(CompanyService companyService) {
 
         this.companyService = companyService;
         this.data = getData();
-        add(getToolbar(), getGrid(), getToolbarLow());
+        this.paginator = getPaginator();
+        this.grid = getGrid();
+        this.pageNumberTextField = getPageNumberTextField();
+
+        add(getToolbar(), grid, getToolbarLow());
     }
 
     private Grid<CompanyDto> getGrid() {
-        Grid<CompanyDto> grid = new Grid<>(CompanyDto.class);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        Grid<CompanyDto> dtoGrid = new Grid<>(CompanyDto.class);
+        dtoGrid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("id", "name", "inn", "address", "commentToAddress",
+        dtoGrid.setColumns("id", "name", "inn", "address", "commentToAddress",
                 "email", "phone", "fax", "leader", "leaderManagerPosition", "leaderSignature",
                 "chiefAccountant", "chiefAccountantSignature", "payerVat",
                 "stamp", "sortNumber", "legalDetailDto");
 
-        grid.getColumnByKey("name").setHeader("Наименование");
-        grid.getColumnByKey("inn").setHeader("ИНН");
-        grid.getColumnByKey("address").setHeader("Адрес");
-        grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
-        grid.getColumnByKey("email").setHeader("E-mail");
-        grid.getColumnByKey("phone").setHeader("Телефон");
-        grid.getColumnByKey("fax").setHeader("Факс");
-        grid.getColumnByKey("leader").setHeader("Руководитель");
-        grid.getColumnByKey("leaderManagerPosition").setHeader("Должность руководителя");
-        grid.getColumnByKey("leaderSignature").setHeader("Подпись руководителя");
-        grid.getColumnByKey("chiefAccountant").setHeader("Главный бухгалтер");
-        grid.getColumnByKey("chiefAccountantSignature").setHeader("Подпись гл. бухгалтера");
-        grid.getColumnByKey("payerVat").setHeader("Плательщик НДС");
-        grid.getColumnByKey("sortNumber").setHeader("Нумерация");
-        grid.getColumnByKey("stamp").setHeader("Печать");
-        grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
+        dtoGrid.getColumnByKey("name").setHeader("Наименование");
+        dtoGrid.getColumnByKey("inn").setHeader("ИНН");
+        dtoGrid.getColumnByKey("address").setHeader("Адрес");
+        dtoGrid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
+        dtoGrid.getColumnByKey("email").setHeader("E-mail");
+        dtoGrid.getColumnByKey("phone").setHeader("Телефон");
+        dtoGrid.getColumnByKey("fax").setHeader("Факс");
+        dtoGrid.getColumnByKey("leader").setHeader("Руководитель");
+        dtoGrid.getColumnByKey("leaderManagerPosition").setHeader("Должность руководителя");
+        dtoGrid.getColumnByKey("leaderSignature").setHeader("Подпись руководителя");
+        dtoGrid.getColumnByKey("chiefAccountant").setHeader("Главный бухгалтер");
+        dtoGrid.getColumnByKey("chiefAccountantSignature").setHeader("Подпись гл. бухгалтера");
+        dtoGrid.getColumnByKey("payerVat").setHeader("Плательщик НДС");
+        dtoGrid.getColumnByKey("sortNumber").setHeader("Нумерация");
+        dtoGrid.getColumnByKey("stamp").setHeader("Печать");
+        dtoGrid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
 
-        grid.setHeight("66vh");
-        loadItemsToGrid(grid,1);
+        dtoGrid.setHeight("66vh");
+        loadItemsToGrid(dtoGrid, 1);
 
-        return grid;
+        return dtoGrid;
     }
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
+
+        TextField searchTextField = getSearchTextField();
+        searchTextField.setValueChangeMode(ValueChangeMode.LAZY);
+        searchTextField.addValueChangeListener(e -> {
+            List<CompanyDto> searchList = data.stream()
+                    .filter(item -> item.getName().toLowerCase().contains(e.getValue().toLowerCase()))
+                    .collect(Collectors.toList());
+
+            if (!searchTextField.isEmpty()) {
+                grid.setItems(searchList);
+                this.pageNumberTextField.setPlaceholder("Найдено: " + searchList.size());
+            } else {
+                loadItemsToGrid(grid, paginator.getCurrentPage());
+                this.pageNumberTextField.setPlaceholder(getCurrentGridNumber());
+            }
+
+            remove(getComponentAt(1));
+            addComponentAtIndex(1, grid);
+        });
+
         toolbar.add(getButtonQuestion(), getTextCompany(), getButtonRefresh(), getButton(),
-                getButtonFilter(), getTextField(), getNumberField(), getSelect(), getButtonCog());
+                getButtonFilter(), searchTextField, getNumberField(), getSelect(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
@@ -83,12 +113,6 @@ public class CompanyView extends VerticalLayout {
 
     private HorizontalLayout getToolbarLow() {
         HorizontalLayout toolbarLow = new HorizontalLayout();
-
-        Paginator paginator = getPaginator();
-        Grid<CompanyDto> grid = getGrid();
-
-        TextField pageNumberTextField = new TextField("", getGridItemsNumber(grid));
-        pageNumberTextField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
 
         Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
         Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
@@ -101,21 +125,21 @@ public class CompanyView extends VerticalLayout {
         }
 
         nextPageButton.addClickListener(e -> {
-            if (paginator.getNumberOfPages() == paginator.getCurrentPage()+1) {
-                paginator.setCurrentPage(paginator.getCurrentPage()+1);
+            if (paginator.getNumberOfPages() == paginator.getCurrentPage() + 1) {
+                paginator.setCurrentPage(paginator.getCurrentPage() + 1);
 
                 nextPageButton.setEnabled(false);
                 lastPageButton.setEnabled(false);
             } else {
-                paginator.setCurrentPage(paginator.getCurrentPage()+1);
+                paginator.setCurrentPage(paginator.getCurrentPage() + 1);
             }
 
             prevPageButton.setEnabled(true);
             firstPageButton.setEnabled(true);
 
-            reloadGrid(grid, paginator);
+            reloadGrid();
 
-            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+            pageNumberTextField.setPlaceholder(getCurrentGridNumber());
         });
 
         lastPageButton.addClickListener(e -> {
@@ -127,27 +151,27 @@ public class CompanyView extends VerticalLayout {
             prevPageButton.setEnabled(true);
             firstPageButton.setEnabled(true);
 
-            reloadGrid(grid, paginator);
+            reloadGrid();
 
-            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+            pageNumberTextField.setPlaceholder(getCurrentGridNumber());
         });
 
         prevPageButton.addClickListener(e -> {
-            if (paginator.getCurrentPage()-1 == 1) {
-                paginator.setCurrentPage(paginator.getCurrentPage()-1);
+            if (paginator.getCurrentPage() - 1 == 1) {
+                paginator.setCurrentPage(paginator.getCurrentPage() - 1);
 
                 prevPageButton.setEnabled(false);
                 firstPageButton.setEnabled(false);
             } else {
-                paginator.setCurrentPage(paginator.getCurrentPage()-1);
+                paginator.setCurrentPage(paginator.getCurrentPage() - 1);
             }
 
             nextPageButton.setEnabled(true);
             lastPageButton.setEnabled(true);
 
-            reloadGrid(grid, paginator);
+            reloadGrid();
 
-            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+            pageNumberTextField.setPlaceholder(getCurrentGridNumber());
         });
 
         firstPageButton.addClickListener(e -> {
@@ -159,9 +183,9 @@ public class CompanyView extends VerticalLayout {
             nextPageButton.setEnabled(true);
             lastPageButton.setEnabled(true);
 
-            reloadGrid(grid, paginator);
+            reloadGrid();
 
-            pageNumberTextField.setPlaceholder(getGridItemsNumber(grid));
+            pageNumberTextField.setPlaceholder(getCurrentGridNumber());
         });
 
         toolbarLow.add(firstPageButton,
@@ -182,6 +206,13 @@ public class CompanyView extends VerticalLayout {
         return companyService.getAll();
     }
 
+    private TextField getPageNumberTextField() {
+        TextField textField = new TextField("", getCurrentGridNumber());
+        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
+
+        return textField;
+    }
+
     private Button getButtonCog() {
         final Button buttonCog = new Button();
         buttonCog.setIcon(new Icon(VaadinIcon.COG_O));
@@ -195,9 +226,9 @@ public class CompanyView extends VerticalLayout {
         return numberField;
     }
 
-    private TextField getTextField() {
+    private TextField getSearchTextField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Наименование или код");
+        textField.setPlaceholder("Наименование");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
         return textField;
@@ -244,13 +275,13 @@ public class CompanyView extends VerticalLayout {
         return selector;
     }
 
-    private String getGridItemsNumber(Grid<CompanyDto> grid) {
+    private String getCurrentGridNumber() {
         List<CompanyDto> currentDataOfGrid = grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 
         return currentDataOfGrid.get(0).getId() + "-" + currentDataOfGrid.get(currentDataOfGrid.size()-1).getId() + " из " + data.size();
     }
 
-    private void reloadGrid(Grid<CompanyDto> grid, Paginator paginator) {
+    private void reloadGrid() {
         loadItemsToGrid(grid, paginator.getCurrentPage());
 
         remove(getComponentAt(1));
