@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,28 +23,29 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 import org.vaadin.klaudeta.PaginatedGrid;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Route(value = "good", layout = AppView.class)
 @PageTitle("Товары и услуги")
 public class GoodsView extends VerticalLayout {
 
     private final ProductService productService;
-    private  List<ProductGroupDto> list;
+    private  List<ProductGroupDto> data;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
-        list = productGroupService.getAll();
+        data = productGroupService.getAll();
         add(upperLayout(), middleLayout());
     }
 
     private Button buttonQuestion() {
         Button button = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
@@ -55,64 +57,59 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusGoods() {
         Button button = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonPlusService() {
         Button button = new Button("Услуга", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonPlusSet() {
         Button button = new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonPlusGroup() {
         Button button = new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonFilter() {
         Button button = new Button("Фильтр");
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private Button buttonSettings() {
         Button button = new Button(new Icon(VaadinIcon.COG_O));
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return button;
     }
 
     private TextField text() {
         TextField text = new TextField();
         text.setPlaceholder("Наименование, код или артикул");
-        text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL, TextFieldVariant.LUMO_SMALL);
-        text.setWidth("280px");
+        text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        text.setWidth("300px");
         return text;
     }
 
 
-    private H5 title() {
-        H5 h5 = new H5("Товары и услуги");
-        h5.setWidth("130px");
-        return h5;
+    private H2 title() {
+        H2 textCompany = new H2("Товары и услуги");
+        textCompany.setHeight("2.2em");
+        return textCompany;
     }
 
     private NumberField numberField() {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
-        numberField.setWidth("40px");
+        numberField.setWidth("35px");
         return numberField;
     }
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Изменить");
         valueSelect.setValue("Изменить");
         return valueSelect;
@@ -120,6 +117,7 @@ public class GoodsView extends VerticalLayout {
 
     private Select<String> valueSelectPrint() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Печать");
         valueSelect.setValue("Печать");
         return valueSelect;
@@ -127,6 +125,7 @@ public class GoodsView extends VerticalLayout {
 
     private Select<String> valueSelectImport() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Импорт");
         valueSelect.setValue("Импорт");
         return valueSelect;
@@ -134,6 +133,7 @@ public class GoodsView extends VerticalLayout {
 
     private Select<String> valueSelectExport() {
         Select<String> valueSelect = new Select<>();
+        valueSelect.setWidth("120px");
         valueSelect.setItems("Экспорт");
         valueSelect.setValue("Экспорт");
         return valueSelect;
@@ -153,16 +153,13 @@ public class GoodsView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
-        HorizontalLayout printLayout = new HorizontalLayout();
-        printLayout.add(
-        numberField(), valueSelect(), valueSelectPrint());
-        printLayout.setSpacing(false);
+
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(), buttonPlusService(),
                 buttonPlusSet(), buttonPlusGroup(),
-                buttonFilter(), text(), printLayout,
+                buttonFilter(), text(), numberField(), valueSelect(), valueSelectPrint(),
                 valueSelectImport(),
                 valueSelectExport(), buttonSettings());
-        upperLayout.setDefaultVerticalComponentAlignment(Alignment.AUTO);
+        upperLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upperLayout;
     }
 
@@ -190,11 +187,11 @@ public class GoodsView extends VerticalLayout {
 
     List<ProductGroupDto> filterList(Long id) {
         if (id==null){
-            return list
+            return data
                     .stream().filter(x -> x.getParentId() == null)
                     .collect(Collectors.toList());
         }else {
-            return list
+            return data
                     .stream().filter(x -> x.getParentId() != null && x.getParentId().equals(id))
                     .collect(Collectors.toList());
         }
