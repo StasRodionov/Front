@@ -1,7 +1,8 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.profile;
 
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.components.AppView;
+import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -17,18 +18,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import lombok.SneakyThrows;
 
-@Route(value = "contractorsTabView", layout = AppView.class)
-@PageTitle("Контрагенты")
-public class ContractorsTabView extends VerticalLayout {
 
-    private final ContractorService contractorService;
+@Route(value = "employee", layout = AppView.class)
+@PageTitle("Сотрудники")
+public class EmployeeView extends VerticalLayout {
 
-    public ContractorsTabView(ContractorService contractorService) {
-        this.contractorService = contractorService;
-        add(upperLayout(), grid(contractorService), lowerLayout());
+    private final EmployeeService employeeService;
 
+    public EmployeeView(EmployeeService employeeService){
+        this.employeeService = employeeService;
+        add(upperLayout(), grid(employeeService), lowerLayout());
     }
 
     private Button buttonQuestion(){
@@ -44,7 +44,7 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Button buttonUnit(){
-        Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button buttonUnit = new Button("Сотрудник", new Icon(VaadinIcon.PLUS_CIRCLE));
         return buttonUnit;
     }
 
@@ -60,7 +60,7 @@ public class ContractorsTabView extends VerticalLayout {
 
     private TextField text(){
         TextField text = new TextField();
-        text.setPlaceholder("Наимен, тел, соб, коммент...");
+        text.setPlaceholder("Поиск");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
         return text;
@@ -73,7 +73,7 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private H2 title(){
-        H2 title = new H2("Контрагенты");
+        H2 title = new H2("Сотрудники");
         title.setHeight("2.2em");
         return title;
     }
@@ -93,23 +93,21 @@ public class ContractorsTabView extends VerticalLayout {
         return valueSelect;
     }
 
-    @SneakyThrows
-    private Grid<ContractorDto> grid(ContractorService contractorService){
-        Grid<ContractorDto> grid = new Grid<>(ContractorDto.class);
+    private Grid<EmployeeDto> grid(EmployeeService employeeService){
+        Grid<EmployeeDto> grid = new Grid<>(EmployeeDto.class);
+        grid.setItems(employeeService.getAll());
 
-        grid.setItems(contractorService.getAll());
+        grid.setColumns("lastName", "imageDto", "firstName",
+                "middleName", "email", "phone", "description", "roleDto");
 
-        grid.setColumns("name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
-
-        grid.getColumnByKey("name").setHeader("Наименование");
-        grid.getColumnByKey("inn").setHeader("Код");
-        grid.getColumnByKey("sortNumber").setHeader("номер");
-        grid.getColumnByKey("phone").setHeader("телефон");
-        grid.getColumnByKey("fax").setHeader("факс");
-        grid.getColumnByKey("email").setHeader("емэйл");
-        grid.getColumnByKey("address").setHeader("адресс");
-        grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
-        grid.getColumnByKey("comment").setHeader("комментарий");
+        grid.getColumnByKey("lastName").setHeader("Фамилия");
+        grid.getColumnByKey("imageDto").setHeader("");
+        grid.getColumnByKey("firstName").setHeader("Имя");
+        grid.getColumnByKey("middleName").setHeader("Отчество");
+        grid.getColumnByKey("email").setHeader("E-mail");
+        grid.getColumnByKey("phone").setHeader("Телефон");
+        grid.getColumnByKey("description").setHeader("Описание");
+        grid.getColumnByKey("roleDto").setHeader("Роль");
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);

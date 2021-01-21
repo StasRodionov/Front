@@ -1,5 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.money;
 
+import com.trade_accounting.components.AppView;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;

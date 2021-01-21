@@ -1,5 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.purchases;
 
+import com.trade_accounting.components.AppView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.tabs.Tab;
