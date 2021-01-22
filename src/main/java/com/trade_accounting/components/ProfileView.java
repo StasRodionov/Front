@@ -4,6 +4,7 @@ import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.RoleService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
@@ -25,16 +26,18 @@ public class ProfileView extends Div {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final WarehouseService warehouseService;
+    private final RoleService roleService;
     //TODO
     //private final CurrencyService currencyService;
     private final Div div;
 
     public ProfileView(UnitService unitService, CompanyService companyService,
-                       EmployeeService employeeService, WarehouseService warehouseService /*CurrencyService currencyService*/) {
+                       EmployeeService employeeService, WarehouseService warehouseService, RoleService roleService  /*CurrencyService currencyService*/) {
         this.unitService = unitService;
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.warehouseService = warehouseService;
+        this.roleService = roleService;
         //this.currencyService = currencyService;
         div = new Div();
 
@@ -53,7 +56,7 @@ public class ProfileView extends Div {
         employeeLayout.addClickListener(e ->
                 employeeLayout.getUI().ifPresent(ui -> {
                     div.removeAll();
-                    div.add(new EmployeeView(employeeService));
+                    div.add(new EmployeeView(employeeService, roleService));
                 }));
 
         HorizontalLayout warehouseLayout = new HorizontalLayout(new Label("Склады"));

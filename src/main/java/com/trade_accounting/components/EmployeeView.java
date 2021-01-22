@@ -3,6 +3,7 @@ package com.trade_accounting.components;
 import com.trade_accounting.components.modal_windows.AddEmployeeModalWindowView;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.RoleService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -31,8 +32,11 @@ public class EmployeeView extends VerticalLayout {
 
     private final EmployeeService employeeService;
 
-    public EmployeeView(EmployeeService employeeService){
+    private final RoleService roleService;
+
+    public EmployeeView(EmployeeService employeeService, RoleService roleService){
         this.employeeService = employeeService;
+        this.roleService = roleService;
         add(upperLayout(), grid, lowerLayout());
         configureGrid();
         updateGrid();
@@ -78,7 +82,7 @@ public class EmployeeView extends VerticalLayout {
             System.out.println("Вы нажали кнопку для добавление сотрудника!");
 
             AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(employeeService);
+                    new AddEmployeeModalWindowView(employeeService, roleService);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
