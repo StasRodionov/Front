@@ -1,5 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.contractors;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.button.Button;

@@ -1,6 +1,7 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.indicators;
 
 
+        import com.trade_accounting.components.AppView;
         import com.vaadin.flow.component.html.Div;
         import com.vaadin.flow.component.tabs.Tab;
         import com.vaadin.flow.component.tabs.Tabs;
