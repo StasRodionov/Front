@@ -51,7 +51,7 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private RoleService roleService;
 
-    public AddEmployeeModalWindowView(EmployeeService employeeService, RoleService roleService){
+    public AddEmployeeModalWindowView(EmployeeService employeeService, RoleService roleService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         div = new Div();
@@ -61,19 +61,19 @@ public class AddEmployeeModalWindowView extends Dialog {
         add(upperLayout(), lowerLayout());
     }
 
-    private HorizontalLayout header(){
+    private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
         header.add(addButtonShow(), getCancelButton());
         return header;
     }
 
-    private HorizontalLayout upperLayout(){
+    private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
     }
 
-    private HorizontalLayout lowerLayout(){
+    private HorizontalLayout lowerLayout() {
         HorizontalLayout lowerLayout = new HorizontalLayout();
         div.removeAll();
         div.add(addEmployeeLastName(),
@@ -166,7 +166,7 @@ public class AddEmployeeModalWindowView extends Dialog {
     private HorizontalLayout rolesSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
-        List<RoleDto> rolesDto =  roleService.getAll();
+        List<RoleDto> rolesDto = roleService.getAll();
 
         rolesSelect.setItemLabelGenerator(RoleDto::getName);
         rolesSelect.setItems(rolesDto);
@@ -214,7 +214,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         return cancelButton;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Добавление сотрудника");
         title.setHeight("2.2em");
         return title;

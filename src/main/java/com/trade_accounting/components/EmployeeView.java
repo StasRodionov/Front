@@ -34,7 +34,7 @@ public class EmployeeView extends VerticalLayout {
 
     private final RoleService roleService;
 
-    public EmployeeView(EmployeeService employeeService, RoleService roleService){
+    public EmployeeView(EmployeeService employeeService, RoleService roleService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         add(upperLayout(), grid, lowerLayout());
@@ -63,19 +63,19 @@ public class EmployeeView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
-    private Button buttonQuestion(){
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private Button buttonRefresh(){
+    private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private Button buttonUnit(){
+    private Button buttonUnit() {
         Button buttonUnit = new Button("Сотрудник", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickShortcut(Key.ENTER);
         buttonUnit.addClickListener(click -> {
@@ -91,17 +91,17 @@ public class EmployeeView extends VerticalLayout {
         return buttonUnit;
     }
 
-    private Button buttonFilter(){
+    private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         return buttonFilter;
     }
 
-    private Button buttonSettings(){
+    private Button buttonSettings() {
         Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
         return buttonSettings;
     }
 
-    private TextField text(){
+    private TextField text() {
         TextField text = new TextField();
         text.setPlaceholder("Поиск");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
@@ -109,26 +109,26 @@ public class EmployeeView extends VerticalLayout {
         return text;
     }
 
-    private TextField textField(){
+    private TextField textField() {
         TextField textField = new TextField("", "1-1 из 1");
         textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         return textField;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Сотрудники");
         title.setHeight("2.2em");
         return title;
     }
 
-    private NumberField numberField(){
+    private NumberField numberField() {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
         numberField.setWidth("45px");
         return numberField;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
         valueSelect.setItems("Изменить");
         valueSelect.setValue("Изменить");
@@ -136,15 +136,15 @@ public class EmployeeView extends VerticalLayout {
         return valueSelect;
     }
 
-    private HorizontalLayout upperLayout(){
+    private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
-        upperLayout.add(buttonQuestion(),title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
+        upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
                 valueSelect(), buttonSettings());
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
     }
 
-    private HorizontalLayout lowerLayout(){
+    private HorizontalLayout lowerLayout() {
         HorizontalLayout lowerLayout = new HorizontalLayout();
         lowerLayout.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
                 new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
