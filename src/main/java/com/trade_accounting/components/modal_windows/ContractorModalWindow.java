@@ -56,13 +56,14 @@ public class ContractorModalWindow extends Dialog {
         commentField.setValue(getFieldValueNotNull(contractorDto.getComment()));
         innField.setValue(getFieldValueNotNull(contractorDto.getInn()));
         sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
-        add(new Text("Наименование"), header(), contractorsAccordion());
+        add(header(), contractorsAccordion());
     }
 
     private Accordion contractorsAccordion() {
         Accordion accordion = new Accordion();
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(contractorGroupSelect(),
+        verticalLayout.add(contractorNameField(),
+                contractorGroupSelect(),
                 configurePhoneField(),
                 configureFaxField(),
                 configureEmailField(),
@@ -95,6 +96,15 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label("Группы");
         label.setWidth(labelWidth);
         horizontalLayout.add(label, labelSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout contractorNameField() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Наименование");
+        label.setWidth(labelWidth);
+        nameField.setWidth(fieldWidth);
+        horizontalLayout.add(label, nameField);
         return horizontalLayout;
     }
 
