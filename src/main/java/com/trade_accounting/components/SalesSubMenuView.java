@@ -1,7 +1,6 @@
 package com.trade_accounting.components;
 
-
-import com.trade_accounting.services.interfaces.CustomersOrdersService;
+import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -15,23 +14,28 @@ import com.vaadin.flow.router.Route;
 public class SalesSubMenuView extends Div implements AfterNavigationObserver {
 
     private final Div div;
-//    private final CustomersOrdersService customersOrdersService;
+    private final InvoiceService invoiceService;
 
-    public SalesSubMenuView() {
+    public SalesSubMenuView(InvoiceService invoiceService) {
+        this.invoiceService = invoiceService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        div.removeAll();
-        div.add(new String("SalesSubCustomersOrdersView"));
+//        div.removeAll();
+//        div.add(new SalesSubCustomersOrders(invoiceService));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
             if (e.getClass() == Tabs.class) {
                 ((Tabs) e).setSelectedIndex(2);
             }
+        });
+        getUI().ifPresent(ui -> {
+            div.removeAll();
+            div.add(new SalesSubCustomersOrders(invoiceService));
         });
     }
 
@@ -55,7 +59,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Заказы покупателей":
                     div.removeAll();
-                    div.add(new String("SalesSubCustomersOrdersView"));
+                    div.add(new SalesSubCustomersOrders(invoiceService));
                     break;
                 case "Счета покупателям":
                     div.removeAll();
