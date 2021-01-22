@@ -43,7 +43,10 @@ public class ContractorModalWindow extends Dialog {
 
     private final ContractorService contractorService;
 
+    private ContractorDto contractorDto;
+
     public ContractorModalWindow (ContractorDto contractorDto, ContractorService contractorService) {
+        this.contractorDto = contractorDto;
         this.contractorService = contractorService;
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -84,7 +87,8 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout header(){
         HorizontalLayout header = new HorizontalLayout();
         nameField.setWidth("345px");
-        header.add(nameField, getSaveButton(), getCancelButton());
+        Button moveButton = contractorDto.getId() == null ? getSaveButton() : getEditButton();
+        header.add(nameField, moveButton, getCancelButton());
         return header;
     }
 
@@ -188,17 +192,7 @@ public class ContractorModalWindow extends Dialog {
 
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
-            ContractorDto newContractorDto = new ContractorDto();
-            newContractorDto.setName(nameField.getValue());
-            newContractorDto.setPhone(phoneField.getValue());
-            newContractorDto.setFax(faxField.getValue());
-            newContractorDto.setEmail(emailField.getValue());
-            newContractorDto.setAddress(addressField.getValue());
-            newContractorDto.setCommentToAddress(commentToAddressField.getValue());
-            newContractorDto.setComment(commentField.getValue());
-            newContractorDto.setInn(innField.getValue());
-            newContractorDto.setSortNumber(sortNumberField.getValue());
-            contractorService.create(newContractorDto);
+            contractorService.create(getNewOrEditContractorDto(new ContractorDto()));
             close();
         });
     }
@@ -208,6 +202,27 @@ public class ContractorModalWindow extends Dialog {
             close();
         });
         return cancelButton;
+    }
+
+    private Button getEditButton() {
+        Button cancelButton = new Button("Сохранить", event -> {
+            contractorService.update(getNewOrEditContractorDto(contractorDto));
+            close();
+        });
+        return cancelButton;
+    }
+
+    private ContractorDto getNewOrEditContractorDto(ContractorDto contractor) {
+        contractor.setName(nameField.getValue());
+        contractor.setPhone(phoneField.getValue());
+        contractor.setFax(faxField.getValue());
+        contractor.setEmail(emailField.getValue());
+        contractor.setAddress(addressField.getValue());
+        contractor.setCommentToAddress(commentToAddressField.getValue());
+        contractor.setComment(commentField.getValue());
+        contractor.setInn(innField.getValue());
+        contractor.setSortNumber(sortNumberField.getValue());
+        return contractor;
     }
 
     private String getFieldValueNotNull(String value) {
