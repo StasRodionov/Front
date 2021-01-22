@@ -39,6 +39,8 @@ public class AddEmployeeModalWindowView extends Dialog {
     public AddEmployeeModalWindowView(EmployeeService employeeService){
         this.employeeService = employeeService;
         div = new Div();
+        setCloseOnOutsideClick(false);
+        setCloseOnEsc(false);
         add(upperLayout(), lowerLayout());
     }
 
@@ -46,7 +48,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         HorizontalLayout upperLayout = new HorizontalLayout();
 //        upperLayout.add(buttonQuestion(),title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
 //                valueSelect(), buttonSettings());
-        upperLayout.add(new Label("Добавление сотрудника"));
+//        upperLayout.add(new Label("Добавление сотрудника"));
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
     }
@@ -67,7 +69,8 @@ public class AddEmployeeModalWindowView extends Dialog {
                 addEmployeePhone(),
                 addEmployeeInn(),
                 addEmployeeDescription(),
-                addButtonShow()
+                addButtonShow(),
+                getCancelButton()
 //                addEmployeePassword()
         );
 
@@ -136,5 +139,12 @@ public class AddEmployeeModalWindowView extends Dialog {
         });
         HorizontalLayout addButtonShowLayout = new HorizontalLayout(addButtonShow);
         return addButtonShowLayout;
+    }
+
+    private Button getCancelButton() {
+        Button cancelButton = new Button("Закрыть", event -> {
+            close();
+        });
+        return cancelButton;
     }
 }
