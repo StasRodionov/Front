@@ -1,4 +1,4 @@
-package com.trade_accounting.components.modal_windows;
+package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -43,7 +43,10 @@ public class ContractorModalWindow extends Dialog {
 
     private final ContractorService contractorService;
 
+    private ContractorDto contractorDto;
+
     public ContractorModalWindow (ContractorDto contractorDto, ContractorService contractorService) {
+        this.contractorDto = contractorDto;
         this.contractorService = contractorService;
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -56,13 +59,14 @@ public class ContractorModalWindow extends Dialog {
         commentField.setValue(getFieldValueNotNull(contractorDto.getComment()));
         innField.setValue(getFieldValueNotNull(contractorDto.getInn()));
         sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
-        add(new Text("Наименование"), header(), contractorsAccordion());
+        add(header(), contractorsAccordion());
     }
 
     private Accordion contractorsAccordion() {
         Accordion accordion = new Accordion();
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(contractorGroupSelect(),
+        verticalLayout.add(contractorNameField(),
+                contractorGroupSelect(),
                 configurePhoneField(),
                 configureFaxField(),
                 configureEmailField(),
@@ -83,7 +87,8 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout header(){
         HorizontalLayout header = new HorizontalLayout();
         nameField.setWidth("345px");
-        header.add(nameField, getSaveButton(), getCancelButton());
+        Button moveButton = contractorDto.getId() == null ? getSaveButton() : getEditButton();
+        header.add(nameField, moveButton, getCancelButton());
         return header;
     }
 
@@ -95,6 +100,15 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label("Группы");
         label.setWidth(labelWidth);
         horizontalLayout.add(label, labelSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout contractorNameField() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Наименование");
+        label.setWidth(labelWidth);
+        nameField.setWidth(fieldWidth);
+        horizontalLayout.add(label, nameField);
         return horizontalLayout;
     }
 
@@ -178,17 +192,7 @@ public class ContractorModalWindow extends Dialog {
 
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
-            ContractorDto newContractorDto = new ContractorDto();
-            newContractorDto.setName(nameField.getValue());
-            newContractorDto.setPhone(phoneField.getValue());
-            newContractorDto.setFax(faxField.getValue());
-            newContractorDto.setEmail(emailField.getValue());
-            newContractorDto.setAddress(addressField.getValue());
-            newContractorDto.setCommentToAddress(commentToAddressField.getValue());
-            newContractorDto.setComment(commentField.getValue());
-            newContractorDto.setInn(innField.getValue());
-            newContractorDto.setSortNumber(sortNumberField.getValue());
-            contractorService.create(newContractorDto);
+            contractorService.create(getNewOrEditContractorDto(new ContractorDto()));
             close();
         });
     }
@@ -198,6 +202,27 @@ public class ContractorModalWindow extends Dialog {
             close();
         });
         return cancelButton;
+    }
+
+    private Button getEditButton() {
+        Button cancelButton = new Button("Сохранить", event -> {
+            contractorService.update(getNewOrEditContractorDto(contractorDto));
+            close();
+        });
+        return cancelButton;
+    }
+
+    private ContractorDto getNewOrEditContractorDto(ContractorDto contractor) {
+        contractor.setName(nameField.getValue());
+        contractor.setPhone(phoneField.getValue());
+        contractor.setFax(faxField.getValue());
+        contractor.setEmail(emailField.getValue());
+        contractor.setAddress(addressField.getValue());
+        contractor.setCommentToAddress(commentToAddressField.getValue());
+        contractor.setComment(commentField.getValue());
+        contractor.setInn(innField.getValue());
+        contractor.setSortNumber(sortNumberField.getValue());
+        return contractor;
     }
 
     private String getFieldValueNotNull(String value) {
