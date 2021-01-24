@@ -52,16 +52,16 @@ public class WareHouseView extends VerticalLayout {
     }
 
     private  Button buttonWareHouse(){
-        Button warehouse = new Button("Склад", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button warehouseButton = new Button("Склад", new Icon(VaadinIcon.PLUS_CIRCLE));
         WarehouseModalWindow addWarehouseModalWindow =
                 new WarehouseModalWindow(new WarehouseDto(), warehouseService);
         addWarehouseModalWindow.addDetachListener(event -> updateList());
-        buttonUnit.addClickListener(event -> addWarehouseModalWindow.open());
-        return warehouse;
+        warehouseButton.addClickListener(event -> addWarehouseModalWindow.open());
+        return warehouseButton;
     }
 
     private void updateList() {
-        grid.setItems(contractorService.getAll());
+        grid.setItems(warehouseService.getAll());
         System.out.println("обновились");
     }
 
