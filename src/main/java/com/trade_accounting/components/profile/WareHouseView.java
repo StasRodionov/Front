@@ -56,8 +56,13 @@ public class WareHouseView extends VerticalLayout {
         WarehouseModalWindow addWarehouseModalWindow =
                 new WarehouseModalWindow(new WarehouseDto(), warehouseService);
         addWarehouseModalWindow.addDetachListener(event -> updateList());
-        buttonUnit.addClickListener(event -> addContractorModalWindow.open());
+        buttonUnit.addClickListener(event -> addWarehouseModalWindow.open());
         return warehouse;
+    }
+
+    private void updateList() {
+        grid.setItems(contractorService.getAll());
+        System.out.println("обновились");
     }
 
     private Button buttonFilter(){
