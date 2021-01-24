@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
@@ -51,7 +52,12 @@ public class WareHouseView extends VerticalLayout {
     }
 
     private  Button buttonWareHouse(){
-        return new Button("Склад", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button warehouse = new Button("Склад", new Icon(VaadinIcon.PLUS_CIRCLE));
+        WarehouseModalWindow addWarehouseModalWindow =
+                new WarehouseModalWindow(new WarehouseDto(), warehouseService);
+        addWarehouseModalWindow.addDetachListener(event -> updateList());
+        buttonUnit.addClickListener(event -> addContractorModalWindow.open());
+        return warehouse;
     }
 
     private Button buttonFilter(){
