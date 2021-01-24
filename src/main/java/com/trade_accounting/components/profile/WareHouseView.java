@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class WareHouseView extends VerticalLayout {
 
     private final WarehouseService warehouseService;
+   // private final Grid<WarehouseDto> grid = new Grid<>(WarehouseDto.class);
 
     @Autowired
     public WareHouseView(WarehouseService warehouseService) {
@@ -55,15 +56,15 @@ public class WareHouseView extends VerticalLayout {
         Button warehouseButton = new Button("Склад", new Icon(VaadinIcon.PLUS_CIRCLE));
         WarehouseModalWindow addWarehouseModalWindow =
                 new WarehouseModalWindow(new WarehouseDto(), warehouseService);
-        addWarehouseModalWindow.addDetachListener(event -> updateList());
+       // addWarehouseModalWindow.addDetachListener(event -> updateList());
         warehouseButton.addClickListener(event -> addWarehouseModalWindow.open());
         return warehouseButton;
     }
 
-    private void updateList() {
+   /* private void updateList() {
         grid.setItems(warehouseService.getAll());
         System.out.println("обновились");
-    }
+    }*/
 
     private Button buttonFilter(){
         return new Button("Фильтр");
