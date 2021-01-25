@@ -42,3 +42,5 @@ type_of_price_url: api/typeofprice
 unit_url: api/unit
 
 warehouse_url: api/warehouse
+
+invoice_url: api/invoice

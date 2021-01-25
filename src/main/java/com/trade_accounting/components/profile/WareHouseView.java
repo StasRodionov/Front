@@ -1,5 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
@@ -131,6 +132,7 @@ public class WareHouseView extends VerticalLayout {
         grid.getColumnByKey("address").setHeader("Адрес");
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("Комментарий");
+        grid.setHeight("66vh");
         return grid;
     }
 }

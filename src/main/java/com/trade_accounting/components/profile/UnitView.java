@@ -1,11 +1,11 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.profile;
 
-import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.components.AppView;
+import com.trade_accounting.models.dto.UnitDto;
+import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -18,46 +18,24 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "contracts", layout = AppView.class)
-@PageTitle("Договоры")
-public class ContractsView extends VerticalLayout {
+import java.awt.*;
 
-    private ContractService contractService;
+@Route(value = "unit", layout = AppView.class)
+@PageTitle("Единицы измерения")
+public class UnitView extends VerticalLayout {
 
-    @Autowired
-    ContractsView(ContractService contractService) {
-        this.contractService = contractService;
+    private final UnitService unitService;
+
+    public UnitView(UnitService unitService) {
+        this.unitService = unitService;
+
         add(getToolbar(), getGrid(), getToolbarLow());
-    }
-
-
-    private Grid<ContractDto> getGrid() {
-
-        Grid<ContractDto> grid = new Grid<>(ContractDto.class);
-        grid.setItems(contractService.getAll());
-        grid.setColumns("id", "number", "contractDate", "date", "companyDto",
-                "bankAccountDto", "contractorDto", "amount", "archive", "comment", "legalDetailDto");
-        grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
-        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Код");
-        grid.getColumnByKey("contractDate").setAutoWidth(true).setHeader("Дата заключения");
-        grid.getColumnByKey("date").setAutoWidth(true).setHeader("Дата");
-        grid.getColumnByKey("companyDto").setHeader("Компания");
-        grid.getColumnByKey("bankAccountDto").setHeader("Банковский Аккаунт");
-        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
-        grid.getColumnByKey("amount").setAutoWidth(true).setHeader("Сумма");
-        grid.getColumnByKey("archive").setAutoWidth(true).setHeader("Архив");
-        grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
-        grid.getColumnByKey("legalDetailDto").setHeader("Реквизиты");
-
-        return grid;
-
     }
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getButton(),
+        toolbar.add(getButtonQuestion(), getTextCompany(), getButtonRefresh(), getButton(),
                 getButtonFilter(), getTextField(), getNumberField(), getSelect(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -67,7 +45,23 @@ public class ContractsView extends VerticalLayout {
     private HorizontalLayout getToolbarLow() {
         HorizontalLayout toolbarLow = new HorizontalLayout();
         toolbarLow.add(getAngleDoubleLeft(), getAngleLeft(), getTextFieldLow(), getAngleRight(), getAngleDoubleRight());
+
         return toolbarLow;
+    }
+
+    private Grid<UnitDto> getGrid() {
+        Grid<UnitDto> grid = new Grid<>(UnitDto.class);
+        grid.setItems(unitService.getAll());
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.setColumns("id", "shortName", "fullName", "sortNumber");
+        grid.getColumnByKey("shortName").setHeader("Краткое наименование");
+        grid.getColumnByKey("fullName").setHeader("Полное наименование");
+        grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
+
+        grid.setHeight("66vh");
+
+        return grid;
     }
 
     private TextField getTextFieldLow() {
@@ -118,7 +112,7 @@ public class ContractsView extends VerticalLayout {
     }
 
     private Button getButton() {
-        final Button button = new Button("Договор");
+        final Button button = new Button("Единица измерения");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
         return button;
     }
@@ -132,8 +126,8 @@ public class ContractsView extends VerticalLayout {
         return buttonRefresh;
     }
 
-    private H2 getTextContract() {
-        final H2 textCompany = new H2("Договора");
+    private H2 getTextCompany() {
+        final H2 textCompany = new H2("Единицы измерения");
         textCompany.setHeight("2.2em");
         return textCompany;
     }
