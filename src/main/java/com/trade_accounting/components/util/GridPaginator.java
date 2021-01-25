@@ -23,16 +23,15 @@ public class GridPaginator<T> extends HorizontalLayout {
     private List<T> data;
 
     private IntegerField pageItemsTextField;
-
-    Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
-    Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-    Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
+    private final Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
+    private final Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
+    private final Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
+    private final Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
 
     /**
      * Creates a Paginator with specific number of items per page.
      *
-     * @param grid         grid
+     * @param grid         grid for pagination
      * @param data         data for grid
      * @param itemsPerPage number items per page
      */
@@ -54,7 +53,7 @@ public class GridPaginator<T> extends HorizontalLayout {
     /**
      * Creates a Paginator with 10 items per page.
      *
-     * @param grid grid
+     * @param grid grid for pagination
      * @param data data for grid
      */
     public GridPaginator(Grid<T> grid, List<T> data) {
@@ -143,14 +142,14 @@ public class GridPaginator<T> extends HorizontalLayout {
     }
 
     private String getCurrentGridPageItems() {
-        int start = getCurrentPage();
-        int end = itemsPerPage * getCurrentPage();
+        int start = currentPage;
+        int end = itemsPerPage * currentPage;
 
         if (start != 1) {
-            start = ((itemsPerPage * getCurrentPage()) - itemsPerPage) + 1;
+            start = ((itemsPerPage * currentPage) - itemsPerPage) + 1;
         }
 
-        if (getNumberOfPages() == getCurrentPage()) {
+        if (numberOfPages == currentPage) {
             end = data.size();
         }
 
@@ -188,7 +187,7 @@ public class GridPaginator<T> extends HorizontalLayout {
      * @param currentPage new current page
      */
     public void setCurrentPage(int currentPage) {
-        if (numberOfPages > currentPage) {
+        if (currentPage > numberOfPages) {
             throw new IllegalArgumentException("The current page: ["+ currentPage +"] greater than maximum number of page.");
         }
         this.currentPage = currentPage;
