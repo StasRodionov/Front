@@ -1,8 +1,8 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.ContractorsTabView;
 import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -20,11 +20,14 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private final ContractService contractService;
     private final ContractorService contractorService;
+    private final ContractorGroupService contractorGroupService;
 
     public ContractorsView(ContractService contractService,
-                           ContractorService contractorService) {
+                           ContractorService contractorService,
+                           ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
         this.contractService = contractService;
+        this.contractorGroupService = contractorGroupService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -32,7 +35,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
             div.removeAll();
-            div.add(new ContractorsTabView(contractorService));
+            div.add(new ContractorsTabView(contractorService, contractorGroupService));
 
             AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
             appView.getChildren().forEach(e -> {
@@ -53,11 +56,12 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Контрагенты":
                     div.removeAll();
-                    div.add(new ContractorsTabView(contractorService));
+                    div.add(new ContractorsTabView(contractorService,contractorGroupService));
                     break;
                 case "Договоры":
                     div.removeAll();
                     div.add(new ContractsView(contractService));
+                    break;
             }
         });
         return tabs;

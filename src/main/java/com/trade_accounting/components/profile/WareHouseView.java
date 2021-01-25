@@ -3,6 +3,7 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class WareHouseView extends VerticalLayout {
 
     private final WarehouseService warehouseService;
+    private Grid<WarehouseDto> grid = new Grid<>(WarehouseDto.class);
 
     @Autowired
     public WareHouseView(WarehouseService warehouseService) {
@@ -32,33 +34,45 @@ public class WareHouseView extends VerticalLayout {
         add(toolsUp(), grid(), toolsDown());
     }
 
-    private Button buttonQuestion(){
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Склады");
         title.setHeight("2.2em");
         return title;
     }
 
-    private Button buttonRefresh(){
+    private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private  Button buttonWareHouse(){
-        return new Button("Склад", new Icon(VaadinIcon.PLUS_CIRCLE));
+    private Button buttonWareHouse() {
+        Button warehouseButton = new Button("Склад", new Icon(VaadinIcon.PLUS_CIRCLE));
+        WareHouseModalWindow addWareHouseModalWindow =
+                new WareHouseModalWindow(new WarehouseDto(), warehouseService);
+
+        warehouseButton.addClickListener(event -> addWareHouseModalWindow.open());
+        addWareHouseModalWindow.addDetachListener(event -> updateList());
+        UI.getCurrent().navigate(WareHouseView.class);
+        return warehouseButton;
     }
 
-    private Button buttonFilter(){
+    private void updateList() {
+        grid.setItems(warehouseService.getAll());
+        UI.getCurrent().getPage().reload();
+    }
+
+    private Button buttonFilter() {
         return new Button("Фильтр");
     }
 
-    private TextField text(){
+    private TextField text() {
         TextField text = new TextField();
         text.setPlaceholder("Наименование или код");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
@@ -66,14 +80,14 @@ public class WareHouseView extends VerticalLayout {
         return text;
     }
 
-    private NumberField numberField(){
+    private NumberField numberField() {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
         numberField.setWidth("45px");
         return numberField;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
         valueSelect.setItems("Изменить");
         valueSelect.setValue("Изменить");
@@ -81,52 +95,52 @@ public class WareHouseView extends VerticalLayout {
         return valueSelect;
     }
 
-    private Button buttonSettings(){
+    private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
     }
 
-    private HorizontalLayout toolsUp(){
+    private HorizontalLayout toolsUp() {
         HorizontalLayout toolsUp = new HorizontalLayout();
-        toolsUp.add(buttonQuestion(),title(), buttonRefresh(), buttonWareHouse(), buttonFilter(), text(), numberField(),
+        toolsUp.add(buttonQuestion(), title(), buttonRefresh(), buttonWareHouse(), buttonFilter(), text(), numberField(),
                 valueSelect(), buttonSettings());
         toolsUp.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return toolsUp;
     }
 
-    private TextField textField(){
+    private TextField textField() {
         TextField textField = new TextField("", "1-1 из 1");
         textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         return textField;
     }
 
-    private Button doubleLeft(){
+    private Button doubleLeft() {
         return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
     }
 
-    private Button left(){
+    private Button left() {
         return new Button(new Icon(VaadinIcon.ANGLE_LEFT));
     }
 
-    private Button doubleRight(){
+    private Button doubleRight() {
         return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
     }
 
-    private Button right(){
+    private Button right() {
         return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
     }
 
-    private HorizontalLayout toolsDown(){
+    private HorizontalLayout toolsDown() {
         HorizontalLayout toolsDown = new HorizontalLayout();
-        toolsDown.add(doubleLeft(),left(),textField(),right(),doubleRight());
+        toolsDown.add(doubleLeft(), left(), textField(), right(), doubleRight());
         return toolsDown;
     }
 
-    private Grid<WarehouseDto> grid(){
+    private Grid<WarehouseDto> grid() {
         Grid<WarehouseDto> grid = new Grid<>(WarehouseDto.class);
         grid.setItems(warehouseService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("id","name","sortNumber","address","commentToAddress","comment");
+        grid.setColumns("id", "name", "sortNumber", "address", "commentToAddress", "comment");
         grid.getColumnByKey("name").setHeader("Имя");
         grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер");
         grid.getColumnByKey("address").setHeader("Адрес");
