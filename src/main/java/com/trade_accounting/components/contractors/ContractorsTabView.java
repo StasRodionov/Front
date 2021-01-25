@@ -1,6 +1,6 @@
 package com.trade_accounting.components;
 
-import com.trade_accounting.components.modal_windows.ContractorModalWindow;
+import com.trade_accounting.components.contractors.ContractorModalWindow;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
