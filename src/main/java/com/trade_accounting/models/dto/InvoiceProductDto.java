@@ -6,7 +6,7 @@ public class InvoiceProductDto {
 
     private Long id;
 
-    private String invoiceDto; // todo: заменить String на InvoiceDto после реализации InvoiceDto
+    private InvoiceDto invoiceDto;
 
     private ProductDto productDto;
 
@@ -15,7 +15,7 @@ public class InvoiceProductDto {
     private BigDecimal price;
 
     public InvoiceProductDto(Long id,
-                             String invoiceDto, // todo: заменить String на InvoiceDto после реализации InvoiceDto
+                             InvoiceDto invoiceDto,
                              ProductDto productDto,
                              BigDecimal amount,
                              BigDecimal price) {
