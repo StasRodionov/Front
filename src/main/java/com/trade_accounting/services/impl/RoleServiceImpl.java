@@ -59,6 +59,7 @@ public class RoleServiceImpl implements RoleService {
         Call<Void> roleCall = roleApi.create(roleUrl, roleDto);
         try {
             roleCall.execute();
+            log.info("Успешно выполнен запрос create RoleDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при создании RoleDto - {}", e);
         }
@@ -69,6 +70,7 @@ public class RoleServiceImpl implements RoleService {
         Call<Void> roleUpdateCall = roleApi.update(roleUrl, roleDto);
         try {
             roleUpdateCall.execute();
+            log.info("Успешно выполнен запрос на изменение RoleDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при обновлении RoleDto - {}", e);
         }
@@ -79,8 +81,9 @@ public class RoleServiceImpl implements RoleService {
         Call<Void> roleDeleteCall = roleApi.deleteById(roleUrl, id);
         try {
             roleDeleteCall.execute();
+            log.info("Успешно выполнен запрос на удаление RoleDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при удалении ProductDto - {}", e);
+            log.error("Произошла ошибка при удалении RoleDto - {}", e);
         }
     }
 }
