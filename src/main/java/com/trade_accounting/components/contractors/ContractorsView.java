@@ -1,7 +1,6 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.ContractorsTabView;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
