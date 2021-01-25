@@ -43,8 +43,6 @@ public class CompanyView extends VerticalLayout {
     private static final int ITEMS_PER_PAGE = 100;
     private final Paginator paginator;
 
-    private final TextField pageNumberTextField;
-
     private TextField idFilterField;
     private TextField searchTextField;
     private TextField addressFilterField;
@@ -57,6 +55,7 @@ public class CompanyView extends VerticalLayout {
     private IntegerField faxFilterField;
     private ComboBox<Boolean> payerVatFilterField;
 
+    private final TextField pageItemsTextField;
     private Button nextPageButton;
     private Button lastPageButton;
 
@@ -65,10 +64,11 @@ public class CompanyView extends VerticalLayout {
         this.companyService = companyService;
         this.finalData = companyService.getAll();
         this.data = finalData;
+
         this.paginator = getPaginator();
         this.grid = new Grid<>(CompanyDto.class);
         this.filterLayout = new HorizontalLayout();
-        this.pageNumberTextField = getPageItemsTextField();
+        this.pageItemsTextField = getPageItemsTextField();
 
         configureGrid();
         prepareFilterFields();
@@ -119,12 +119,12 @@ public class CompanyView extends VerticalLayout {
         searchTextField.setValueChangeMode(ValueChangeMode.TIMEOUT);
         searchTextField.addValueChangeListener(e -> onFilterChange());
 
-        Button filterButton = getButtonFilter();
+        Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filterLayout.setVisible(!filterLayout.isVisible()));
 
 
-        toolbar.add(getButtonQuestion(), getTextCompany(), getButtonRefresh(), getButton(),
-                filterButton, searchTextField, getNumberField(), getSelect(), getButtonCog());
+        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), getNewCompanyButton(),
+                filterButton, searchTextField, getSelectedNumberField(), getSelect(), getSettingButton());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
@@ -201,7 +201,7 @@ public class CompanyView extends VerticalLayout {
 
         toolbarLow.add(firstPageButton,
                 prevPageButton,
-                pageNumberTextField,
+                pageItemsTextField,
                 nextPageButton,
                 lastPageButton);
 
@@ -220,30 +220,26 @@ public class CompanyView extends VerticalLayout {
         return textField;
     }
 
-    private Button getButtonCog() {
+    private Button getSettingButton() {
         final Button buttonCog = new Button();
         buttonCog.setIcon(new Icon(VaadinIcon.COG_O));
         return buttonCog;
     }
 
-    private NumberField getNumberField() {
+    private NumberField getSelectedNumberField() {
         final NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
         numberField.setWidth("45px");
         return numberField;
     }
 
-    private Button getButtonFilter() {
-        return new Button("Фильтр");
-    }
-
-    private Button getButton() {
+    private Button getNewCompanyButton() {
         final Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
         return button;
     }
 
-    private Button getButtonRefresh() {
+    private Button getRefreshButton() {
         final Button buttonRefresh;
         Icon circle = new Icon(VaadinIcon.REFRESH);
         buttonRefresh = new Button();
@@ -302,7 +298,7 @@ public class CompanyView extends VerticalLayout {
         to = Math.min(to, data.size());
 
         grid.setItems(data.subList(from, to));
-        pageNumberTextField.setPlaceholder(getCurrentGridPageItems());
+        pageItemsTextField.setPlaceholder(getCurrentGridPageItems());
     }
 
     private void prepareFilterFields() {
