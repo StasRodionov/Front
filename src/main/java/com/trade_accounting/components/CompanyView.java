@@ -1,5 +1,6 @@
 package com.trade_accounting.components;
 
+import com.trade_accounting.components.modal_windows.CompanyModal;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.componentfactory.Paginator;
@@ -23,7 +24,6 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -104,7 +104,7 @@ public class CompanyView extends VerticalLayout {
             addComponentAtIndex(1, grid);
         });
 
-        toolbar.add(getButtonQuestion(), getTextCompany(), getButtonRefresh(), getButton(),
+        toolbar.add(getButtonQuestion(), getTextCompany(), getButtonRefresh(), getButtonAdd(),
                 getButtonFilter(), searchTextField, getNumberField(), getSelect(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -238,17 +238,17 @@ public class CompanyView extends VerticalLayout {
         return new Button("Фильтр");
     }
 
-    private Button getButton() {
-        final Button button = new Button("Юр. лицо");
+    private Button getButtonAdd() {
+        Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
+        CompanyModal companyModal = new CompanyModal(companyService);
+        companyModal.addDetachListener(e -> reloadGrid());
+        button.addClickListener(e -> companyModal.open());
         return button;
     }
 
     private Button getButtonRefresh() {
-        final Button buttonRefresh;
-        Icon circle = new Icon(VaadinIcon.REFRESH);
-        buttonRefresh = new Button();
-        buttonRefresh.setIcon(circle);
+        final Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
