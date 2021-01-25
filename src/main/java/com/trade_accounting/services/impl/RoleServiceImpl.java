@@ -21,7 +21,7 @@ public class RoleServiceImpl implements RoleService {
 
     private final String roleUrl;
 
-    private List<RoleDto> roleDtoList = new ArrayList<>();;
+    private List<RoleDto> roleDtoList = new ArrayList<>();
 
     private RoleDto roleDto = new RoleDto();
 
