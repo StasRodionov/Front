@@ -25,6 +25,7 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.klaudeta.PaginatedGrid;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -33,7 +34,8 @@ import java.util.stream.Collectors;
 public class GoodsView extends VerticalLayout {
 
     private final ProductService productService;
-    private  List<ProductGroupDto> list;
+    private List<ProductGroupDto> list;
+    static Long id = 1l;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
@@ -139,23 +141,10 @@ public class GoodsView extends VerticalLayout {
         return valueSelect;
     }
 
-    private SplitLayout middleLayout() {
-        SplitLayout layout = new SplitLayout();
-
-        layout.addToPrimary(accordion());
-        VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(grid());
-        layout.addToSecondary(verticalLayout);
-        layout.setWidth("100%");
-
-        return layout;
-    }
-
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
         HorizontalLayout printLayout = new HorizontalLayout();
-        printLayout.add(
-        numberField(), valueSelect(), valueSelectPrint());
+        printLayout.add(numberField(), valueSelect(), valueSelectPrint());
         printLayout.setSpacing(false);
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(), buttonPlusService(),
                 buttonPlusSet(), buttonPlusGroup(),
@@ -166,10 +155,10 @@ public class GoodsView extends VerticalLayout {
         return upperLayout;
     }
 
-    private Grid<ProductDto> grid() {
+    private Grid<ProductDto> grid(Long l) {
         PaginatedGrid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
 
-        grid.setItems(productService.getAll());
+        grid.setItems(productService.getAllByProductGroupId(l));
 
         grid.setColumns("name", "description", "weight", "volume",
                 "purchasePrice");
@@ -189,18 +178,20 @@ public class GoodsView extends VerticalLayout {
 
 
     List<ProductGroupDto> filterList(Long id) {
-        if (id==null){
+        if (id == null) {
             return list
                     .stream().filter(x -> x.getParentId() == null)
                     .collect(Collectors.toList());
-        }else {
+        } else {
             return list
                     .stream().filter(x -> x.getParentId() != null && x.getParentId().equals(id))
                     .collect(Collectors.toList());
         }
     }
 
-    private Accordion accordion(){
+    private SplitLayout middleLayout() {
+        AtomicReference<Boolean> wasShown = new AtomicReference<>(false);
+        SplitLayout layout = new SplitLayout();
         Accordion accordion = new Accordion();
 
         for (ProductGroupDto pG : filterList(null)
@@ -216,15 +207,51 @@ public class GoodsView extends VerticalLayout {
                     ) {
                         sub3Accordion.add(sub3PG.getName(), null)
                                 .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
+                        sub3Accordion.getElement().addEventListener("click", e -> {
+                            id = Long.valueOf(
+                                    sub3Accordion.getOpenedPanel().get().getSummaryText()
+                                            .replaceAll("[^\\d.]", ""));
+                            wasShown.set(true);
+                        });
                     }
                     sub2Accordion.add(sub2PG.getName(), sub3Accordion)
                             .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
+                    sub2Accordion.getElement().addEventListener("click", e -> {
+                        if (!wasShown.get()) {
+                            id = Long.valueOf(
+                                    sub2Accordion.getOpenedPanel().get().getSummaryText()
+                                            .replaceAll("[^\\d.]", ""));
+                            wasShown.set(true);
+                        }
+                    });
                 }
                 subAccordion.add(subPG.getName(), sub2Accordion)
                         .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
+                subAccordion.getElement().addEventListener("click", e -> {
+                    if (!wasShown.get()) {
+                        id = Long.valueOf(
+                                subAccordion.getOpenedPanel().get().getSummaryText()
+                                        .replaceAll("[^\\d.]", ""));
+                        wasShown.set(true);
+                    }
+                });
             }
             accordion.add(pG.getName(), subAccordion);
         }
-        return accordion;
+        accordion.getElement().addEventListener("click", e -> {
+            if (!wasShown.get()) {
+                id = Long.valueOf(
+                        accordion.getOpenedPanel().get().getSummaryText().replaceAll("[^\\d.]", ""));
+            }
+            layout.removeAll();
+            layout.addToPrimary(accordion);
+            layout.addToSecondary(grid(id));
+            wasShown.set(false);
+        });
+        layout.addToPrimary(accordion);
+        layout.addToSecondary(grid(id));
+
+        return layout;
     }
 }
+
