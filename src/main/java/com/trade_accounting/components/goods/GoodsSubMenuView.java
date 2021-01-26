@@ -1,6 +1,7 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.goods;
 
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.html.Div;
@@ -47,7 +48,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
 
         return new Tabs(
-               new Tab(goodsLayout),
+                new Tab(goodsLayout),
                 realisationLayout,
                 chargesLayout,
                 interventarizationLayout,
@@ -59,6 +60,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         );
 
     }
+
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
@@ -66,6 +68,10 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
             if (e.getClass() == Tabs.class) {
                 ((Tabs) e).setSelectedIndex(3);
             }
+        });
+        getUI().ifPresent(ui -> {
+            div.removeAll();
+            div.add(new GoodsView(productService, productGroupService));
         });
     }
 }

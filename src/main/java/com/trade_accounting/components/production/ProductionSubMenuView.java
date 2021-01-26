@@ -1,5 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.production;
 
+import com.trade_accounting.components.AppView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -18,15 +19,15 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     }
 
     private Tabs configurationSubMenu() {
-        HorizontalLayout cardsLayout = new HorizontalLayout(new Label("Тех. карты"));
-        HorizontalLayout ordersLayout = new HorizontalLayout(new Label("Заказы на производство"));
-        HorizontalLayout operationsLayout = new HorizontalLayout(new Label("Тех. операции"));
+        Tab cardsLayout = new Tab("Тех. карты");
+        Tab ordersLayout = new Tab("Заказы на производство");
+        Tab operationsLayout = new Tab("Тех. операции");
 
 
         return new Tabs(
-                new Tab(cardsLayout),
-                new Tab(ordersLayout),
-                new Tab(operationsLayout)
+                cardsLayout,
+                ordersLayout,
+                operationsLayout
         );
 
     }
@@ -36,7 +37,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
             if (e.getClass() == Tabs.class) {
-                ((Tabs) e).setSelectedIndex(3);
+                ((Tabs) e).setSelectedIndex(7);
             }
         });
     }
