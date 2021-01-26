@@ -160,7 +160,7 @@ public class GoodsView extends VerticalLayout {
     private Grid<ProductDto> grid(Long l) {
         PaginatedGrid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
 
-        grid.setItems(productService.getById(l));
+        grid.setItems(productService.getAllByProductGroupId(l));
 
         grid.setColumns("name", "description", "weight", "volume",
                 "purchasePrice");

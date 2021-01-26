@@ -84,4 +84,16 @@ public class ProductServiceImp implements ProductService {
             log.error("Произошла ошибка при удалении ProductDto - {}", e);
         }
     }
+
+    @Override
+    public List<ProductDto> getAllByProductGroupId(Long l) {
+        Call<List<ProductDto>> productGetAllCall = productApi.getAllByProductGroup(productUrl, l);
+        try {
+            listProducts = productGetAllCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при получении списка ProductDto - {}", e);
+        }
+        return listProducts;
+    }
 }
