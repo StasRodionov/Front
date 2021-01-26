@@ -1,7 +1,9 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.contractors;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.modal_windows.ContractorModalWindow;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,11 +26,13 @@ import com.vaadin.flow.router.Route;
 public class ContractorsTabView extends VerticalLayout {
 
     private final ContractorService contractorService;
+    private final ContractorGroupService contractorGroupService;
 
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class);
 
-    public ContractorsTabView(ContractorService contractorService) {
+    public ContractorsTabView(ContractorService contractorService, ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
+        this.contractorGroupService = contractorGroupService;
         add(upperLayout(), grid, lowerLayout());
         configureGrid();
         updateList();
@@ -49,8 +53,8 @@ public class ContractorsTabView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
-        ContractorModalWindow addContractorModalWindow =
-                new ContractorModalWindow(new ContractorDto(), contractorService);
+        com.trade_accounting.components.modal_windows.ContractorModalWindow addContractorModalWindow =
+                new ContractorModalWindow(new ContractorDto(), contractorService, contractorGroupService);
         addContractorModalWindow.addDetachListener(event -> updateList());
         buttonUnit.addClickListener(event -> addContractorModalWindow.open());
         return buttonUnit;
@@ -117,7 +121,7 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             ContractorDto editContractor = event.getItem();
             ContractorModalWindow addContractorModalWindow =
-                    new ContractorModalWindow(editContractor, contractorService);
+                    new ContractorModalWindow(editContractor, contractorService, contractorGroupService);
             addContractorModalWindow.addDetachListener(e -> updateList());
             addContractorModalWindow.open();
         });

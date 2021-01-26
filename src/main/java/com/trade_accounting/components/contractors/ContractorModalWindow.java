@@ -1,6 +1,8 @@
 package com.trade_accounting.components.modal_windows;
 
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.accordion.Accordion;
@@ -42,9 +44,14 @@ public class ContractorModalWindow extends Dialog {
     private final String fieldWidth = "400px";
 
     private final ContractorService contractorService;
+    private final ContractorGroupService contractorGroupService;
 
-    public ContractorModalWindow (ContractorDto contractorDto, ContractorService contractorService) {
+    public ContractorModalWindow (ContractorDto contractorDto,
+                                  ContractorService contractorService,
+                                  ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
+        this.contractorGroupService = contractorGroupService;
+
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
         nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
@@ -89,8 +96,9 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout contractorGroupSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Select<String> labelSelect = new Select<>();
-        labelSelect.setItems("Option one", "Option two");
+        Select<ContractorGroupDto> labelSelect = new Select<>();
+        labelSelect.setItems(contractorGroupService.getAll());
+        labelSelect.setItemLabelGenerator(ContractorGroupDto::getName);
         labelSelect.setWidth(fieldWidth);
         Label label = new Label("Группы");
         label.setWidth(labelWidth);

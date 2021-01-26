@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.models.dto.ProductDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -36,4 +35,7 @@ public interface ProductApi {
     @GET("{url}/{id}")
     Call <Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
 
+    @Headers("Accept: application/json")
+    @GET("{url}/pg/{id}")
+    Call<List<ProductDto>> getAllByProductGroup(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
 }

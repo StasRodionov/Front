@@ -1,6 +1,7 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.goods;
 
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
@@ -11,7 +12,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.vaadin.klaudeta.PaginatedGrid;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,6 +37,7 @@ public class GoodsView extends VerticalLayout {
 
     private final ProductService productService;
     private  List<ProductGroupDto> data;
+    static Long id = 1l;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
@@ -139,21 +141,12 @@ public class GoodsView extends VerticalLayout {
         return valueSelect;
     }
 
-    private SplitLayout middleLayout() {
-        SplitLayout layout = new SplitLayout();
-
-        layout.addToPrimary(accordion());
-        VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(grid());
-        layout.addToSecondary(verticalLayout);
-        layout.setWidth("100%");
-
-        return layout;
-    }
-
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
-
+        HorizontalLayout printLayout = new HorizontalLayout();
+        printLayout.add(
+        numberField(), valueSelect(), valueSelectPrint());
+        printLayout.setSpacing(false);
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(), buttonPlusService(),
                 buttonPlusSet(), buttonPlusGroup(),
                 buttonFilter(), text(), numberField(), valueSelect(), valueSelectPrint(),
@@ -163,10 +156,10 @@ public class GoodsView extends VerticalLayout {
         return upperLayout;
     }
 
-    private Grid<ProductDto> grid() {
+    private Grid<ProductDto> grid(Long l) {
         PaginatedGrid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
 
-        grid.setItems(productService.getAll());
+        grid.setItems(productService.getAllByProductGroupId(l));
 
         grid.setColumns("name", "description", "weight", "volume",
                 "purchasePrice");
@@ -197,7 +190,9 @@ public class GoodsView extends VerticalLayout {
         }
     }
 
-    private Accordion accordion(){
+    private SplitLayout middleLayout() {
+        AtomicReference<Boolean> wasShown = new AtomicReference<>(false);
+        SplitLayout layout = new SplitLayout();
         Accordion accordion = new Accordion();
 
         for (ProductGroupDto pG : filterList(null)
@@ -213,15 +208,50 @@ public class GoodsView extends VerticalLayout {
                     ) {
                         sub3Accordion.add(sub3PG.getName(), null)
                                 .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
+                        sub3Accordion.getElement().addEventListener("click", e -> {
+                            id = Long.valueOf(
+                                    sub3Accordion.getOpenedPanel().get().getSummaryText()
+                                            .replaceAll("[^\\d.]", ""));
+                            wasShown.set(true);
+                        });
                     }
                     sub2Accordion.add(sub2PG.getName(), sub3Accordion)
                             .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
+                    sub2Accordion.getElement().addEventListener("click", e -> {
+                        if (!wasShown.get()) {
+                            id = Long.valueOf(
+                                    sub2Accordion.getOpenedPanel().get().getSummaryText()
+                                            .replaceAll("[^\\d.]", ""));
+                            wasShown.set(true);
+                        }
+                    });
                 }
                 subAccordion.add(subPG.getName(), sub2Accordion)
                         .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
+                subAccordion.getElement().addEventListener("click", e -> {
+                    if (!wasShown.get()) {
+                        id = Long.valueOf(
+                                subAccordion.getOpenedPanel().get().getSummaryText()
+                                        .replaceAll("[^\\d.]", ""));
+                        wasShown.set(true);
+                    }
+                });
             }
             accordion.add(pG.getName(), subAccordion);
         }
-        return accordion;
+        accordion.getElement().addEventListener("click", e -> {
+            if (!wasShown.get()) {
+                id = Long.valueOf(
+                        accordion.getOpenedPanel().get().getSummaryText().replaceAll("[^\\d.]", ""));
+            }
+            layout.removeAll();
+            layout.addToPrimary(accordion);
+            layout.addToSecondary(grid(id));
+            wasShown.set(false);
+        });
+        layout.addToPrimary(accordion);
+        layout.addToSecondary(grid(id));
+
+        return layout;
     }
 }

@@ -1,6 +1,7 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.goods;
 
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.html.Div;

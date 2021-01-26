@@ -1,5 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
