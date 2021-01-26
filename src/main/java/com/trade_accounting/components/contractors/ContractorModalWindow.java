@@ -1,4 +1,4 @@
-package com.trade_accounting.components.modal_windows;
+package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
