@@ -1,7 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.profile;
 
-
-import com.trade_accounting.components.profile.AddEmployeeModalWindowView;
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.RoleService;
@@ -12,7 +11,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -57,7 +55,7 @@ public class EmployeeView extends VerticalLayout {
         grid.getColumnByKey("phone").setHeader("Телефон");
         grid.getColumnByKey("description").setHeader("Описание");
         grid.getColumnByKey("roleDto").setHeader("Роль");
-        grid.setHeight("66vh");
+
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
@@ -139,7 +137,7 @@ public class EmployeeView extends VerticalLayout {
         HorizontalLayout upperLayout = new HorizontalLayout();
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
                 valueSelect(), buttonSettings());
-        upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        upperLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upperLayout;
     }
 
