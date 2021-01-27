@@ -2,6 +2,8 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -27,22 +29,27 @@ import java.util.List;
 public class SalesSubCustomersOrders extends VerticalLayout {
 
     private final InvoiceService invoiceService;
-//    private final List<InvoiceDto> data;
+    private final ContractorService contractorService;
+    private final CompanyService companyService;
+    private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
 
 //    private static final int ITEMS_PER_PAGE = 100;
 
-    public SalesSubCustomersOrders(InvoiceService invoiceService) {
+    public SalesSubCustomersOrders(InvoiceService invoiceService,
+                                   ContractorService contractorService,
+                                   CompanyService companyService) {
         this.invoiceService = invoiceService;
-//        this.data = getData();
+        this.contractorService = contractorService;
+        this.companyService = companyService;
+        this.data = getData();
 
-        add(upperLayout(), configureGrid(), lowerLayout());
+        add(upperLayout(), grid, lowerLayout());
+        configureGrid();
+        updateList();
     }
 
-    private Grid<InvoiceDto> configureGrid() {
-        Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
+    private void configureGrid() {
         grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
 
         grid.getColumnByKey("id").setHeader("id");
@@ -53,11 +60,18 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         grid.getColumnByKey("spend").setHeader("Проведена");
         grid.setHeight("66vh");
 
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addItemDoubleClickListener(event -> {
+            InvoiceDto editInvoice = event.getItem();
+            SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
+                    invoiceService, contractorService, companyService);
+            addModalWin.addDetachListener(e -> updateList());
+            addModalWin.open();
+        });
 
-//        grid.setColumnReorderingAllowed(true);
 //        loadItemsToGrid(grid,1);
 
-        return grid;
     }
 
     private HorizontalLayout upperLayout() {
@@ -92,6 +106,10 @@ public class SalesSubCustomersOrders extends VerticalLayout {
 
     private Button buttonUnit(){
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
+        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
+                contractorService, companyService);
+        addModalWin.addDetachListener(event -> updateList());
+        buttonUnit.addClickListener(event -> addModalWin.open());
         return buttonUnit;
     }
 
@@ -158,6 +176,11 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         return print;
     }
 
+    private void updateList() {
+        grid.setItems(invoiceService.getAll());
+        System.out.println("Обновлен");
+    }
+
 
 
 
@@ -170,9 +193,9 @@ public class SalesSubCustomersOrders extends VerticalLayout {
 //        grid.setItems(data.subList(from, to));
 //    }
 
-//    private List<InvoiceDto> getData() {
-//        return invoiceService.getAll();
-//    }
+    private List<InvoiceDto> getData() {
+        return invoiceService.getAll();
+    }
 
 
 
