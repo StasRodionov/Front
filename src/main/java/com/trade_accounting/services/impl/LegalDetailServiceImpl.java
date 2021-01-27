@@ -12,6 +12,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -19,27 +21,30 @@ import java.util.List;
 public class LegalDetailServiceImpl implements LegalDetailService {
 
     private final LegalDetailApi legalDetailApi;
-
     private final String legalDetailUrl;
-
-    private List<LegalDetailDto> legalDetailDtoList;
-
     private LegalDetailDto legalDetailDto;
 
     public LegalDetailServiceImpl(@Value("${legal_detail_url}") String legalDetailUrl, Retrofit retrofit) {
         this.legalDetailUrl = legalDetailUrl;
-        this.legalDetailApi = retrofit.create(LegalDetailApi.class);
+        legalDetailApi = retrofit.create(LegalDetailApi.class);
     }
 
-//    @PostConstruct
-//    public void test() {
-//        getAll();
-//        getById(1L);
-//        create(new LegalDetailDto());
-//        deleteById(2L);
-//    }
-
     @Override
+    public List<LegalDetailDto> getAll() {
+        List<LegalDetailDto> legalDetailDtoList = new ArrayList<>();
+        Call<List<LegalDetailDto>> legalDetailListCall = legalDetailApi.getAll(legalDetailUrl);
+
+        try {
+            legalDetailDtoList.addAll(legalDetailListCall.execute().body());
+            log.info("Успешно выполнен запрос на получение списка LegalDetailDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка LegalDetailDto - {}", e);
+        }
+
+        return legalDetailDtoList;
+    }
+
+    /*@Override
     public List<LegalDetailDto> getAll() {
         Call<List<LegalDetailDto>> legalDetailListCall = legalDetailApi.getAll(legalDetailUrl);
 
@@ -62,9 +67,24 @@ public class LegalDetailServiceImpl implements LegalDetailService {
         });
 
         return legalDetailDtoList;
-    }
+    }*/
 
     @Override
+    public LegalDetailDto getById(Long id) {
+        Call<LegalDetailDto> legalDetailDtoCall = legalDetailApi.getById(legalDetailUrl, id);
+
+        try {
+            legalDetailDto = legalDetailDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра LegalDetailDto по id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение экземпляра LegalDetailDto по id= {} - {}",
+                    id, e);
+        }
+
+        return legalDetailDto;
+    }
+
+    /*@Override
     public LegalDetailDto getById(Long id) {
         Call<LegalDetailDto> legalDetailDtoCall = legalDetailApi.getById(legalDetailUrl, id);
 
@@ -87,9 +107,22 @@ public class LegalDetailServiceImpl implements LegalDetailService {
         });
 
         return legalDetailDto;
-    }
+    }*/
 
     @Override
+    public void create(LegalDetailDto legalDetailDto) {
+        Call<Void> legalDetailDtoCall = legalDetailApi.create(legalDetailUrl, legalDetailDto);
+
+        try {
+            legalDetailDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание экземпляра LegalDetailDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра LegalDetailDto - {}", e);
+        }
+    }
+
+
+    /*@Override
     public void create(LegalDetailDto legalDetailDto) {
         Call<Void> call = legalDetailApi.create(legalDetailUrl, legalDetailDto);
 
@@ -109,9 +142,21 @@ public class LegalDetailServiceImpl implements LegalDetailService {
                 log.error("Произошла ошибка при получении ответа на запрос создания экземпляра LegalDetailDto", t);
             }
         });
-    }
+    }*/
 
     @Override
+    public void update(LegalDetailDto legalDetailDto) {
+        Call<Void> legalDetailDtoCall = legalDetailApi.update(legalDetailUrl, legalDetailDto);
+
+        try {
+            legalDetailDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра LegalDetailDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра LegalDetailDto - {}", e);
+        }
+    }
+
+    /*@Override
     public void update(LegalDetailDto legalDetailDto) {
         Call<Void> call = legalDetailApi.update(legalDetailUrl, legalDetailDto);
 
@@ -131,9 +176,22 @@ public class LegalDetailServiceImpl implements LegalDetailService {
                 log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра LegalDetailDto", t);
             }
         });
-    }
+    }*/
 
     @Override
+    public void deleteById(Long id) {
+        Call<Void> legalDetailDtoCall = legalDetailApi.deleteById(legalDetailUrl, id);
+
+        try {
+            legalDetailDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра LegalDetailDto с id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра LegalDetailDto с id= {} - {}",
+                    id, e);
+        }
+    }
+
+    /*@Override
     public void deleteById(Long id) {
         Call<Void> call = legalDetailApi.deleteById(legalDetailUrl, id);
 
@@ -153,5 +211,5 @@ public class LegalDetailServiceImpl implements LegalDetailService {
                 log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра LegalDetailDto", t);
             }
         });
-    }
+    }*/
 }
