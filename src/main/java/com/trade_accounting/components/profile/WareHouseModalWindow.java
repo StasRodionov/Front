@@ -3,10 +3,8 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -102,8 +100,6 @@ public class WareHouseModalWindow extends Dialog {
             newWarehouseDto.setSortNumber(sortNumberField.getValue());
             warehouseService.create(newWarehouseDto);
             close();
-
-
         });
     }
 
