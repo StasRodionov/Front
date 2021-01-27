@@ -7,10 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -19,7 +19,6 @@ public class TaxSystemServiceImpl implements TaxSystemService {
 
     private final TaxSystemApi taxSystemApi;
     private final String taxSystemUrl;
-    private List<TaxSystemDto> taxSystemDtoList;
     private TaxSystemDto taxSystemDto;
 
     public TaxSystemServiceImpl(@Value("${tax_system_url}") String taxSystemUrl, Retrofit retrofit) {
@@ -28,6 +27,71 @@ public class TaxSystemServiceImpl implements TaxSystemService {
     }
 
     @Override
+    public List<TaxSystemDto> getAll() {
+        List<TaxSystemDto> taxSystemDtoList = new ArrayList<>();
+        Call<List<TaxSystemDto>> taxSystemDtoListCall = taxSystemApi.getAll(taxSystemUrl);
+        try {
+            taxSystemDtoList.addAll(taxSystemDtoListCall.execute().body());
+            log.info("Успешно выполнен запрос на получение списка TaxSystemDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка TaxSystemDto - {}",
+                    e);
+        }
+        return taxSystemDtoList;
+    }
+
+    @Override
+    public TaxSystemDto getById(Long id) {
+        Call<TaxSystemDto> taxSystemDtoCall = taxSystemApi.getById(taxSystemUrl, id);
+        try {
+            taxSystemDto = taxSystemDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра TaxSystemDto по id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение экземпляра TaxSystemDto по id= {} - {}",
+                    id, e);
+        }
+        return taxSystemDto;
+    }
+
+    @Override
+    public void create(TaxSystemDto taxSystemDto) {
+        Call<Void> taxSystemDtoCall = taxSystemApi.create(taxSystemUrl, taxSystemDto);
+        try {
+            taxSystemDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание экземпляра TaxSystemDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра TaxSystemDto - {}",
+                    e);
+        }
+    }
+
+    @Override
+    public void update(TaxSystemDto taxSystemDto) {
+        Call<Void> taxSystemDtoCall = taxSystemApi.update(taxSystemUrl, taxSystemDto);
+
+        try {
+            taxSystemDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра TaxSystemDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра TaxSystemDto - {}",
+                    e);
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Call<Void> taxSystemDtoCall = taxSystemApi.deleteById(taxSystemUrl, id);
+
+        try {
+            taxSystemDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра TaxSystemDto с id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра TaxSystemDto с id= {} - {}",
+                    id, e);
+        }
+    }
+
+/*@Override
     public List<TaxSystemDto> getAll() {
         Call<List<TaxSystemDto>> taxSystemDtoListCall = taxSystemApi.getAll(taxSystemUrl);
 
@@ -49,9 +113,9 @@ public class TaxSystemServiceImpl implements TaxSystemService {
         });
 
         return taxSystemDtoList;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public TaxSystemDto getById(Long id) {
         Call<TaxSystemDto> taxSystemDtoCall = taxSystemApi.getById(taxSystemUrl, id);
 
@@ -74,9 +138,9 @@ public class TaxSystemServiceImpl implements TaxSystemService {
             }
         });
         return taxSystemDto;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void create(TaxSystemDto taxSystemDto) {
         Call<Void> taxSystemDtoCall = taxSystemApi.create(taxSystemUrl, taxSystemDto);
 
@@ -97,9 +161,9 @@ public class TaxSystemServiceImpl implements TaxSystemService {
                         taxSystemDto, throwable);
             }
         });
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void update(TaxSystemDto taxSystemDto) {
         Call<Void> taxSystemDtoCall = taxSystemApi.update(taxSystemUrl, taxSystemDto);
 
@@ -120,9 +184,9 @@ public class TaxSystemServiceImpl implements TaxSystemService {
                         taxSystemDto, throwable);
             }
         });
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void deleteById(Long id) {
         Call<Void> taxSystemDtoCall = taxSystemApi.deleteById(taxSystemUrl, id);
 
@@ -143,5 +207,5 @@ public class TaxSystemServiceImpl implements TaxSystemService {
                         id, throwable);
             }
         });
-    }
+    }*/
 }
