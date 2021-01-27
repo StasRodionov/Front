@@ -190,6 +190,11 @@ public class GridPaginator<T> extends HorizontalLayout {
         if (currentPage > numberOfPages) {
             throw new IllegalArgumentException("The current page: ["+ currentPage +"] greater than maximum number of page.");
         }
+
+        if (currentPage == 1) {
+            firstPageButton.setEnabled(false);
+            prevPageButton.setEnabled(false);
+        }
         this.currentPage = currentPage;
         reloadGrid();
     }
