@@ -1,9 +1,9 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
-import com.vaadin.componentfactory.Paginator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -39,9 +39,7 @@ public class CompanyView extends VerticalLayout {
     private List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
     private final HorizontalLayout filterLayout;
-
-    private static final int ITEMS_PER_PAGE = 100;
-    private final Paginator paginator;
+    private final GridPaginator<CompanyDto> paginator;
 
     private TextField idFilterField;
     private TextField searchTextField;
@@ -55,27 +53,24 @@ public class CompanyView extends VerticalLayout {
     private IntegerField faxFilterField;
     private ComboBox<Boolean> payerVatFilterField;
 
-    private final TextField pageItemsTextField;
-    private Button nextPageButton;
-    private Button lastPageButton;
-
     public CompanyView(CompanyService companyService) {
 
         this.companyService = companyService;
         this.finalData = companyService.getAll();
         this.data = finalData;
 
-        this.paginator = getPaginator();
         this.grid = new Grid<>(CompanyDto.class);
+        this.paginator = new GridPaginator<>(grid, data, 100);
         this.filterLayout = new HorizontalLayout();
-        this.pageItemsTextField = getPageItemsTextField();
+
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
 
         configureGrid();
         prepareFilterFields();
 
         filterLayout.setVisible(false);
 
-        add(getToolbar(), filterLayout, grid, getPaginatorToolbar());
+        add(getToolbar(), filterLayout, grid, paginator);
     }
 
     private void configureGrid() {
@@ -104,8 +99,6 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
 
         grid.setHeight("66vh");
-
-        loadPageToGrid(1);
     }
 
     private HorizontalLayout getToolbar() {
@@ -128,96 +121,6 @@ public class CompanyView extends VerticalLayout {
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
-    }
-
-    private HorizontalLayout getPaginatorToolbar() {
-        HorizontalLayout toolbarLow = new HorizontalLayout();
-
-        Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
-        Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-        nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-        lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-
-        if (paginator.getCurrentPage() == 1) {
-            firstPageButton.setEnabled(false);
-            prevPageButton.setEnabled(false);
-        }
-
-        nextPageButton.addClickListener(e -> {
-            if (paginator.getNumberOfPages() == paginator.getCurrentPage() + 1) {
-                paginator.setCurrentPage(paginator.getCurrentPage() + 1);
-
-                nextPageButton.setEnabled(false);
-                lastPageButton.setEnabled(false);
-            } else {
-                paginator.setCurrentPage(paginator.getCurrentPage() + 1);
-            }
-
-            prevPageButton.setEnabled(true);
-            firstPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
-
-        lastPageButton.addClickListener(e -> {
-            paginator.setCurrentPage(paginator.getNumberOfPages());
-
-            nextPageButton.setEnabled(false);
-            lastPageButton.setEnabled(false);
-
-            prevPageButton.setEnabled(true);
-            firstPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
-
-        prevPageButton.addClickListener(e -> {
-            if (paginator.getCurrentPage() - 1 == 1) {
-                paginator.setCurrentPage(paginator.getCurrentPage() - 1);
-
-                prevPageButton.setEnabled(false);
-                firstPageButton.setEnabled(false);
-            } else {
-                paginator.setCurrentPage(paginator.getCurrentPage() - 1);
-            }
-
-            nextPageButton.setEnabled(true);
-            lastPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
-
-        firstPageButton.addClickListener(e -> {
-            paginator.setCurrentPage(1);
-
-            prevPageButton.setEnabled(false);
-            firstPageButton.setEnabled(false);
-
-            nextPageButton.setEnabled(true);
-            lastPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
-
-        toolbarLow.add(firstPageButton,
-                prevPageButton,
-                pageItemsTextField,
-                nextPageButton,
-                lastPageButton);
-
-        return toolbarLow;
-    }
-
-    private Paginator getPaginator() {
-        int numberPages = (int) Math.ceil((float) data.size() / ITEMS_PER_PAGE);
-        return new Paginator(numberPages);
-    }
-
-    private TextField getPageItemsTextField() {
-        TextField textField = new TextField("");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-
-        return textField;
     }
 
     private Button getSettingButton() {
@@ -268,37 +171,6 @@ public class CompanyView extends VerticalLayout {
         selector.setValue("Изменить");
         selector.setWidth("130px");
         return selector;
-    }
-
-    private String getCurrentGridPageItems() {
-        int start = paginator.getCurrentPage();
-        int end = ITEMS_PER_PAGE * paginator.getCurrentPage();
-
-        if (start != 1) {
-            start = ((ITEMS_PER_PAGE * paginator.getCurrentPage()) - ITEMS_PER_PAGE) + 1;
-        }
-
-        if (paginator.getNumberOfPages() == paginator.getCurrentPage()) {
-            end = data.size();
-        }
-
-        return start + "-" + end + " из " + data.size();
-    }
-
-    private void reloadGrid() {
-        loadPageToGrid(paginator.getCurrentPage());
-
-        grid.getDataProvider().refreshAll();
-    }
-
-    private void loadPageToGrid(int page) {
-        int from = (page - 1) * ITEMS_PER_PAGE;
-
-        int to = (from + ITEMS_PER_PAGE);
-        to = Math.min(to, data.size());
-
-        grid.setItems(data.subList(from, to));
-        pageItemsTextField.setPlaceholder(getCurrentGridPageItems());
     }
 
     private void prepareFilterFields() {
@@ -437,20 +309,6 @@ public class CompanyView extends VerticalLayout {
 
         data = grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 
-        if (data.size() <= ITEMS_PER_PAGE) {
-            paginator.setNumberOfPages(1);
-
-            nextPageButton.setEnabled(false);
-            lastPageButton.setEnabled(false);
-        } else {
-            paginator.setNumberOfPages((int) Math.ceil((float) data.size() / ITEMS_PER_PAGE));
-
-            nextPageButton.setEnabled(true);
-            lastPageButton.setEnabled(true);
-        }
-
-        paginator.setCurrentPage(1);
-
-        reloadGrid();
+        paginator.setData(data);
     }
 }
