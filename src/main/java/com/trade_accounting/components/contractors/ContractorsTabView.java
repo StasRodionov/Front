@@ -1,11 +1,10 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.contractors;
 
-
-import com.trade_accounting.components.profile.AddEmployeeModalWindowView;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.RoleService;
-import com.vaadin.flow.component.Key;
+import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.modal_windows.ContractorModalWindow;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.services.interfaces.ContractorGroupService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -22,44 +21,21 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@Route(value = "contractorsTabView", layout = AppView.class)
+@PageTitle("Контрагенты")
+public class ContractorsTabView extends VerticalLayout {
 
-@Route(value = "employee", layout = AppView.class)
-@PageTitle("Сотрудники")
-public class EmployeeView extends VerticalLayout {
+    private final ContractorService contractorService;
+    private final ContractorGroupService contractorGroupService;
 
-    private Grid<EmployeeDto> grid = new Grid<>(EmployeeDto.class);
+    private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class);
 
-    private final EmployeeService employeeService;
-
-    private final RoleService roleService;
-
-    public EmployeeView(EmployeeService employeeService, RoleService roleService) {
-        this.employeeService = employeeService;
-        this.roleService = roleService;
+    public ContractorsTabView(ContractorService contractorService, ContractorGroupService contractorGroupService) {
+        this.contractorService = contractorService;
+        this.contractorGroupService = contractorGroupService;
         add(upperLayout(), grid, lowerLayout());
         configureGrid();
-        updateGrid();
-    }
-
-    private void updateGrid() {
-        grid.setItems(employeeService.getAll());
-        System.out.println("updateList");
-    }
-
-    private void configureGrid() {
-        grid.setColumns("lastName", "imageDto", "firstName",
-                "middleName", "email", "phone", "description", "roleDto");
-        grid.getColumnByKey("lastName").setHeader("Фамилия");
-        grid.getColumnByKey("imageDto").setHeader("");
-        grid.getColumnByKey("firstName").setHeader("Имя");
-        grid.getColumnByKey("middleName").setHeader("Отчество");
-        grid.getColumnByKey("email").setHeader("E-mail");
-        grid.getColumnByKey("phone").setHeader("Телефон");
-        grid.getColumnByKey("description").setHeader("Описание");
-        grid.getColumnByKey("roleDto").setHeader("Роль");
-        grid.setHeight("66vh");
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        updateList();
     }
 
     private Button buttonQuestion() {
@@ -70,39 +46,31 @@ public class EmployeeView extends VerticalLayout {
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
+        buttonRefresh.addClickListener(ev -> updateList());
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
     private Button buttonUnit() {
-        Button buttonUnit = new Button("Сотрудник", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickShortcut(Key.ENTER);
-        buttonUnit.addClickListener(click -> {
-            System.out.println("Вы нажали кнопку для добавление сотрудника!");
-
-            AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(employeeService, roleService);
-            addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
-            addEmployeeModalWindowView.isModal();
-            addEmployeeModalWindowView.open();
-        });
-
+        Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
+        com.trade_accounting.components.modal_windows.ContractorModalWindow addContractorModalWindow =
+                new ContractorModalWindow(new ContractorDto(), contractorService, contractorGroupService);
+        addContractorModalWindow.addDetachListener(event -> updateList());
+        buttonUnit.addClickListener(event -> addContractorModalWindow.open());
         return buttonUnit;
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр");
     }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private TextField text() {
         TextField text = new TextField();
-        text.setPlaceholder("Поиск");
+        text.setPlaceholder("Наимен, тел, соб, коммент...");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
         return text;
@@ -115,7 +83,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private H2 title() {
-        H2 title = new H2("Сотрудники");
+        H2 title = new H2("Контрагенты");
         title.setHeight("2.2em");
         return title;
     }
@@ -133,6 +101,35 @@ public class EmployeeView extends VerticalLayout {
         valueSelect.setValue("Изменить");
         valueSelect.setWidth("130px");
         return valueSelect;
+    }
+
+    private void configureGrid() {
+        grid.setColumns("name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
+
+        grid.getColumnByKey("name").setHeader("Наименование");
+        grid.getColumnByKey("inn").setHeader("Инн");
+        grid.getColumnByKey("sortNumber").setHeader("номер");
+        grid.getColumnByKey("phone").setHeader("телефон");
+        grid.getColumnByKey("fax").setHeader("факс");
+        grid.getColumnByKey("email").setHeader("емэйл");
+        grid.getColumnByKey("address").setHeader("адресс");
+        grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
+        grid.getColumnByKey("comment").setHeader("комментарий");
+
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addItemDoubleClickListener(event -> {
+            ContractorDto editContractor = event.getItem();
+            ContractorModalWindow addContractorModalWindow =
+                    new ContractorModalWindow(editContractor, contractorService, contractorGroupService);
+            addContractorModalWindow.addDetachListener(e -> updateList());
+            addContractorModalWindow.open();
+        });
+    }
+
+    private void updateList() {
+        grid.setItems(contractorService.getAll());
+        System.out.println("обновились");
     }
 
     private HorizontalLayout upperLayout() {
@@ -153,3 +150,5 @@ public class EmployeeView extends VerticalLayout {
         return lowerLayout;
     }
 }
+
+

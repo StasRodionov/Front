@@ -1,5 +1,6 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.button.Button;
@@ -17,6 +18,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.awt.*;
 
 @Route(value = "unit", layout = AppView.class)
 @PageTitle("Единицы измерения")
@@ -55,6 +58,8 @@ public class UnitView extends VerticalLayout {
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
         grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
+
+        grid.setHeight("66vh");
 
         return grid;
     }

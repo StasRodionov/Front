@@ -1,7 +1,8 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.contractors;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.components.AppView;
+import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -11,6 +12,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -19,52 +21,44 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "company", layout = AppView.class)
-@PageTitle("Юр. лица")
-public class CompanyView extends Div {
+@Route(value = "contracts", layout = AppView.class)
+@PageTitle("Договоры")
+public class ContractsView extends VerticalLayout {
 
-    private final CompanyService companyService;
+    private ContractService contractService;
 
     @Autowired
-    public CompanyView(CompanyService companyService) {
-
-        this.companyService = companyService;
+    ContractsView(ContractService contractService) {
+        this.contractService = contractService;
         add(getToolbar(), getGrid(), getToolbarLow());
     }
 
-    private Grid<CompanyDto> getGrid() {
-        Grid<CompanyDto> grid = new Grid<>(CompanyDto.class);
-        grid.setItems(companyService.getAll());
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("id", "name", "inn", "address", "commentToAddress",
-                "email", "phone", "fax", "leader", "leaderManagerPosition", "leaderSignature",
-                "chiefAccountant", "chiefAccountantSignature", "payerVat",
-                "stamp", "sortNumber", "legalDetailDto");
+    private Grid<ContractDto> getGrid() {
 
-        grid.getColumnByKey("name").setHeader("Наименование");
-        grid.getColumnByKey("inn").setHeader("ИНН");
-        grid.getColumnByKey("address").setHeader("Адрес");
-        grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
-        grid.getColumnByKey("email").setHeader("E-mail");
-        grid.getColumnByKey("phone").setHeader("Телефон");
-        grid.getColumnByKey("fax").setHeader("Факс");
-        grid.getColumnByKey("leader").setHeader("Руководитель");
-        grid.getColumnByKey("leaderManagerPosition").setHeader("Должность руководителя");
-        grid.getColumnByKey("leaderSignature").setHeader("Подпись руководителя");
-        grid.getColumnByKey("chiefAccountant").setHeader("Главный бухгалтер");
-        grid.getColumnByKey("chiefAccountantSignature").setHeader("Подпись гл. бухгалтера");
-        grid.getColumnByKey("payerVat").setHeader("Плательщик НДС");
-        grid.getColumnByKey("sortNumber").setHeader("Нумерация");
-        grid.getColumnByKey("stamp").setHeader("Печать");
-        grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
-
+        Grid<ContractDto> grid = new Grid<>(ContractDto.class);
+        grid.setItems(contractService.getAll());
+        grid.setColumns("id", "number", "contractDate", "date", "companyDto",
+                "bankAccountDto", "contractorDto", "amount", "archive", "comment", "legalDetailDto");
+        grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
+        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Код");
+        grid.getColumnByKey("contractDate").setAutoWidth(true).setHeader("Дата заключения");
+        grid.getColumnByKey("date").setAutoWidth(true).setHeader("Дата");
+        grid.getColumnByKey("companyDto").setHeader("Компания");
+        grid.getColumnByKey("bankAccountDto").setHeader("Банковский Аккаунт");
+        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
+        grid.getColumnByKey("amount").setAutoWidth(true).setHeader("Сумма");
+        grid.getColumnByKey("archive").setAutoWidth(true).setHeader("Архив");
+        grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
+        grid.getColumnByKey("legalDetailDto").setHeader("Реквизиты");
+        grid.setHeight("66vh");
         return grid;
+
     }
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), getTextCompany(), getButtonRefresh(), getButton(),
+        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getButton(),
                 getButtonFilter(), getTextField(), getNumberField(), getSelect(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -125,7 +119,7 @@ public class CompanyView extends Div {
     }
 
     private Button getButton() {
-        final Button button = new Button("Юр. лицо");
+        final Button button = new Button("Договор");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
         return button;
     }
@@ -139,8 +133,8 @@ public class CompanyView extends Div {
         return buttonRefresh;
     }
 
-    private H2 getTextCompany() {
-        final H2 textCompany = new H2("Юр. лицо");
+    private H2 getTextContract() {
+        final H2 textCompany = new H2("Договора");
         textCompany.setHeight("2.2em");
         return textCompany;
     }

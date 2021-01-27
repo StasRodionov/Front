@@ -1,4 +1,4 @@
-package com.trade_accounting.components.modal_windows;
+package com.trade_accounting.components.profile;
 
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RoleDto;
