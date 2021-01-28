@@ -191,9 +191,9 @@ public class GoodsView extends VerticalLayout {
         }
     }
 
-    private SplitLayout middleLayout() {
+    private HorizontalLayout middleLayout() {
         AtomicReference<Boolean> wasShown = new AtomicReference<>(false);
-        SplitLayout layout = new SplitLayout();
+        HorizontalLayout layout = new HorizontalLayout();
         Accordion accordion = new Accordion();
 
         for (ProductGroupDto pG : filterList(null)
@@ -246,12 +246,12 @@ public class GoodsView extends VerticalLayout {
                         accordion.getOpenedPanel().get().getSummaryText().replaceAll("[^\\d.]", ""));
             }
             layout.removeAll();
-            layout.addToPrimary(accordion);
-            layout.addToSecondary(grid(id));
+            layout.add(accordion);
+            layout.add(grid(id));
             wasShown.set(false);
         });
-        layout.addToPrimary(accordion);
-        layout.addToSecondary(grid(id));
+        layout.add(accordion);
+        layout.add(grid(id));
 
         return layout;
     }
