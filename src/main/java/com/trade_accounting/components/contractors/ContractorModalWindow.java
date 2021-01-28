@@ -185,20 +185,32 @@ public class ContractorModalWindow extends Dialog {
     }
 
     private Button getSaveButton() {
-        return new Button("Сохранить", event -> {
-            ContractorDto newContractorDto = new ContractorDto();
-            newContractorDto.setName(nameField.getValue());
-            newContractorDto.setPhone(phoneField.getValue());
-            newContractorDto.setFax(faxField.getValue());
-            newContractorDto.setEmail(emailField.getValue());
-            newContractorDto.setAddress(addressField.getValue());
-            newContractorDto.setCommentToAddress(commentToAddressField.getValue());
-            newContractorDto.setComment(commentField.getValue());
-            newContractorDto.setInn(innField.getValue());
-            newContractorDto.setSortNumber(sortNumberField.getValue());
-            contractorService.create(newContractorDto);
-            close();
-        });
+        ContractorDto contractorDto = new ContractorDto();
+        if (nameField.isEmpty()) {
+            return new Button("Добавить", event -> {
+                saveFields(contractorDto);
+                contractorService.create(contractorDto);
+                close();
+            });
+        } else {
+            return new Button("Изменить", event -> {
+                saveFields(contractorDto);
+                contractorService.update(contractorDto);
+                close();
+            });
+        }
+    }
+
+    private void saveFields(ContractorDto contractorDto) {
+        contractorDto.setName(nameField.getValue());
+        contractorDto.setPhone(phoneField.getValue());
+        contractorDto.setFax(faxField.getValue());
+        contractorDto.setEmail(emailField.getValue());
+        contractorDto.setAddress(addressField.getValue());
+        contractorDto.setCommentToAddress(commentToAddressField.getValue());
+        contractorDto.setComment(commentField.getValue());
+        contractorDto.setInn(innField.getValue());
+        contractorDto.setSortNumber(sortNumberField.getValue());
     }
 
     private Button getCancelButton() {
