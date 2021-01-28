@@ -26,10 +26,9 @@ public class WareHouseView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private Grid<WarehouseDto> grid = new Grid<>(WarehouseDto.class);
 
-
     public WareHouseView(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
-        add(toolsUp(), grid(), toolsDown());
+        add(toolsUp(), grid, toolsDown());
         grid();
         updateList();
     }
@@ -132,7 +131,7 @@ public class WareHouseView extends VerticalLayout {
         return toolsDown;
     }
 
-    private Grid<WarehouseDto> grid() {
+    private void  grid() {
         grid.setItems(warehouseService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setColumns("id", "name", "sortNumber", "address", "commentToAddress", "comment");
@@ -142,6 +141,12 @@ public class WareHouseView extends VerticalLayout {
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("Комментарий");
         grid.setHeight("66vh");
-        return grid;
+        grid.addItemDoubleClickListener(event -> {
+            WarehouseDto editWarehouse = event.getItem();
+            WareHouseModalWindow wareHouseModalWindow =
+                    new WareHouseModalWindow(editWarehouse, warehouseService);
+            wareHouseModalWindow.addDetachListener(e -> updateList());
+            wareHouseModalWindow.open();
+        });
     }
 }
