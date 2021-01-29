@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -33,6 +34,7 @@ public class SalesSubCustomersOrders extends VerticalLayout {
     private final CompanyService companyService;
     private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
+    private final GridPaginator<InvoiceDto> paginator;
 
 //    private static final int ITEMS_PER_PAGE = 100;
 
@@ -43,8 +45,8 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.data = getData();
-
-        add(upperLayout(), grid, lowerLayout());
+        paginator = new GridPaginator<>(grid, data, 100);
+        add(upperLayout(), grid, paginator);
         configureGrid();
         updateList();
     }
@@ -82,29 +84,19 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         return upper;
     }
 
-    private HorizontalLayout lowerLayout() {
-        HorizontalLayout lower = new HorizontalLayout();
-        lower.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
-                new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
-                textField(),
-                new Button(new Icon(VaadinIcon.ANGLE_RIGHT)),
-                new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT)));
-        return lower;
-    }
-
-    private Button buttonQuestion(){
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private Button buttonRefresh(){
+    private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private Button buttonUnit(){
+    private Button buttonUnit() {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
         SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
                 contractorService, companyService);
@@ -113,12 +105,12 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         return buttonUnit;
     }
 
-    private Button buttonFilter(){
+    private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         return buttonFilter;
     }
 
-    private Button buttonSettings(){
+    private Button buttonSettings() {
         Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
         return buttonSettings;
     }
@@ -138,13 +130,13 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         return textField;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Заказы покупателей");
         title.setHeight("2.2em");
         return title;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> select = new Select<>();
         select.setItems("Изменить");
         select.setValue("Изменить");
@@ -152,7 +144,7 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         return select;
     }
 
-    private Select<String> valueStatus(){
+    private Select<String> valueStatus() {
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
@@ -160,7 +152,7 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         return status;
     }
 
-    private Select<String> valueCreate(){
+    private Select<String> valueCreate() {
         Select<String> create = new Select<>();
         create.setItems("Создать");
         create.setValue("Создать");
@@ -168,7 +160,7 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         return create;
     }
 
-    private Select<String> valuePrint(){
+    private Select<String> valuePrint() {
         Select<String> print = new Select<>();
         print.setItems("Печать");
         print.setValue("Печать");
@@ -180,8 +172,6 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         grid.setItems(invoiceService.getAll());
         System.out.println("Обновлен");
     }
-
-
 
 
 //    private void loadItemsToGrid(Grid<InvoiceDto> grid, int page) {
@@ -196,8 +186,6 @@ public class SalesSubCustomersOrders extends VerticalLayout {
     private List<InvoiceDto> getData() {
         return invoiceService.getAll();
     }
-
-
 
 
 }
