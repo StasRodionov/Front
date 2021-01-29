@@ -1,7 +1,9 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.contractors.ContractorModalWindow;
 import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.componentfactory.Paginator;
 import com.vaadin.flow.component.button.Button;
@@ -78,6 +80,15 @@ public class CompanyView extends VerticalLayout {
 
         dtoGrid.setHeight("66vh");
         loadItemsToGrid(dtoGrid, 1);
+
+        dtoGrid.setColumnReorderingAllowed(true);
+        dtoGrid.addItemDoubleClickListener(event -> {
+            CompanyDto companyDto = event.getItem();
+            CompanyModal companyModal =
+                    new CompanyModal(companyDto, companyService);
+            companyModal.addDetachListener(e -> reloadGrid());
+            companyModal.open();
+        });
 
         return dtoGrid;
     }

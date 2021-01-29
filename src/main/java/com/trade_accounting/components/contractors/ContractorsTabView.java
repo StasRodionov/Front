@@ -1,7 +1,6 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.modal_windows.ContractorModalWindow;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -53,7 +52,7 @@ public class ContractorsTabView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
-        com.trade_accounting.components.modal_windows.ContractorModalWindow addContractorModalWindow =
+        ContractorModalWindow addContractorModalWindow =
                 new ContractorModalWindow(new ContractorDto(), contractorService, contractorGroupService);
         addContractorModalWindow.addDetachListener(event -> updateList());
         buttonUnit.addClickListener(event -> addContractorModalWindow.open());
