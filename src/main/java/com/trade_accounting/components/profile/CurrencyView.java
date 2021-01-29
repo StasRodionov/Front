@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CurrencyDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.vaadin.flow.component.button.Button;
@@ -19,15 +20,21 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.util.List;
+
 @Route(value = "currency", layout = AppView.class)
 @PageTitle("Валюты")
 public class CurrencyView extends VerticalLayout {
 
     private final CurrencyService currencyService;
 
+    private final GridPaginator<CurrencyDto> paginator;
+
     public CurrencyView(CurrencyService currencyService) {
         this.currencyService = currencyService;
-        add(toolsTop(), grid(), toolsBottom());
+
+        paginator = new GridPaginator<>(grid(), currencyService.getAll(), 100);
+        add(toolsTop(), grid(), toolsBottom(), paginator);
     }
 
     private Button buttonQuestion(){
