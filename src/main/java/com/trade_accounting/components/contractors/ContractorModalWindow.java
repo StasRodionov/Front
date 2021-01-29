@@ -21,6 +21,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class ContractorModalWindow extends Dialog {
 
+    private TextField idField = new TextField();
     private TextField nameField = new TextField();
 
     private TextField phoneField = new TextField();
@@ -54,6 +55,7 @@ public class ContractorModalWindow extends Dialog {
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
+        idField.setValue(getFieldValueNotNull(String.valueOf(contractorDto.getId())));
         nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
         phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
         faxField.setValue(getFieldValueNotNull(contractorDto.getFax()));
@@ -185,14 +187,15 @@ public class ContractorModalWindow extends Dialog {
     }
 
     private Button getSaveButton() {
-        ContractorDto contractorDto = new ContractorDto();
         if (nameField.isEmpty()) {
+            ContractorDto contractorDto = new ContractorDto();
             return new Button("Добавить", event -> {
                 saveFields(contractorDto);
                 contractorService.create(contractorDto);
                 close();
             });
         } else {
+            ContractorDto contractorDto = contractorService.getById(Long.valueOf(idField.getValue()));
             return new Button("Изменить", event -> {
                 saveFields(contractorDto);
                 contractorService.update(contractorDto);
