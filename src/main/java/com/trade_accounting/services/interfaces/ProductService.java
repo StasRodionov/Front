@@ -16,5 +16,6 @@ public interface ProductService {
 
     void deleteById(Long id);
 
+    List<ProductDto> getAllByProductGroupId(Long l);
 }
 

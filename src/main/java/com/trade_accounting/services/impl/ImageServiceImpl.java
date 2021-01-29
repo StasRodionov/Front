@@ -11,7 +11,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -19,7 +22,6 @@ public class ImageServiceImpl implements ImageService {
 
     private final ImageApi imageApi;
     private final String imageUrl;
-    private List<ImageDto> imageDtoList;
     private ImageDto imageDto;
 
     public ImageServiceImpl(@Value("${image_url}") String imageUrl, Retrofit retrofit) {
@@ -27,8 +29,22 @@ public class ImageServiceImpl implements ImageService {
         this.imageUrl = imageUrl;
     }
 
-
     @Override
+    public List<ImageDto> getAll() {
+        List<ImageDto> imageDtoList = new ArrayList<>();
+        Call<List<ImageDto>> imageDtoListCall = imageApi.getAll(imageUrl);
+
+        try {
+            imageDtoList.addAll(imageDtoListCall.execute().body());
+            log.info("Успешно выполнен запрос на получение списка ImageDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка ImageDto: {}", e);
+        }
+
+        return imageDtoList;
+    }
+
+    /*@Override
     public List<ImageDto> getAll() {
         Call<List<ImageDto>> imageDtoListCall = imageApi.getAll(imageUrl);
 
@@ -49,9 +65,25 @@ public class ImageServiceImpl implements ImageService {
             }
         });
         return imageDtoList;
-    }
+    }*/
 
     @Override
+    public ImageDto getById(Long id) {
+        Call<ImageDto> imageDtoCall = imageApi.getById(imageUrl, id);
+
+        try {
+            imageDto = imageDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра ImageDto с id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение ImageDto с id = {}: {}",
+                    id, e);
+        }
+
+        return imageDto;
+    }
+
+
+    /*@Override
     public ImageDto getById(Long id) {
         Call<ImageDto> imageDtoCall = imageApi.getById(imageUrl, id);
 
@@ -74,9 +106,23 @@ public class ImageServiceImpl implements ImageService {
             }
         });
         return imageDto;
-    }
+    }*/
 
     @Override
+    public void create(ImageDto imageDto) {
+        Call<Void> imageDtoCall = imageApi.create(imageUrl, imageDto);
+
+        try {
+            imageDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание нового экземпляра ImageDto {}", imageDto);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на создание нового экземпляра ImageDto {}: {}",
+                    imageDto, e);
+        }
+    }
+
+
+    /*@Override
     public void create(ImageDto imageDto) {
     Call<Void> imageDtoCall = imageApi.create(imageUrl, imageDto);
 
@@ -97,9 +143,23 @@ public class ImageServiceImpl implements ImageService {
                     imageDto, throwable);
         }
     });
-    }
+    }*/
 
     @Override
+    public void update(ImageDto imageDto) {
+        Call<Void> imageDtoCall = imageApi.update(imageUrl, imageDto);
+
+        try {
+            imageDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление ImageDto {}", imageDto);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на обновление ImageDto {}: {}",
+                    imageDto, e);
+        }
+    }
+
+
+    /*@Override
     public void update(ImageDto imageDto) {
         Call<Void> imageDtoCall = imageApi.update(imageUrl, imageDto);
 
@@ -120,9 +180,23 @@ public class ImageServiceImpl implements ImageService {
                         imageDto, throwable);
             }
         });
-    }
+    }*/
 
     @Override
+    public void deleteById(Long id) {
+        Call<Void> imageDtoCall = imageApi.deleteById(imageUrl, id);
+
+        try {
+            imageDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление ImageDto c id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на удаление ImageDto c id = {}: {}",
+                    id, e);
+        }
+    }
+
+
+    /*@Override
     public void deleteById(Long id) {
         Call<Void> imageDtoCall = imageApi.deleteById(imageUrl, id);
 
@@ -143,5 +217,6 @@ public class ImageServiceImpl implements ImageService {
                         id, throwable);
             }
         });
-    }
+    }*/
+
 }
