@@ -11,6 +11,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -24,9 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @Slf4j
-@Route(value = "customersOrders", layout = AppView.class)
-@PageTitle("Заказы покупателей")
-public class SalesSubCustomersOrders extends VerticalLayout {
+@Route(value = "agentReports", layout = AppView.class)
+@PageTitle("Отчеты комиссионера")
+public class SalesSubAgentReportsView extends VerticalLayout {
 
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
@@ -34,11 +35,9 @@ public class SalesSubCustomersOrders extends VerticalLayout {
     private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
 
-//    private static final int ITEMS_PER_PAGE = 100;
-
-    public SalesSubCustomersOrders(InvoiceService invoiceService,
-                                   ContractorService contractorService,
-                                   CompanyService companyService) {
+    public SalesSubAgentReportsView(InvoiceService invoiceService,
+                                    ContractorService contractorService,
+                                    CompanyService companyService) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -69,16 +68,13 @@ public class SalesSubCustomersOrders extends VerticalLayout {
             addModalWin.addDetachListener(e -> updateList());
             addModalWin.open();
         });
-
-//        loadItemsToGrid(grid,1);
-
     }
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
         upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
-        upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
 
@@ -105,11 +101,11 @@ public class SalesSubCustomersOrders extends VerticalLayout {
     }
 
     private Button buttonUnit(){
-        Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
-                contractorService, companyService);
-        addModalWin.addDetachListener(event -> updateList());
-        buttonUnit.addClickListener(event -> addModalWin.open());
+        Button buttonUnit = new Button("Отчет комиссионера", new Icon(VaadinIcon.PLUS_CIRCLE));
+//        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
+//                contractorService, companyService);
+//        addModalWin.addDetachListener(event -> updateList());
+//        buttonUnit.addClickListener(event -> addModalWin.open());
         return buttonUnit;
     }
 
@@ -139,7 +135,7 @@ public class SalesSubCustomersOrders extends VerticalLayout {
     }
 
     private H2 title(){
-        H2 title = new H2("Заказы покупателей");
+        H2 title = new H2("Отчеты комиссионера");
         title.setHeight("2.2em");
         return title;
     }
@@ -181,24 +177,9 @@ public class SalesSubCustomersOrders extends VerticalLayout {
         System.out.println("Обновлен");
     }
 
-
-
-
-//    private void loadItemsToGrid(Grid<InvoiceDto> grid, int page) {
-//        int from = (page - 1) * ITEMS_PER_PAGE;
-//
-//        int to = (from + ITEMS_PER_PAGE);
-//        to = Math.min(to, data.size());
-//
-//        grid.setItems(data.subList(from, to));
-//    }
-
     private List<InvoiceDto> getData() {
         return invoiceService.getAll();
     }
 
 
-
-
 }
-
