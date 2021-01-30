@@ -34,7 +34,6 @@ public class CurrencyView extends VerticalLayout {
         paginator = new GridPaginator<>(grid,currencyService.getAll(), 100 );
         grid();
         add(toolsTop(), grid, paginator);
-
         updateList();
     }
 
