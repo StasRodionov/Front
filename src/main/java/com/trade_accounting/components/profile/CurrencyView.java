@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CurrencyDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
@@ -26,11 +27,14 @@ public class CurrencyView extends VerticalLayout {
 
     private final CurrencyService currencyService;
     private Grid<CurrencyDto> grid = new Grid<>(CurrencyDto.class);
+    private GridPaginator<CurrencyDto> paginator;
 
     public CurrencyView(CurrencyService currencyService) {
         this.currencyService = currencyService;
-        add(toolsTop(), grid, toolsBottom());
+        paginator = new GridPaginator<>(grid,currencyService.getAll(), 100 );
         grid();
+        add(toolsTop(), grid, paginator);
+
         updateList();
     }
 
@@ -145,9 +149,5 @@ public class CurrencyView extends VerticalLayout {
         return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
     }
 
-    private HorizontalLayout toolsBottom(){
-        HorizontalLayout tools = new HorizontalLayout();
-        tools.add(doubleLeft(),left(),textFieldBottom(),right(),doubleRight());
-        return tools;
-    }
+
 }
