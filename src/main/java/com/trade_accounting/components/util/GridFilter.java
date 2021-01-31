@@ -1,5 +1,6 @@
 package com.trade_accounting.components.util;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -8,7 +9,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.dom.Element;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,27 +21,25 @@ import java.util.Locale;
 public class GridFilter<T> extends HorizontalLayout {
 
     private final Grid<T> grid;
-    private final HashMap<String, String> columnKey;
+    private final HashMap<String, String> filterData;
+    private final Class<T> beanType;
 
     private final Button searchButton;
     private final Button clearFieldsButton;
 
-    public GridFilter(Grid<T> grid) {
+    public GridFilter(Grid<T> grid, Class<T> beanType) {
         this.grid = grid;
-        this.columnKey = new LinkedHashMap<>();
+        this.beanType = beanType;
+        this.filterData = new LinkedHashMap<>();
 
         this.searchButton = new Button("Найти");
         this.clearFieldsButton = new Button("Очистить");
 
         add(searchButton, clearFieldsButton);
 
+        refreshFilterData();
         configureFilterField();
-
-        this.getChildren().forEach(e -> {
-            if (e.getId().isPresent()) {
-                columnKey.put(e.getId().get(), null);
-            }
-        });
+        configureButton();
 
         this.getStyle().set("background-color", "#e7eaef")
                 .set("border-radius", "4px")
@@ -53,19 +51,13 @@ public class GridFilter<T> extends HorizontalLayout {
         this.setVisible(false);
     }
 
-    private void configureFilterField() {
-        grid.getColumns().forEach(e -> this.add(getFilterField(e.getKey())));
-    }
-
     @SafeVarargs
     public final <I> void setFieldToComboBox(String columnKey, ItemLabelGenerator<I> itemLabelGenerator, I... items) {
         ComboBox<I> comboBox = getFilterComboBox(columnKey, itemLabelGenerator, items);
 
         this.getChildren().forEach(e -> {
-            if(e.getId().isPresent()) {
-                if(e.getId().get().equals(columnKey)) {
-                    this.replace(e, comboBox);
-                }
+            if (e.getId().orElse("").equals(columnKey)) {
+                this.replace(e, comboBox);
             }
         });
     }
@@ -75,10 +67,8 @@ public class GridFilter<T> extends HorizontalLayout {
         ComboBox<I> comboBox = getFilterComboBox(columnKey, items);
 
         this.getChildren().forEach(e -> {
-            if(e.getId().isPresent()) {
-                if(e.getId().get().equals(columnKey)) {
-                    this.replace(e, comboBox);
-                }
+            if (e.getId().orElse("").equals(columnKey)) {
+                this.replace(e, comboBox);
             }
         });
     }
@@ -87,10 +77,8 @@ public class GridFilter<T> extends HorizontalLayout {
         DatePicker datePicker = getFilterDatePicker(columnKey);
 
         this.getChildren().forEach(e -> {
-            if(e.getId().isPresent()) {
-                if(e.getId().get().equals(columnKey)) {
-                    this.replace(e, datePicker);
-                }
+            if (e.getId().orElse("").equals(columnKey)) {
+                this.replace(e, datePicker);
             }
         });
     }
@@ -109,14 +97,44 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
+    private void configureButton() {
+        searchButton.addClickListener(e -> {
+
+        });
+
+        clearFieldsButton.addClickListener(e -> this.getChildren().forEach(i -> {
+            refreshFilterData();
+
+            if (i instanceof TextField) {
+                ((TextField) i).clear();
+            }
+
+            if (i instanceof ComboBox) {
+                ((ComboBox<?>) i).clear();
+            }
+
+            if (i instanceof DatePicker) {
+                ((DatePicker) i).clear();
+            }
+        }));
+    }
+
+    private void configureFilterField() {
+        grid.getColumns().forEach(e -> this.add(getFilterField(e.getKey())));
+    }
+
+    private void refreshFilterData() {
+        Arrays.stream(this.beanType.getDeclaredFields()).forEach(e -> filterData.put(e.getName(), null));
+    }
+
     private TextField getFilterField(String columnKey) {
         TextField filter = new TextField();
         filter.setId(columnKey);
 
-        filter.addValueChangeListener(e -> onFieldChange(filter));
+        filter.addValueChangeListener(e -> onFilterChange(filter));
         filter.setValueChangeMode(ValueChangeMode.LAZY);
         if (grid.getColumnByKey(columnKey).getId().isPresent()) {
-            filter.setLabel(grid.getColumnByKey(columnKey).getId().get());
+            filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
         }
 
         return filter;
@@ -129,10 +147,9 @@ public class GridFilter<T> extends HorizontalLayout {
 
         filter.setItemLabelGenerator(itemLabelGenerator);
         filter.setItems(items);
+        filter.addValueChangeListener(e -> onFilterChange(filter));
 
-        if (grid.getColumnByKey(columnKey).getId().isPresent()) {
-            filter.setLabel(grid.getColumnByKey(columnKey).getId().get());
-        }
+        filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
 
         return filter;
     }
@@ -143,10 +160,9 @@ public class GridFilter<T> extends HorizontalLayout {
         filter.setId(columnKey);
 
         filter.setItems(items);
+        filter.addValueChangeListener(e -> onFilterChange(filter));
 
-        if (grid.getColumnByKey(columnKey).getId().isPresent()) {
-            filter.setLabel(grid.getColumnByKey(columnKey).getId().get());
-        }
+        filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
 
         return filter;
     }
@@ -156,19 +172,26 @@ public class GridFilter<T> extends HorizontalLayout {
         filter.setId(columnKey);
 
         filter.setLocale(Locale.GERMAN);
+        filter.addValueChangeListener(e -> onFilterChange(filter));
 
-        if (grid.getColumnByKey(columnKey).getId().isPresent()) {
-            filter.setLabel(grid.getColumnByKey(columnKey).getId().get());
-        }
+        filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
 
         return filter;
     }
 
-    private void onFieldChange(TextField field) {
-        columnKey.put(field.getId().get(), field.getValue());
+    private void onFilterChange(Component filter) {
+        if (filter instanceof TextField && !((TextField) filter).isEmpty()) {
+            filterData.put(filter.getId().orElse(""), ((TextField) filter).getValue());
+        }
 
-        System.out.println(columnKey.keySet() + " | " + columnKey.values());
+        if (filter instanceof ComboBox && !((ComboBox<?>) filter).isEmpty()) {
+            filterData.put(filter.getId().orElse(""), ((ComboBox<?>) filter).getValue().toString());
+        }
 
-        grid.
+        if (filter instanceof DatePicker && !((DatePicker) filter).isEmpty()) {
+            filterData.put(filter.getId().orElse(""), ((DatePicker) filter).getValue().toString());
+        }
+
+        System.out.println(filterData);
     }
 }
