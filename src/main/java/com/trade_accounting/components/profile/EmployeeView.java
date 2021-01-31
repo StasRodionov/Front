@@ -55,9 +55,16 @@ public class EmployeeView extends VerticalLayout {
         grid.getColumnByKey("phone").setHeader("Телефон");
         grid.getColumnByKey("description").setHeader("Описание");
         grid.getColumnByKey("roleDto").setHeader("Роль");
-
+        grid.addItemDoubleClickListener(event -> {
+            EmployeeDto employeeDto = event.getItem();
+            AddEmployeeModalWindowView addEmployeeModalWindowView =
+                    new AddEmployeeModalWindowView(employeeDto, employeeService, roleService);
+            addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
+            addEmployeeModalWindowView.open();
+        });
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
     }
 
     private Button buttonQuestion() {
@@ -77,14 +84,12 @@ public class EmployeeView extends VerticalLayout {
         buttonUnit.addClickShortcut(Key.ENTER);
         buttonUnit.addClickListener(click -> {
             System.out.println("Вы нажали кнопку для добавление сотрудника!");
-
             AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(employeeService, roleService);
+                    new AddEmployeeModalWindowView(null, employeeService, roleService);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
         });
-
         return buttonUnit;
     }
 
