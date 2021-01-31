@@ -17,6 +17,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.validator.RegexpValidator;
 
 
 public class ContractorModalWindow extends Dialog {
@@ -36,7 +37,7 @@ public class ContractorModalWindow extends Dialog {
 
     private TextArea commentField = new TextArea();
 
-    private TextField innField = new TextField();
+    private ValidTextField innField = new ValidTextField();
 
     private TextField sortNumberField = new TextField();
 
@@ -173,6 +174,8 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label("Инн");
         label.setWidth(labelWidth);
         innField.setWidth(fieldWidth);
+        innField.addValidator(new RegexpValidator("Only 10 or 12 digits.",
+                "^([0-9]{10}|[0-9]{12})$"));
         horizontalLayout.add(label, innField);
         return horizontalLayout;
     }
