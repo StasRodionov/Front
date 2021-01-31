@@ -1,6 +1,8 @@
-package com.trade_accounting.components;
+package com.trade_accounting.components.sells;
 
-import com.trade_accounting.components.sells.SalesSubCustomersOrders;
+import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -16,9 +18,15 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
 
     private final Div div;
     private final InvoiceService invoiceService;
+    private final ContractorService contractorService;
+    private final CompanyService companyService;
 
-    public SalesSubMenuView(InvoiceService invoiceService) {
+    public SalesSubMenuView(InvoiceService invoiceService,
+                            ContractorService contractorService,
+                            CompanyService companyService) {
         this.invoiceService = invoiceService;
+        this.contractorService = contractorService;
+        this.companyService = companyService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -26,7 +34,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
 //        div.removeAll();
-//        div.add(new SalesSubCustomersOrders(invoiceService));
+//        div.add(new SalesSubCustomersOrders(invoiceService, contractorService, companyService));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -36,7 +44,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
         });
         getUI().ifPresent(ui -> {
             div.removeAll();
-            div.add(new SalesSubCustomersOrders(invoiceService));
+            div.add(new SalesSubCustomersOrdersView(invoiceService, contractorService, companyService));
         });
     }
 
@@ -60,19 +68,19 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Заказы покупателей":
                     div.removeAll();
-                    div.add(new SalesSubCustomersOrders(invoiceService));
+                    div.add(new SalesSubCustomersOrdersView(invoiceService, contractorService, companyService));
                     break;
                 case "Счета покупателям":
                     div.removeAll();
-                    div.add(new String("SalesSubInvoicesToBuyersView"));
+                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, contractorService, companyService));
                     break;
                 case "Отгрузки":
                     div.removeAll();
-                    div.add(new String("SalesSubShipmentView"));
+                    div.add(new SalesSubShipmentView(invoiceService, contractorService, companyService));
                     break;
                 case "Отчеты комиссионера":
                     div.removeAll();
-                    div.add(new String("SalesSubAgentReportsView"));
+                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService));
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
