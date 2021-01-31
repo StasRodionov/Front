@@ -105,7 +105,8 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setColumns("name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
+        grid.setColumns("id", "name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
+        grid.getColumnByKey("id").setHeader("ID");
 
         grid.getColumnByKey("name").setHeader("Наименование");
         grid.getColumnByKey("inn").setHeader("Инн");
@@ -117,7 +118,7 @@ public class ContractorsTabView extends VerticalLayout {
         grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("комментарий");
 
-        grid.setPageSize(5);
+        grid.setPageSize(15);
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
