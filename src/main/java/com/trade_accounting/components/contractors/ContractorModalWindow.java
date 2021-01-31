@@ -1,5 +1,6 @@
 package com.trade_accounting.components.contractors;
 
+import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
@@ -48,9 +49,9 @@ public class ContractorModalWindow extends Dialog {
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
 
-    public ContractorModalWindow (ContractorDto contractorDto,
-                                  ContractorService contractorService,
-                                  ContractorGroupService contractorGroupService) {
+    public ContractorModalWindow(ContractorDto contractorDto,
+                                 ContractorService contractorService,
+                                 ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
 
@@ -90,7 +91,7 @@ public class ContractorModalWindow extends Dialog {
         return accordion;
     }
 
-    private HorizontalLayout header(){
+    private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
         nameField.setWidth("345px");
         header.add(nameField, getSaveButton(), getCancelButton());
@@ -155,7 +156,7 @@ public class ContractorModalWindow extends Dialog {
         label.setWidth(labelWidth);
         commentToAddressField.setWidth(fieldWidth);
         commentToAddressField.getStyle().set("minHeight", "120px");
-        horizontalLayout.add(label,  commentToAddressField);
+        horizontalLayout.add(label, commentToAddressField);
         return horizontalLayout;
     }
 
@@ -165,7 +166,7 @@ public class ContractorModalWindow extends Dialog {
         label.setWidth(labelWidth);
         commentField.setWidth(fieldWidth);
         commentField.getStyle().set("minHeight", "120px");
-        horizontalLayout.add(label,  commentField);
+        horizontalLayout.add(label, commentField);
         return horizontalLayout;
     }
 
@@ -174,8 +175,9 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label("Инн");
         label.setWidth(labelWidth);
         innField.setWidth(fieldWidth);
-        innField.addValidator(new RegexpValidator("Only 10 or 12 digits.",
-                "^([0-9]{10}|[0-9]{12})$"));
+        innField.addInputListener(inputEvent ->
+                innField.addValidator(new RegexpValidator("Only 10 or 12 digits.",
+                        "^([0-9]{10}|[0-9]{12})$")));
         horizontalLayout.add(label, innField);
         return horizontalLayout;
     }

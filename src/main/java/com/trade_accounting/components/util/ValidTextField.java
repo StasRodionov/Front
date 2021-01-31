@@ -1,4 +1,4 @@
-package com.trade_accounting.components.contractors;
+package com.trade_accounting.components.util;
 
 import java.util.ArrayList;
 import java.util.List;
