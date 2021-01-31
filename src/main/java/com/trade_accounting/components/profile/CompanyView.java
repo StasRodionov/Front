@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
-    private final List<CompanyDto> data;
+    private List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
 
     private static final int ITEMS_PER_PAGE = 100;
@@ -42,7 +42,6 @@ public class CompanyView extends VerticalLayout {
     private final TextField pageNumberTextField;
 
     public CompanyView(CompanyService companyService) {
-
         this.companyService = companyService;
         this.data = getData();
         this.paginator = getPaginator();
@@ -293,6 +292,7 @@ public class CompanyView extends VerticalLayout {
     }
 
     private void reloadGrid() {
+        data = getData();
         loadItemsToGrid(grid, paginator.getCurrentPage());
 
         remove(getComponentAt(1));
