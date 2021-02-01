@@ -55,6 +55,8 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private EmployeeDto employeeDto;
 
+    private Set<RoleDto> roles;
+
     public AddEmployeeModalWindowView(EmployeeDto employeeDto, EmployeeService employeeService, RoleService roleService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
@@ -70,6 +72,7 @@ public class AddEmployeeModalWindowView extends Dialog {
             innAdd.setValue(getFieldValueNotNull(employeeDto.getInn()));
             descriptionAdd.setValue(getFieldValueNotNull(employeeDto.getDescription()));
             passwordAdd.setValue(getFieldValueNotNull(employeeDto.getPassword()));
+            roles = employeeDto.getRoleDto();
         }
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -187,7 +190,10 @@ public class AddEmployeeModalWindowView extends Dialog {
 
         rolesSelect.setItemLabelGenerator(RoleDto::getName);
         rolesSelect.setItems(rolesDto);
-
+        if(roles!=null) {
+            for(RoleDto role : roles)
+            rolesSelect.setValue(role);
+        }
         rolesSelect.setWidth(fieldWidth);
         Label label = new Label("Роль");
         label.setWidth(labelWidth);
