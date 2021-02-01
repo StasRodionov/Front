@@ -32,6 +32,7 @@ public class CurrencyView extends VerticalLayout {
     public CurrencyView(CurrencyService currencyService) {
         this.currencyService = currencyService;
         paginator = new GridPaginator<>(grid,currencyService.getAll(), 100 );
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         grid();
         add(toolsTop(), grid, paginator);
         updateList();
