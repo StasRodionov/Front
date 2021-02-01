@@ -25,7 +25,7 @@ public class GridFilter<T> extends HorizontalLayout {
     private final Map<String, String> filterData;
 
     private final Button searchButton;
-    private final Button clearFieldsButton;
+    private final Button clearButton;
 
     /**
      * Creates a GridFilter.
@@ -37,9 +37,9 @@ public class GridFilter<T> extends HorizontalLayout {
         this.filterData = new HashMap<>();
 
         this.searchButton = new Button("Найти");
-        this.clearFieldsButton = new Button("Очистить");
+        this.clearButton = new Button("Очистить");
 
-        add(searchButton, clearFieldsButton);
+        add(searchButton, clearButton);
 
         configureFilterField();
         configureButton();
@@ -134,6 +134,15 @@ public class GridFilter<T> extends HorizontalLayout {
     }
 
     /**
+     * Add specific click listener to ClearButton.
+     *
+     * @param listener click listener
+     */
+    public void onClearClick(ComponentEventListener<ClickEvent<Button>> listener) {
+        clearButton.addClickListener(listener);
+    }
+
+    /**
      * Gets filter data from all fields.
      *
      * @return filter data
@@ -143,7 +152,7 @@ public class GridFilter<T> extends HorizontalLayout {
     }
 
     private void configureButton() {
-        clearFieldsButton.addClickListener(e -> this.getChildren().forEach(i -> {
+        clearButton.addClickListener(e -> this.getChildren().forEach(i -> {
             filterData.clear();
 
             if (i instanceof TextField) {
