@@ -221,7 +221,7 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private EmployeeDto setEmployeeDto(Long id) {
         EmployeeDto updateEmployeeDto = new EmployeeDto();
-        if (id == null) {
+        if (id != null) {
             updateEmployeeDto.setId(id);
         }
         updateEmployeeDto.setFirstName(firstNameAdd.getValue());
