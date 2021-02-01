@@ -7,10 +7,12 @@ import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,8 +20,22 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.upload.Receiver;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.FileData;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.SneakyThrows;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 
 @Route(value = "contractorsTabView", layout = AppView.class)
 @PageTitle("Контрагенты")
@@ -132,10 +148,31 @@ public class ContractorsTabView extends VerticalLayout {
         System.out.println("обновились");
     }
 
+    @SneakyThrows
+    private Button uploadExelTemplate() {
+        Button button = new Button("Добавить Exel шаблон");
+        File exelTemplate = new File("exelTemplate.xls");
+        exelTemplate.createNewFile();
+
+        Dialog dialog = new Dialog();
+        Upload upload = new Upload();
+        upload.setReceiver(new Receiver() {
+            @Override
+            public OutputStream receiveUpload(String s, String s1) {
+                return null;
+            }
+        });
+        MemoryBuffer buffer = new MemoryBuffer();
+
+        dialog.add(upload);
+        button.addClickListener(x -> dialog.open());
+        return button;
+    }
+
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
-                valueSelect(), buttonSettings());
+                valueSelect(), buttonSettings(), uploadExelTemplate());
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
     }
