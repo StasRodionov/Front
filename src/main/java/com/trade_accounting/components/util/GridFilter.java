@@ -1,6 +1,10 @@
 package com.trade_accounting.components.util;
 
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -10,10 +14,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Server-side component for filtering grid.
@@ -21,23 +25,20 @@ import java.util.Locale;
 public class GridFilter<T> extends HorizontalLayout {
 
     private final Grid<T> grid;
-    private final HashMap<String, String> filterData;
-    private final Class<T> beanType;
+    private Map<String, String> filterData;
 
     private final Button searchButton;
     private final Button clearFieldsButton;
 
-    public GridFilter(Grid<T> grid, Class<T> beanType) {
+    public GridFilter(Grid<T> grid) {
         this.grid = grid;
-        this.beanType = beanType;
-        this.filterData = new LinkedHashMap<>();
+        this.filterData = new HashMap<>();
 
         this.searchButton = new Button("Найти");
         this.clearFieldsButton = new Button("Очистить");
 
         add(searchButton, clearFieldsButton);
 
-        refreshFilterData();
         configureFilterField();
         configureButton();
 
@@ -97,13 +98,17 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
+    public void onSearchClick(ComponentEventListener<ClickEvent<Button>> listener) {
+        searchButton.addClickListener(listener);
+    }
+
+    public Map<String, String> getFilterData() {
+        return filterData;
+    }
+
     private void configureButton() {
-        searchButton.addClickListener(e -> {
-
-        });
-
         clearFieldsButton.addClickListener(e -> this.getChildren().forEach(i -> {
-            refreshFilterData();
+            filterData.clear();
 
             if (i instanceof TextField) {
                 ((TextField) i).clear();
@@ -123,16 +128,12 @@ public class GridFilter<T> extends HorizontalLayout {
         grid.getColumns().forEach(e -> this.add(getFilterField(e.getKey())));
     }
 
-    private void refreshFilterData() {
-        Arrays.stream(this.beanType.getDeclaredFields()).forEach(e -> filterData.put(e.getName(), null));
-    }
-
     private TextField getFilterField(String columnKey) {
         TextField filter = new TextField();
         filter.setId(columnKey);
 
         filter.addValueChangeListener(e -> onFilterChange(filter));
-        filter.setValueChangeMode(ValueChangeMode.LAZY);
+        filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
         if (grid.getColumnByKey(columnKey).getId().isPresent()) {
             filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
         }
@@ -180,18 +181,16 @@ public class GridFilter<T> extends HorizontalLayout {
     }
 
     private void onFilterChange(Component filter) {
-        if (filter instanceof TextField && !((TextField) filter).isEmpty()) {
+        if (filter instanceof TextField) {
             filterData.put(filter.getId().orElse(""), ((TextField) filter).getValue());
         }
 
-        if (filter instanceof ComboBox && !((ComboBox<?>) filter).isEmpty()) {
+        if (filter instanceof ComboBox) {
             filterData.put(filter.getId().orElse(""), ((ComboBox<?>) filter).getValue().toString());
         }
 
-        if (filter instanceof DatePicker && !((DatePicker) filter).isEmpty()) {
+        if (filter instanceof DatePicker) {
             filterData.put(filter.getId().orElse(""), ((DatePicker) filter).getValue().toString());
         }
-
-        System.out.println(filterData);
     }
 }
