@@ -46,14 +46,13 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
         this.companyService = companyService;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(upperLayout(), grid, paginator);
         configureGrid();
-        updateList();
     }
 
     private void configureGrid() {
         grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
-
         grid.getColumnByKey("id").setHeader("id");
         grid.getColumnByKey("date").setHeader("Дата");
         grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
@@ -71,9 +70,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
             addModalWin.addDetachListener(e -> updateList());
             addModalWin.open();
         });
-
-//        loadItemsToGrid(grid,1);
-
     }
 
     private HorizontalLayout upperLayout() {
@@ -173,20 +169,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
         System.out.println("Обновлен");
     }
 
-
-//    private void loadItemsToGrid(Grid<InvoiceDto> grid, int page) {
-//        int from = (page - 1) * ITEMS_PER_PAGE;
-//
-//        int to = (from + ITEMS_PER_PAGE);
-//        to = Math.min(to, data.size());
-//
-//        grid.setItems(data.subList(from, to));
-//    }
-
     private List<InvoiceDto> getData() {
         return invoiceService.getAll();
     }
-
 
 }
 
