@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.button.Button;
@@ -19,18 +20,42 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.awt.*;
+import java.util.List;
+
 
 @Route(value = "unit", layout = AppView.class)
 @PageTitle("Единицы измерения")
 public class UnitView extends VerticalLayout {
 
     private final UnitService unitService;
+    private final java.util.List<UnitDto> finalData;
+    private final Grid<UnitDto> grid;
+    private List<UnitDto> data;
+    private final GridPaginator<UnitDto> paginator;
+
 
     public UnitView(UnitService unitService) {
         this.unitService = unitService;
+        this.finalData = unitService.getAll();
+        this.data = finalData;
 
-        add(getToolbar(), getGrid(), getToolbarLow());
+        this.grid = new Grid<>(UnitDto.class);
+        this.paginator = new GridPaginator<>(grid, data, 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureGrid();
+        // add(getToolbar(), getGrid(), getToolbarLow());
+        add(getToolbar(), grid, getToolbarLow());
+    }
+
+    private void configureGrid() {
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.setColumns("id", "shortName", "fullName", "sortNumber");
+        grid.getColumnByKey("shortName").setHeader("Краткое наименование");
+        grid.getColumnByKey("fullName").setHeader("Полное наименование");
+        grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
+
+        grid.setHeight("66vh");
     }
 
     private HorizontalLayout getToolbar() {
@@ -49,20 +74,20 @@ public class UnitView extends VerticalLayout {
         return toolbarLow;
     }
 
-    private Grid<UnitDto> getGrid() {
-        Grid<UnitDto> grid = new Grid<>(UnitDto.class);
-        grid.setItems(unitService.getAll());
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
-        grid.setColumns("id", "shortName", "fullName", "sortNumber");
-        grid.getColumnByKey("shortName").setHeader("Краткое наименование");
-        grid.getColumnByKey("fullName").setHeader("Полное наименование");
-        grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
-
-        grid.setHeight("66vh");
-
-        return grid;
-    }
+//    private Grid<UnitDto> getGrid() {
+//        Grid<UnitDto> grid = new Grid<>(UnitDto.class);
+//        grid.setItems(unitService.getAll());
+//        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+//
+//        grid.setColumns("id", "shortName", "fullName", "sortNumber");
+//        grid.getColumnByKey("shortName").setHeader("Краткое наименование");
+//        grid.getColumnByKey("fullName").setHeader("Полное наименование");
+//        grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
+//
+//        grid.setHeight("66vh");
+//
+//        return grid;
+//    }
 
     private TextField getTextFieldLow() {
         TextField text = new TextField("", "1-1 из 1");
