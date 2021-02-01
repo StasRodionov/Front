@@ -66,6 +66,11 @@ public class GridPaginator<T> extends HorizontalLayout {
             prevPageButton.setEnabled(false);
         }
 
+        if (data.isEmpty() || data.size() <= itemsPerPage) {
+            nextPageButton.setEnabled(false);
+            lastPageButton.setEnabled(false);
+        }
+
         nextPageButton.addClickListener(e -> {
             if (numberOfPages == currentPage + 1) {
                 setCurrentPage(currentPage + 1);
@@ -149,9 +154,7 @@ public class GridPaginator<T> extends HorizontalLayout {
             start = ((itemsPerPage * currentPage) - itemsPerPage) + 1;
         }
 
-        if (numberOfPages == currentPage) {
-            end = data.size();
-        }
+        end = Math.min(end, data.size());
 
         return start + "-" + end + " из " + data.size();
     }

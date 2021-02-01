@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.vaadin.klaudeta.PaginatedGrid;
 
 @Route(value = "contractorsTabView", layout = AppView.class)
 @PageTitle("Контрагенты")
@@ -27,7 +28,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
 
-    private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class);
+    private final PaginatedGrid<ContractorDto> grid = new PaginatedGrid<>(ContractorDto.class);
 
     public ContractorsTabView(ContractorService contractorService, ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
@@ -103,7 +104,8 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setColumns("name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
+        grid.setColumns("id", "name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
+        grid.getColumnByKey("id").setHeader("ID");
 
         grid.getColumnByKey("name").setHeader("Наименование");
         grid.getColumnByKey("inn").setHeader("Инн");
@@ -115,6 +117,7 @@ public class ContractorsTabView extends VerticalLayout {
         grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("комментарий");
 
+        grid.setPageSize(15);
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {

@@ -21,6 +21,8 @@ public class CurrencyModalWindow extends Dialog {
 
     private TextArea letterCodeField = new TextArea();
 
+    private TextArea sortNumberField = new TextArea();
+
     private Long id;
 
     private final String labelWidth = "100px";
@@ -40,9 +42,10 @@ public class CurrencyModalWindow extends Dialog {
         fullNameField.setValue(getFieldValueNotNull(currencyDto.getFullName()));
         digitalCodeField.setValue(getFieldValueNotNull(currencyDto.getDigitalCode()));
         letterCodeField.setValue(getFieldValueNotNull(currencyDto.getLetterCode()));
+        sortNumberField.setValue(getFieldValueNotNull(currencyDto.getSortNumber()));
         add(new Text("Наименование"), header(),
                 new VerticalLayout(configureShortNameField(), configureDigitalCodeField(),
-                        configureLetterCodeField()
+                        configureLetterCodeField(), configureSortNumberField()
                 ));
     }
 
@@ -80,6 +83,15 @@ public class CurrencyModalWindow extends Dialog {
         horizontalLayout.add(label, letterCodeField);
         return horizontalLayout;
     }
+    private HorizontalLayout configureSortNumberField() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Сортировочный номер");
+        label.setWidth(labelWidth);
+        sortNumberField.setWidth(fieldWidth);
+        sortNumberField.getStyle().set("minHeight", "120px");
+        horizontalLayout.add(label, sortNumberField);
+        return horizontalLayout;
+    }
 
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
@@ -89,6 +101,7 @@ public class CurrencyModalWindow extends Dialog {
             currencyDto.setFullName(fullNameField.getValue());
             currencyDto.setDigitalCode(digitalCodeField.getValue());
             currencyDto.setLetterCode(letterCodeField.getValue());
+            currencyDto.setSortNumber(sortNumberField.getValue());
             currencyService.update(currencyDto);
             close();
         });
