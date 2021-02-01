@@ -2,14 +2,13 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.ProductGroupGridFiller;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -17,17 +16,19 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.klaudeta.PaginatedGrid;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,13 +37,19 @@ import java.util.stream.Collectors;
 public class GoodsView extends VerticalLayout {
 
     private final ProductService productService;
-    private  List<ProductGroupDto> data;
+    private final ProductGroupService productGroupService;
+    private List<ProductGroupDto> data;
     static Long id = 1l;
+private ProductGroupGridFiller productGroupGridFiller;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
+        this.productGroupService = productGroupService;
         data = productGroupService.getAll();
-        add(upperLayout(), middleLayout());
+        productGroupGridFiller = new ProductGroupGridFiller(productGroupService);
+
+        add(upperLayout(), productGroupGridFiller.middleLayout());
+
     }
 
     private Button buttonQuestion() {
@@ -145,7 +152,7 @@ public class GoodsView extends VerticalLayout {
         HorizontalLayout upperLayout = new HorizontalLayout();
         HorizontalLayout printLayout = new HorizontalLayout();
         printLayout.add(
-        numberField(), valueSelect(), valueSelectPrint());
+                numberField(), valueSelect(), valueSelectPrint());
         printLayout.setSpacing(false);
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(), buttonPlusService(),
                 buttonPlusSet(), buttonPlusGroup(),
@@ -179,17 +186,22 @@ public class GoodsView extends VerticalLayout {
 
 
     List<ProductGroupDto> filterList(Long id) {
-        if (id==null){
+        if (id == null) {
             return data
                     .stream().filter(x -> x.getParentId() == null)
                     .collect(Collectors.toList());
-        }else {
+        } else {
             return data
                     .stream().filter(x -> x.getParentId() != null && x.getParentId().equals(id))
                     .collect(Collectors.toList());
         }
     }
 
+
+
+
+
+    /* Старая версия дерева товарных групп
     private SplitLayout middleLayout() {
         AtomicReference<Boolean> wasShown = new AtomicReference<>(false);
         SplitLayout layout = new SplitLayout();
@@ -254,4 +266,6 @@ public class GoodsView extends VerticalLayout {
 
         return layout;
     }
-}
+
+     */
+    }
