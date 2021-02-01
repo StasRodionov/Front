@@ -6,6 +6,7 @@ import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -16,8 +17,12 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Route(value = "warehouse", layout = AppView.class)
 @PageTitle("Склады")
@@ -62,6 +67,10 @@ public class WareHouseView extends VerticalLayout {
 
     private void updateList() {
         grid.setItems(warehouseService.getAll());
+        GridSortOrder<WarehouseDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("sortNumber"), SortDirection.ASCENDING);
+        List<GridSortOrder<WarehouseDto>> gridSortOrderList = new ArrayList<>();
+        gridSortOrderList.add(gridSortOrder);
+        grid.sort(gridSortOrderList);
     }
 
     private Button buttonFilter() {

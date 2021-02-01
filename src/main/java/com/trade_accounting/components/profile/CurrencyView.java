@@ -110,12 +110,13 @@ public class CurrencyView extends VerticalLayout {
     private void grid(){
         grid.setItems(currencyService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setColumns("id", "shortName","fullName","digitalCode","letterCode");
+        grid.setColumns("id", "shortName","fullName","digitalCode","letterCode", "sortNumber");
         grid.getColumnByKey("id").setHeader("ID");
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
         grid.getColumnByKey("digitalCode").setHeader("Цифровой код");
         grid.getColumnByKey("letterCode").setHeader("Буквенный код");
+        grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер");
         grid.setHeight("66vh");
         grid.addItemDoubleClickListener(event -> {
             CurrencyDto editCurrency = event.getItem();

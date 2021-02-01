@@ -68,25 +68,33 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public ContractorDto getById(Long id) {
+//        Call<ContractorDto> contractorDtoCall = contractorApi.getById(contractorUrl, id);
+//
+//        contractorDtoCall.enqueue(new Callback<>() {
+//            @Override
+//            public void onResponse(Call<ContractorDto> call, Response<ContractorDto> response) {
+//                if (response.isSuccessful()) {
+//                    contractorDto = response.body();
+//                    log.info("Успешно выполнен запрос на получение экземпляра ContractorDto по id= {}", id);
+//                } else {
+//                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра ContractorDto по id= {} - {}",
+//                            id, response.errorBody());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ContractorDto> call, Throwable throwable) {
+//                log.error("Произошла ошибка при получении ответа на запрос экземпляра ContractorDto по id", throwable);
+//            }
+//        });
         Call<ContractorDto> contractorDtoCall = contractorApi.getById(contractorUrl, id);
 
-        contractorDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<ContractorDto> call, Response<ContractorDto> response) {
-                if (response.isSuccessful()) {
-                    contractorDto = response.body();
-                    log.info("Успешно выполнен запрос на получение экземпляра ContractorDto по id= {}", id);
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра ContractorDto по id= {} - {}",
-                            id, response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ContractorDto> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос экземпляра ContractorDto по id", throwable);
-            }
-        });
+        try {
+            contractorDto = contractorDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение ContractorDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение ContractorDto - {}", e);
+        }
 
         return contractorDto;
     }
