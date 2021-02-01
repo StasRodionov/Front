@@ -158,7 +158,9 @@ public class CompanyModal extends Dialog {
             companyDto.setPhone(phone.getValue());
             companyDto.setFax(fax.getValue());
             companyDto.setSortNumber(sortNumber.getValue());
-            companyDto.setPayerVat(payerVat.getValue().equals("Да"));
+            if (payerVat.getValue() != null) {
+                companyDto.setPayerVat(payerVat.getValue().equals("Да"));
+            }
             companyDto.setStamp(stamp.getValue());
             companyDto.setLeader(leader.getValue());
             companyDto.setLeaderManagerPosition(leaderManagerPosition.getValue());
