@@ -6,6 +6,7 @@ import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -16,8 +17,12 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Route(value = "warehouse", layout = AppView.class)
 @PageTitle("Склады")
@@ -26,10 +31,9 @@ public class WareHouseView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private Grid<WarehouseDto> grid = new Grid<>(WarehouseDto.class);
 
-
     public WareHouseView(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
-        add(toolsUp(), grid(), toolsDown());
+        add(toolsUp(), grid, toolsDown());
         grid();
         updateList();
     }
@@ -63,6 +67,10 @@ public class WareHouseView extends VerticalLayout {
 
     private void updateList() {
         grid.setItems(warehouseService.getAll());
+        GridSortOrder<WarehouseDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("sortNumber"), SortDirection.ASCENDING);
+        List<GridSortOrder<WarehouseDto>> gridSortOrderList = new ArrayList<>();
+        gridSortOrderList.add(gridSortOrder);
+        grid.sort(gridSortOrderList);
     }
 
     private Button buttonFilter() {
@@ -132,7 +140,7 @@ public class WareHouseView extends VerticalLayout {
         return toolsDown;
     }
 
-    private Grid<WarehouseDto> grid() {
+    private void  grid() {
         grid.setItems(warehouseService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setColumns("id", "name", "sortNumber", "address", "commentToAddress", "comment");
@@ -142,6 +150,12 @@ public class WareHouseView extends VerticalLayout {
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("Комментарий");
         grid.setHeight("66vh");
-        return grid;
+        grid.addItemDoubleClickListener(event -> {
+            WarehouseDto editWarehouse = event.getItem();
+            WareHouseModalWindow wareHouseModalWindow =
+                    new WareHouseModalWindow(editWarehouse, warehouseService);
+            wareHouseModalWindow.addDetachListener(e -> updateList());
+            wareHouseModalWindow.open();
+        });
     }
 }

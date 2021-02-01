@@ -23,6 +23,8 @@ public class WareHouseModalWindow extends Dialog {
 
     private TextField sortNumberField = new TextField();
 
+    private Long id;
+
     private final String labelWidth = "100px";
 
     private final String fieldWidth = "400px";
@@ -35,6 +37,7 @@ public class WareHouseModalWindow extends Dialog {
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
+        id = warehouseDto.getId();
         nameField.setValue(getFieldValueNotNull(warehouseDto.getName()));
         addressField.setValue(getFieldValueNotNull(warehouseDto.getAddress()));
         commentToAddressField.setValue(getFieldValueNotNull(warehouseDto.getCommentToAddress()));
@@ -49,7 +52,7 @@ public class WareHouseModalWindow extends Dialog {
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
         nameField.setWidth("345px");
-        header.add(nameField, getSaveButton(), getCancelButton());
+        header.add(nameField, getSaveButton(), getCancelButton(), getDeleteButton());
         return header;
     }
 
@@ -93,12 +96,13 @@ public class WareHouseModalWindow extends Dialog {
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
             WarehouseDto newWarehouseDto = new WarehouseDto();
+            newWarehouseDto.setId(id);
             newWarehouseDto.setName(nameField.getValue());
             newWarehouseDto.setAddress(addressField.getValue());
             newWarehouseDto.setCommentToAddress(commentToAddressField.getValue());
             newWarehouseDto.setComment(commentField.getValue());
             newWarehouseDto.setSortNumber(sortNumberField.getValue());
-            warehouseService.create(newWarehouseDto);
+            warehouseService.update(newWarehouseDto);
             close();
         });
     }
@@ -108,6 +112,14 @@ public class WareHouseModalWindow extends Dialog {
             close();
         });
         return cancelButton;
+    }
+
+    private Button getDeleteButton() {
+        Button deleteButton = new Button("Удалить", event -> {
+            warehouseService.deleteById(id);
+            close();
+        });
+        return deleteButton;
     }
 
     private String getFieldValueNotNull(String value) {
