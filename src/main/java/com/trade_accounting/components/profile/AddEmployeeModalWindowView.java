@@ -86,7 +86,6 @@ public class AddEmployeeModalWindowView extends Dialog {
         return header;
     }
 
-
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
@@ -190,9 +189,9 @@ public class AddEmployeeModalWindowView extends Dialog {
 
         rolesSelect.setItemLabelGenerator(RoleDto::getName);
         rolesSelect.setItems(rolesDto);
-        if(roles!=null) {
-            for(RoleDto role : roles)
-            rolesSelect.setValue(role);
+        if (roles != null) {
+            for (RoleDto role : roles)
+                rolesSelect.setValue(role);
         }
         rolesSelect.setWidth(fieldWidth);
         Label label = new Label("Роль");
