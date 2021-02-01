@@ -1,6 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.button.Button;
@@ -21,20 +22,36 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 @Route(value = "contracts", layout = AppView.class)
 @PageTitle("Договоры")
 public class ContractsView extends VerticalLayout {
 
-    private ContractService contractService;
+    private final ContractService contractService;
+
+    private final List<ContractDto> finalData;
+    private List<ContractDto> data;
+    private final Grid<ContractDto> grid;
+    private final GridPaginator<ContractDto> paginator;
 
     @Autowired
     ContractsView(ContractService contractService) {
+
         this.contractService = contractService;
-        add(getToolbar(), getGrid(), getToolbarLow());
+        this.finalData = contractService.getAll();
+        this.data = finalData;
+
+        this.grid = new Grid<>(ContractDto.class);
+        this.paginator = new GridPaginator<>(grid,data,100);
+        getGrid();
+
+        add(getToolbar(),grid,paginator);
+
     }
 
 
-    private Grid<ContractDto> getGrid() {
+    private void getGrid() {
 
         Grid<ContractDto> grid = new Grid<>(ContractDto.class);
         grid.setItems(contractService.getAll());
@@ -52,7 +69,6 @@ public class ContractsView extends VerticalLayout {
         grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
         grid.getColumnByKey("legalDetailDto").setHeader("Реквизиты");
         grid.setHeight("66vh");
-        return grid;
 
     }
 
@@ -72,7 +88,7 @@ public class ContractsView extends VerticalLayout {
     }
 
     private TextField getTextFieldLow() {
-        TextField text = new TextField("", "1-1 из 1");
+        TextField text = new TextField("", "");
         text.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         return text;
     }
