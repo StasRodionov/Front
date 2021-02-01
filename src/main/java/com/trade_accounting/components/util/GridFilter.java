@@ -1,7 +1,5 @@
 package com.trade_accounting.components.util;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -15,21 +13,25 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * Server-side component for filtering grid.
+ * Component for grid filtering.
  */
 public class GridFilter<T> extends HorizontalLayout {
 
     private final Grid<T> grid;
-    private Map<String, String> filterData;
+    private final Map<String, String> filterData;
 
     private final Button searchButton;
     private final Button clearFieldsButton;
 
+    /**
+     * Creates a GridFilter.
+     *
+     * @param grid grid
+     */
     public GridFilter(Grid<T> grid) {
         this.grid = grid;
         this.filterData = new HashMap<>();
@@ -52,6 +54,13 @@ public class GridFilter<T> extends HorizontalLayout {
         this.setVisible(false);
     }
 
+    /**
+     * Sets field uses column key to ComboBox with specific item label generator and items.
+     *
+     * @param columnKey columnKey
+     * @param itemLabelGenerator itemLabelGenerator
+     * @param items items
+     */
     @SafeVarargs
     public final <I> void setFieldToComboBox(String columnKey, ItemLabelGenerator<I> itemLabelGenerator, I... items) {
         ComboBox<I> comboBox = getFilterComboBox(columnKey, itemLabelGenerator, items);
@@ -63,6 +72,12 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
+    /**
+     * Sets field uses column key to ComboBox with specific items.
+     *
+     * @param columnKey columnKey
+     * @param items items
+     */
     @SafeVarargs
     public final <I> void setFieldToComboBox(String columnKey, I... items) {
         ComboBox<I> comboBox = getFilterComboBox(columnKey, items);
@@ -74,6 +89,11 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
+    /**
+     * Sets field uses column key to DatePicker.
+     *
+     * @param columnKey columnKey
+     */
     public void setFieldToDatePicker(String columnKey) {
         DatePicker datePicker = getFilterDatePicker(columnKey);
 
@@ -84,6 +104,12 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
+    /**
+     * Sets visible to fields from column key.
+     *
+     * @param visible visible
+     * @param columnKey columnKey
+     */
     public void setVisibleFields(Boolean visible, String... columnKey) {
         this.getChildren().forEach(e -> {
             boolean notButton = !e.toString().contains("button");
@@ -98,10 +124,20 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
+    /**
+     * Add specific click listener to SearchButton.
+     *
+     * @param listener click listener
+     */
     public void onSearchClick(ComponentEventListener<ClickEvent<Button>> listener) {
         searchButton.addClickListener(listener);
     }
 
+    /**
+     * Gets filter data from all fields.
+     *
+     * @return filter data
+     */
     public Map<String, String> getFilterData() {
         return filterData;
     }
