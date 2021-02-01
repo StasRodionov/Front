@@ -41,9 +41,9 @@ public class UnitView extends VerticalLayout {
 
         this.grid = new Grid<>(UnitDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
         configureGrid();
-        // add(getToolbar(), getGrid(), getToolbarLow());
+
         add(getToolbar(), grid, getToolbarLow());
     }
 
@@ -73,21 +73,6 @@ public class UnitView extends VerticalLayout {
 
         return toolbarLow;
     }
-
-//    private Grid<UnitDto> getGrid() {
-//        Grid<UnitDto> grid = new Grid<>(UnitDto.class);
-//        grid.setItems(unitService.getAll());
-//        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-//
-//        grid.setColumns("id", "shortName", "fullName", "sortNumber");
-//        grid.getColumnByKey("shortName").setHeader("Краткое наименование");
-//        grid.getColumnByKey("fullName").setHeader("Полное наименование");
-//        grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
-//
-//        grid.setHeight("66vh");
-//
-//        return grid;
-//    }
 
     private TextField getTextFieldLow() {
         TextField text = new TextField("", "1-1 из 1");
