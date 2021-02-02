@@ -1,6 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -19,7 +20,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.vaadin.klaudeta.PaginatedGrid;
 
 @Route(value = "contractorsTabView", layout = AppView.class)
 @PageTitle("Контрагенты")
@@ -27,14 +27,12 @@ public class ContractorsTabView extends VerticalLayout {
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
+    private Grid<ContractorDto> grid;
 
-    private final PaginatedGrid<ContractorDto> grid = new PaginatedGrid<>(ContractorDto.class);
 
     public ContractorsTabView(ContractorService contractorService, ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
-        add(upperLayout(), grid, lowerLayout());
-        configureGrid();
         updateList();
     }
 
@@ -76,12 +74,6 @@ public class ContractorsTabView extends VerticalLayout {
         return text;
     }
 
-    private TextField textField() {
-        TextField textField = new TextField("", "1-1 из 1");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return textField;
-    }
-
     private H2 title() {
         H2 title = new H2("Контрагенты");
         title.setHeight("2.2em");
@@ -117,7 +109,6 @@ public class ContractorsTabView extends VerticalLayout {
         grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("комментарий");
 
-        grid.setPageSize(15);
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
@@ -130,8 +121,13 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(contractorService.getAll());
-        System.out.println("обновились");
+        this.grid = new Grid<>(ContractorDto.class);
+        GridPaginator<ContractorDto> paginator
+                = new GridPaginator<>(grid, contractorService.getAll(), 9);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureGrid();
+        removeAll();
+        add(upperLayout(), grid, paginator);
     }
 
     private HorizontalLayout upperLayout() {
@@ -142,15 +138,6 @@ public class ContractorsTabView extends VerticalLayout {
         return upperLayout;
     }
 
-    private HorizontalLayout lowerLayout() {
-        HorizontalLayout lowerLayout = new HorizontalLayout();
-        lowerLayout.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
-                new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
-                textField(),
-                new Button(new Icon(VaadinIcon.ANGLE_RIGHT)),
-                new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT)));
-        return lowerLayout;
-    }
 }
 
 
