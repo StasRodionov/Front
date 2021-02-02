@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
-    private final List<CompanyDto> finalData;
+    private List<CompanyDto> finalData;
     private List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
     private final HorizontalLayout filterLayout;
@@ -54,7 +54,6 @@ public class CompanyView extends VerticalLayout {
     private ComboBox<Boolean> payerVatFilterField;
 
     public CompanyView(CompanyService companyService) {
-
         this.companyService = companyService;
         this.finalData = companyService.getAll();
         this.data = finalData;
@@ -99,6 +98,13 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
 
         grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.addItemDoubleClickListener(event -> {
+            CompanyDto companyDto = event.getItem();
+            CompanyModal companyModal = new CompanyModal(companyDto, companyService);
+            companyModal.addDetachListener(e -> reloadGrid());
+            companyModal.open();
+        });
     }
 
     private HorizontalLayout getToolbar() {
@@ -139,6 +145,9 @@ public class CompanyView extends VerticalLayout {
     private Button getNewCompanyButton() {
         final Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
+        CompanyModal companyModal = new CompanyModal(companyService);
+        companyModal.addDetachListener(e -> reloadGrid());
+        button.addClickListener(e -> companyModal.open());
         return button;
     }
 
@@ -239,6 +248,11 @@ public class CompanyView extends VerticalLayout {
         filter.addValueChangeListener(e -> this.onFilterChange());
 
         return filter;
+    }
+
+    private void reloadGrid() {
+        finalData = companyService.getAll();
+        onFilterChange();
     }
 
     private void onFilterChange() {

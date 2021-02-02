@@ -31,12 +31,7 @@ import java.util.Queue;
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyApi companyApi;
-
     private final String companyUrl;
-
-    private List<CompanyDto> companyDtoList = new ArrayList<>();
-
-    private CompanyDto companyDto;
 
     public CompanyServiceImpl(@Value("${company_url}") String companyUrl, Retrofit retrofit) {
         this.companyUrl = companyUrl;
@@ -45,7 +40,6 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyDto> getAll() {
-
         List<CompanyDto> companyDtoList = new ArrayList<>();
         Call<List<CompanyDto>> companyDtoListCall = companyApi.getAll(companyUrl);
 
@@ -55,8 +49,6 @@ public class CompanyServiceImpl implements CompanyService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка CompanyDto - {}", e);
         }
-
-
 
         /*Call<List<CompanyDto>> companyDtoListCall = companyApi.getAll(companyUrl);
 
@@ -84,8 +76,8 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyDto getById(Long id) {
-
         Call<CompanyDto> companyDtoCall = companyApi.getById(companyUrl, id);
+        CompanyDto companyDto = null;
 
         try {
             companyDto = companyDtoCall.execute().body();
@@ -119,6 +111,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyDto getByEmail(String email) {
         Call<CompanyDto> companyDtoCall = companyApi.getByEmail(companyUrl, email);
+        CompanyDto companyDto = null;
 
         try {
             companyDto = companyDtoCall.execute().body();
@@ -127,7 +120,6 @@ public class CompanyServiceImpl implements CompanyService {
             log.error("Произошла ошибка при выполнении запроса на получение экземпляра CompanyDto по id= {} - {}",
                     email, e);
         }
-
 
         /*companyDtoCall.enqueue(new Callback<>() {
             @Override
@@ -236,18 +228,4 @@ public class CompanyServiceImpl implements CompanyService {
             }
         });*/
     }
-
-   /* @PostConstruct
-    public void test(){
-
-//        create(new CompanyDto(null, "dfh", "kdjfk", "kdjf", "kjdf", "kjdf",
-//                "dfh", true, "kdjf", "kjdf", "kjdf",
-//                "dfh", "kdjfk", "kdjf",
-//                "kjdf", "skd", new LegalDetailDto(1L, "dfkj",
-//                "dkjf", "ksjfd", "dkfj",
-//                "kdjf", "dkfj", "kdjf", "dkjf",
-//                "skdj", new TypeOfContractorDto(1L, "nkd", "kj"))));
-        //getById(1L);
-        //deleteById(5L);
-    }*/
 }
