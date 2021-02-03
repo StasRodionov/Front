@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.tabs.Tab;
@@ -14,8 +15,13 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Закупки")
 public class PurchasesSubMenuView extends Div implements AfterNavigationObserver {
 
-    public PurchasesSubMenuView() {
-        add(configurationSubMenu());
+    private final Div div;
+    private final InvoiceService invoiceService;
+
+    public PurchasesSubMenuView(InvoiceService invoiceService) {
+        this.invoiceService = invoiceService;
+        div = new Div();
+        add(configurationSubMenu(), div);
     }
 
     @Override
@@ -25,6 +31,10 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
             if (e.getClass() == Tabs.class) {
                 ((Tabs) e).setSelectedIndex(1);
             }
+        });
+        getUI().ifPresent(ui -> {
+            div.removeAll();
+            div.add(new PurchasesSubSuppliersOrders(invoiceService));
         });
     }
 

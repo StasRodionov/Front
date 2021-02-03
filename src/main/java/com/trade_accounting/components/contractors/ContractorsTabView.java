@@ -1,7 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.modal_windows.ContractorModalWindow;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -49,16 +49,14 @@ public class ContractorsTabView extends VerticalLayout {
     private final ContractorService contractorService;
 
     private final ContractorGroupService contractorGroupService;
+    private Grid<ContractorDto> grid;
 
-    private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class);
 
     private final String pathForSaveXlsTemplate = "src/main/java/com/trade_accounting/components/contractors/";
 
     public ContractorsTabView(ContractorService contractorService, ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
-        add(upperLayout(), grid, lowerLayout());
-        configureGrid();
         updateList();
     }
 
@@ -77,7 +75,7 @@ public class ContractorsTabView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
-        com.trade_accounting.components.modal_windows.ContractorModalWindow addContractorModalWindow =
+        ContractorModalWindow addContractorModalWindow =
                 new ContractorModalWindow(new ContractorDto(), contractorService, contractorGroupService);
         addContractorModalWindow.addDetachListener(event -> updateList());
         buttonUnit.addClickListener(event -> addContractorModalWindow.open());
@@ -98,12 +96,6 @@ public class ContractorsTabView extends VerticalLayout {
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
         return text;
-    }
-
-    private TextField textField() {
-        TextField textField = new TextField("", "1-1 из 1");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return textField;
     }
 
     private H2 title() {
@@ -128,7 +120,8 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setColumns("name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
+        grid.setColumns("id", "name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
+        grid.getColumnByKey("id").setHeader("ID");
 
         grid.getColumnByKey("name").setHeader("Наименование");
         grid.getColumnByKey("inn").setHeader("Инн");
@@ -152,8 +145,13 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(contractorService.getAll());
-        System.out.println("обновились");
+        this.grid = new Grid<>(ContractorDto.class);
+        GridPaginator<ContractorDto> paginator
+                = new GridPaginator<>(grid, contractorService.getAll(), 9);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureGrid();
+        removeAll();
+        add(upperLayout(), grid, paginator);
     }
 
     private MenuItem UploadXlsMenuItem(SubMenu subMenu) {

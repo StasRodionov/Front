@@ -1,7 +1,9 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CurrencyDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,10 +26,16 @@ import com.vaadin.flow.router.Route;
 public class CurrencyView extends VerticalLayout {
 
     private final CurrencyService currencyService;
+    private Grid<CurrencyDto> grid = new Grid<>(CurrencyDto.class);
+    private GridPaginator<CurrencyDto> paginator;
 
     public CurrencyView(CurrencyService currencyService) {
         this.currencyService = currencyService;
-        add(toolsTop(), grid(), toolsBottom());
+        paginator = new GridPaginator<>(grid,currencyService.getAll(), 100 );
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        grid();
+        add(toolsTop(), grid, paginator);
+        updateList();
     }
 
     private Button buttonQuestion(){
@@ -49,7 +57,16 @@ public class CurrencyView extends VerticalLayout {
     }
 
     private  Button buttonCurrency(){
-        return new Button("Валюта", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button currencyButton = new Button("Валюта", new Icon(VaadinIcon.PLUS_CIRCLE));
+        CurrencyModalWindow addCurrencyModalWindow =
+                new CurrencyModalWindow(new CurrencyDto(), currencyService);
+        currencyButton.addClickListener(event -> addCurrencyModalWindow.open());
+        addCurrencyModalWindow.addDetachListener(event -> updateList());
+        return currencyButton;
+    }
+
+    private void updateList() {
+        grid.setItems(currencyService.getAll());
     }
 
     private Button buttonFilter(){
@@ -91,19 +108,24 @@ public class CurrencyView extends VerticalLayout {
         return tools;
     }
 
-    private Grid<CurrencyDto> grid(){
-        Grid<CurrencyDto> grid = new Grid<>(CurrencyDto.class);
+    private void grid(){
         grid.setItems(currencyService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
-        grid.setColumns("id", "shortName","fullName","digitalCode","letterCode");
+        grid.setColumns("id", "shortName","fullName","digitalCode","letterCode", "sortNumber");
         grid.getColumnByKey("id").setHeader("ID");
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
         grid.getColumnByKey("digitalCode").setHeader("Цифровой код");
         grid.getColumnByKey("letterCode").setHeader("Буквенный код");
+        grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер");
         grid.setHeight("66vh");
-        return grid;
+        grid.addItemDoubleClickListener(event -> {
+            CurrencyDto editCurrency = event.getItem();
+            CurrencyModalWindow currencyModalWindow =
+                    new CurrencyModalWindow(editCurrency, currencyService);
+            currencyModalWindow.addDetachListener(e -> updateList());
+            currencyModalWindow.open();
+        });
     }
 
     private Button doubleLeft(){
@@ -128,9 +150,5 @@ public class CurrencyView extends VerticalLayout {
         return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
     }
 
-    private HorizontalLayout toolsBottom(){
-        HorizontalLayout tools = new HorizontalLayout();
-        tools.add(doubleLeft(),left(),textFieldBottom(),right(),doubleRight());
-        return tools;
-    }
+
 }

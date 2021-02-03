@@ -19,6 +19,8 @@ public class CurrencyDto {
 
     private String letterCode;
 
+    private String sortNumber;
+
     public CurrencyDto(String shortName, String digitalCode, String letterCode) {
         this.shortName = shortName;
         this.digitalCode = digitalCode;

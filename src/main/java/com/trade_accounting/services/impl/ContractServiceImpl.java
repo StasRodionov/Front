@@ -47,9 +47,6 @@ public class ContractServiceImpl implements ContractService {
         try {
             contractDtoList = contractDtoListCall.execute().body();
             Objects.requireNonNull(contractDtoList).forEach(contr -> contr.setDate(contr.getContractDate()));
-            Objects.requireNonNull(contractDtoList).forEach(contr -> contr.getLegalDetailDto().
-                    setDate(contr.getLegalDetailDto().getDateOfTheCertificate()));
-
             log.info("Успешно выполнен запрос на получение списка ContractDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractDto: {}", e);
@@ -85,9 +82,6 @@ public class ContractServiceImpl implements ContractService {
         try {
             contractDto = contractDtoCall.execute().body();
             Objects.requireNonNull(contractDto).setDate(contractDto.getContractDate());
-            Objects.requireNonNull(contractDto).getLegalDetailDto().
-                    setDate(contractDto.getLegalDetailDto().getDateOfTheCertificate());
-
             log.info("Успешно выполнен запрос на получение экземпляра ContractDto с id = {}", id);
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение ContractDto с id = {}: {}", id, e);
