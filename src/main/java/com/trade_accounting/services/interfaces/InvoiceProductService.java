@@ -1,17 +1,18 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.InvoiceDto;
+
+import com.trade_accounting.models.dto.InvoiceProductDto;
 
 import java.util.List;
 
 public interface InvoiceProductService {
-    List<InvoiceDto> getAll();
+    List<InvoiceProductDto> getAll();
 
-    InvoiceDto getById(Long id);
+    InvoiceProductDto getById(Long id);
 
-    void create(InvoiceDto invoiceDto);
+    void create(InvoiceProductDto invoiceProductDto);
 
-    void update(InvoiceDto invoiceDto);
+    void update(InvoiceProductDto invoiceProductDto);
 
     void deleteById(Long id);
 }

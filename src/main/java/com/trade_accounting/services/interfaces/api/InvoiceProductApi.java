@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -24,11 +23,11 @@ public interface InvoiceProductApi {
 
         @Headers("Accept: application/json")
         @POST("{url}")
-        Call<Void> create(@Path(value = "url", encoded = true) String url, @Body InvoiceDto invoiceDto);
+        Call<Void> create(@Path(value = "url", encoded = true) String url, @Body InvoiceProductDto invoiceProductDto);
 
         @Headers("Accept: application/json")
         @PUT("{url}")
-        Call<Void> update(@Path(value = "url", encoded = true) String url, @Body InvoiceDto invoiceDto);
+        Call<Void> update(@Path(value = "url", encoded = true) String url, @Body InvoiceProductDto invoiceProductDto);
 
         @Headers("Accept: application/json")
         @DELETE("{url}/{id}")
