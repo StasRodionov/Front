@@ -1,15 +1,16 @@
 package com.trade_accounting;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public abstract class PrintExelDocument <T> {
 
     private HSSFWorkbook editBook;
 
-    private List<T> list;
+    private final List<T> list;
 
     private int newBookRowNum = 0;
 
@@ -43,44 +44,43 @@ public abstract class PrintExelDocument <T> {
         }
     }
 
-    @SneakyThrows
-    public File createReport(String fileName) {
+    public InputStream createReport() {
         printExelSheet(templateBook.getSheetAt(0), editBook.getSheetAt(0));
-        File file = new File(fileName);
-        editBook.write(file);
-
-        try {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
+            editBook.write(outputStream);
             editBook.close();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             templateBook.close();
+            return inputStream;
         } catch (IOException exc) {
             log.error("не удалось корректно закрыть воркбуки");
         }
-        return file;
+        return null;
     }
 
     public void printExelSheet (Sheet templateSheet, Sheet editSheet) {
         for (int i = 0; i < templateSheet.getLastRowNum(); i ++ ) {
-            boolean chek = printExelRow(templateSheet, editSheet, i);
-            if (chek) break;
+            boolean check = printExelRow(templateSheet, editSheet, i);
+            if (check) break;
         }
     }
 
     private boolean printExelRow(Sheet templateSheet, Sheet editSheet, int count) {
-        boolean chek = false;
+        boolean check = false;
         Row templateRow = templateSheet.getRow(count);
         Row editRow = editSheet.getRow(count);
         for (int k = 0; k < widthTable; k ++) {
             if (getNotNullCellValue(templateRow, k).equals("<table>")) {
                 printTable(templateSheet, editSheet, templateRow.getCell(k));
-                chek = true;
+                check = true;
                 break;
             }
             try {
                 printCell(templateRow.getCell(k), editRow.getCell(k));
-            } catch (NullPointerException e ) {}
+            } catch (NullPointerException ignored) {}
         }
         newBookRowNum++;
-        return chek;
+        return check;
     }
 
     private void printTable(Sheet templateSheet, Sheet editSheet, Cell templateCell) {
@@ -111,9 +111,8 @@ public abstract class PrintExelDocument <T> {
         }
     }
 
-    private Cell printCell(Cell templateCell, Cell editCell) {
+    private void printCell(Cell templateCell, Cell editCell) {
         editCell.setCellValue(getSelectValue(templateCell.getStringCellValue()));
-        return editCell;
     }
 
     protected abstract String getSelectValue(String formula);

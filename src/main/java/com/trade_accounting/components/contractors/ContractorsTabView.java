@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Route(value = "contractorsTabView", layout = AppView.class)
@@ -209,15 +210,15 @@ public class ContractorsTabView extends VerticalLayout {
 
     private void MenuItemsWithXls(SubMenu subMenu) {
         List<File> list = getPathsToExelFiles();
-        for (int i = 0; i < list.size(); i++) {
-            subMenu.addItem(getLinkToTemplate(list.get(i)));
+        for (File file : list) {
+            subMenu.addItem(getLinkToTemplate(file));
         }
     }
 
     private List<File> getPathsToExelFiles() {
         List<File> listFiles = new ArrayList<>();
         File dir = new File(pathForSaveXlsTemplate);
-        for ( File file : dir.listFiles() ){
+        for ( File file : Objects.requireNonNull(dir.listFiles())){
             if ( file.isFile() && file.getName().contains(".xls")){
                 listFiles.add(file);
                 log.error(file.getPath());
@@ -230,15 +231,8 @@ public class ContractorsTabView extends VerticalLayout {
         String filePath = file.getPath();
         String fileName = file.getName();
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(filePath, contractorService.getAll());
-        InputStreamFactory inputStreamFactory = (InputStreamFactory) () -> {
-            try {
-                return new FileInputStream(printContractorsXls.createReport(fileName));
-            } catch (FileNotFoundException e) {
-                return null;
-            }
-        };
-        Anchor download = new Anchor(new StreamResource(fileName, inputStreamFactory), fileName);
-        return download;
+        InputStreamFactory inputStreamFactory = (InputStreamFactory) printContractorsXls::createReport;
+        return new Anchor(new StreamResource(fileName, inputStreamFactory), fileName);
     }
 }
 
