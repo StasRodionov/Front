@@ -18,6 +18,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -59,7 +60,10 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        Button filterButton = new Button("Фильтр", clickEvent -> {
+            configureFilter();
+        });
+        return filterButton;
     }
 
     private Button buttonSettings() {
@@ -71,7 +75,14 @@ public class ContractorsTabView extends VerticalLayout {
         text.setPlaceholder("Наимен, тел, соб, коммент...");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
+        text.setClearButtonVisible(true);
+        text.setValueChangeMode(ValueChangeMode.LAZY);
+        text.addValueChangeListener(e -> updateList(e.getValue()));
         return text;
+    }
+
+    private void configureFilter() {
+        updateList(text().getValue());
     }
 
     private H2 title() {
@@ -128,6 +139,13 @@ public class ContractorsTabView extends VerticalLayout {
         configureGrid();
         removeAll();
         add(upperLayout(), grid, paginator);
+    }
+
+    private void updateList(String searchTerm) {
+        grid.setItems(contractorService.getAll(searchTerm));
+        configureGrid();
+        removeAll();
+        add(upperLayout(), grid);
     }
 
     private HorizontalLayout upperLayout() {
