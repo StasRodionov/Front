@@ -207,8 +207,9 @@ public class ContractorModalWindow extends Dialog {
                 saveFields(contractorDto);
                 contractorService.update(contractorDto);
                 if (!innField.isEmpty() && innField.getValue()
-                        .matches("^([0-9]{10}|[0-9]{12})$"))
+                        .matches("^([0-9]{10}|[0-9]{12})$")) {
                     close();
+                }
             });
         }
     }
