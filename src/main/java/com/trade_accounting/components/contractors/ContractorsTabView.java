@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -19,8 +20,10 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 @Route(value = "contractorsTabView", layout = AppView.class)
 @PageTitle("Контрагенты")
@@ -40,7 +43,15 @@ public class ContractorsTabView extends VerticalLayout {
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        buttonQuestion.addClickListener( click -> {
+            ThemeList themeList = UI.getCurrent().getElement().getThemeList(); //
+            if (themeList.contains(Lumo.DARK)) { //
+                themeList.remove(Lumo.DARK);
+            } else {
+                themeList.add(Lumo.DARK);
+            }
+        });
+            return buttonQuestion;
     }
 
     private Button buttonRefresh() {
