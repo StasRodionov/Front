@@ -59,13 +59,6 @@ public class ContractorsTabView extends VerticalLayout {
         return buttonUnit;
     }
 
-    private Button buttonFilter() {
-        Button filterButton = new Button("Фильтр", clickEvent -> {
-            configureFilter();
-        });
-        return filterButton;
-    }
-
     private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
     }
@@ -79,10 +72,6 @@ public class ContractorsTabView extends VerticalLayout {
         text.setValueChangeMode(ValueChangeMode.LAZY);
         text.addValueChangeListener(e -> updateList(e.getValue()));
         return text;
-    }
-
-    private void configureFilter() {
-        updateList(text().getValue());
     }
 
     private H2 title() {
@@ -150,7 +139,7 @@ public class ContractorsTabView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
-        upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
+        upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), text(), numberField(),
                 valueSelect(), buttonSettings());
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
