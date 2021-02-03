@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
@@ -30,10 +31,13 @@ public class WareHouseView extends VerticalLayout {
 
     private final WarehouseService warehouseService;
     private Grid<WarehouseDto> grid = new Grid<>(WarehouseDto.class);
+    private GridPaginator<WarehouseDto> paginator;
 
     public WareHouseView(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
-        add(toolsUp(), grid, toolsDown());
+        paginator = new GridPaginator<>(grid, warehouseService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(toolsUp(), grid, paginator);
         grid();
         updateList();
     }
@@ -132,12 +136,6 @@ public class WareHouseView extends VerticalLayout {
 
     private Button right() {
         return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    }
-
-    private HorizontalLayout toolsDown() {
-        HorizontalLayout toolsDown = new HorizontalLayout();
-        toolsDown.add(doubleLeft(), left(), textField(), right(), doubleRight());
-        return toolsDown;
     }
 
     private void  grid() {
