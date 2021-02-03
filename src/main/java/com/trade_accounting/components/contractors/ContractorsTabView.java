@@ -32,8 +32,6 @@ import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -194,17 +192,6 @@ public class ContractorsTabView extends VerticalLayout {
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
     }
-
-    private HorizontalLayout lowerLayout() {
-        HorizontalLayout lowerLayout = new HorizontalLayout();
-        lowerLayout.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
-                new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
-                textField(),
-                new Button(new Icon(VaadinIcon.ANGLE_RIGHT)),
-                new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT)));
-        return lowerLayout;
-    }
-
 
     private void MenuItemsWithXls(SubMenu subMenu) {
         List<File> list = getPathsToExelFiles();
