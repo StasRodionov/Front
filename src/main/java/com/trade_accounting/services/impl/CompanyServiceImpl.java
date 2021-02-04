@@ -1,30 +1,19 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.LegalDetailDto;
-import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.api.CompanyApi;
-import com.vaadin.flow.component.Synchronize;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
-import javax.websocket.RemoteEndpoint;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
 
 @Slf4j
 @Service
@@ -81,6 +70,19 @@ public class CompanyServiceImpl implements CompanyService {
         return companyDtoList;
     }
 
+    @Override
+    public List<CompanyDto> search(Map<String, String> query) {
+        Call<List<CompanyDto>> companyDtoListCall = companyApi.search(companyUrl, query);
+
+        try {
+            companyDtoList = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка CompanyDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка CompanyDto - ", e);
+        }
+
+        return companyDtoList;
+    }
 
     @Override
     public CompanyDto getById(Long id) {
