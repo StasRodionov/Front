@@ -7,6 +7,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -15,14 +16,19 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "company", layout = AppView.class)
@@ -32,9 +38,21 @@ public class CompanyView extends VerticalLayout {
     private final CompanyService companyService;
     private final List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
+    private final HorizontalLayout filterLayout;
     private final GridPaginator<CompanyDto> paginator;
     private final GridFilter<CompanyDto> filter;
 
+    private TextField idFilterField;
+    private TextField searchTextField;
+    private TextField addressFilterField;
+    private TextField emailFilterField;
+    private TextField leaderFilterField;
+    private TextField chiefAccountantFilterField;
+    private TextField leaderManagerPositionFilterField;
+    private IntegerField innFilterField;
+    private IntegerField phoneFilterField;
+    private IntegerField faxFilterField;
+    private ComboBox<Boolean> payerVatFilterField;
 
     public CompanyView(CompanyService companyService) {
 
@@ -81,6 +99,13 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали").setId("Юридические детали");
 
         grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.addItemDoubleClickListener(event -> {
+            CompanyDto companyDto = event.getItem();
+            CompanyModal companyModal = new CompanyModal(companyDto, companyService);
+            companyModal.addDetachListener(e -> reloadGrid());
+            companyModal.open();
+        });
     }
 
     private void configureFilter() {
@@ -127,6 +152,9 @@ public class CompanyView extends VerticalLayout {
     private Button getNewCompanyButton() {
         final Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
+        CompanyModal companyModal = new CompanyModal(companyService);
+        companyModal.addDetachListener(e -> reloadGrid());
+        button.addClickListener(e -> companyModal.open());
         return button;
     }
 

@@ -23,6 +23,8 @@ import java.util.Set;
 
 public class AddEmployeeModalWindowView extends Dialog {
 
+    private Long id;
+
     private TextField firstNameAdd = new TextField();
 
     private TextField middleNameAdd = new TextField();
@@ -51,10 +53,27 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private RoleService roleService;
 
-    public AddEmployeeModalWindowView(EmployeeService employeeService, RoleService roleService) {
+    private EmployeeDto employeeDto;
+
+    private Set<RoleDto> roles;
+
+    public AddEmployeeModalWindowView(EmployeeDto employeeDto, EmployeeService employeeService, RoleService roleService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         div = new Div();
+        if (employeeDto != null) {
+            this.employeeDto = employeeDto;
+            id = employeeDto.getId();
+            firstNameAdd.setValue(getFieldValueNotNull(employeeDto.getFirstName()));
+            middleNameAdd.setValue(getFieldValueNotNull(employeeDto.getMiddleName()));
+            lastNameAdd.setValue(getFieldValueNotNull(employeeDto.getLastName()));
+            phoneAdd.setValue(getFieldValueNotNull(employeeDto.getPhone()));
+            emailAdd.setValue(getFieldValueNotNull(employeeDto.getEmail()));
+            innAdd.setValue(getFieldValueNotNull(employeeDto.getInn()));
+            descriptionAdd.setValue(getFieldValueNotNull(employeeDto.getDescription()));
+            passwordAdd.setValue(getFieldValueNotNull(employeeDto.getPassword()));
+            roles = employeeDto.getRoleDto();
+        }
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
         add(title(), header(), lowerLayout());
@@ -63,7 +82,7 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
-        header.add(addButtonShow(), getCancelButton());
+        header.add(addButtonShow(), getCancelButton(), getDeleteButton());
         return header;
     }
 
@@ -170,7 +189,10 @@ public class AddEmployeeModalWindowView extends Dialog {
 
         rolesSelect.setItemLabelGenerator(RoleDto::getName);
         rolesSelect.setItems(rolesDto);
-
+        if (roles != null) {
+            for (RoleDto role : roles)
+                rolesSelect.setValue(role);
+        }
         rolesSelect.setWidth(fieldWidth);
         Label label = new Label("Роль");
         label.setWidth(labelWidth);
@@ -179,26 +201,39 @@ public class AddEmployeeModalWindowView extends Dialog {
     }
 
     private Component addButtonShow() {
-        Button addButtonShow = new Button("Добавить");
+        Button addButtonShow = new Button("Сохранить");
         addButtonShow.addClickListener(click -> {
-            System.out.println("Вы нажали кнопку для сохранения нового  сотрудника!");
-
-            EmployeeDto newEmployeeDto = new EmployeeDto();
-            newEmployeeDto.setFirstName(firstNameAdd.getValue());
-            newEmployeeDto.setLastName(lastNameAdd.getValue());
-            newEmployeeDto.setMiddleName(middleNameAdd.getValue());
-            newEmployeeDto.setEmail(emailAdd.getValue());
-            newEmployeeDto.setInn(innAdd.getValue());
-            newEmployeeDto.setPhone(phoneAdd.getValue());
-            newEmployeeDto.setDescription(descriptionAdd.getValue());
-            newEmployeeDto.setPassword(passwordAdd.getValue());
-            newEmployeeDto.setRoleDto(getRoles());
-            employeeService.create(newEmployeeDto);
+            if (id == null) {
+                System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
+                EmployeeDto newEmployeeDto = setEmployeeDto(null);
+                employeeService.create(newEmployeeDto);
+            } else {
+                System.out.println("Вы нажали кнопку для обновления сотрудника!");
+                EmployeeDto updateEmployeeDto = setEmployeeDto(id);
+                employeeService.update(updateEmployeeDto);
+            }
             div.removeAll();
             close();
         });
         HorizontalLayout addButtonShowLayout = new HorizontalLayout(addButtonShow);
         return addButtonShowLayout;
+    }
+
+    private EmployeeDto setEmployeeDto(Long id) {
+        EmployeeDto updateEmployeeDto = new EmployeeDto();
+        if (id != null) {
+            updateEmployeeDto.setId(id);
+        }
+        updateEmployeeDto.setFirstName(firstNameAdd.getValue());
+        updateEmployeeDto.setLastName(lastNameAdd.getValue());
+        updateEmployeeDto.setMiddleName(middleNameAdd.getValue());
+        updateEmployeeDto.setEmail(emailAdd.getValue());
+        updateEmployeeDto.setInn(innAdd.getValue());
+        updateEmployeeDto.setPhone(phoneAdd.getValue());
+        updateEmployeeDto.setDescription(descriptionAdd.getValue());
+        updateEmployeeDto.setPassword(passwordAdd.getValue());
+        updateEmployeeDto.setRoleDto(getRoles());
+        return updateEmployeeDto;
     }
 
     private Set<RoleDto> getRoles() {
@@ -214,9 +249,21 @@ public class AddEmployeeModalWindowView extends Dialog {
         return cancelButton;
     }
 
+    private Component getDeleteButton() {
+        Button deleteButton = new Button("Удалить", event -> {
+            employeeService.deleteById(id);
+            close();
+        });
+        return deleteButton;
+    }
+
     private H2 title() {
         H2 title = new H2("Добавление сотрудника");
         title.setHeight("2.2em");
         return title;
+    }
+
+    private String getFieldValueNotNull(String value) {
+        return value == null ? "" : value;
     }
 }

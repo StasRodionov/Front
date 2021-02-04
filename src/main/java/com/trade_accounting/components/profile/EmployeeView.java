@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.RoleService;
@@ -20,23 +21,34 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.util.List;
+
 
 @Route(value = "employee", layout = AppView.class)
 @PageTitle("Сотрудники")
 public class EmployeeView extends VerticalLayout {
 
-    private Grid<EmployeeDto> grid = new Grid<>(EmployeeDto.class);
-
+    private final Grid<EmployeeDto> grid;
     private final EmployeeService employeeService;
-
     private final RoleService roleService;
+    private List<EmployeeDto> data;
+    private final List<EmployeeDto> finalData;
+    private final GridPaginator<EmployeeDto> paginator;
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
-        add(upperLayout(), grid, lowerLayout());
+        this.finalData = employeeService.getAll();
+        this.data = finalData;
+        this.grid = new Grid<>(EmployeeDto.class);
+        this.paginator = new GridPaginator<>(grid, data, 100);
+
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+
         configureGrid();
         updateGrid();
+
+        add(upperLayout(), grid, paginator);
     }
 
     private void updateGrid() {
@@ -55,9 +67,16 @@ public class EmployeeView extends VerticalLayout {
         grid.getColumnByKey("phone").setHeader("Телефон");
         grid.getColumnByKey("description").setHeader("Описание");
         grid.getColumnByKey("roleDto").setHeader("Роль");
-
+        grid.addItemDoubleClickListener(event -> {
+            EmployeeDto employeeDto = event.getItem();
+            AddEmployeeModalWindowView addEmployeeModalWindowView =
+                    new AddEmployeeModalWindowView(employeeDto, employeeService, roleService);
+            addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
+            addEmployeeModalWindowView.open();
+        });
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
     }
 
     private Button buttonQuestion() {
@@ -77,14 +96,12 @@ public class EmployeeView extends VerticalLayout {
         buttonUnit.addClickShortcut(Key.ENTER);
         buttonUnit.addClickListener(click -> {
             System.out.println("Вы нажали кнопку для добавление сотрудника!");
-
             AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(employeeService, roleService);
+                    new AddEmployeeModalWindowView(null, employeeService, roleService);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
         });
-
         return buttonUnit;
     }
 
@@ -141,13 +158,4 @@ public class EmployeeView extends VerticalLayout {
         return upperLayout;
     }
 
-    private HorizontalLayout lowerLayout() {
-        HorizontalLayout lowerLayout = new HorizontalLayout();
-        lowerLayout.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
-                new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
-                textField(),
-                new Button(new Icon(VaadinIcon.ANGLE_RIGHT)),
-                new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT)));
-        return lowerLayout;
-    }
 }
