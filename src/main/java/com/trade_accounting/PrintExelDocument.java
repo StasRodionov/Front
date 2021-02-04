@@ -22,39 +22,42 @@ import java.util.List;
 @Slf4j
 public abstract class PrintExelDocument <T> {
 
-    private HSSFWorkbook templateBook;
-
-    private HSSFWorkbook editBook;
-
     private final List<T> list;
 
     private int newBookRowNum = 0;
+
+    private String pathToXlsTemplate;
 
 //    TODO шарина строки, которая будет просканирована пока равна 40, но должна быть динамической
     private int widthTable = 40;
 
     protected PrintExelDocument(String pathToXlsTemplate, List<T> list) {
+        this.pathToXlsTemplate = pathToXlsTemplate;
         this.list = list;
-        try (FileInputStream fis = new FileInputStream(pathToXlsTemplate);
-             FileInputStream fiz = new FileInputStream(pathToXlsTemplate)){
-            templateBook = new HSSFWorkbook(fis);
-            editBook = new HSSFWorkbook(fiz);
-        } catch (IOException e) {
-            log.error("произошла ошибка при обработке xls шаблона");
-        }
     }
 
     public InputStream createReport() {
-        printExelSheet(templateBook.getSheetAt(0), editBook.getSheetAt(0));
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
-            editBook.write(outputStream);
-            editBook.close();
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-            templateBook.close();
-            return inputStream;
-        } catch (IOException exc) {
-            log.error("не удалось корректно закрыть воркбуки");
+        try (FileInputStream fis = new FileInputStream(pathToXlsTemplate);
+             FileInputStream fiz = new FileInputStream(pathToXlsTemplate)){
+            HSSFWorkbook templateBook = new HSSFWorkbook(fis);
+            HSSFWorkbook editBook = new HSSFWorkbook(fiz);
+
+            printExelSheet(templateBook.getSheetAt(0), editBook.getSheetAt(0));
+
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
+                editBook.write(outputStream);
+                editBook.close();
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+                templateBook.close();
+                return inputStream;
+            } catch (IOException exc) {
+                log.error("не удалось корректно закрыть воркбуки");
+            }
+        } catch (IOException e) {
+            log.error("произошла ошибка при обработке xls шаблона");
         }
+
+
         return null;
     }
 
