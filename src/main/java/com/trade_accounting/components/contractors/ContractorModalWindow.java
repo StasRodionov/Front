@@ -197,14 +197,19 @@ public class ContractorModalWindow extends Dialog {
             return new Button("Добавить", event -> {
                 saveFields(contractorDto);
                 contractorService.create(contractorDto);
-                close();
+                if (!innField.isEmpty() && innField.getValue()
+                            .matches("^([0-9]{10}|[0-9]{12})$"))
+                    close();
             });
         } else {
             ContractorDto contractorDto = contractorService.getById(Long.valueOf(idField.getValue()));
             return new Button("Изменить", event -> {
                 saveFields(contractorDto);
                 contractorService.update(contractorDto);
-                close();
+                if (!innField.isEmpty() && innField.getValue()
+                        .matches("^([0-9]{10}|[0-9]{12})$")) {
+                    close();
+                }
             });
         }
     }
