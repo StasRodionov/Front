@@ -64,6 +64,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyDto> search(Map<String, String> query) {
+        List<CompanyDto> companyDtoList = new ArrayList<>();
         Call<List<CompanyDto>> companyDtoListCall = companyApi.search(companyUrl, query);
 
         try {

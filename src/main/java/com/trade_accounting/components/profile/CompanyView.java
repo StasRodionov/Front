@@ -38,21 +38,8 @@ public class CompanyView extends VerticalLayout {
     private final CompanyService companyService;
     private final List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
-    private final HorizontalLayout filterLayout;
     private final GridPaginator<CompanyDto> paginator;
     private final GridFilter<CompanyDto> filter;
-
-    private TextField idFilterField;
-    private TextField searchTextField;
-    private TextField addressFilterField;
-    private TextField emailFilterField;
-    private TextField leaderFilterField;
-    private TextField chiefAccountantFilterField;
-    private TextField leaderManagerPositionFilterField;
-    private IntegerField innFilterField;
-    private IntegerField phoneFilterField;
-    private IntegerField faxFilterField;
-    private ComboBox<Boolean> payerVatFilterField;
 
     public CompanyView(CompanyService companyService) {
 
@@ -106,6 +93,10 @@ public class CompanyView extends VerticalLayout {
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
+    }
+
+    private void reloadGrid() {
+        paginator.setData(companyService.getAll());
     }
 
     private void configureFilter() {
