@@ -108,12 +108,11 @@ public class WareHouseModalWindow extends Dialog {
             newWarehouseDto.setCommentToAddress(commentToAddressField.getValue());
             newWarehouseDto.setComment(commentField.getValue());
             newWarehouseDto.setSortNumber(sortNumberField.getValue());
-
-            //close();
             if (!sortNumberField.isEmpty() && sortNumberField.getValue()
-                    .matches("^([0-9]{0,5})$"))
-            {warehouseService.update(newWarehouseDto);
-                close();}
+                    .matches("^([0-9]{0,5})$")) {
+                warehouseService.update(newWarehouseDto);
+                close();
+            }
         });
     }
 
