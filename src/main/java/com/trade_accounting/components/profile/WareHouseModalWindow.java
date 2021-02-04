@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.util.SortNumberConverter;
 import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -107,7 +108,7 @@ public class WareHouseModalWindow extends Dialog {
             newWarehouseDto.setAddress(addressField.getValue());
             newWarehouseDto.setCommentToAddress(commentToAddressField.getValue());
             newWarehouseDto.setComment(commentField.getValue());
-            newWarehouseDto.setSortNumber(sortNumberField.getValue());
+            newWarehouseDto.setSortNumber(SortNumberConverter.convert(sortNumberField.getValue()));
             if (!sortNumberField.isEmpty() && sortNumberField.getValue()
                     .matches("^([0-9]{0,5})$")) {
                 warehouseService.update(newWarehouseDto);
