@@ -10,13 +10,22 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
+import javax.validation.constraints.Email;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
+import com.vaadin.flow.function.SerializablePredicate;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,11 +42,14 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private TextField phoneAdd = new TextField();
 
-    private TextField emailAdd = new TextField();
+    Binder<String> binder = new Binder<>();
+
+
+    private ValidTextField emailAdd = new ValidTextField();
 
     private TextArea descriptionAdd = new TextArea();
 
-    private TextField innAdd = new TextField();
+    private ValidTextField innAdd = new ValidTextField();
 
     private PasswordField passwordAdd = new PasswordField();
 
@@ -119,11 +131,58 @@ public class AddEmployeeModalWindowView extends Dialog {
         return addEmployeePasswordAddLayout;
     }
 
+    public class ValidTextField extends TextField {
+
+        class Content {
+            String content;
+            public String getContent() {
+                return content;
+            }
+            public void setContent(String content) {
+                this.content = content;
+            }
+        }
+
+        private Content content = new Content();
+        private Binder<Content> binder = new Binder<>();
+        private List<Validator<String>> validators = new ArrayList<>();
+
+        public ValidTextField() {
+            binder.setBean(content);
+        }
+
+        public void addValidator(
+                SerializablePredicate<String> predicate,
+                String errorMessage) {
+            addValidator(Validator.from(predicate, errorMessage));
+        }
+
+        public void addValidator(Validator<String> validator) {
+            validators.add(validator);
+            build();
+        }
+
+        private void build() {
+            Binder.BindingBuilder<Content, String> builder =
+                    binder.forField(this);
+
+            for(Validator<String> v: validators) {
+                builder.withValidator(v);
+            }
+
+            builder.bind(
+                    Content::getContent, Content::setContent);
+        }
+    }
+
     private Component addEmployeeEmail() {
         Label label = new Label("Email");
+        Label emailStatus = new Label("");
+
         label.setWidth(labelWidth);
         emailAdd.setWidth(fieldWidth);
         emailAdd.setPlaceholder("Введите Email");
+        emailAdd.addValidator( new EmailValidator("Введите правильно адрес электронной почты!"));
         HorizontalLayout addEmployeeEmailAddLayout = new HorizontalLayout(label, emailAdd);
         return addEmployeeEmailAddLayout;
     }
@@ -151,6 +210,8 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         innAdd.setWidth(fieldWidth);
         innAdd.setPlaceholder("Введите ИНН");
+        innAdd.setPattern("^[\\d+]{12}$");
+        innAdd.addValidator( new RegexpValidator("Введите правильно ИНН", "^[\\d+]{12}$"));
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, innAdd);
         return addEmployeeInnAddLayout;
     }
@@ -205,15 +266,24 @@ public class AddEmployeeModalWindowView extends Dialog {
         addButtonShow.addClickListener(click -> {
             if (id == null) {
                 System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
-                EmployeeDto newEmployeeDto = setEmployeeDto(null);
-                employeeService.create(newEmployeeDto);
+
+
+                if (emailAdd.isInvalid()||innAdd.isInvalid()) {
+                    System.out.println("ошибка");
+                } else {
+                    EmployeeDto newEmployeeDto = setEmployeeDto(null);
+                    employeeService.create(newEmployeeDto);
+                    div.removeAll();
+                    close();
+                }
             } else {
                 System.out.println("Вы нажали кнопку для обновления сотрудника!");
                 EmployeeDto updateEmployeeDto = setEmployeeDto(id);
                 employeeService.update(updateEmployeeDto);
+                div.removeAll();
+                close();
             }
-            div.removeAll();
-            close();
+
         });
         HorizontalLayout addButtonShowLayout = new HorizontalLayout(addButtonShow);
         return addButtonShowLayout;
