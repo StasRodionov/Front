@@ -20,7 +20,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final InvoiceProductApi invoiceProductApi;
     private final String invoiceProductUrl;
 
-    public InvoiceProductServiceImpl(@Value("{invoice_url}") String invoiceProductUrl, Retrofit retrofit){
+    public InvoiceProductServiceImpl(@Value("{invoice_product_url}") String invoiceProductUrl, Retrofit retrofit){
         invoiceProductApi = retrofit.create(InvoiceProductApi.class);
         this.invoiceProductUrl = invoiceProductUrl;
     }
