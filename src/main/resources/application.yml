@@ -44,3 +44,6 @@ unit_url: api/unit
 warehouse_url: api/warehouse
 
 invoice_url: api/invoice
+
+
+authentication_url: login
