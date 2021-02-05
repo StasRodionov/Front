@@ -193,7 +193,7 @@ public class ContractorsTabView extends VerticalLayout {
 
     private MenuBar getSelectXlsTemplateButton() {
         MenuBar menuBar = new MenuBar();
-        MenuItem print = menuBar.addItem("печать");
+        MenuItem print = menuBar.addItem("Печать");
         SubMenu printSubMenu = print.getSubMenu();
         MenuItemsWithXls(printSubMenu);
         UploadXlsMenuItem(printSubMenu);
