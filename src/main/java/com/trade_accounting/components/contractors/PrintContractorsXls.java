@@ -1,6 +1,6 @@
 package com.trade_accounting.components.contractors;
 
-import com.trade_accounting.PrintExelDocument;
+import com.trade_accounting.utils.PrintExelDocument;
 import com.trade_accounting.models.dto.ContractorDto;
 
 import java.util.List;
