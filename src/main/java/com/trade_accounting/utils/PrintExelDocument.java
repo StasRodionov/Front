@@ -26,7 +26,7 @@ public abstract class PrintExelDocument <T> {
 
     private int newBookRowNum = 0;
 
-    private String pathToXlsTemplate;
+    private final String pathToXlsTemplate;
 
 //    TODO шарина строки, которая будет просканирована пока равна 40, но должна быть динамической
     private int widthTable = 40;
@@ -38,7 +38,8 @@ public abstract class PrintExelDocument <T> {
 
     public InputStream createReport() {
         try (FileInputStream fis = new FileInputStream(pathToXlsTemplate);
-             FileInputStream fiz = new FileInputStream(pathToXlsTemplate)){
+                FileInputStream fiz = new FileInputStream(pathToXlsTemplate)){
+
             HSSFWorkbook templateBook = new HSSFWorkbook(fis);
             HSSFWorkbook editBook = new HSSFWorkbook(fiz);
 
@@ -56,8 +57,6 @@ public abstract class PrintExelDocument <T> {
         } catch (IOException e) {
             log.error("произошла ошибка при обработке xls шаблона");
         }
-
-
         return null;
     }
 
@@ -88,10 +87,11 @@ public abstract class PrintExelDocument <T> {
 
     private void printTable(Sheet templateSheet, Sheet editSheet, Cell templateCell) {
         Row templateRow = templateSheet.getRow(templateCell.getRowIndex() + 1);
-        for (int i = 0; i < list.size(); i++) {
+        for (T t : list) {
             Row newRow = editSheet.createRow(newBookRowNum);
             for (int k = 0; k < templateRow.getLastCellNum(); k++) {
-                printRowOfTable(templateRow, newRow, list.get(i));            }
+                printRowOfTable(templateRow, newRow, t);
+            }
             newBookRowNum++;
         }
     }

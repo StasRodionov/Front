@@ -26,6 +26,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.router.PageTitle;
@@ -56,6 +57,7 @@ public class ContractorsTabView extends VerticalLayout {
     private Grid<ContractorDto> grid;
 
     private MenuBar selectXlsTemplateButton = new MenuBar();
+
     private MenuItem print;
 
 
@@ -175,13 +177,11 @@ public class ContractorsTabView extends VerticalLayout {
 
     private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog) {
         upload.addFinishedListener(event -> {
-            if (getXlsFiles().stream().map(x -> x.getName())
-                    .filter(x -> x.equals(event.getFileName())).count() != 0) {
+            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
                 getErrorNotification("Файл с таки именем уже существует");
             } else {
                 File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
                 try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
-                    exelTemplate.createNewFile();
                     fos.write(buffer.getInputStream().readAllBytes());
                     configureSelectXlsTemplateButton();
                     getInfoNotification("Файл успешно загружен");
@@ -211,7 +211,7 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void templatesXlsMenuItems(SubMenu subMenu) {
-        getXlsFiles().stream().forEach(x -> subMenu.addItem(getLinkToXlcTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlcTemplate(x)));
     }
 
     private List<File> getXlsFiles() {
