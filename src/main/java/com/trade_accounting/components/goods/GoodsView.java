@@ -2,11 +2,13 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.ProductGroupGridFiller;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -16,19 +18,18 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.component.treegrid.TreeGrid;
-import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.klaudeta.PaginatedGrid;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,17 +39,26 @@ public class GoodsView extends VerticalLayout {
 
     private final ProductService productService;
     private final ProductGroupService productGroupService;
-    private List<ProductGroupDto> data;
-    static Long id = 1l;
-private ProductGroupGridFiller productGroupGridFiller;
+    private List<ProductDto> data;
+    private  ValueProvider valueProvider;
+    private ProductGroupGridFiller productGroupGridFiller;
+    private GridPaginator<ProductDto> paginator;
+    private SplitLayout splitLayout;
+    ProductGroupDto productGroupDto;
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
         this.productGroupService = productGroupService;
-        data = productGroupService.getAll();
-        productGroupGridFiller = new ProductGroupGridFiller(productGroupService);
+        data = productService.getAll();
+        Grid<ProductDto> grid = grid();
+        paginator = new GridPaginator<>(grid, data, 100);
 
-        add(upperLayout(), productGroupGridFiller.middleLayout());
+
+        productGroupGridFiller = new ProductGroupGridFiller(productGroupService, productService, grid, paginator);
+        splitLayout = productGroupGridFiller.middleLayout();
+        //SplitLayout middleLayout = productGroupGridFiller.middleLayout();
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(upperLayout(), splitLayout, paginator);
 
     }
 
@@ -163,10 +173,10 @@ private ProductGroupGridFiller productGroupGridFiller;
         return upperLayout;
     }
 
-    private Grid<ProductDto> grid(Long l) {
+    private Grid<ProductDto> grid() {
         PaginatedGrid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
 
-        grid.setItems(productService.getAllByProductGroupId(l));
+        grid.setItems(productService.getAll());
 
         grid.setColumns("name", "description", "weight", "volume",
                 "purchasePrice");
@@ -179,23 +189,12 @@ private ProductGroupGridFiller productGroupGridFiller;
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setPageSize(10);
+        //grid.setPageSize(10);
 
         return grid;
     }
 
 
-    List<ProductGroupDto> filterList(Long id) {
-        if (id == null) {
-            return data
-                    .stream().filter(x -> x.getParentId() == null)
-                    .collect(Collectors.toList());
-        } else {
-            return data
-                    .stream().filter(x -> x.getParentId() != null && x.getParentId().equals(id))
-                    .collect(Collectors.toList());
-        }
-    }
 
 
 
@@ -268,4 +267,4 @@ private ProductGroupGridFiller productGroupGridFiller;
     }
 
      */
-    }
+}
