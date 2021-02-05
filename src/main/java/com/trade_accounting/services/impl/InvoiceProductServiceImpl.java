@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     private final InvoiceProductApi invoiceProductApi;
