@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RoleDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -10,22 +11,15 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
-import javax.validation.constraints.Email;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-import com.vaadin.flow.function.SerializablePredicate;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,22 +28,19 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Long id;
 
-    private TextField firstNameAdd = new TextField();
+    private ValidTextField firstNameAdd = new ValidTextField(true);
 
-    private TextField middleNameAdd = new TextField();
+    private ValidTextField middleNameAdd = new ValidTextField();
 
-    private TextField lastNameAdd = new TextField();
+    private ValidTextField lastNameAdd = new ValidTextField(true);
 
-    private TextField phoneAdd = new TextField();
+    private ValidTextField phoneAdd = new ValidTextField(true);
 
-    Binder<String> binder = new Binder<>();
-
-
-    private ValidTextField emailAdd = new ValidTextField();
+    private ValidTextField emailAdd = new ValidTextField(true);
 
     private TextArea descriptionAdd = new TextArea();
 
-    private ValidTextField innAdd = new ValidTextField();
+    private ValidTextField innAdd = new ValidTextField(true);
 
     private PasswordField passwordAdd = new PasswordField();
 
@@ -127,52 +118,9 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         passwordAdd.setWidth(fieldWidth);
         passwordAdd.setPlaceholder("Введите пароль");
+        passwordAdd.setRequired(true);
         HorizontalLayout addEmployeePasswordAddLayout = new HorizontalLayout(label, passwordAdd);
         return addEmployeePasswordAddLayout;
-    }
-
-    public class ValidTextField extends TextField {
-
-        class Content {
-            String content;
-            public String getContent() {
-                return content;
-            }
-            public void setContent(String content) {
-                this.content = content;
-            }
-        }
-
-        private Content content = new Content();
-        private Binder<Content> binder = new Binder<>();
-        private List<Validator<String>> validators = new ArrayList<>();
-
-        public ValidTextField() {
-            binder.setBean(content);
-        }
-
-        public void addValidator(
-                SerializablePredicate<String> predicate,
-                String errorMessage) {
-            addValidator(Validator.from(predicate, errorMessage));
-        }
-
-        public void addValidator(Validator<String> validator) {
-            validators.add(validator);
-            build();
-        }
-
-        private void build() {
-            Binder.BindingBuilder<Content, String> builder =
-                    binder.forField(this);
-
-            for(Validator<String> v: validators) {
-                builder.withValidator(v);
-            }
-
-            builder.bind(
-                    Content::getContent, Content::setContent);
-        }
     }
 
     private Component addEmployeeEmail() {
@@ -182,7 +130,8 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         emailAdd.setWidth(fieldWidth);
         emailAdd.setPlaceholder("Введите Email");
-        emailAdd.addValidator( new EmailValidator("Введите правильно адрес электронной почты!"));
+        emailAdd.addValidator(new EmailValidator("Введите правильно адрес электронной почты!"));
+        emailAdd.setRequired(true);
         HorizontalLayout addEmployeeEmailAddLayout = new HorizontalLayout(label, emailAdd);
         return addEmployeeEmailAddLayout;
     }
@@ -201,6 +150,8 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         phoneAdd.setWidth(fieldWidth);
         phoneAdd.setPlaceholder("Введите номер телефона");
+        phoneAdd.addValidator(new RegexpValidator("Введите правильно номер телефона", "^[\\d+]{11}$"));
+        phoneAdd.setRequired(true);
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, phoneAdd);
         return addEmployeeInnAddLayout;
     }
@@ -211,7 +162,9 @@ public class AddEmployeeModalWindowView extends Dialog {
         innAdd.setWidth(fieldWidth);
         innAdd.setPlaceholder("Введите ИНН");
         innAdd.setPattern("^[\\d+]{12}$");
-        innAdd.addValidator( new RegexpValidator("Введите правильно ИНН", "^[\\d+]{12}$"));
+        innAdd.addValidator(new RegexpValidator("Введите правильно ИНН", "^[\\d+]{12}$"));
+
+        innAdd.setRequired(true);
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, innAdd);
         return addEmployeeInnAddLayout;
     }
@@ -221,6 +174,8 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         lastNameAdd.setWidth(fieldWidth);
         lastNameAdd.setPlaceholder("Введите фамилию");
+        lastNameAdd.setRequired(true);
+        lastNameAdd.addValidator(new StringLengthValidator("Введите правильно фамилию", 1, 50));
         HorizontalLayout lastNameLayout = new HorizontalLayout(label, lastNameAdd);
         return lastNameLayout;
     }
@@ -230,6 +185,8 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         firstNameAdd.setWidth(fieldWidth);
         firstNameAdd.setPlaceholder("Введите Имя");
+        firstNameAdd.setRequired(true);
+        firstNameAdd.addValidator(new StringLengthValidator("Введите правильно имя", 1, 50));
         HorizontalLayout firstNameLayout = new HorizontalLayout(label, firstNameAdd);
         return firstNameLayout;
     }
@@ -267,9 +224,14 @@ public class AddEmployeeModalWindowView extends Dialog {
             if (id == null) {
                 System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
 
+                firstNameAdd.validate();
+                lastNameAdd.validate();
+                innAdd.validate();
+                emailAdd.validate();
+                phoneAdd.validate();
 
-                if (emailAdd.isInvalid()||innAdd.isInvalid()) {
-                    System.out.println("ошибка");
+                if (emailAdd.isInvalid() || innAdd.isInvalid() || phoneAdd.isInvalid() || lastNameAdd.isInvalid() || firstNameAdd.isInvalid()) {
+                    System.out.println("ошибка в введенных данных на форме!");
                 } else {
                     EmployeeDto newEmployeeDto = setEmployeeDto(null);
                     employeeService.create(newEmployeeDto);
@@ -283,7 +245,6 @@ public class AddEmployeeModalWindowView extends Dialog {
                 div.removeAll();
                 close();
             }
-
         });
         HorizontalLayout addButtonShowLayout = new HorizontalLayout(addButtonShow);
         return addButtonShowLayout;
