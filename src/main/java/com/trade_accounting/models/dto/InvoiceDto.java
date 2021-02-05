@@ -16,5 +16,6 @@ public class InvoiceDto {
     private String  typeOfInvoice;
     private CompanyDto company;
     private ContractorDto contractor;
+    private WarehouseDto warehouseDto;
     private boolean isSpend;
 }
