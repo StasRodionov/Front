@@ -30,15 +30,10 @@ import java.util.List;
 public class UnitView extends VerticalLayout {
 
     private final UnitService unitService;
-    private Grid<UnitDto> grid = new Grid<>(UnitDto.class);
-    private GridPaginator<UnitDto> paginator;
+    private Grid<UnitDto> grid;
 
     public UnitView(UnitService unitService) {
         this.unitService = unitService;
-        paginator = new GridPaginator<>(grid, unitService.getAll(), 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), grid, paginator);
-        getGrid();
         updateList();
     }
 
@@ -52,9 +47,7 @@ public class UnitView extends VerticalLayout {
     }
 
     private void getGrid() {
-        grid.setItems(unitService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
         grid.setColumns("id", "shortName", "fullName", "sortNumber");
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
@@ -136,7 +129,12 @@ public class UnitView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(unitService.getAll());
+        grid = new Grid<>(UnitDto.class);
+        GridPaginator<UnitDto> paginator = new GridPaginator<>(grid, unitService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        getGrid();
+        removeAll();
+        add(getToolbar(), grid, paginator);
         GridSortOrder<UnitDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("sortNumber"), SortDirection.ASCENDING);
         List<GridSortOrder<UnitDto>> gridSortOrderList = new ArrayList<>();
         gridSortOrderList.add(gridSortOrder);
