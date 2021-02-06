@@ -6,17 +6,25 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Component for grid filtering.
@@ -28,6 +36,7 @@ public class GridFilter<T> extends HorizontalLayout {
 
     private Button searchButton;
     private Button clearButton;
+    private Button configureFieldsButton;
 
     /**
      * Creates a GridFilter.
@@ -40,7 +49,7 @@ public class GridFilter<T> extends HorizontalLayout {
 
         configureLayout();
         configureFilterField();
-        configureClearButton();
+        configureButton();
     }
 
     /**
@@ -155,19 +164,41 @@ public class GridFilter<T> extends HorizontalLayout {
         return filterData;
     }
 
-    private void configureClearButton() {
+    private void configureButton() {
         clearButton.addClickListener(e -> this.getChildren().forEach(component -> {
             if (component instanceof AbstractField) {
                 ((AbstractField<?, ?>) component).clear();
             }
         }));
+
+        configureFieldsButton.addClickListener(e -> {
+            ContextMenu contextMenu = new ContextMenu();
+            contextMenu.setTarget(configureFieldsButton);
+            contextMenu.setOpenOnClick(true);
+
+            CheckboxGroup<Component> checkboxGroup = new CheckboxGroup<>();
+            contextMenu.addItem(checkboxGroup);
+
+            List<Component> components = this.getChildren()
+                    .filter(c -> c instanceof AbstractField).collect(Collectors.toList());
+
+            checkboxGroup.setItems(components.stream());
+            checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+            checkboxGroup.setItemLabelGenerator(component -> grid.getColumnByKey(component.getId().orElse("")).getId().orElse(""));
+            checkboxGroup.setValue(components.stream().filter(Component::isVisible).collect(Collectors.toSet()));
+            checkboxGroup.addSelectionListener(selection -> {
+                selection.getAddedSelection().forEach(i -> i.setVisible(true));
+                selection.getRemovedSelection().forEach(i -> i.setVisible(false));
+            });
+        });
     }
 
     private void configureLayout() {
         this.searchButton = new Button("Найти");
         this.clearButton = new Button("Очистить");
+        this.configureFieldsButton = new Button(new Icon(VaadinIcon.COG_O));
 
-        add(searchButton, clearButton);
+        add(searchButton, clearButton, configureFieldsButton);
 
         this.getStyle().set("background-color", "#e7eaef")
                 .set("border-radius", "4px")
