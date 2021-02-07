@@ -3,15 +3,14 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.ProductGroupGridFiller;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,15 +21,16 @@ import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.klaudeta.PaginatedGrid;
 
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "good", layout = AppView.class)
@@ -40,26 +40,33 @@ public class GoodsView extends VerticalLayout {
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private List<ProductDto> data;
-    private  ValueProvider valueProvider;
-    private ProductGroupGridFiller productGroupGridFiller;
     private GridPaginator<ProductDto> paginator;
-    private SplitLayout splitLayout;
-    ProductGroupDto productGroupDto;
+    private Grid<ProductDto> grid;
+    private TreeGrid<ProductGroupDto> productGroupTree = new TreeGrid<>();//древовидный layout
+    private List<ProductDto> filteredData = new LinkedList<>();
+    private List<ProductGroupDto> productGroupData;//данные для древовидного layout
+    private SplitLayout middleLayout;//двухоконный layout в котором размещаются грид и древовидный грид
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
         this.productGroupService = productGroupService;
         data = productService.getAll();
-        Grid<ProductDto> grid = grid();
+        middleLayout = new SplitLayout();
+
+        middleLayout.setWidth("100%");
+        middleLayout.setHeight("66vh");
+        grid = grid();
+        productGroupTree = treeGrid();
+        grid.setWidth("80%");
+        grid.setHeight("100%");
+        productGroupTree.setHeight("100%");
+        productGroupTree.setWidth("20%");
+        productGroupTree.setThemeName("dense", true);
+        middleLayout.addToPrimary(productGroupTree);
+        middleLayout.addToSecondary(grid);
         paginator = new GridPaginator<>(grid, data, 100);
-
-
-        productGroupGridFiller = new ProductGroupGridFiller(productGroupService, productService, grid, paginator);
-        splitLayout = productGroupGridFiller.middleLayout();
-        //SplitLayout middleLayout = productGroupGridFiller.middleLayout();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(), splitLayout, paginator);
-
+        add(upperLayout(), middleLayout, paginator);
     }
 
     private Button buttonQuestion() {
@@ -175,96 +182,73 @@ public class GoodsView extends VerticalLayout {
 
     private Grid<ProductDto> grid() {
         PaginatedGrid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
-
         grid.setItems(productService.getAll());
-
         grid.setColumns("name", "description", "weight", "volume",
                 "purchasePrice");
-
         grid.getColumnByKey("name").setHeader("Наименование");
         grid.getColumnByKey("description").setHeader("Артикул");
         grid.getColumnByKey("weight").setHeader("Вес");
         grid.getColumnByKey("volume").setHeader("Объем");
         grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена");
-
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        //grid.setPageSize(10);
-
         return grid;
     }
 
+    /**
+     * Метод возвращает подготовленный древовидный грид
+    **/
+    public TreeGrid<ProductGroupDto> treeGrid() {
 
+        //productGroupTree.addHierarchyColumn(ProductGroupDto::getName).setHeader("");
 
-
-
-
-
-    /* Старая версия дерева товарных групп
-    private SplitLayout middleLayout() {
-        AtomicReference<Boolean> wasShown = new AtomicReference<>(false);
-        SplitLayout layout = new SplitLayout();
-        Accordion accordion = new Accordion();
-
-        for (ProductGroupDto pG : filterList(null)
-        ) {
-            Accordion subAccordion = new Accordion();
-            for (ProductGroupDto subPG : filterList(pG.getId())
-            ) {
-                Accordion sub2Accordion = new Accordion();
-                for (ProductGroupDto sub2PG : filterList(subPG.getId())
-                ) {
-                    Accordion sub3Accordion = new Accordion();
-                    for (ProductGroupDto sub3PG : filterList(sub2PG.getId())
-                    ) {
-                        sub3Accordion.add(sub3PG.getName(), null)
-                                .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-                        sub3Accordion.getElement().addEventListener("click", e -> {
-                            id = Long.valueOf(
-                                    sub3Accordion.getOpenedPanel().get().getSummaryText()
-                                            .replaceAll("[^\\d.]", ""));
-                            wasShown.set(true);
-                        });
-                    }
-                    sub2Accordion.add(sub2PG.getName(), sub3Accordion)
-                            .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-                    sub2Accordion.getElement().addEventListener("click", e -> {
-                        if (!wasShown.get()) {
-                            id = Long.valueOf(
-                                    sub2Accordion.getOpenedPanel().get().getSummaryText()
-                                            .replaceAll("[^\\d.]", ""));
-                            wasShown.set(true);
-                        }
-                    });
-                }
-                subAccordion.add(subPG.getName(), sub2Accordion)
-                        .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-                subAccordion.getElement().addEventListener("click", e -> {
-                    if (!wasShown.get()) {
-                        id = Long.valueOf(
-                                subAccordion.getOpenedPanel().get().getSummaryText()
-                                        .replaceAll("[^\\d.]", ""));
-                        wasShown.set(true);
-                    }
-                });
-            }
-            accordion.add(pG.getName(), subAccordion);
-        }
-        accordion.getElement().addEventListener("click", e -> {
-            if (!wasShown.get()) {
-                id = Long.valueOf(
-                        accordion.getOpenedPanel().get().getSummaryText().replaceAll("[^\\d.]", ""));
-            }
-            layout.removeAll();
-            layout.addToPrimary(accordion);
-            layout.addToSecondary(grid(id));
-            wasShown.set(false);
+        productGroupTree.addHierarchyColumn(ProductGroupDto::getName)
+                .setSortProperty("sortNumber")
+                .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber))
+                .setHeader("Товарная группа");
+        HeaderRow header = productGroupTree.appendHeaderRow();
+        productGroupTree.setSelectionMode(Grid.SelectionMode.SINGLE);
+        SingleSelect<Grid<ProductGroupDto>, ProductGroupDto> singleSelect = productGroupTree.asSingleSelect();
+        singleSelect.addValueChangeListener(event -> {
+            ProductGroupDto selected = event.getValue();
+            filteredData.clear();
+            filteredData = productService.getAllByProductGroupId(selected.getId());
+            paginator.setData(filteredData);
+            header.getCells().forEach(x -> x.setText(selected.getName()));
         });
-        layout.addToPrimary(accordion);
-        layout.addToSecondary(grid(id));
 
-        return layout;
+        updateTreeGrid();
+        return productGroupTree;
     }
 
+    /**
+     * Метод обновляет содержимое древовидного грида
      */
+    private void updateTreeGrid() {
+        List<ProductGroupDto> buffer = new LinkedList<>();
+
+        ProductGroupDto element;
+        ProductGroupDto parent;
+        productGroupData = productGroupService.getAll();
+        while (!productGroupData.isEmpty()) {
+            for (int i = 0; i < productGroupData.size(); i++) {
+                element = productGroupData.get(i);
+                if (element.getParentId() == null) {
+                    productGroupTree.getTreeData().addItem(null, element);
+                    buffer.add(element);
+                    productGroupData.remove(element);
+                } else if (!buffer.isEmpty()) {
+                    for (int j = 0; j < buffer.size(); j++) {
+                        parent = buffer.get(j);
+                        if (parent.getId() == element.getParentId()) {
+                            productGroupTree.getTreeData().addItem(parent, element);
+                            buffer.add(element);
+                            productGroupData.remove(element);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
