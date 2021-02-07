@@ -46,3 +46,6 @@ warehouse_url: api/warehouse
 invoice_url: api/invoice
 
 invoice_product_url: /api/invoice/product
+
+authentication_url: login
+
