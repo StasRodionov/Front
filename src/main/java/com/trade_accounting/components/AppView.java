@@ -64,7 +64,7 @@ public class AppView extends AppLayout {
         MenuItem profileSubMenu = projectSubMenu.addItem("Профиль");
         profileSubMenu.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
         MenuItem logout = projectSubMenu.addItem("Выход");
-        logout.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("/logout")));
+        logout.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("logout")));
 
         List<VerticalLayout> verticalLayouts = List.of(
                 indicators,
