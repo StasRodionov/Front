@@ -109,7 +109,7 @@ public class CurrencyView extends VerticalLayout {
 
     private void grid(){
         grid.setItems(currencyService.getAll());
-        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setColumns("id", "shortName","fullName","digitalCode","letterCode", "sortNumber");
         grid.getColumnByKey("id").setHeader("ID");
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
