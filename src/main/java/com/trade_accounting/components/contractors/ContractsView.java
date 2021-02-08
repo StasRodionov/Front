@@ -20,15 +20,25 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.util.List;
 
 @Route(value = "contracts", layout = AppView.class)
 @PageTitle("Договоры")
-public class ContractsView extends VerticalLayout {
+public class ContractsView extends VerticalLayout implements ApplicationContextAware {
 
-    private final ContractService contractService;
+    @Autowired
+    ApplicationContext applicationContext;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    private final ContractService contractService = applicationContext.getBean(ContractService.class);
 
     private final List<ContractDto> finalData;
     private List<ContractDto> data;
@@ -37,8 +47,6 @@ public class ContractsView extends VerticalLayout {
 
     @Autowired
     ContractsView(ContractService contractService) {
-
-        this.contractService = contractService;
         this.finalData = contractService.getAll();
         this.data = finalData;
 
