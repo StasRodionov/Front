@@ -28,19 +28,19 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Long id;
 
-    private ValidTextField firstNameAdd = new ValidTextField(true);
+    private ValidTextField firstNameAdd = new ValidTextField(true, "Имя");
 
     private ValidTextField middleNameAdd = new ValidTextField();
 
-    private ValidTextField lastNameAdd = new ValidTextField(true);
+    private ValidTextField lastNameAdd = new ValidTextField(true, "Фамилия");
 
-    private ValidTextField phoneAdd = new ValidTextField(true);
+    private ValidTextField phoneAdd = new ValidTextField(true, "Телефон");
 
-    private ValidTextField emailAdd = new ValidTextField(true);
+    private ValidTextField emailAdd = new ValidTextField(true, "Адрес электронной почты");
 
     private TextArea descriptionAdd = new TextArea();
 
-    private ValidTextField innAdd = new ValidTextField(true);
+    private ValidTextField innAdd = new ValidTextField(true, "ИНН");
 
     private PasswordField passwordAdd = new PasswordField();
 
@@ -107,7 +107,6 @@ public class AddEmployeeModalWindowView extends Dialog {
                 addEmployeeDescription(),
                 addEmployeePassword(),
                 rolesSelect()
-
         );
         add(div);
         return lowerLayout;
@@ -125,13 +124,14 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Component addEmployeeEmail() {
         Label label = new Label("Email");
-        Label emailStatus = new Label("");
-
         label.setWidth(labelWidth);
         emailAdd.setWidth(fieldWidth);
         emailAdd.setPlaceholder("Введите Email");
         emailAdd.addValidator(new EmailValidator("Введите правильно адрес электронной почты!"));
         emailAdd.setRequired(true);
+        if(employeeDto!=null) {
+            emailAdd.setValue(employeeDto.getEmail());
+        }
         HorizontalLayout addEmployeeEmailAddLayout = new HorizontalLayout(label, emailAdd);
         return addEmployeeEmailAddLayout;
     }
@@ -152,6 +152,9 @@ public class AddEmployeeModalWindowView extends Dialog {
         phoneAdd.setPlaceholder("Введите номер телефона");
         phoneAdd.addValidator(new RegexpValidator("Введите правильно номер телефона", "^[\\d+]{11}$"));
         phoneAdd.setRequired(true);
+        if(employeeDto!=null) {
+            phoneAdd.setValue(employeeDto.getPhone());
+        }
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, phoneAdd);
         return addEmployeeInnAddLayout;
     }
@@ -163,8 +166,10 @@ public class AddEmployeeModalWindowView extends Dialog {
         innAdd.setPlaceholder("Введите ИНН");
         innAdd.setPattern("^[\\d+]{12}$");
         innAdd.addValidator(new RegexpValidator("Введите правильно ИНН", "^[\\d+]{12}$"));
-
         innAdd.setRequired(true);
+        if(employeeDto!=null) {
+            innAdd.setValue(employeeDto.getInn());
+        }
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, innAdd);
         return addEmployeeInnAddLayout;
     }
@@ -172,10 +177,13 @@ public class AddEmployeeModalWindowView extends Dialog {
     private Component addEmployeeLastName() {
         Label label = new Label("Фамилия");
         label.setWidth(labelWidth);
+        lastNameAdd.addValidator(new StringLengthValidator("Введите правильно фамилию", 1, 50));
         lastNameAdd.setWidth(fieldWidth);
         lastNameAdd.setPlaceholder("Введите фамилию");
         lastNameAdd.setRequired(true);
-        lastNameAdd.addValidator(new StringLengthValidator("Введите правильно фамилию", 1, 50));
+        if(employeeDto!=null) {
+            lastNameAdd.setValue(employeeDto.getLastName());
+        }
         HorizontalLayout lastNameLayout = new HorizontalLayout(label, lastNameAdd);
         return lastNameLayout;
     }
@@ -187,6 +195,9 @@ public class AddEmployeeModalWindowView extends Dialog {
         firstNameAdd.setPlaceholder("Введите Имя");
         firstNameAdd.setRequired(true);
         firstNameAdd.addValidator(new StringLengthValidator("Введите правильно имя", 1, 50));
+        if(employeeDto!=null) {
+            firstNameAdd.setValue(employeeDto.getFirstName());
+        }
         HorizontalLayout firstNameLayout = new HorizontalLayout(label, firstNameAdd);
         return firstNameLayout;
     }
@@ -224,11 +235,10 @@ public class AddEmployeeModalWindowView extends Dialog {
             if (id == null) {
                 System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
 
-                firstNameAdd.validate();
-                lastNameAdd.validate();
-                innAdd.validate();
-                emailAdd.validate();
-                phoneAdd.validate();
+                if (!lastNameAdd.isRequiredVerify()||!firstNameAdd.isRequiredVerify()||!emailAdd.isRequiredVerify()
+                        ||!phoneAdd.isRequiredVerify()||!innAdd.isRequiredVerify()){
+                   return;
+                }
 
                 if (emailAdd.isInvalid() || innAdd.isInvalid() || phoneAdd.isInvalid() || lastNameAdd.isInvalid() || firstNameAdd.isInvalid()) {
                     System.out.println("ошибка в введенных данных на форме!");

@@ -1,6 +1,6 @@
 package com.trade_accounting.components.util;
 
-import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.BindingBuilder;
@@ -10,7 +10,8 @@ import com.vaadin.flow.function.SerializablePredicate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValidTextField extends TextField implements HasValidation {
+public class ValidTextField extends TextField {
+
 
     class Content {
         String content;
@@ -25,6 +26,7 @@ public class ValidTextField extends TextField implements HasValidation {
     }
 
     private boolean isRequired;
+    private String nameField;
     private Content content = new Content();
     private Binder<Content> binder = new Binder<>();
     private List<Validator<String>> validators = new ArrayList<>();
@@ -33,8 +35,9 @@ public class ValidTextField extends TextField implements HasValidation {
         binder.setBean(content);
     }
 
-    public ValidTextField(boolean isRequired) {
+    public ValidTextField(boolean isRequired, String nameField) {
         this.isRequired = isRequired;
+        this.nameField = nameField;
         binder.setBean(content);
     }
 
@@ -49,22 +52,24 @@ public class ValidTextField extends TextField implements HasValidation {
         build();
     }
 
-    public void validate() {
-        BindingBuilder<Content, String> builder =
-                binder.forField(this);
-        if (isRequired) {
-            builder
-                    .asRequired("Поле обязательное к заполнению!")
-                    .bind(
-                            Content::getContent, Content::setContent)
-                    .validate();
-        } else {
-            builder
-                    .bind(
-                            Content::getContent, Content::setContent)
-                    .validate();
-        }
-    }
+//    public void validate() {
+//        BindingBuilder<Content, String> builder =
+//                binder.forField(this);
+//        if (isRequired) {
+//            builder
+//                    .asRequired("Поле обязательное к заполнению!")
+////                    .bind(
+////                            Content::getContent, Content::setContent)
+////                    .validate()
+//            ;
+//        } else {
+////            builder
+////                    .bind(
+////                            Content::getContent, Content::setContent)
+////                    .validate()
+////            ;
+//        }
+//    }
 
     private void build() {
         BindingBuilder<Content, String> builder =
@@ -77,5 +82,21 @@ public class ValidTextField extends TextField implements HasValidation {
         builder
                 .bind(
                         Content::getContent, Content::setContent);
+    }
+
+    public boolean isRequiredVerify() {
+        if (content.content == null && isRequired) {
+            Notification notification = new Notification(
+                    String.format("Обязательное поле пустое - %s!", nameField), 3000,
+                    Notification.Position.MIDDLE);
+            notification.open();
+            System.out.println("Обязательные поля пустые!");
+            return false;
+        }else{
+            if (content.getContent().isBlank() && isRequired || content.getContent().isEmpty() && isRequired) {
+                return false;
+            }
+        }
+        return true;
     }
 }
