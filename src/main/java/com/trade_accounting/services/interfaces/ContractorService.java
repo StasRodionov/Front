@@ -7,6 +7,7 @@ import java.util.List;
 public interface ContractorService {
 
     List<ContractorDto> getAll();
+    List<ContractorDto> getAll(String searchTerm);
 
     ContractorDto getById(Long id);
 
