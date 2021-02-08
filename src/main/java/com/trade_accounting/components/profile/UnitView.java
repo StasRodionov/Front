@@ -41,10 +41,11 @@ public class UnitView extends VerticalLayout {
 
         this.grid = new Grid<>(UnitDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureGrid();
 
-        add(getToolbar(), grid, getToolbarLow());
+        //add(getToolbar(), filterLayout, grid, paginator);
+        add(getToolbar(), grid, paginator);
     }
 
     private void configureGrid() {
@@ -65,35 +66,6 @@ public class UnitView extends VerticalLayout {
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
-    }
-
-    private HorizontalLayout getToolbarLow() {
-        HorizontalLayout toolbarLow = new HorizontalLayout();
-        toolbarLow.add(getAngleDoubleLeft(), getAngleLeft(), getTextFieldLow(), getAngleRight(), getAngleDoubleRight());
-
-        return toolbarLow;
-    }
-
-    private TextField getTextFieldLow() {
-        TextField text = new TextField("", "1-1 из 1");
-        text.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return text;
-    }
-
-    private Button getAngleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    }
-
-    private Button getAngleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-    }
-
-    private Button getAngleDoubleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-    }
-
-    private Button getAngleDoubleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
     }
 
     private Button getButtonCog() {
