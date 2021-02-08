@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -25,11 +26,14 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,7 +65,15 @@ public class ContractorsTabView extends VerticalLayout {
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        buttonQuestion.addClickListener( click -> {
+            ThemeList themeList = UI.getCurrent().getElement().getThemeList(); //
+            if (themeList.contains(Lumo.DARK)) { //
+                themeList.remove(Lumo.DARK);
+            } else {
+                themeList.add(Lumo.DARK);
+            }
+        });
+            return buttonQuestion;
     }
 
     private Button buttonRefresh() {
@@ -93,6 +105,9 @@ public class ContractorsTabView extends VerticalLayout {
         text.setPlaceholder("Наимен, тел, соб, коммент...");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
+        text.setClearButtonVisible(true);
+        text.setValueChangeMode(ValueChangeMode.LAZY);
+        text.addValueChangeListener(e -> updateList(e.getValue()));
         return text;
     }
 
@@ -178,11 +193,18 @@ public class ContractorsTabView extends VerticalLayout {
 
     private MenuBar getSelectXlsTemplateButton() {
         MenuBar menuBar = new MenuBar();
-        MenuItem print = menuBar.addItem("печать");
+        MenuItem print = menuBar.addItem("Печать");
         SubMenu printSubMenu = print.getSubMenu();
         MenuItemsWithXls(printSubMenu);
         UploadXlsMenuItem(printSubMenu);
         return menuBar;
+    }
+
+    private void updateList(String searchTerm) {
+        grid.setItems(contractorService.getAll(searchTerm));
+        configureGrid();
+        removeAll();
+        add(upperLayout(), grid);
     }
 
     private HorizontalLayout upperLayout() {
