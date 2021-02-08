@@ -1,6 +1,6 @@
 package com.trade_accounting.components.contractors;
 
-import com.trade_accounting.utils.PrintExcelDocument;
+import com.trade_accounting.components.util.PrintExcelDocument;
 import com.trade_accounting.models.dto.ContractorDto;
 import org.apache.poi.ss.usermodel.Cell;
 
