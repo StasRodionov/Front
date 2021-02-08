@@ -1,11 +1,13 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -16,21 +18,23 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Route(value = "unit", layout = AppView.class)
 @PageTitle("Единицы измерения")
 public class UnitView extends VerticalLayout {
 
     private final UnitService unitService;
+    private Grid<UnitDto> grid;
 
     public UnitView(UnitService unitService) {
         this.unitService = unitService;
-
-        add(getToolbar(), getGrid(), getToolbarLow());
+        updateList();
     }
 
     private HorizontalLayout getToolbar() {
@@ -42,48 +46,20 @@ public class UnitView extends VerticalLayout {
         return toolbar;
     }
 
-    private HorizontalLayout getToolbarLow() {
-        HorizontalLayout toolbarLow = new HorizontalLayout();
-        toolbarLow.add(getAngleDoubleLeft(), getAngleLeft(), getTextFieldLow(), getAngleRight(), getAngleDoubleRight());
-
-        return toolbarLow;
-    }
-
-    private Grid<UnitDto> getGrid() {
-        Grid<UnitDto> grid = new Grid<>(UnitDto.class);
-        grid.setItems(unitService.getAll());
+    private void getGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
         grid.setColumns("id", "shortName", "fullName", "sortNumber");
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
-        grid.getColumnByKey("sortNumber").setHeader("Цифровой код");
-
+        grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер");
         grid.setHeight("66vh");
-
-        return grid;
-    }
-
-    private TextField getTextFieldLow() {
-        TextField text = new TextField("", "1-1 из 1");
-        text.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return text;
-    }
-
-    private Button getAngleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    }
-
-    private Button getAngleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-    }
-
-    private Button getAngleDoubleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-    }
-
-    private Button getAngleDoubleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
+        grid.addItemDoubleClickListener(event -> {
+            UnitDto editUnit = event.getItem();
+            UnitModalWindow unitModalWindow =
+                    new UnitModalWindow(editUnit, unitService);
+            unitModalWindow.addDetachListener(e -> updateList());
+            unitModalWindow.open();
+        });
     }
 
     private Button getButtonCog() {
@@ -114,6 +90,10 @@ public class UnitView extends VerticalLayout {
     private Button getButton() {
         final Button button = new Button("Единица измерения");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
+        UnitModalWindow unitModalWindow =
+                new UnitModalWindow(new UnitDto(), unitService);
+        button.addClickListener(event -> unitModalWindow.open());
+        unitModalWindow.addDetachListener(event -> updateList());
         return button;
     }
 
@@ -146,5 +126,18 @@ public class UnitView extends VerticalLayout {
         selector.setValue("Изменить");
         selector.setWidth("130px");
         return selector;
+    }
+
+    private void updateList() {
+        grid = new Grid<>(UnitDto.class);
+        GridPaginator<UnitDto> paginator = new GridPaginator<>(grid, unitService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        getGrid();
+        removeAll();
+        add(getToolbar(), grid, paginator);
+        GridSortOrder<UnitDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("sortNumber"), SortDirection.ASCENDING);
+        List<GridSortOrder<UnitDto>> gridSortOrderList = new ArrayList<>();
+        gridSortOrderList.add(gridSortOrder);
+        grid.sort(gridSortOrderList);
     }
 }
