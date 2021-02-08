@@ -14,6 +14,14 @@ import java.nio.charset.StandardCharsets;
 
 public class Notifications {
 
+    private final String errorStyle = "error-style";
+
+    private final String finishedStyle = "finished-style";
+
+    private final String errorCss = ".error-style { color: red; }";
+
+    private final String finishedCss = ".finished-style { color: green; }";
+
     private final Button ok = new Button("OK");
 
     private final VerticalLayout verticalLayout = new VerticalLayout(ok);
@@ -27,24 +35,23 @@ public class Notifications {
     }
 
     public void infoNotification(String message) {
-        notification.removeAll();
-        notification.add(new H5(message));
-        notification.add(verticalLayout);
-        notification.open();
+        abstractNotification(message, finishedCss, finishedStyle);
     }
 
     public void errorNotification(String message) {
+        abstractNotification(message, errorCss, errorStyle);
+    }
+
+    private void abstractNotification(String message, String css, String styleName) {
         H5 text = new H5(message);
-        text.addClassName("my-style");
+        text.addClassName(styleName);
         notification.removeAll();
         notification.add(text);
         notification.add(verticalLayout);
 
-        String styles = ".my-style { color: red; }";
-
         StreamRegistration resource = UI.getCurrent().getSession().getResourceRegistry()
                 .registerResource(new StreamResource("styles.css", () ->
-                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
+                        new ByteArrayInputStream(css.getBytes(StandardCharsets.UTF_8))));
 
         UI.getCurrent().getPage().addStyleSheet(
                 "base://" + resource.getResourceUri().toString());
