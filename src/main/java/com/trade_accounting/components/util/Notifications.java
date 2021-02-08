@@ -26,14 +26,14 @@ public class Notifications {
         notification.setPosition(Notification.Position.BOTTOM_END);
     }
 
-    public void InfoNotification(String message) {
+    public void infoNotification(String message) {
         notification.removeAll();
         notification.add(new H5(message));
         notification.add(verticalLayout);
         notification.open();
     }
 
-    public void ErrorNotification(String message) {
+    public void errorNotification(String message) {
         H5 text = new H5(message);
         text.addClassName("my-style");
         notification.removeAll();
