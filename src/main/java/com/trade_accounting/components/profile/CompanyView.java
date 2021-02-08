@@ -116,7 +116,7 @@ public class CompanyView extends VerticalLayout {
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
 
 
-        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), filterButton, getNewCompanyButton(),
+        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), getNewCompanyButton(), filterButton,
                 searchTextField, getSelectedNumberField(), getSelect(), getSettingButton());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
