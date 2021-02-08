@@ -18,11 +18,11 @@ public class MainLayout extends VerticalLayout{
 
     public MainLayout() {
 
-        WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
-
-        if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {
-            UI.getCurrent().navigate(LoginView.class);
-        }
+//        WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+//
+//        if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {
+//            UI.getCurrent().navigate(LoginView.class);
+//        }
 
     }
 

@@ -81,7 +81,7 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("stamp").setHeader("Печать").setId("Печать");
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали").setId("Юридические детали");
 
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
