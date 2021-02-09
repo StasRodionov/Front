@@ -44,7 +44,7 @@ public class WareHouseView extends VerticalLayout {
             initGrid();
         } catch (NullPointerException e) {
             WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
-            wrappedSession.setAttribute("redirectDestination", "/contracts");
+            wrappedSession.setAttribute("redirectDestination", "/warehouse");
             UI.getCurrent().navigate(LoginView.class);
         }
     }
