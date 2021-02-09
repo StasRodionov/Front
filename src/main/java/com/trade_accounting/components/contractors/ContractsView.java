@@ -7,7 +7,6 @@ import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -20,9 +19,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 
 @Route(value = "contracts", layout = AppView.class)
 @PageTitle("Договоры")
@@ -60,7 +57,13 @@ public class ContractsView extends VerticalLayout {
         grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
         grid.getColumnByKey("number").setAutoWidth(true).setHeader("Сортировочный номер");
         grid.setHeight("66vh");
-
+        grid.addItemDoubleClickListener(event -> {
+            ContractDto editContract = event.getItem();
+            ContractModalWindow contractModalWindow =
+                    new ContractModalWindow(editContract, contractService);
+            //contractModalWindow.addDetachListener(e -> updateList());
+            contractModalWindow.open();
+        });
     }
 
     private HorizontalLayout getToolbar() {
@@ -117,7 +120,7 @@ public class ContractsView extends VerticalLayout {
     }
 
     private H2 getTextContract() {
-        final H2 textCompany = new H2("Договора");
+        final H2 textCompany = new H2("Договоры");
         textCompany.setHeight("2.2em");
         return textCompany;
     }

@@ -8,9 +8,13 @@ import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,6 +26,8 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 import java.time.LocalDate;
 
 public class ContractModalWindow extends Dialog {
+
+    private static final String FIELD_WIDTH = "400px";
 
     private Long contractId;
     private TextField dateField = new TextField();
@@ -102,15 +108,20 @@ public class ContractModalWindow extends Dialog {
                                ContractService contractService) {
         this.contractService = contractService;
 
-        setCloseOnOutsideClick(false);
-        setCloseOnEsc(false);
+        configureModal("Договор");
+        setFields(contractDto);
 
     }
 
+    private void configureModal(String title) {
+        setCloseOnOutsideClick(false);
+        setCloseOnEsc(false);
+        add(header(title), accordionCompany());
+    }
 
     private void setFields(ContractDto dto) {
 
-        contractId = dto.getId();
+        /*contractId = dto.getId();
         setDate(dateField, dto.getDate().toString());
         setField(amountField, dto.getAmount().toString());
         setField(archiveField, Boolean.TRUE.equals(dto.getArchive()) ? "Да" : "Нет");
@@ -132,7 +143,7 @@ public class ContractModalWindow extends Dialog {
         setField(companyChiefAccountantSignature, dto.getCompanyDto().getChiefAccountantSignature());
         setField(companyPayerVat, Boolean.TRUE.equals(dto.getCompanyDto().getPayerVat()) ? "Да" : "Нет");
         setField(companySortNumber, dto.getCompanyDto().getSortNumber());
-        setField(companyStamp, dto.getCompanyDto().getStamp());
+        setField(companyStamp, dto.getCompanyDto().getStamp());*/
 
         if (dto.getLegalDetailDto() != null) {
             legalDetailId = dto.getLegalDetailDto().getId();
@@ -154,7 +165,7 @@ public class ContractModalWindow extends Dialog {
             }
         }
 
-        bankAccountId = dto.getBankAccountDto().getId();
+        /*bankAccountId = dto.getBankAccountDto().getId();
         setField(bankAccountRcbic, dto.getBankAccountDto().getRcbic());
         setField(bankAccountBank, dto.getBankAccountDto().getBank());
         setField(bankAccountAddress, dto.getBankAccountDto().getAddress());
@@ -180,9 +191,10 @@ public class ContractModalWindow extends Dialog {
 
         typeOfPriceId = dto.getContractorDto().getTypeOfPriceDto().getId();
         setField(typeOfPriceName, dto.getContractorDto().getTypeOfPriceDto().getName());
-        setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());
+        setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());*/
 
     }
+
 
     private void setField(AbstractField field, String value) {
         if (value != null) {
@@ -196,15 +208,287 @@ public class ContractModalWindow extends Dialog {
         }
     }
 
-    private HorizontalLayout header() {
+    private HorizontalLayout header(String titleText) {
         HorizontalLayout header = new HorizontalLayout();
-        // fullNameField.setWidth("345px");
-        header.add(getSaveButton(), getCancelButton(), getDeleteButton());
+        H2 title = new H2(titleText);
+        title.setHeight("2.2em");
+        title.setWidth("345px");
+        header.add(title);
+        header.add(buttonSave(), buttonCancel());
         return header;
     }
 
+    private Accordion accordionCompany() {
+        Accordion accordion = new Accordion();
+        accordion.setWidth("575px");
+
+        VerticalLayout layoutContract = new VerticalLayout();
+        layoutContract.add(
+                configureDateField(),
+                configureAmountField(),
+                configureArchiveField(),
+                configureCommentField(),
+                configureNumberField()
+        );
+        accordion.add("Договор", layoutContract).addThemeVariants(DetailsVariant.FILLED);
+
+        VerticalLayout layoutInfo = new VerticalLayout();
+        layoutInfo.add(
+                configureName(),
+                configureInn(),
+                configureAddress(),
+                configureCommentToAddress(),
+                configureEmail(),
+                configurePhone(),
+                configureFax(),
+                configureSortNumber(),
+                configurePayerVat(),
+                configureStamp());
+        accordion.add("О юр. лице", layoutInfo).addThemeVariants(DetailsVariant.FILLED);
+
+        VerticalLayout layoutPersons = new VerticalLayout();
+        layoutPersons.add(
+                configureLeader(),
+                configureLeaderManagerPosition(),
+                configureLeaderSignature(),
+                configureChiefAccountant(),
+                configureChiefAccountantSignature());
+        accordion.add("Главные лица", layoutPersons).addThemeVariants(DetailsVariant.FILLED);
+
+        VerticalLayout layoutDetails = new VerticalLayout();
+        layoutDetails.add(
+                configureLegalDetailLastName(),
+                configureLegalDetailFirstName(),
+                configureLegalDetailMiddleName(),
+                configureLegalDetailAddress(),
+                configureLegalDetailCommentToAddress(),
+                configureLegalDetailInn(),
+                configureLegalDetailOkpo(),
+                configureLegalDetailOgrnip(),
+                configureLegalDetailNumberOfTheCertificate(),
+                configureLegalDetailDateOfTheCertificate(),
+                configureTypeOfContractorName(),
+                configureTypeOfContractorSortNumber());
+        accordion.add("Юридические детали", layoutDetails).addThemeVariants(DetailsVariant.FILLED);
+
+        VerticalLayout layoutBankAccount = new VerticalLayout();
+        layoutBankAccount.add(
+                configureBankAccountRcbic(),
+                configureBankAccountBank(),
+                configureBankAccountAddress(),
+                configureBankAccountCorrespondentAccount(),
+                configureBankAccountAccount(),
+                configureBankAccountMainAccount(),
+                configureBankAccountSortNumber()
+        );
+        accordion.add("Банковские реквизиты", layoutBankAccount).addThemeVariants(DetailsVariant.FILLED);
+
+        return accordion;
+    }
+
+    private HorizontalLayout configureBankAccountRcbic() {
+        bankAccountRcbic.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("БИК", bankAccountRcbic);
+    }
+
+    private HorizontalLayout configureBankAccountBank() {
+        bankAccountBank.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Банк", bankAccountBank);
+    }
+
+    private HorizontalLayout configureBankAccountAddress() {
+        bankAccountAddress.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Адрес", bankAccountAddress);
+    }
+
+    private HorizontalLayout configureBankAccountCorrespondentAccount() {
+        bankAccountCorrespondentAccount.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Корр.счет", bankAccountCorrespondentAccount);
+    }
+
+    private HorizontalLayout configureBankAccountAccount() {
+        bankAccountAccount.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Счет", bankAccountAccount);
+    }
+
+    private HorizontalLayout configureBankAccountMainAccount() {
+        bankAccountMainAccount.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Осн.Счет", bankAccountMainAccount);
+    }
+
+    private HorizontalLayout configureBankAccountSortNumber() {
+        bankAccountSortNumber.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Сортировочный номер", bankAccountSortNumber);
+    }
 
     private HorizontalLayout configureNumberField() {
+        numberField.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Сортировочный номер", numberField);
+    }
+
+    private HorizontalLayout configureCommentField() {
+        commentField.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Комментарий", commentField);
+    }
+
+    private HorizontalLayout configureArchiveField() {
+        archiveField.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Архив", archiveField);
+    }
+
+    private HorizontalLayout configureAmountField() {
+        amountField.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Сумма", amountField);
+    }
+
+    private HorizontalLayout configureDateField() {
+        dateField.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Дата заключения", dateField);
+    }
+
+    private HorizontalLayout configureName() {
+        companyName.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Наименование", companyName);
+    }
+
+    private HorizontalLayout configureInn() {
+        companyInn.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("ИНН", companyInn);
+    }
+
+    private HorizontalLayout configureAddress() {
+        companyAddress.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Адрес", companyAddress);
+    }
+
+    private HorizontalLayout configureCommentToAddress() {
+        companyCommentToAddress.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Комментарий к адресу", companyCommentToAddress);
+    }
+
+    private HorizontalLayout configureEmail() {
+        companyEmail.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("E-mail", companyEmail);
+    }
+
+    private HorizontalLayout configurePhone() {
+        companyPhone.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Телефон", companyPhone);
+    }
+
+    private HorizontalLayout configureFax() {
+        companyFax.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Факс", companyFax);
+    }
+
+    private HorizontalLayout configureSortNumber() {
+        companySortNumber.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Нумерация", companySortNumber);
+    }
+
+    private HorizontalLayout configurePayerVat() {
+        companyPayerVat.setWidth(FIELD_WIDTH);
+        companyPayerVat.setItems("Да", "Нет");
+        return getHorizontalLayout("Плательщик НДС", companyPayerVat);
+    }
+
+    private HorizontalLayout configureStamp() {
+        companyStamp.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Печать", companyStamp);
+    }
+
+    private HorizontalLayout configureLeader() {
+        companyLeader.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Руководитель", companyLeader);
+    }
+
+    private HorizontalLayout configureLeaderManagerPosition() {
+        companyLeaderManagerPosition.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Должность руководителя", companyLeaderManagerPosition);
+    }
+
+    private HorizontalLayout configureLeaderSignature() {
+        companyLeaderSignature.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Подпись руководителя", companyLeaderSignature);
+    }
+
+    private HorizontalLayout configureChiefAccountant() {
+        companyChiefAccountant.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Главный бухгалтер", companyChiefAccountant);
+    }
+
+    private HorizontalLayout configureChiefAccountantSignature() {
+        companyChiefAccountantSignature.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Подпись гл. бухгалтера", companyChiefAccountantSignature);
+    }
+
+    private HorizontalLayout configureLegalDetailLastName() {
+        legalDetailLastName.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Фамилия", legalDetailLastName);
+    }
+
+    private HorizontalLayout configureLegalDetailFirstName() {
+        legalDetailFirstName.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Имя", legalDetailFirstName);
+    }
+
+    private HorizontalLayout configureLegalDetailMiddleName() {
+        legalDetailMiddleName.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Отчество", legalDetailMiddleName);
+    }
+
+    private HorizontalLayout configureLegalDetailAddress() {
+        legalDetailAddress.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Адрес", legalDetailAddress);
+    }
+
+    private HorizontalLayout configureLegalDetailCommentToAddress() {
+        legalDetailCommentToAddress.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Комментарий к адресу", legalDetailCommentToAddress);
+    }
+
+    private HorizontalLayout configureLegalDetailInn() {
+        legalDetailInn.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("ИНН", legalDetailInn);
+    }
+
+    private HorizontalLayout configureLegalDetailOkpo() {
+        legalDetailOkpo.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("ОКПО", legalDetailOkpo);
+    }
+
+    private HorizontalLayout configureLegalDetailOgrnip() {
+        legalDetailOgrnip.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("ОГРНИП", legalDetailOgrnip);
+    }
+
+    private HorizontalLayout configureLegalDetailNumberOfTheCertificate() {
+        legalDetailNumberOfTheCertificate.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Номер сертификата", legalDetailNumberOfTheCertificate);
+    }
+
+    private HorizontalLayout configureLegalDetailDateOfTheCertificate() {
+        legalDetailDateOfTheCertificate.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Дата сертификата", legalDetailDateOfTheCertificate);
+    }
+
+    private HorizontalLayout configureTypeOfContractorName() {
+        typeOfContractorName.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Имя поставщика", typeOfContractorName);
+    }
+
+    private HorizontalLayout configureTypeOfContractorSortNumber() {
+        typeOfContractorSortNumber.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Номер поставщика", typeOfContractorSortNumber);
+    }
+
+    private HorizontalLayout getHorizontalLayout(String title, Component field) {
+        Label label = new Label(title);
+        label.setWidth("100px");
+        return new HorizontalLayout(label, field);
+    }
+
+    /*private HorizontalLayout configureNumberField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Номер");
         label.setWidth(labelWidth);
@@ -270,10 +554,10 @@ public class ContractModalWindow extends Dialog {
         label.setWidth(labelWidth);
         horizontalLayout.add(label, commentField);
         return horizontalLayout;
-    }
+    }*/
 
 
-    private Button getSaveButton() {
+    private Button buttonSave() {
         return new Button("Сохранить", event -> {/*
             ContractDto contractDto = new ContractDto();
             contractDto.setId(id);
@@ -297,7 +581,7 @@ public class ContractModalWindow extends Dialog {
         });
     }
 
-    private Button getCancelButton() {
+    private Button buttonCancel() {
         Button cancelButton = new Button("Закрыть", event -> {
             close();
         });
