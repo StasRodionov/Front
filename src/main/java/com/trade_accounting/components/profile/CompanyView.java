@@ -7,7 +7,6 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -28,7 +27,6 @@ import java.util.List;
 @Slf4j
 @Route(value = "company", layout = AppView.class)
 @PageTitle("Юр. лица")
-@CssImport(value = "styles/grid.css", themeFor = "vaadin-grid")
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
