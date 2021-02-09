@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Text;
@@ -10,6 +11,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.validator.RegexpValidator;
+
 
 public class WareHouseModalWindow extends Dialog {
 
@@ -21,7 +24,7 @@ public class WareHouseModalWindow extends Dialog {
 
     private TextArea commentField = new TextArea();
 
-    private TextField sortNumberField = new TextField();
+    private ValidTextField sortNumberField = new ValidTextField();
 
     private Long id;
 
@@ -90,6 +93,9 @@ public class WareHouseModalWindow extends Dialog {
         label.setWidth(labelWidth);
         sortNumberField.setWidth(fieldWidth);
         horizontalLayout.add(label, sortNumberField);
+        sortNumberField.addInputListener(inputEvent ->
+                sortNumberField.addValidator(new RegexpValidator("Максимум 5 цифр",
+                        "^([0-9]{0,5})$")));
         return horizontalLayout;
     }
 
@@ -102,8 +108,11 @@ public class WareHouseModalWindow extends Dialog {
             newWarehouseDto.setCommentToAddress(commentToAddressField.getValue());
             newWarehouseDto.setComment(commentField.getValue());
             newWarehouseDto.setSortNumber(sortNumberField.getValue());
-            warehouseService.update(newWarehouseDto);
-            close();
+            if (!sortNumberField.isEmpty() && sortNumberField.getValue()
+                    .matches("^([0-9]{0,5})$")) {
+                warehouseService.update(newWarehouseDto);
+                close();
+            }
         });
     }
 

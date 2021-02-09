@@ -3,7 +3,6 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CurrencyDto;
-import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -127,28 +126,4 @@ public class CurrencyView extends VerticalLayout {
             currencyModalWindow.open();
         });
     }
-
-    private Button doubleLeft(){
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
-    }
-
-    private Button left(){
-        return new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-    }
-
-    private TextField textFieldBottom(){
-        TextField textField = new TextField("", "1-1 из 1");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return textField;
-    }
-
-    private Button right(){
-        return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    }
-
-    private Button doubleRight(){
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-    }
-
-
 }
