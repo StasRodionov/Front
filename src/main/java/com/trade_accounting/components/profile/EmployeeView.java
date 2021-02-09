@@ -1,11 +1,13 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.RoleService;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,6 +22,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 
 import java.util.List;
 
@@ -28,18 +32,28 @@ import java.util.List;
 @PageTitle("Сотрудники")
 public class EmployeeView extends VerticalLayout {
 
-    private final Grid<EmployeeDto> grid;
     private final EmployeeService employeeService;
     private final RoleService roleService;
+
     private List<EmployeeDto> data;
-    private final List<EmployeeDto> finalData;
-    private final GridPaginator<EmployeeDto> paginator;
+    private Grid<EmployeeDto> grid;
+    private GridPaginator<EmployeeDto> paginator;
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
-        this.finalData = employeeService.getAll();
-        this.data = finalData;
+
+        try {
+            initGrid();
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/employee");
+            UI.getCurrent().navigate(LoginView.class);
+        }
+    }
+
+    private void initGrid() {
+        this.data = employeeService.getAll();
         this.grid = new Grid<>(EmployeeDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
 

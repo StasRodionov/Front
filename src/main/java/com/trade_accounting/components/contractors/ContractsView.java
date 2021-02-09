@@ -39,7 +39,6 @@ public class ContractsView extends VerticalLayout {
 
     @Autowired
     ContractsView(ContractService contractService) {
-
         this.contractService = contractService;
 
         try {
@@ -49,7 +48,6 @@ public class ContractsView extends VerticalLayout {
             wrappedSession.setAttribute("redirectDestination", "/contracts");
             UI.getCurrent().navigate(LoginView.class);
         }
-
     }
 
     private void initGrid() {
