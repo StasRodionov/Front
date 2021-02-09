@@ -2,8 +2,10 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -13,6 +15,10 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
+
+import javax.validation.constraints.Null;
 
 @Route(value = "goods", layout = AppView.class)
 @PageTitle("Товары")
@@ -69,9 +75,15 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 ((Tabs) e).setSelectedIndex(3);
             }
         });
-        getUI().ifPresent(ui -> {
-            div.removeAll();
-            div.add(new GoodsView(productService, productGroupService));
-        });
+        try {
+            getUI().ifPresent(ui -> {
+                div.removeAll();
+                div.add(new GoodsView(productService, productGroupService));
+            });
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/goods");
+            UI.getCurrent().navigate(LoginView.class);
+        }
     }
 }

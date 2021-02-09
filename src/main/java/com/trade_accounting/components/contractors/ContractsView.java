@@ -1,13 +1,14 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.services.interfaces.ContractService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -20,6 +21,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -30,24 +33,33 @@ public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
 
-    private final List<ContractDto> finalData;
     private List<ContractDto> data;
-    private final Grid<ContractDto> grid;
-    private final GridPaginator<ContractDto> paginator;
+    private Grid<ContractDto> grid;
+    private GridPaginator<ContractDto> paginator;
 
     @Autowired
     ContractsView(ContractService contractService) {
 
         this.contractService = contractService;
-        this.finalData = contractService.getAll();
-        this.data = finalData;
+
+        try {
+            initGrid();
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/contracts");
+            UI.getCurrent().navigate(LoginView.class);
+        }
+
+    }
+
+    private void initGrid() {
+        this.data = contractService.getAll();
 
         this.grid = new Grid<>(ContractDto.class);
         this.paginator = new GridPaginator<>(grid,data,100);
         getGrid();
 
         add(getToolbar(),grid,paginator);
-
     }
 
 

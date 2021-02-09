@@ -1,6 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
@@ -32,6 +33,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 import lombok.extern.slf4j.Slf4j;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -59,7 +62,14 @@ public class ContractorsTabView extends VerticalLayout {
     public ContractorsTabView(ContractorService contractorService, ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
-        updateList();
+
+        try {
+            updateList();
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/contractorsTabView");
+            UI.getCurrent().navigate(LoginView.class);
+        }
     }
 
     private Button buttonQuestion() {

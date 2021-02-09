@@ -2,11 +2,13 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -25,6 +27,8 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.klaudeta.PaginatedGrid;
 
@@ -55,18 +59,26 @@ public class GoodsView extends VerticalLayout {
 
         middleLayout.setWidth("100%");
         middleLayout.setHeight("66vh");
-        grid = grid();
-        productGroupTree = treeGrid();
-        grid.setWidth("80%");
-        grid.setHeight("100%");
-        productGroupTree.setHeight("100%");
-        productGroupTree.setWidth("20%");
-        productGroupTree.setThemeName("dense", true);
-        middleLayout.addToPrimary(productGroupTree);
-        middleLayout.addToSecondary(grid);
-        paginator = new GridPaginator<>(grid, data, 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(), middleLayout, paginator);
+
+        try {
+            grid = grid();
+            productGroupTree = treeGrid();
+            grid.setWidth("80%");
+            grid.setHeight("100%");
+            productGroupTree.setHeight("100%");
+            productGroupTree.setWidth("20%");
+            productGroupTree.setThemeName("dense", true);
+            middleLayout.addToPrimary(productGroupTree);
+            middleLayout.addToSecondary(grid);
+            paginator = new GridPaginator<>(grid, data, 100);
+            setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+            add(upperLayout(), middleLayout, paginator);
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/good");
+            UI.getCurrent().navigate(LoginView.class);
+        }
+
     }
 
     private Button buttonQuestion() {
@@ -182,7 +194,14 @@ public class GoodsView extends VerticalLayout {
 
     private Grid<ProductDto> grid() {
         PaginatedGrid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
-        grid.setItems(productService.getAll());
+//        try {
+            grid.setItems(productService.getAll());
+//        } catch (NullPointerException e) {
+//            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+//            wrappedSession.setAttribute("redirectDestination", "/good");
+//            UI.getCurrent().navigate(LoginView.class);
+//        }
+
         grid.setColumns("name", "description", "weight", "volume",
                 "purchasePrice");
         grid.getColumnByKey("name").setHeader("Наименование");

@@ -10,8 +10,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 
-import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
 import static com.trade_accounting.config.SecurityConstants.EXPIRATION_TIME;
+import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
 
 @Route(value = "login", layout = AppView.class)
 public class LoginView extends VerticalLayout {
@@ -42,7 +42,10 @@ public class LoginView extends VerticalLayout {
                 wrappedSession.setAttribute(TOKEN_ATTRIBUTE_NAME, loginResponse.getToken());
                 wrappedSession.setMaxInactiveInterval((int) (EXPIRATION_TIME / 1000));
                 loginForm.setOpened(false);
-                UI.getCurrent().getPage().setLocation("/");
+
+                String redirectDestionation = (String) wrappedSession.getAttribute("redirectDestination");
+                wrappedSession.removeAttribute("redirectDestination");
+                UI.getCurrent().getPage().setLocation(redirectDestionation);
             } else {
                 loginForm.setOpened(true);
                 loginForm.setError(true);
