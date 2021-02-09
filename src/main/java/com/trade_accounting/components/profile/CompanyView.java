@@ -1,10 +1,12 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -21,6 +23,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -32,28 +36,37 @@ import java.util.List;
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
-    private final List<CompanyDto> data;
-    private final Grid<CompanyDto> grid;
-    private final GridPaginator<CompanyDto> paginator;
-    private final GridFilter<CompanyDto> filter;
+
+    private List<CompanyDto> data;
+    private Grid<CompanyDto> grid;
+    private GridPaginator<CompanyDto> paginator;
+    private GridFilter<CompanyDto> filter;
 
     public CompanyView(CompanyService companyService) {
-
         this.companyService = companyService;
-        this.data = companyService.getAll();
 
+        try {
+            initGrid();
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/company");
+            UI.getCurrent().navigate(LoginView.class);
+        }
+    }
+
+    private void initGrid() {
+        this.data = companyService.getAll();
         this.grid = new Grid<>(CompanyDto.class);
+        this.filter = new GridFilter<>(grid);
         this.paginator = new GridPaginator<>(grid, data, 100);
 
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-
         configureGrid();
-
-        this.filter = new GridFilter<>(grid);
         configureFilter();
 
         add(getToolbar(), filter, grid, paginator);
     }
+
 
     private void configureGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
