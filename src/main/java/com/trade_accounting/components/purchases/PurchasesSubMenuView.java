@@ -1,7 +1,9 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.tabs.Tab;
@@ -10,6 +12,8 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 
 @Route(value = "purchases", layout = AppView.class)
 @PageTitle("Закупки")
@@ -32,10 +36,16 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
                 ((Tabs) e).setSelectedIndex(1);
             }
         });
-        getUI().ifPresent(ui -> {
-            div.removeAll();
-            div.add(new PurchasesSubSuppliersOrders(invoiceService));
-        });
+        try {
+            getUI().ifPresent(ui -> {
+                div.removeAll();
+                div.add(new PurchasesSubSuppliersOrders(invoiceService));
+            });
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/purchases");
+            UI.getCurrent().navigate(LoginView.class);
+        }
     }
 
     private Tabs configurationSubMenu() {
