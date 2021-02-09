@@ -37,13 +37,16 @@ public class CompanyView extends VerticalLayout {
     private final GridPaginator<CompanyDto> paginator;
     private final GridFilter<CompanyDto> filter;
 
-    public CompanyView(CompanyService companyService) {
+    private final NumberField selectedNumberField;
 
+    public CompanyView(CompanyService companyService) {
         this.companyService = companyService;
         this.data = companyService.getAll();
 
         this.grid = new Grid<>(CompanyDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
+
+        this.selectedNumberField = getSelectedNumberField();
 
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
 
@@ -89,6 +92,8 @@ public class CompanyView extends VerticalLayout {
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
+
+        grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
     }
 
     private void reloadGrid() {
@@ -107,6 +112,7 @@ public class CompanyView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
+
         TextField searchTextField = new TextField();
         searchTextField.setPlaceholder("Наименование");
         searchTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
@@ -115,9 +121,8 @@ public class CompanyView extends VerticalLayout {
         Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
 
-
         toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), filterButton, getNewCompanyButton(),
-                searchTextField, getSelectedNumberField(), getSelect(), getSettingButton());
+                searchTextField, selectedNumberField, getSelect(), getSettingButton());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
@@ -131,8 +136,8 @@ public class CompanyView extends VerticalLayout {
 
     private NumberField getSelectedNumberField() {
         final NumberField numberField = new NumberField();
-        numberField.setPlaceholder("0");
-        numberField.setWidth("45px");
+        numberField.setWidth("50px");
+        numberField.setValue(0D);
         return numberField;
     }
 
