@@ -7,6 +7,7 @@ import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.ContractService;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -18,13 +19,15 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.RegexpValidator;
 
+import java.time.LocalDate;
+
 public class ContractModalWindow extends Dialog {
 
     private Long contractId;
-    private TextArea dateField = new TextArea();
-    private TextArea amountField = new TextArea();
-    private TextArea archiveField = new TextArea();
-    private TextArea commentField = new TextArea();
+    private TextField dateField = new TextField();
+    private TextField amountField = new TextField();
+    private TextField archiveField = new TextField();
+    private TextField commentField = new TextField();
     private ValidTextField numberField = new ValidTextField();
 
     private Long companyId;
@@ -66,7 +69,7 @@ public class ContractModalWindow extends Dialog {
     private final TextField bankAccountAddress = new TextField();
     private final TextField bankAccountCorrespondentAccount = new TextField();
     private final TextField bankAccountAccount = new TextField();
-    private final TextField bankAccountMainAccount = new TextField();
+    private final Select<String> bankAccountMainAccount = new Select<>();
     private final TextField bankAccountSortNumber = new TextField();
 
     private Long contractorId;
@@ -105,6 +108,94 @@ public class ContractModalWindow extends Dialog {
     }
 
 
+    private void setFields(ContractDto dto) {
+
+        contractId = dto.getId();
+        setDate(dateField, dto.getDate().toString());
+        setField(amountField, dto.getAmount().toString());
+        setField(archiveField, Boolean.TRUE.equals(dto.getArchive()) ? "Да" : "Нет");
+        setField(commentField, dto.getComment());
+        setField(numberField, dto.getNumber());
+
+        companyId = dto.getCompanyDto().getId();
+        setField(companyName, dto.getCompanyDto().getName());
+        setField(companyInn, dto.getCompanyDto().getInn());
+        setField(companyAddress, dto.getCompanyDto().getAddress());
+        setField(companyCommentToAddress, dto.getCompanyDto().getCommentToAddress());
+        setField(companyEmail, dto.getCompanyDto().getEmail());
+        setField(companyPhone, dto.getCompanyDto().getPhone());
+        setField(companyFax, dto.getCompanyDto().getFax());
+        setField(companyLeader, dto.getCompanyDto().getLeader());
+        setField(companyLeaderManagerPosition, dto.getCompanyDto().getLeaderManagerPosition());
+        setField(companyLeaderSignature, dto.getCompanyDto().getLeaderSignature());
+        setField(companyChiefAccountant, dto.getCompanyDto().getChiefAccountant());
+        setField(companyChiefAccountantSignature, dto.getCompanyDto().getChiefAccountantSignature());
+        setField(companyPayerVat, Boolean.TRUE.equals(dto.getCompanyDto().getPayerVat()) ? "Да" : "Нет");
+        setField(companySortNumber, dto.getCompanyDto().getSortNumber());
+        setField(companyStamp, dto.getCompanyDto().getStamp());
+
+        if (dto.getLegalDetailDto() != null) {
+            legalDetailId = dto.getLegalDetailDto().getId();
+            setField(legalDetailLastName, dto.getLegalDetailDto().getLastName());
+            setField(legalDetailFirstName, dto.getLegalDetailDto().getFirstName());
+            setField(legalDetailMiddleName, dto.getLegalDetailDto().getMiddleName());
+            setField(legalDetailAddress, dto.getLegalDetailDto().getAddress());
+            setField(legalDetailCommentToAddress, dto.getLegalDetailDto().getCommentToAddress());
+            setField(legalDetailInn, dto.getLegalDetailDto().getInn());
+            setField(legalDetailOkpo, dto.getLegalDetailDto().getOkpo());
+            setField(legalDetailOgrnip, dto.getLegalDetailDto().getOgrnip());
+            setField(legalDetailNumberOfTheCertificate, dto.getLegalDetailDto().getNumberOfTheCertificate());
+            setDate(legalDetailDateOfTheCertificate, dto.getLegalDetailDto().getDateOfTheCertificate());
+
+            if (dto.getLegalDetailDto().getTypeOfContractorDto() != null) {
+                typeOfContractorId = dto.getLegalDetailDto().getTypeOfContractorDto().getId();
+                setField(typeOfContractorName, dto.getLegalDetailDto().getTypeOfContractorDto().getName());
+                setField(typeOfContractorSortNumber, dto.getLegalDetailDto().getTypeOfContractorDto().getSortNumber());
+            }
+        }
+
+        bankAccountId = dto.getBankAccountDto().getId();
+        setField(bankAccountRcbic, dto.getBankAccountDto().getRcbic());
+        setField(bankAccountBank, dto.getBankAccountDto().getBank());
+        setField(bankAccountAddress, dto.getBankAccountDto().getAddress());
+        setField(bankAccountCorrespondentAccount, dto.getBankAccountDto().getCorrespondentAccount());
+        setField(bankAccountAccount, dto.getBankAccountDto().getAccount());
+        setField(bankAccountMainAccount, Boolean.TRUE.equals(dto.getBankAccountDto().getMainAccount()) ? "Да" : "Нет");
+        setField(bankAccountSortNumber, dto.getBankAccountDto().getSortNumber());
+
+        contractorId = dto.getContractorDto().getId();
+        setField(contractorName, dto.getContractorDto().getName());
+        setField(contractorInn, dto.getContractorDto().getInn());
+        setField(contractorSortNumber, dto.getContractorDto().getSortNumber());
+        setField(contractorPhone, dto.getContractorDto().getPhone());
+        setField(contractorFax, dto.getContractorDto().getFax());
+        setField(contractorEmail, dto.getContractorDto().getEmail());
+        setField(contractorAddress, dto.getContractorDto().getAddress());
+        setField(contractorCommentToAddress, dto.getContractorDto().getCommentToAddress());
+        setField(contractorComment, dto.getContractorDto().getComment());
+
+        contractorGroupId = dto.getContractorDto().getContractorGroupDto().getId();
+        setField(contractorGroupName, dto.getContractorDto().getContractorGroupDto().getName());
+        setField(contractorGroupSortNumber, dto.getContractorDto().getContractorGroupDto().getSortNumber());
+
+        typeOfPriceId = dto.getContractorDto().getTypeOfPriceDto().getId();
+        setField(typeOfPriceName, dto.getContractorDto().getTypeOfPriceDto().getName());
+        setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());
+
+    }
+
+    private void setField(AbstractField field, String value) {
+        if (value != null) {
+            field.setValue(value);
+        }
+    }
+
+    private void setDate(AbstractField field, String date) {
+        if (date != null) {
+            field.setValue(LocalDate.parse(date));
+        }
+    }
+
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
         // fullNameField.setWidth("345px");
@@ -129,7 +220,7 @@ public class ContractModalWindow extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Компания");
         label.setWidth(labelWidth);
-      //  horizontalLayout.add(label, companyDtoField);
+        //  horizontalLayout.add(label, companyDtoField);
         return horizontalLayout;
     }
 
@@ -145,7 +236,7 @@ public class ContractModalWindow extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Банковский Аккаунт");
         label.setWidth(labelWidth);
-       // horizontalLayout.add(label, bankAccountDtoField);
+        // horizontalLayout.add(label, bankAccountDtoField);
         return horizontalLayout;
     }
 
@@ -153,7 +244,7 @@ public class ContractModalWindow extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Контрагент");
         label.setWidth(labelWidth);
-      //  horizontalLayout.add(label, contractorDtoField);
+        //  horizontalLayout.add(label, contractorDtoField);
         return horizontalLayout;
     }
 
