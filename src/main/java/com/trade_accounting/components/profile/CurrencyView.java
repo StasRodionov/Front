@@ -1,9 +1,11 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CurrencyDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -19,17 +21,31 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 
 @Route(value = "currency", layout = AppView.class)
 @PageTitle("Валюты")
 public class CurrencyView extends VerticalLayout {
 
     private final CurrencyService currencyService;
+
     private Grid<CurrencyDto> grid = new Grid<>(CurrencyDto.class);
     private GridPaginator<CurrencyDto> paginator;
 
     public CurrencyView(CurrencyService currencyService) {
         this.currencyService = currencyService;
+
+        try {
+            initGrid();
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/currency");
+            UI.getCurrent().navigate(LoginView.class);
+        }
+    }
+
+    private void initGrid() {
         paginator = new GridPaginator<>(grid,currencyService.getAll(), 100 );
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         grid();
