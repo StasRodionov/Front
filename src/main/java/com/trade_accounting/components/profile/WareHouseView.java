@@ -1,9 +1,11 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,6 +23,8 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +34,22 @@ import java.util.List;
 public class WareHouseView extends VerticalLayout {
 
     private final WarehouseService warehouseService;
+
     private Grid<WarehouseDto> grid = new Grid<>(WarehouseDto.class);
     private GridPaginator<WarehouseDto> paginator;
 
     public WareHouseView(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
+        try {
+            initGrid();
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/contracts");
+            UI.getCurrent().navigate(LoginView.class);
+        }
+    }
+
+    private void initGrid() {
         paginator = new GridPaginator<>(grid, warehouseService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(toolsUp(), grid, paginator);
