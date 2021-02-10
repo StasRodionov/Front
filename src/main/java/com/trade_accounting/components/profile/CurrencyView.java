@@ -117,7 +117,7 @@ public class CurrencyView extends VerticalLayout {
         grid.getColumnByKey("digitalCode").setHeader("Цифровой код");
         grid.getColumnByKey("letterCode").setHeader("Буквенный код");
         grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер");
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             CurrencyDto editCurrency = event.getItem();
             CurrencyModalWindow currencyModalWindow =

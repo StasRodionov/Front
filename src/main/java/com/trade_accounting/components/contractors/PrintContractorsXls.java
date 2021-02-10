@@ -1,50 +1,60 @@
 package com.trade_accounting.components.contractors;
 
-import com.trade_accounting.PrintExelDocument;
+import com.trade_accounting.components.util.PrintExcelDocument;
 import com.trade_accounting.models.dto.ContractorDto;
+import org.apache.poi.ss.usermodel.Cell;
 
 import java.util.List;
 
-public class PrintContractorsXls extends PrintExelDocument <ContractorDto> {
+public class PrintContractorsXls extends PrintExcelDocument<ContractorDto> {
 
     protected PrintContractorsXls(String pathToXlsTemplate, List<ContractorDto> list) {
         super(pathToXlsTemplate, list);
     }
 
     @Override
-    protected String getSelectValue(String formula) {
+    protected void selectValue(Cell editCell) {
+        String formula = editCell.getStringCellValue();
         switch (formula) {
             case ("<date>"):
-                return "01.02.2021";
+                editCell.setCellValue("08.02.2021");
+                break;
             case ("<authorName>"):
-                return "Senya Sheykin";
+                editCell.setCellValue("Senya Sheykin");
+                break;
         }
-        return formula;
     }
 
     @Override
-    protected String getTableSelectValue(String value, ContractorDto model) {
+    protected void tableSelectValue(String value, ContractorDto model, Cell editCell) {
         switch (value) {
             case ("<name>"):
-                return model.getName();
+                editCell.setCellValue(model.getName());
+                break;
             case ("<inn>"):
-                return model.getInn();
+                editCell.setCellValue(model.getInn());
+                break;
             case ("<sortNumber>"):
-                return model.getSortNumber();
+                editCell.setCellValue(model.getSortNumber());
+                break;
             case ("<phone>"):
-                return model.getPhone();
+                editCell.setCellValue(model.getPhone());
+                break;
             case ("<fax>"):
-                return model.getFax();
+                editCell.setCellValue(model.getFax());
+                break;
             case ("<email>"):
-                return model.getEmail();
+                editCell.setCellValue(model.getEmail());
+                break;
             case ("<address>"):
-                return model.getAddress();
+                editCell.setCellValue(model.getAddress());
+                break;
             case ("<commentToAddress>"):
-                return model.getCommentToAddress();
+                editCell.setCellValue(model.getCommentToAddress());
+                break;
             case ("<comment>"):
-                return model.getComment();
+                editCell.setCellValue(model.getComment());
+                break;
         }
-        return "";
-
     }
 }

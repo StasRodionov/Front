@@ -44,6 +44,7 @@ public class ContractsView extends VerticalLayout {
 
         this.grid = new Grid<>(ContractDto.class);
         this.paginator = new GridPaginator<>(grid,data,100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         getGrid();
 
         add(getToolbar(),grid,paginator);
@@ -68,7 +69,7 @@ public class ContractsView extends VerticalLayout {
         grid.getColumnByKey("archive").setAutoWidth(true).setHeader("Архив");
         grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
         grid.getColumnByKey("legalDetailDto").setHeader("Реквизиты");
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
 
     }
 
