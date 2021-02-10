@@ -142,6 +142,7 @@ public class ContractorsTabView extends VerticalLayout {
         grid.getColumnByKey("address").setHeader("адресс");
         grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("комментарий");
+        grid.setHeight("64vh");
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);

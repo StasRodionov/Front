@@ -1,4 +1,4 @@
 [part~="row"]:hover [part~="body-cell"]{
     color: black;
-    background-color: yellow;
+    background-color: #f1f4ff;
 }

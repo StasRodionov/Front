@@ -1,8 +1,6 @@
 package com.trade_accounting.components;
 
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Label;
@@ -59,13 +57,15 @@ public class AppView extends AppLayout {
         VerticalLayout faq = new VerticalLayout(VaadinIcon.QUESTION_CIRCLE_O.create(), new Label("FAQ"));
         faq.addClickListener(e -> faq.getUI().ifPresent(ui -> ui.navigate("")));
 
-        VerticalLayout profile = new VerticalLayout(VaadinIcon.USER.create(), new Label("Профиль"));
-        ContextMenu contextMenu = new ContextMenu();
-        contextMenu.setTarget(profile);
-        contextMenu.setOpenOnClick(true);
-
-        contextMenu.addItem("Профиль", e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
-        contextMenu.addItem("Выйти", e -> profile.getUI().ifPresent(ui -> ui.navigate("logout")));
+        MenuBar menuBar = new MenuBar();
+        menuBar.setOpenOnHover(true);
+        VerticalLayout profile = new VerticalLayout(VaadinIcon.USER.create(), menuBar);
+        MenuItem profileMenuItem = menuBar.addItem("Профиль");
+        SubMenu projectSubMenu = profileMenuItem.getSubMenu();
+        MenuItem profileSubMenu = projectSubMenu.addItem("Профиль");
+        profileSubMenu.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
+        MenuItem logout = projectSubMenu.addItem("Выход");
+        logout.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("logout")));
 
         List<VerticalLayout> verticalLayouts = List.of(
                 indicators,
