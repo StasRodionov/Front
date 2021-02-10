@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CurrencyDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
@@ -27,14 +28,19 @@ public class CurrencyView extends VerticalLayout {
     private final CurrencyService currencyService;
     private Grid<CurrencyDto> grid = new Grid<>(CurrencyDto.class);
     private GridPaginator<CurrencyDto> paginator;
+    private final GridFilter<CurrencyDto> filter;
 
     public CurrencyView(CurrencyService currencyService) {
         this.currencyService = currencyService;
         paginator = new GridPaginator<>(grid,currencyService.getAll(), 100 );
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         grid();
-        add(toolsTop(), grid, paginator);
-        updateList();
+
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
+        add(getToolbar(), filter, grid, paginator);
+//        updateList();
     }
 
     private Button buttonQuestion(){
@@ -68,6 +74,16 @@ public class CurrencyView extends VerticalLayout {
         grid.setItems(currencyService.getAll());
     }
 
+    private void configureFilter() {
+        filter.setVisibleFields(false, "name", "legalDetailDto");
+
+        filter.setFieldToComboBox("payerVat", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToIntegerField("inn");
+
+        filter.onSearchClick(e -> paginator.setData(currencyService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(currencyService.getAll()));
+    }
+
     private Button buttonFilter(){
         return new Button("Фильтр");
     }
@@ -99,12 +115,29 @@ public class CurrencyView extends VerticalLayout {
         return new Button(new Icon(VaadinIcon.COG_O));
     }
 
-    private HorizontalLayout toolsTop(){
-        HorizontalLayout tools = new HorizontalLayout();
-        tools.add(buttonQuestion(),title(), buttonRefresh(), buttonCurrency(), buttonFilter(),
-                textFieldTop(), numberField(), valueSelect(), buttonSettings());
-        tools.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        return tools;
+//    private HorizontalLayout toolsTop(){
+//        HorizontalLayout tools = new HorizontalLayout();
+//        tools.add(buttonQuestion(),title(), buttonRefresh(), buttonCurrency(), buttonFilter(),
+//                textFieldTop(), numberField(), valueSelect(), buttonSettings());
+//        tools.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+//        return tools;
+//    }
+    private HorizontalLayout getToolbar() {
+        HorizontalLayout toolbar = new HorizontalLayout();
+        TextField searchTextField = new TextField();
+        searchTextField.setPlaceholder("Наименование");
+        searchTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        searchTextField.setWidth("300px");
+
+        Button filterButton = new Button("Фильтр");
+        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+
+
+        toolbar.add(buttonQuestion(), title(), buttonRefresh(), buttonCurrency(), filterButton,
+                searchTextField, numberField(), valueSelect(), buttonSettings());
+        toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+
+        return toolbar;
     }
 
     private void grid(){

@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.CurrencyDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.api.CurrencyApi;
@@ -12,6 +13,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -38,6 +40,21 @@ public class CurrencyServiceImpl implements CurrencyService {
             log.info("Успешно выполнен запрос на получение списка CurrencyDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка CurrencyDto - {}", e);
+        }
+
+        return currencyDtoList;
+    }
+
+    @Override
+    public List<CurrencyDto> search(Map<String, String> query) {
+        List<CurrencyDto> currencyDtoList = new ArrayList<>();
+        Call<List<CurrencyDto>> currencyDtoListCall = currencyApi.search(currencyUrl, query);
+
+        try {
+            currencyDtoList = currencyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка CurrencyDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка CurrencyDto - ", e);
         }
 
         return currencyDtoList;
