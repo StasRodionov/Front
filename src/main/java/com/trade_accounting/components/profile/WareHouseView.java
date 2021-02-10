@@ -147,7 +147,7 @@ public class WareHouseView extends VerticalLayout {
         grid.getColumnByKey("address").setHeader("Адрес");
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("Комментарий");
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             WarehouseDto editWarehouse = event.getItem();
             WareHouseModalWindow wareHouseModalWindow =
