@@ -54,7 +54,7 @@ public class GoodsView extends VerticalLayout {
         middleLayout = new SplitLayout();
 
         middleLayout.setWidth("100%");
-        middleLayout.setHeight("66vh");
+        middleLayout.setHeight("64vh");
         grid = grid();
         productGroupTree = treeGrid();
         grid.setWidth("80%");
