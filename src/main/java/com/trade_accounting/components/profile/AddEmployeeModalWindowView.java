@@ -16,11 +16,13 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class AddEmployeeModalWindowView extends Dialog {
 
     private Long id;
@@ -204,19 +206,17 @@ public class AddEmployeeModalWindowView extends Dialog {
         Button addButtonShow = new Button("Сохранить");
         addButtonShow.addClickListener(click -> {
             if (id == null) {
-                System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
+                log.info("Вы нажали кнопку для сохранения нового сотрудника!");
                 EmployeeDto newEmployeeDto = setEmployeeDto(null);
                 employeeService.create(newEmployeeDto);
             } else {
-                System.out.println("Вы нажали кнопку для обновления сотрудника!");
+                log.info("Вы нажали кнопку для обновления сотрудника!");
                 EmployeeDto updateEmployeeDto = setEmployeeDto(id);
                 employeeService.update(updateEmployeeDto);
             }
-            div.removeAll();
             close();
         });
-        HorizontalLayout addButtonShowLayout = new HorizontalLayout(addButtonShow);
-        return addButtonShowLayout;
+        return addButtonShow;
     }
 
     private EmployeeDto setEmployeeDto(Long id) {
