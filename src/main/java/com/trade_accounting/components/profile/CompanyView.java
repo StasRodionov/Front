@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Route(value = "company", layout = AppView.class)
 @PageTitle("Юр. лица")
-@CssImport(value = "styles/grid.css", themeFor = "vaadin-grid")
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
@@ -92,7 +91,7 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали").setId("Юридические детали");
         getGridContextMenu();
 
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
@@ -129,7 +128,8 @@ public class CompanyView extends VerticalLayout {
         Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
 
-        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), filterButton, getNewCompanyButton(),
+
+        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), getNewCompanyButton(), filterButton,
                 searchTextField, selectedNumberField, getSelect(), getSettingButton());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 

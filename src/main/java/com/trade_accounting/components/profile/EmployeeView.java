@@ -67,6 +67,7 @@ public class EmployeeView extends VerticalLayout {
         grid.getColumnByKey("phone").setHeader("Телефон");
         grid.getColumnByKey("description").setHeader("Описание");
         grid.getColumnByKey("roleDto").setHeader("Роль");
+        grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
             AddEmployeeModalWindowView addEmployeeModalWindowView =
