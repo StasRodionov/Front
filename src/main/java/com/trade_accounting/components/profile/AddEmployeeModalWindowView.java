@@ -21,7 +21,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import lombok.extern.slf4j.Slf4j;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-import lombok.extern.slf4j.Slf4j;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
