@@ -75,7 +75,12 @@ public class EmployeeView extends VerticalLayout {
             EmployeeDto employeeDto = event.getItem();
             ImageDto imageDto = employeeDto.getImageDto();
             AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(employeeDto, employeeService, roleService, imageService, imageDto);
+                    new AddEmployeeModalWindowView(
+                            employeeDto,
+                            employeeService,
+                            roleService,
+                            imageService,
+                            imageDto);
             addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
             addEmployeeModalWindowView.open();
         });
@@ -102,7 +107,12 @@ public class EmployeeView extends VerticalLayout {
         buttonUnit.addClickListener(click -> {
             System.out.println("Вы нажали кнопку для добавление сотрудника!");
             AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(null, employeeService, roleService, imageService, null);
+                    new AddEmployeeModalWindowView(
+                            null,
+                            employeeService,
+                            roleService,
+                            imageService,
+                            null);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
