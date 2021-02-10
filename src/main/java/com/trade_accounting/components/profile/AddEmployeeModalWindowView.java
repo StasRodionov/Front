@@ -74,7 +74,7 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Set<RoleDto> roles;
 
-    private final String pathImageSave = "src/main/resources/";
+    private final String pathImageSave = "src/main/resources/images/employee/";
 
     private String pathImageResult;
 
