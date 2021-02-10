@@ -15,6 +15,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public class SalesModalWinCustomersOrders extends Dialog {
 
     private DateTimePicker dateField = new DateTimePicker();
@@ -38,7 +41,9 @@ public class SalesModalWinCustomersOrders extends Dialog {
         this.companyService = companyService;
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
-        dateField.setValue(invoiceDto.getDate());
+        if (invoiceDto.getDate() != null) {
+            dateField.setValue(LocalDateTime.parse(invoiceDto.getDate()));
+        }
         typeOfInvoiceField.setValue(getFieldValueNotNull(invoiceDto.getTypeOfInvoice()));
 //        companyField.setValue(getFieldValueNotNull(invoiceDto.getCompany().toString()));
 //        contractorField.setValue(getFieldValueNotNull(invoiceDto.getContractor().toString()));
@@ -54,7 +59,7 @@ public class SalesModalWinCustomersOrders extends Dialog {
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
             InvoiceDto newInvoiceDto = new InvoiceDto();
-            newInvoiceDto.setDate(dateField.getValue());
+            newInvoiceDto.setDate(dateField.getValue().toString());
             newInvoiceDto.setTypeOfInvoice(typeOfInvoiceField.getValue());
 //            newInvoiceDto.setCompany(companyField.getValue());
 //            invoiceService.create(newInvoiceDto);
@@ -111,7 +116,10 @@ public class SalesModalWinCustomersOrders extends Dialog {
     private HorizontalLayout configureCompanySelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Select<CompanyDto> labelSelect = new Select<>();
-        labelSelect.setItems(companyService.getAll());
+        List<CompanyDto> companies = companyService.getAll();
+        if (companies != null) {
+            labelSelect.setItems(companies);
+        }
         labelSelect.setItemLabelGenerator(CompanyDto::getName);
         labelSelect.setWidth(fieldWidth);
         Label label = new Label("Компания");
