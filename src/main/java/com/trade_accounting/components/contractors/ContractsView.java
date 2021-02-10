@@ -61,9 +61,12 @@ public class ContractsView extends VerticalLayout {
             ContractDto editContract = event.getItem();
             ContractModalWindow contractModalWindow =
                     new ContractModalWindow(editContract, contractService);
-            //contractModalWindow.addDetachListener(e -> updateList());
+            contractModalWindow.addDetachListener(e -> reloadGrid());
             contractModalWindow.open();
         });
+    }
+    private void reloadGrid() {
+        paginator.setData(contractService.getAll());
     }
 
     private HorizontalLayout getToolbar() {
@@ -104,7 +107,7 @@ public class ContractsView extends VerticalLayout {
     private Button getButton() {
         final Button button = new Button("Договор");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        ContractModalWindow contractModalWindow = new ContractModalWindow(new ContractDto(), contractService);
+        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService);
         button.addClickListener(event -> contractModalWindow.open());
         //button.addDetachListener(event -> u)
         return button;

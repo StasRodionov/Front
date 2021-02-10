@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
@@ -104,11 +105,17 @@ public class ContractModalWindow extends Dialog {
 
     private final ContractService contractService;
 
+    public ContractModalWindow(ContractService contractService) {
+        this.contractService = contractService;
+        configureModal("Добавление");
+    }
+
+
     public ContractModalWindow(ContractDto contractDto,
                                ContractService contractService) {
         this.contractService = contractService;
 
-        configureModal("Договор");
+        configureModal("Редактирование");
         setFields(contractDto);
 
     }
@@ -121,12 +128,14 @@ public class ContractModalWindow extends Dialog {
 
     private void setFields(ContractDto dto) {
 
-        /*contractId = dto.getId();
-        setDate(dateField, dto.getDate().toString());
-        setField(amountField, dto.getAmount().toString());
-        setField(archiveField, Boolean.TRUE.equals(dto.getArchive()) ? "Да" : "Нет");
-        setField(commentField, dto.getComment());
-        setField(numberField, dto.getNumber());
+        if (dto != null) {
+            contractId = dto.getId();
+            setDate(dateField, dto.getDate().toString());
+            setField(amountField, dto.getAmount().toString());
+            setField(archiveField, Boolean.TRUE.equals(dto.getArchive()) ? "Да" : "Нет");
+            setField(commentField, dto.getComment());
+            setField(numberField, dto.getNumber());
+        }
 
         companyId = dto.getCompanyDto().getId();
         setField(companyName, dto.getCompanyDto().getName());
@@ -143,7 +152,7 @@ public class ContractModalWindow extends Dialog {
         setField(companyChiefAccountantSignature, dto.getCompanyDto().getChiefAccountantSignature());
         setField(companyPayerVat, Boolean.TRUE.equals(dto.getCompanyDto().getPayerVat()) ? "Да" : "Нет");
         setField(companySortNumber, dto.getCompanyDto().getSortNumber());
-        setField(companyStamp, dto.getCompanyDto().getStamp());*/
+        setField(companyStamp, dto.getCompanyDto().getStamp());
 
         if (dto.getLegalDetailDto() != null) {
             legalDetailId = dto.getLegalDetailDto().getId();
@@ -165,7 +174,7 @@ public class ContractModalWindow extends Dialog {
             }
         }
 
-        /*bankAccountId = dto.getBankAccountDto().getId();
+        bankAccountId = dto.getBankAccountDto().getId();
         setField(bankAccountRcbic, dto.getBankAccountDto().getRcbic());
         setField(bankAccountBank, dto.getBankAccountDto().getBank());
         setField(bankAccountAddress, dto.getBankAccountDto().getAddress());
@@ -191,7 +200,7 @@ public class ContractModalWindow extends Dialog {
 
         typeOfPriceId = dto.getContractorDto().getTypeOfPriceDto().getId();
         setField(typeOfPriceName, dto.getContractorDto().getTypeOfPriceDto().getName());
-        setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());*/
+        setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());
 
     }
 
