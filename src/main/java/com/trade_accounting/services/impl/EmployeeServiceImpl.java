@@ -36,6 +36,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         try {
             employeeDtoList = employeeDtoListCall.execute().body();
+
             log.info("Успешно выполнен запрос на получение списка EmployeeDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка EmployeeDto");

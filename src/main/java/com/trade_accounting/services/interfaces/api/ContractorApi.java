@@ -19,6 +19,10 @@ public interface ContractorApi {
     Call<List<ContractorDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
+    @GET("{url}/search/{searchTerm}")
+    Call<List<ContractorDto>> getAll(@Path(value = "url", encoded = true) String url,@Path("searchTerm") String searchTerm);
+
+    @Headers("Accept: application/json")
     @GET("{url}/{id}")
     Call<ContractorDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
