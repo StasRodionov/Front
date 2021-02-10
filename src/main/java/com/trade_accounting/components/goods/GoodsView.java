@@ -28,7 +28,6 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.klaudeta.PaginatedGrid;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +37,7 @@ import java.util.List;
 @PageTitle("Товары и услуги")
 public class GoodsView extends VerticalLayout {
 
-    private final String VALUE_SELECT_WIDTH = "120px";
+    private static final String VALUE_SELECT_WIDTH = "120px";
 
     private final ProductService productService;
     private final ProductGroupService productGroupService;
@@ -50,30 +49,23 @@ public class GoodsView extends VerticalLayout {
     private Grid<ProductDto> grid;
     private TreeGrid<ProductGroupDto> treeGrid;//древовидный layout
     private HorizontalLayout upperLayout;
-    private HorizontalLayout printLayout;
     private SplitLayout middleLayout;//двухоконный layout в котором размещаются грид и древовидный грид
     private GridPaginator<ProductDto> paginator;
-
 
     public GoodsView(ProductService productService, ProductGroupService productGroupService) {
         this.productService = productService;
         this.productGroupService = productGroupService;
 
         loadProducts();
-        setGrid();
-        setTreeGrid();
         setUpperLayout();
-        setPrintLayout();
         setMiddleLayout();
         setPaginator();
 
-        add(upperLayout, printLayout, middleLayout, paginator);
+        add(upperLayout, middleLayout, paginator);
     }
 
     private void loadProducts() {
-//        products = productService.getAll();
-        products = new ArrayList<>();
-        List<ProductDto> p = productService.getAll();
+        products = productService.getAll();
     }
 
     private Button buttonQuestion() {
@@ -174,13 +166,10 @@ public class GoodsView extends VerticalLayout {
         upperLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
 
-    private void setPrintLayout() {
-        printLayout = new HorizontalLayout();
-        printLayout.add(numberField(), valueSelect(), valueSelectPrint());
-        printLayout.setSpacing(false);
-    }
-
     private void setMiddleLayout() {
+        setTreeGrid();
+        setGrid();
+
         middleLayout = new SplitLayout();
         middleLayout.setWidth("100%");
         middleLayout.setHeight("66vh");
