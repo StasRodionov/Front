@@ -1,12 +1,19 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -15,13 +22,9 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.provider.Query;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
@@ -35,41 +38,30 @@ import java.util.stream.Collectors;
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
-    private List<CompanyDto> finalData;
-    private List<CompanyDto> data;
+    private final List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
-    private final HorizontalLayout filterLayout;
     private final GridPaginator<CompanyDto> paginator;
+    private final GridFilter<CompanyDto> filter;
 
-    private TextField idFilterField;
-    private TextField searchTextField;
-    private TextField addressFilterField;
-    private TextField emailFilterField;
-    private TextField leaderFilterField;
-    private TextField chiefAccountantFilterField;
-    private TextField leaderManagerPositionFilterField;
-    private IntegerField innFilterField;
-    private IntegerField phoneFilterField;
-    private IntegerField faxFilterField;
-    private ComboBox<Boolean> payerVatFilterField;
+    private final NumberField selectedNumberField;
 
     public CompanyView(CompanyService companyService) {
         this.companyService = companyService;
-        this.finalData = companyService.getAll();
-        this.data = finalData;
+        this.data = companyService.getAll();
 
         this.grid = new Grid<>(CompanyDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
-        this.filterLayout = new HorizontalLayout();
+
+        this.selectedNumberField = getSelectedNumberField();
 
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
 
         configureGrid();
-        prepareFilterFields();
 
-        filterLayout.setVisible(false);
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
 
-        add(getToolbar(), filterLayout, grid, paginator);
+        add(getToolbar(), filter, grid, paginator);
     }
 
     private void configureGrid() {
@@ -80,24 +72,26 @@ public class CompanyView extends VerticalLayout {
                 "chiefAccountant", "chiefAccountantSignature", "payerVat",
                 "stamp", "sortNumber", "legalDetailDto");
 
-        grid.getColumnByKey("name").setHeader("Наименование");
-        grid.getColumnByKey("inn").setHeader("ИНН");
-        grid.getColumnByKey("address").setHeader("Адрес");
-        grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу");
-        grid.getColumnByKey("email").setHeader("E-mail");
-        grid.getColumnByKey("phone").setHeader("Телефон");
-        grid.getColumnByKey("fax").setHeader("Факс");
-        grid.getColumnByKey("leader").setHeader("Руководитель");
-        grid.getColumnByKey("leaderManagerPosition").setHeader("Должность руководителя");
-        grid.getColumnByKey("leaderSignature").setHeader("Подпись руководителя");
-        grid.getColumnByKey("chiefAccountant").setHeader("Главный бухгалтер");
-        grid.getColumnByKey("chiefAccountantSignature").setHeader("Подпись гл. бухгалтера");
-        grid.getColumnByKey("payerVat").setHeader("Плательщик НДС");
-        grid.getColumnByKey("sortNumber").setHeader("Нумерация");
-        grid.getColumnByKey("stamp").setHeader("Печать");
-        grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали");
+        grid.getColumnByKey("id").setHeader("ID").setId("ID");
+        grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
+        grid.getColumnByKey("inn").setHeader("ИНН").setId("ИНН");
+        grid.getColumnByKey("address").setHeader("Адрес").setId("Адрес");
+        grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу").setId("Комментарий к адресу");
+        grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
+        grid.getColumnByKey("phone").setHeader("Телефон").setId("Телефон");
+        grid.getColumnByKey("fax").setHeader("Факс").setId("Факс");
+        grid.getColumnByKey("leader").setHeader("Руководитель").setId("Руководитель");
+        grid.getColumnByKey("leaderManagerPosition").setHeader("Должность руководителя").setId("Должность руководителя");
+        grid.getColumnByKey("leaderSignature").setHeader("Подпись руководителя").setId("Подпись руководителя");
+        grid.getColumnByKey("chiefAccountant").setHeader("Главный бухгалтер").setId("Главный бухгалтер");
+        grid.getColumnByKey("chiefAccountantSignature").setHeader("Подпись гл. бухгалтера").setId("Подпись гл. бухгалтера");
+        grid.getColumnByKey("payerVat").setHeader("Плательщик НДС").setId("Плательщик НДС");
+        grid.getColumnByKey("sortNumber").setHeader("Нумерация").setId("Нумерация");
+        grid.getColumnByKey("stamp").setHeader("Печать").setId("Печать");
+        grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали").setId("Юридические детали");
+        getGridContextMenu();
 
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
@@ -105,25 +99,38 @@ public class CompanyView extends VerticalLayout {
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
+
+        grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
+    }
+
+    private void reloadGrid() {
+        paginator.setData(companyService.getAll());
+    }
+
+    private void configureFilter() {
+        filter.setVisibleFields(false, "name", "legalDetailDto");
+
+        filter.setFieldToComboBox("payerVat", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToIntegerField("inn");
+
+        filter.onSearchClick(e -> paginator.setData(companyService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(companyService.getAll()));
     }
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
 
-        searchTextField = gridTextFieldFilter();
+        TextField searchTextField = new TextField();
         searchTextField.setPlaceholder("Наименование");
         searchTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         searchTextField.setWidth("300px");
 
-        searchTextField.setValueChangeMode(ValueChangeMode.TIMEOUT);
-        searchTextField.addValueChangeListener(e -> onFilterChange());
-
         Button filterButton = new Button("Фильтр");
-        filterButton.addClickListener(e -> filterLayout.setVisible(!filterLayout.isVisible()));
+        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
 
 
-        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), getNewCompanyButton(),
-                filterButton, searchTextField, getSelectedNumberField(), getSelect(), getSettingButton());
+        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), getNewCompanyButton(), filterButton,
+                searchTextField, selectedNumberField, getSelect(), getSettingButton());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
@@ -137,8 +144,8 @@ public class CompanyView extends VerticalLayout {
 
     private NumberField getSelectedNumberField() {
         final NumberField numberField = new NumberField();
-        numberField.setPlaceholder("0");
-        numberField.setWidth("45px");
+        numberField.setWidth("50px");
+        numberField.setValue(0D);
         return numberField;
     }
 
@@ -182,147 +189,31 @@ public class CompanyView extends VerticalLayout {
         return selector;
     }
 
-    private void prepareFilterFields() {
-        idFilterField = gridTextFieldFilter();
-        innFilterField = gridIntegerFieldFilter();
-        addressFilterField = gridTextFieldFilter();
-        emailFilterField = gridTextFieldFilter();
-        phoneFilterField = gridIntegerFieldFilter();
-        faxFilterField = gridIntegerFieldFilter();
-        leaderFilterField = gridTextFieldFilter();
-        leaderManagerPositionFilterField = gridTextFieldFilter();
-        chiefAccountantFilterField = gridTextFieldFilter();
+    private ContextMenu getGridContextMenu() {
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.setTarget(grid);
 
-        payerVatFilterField = new ComboBox<>();
-        payerVatFilterField.setItems(Boolean.TRUE, Boolean.FALSE);
-        payerVatFilterField.addValueChangeListener(e -> onFilterChange());
+        CheckboxGroup<Grid.Column<CompanyDto>> checkboxGroup = new CheckboxGroup<>();
+        contextMenu.addItem(checkboxGroup);
 
-        Button button = new Button("Очистить");
-        button.addClickListener(e -> {
-            idFilterField.clear();
-            innFilterField.clear();
-            addressFilterField.clear();
-            emailFilterField.clear();
-            phoneFilterField.clear();
-            faxFilterField.clear();
-            leaderFilterField.clear();
-            leaderManagerPositionFilterField.clear();
-            chiefAccountantFilterField.clear();
-            payerVatFilterField.clear();
-        });
-        button.getStyle().set("align-self", "flex-end");
-
-        idFilterField.setLabel("ID");
-        innFilterField.setLabel("ИНН");
-        addressFilterField.setLabel("Адрес");
-        emailFilterField.setLabel("E-mail");
-        phoneFilterField.setLabel("Телефон");
-        faxFilterField.setLabel("Факс");
-        leaderFilterField.setLabel("Руководитель");
-        leaderManagerPositionFilterField.setLabel("Должность руководителя");
-        chiefAccountantFilterField.setLabel("Главный бухгалтер");
-        payerVatFilterField.setLabel("Плательщик НДС");
-
-        filterLayout.add(idFilterField, innFilterField, addressFilterField, emailFilterField, phoneFilterField, faxFilterField, leaderFilterField, leaderManagerPositionFilterField, chiefAccountantFilterField,
-                payerVatFilterField, button);
-
-        filterLayout.getStyle().set("background-color", "#e7eaef")
-                .set("border-radius", "4px")
-                .set("align-items", "baseline")
-                .set("flex-flow", "row wrap");
-
-        filterLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-    }
-
-    private TextField gridTextFieldFilter() {
-        TextField filter = new TextField();
-        filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
-        filter.addValueChangeListener(e -> this.onFilterChange());
-
-        return filter;
-    }
-
-    private IntegerField gridIntegerFieldFilter() {
-        IntegerField filter = new IntegerField();
-        filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
-        filter.addValueChangeListener(e -> this.onFilterChange());
-
-        return filter;
-    }
-
-    private void reloadGrid() {
-        finalData = companyService.getAll();
-        onFilterChange();
-    }
-
-    private void onFilterChange() {
-        grid.setItems(finalData);
-        ListDataProvider<CompanyDto> listDataProvider = (ListDataProvider<CompanyDto>) grid.getDataProvider();
-        listDataProvider.setFilter(item -> {
-            boolean idFilterMatch = true;
-            boolean searchFilterMatch = true;
-            boolean innFilterMatch = true;
-            boolean addressFilterMatch = true;
-            boolean emailFilterMatch = true;
-            boolean phoneFilterMatch = true;
-            boolean faxFilterMatch = true;
-            boolean leaderFilterMatch = true;
-            boolean leaderManagerPositionFilterMatch = true;
-            boolean chiefAccountantFilterMatch = true;
-            boolean payerVatFilterMatch = true;
-
-            if (!idFilterField.isEmpty()) {
-                idFilterMatch = String.valueOf(item.getId()).contains(idFilterField.getValue());
-            }
-
-            if (!searchTextField.isEmpty()) {
-                searchFilterMatch = item.getName().toLowerCase().contains(searchTextField.getValue().toLowerCase());
-            }
-
-            if (!innFilterField.isEmpty()) {
-                innFilterMatch = item.getInn().contains(String.valueOf(innFilterField.getValue()));
-            }
-
-            if (!addressFilterField.isEmpty()) {
-                addressFilterMatch = item.getAddress().toLowerCase().contains(addressFilterField.getValue().toLowerCase());
-            }
-
-            if (!emailFilterField.isEmpty()) {
-                emailFilterMatch = item.getEmail().toLowerCase().contains(emailFilterField.getValue().toLowerCase());
-            }
-            if (!phoneFilterField.isEmpty()) {
-                phoneFilterMatch = item.getPhone().contains(String.valueOf(phoneFilterField.getValue()));
-            }
-
-            if (!faxFilterField.isEmpty()) {
-                faxFilterMatch = item.getFax().contains(String.valueOf(faxFilterField.getValue()));
-            }
-
-            if (!leaderFilterField.isEmpty()) {
-                leaderFilterMatch = item.getLeader().toLowerCase().contains(leaderFilterField.getValue().toLowerCase());
-            }
-
-            if (!leaderManagerPositionFilterField.isEmpty()) {
-                leaderManagerPositionFilterMatch = item.getLeaderManagerPosition().toLowerCase()
-                        .contains(leaderManagerPositionFilterField.getValue().toLowerCase());
-            }
-
-            if (!chiefAccountantFilterField.isEmpty()) {
-                chiefAccountantFilterMatch = item.getChiefAccountant().toLowerCase()
-                        .contains(chiefAccountantFilterField.getValue().toLowerCase());
-            }
-
-            if (!payerVatFilterField.isEmpty()) {
-                payerVatFilterMatch = item.getPayerVat().equals(payerVatFilterField.getValue());
-            }
-
-            return idFilterMatch && searchFilterMatch && innFilterMatch && addressFilterMatch && emailFilterMatch
-                    && phoneFilterMatch && faxFilterMatch && leaderFilterMatch && leaderManagerPositionFilterMatch
-                    && chiefAccountantFilterMatch && payerVatFilterMatch;
+        checkboxGroup.setItems(grid.getColumns().stream());
+        checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+        checkboxGroup.setItemLabelGenerator(i -> i.getId().orElse(i.getKey()));
+        checkboxGroup.setValue(grid.getColumns().stream().filter(Component::isVisible).collect(Collectors.toSet()));
+        checkboxGroup.addSelectionListener(e -> {
+            e.getAddedSelection().forEach(i -> i.setVisible(true));
+            e.getRemovedSelection().forEach(i -> i.setVisible(false));
         });
 
-        data = grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+        MenuItem menuItem = contextMenu.addItem("Количество строк");
+        SubMenu subMenu = menuItem.getSubMenu();
 
-        paginator.setData(data);
+        subMenu.addItem("25", e -> paginator.setItemsPerPage(25));
+
+        subMenu.addItem("50", e -> paginator.setItemsPerPage(50));
+
+        subMenu.addItem("100", e -> paginator.setItemsPerPage(100));
+
+        return contextMenu;
     }
 }

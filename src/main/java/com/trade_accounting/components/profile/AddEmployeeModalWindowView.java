@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class AddEmployeeModalWindowView extends Dialog {
 
     private Long id;
@@ -249,15 +250,14 @@ public class AddEmployeeModalWindowView extends Dialog {
                     close();
                 }
             } else {
-                System.out.println("Вы нажали кнопку для обновления сотрудника!");
+                log.info("Вы нажали кнопку для обновления сотрудника!");
                 EmployeeDto updateEmployeeDto = setEmployeeDto(id);
                 employeeService.update(updateEmployeeDto);
                 div.removeAll();
                 close();
             }
         });
-        HorizontalLayout addButtonShowLayout = new HorizontalLayout(addButtonShow);
-        return addButtonShowLayout;
+        return addButtonShow;
     }
 
     private EmployeeDto setEmployeeDto(Long id) {
