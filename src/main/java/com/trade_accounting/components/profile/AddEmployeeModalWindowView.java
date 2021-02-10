@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RoleDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -15,7 +16,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
@@ -27,19 +30,19 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Long id;
 
-    private TextField firstNameAdd = new TextField();
+    private ValidTextField firstNameAdd = new ValidTextField(true, "Имя");
 
-    private TextField middleNameAdd = new TextField();
+    private ValidTextField middleNameAdd = new ValidTextField();
 
-    private TextField lastNameAdd = new TextField();
+    private ValidTextField lastNameAdd = new ValidTextField(true, "Фамилия");
 
-    private TextField phoneAdd = new TextField();
+    private ValidTextField phoneAdd = new ValidTextField(true, "Телефон");
 
-    private TextField emailAdd = new TextField();
+    private ValidTextField emailAdd = new ValidTextField(true, "Адрес электронной почты");
 
     private TextArea descriptionAdd = new TextArea();
 
-    private TextField innAdd = new TextField();
+    private ValidTextField innAdd = new ValidTextField(true, "ИНН");
 
     private PasswordField passwordAdd = new PasswordField();
 
@@ -106,7 +109,6 @@ public class AddEmployeeModalWindowView extends Dialog {
                 addEmployeeDescription(),
                 addEmployeePassword(),
                 rolesSelect()
-
         );
         add(div);
         return lowerLayout;
@@ -117,6 +119,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         passwordAdd.setWidth(fieldWidth);
         passwordAdd.setPlaceholder("Введите пароль");
+        passwordAdd.setRequired(true);
         HorizontalLayout addEmployeePasswordAddLayout = new HorizontalLayout(label, passwordAdd);
         return addEmployeePasswordAddLayout;
     }
@@ -126,6 +129,11 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         emailAdd.setWidth(fieldWidth);
         emailAdd.setPlaceholder("Введите Email");
+        emailAdd.addValidator(new EmailValidator("Введите правильно адрес электронной почты!"));
+        emailAdd.setRequired(true);
+        if(employeeDto!=null) {
+            emailAdd.setValue(employeeDto.getEmail());
+        }
         HorizontalLayout addEmployeeEmailAddLayout = new HorizontalLayout(label, emailAdd);
         return addEmployeeEmailAddLayout;
     }
@@ -144,6 +152,11 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         phoneAdd.setWidth(fieldWidth);
         phoneAdd.setPlaceholder("Введите номер телефона");
+        phoneAdd.addValidator(new RegexpValidator("Введите правильно номер телефона", "^[\\d+]{11}$"));
+        phoneAdd.setRequired(true);
+        if(employeeDto!=null) {
+            phoneAdd.setValue(employeeDto.getPhone());
+        }
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, phoneAdd);
         return addEmployeeInnAddLayout;
     }
@@ -153,6 +166,12 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         innAdd.setWidth(fieldWidth);
         innAdd.setPlaceholder("Введите ИНН");
+        innAdd.setPattern("^[\\d+]{12}$");
+        innAdd.addValidator(new RegexpValidator("Введите правильно ИНН", "^[\\d+]{12}$"));
+        innAdd.setRequired(true);
+        if(employeeDto!=null) {
+            innAdd.setValue(employeeDto.getInn());
+        }
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, innAdd);
         return addEmployeeInnAddLayout;
     }
@@ -160,8 +179,13 @@ public class AddEmployeeModalWindowView extends Dialog {
     private Component addEmployeeLastName() {
         Label label = new Label("Фамилия");
         label.setWidth(labelWidth);
+        lastNameAdd.addValidator(new StringLengthValidator("Введите правильно фамилию", 1, 50));
         lastNameAdd.setWidth(fieldWidth);
         lastNameAdd.setPlaceholder("Введите фамилию");
+        lastNameAdd.setRequired(true);
+        if(employeeDto!=null) {
+            lastNameAdd.setValue(employeeDto.getLastName());
+        }
         HorizontalLayout lastNameLayout = new HorizontalLayout(label, lastNameAdd);
         return lastNameLayout;
     }
@@ -171,6 +195,11 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         firstNameAdd.setWidth(fieldWidth);
         firstNameAdd.setPlaceholder("Введите Имя");
+        firstNameAdd.setRequired(true);
+        firstNameAdd.addValidator(new StringLengthValidator("Введите правильно имя", 1, 50));
+        if(employeeDto!=null) {
+            firstNameAdd.setValue(employeeDto.getFirstName());
+        }
         HorizontalLayout firstNameLayout = new HorizontalLayout(label, firstNameAdd);
         return firstNameLayout;
     }
@@ -206,15 +235,28 @@ public class AddEmployeeModalWindowView extends Dialog {
         Button addButtonShow = new Button("Сохранить");
         addButtonShow.addClickListener(click -> {
             if (id == null) {
-                log.info("Вы нажали кнопку для сохранения нового сотрудника!");
-                EmployeeDto newEmployeeDto = setEmployeeDto(null);
-                employeeService.create(newEmployeeDto);
+                System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
+
+                if (!lastNameAdd.isRequiredVerify()||!firstNameAdd.isRequiredVerify()||!emailAdd.isRequiredVerify()
+                        ||!phoneAdd.isRequiredVerify()||!innAdd.isRequiredVerify()){
+                   return;
+                }
+
+                if (emailAdd.isInvalid() || innAdd.isInvalid() || phoneAdd.isInvalid() || lastNameAdd.isInvalid() || firstNameAdd.isInvalid()) {
+                    System.out.println("ошибка в введенных данных на форме!");
+                } else {
+                    EmployeeDto newEmployeeDto = setEmployeeDto(null);
+                    employeeService.create(newEmployeeDto);
+                    div.removeAll();
+                    close();
+                }
             } else {
                 log.info("Вы нажали кнопку для обновления сотрудника!");
                 EmployeeDto updateEmployeeDto = setEmployeeDto(id);
                 employeeService.update(updateEmployeeDto);
+                div.removeAll();
+                close();
             }
-            close();
         });
         return addButtonShow;
     }
