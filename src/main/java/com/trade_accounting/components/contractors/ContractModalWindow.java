@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.AbstractField;
@@ -24,6 +25,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.RegexpValidator;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ContractModalWindow extends Dialog {
@@ -130,29 +132,31 @@ public class ContractModalWindow extends Dialog {
 
         if (dto != null) {
             contractId = dto.getId();
-            setDate(dateField, dto.getDate().toString());
+            setField(dateField, dto.getDate().toString());
             setField(amountField, dto.getAmount().toString());
             setField(archiveField, Boolean.TRUE.equals(dto.getArchive()) ? "Да" : "Нет");
             setField(commentField, dto.getComment());
             setField(numberField, dto.getNumber());
         }
 
-        companyId = dto.getCompanyDto().getId();
-        setField(companyName, dto.getCompanyDto().getName());
-        setField(companyInn, dto.getCompanyDto().getInn());
-        setField(companyAddress, dto.getCompanyDto().getAddress());
-        setField(companyCommentToAddress, dto.getCompanyDto().getCommentToAddress());
-        setField(companyEmail, dto.getCompanyDto().getEmail());
-        setField(companyPhone, dto.getCompanyDto().getPhone());
-        setField(companyFax, dto.getCompanyDto().getFax());
-        setField(companyLeader, dto.getCompanyDto().getLeader());
-        setField(companyLeaderManagerPosition, dto.getCompanyDto().getLeaderManagerPosition());
-        setField(companyLeaderSignature, dto.getCompanyDto().getLeaderSignature());
-        setField(companyChiefAccountant, dto.getCompanyDto().getChiefAccountant());
-        setField(companyChiefAccountantSignature, dto.getCompanyDto().getChiefAccountantSignature());
-        setField(companyPayerVat, Boolean.TRUE.equals(dto.getCompanyDto().getPayerVat()) ? "Да" : "Нет");
-        setField(companySortNumber, dto.getCompanyDto().getSortNumber());
-        setField(companyStamp, dto.getCompanyDto().getStamp());
+        if (dto.getCompanyDto() != null) {
+            companyId = dto.getCompanyDto().getId();
+            setField(companyName, dto.getCompanyDto().getName());
+            setField(companyInn, dto.getCompanyDto().getInn());
+            setField(companyAddress, dto.getCompanyDto().getAddress());
+            setField(companyCommentToAddress, dto.getCompanyDto().getCommentToAddress());
+            setField(companyEmail, dto.getCompanyDto().getEmail());
+            setField(companyPhone, dto.getCompanyDto().getPhone());
+            setField(companyFax, dto.getCompanyDto().getFax());
+            setField(companyLeader, dto.getCompanyDto().getLeader());
+            setField(companyLeaderManagerPosition, dto.getCompanyDto().getLeaderManagerPosition());
+            setField(companyLeaderSignature, dto.getCompanyDto().getLeaderSignature());
+            setField(companyChiefAccountant, dto.getCompanyDto().getChiefAccountant());
+            setField(companyChiefAccountantSignature, dto.getCompanyDto().getChiefAccountantSignature());
+            setField(companyPayerVat, Boolean.TRUE.equals(dto.getCompanyDto().getPayerVat()) ? "Да" : "Нет");
+            setField(companySortNumber, dto.getCompanyDto().getSortNumber());
+            setField(companyStamp, dto.getCompanyDto().getStamp());
+        }
 
         if (dto.getLegalDetailDto() != null) {
             legalDetailId = dto.getLegalDetailDto().getId();
@@ -194,13 +198,16 @@ public class ContractModalWindow extends Dialog {
         setField(contractorCommentToAddress, dto.getContractorDto().getCommentToAddress());
         setField(contractorComment, dto.getContractorDto().getComment());
 
-        contractorGroupId = dto.getContractorDto().getContractorGroupDto().getId();
-        setField(contractorGroupName, dto.getContractorDto().getContractorGroupDto().getName());
-        setField(contractorGroupSortNumber, dto.getContractorDto().getContractorGroupDto().getSortNumber());
-
-        typeOfPriceId = dto.getContractorDto().getTypeOfPriceDto().getId();
-        setField(typeOfPriceName, dto.getContractorDto().getTypeOfPriceDto().getName());
-        setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());
+        if (dto.getContractorDto().getContractorGroupDto() != null) {
+            contractorGroupId = dto.getContractorDto().getContractorGroupDto().getId();
+            setField(contractorGroupName, dto.getContractorDto().getContractorGroupDto().getName());
+            setField(contractorGroupSortNumber, dto.getContractorDto().getContractorGroupDto().getSortNumber());
+        }
+        if (dto.getContractorDto().getTypeOfPriceDto() != null) {
+            typeOfPriceId = dto.getContractorDto().getTypeOfPriceDto().getId();
+            setField(typeOfPriceName, dto.getContractorDto().getTypeOfPriceDto().getName());
+            setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());
+        }
 
     }
 
@@ -567,26 +574,78 @@ public class ContractModalWindow extends Dialog {
 
 
     private Button buttonSave() {
-        return new Button("Сохранить", event -> {/*
+        return new Button("Сохранить", event -> {
+
             ContractDto contractDto = new ContractDto();
-            contractDto.setId(id);
-            contractDto.setContractDate(contractDateField.getValue());
-            contractDto.setContractorDto();
-            //contractDto.setContractorDto(new ContractorDto());
             contractDto.setDate(dateField.getValue());
-           // contractDto.setCompanyDto(companyDtoField.getValue());
-            contractDto.setCompanyDto(new CompanyDto());
-           // contractDto.setBankAccountDto(bankAccountDtoField.getValue());
-            contractDto.setBankAccountDto(new BankAccountDto());
-           // contractDto.setArchive(archiveField.getValue());
-            contractDto.setArchive(false);
-            contractDto.setComment(commentField.getValue());
-            if (!numberField.isEmpty() && numberField.getValue()
-                    .matches("^([0-9]{0,5})$")) {
-                contractService.update(contractDto);
-                close();
+            contractDto.setAmount(new BigDecimal(100));
+            if (archiveField.getValue() != null) {
+                contractDto.setArchive(archiveField.getValue().equals("Да"));
             }
-        */
+            contractDto.setComment(commentField.getValue());
+            contractDto.setNumber(numberField.getValue());
+            contractDto.setId(contractId);
+
+
+            TypeOfContractorDto typeOfContractorDto = new TypeOfContractorDto();
+            typeOfContractorDto.setId(typeOfContractorId);
+            typeOfContractorDto.setName(typeOfContractorName.getValue());
+            typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
+
+            LegalDetailDto legalDetailDto = new LegalDetailDto();
+            legalDetailDto.setId(legalDetailId);
+            legalDetailDto.setLastName(legalDetailLastName.getValue());
+            legalDetailDto.setFirstName(legalDetailFirstName.getValue());
+            legalDetailDto.setMiddleName(legalDetailMiddleName.getValue());
+            legalDetailDto.setAddress(legalDetailAddress.getValue());
+            legalDetailDto.setCommentToAddress(legalDetailCommentToAddress.getValue());
+            legalDetailDto.setInn(legalDetailInn.getValue());
+            legalDetailDto.setOkpo(legalDetailOkpo.getValue());
+            legalDetailDto.setOgrnip(legalDetailOgrnip.getValue());
+            legalDetailDto.setNumberOfTheCertificate(legalDetailNumberOfTheCertificate.getValue());
+            legalDetailDto.setDateOfTheCertificate(legalDetailDateOfTheCertificate.getValue() != null
+                    ? legalDetailDateOfTheCertificate.getValue().toString() : null);
+            legalDetailDto.setTypeOfContractorDto(typeOfContractorDto);
+
+            CompanyDto companyDto = new CompanyDto();
+            companyDto.setId(companyId);
+            companyDto.setName(companyName.getValue());
+            companyDto.setInn(companyInn.getValue());
+            companyDto.setAddress(companyAddress.getValue());
+            companyDto.setCommentToAddress(companyCommentToAddress.getValue());
+            companyDto.setEmail(companyEmail.getValue());
+            companyDto.setPhone(companyPhone.getValue());
+            companyDto.setFax(companyFax.getValue());
+            companyDto.setSortNumber(companySortNumber.getValue());
+            if (companyPayerVat.getValue() != null) {
+                companyDto.setPayerVat(companyPayerVat.getValue().equals("Да"));
+            }
+            companyDto.setStamp(companyStamp.getValue());
+            companyDto.setLeader(companyLeader.getValue());
+            companyDto.setLeaderManagerPosition(companyLeaderManagerPosition.getValue());
+            companyDto.setLeaderSignature(companyLeaderSignature.getValue());
+            companyDto.setChiefAccountant(companyChiefAccountant.getValue());
+            companyDto.setChiefAccountantSignature(companyChiefAccountantSignature.getValue());
+            companyDto.setLegalDetailDto(legalDetailDto);
+
+            BankAccountDto bankAccountDto = new BankAccountDto();
+            bankAccountDto.setRcbic(bankAccountRcbic.getValue());
+            bankAccountDto.setBank(bankAccountBank.getValue());
+            bankAccountDto.setAddress(bankAccountAddress.getValue());
+            bankAccountDto.setCorrespondentAccount(bankAccountCorrespondentAccount.getValue());
+            bankAccountDto.setAccount(bankAccountAccount.getValue());
+            if (bankAccountMainAccount.getValue() != null) {
+                bankAccountDto.setMainAccount(bankAccountMainAccount.getValue().equals("Да"));
+            }
+            bankAccountDto.setSortNumber(bankAccountSortNumber.getValue());
+
+            if (contractId == null) {
+                contractService.create(contractDto);
+            } else {
+                contractService.update(contractDto);
+            }
+            close();
+
         });
     }
 
