@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import java.util.Set;
 
@@ -29,6 +30,7 @@ public class EmployeeDto {
 
     private String description;
 
+    @Email(message = "Please enter a valid e-mail address")
     private String email;
 
     private String password;

@@ -56,7 +56,7 @@ public class GoodsView extends VerticalLayout {
         this.productService = productService;
         this.productGroupService = productGroupService;
 
-        loadProducts();
+        loadLiteProducts();
         setUpperLayout();
         setMiddleLayout();
         setPaginator();
@@ -64,7 +64,7 @@ public class GoodsView extends VerticalLayout {
         add(upperLayout, middleLayout, paginator);
     }
 
-    private void loadProducts() {
+    private void loadLiteProducts() {
         liteProducts = productService.getAllLite();
     }
 
