@@ -42,7 +42,7 @@ public class GoodsView extends VerticalLayout {
     private List<ProductDto> data;
     private GridPaginator<ProductDto> paginator;
     private Grid<ProductDto> grid;
-    private TreeGrid<ProductGroupDto> productGroupTree = new TreeGrid<>();//древовидный layout
+    private TreeGrid<ProductGroupDto> PgTreeGrid = new TreeGrid<>();//древовидный layout
     private List<ProductDto> filteredData = new LinkedList<>();
     private List<ProductGroupDto> productGroupData;//данные для древовидного layout
     private SplitLayout middleLayout;//двухоконный layout в котором размещаются грид и древовидный грид
@@ -54,15 +54,15 @@ public class GoodsView extends VerticalLayout {
         middleLayout = new SplitLayout();
 
         middleLayout.setWidth("100%");
-        middleLayout.setHeight("66vh");
+        middleLayout.setHeight("56vh");
         grid = grid();
-        productGroupTree = treeGrid();
+        PgTreeGrid = treeGrid();
         grid.setWidth("80%");
         grid.setHeight("100%");
-        productGroupTree.setHeight("100%");
-        productGroupTree.setWidth("20%");
-        productGroupTree.setThemeName("dense", true);
-        middleLayout.addToPrimary(productGroupTree);
+        PgTreeGrid.setHeight("100%");
+        PgTreeGrid.setWidth("20%");
+        PgTreeGrid.setThemeName("dense", true);
+        middleLayout.addToPrimary(PgTreeGrid);
         middleLayout.addToSecondary(grid);
         paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -82,33 +82,27 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonPlusGoods() {
-        Button button = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return button;
+        return new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonPlusService() {
-        Button button = new Button("Услуга", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return button;
+        return new Button("Услуга", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonPlusSet() {
-        Button button = new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return button;
+        return new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonPlusGroup() {
-        Button button = new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return button;
+        return new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonFilter() {
-        Button button = new Button("Фильтр");
-        return button;
+        return new Button("Фильтр");
     }
 
     private Button buttonSettings() {
-        Button button = new Button(new Icon(VaadinIcon.COG_O));
-        return button;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private TextField text() {
@@ -200,15 +194,17 @@ public class GoodsView extends VerticalLayout {
     **/
     public TreeGrid<ProductGroupDto> treeGrid() {
 
-        //productGroupTree.addHierarchyColumn(ProductGroupDto::getName).setHeader("");
-
-        productGroupTree.addHierarchyColumn(ProductGroupDto::getName)
+        PgTreeGrid.addHierarchyColumn(ProductGroupDto::getName)
                 .setSortProperty("sortNumber")
                 .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber))
                 .setHeader("Товарная группа");
-        HeaderRow header = productGroupTree.appendHeaderRow();
-        productGroupTree.setSelectionMode(Grid.SelectionMode.SINGLE);
-        SingleSelect<Grid<ProductGroupDto>, ProductGroupDto> singleSelect = productGroupTree.asSingleSelect();
+        HeaderRow header = PgTreeGrid.appendHeaderRow();
+
+        PgTreeGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        PgTreeGrid.addExpandListener(event -> PgTreeGrid.select(event.getItems().stream().findAny().get()));
+        PgTreeGrid.addCollapseListener(event -> PgTreeGrid.select(event.getItems().stream().findAny().get()));
+
+        SingleSelect<Grid<ProductGroupDto>, ProductGroupDto> singleSelect = PgTreeGrid.asSingleSelect();
         singleSelect.addValueChangeListener(event -> {
             ProductGroupDto selected = event.getValue();
             filteredData.clear();
@@ -216,16 +212,17 @@ public class GoodsView extends VerticalLayout {
             paginator.setData(filteredData);
             header.getCells().forEach(x -> x.setText(selected.getName()));
         });
-
         updateTreeGrid();
-        return productGroupTree;
+        return PgTreeGrid;
     }
+
 
     /**
      * Метод обновляет содержимое древовидного грида
      */
     private void updateTreeGrid() {
         List<ProductGroupDto> buffer = new LinkedList<>();
+        List<ProductGroupDto> bf = new LinkedList<>();
 
         ProductGroupDto element;
         ProductGroupDto parent;
@@ -234,20 +231,29 @@ public class GoodsView extends VerticalLayout {
             for (int i = 0; i < productGroupData.size(); i++) {
                 element = productGroupData.get(i);
                 if (element.getParentId() == null) {
-                    productGroupTree.getTreeData().addItem(null, element);
+                    PgTreeGrid.getTreeData().addItem(null, element);
                     buffer.add(element);
                     productGroupData.remove(element);
-                } else if (!buffer.isEmpty()) {
-                    for (int j = 0; j < buffer.size(); j++) {
-                        parent = buffer.get(j);
-                        if (parent.getId() == element.getParentId()) {
-                            productGroupTree.getTreeData().addItem(parent, element);
-                            buffer.add(element);
-                            productGroupData.remove(element);
-                            break;
-                        }
-                    }
                 }
+                ProductGroupDto el = element;
+                buffer.stream().filter(x -> x.getId().equals(el.getParentId())).forEachOrdered(x -> {
+                    PgTreeGrid.getTreeData().addItem(x, el);
+                    bf.add(el);
+                    productGroupData.remove(el);
+                });
+                buffer.addAll(bf);
+                bf.clear();
+
+//                    for (int j = 0; j < buffer.size(); j++) {
+//                        parent = buffer.get(j);
+//                        if (parent.getId().equals(element.getParentId())) {
+//                            PgTreeGrid.getTreeData().addItem(parent, element);
+//                            buffer.add(element);
+//                            productGroupData.remove(element);
+//                            break;
+//                        }
+//                    }
+
             }
         }
     }

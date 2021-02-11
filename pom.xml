@@ -25,10 +25,12 @@
             <artifactId>grid-pagination</artifactId>
             <version>2.0.10</version>
         </dependency>
+
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.vaadin.componentfactory</groupId>
             <artifactId>paginator</artifactId>
