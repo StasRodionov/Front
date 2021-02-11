@@ -8,6 +8,8 @@ public interface ProductService {
 
     List<ProductDto> getAll();
 
+    List<ProductDto> getAllLite();
+
     ProductDto getById(Long id);
 
     void create(ProductDto productDto);

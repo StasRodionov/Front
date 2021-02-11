@@ -42,7 +42,7 @@ public class GoodsView extends VerticalLayout {
     private final ProductService productService;
     private final ProductGroupService productGroupService;
 
-    private List<ProductDto> products;
+    private List<ProductDto> liteProducts;
     private List<ProductDto> filteredData = new LinkedList<>();
     private List<ProductGroupDto> productGroupData;//данные для древовидного layout
 
@@ -65,7 +65,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     private void loadProducts() {
-        products = productService.getAll();
+        liteProducts = productService.getAllLite();
     }
 
     private Button buttonQuestion() {
@@ -178,7 +178,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     private void setPaginator() {
-        paginator = new GridPaginator<>(grid, products, 100);
+        paginator = new GridPaginator<>(grid, liteProducts, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
@@ -195,7 +195,7 @@ public class GoodsView extends VerticalLayout {
         grid.getColumnByKey("weight").setHeader("Вес");
         grid.getColumnByKey("volume").setHeader("Объем");
         grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена");
-        grid.setItems(products);
+        grid.setItems(liteProducts);
     }
 
     /**
