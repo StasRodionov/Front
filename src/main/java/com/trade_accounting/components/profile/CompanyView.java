@@ -5,8 +5,14 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
@@ -24,11 +30,11 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "company", layout = AppView.class)
 @PageTitle("Юр. лица")
-@CssImport(value = "styles/grid.css", themeFor = "vaadin-grid")
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
@@ -37,13 +43,16 @@ public class CompanyView extends VerticalLayout {
     private final GridPaginator<CompanyDto> paginator;
     private final GridFilter<CompanyDto> filter;
 
-    public CompanyView(CompanyService companyService) {
+    private final NumberField selectedNumberField;
 
+    public CompanyView(CompanyService companyService) {
         this.companyService = companyService;
         this.data = companyService.getAll();
 
         this.grid = new Grid<>(CompanyDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
+
+        this.selectedNumberField = getSelectedNumberField();
 
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
 
@@ -80,8 +89,9 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("sortNumber").setHeader("Нумерация").setId("Нумерация");
         grid.getColumnByKey("stamp").setHeader("Печать").setId("Печать");
         grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали").setId("Юридические детали");
+        getGridContextMenu();
 
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
@@ -89,6 +99,8 @@ public class CompanyView extends VerticalLayout {
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
+
+        grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
     }
 
     private void reloadGrid() {
@@ -107,6 +119,7 @@ public class CompanyView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
+
         TextField searchTextField = new TextField();
         searchTextField.setPlaceholder("Наименование");
         searchTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
@@ -116,8 +129,8 @@ public class CompanyView extends VerticalLayout {
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
 
 
-        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), filterButton, getNewCompanyButton(),
-                searchTextField, getSelectedNumberField(), getSelect(), getSettingButton());
+        toolbar.add(getButtonQuestion(), getTextCompany(), getRefreshButton(), getNewCompanyButton(), filterButton,
+                searchTextField, selectedNumberField, getSelect(), getSettingButton());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
@@ -131,8 +144,8 @@ public class CompanyView extends VerticalLayout {
 
     private NumberField getSelectedNumberField() {
         final NumberField numberField = new NumberField();
-        numberField.setPlaceholder("0");
-        numberField.setWidth("45px");
+        numberField.setWidth("50px");
+        numberField.setValue(0D);
         return numberField;
     }
 
@@ -174,5 +187,33 @@ public class CompanyView extends VerticalLayout {
         selector.setValue("Изменить");
         selector.setWidth("130px");
         return selector;
+    }
+
+    private ContextMenu getGridContextMenu() {
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.setTarget(grid);
+
+        CheckboxGroup<Grid.Column<CompanyDto>> checkboxGroup = new CheckboxGroup<>();
+        contextMenu.addItem(checkboxGroup);
+
+        checkboxGroup.setItems(grid.getColumns().stream());
+        checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+        checkboxGroup.setItemLabelGenerator(i -> i.getId().orElse(i.getKey()));
+        checkboxGroup.setValue(grid.getColumns().stream().filter(Component::isVisible).collect(Collectors.toSet()));
+        checkboxGroup.addSelectionListener(e -> {
+            e.getAddedSelection().forEach(i -> i.setVisible(true));
+            e.getRemovedSelection().forEach(i -> i.setVisible(false));
+        });
+
+        MenuItem menuItem = contextMenu.addItem("Количество строк");
+        SubMenu subMenu = menuItem.getSubMenu();
+
+        subMenu.addItem("25", e -> paginator.setItemsPerPage(25));
+
+        subMenu.addItem("50", e -> paginator.setItemsPerPage(50));
+
+        subMenu.addItem("100", e -> paginator.setItemsPerPage(100));
+
+        return contextMenu;
     }
 }
