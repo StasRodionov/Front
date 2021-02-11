@@ -26,7 +26,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(String.valueOf(new MoneySubPaymentsView(paymentService)));
+        div.add(new MoneySubPaymentsView(paymentService));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -50,7 +50,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
             switch (tabName) {
                 case "Платежи":
                     div.removeAll();
-                    div.add(String.valueOf(new MoneySubPaymentsView(paymentService)));
+                    div.add(new MoneySubPaymentsView(paymentService));
                     break;
                 case "Движение денежных средств":
                     div.removeAll();

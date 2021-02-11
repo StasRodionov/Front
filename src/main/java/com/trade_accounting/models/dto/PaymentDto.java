@@ -18,7 +18,7 @@ public class PaymentDto {
 
     private String number;
 
-    private LocalDateTime time;
+    private String time;
 
     private CompanyDto companyDto;
 

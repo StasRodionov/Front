@@ -12,6 +12,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -31,7 +32,8 @@ public class PaymentServiceImpl implements PaymentService {
         Call<List<PaymentDto>> paymentDtoListCall = paymentApi.getAll(paymentUrl);
 
         try {
-            paymentDtoList.addAll(paymentDtoListCall.execute().body());
+            paymentDtoList = paymentDtoListCall.execute().body();
+            Objects.requireNonNull(paymentDtoList).forEach(payment -> payment.setTime(payment.getTime()));
             log.info("Успешно выполнен запрос на получение списка PaymentDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка PaymentDto - {}", e);
