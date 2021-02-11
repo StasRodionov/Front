@@ -24,10 +24,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+import lombok.extern.slf4j.Slf4j;
+
 
 import java.util.List;
 
-
+@Slf4j
 @Route(value = "employee", layout = AppView.class)
 @PageTitle("Сотрудники")
 public class EmployeeView extends VerticalLayout {
@@ -67,7 +69,7 @@ public class EmployeeView extends VerticalLayout {
 
     private void updateGrid() {
         grid.setItems(employeeService.getAll());
-        System.out.println("updateList");
+        log.info("Таблица обновилась");
     }
 
     private void configureGrid() {
