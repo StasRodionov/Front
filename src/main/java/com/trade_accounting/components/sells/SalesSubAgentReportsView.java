@@ -1,10 +1,12 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.authentication.LoginView;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,6 +22,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -32,8 +36,9 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
-    private final List<InvoiceDto> data;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
+
+    private List<InvoiceDto> data;
+    private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
 
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
@@ -41,6 +46,17 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
+
+        try {
+            initGrid();
+        } catch (NullPointerException e) {
+            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+            wrappedSession.setAttribute("redirectDestination", "/agentReports");
+            UI.getCurrent().navigate(LoginView.class);
+        }
+    }
+
+    private void initGrid() {
         this.data = getData();
 
         add(upperLayout(), grid, lowerLayout());
