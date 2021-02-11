@@ -26,7 +26,6 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import lombok.extern.slf4j.Slf4j;
 
-
 import java.util.List;
 
 @Slf4j
@@ -83,6 +82,7 @@ public class EmployeeView extends VerticalLayout {
         grid.getColumnByKey("phone").setHeader("Телефон");
         grid.getColumnByKey("description").setHeader("Описание");
         grid.getColumnByKey("roleDto").setHeader("Роль");
+        grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
             AddEmployeeModalWindowView addEmployeeModalWindowView =
@@ -104,6 +104,7 @@ public class EmployeeView extends VerticalLayout {
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(ev -> updateGrid());
         return buttonRefresh;
     }
 
@@ -111,7 +112,7 @@ public class EmployeeView extends VerticalLayout {
         Button buttonUnit = new Button("Сотрудник", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickShortcut(Key.ENTER);
         buttonUnit.addClickListener(click -> {
-            System.out.println("Вы нажали кнопку для добавление сотрудника!");
+            log.info("Вы нажали кнопку для добавление сотрудника!");
             AddEmployeeModalWindowView addEmployeeModalWindowView =
                     new AddEmployeeModalWindowView(null, employeeService, roleService);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());

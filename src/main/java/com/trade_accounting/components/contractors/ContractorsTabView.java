@@ -14,10 +14,12 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,24 +29,23 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.InputStreamFactory;
+import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import lombok.extern.slf4j.Slf4j;
-import com.vaadin.flow.theme.lumo.Lumo;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "contractorsTabView", layout = AppView.class)
@@ -54,14 +55,22 @@ public class ContractorsTabView extends VerticalLayout {
     private final ContractorService contractorService;
 
     private final ContractorGroupService contractorGroupService;
+
     private Grid<ContractorDto> grid;
 
+    private MenuBar selectXlsTemplateButton = new MenuBar();
 
-    private final String pathForSaveXlsTemplate = "src/main/java/com/trade_accounting/components/contractors/";
+    private MenuItem print;
+
+
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
 
     public ContractorsTabView(ContractorService contractorService, ContractorGroupService contractorGroupService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
+
+        print = selectXlsTemplateButton.addItem("печать");
+        configureSelectXlsTemplateButton();
 
         try {
             updateList();
@@ -75,15 +84,7 @@ public class ContractorsTabView extends VerticalLayout {
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        buttonQuestion.addClickListener( click -> {
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList(); //
-            if (themeList.contains(Lumo.DARK)) { //
-                themeList.remove(Lumo.DARK);
-            } else {
-                themeList.add(Lumo.DARK);
-            }
-        });
-            return buttonQuestion;
+        return buttonQuestion;
     }
 
     private Button buttonRefresh() {
@@ -115,9 +116,6 @@ public class ContractorsTabView extends VerticalLayout {
         text.setPlaceholder("Наимен, тел, соб, коммент...");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
-        text.setClearButtonVisible(true);
-        text.setValueChangeMode(ValueChangeMode.LAZY);
-        text.addValueChangeListener(e -> updateList(e.getValue()));
         return text;
     }
 
@@ -155,6 +153,7 @@ public class ContractorsTabView extends VerticalLayout {
         grid.getColumnByKey("address").setHeader("адресс");
         grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
         grid.getColumnByKey("comment").setHeader("комментарий");
+        grid.setHeight("64vh");
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -177,79 +176,88 @@ public class ContractorsTabView extends VerticalLayout {
         add(upperLayout(), grid, paginator);
     }
 
-    private MenuItem UploadXlsMenuItem(SubMenu subMenu) {
+    private void UploadXlsMenuItem(SubMenu subMenu) {
         MenuItem menuItem = subMenu.addItem("добавить шаблон");
         Dialog dialog = new Dialog();
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
-
-        upload.addFinishedListener(event -> {
-            File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
-            try (InputStream inputStream = buffer.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(exelTemplate)) {
-                exelTemplate.createNewFile();
-                fos.write(inputStream.readAllBytes());
-                fos.flush();
-                log.info("xls шаблон успешно загружен");
-            } catch (IOException e) {
-                log.error("при загрузке xls файла шаблона произошла ошибка");
-            }
-            dialog.close();
-        });
+        configureUploadFinishedListener(upload, buffer, dialog);
         dialog.add(upload);
         menuItem.addClickListener(x -> dialog.open());
-        return menuItem;
     }
 
-    private MenuBar getSelectXlsTemplateButton() {
-        MenuBar menuBar = new MenuBar();
-        MenuItem print = menuBar.addItem("Печать");
+    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog) {
+        upload.addFinishedListener(event -> {
+            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
+                getErrorNotification("Файл с таки именем уже существует");
+            } else {
+                File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
+                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
+                    fos.write(buffer.getInputStream().readAllBytes());
+                    configureSelectXlsTemplateButton();
+                    getInfoNotification("Файл успешно загружен");
+                    log.info("xls шаблон успешно загружен");
+                } catch (IOException e) {
+                    getErrorNotification("При загрузке шаблона произошла ошибка");
+                    log.error("при загрузке xls шаблона произошла ошибка");
+                }
+                dialog.close();
+            }
+        });
+    }
+
+    private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
-        MenuItemsWithXls(printSubMenu);
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
         UploadXlsMenuItem(printSubMenu);
-        return menuBar;
-    }
-
-    private void updateList(String searchTerm) {
-        grid.setItems(contractorService.getAll(searchTerm));
-        configureGrid();
-        removeAll();
-        add(upperLayout(), grid);
     }
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
         upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
-                valueSelect(), buttonSettings(), getSelectXlsTemplateButton());
+                valueSelect(), buttonSettings(), selectXlsTemplateButton);
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
     }
 
-    private void MenuItemsWithXls(SubMenu subMenu) {
-        List<File> list = getPathsToExelFiles();
-        for (File file : list) {
-            subMenu.addItem(getLinkToTemplate(file));
-        }
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
     }
 
-    private List<File> getPathsToExelFiles() {
-        List<File> listFiles = new ArrayList<>();
+    private List<File> getXlsFiles() {
         File dir = new File(pathForSaveXlsTemplate);
-        for ( File file : Objects.requireNonNull(dir.listFiles())){
-            if ( file.isFile() && file.getName().contains(".xls")){
-                listFiles.add(file);
-                log.error(file.getPath());
-            }
-        }
-        return listFiles;
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
     }
 
-    private Anchor getLinkToTemplate(File file) {
-        String filePath = file.getPath();
-        String fileName = file.getName();
-        PrintContractorsXls printContractorsXls = new PrintContractorsXls(filePath, contractorService.getAll());
-        InputStreamFactory inputStreamFactory = (InputStreamFactory) printContractorsXls::createReport;
-        return new Anchor(new StreamResource(fileName, inputStreamFactory), fileName);
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll());
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), templateName);
+    }
+
+
+    private void getInfoNotification(String message) {
+        Notification notification = new Notification(message, 5000);
+        notification.open();
+    }
+
+    private void getErrorNotification(String message) {
+        Div content = new Div();
+        content.addClassName("my-style");
+        content.setText(message);
+
+        Notification notification = new Notification(content);
+        notification.setDuration(5000);
+        String styles = ".my-style { color: red; }";
+        StreamRegistration resource = UI.getCurrent().getSession()
+                .getResourceRegistry()
+                .registerResource(new StreamResource("styles.css", () ->
+                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
+        UI.getCurrent().getPage().addStyleSheet(
+                "base://" + resource.getResourceUri().toString());
+        notification.open();
     }
 }
 

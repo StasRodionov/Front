@@ -63,7 +63,7 @@ public class UnitView extends VerticalLayout {
         grid.getColumnByKey("shortName").setHeader("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование");
         grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер");
-        grid.setHeight("66vh");
+        grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             UnitDto editUnit = event.getItem();
             UnitModalWindow unitModalWindow =

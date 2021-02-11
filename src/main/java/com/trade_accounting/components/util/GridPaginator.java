@@ -15,7 +15,7 @@ import java.util.List;
  * Server-side component for pagination grid.
  */
 public class GridPaginator<T> extends HorizontalLayout {
-    private final int itemsPerPage;
+    private int itemsPerPage;
     private int numberOfPages;
     private int currentPage;
 
@@ -221,6 +221,21 @@ public class GridPaginator<T> extends HorizontalLayout {
             throw new IllegalArgumentException("The number of pages has to be greater than 0");
         }
         this.numberOfPages = numberOfPages;
+    }
+
+    /**
+     * Sets the number of items per page of the paginator. Is has to be greater than 0.
+     *
+     * @param itemsPerPage items per page
+     */
+    public void setItemsPerPage(int itemsPerPage) {
+        if (itemsPerPage < 1) {
+            throw new IllegalArgumentException("The number of items per page has to be greater than 0");
+        }
+        this.itemsPerPage = itemsPerPage;
+        calculateNumberOfPages();
+
+        setCurrentPage(1);
     }
 
     /**

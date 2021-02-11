@@ -58,7 +58,7 @@ public class GoodsView extends VerticalLayout {
         middleLayout = new SplitLayout();
 
         middleLayout.setWidth("100%");
-        middleLayout.setHeight("66vh");
+        middleLayout.setHeight("64vh");
 
         try {
             grid = grid();
@@ -78,7 +78,6 @@ public class GoodsView extends VerticalLayout {
             wrappedSession.setAttribute("redirectDestination", "/good");
             UI.getCurrent().navigate(LoginView.class);
         }
-
     }
 
     private Button buttonQuestion() {
