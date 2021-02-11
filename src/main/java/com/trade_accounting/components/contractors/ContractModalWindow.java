@@ -230,7 +230,7 @@ public class ContractModalWindow extends Dialog {
         title.setHeight("2.2em");
         title.setWidth("345px");
         header.add(title);
-        header.add(buttonSave(), buttonCancel());
+        header.add(getDeleteButton(), buttonSave(), buttonCancel());
         return header;
     }
 
@@ -503,75 +503,6 @@ public class ContractModalWindow extends Dialog {
         label.setWidth("100px");
         return new HorizontalLayout(label, field);
     }
-
-    /*private HorizontalLayout configureNumberField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Номер");
-        label.setWidth(labelWidth);
-        numberField.setWidth(fieldWidth);
-        horizontalLayout.add(label, numberField);
-        numberField.addInputListener(inputEvent ->
-                numberField.addValidator(new RegexpValidator("Максимум 5 цифр",
-                        "^([0-9]{0,5})$")));
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureCompanyDtoField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Компания");
-        label.setWidth(labelWidth);
-        //  horizontalLayout.add(label, companyDtoField);
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureDateField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Дата");
-        label.setWidth(labelWidth);
-        horizontalLayout.add(label, dateField);
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureBankAccountDtoField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Банковский Аккаунт");
-        label.setWidth(labelWidth);
-        // horizontalLayout.add(label, bankAccountDtoField);
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureContractorDtoField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Контрагент");
-        label.setWidth(labelWidth);
-        //  horizontalLayout.add(label, contractorDtoField);
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureAmountField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Сумма");
-        label.setWidth(labelWidth);
-        horizontalLayout.add(label, amountField);
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureArchiveField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Архив");
-        label.setWidth(labelWidth);
-        horizontalLayout.add(label, archiveField);
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureCommentField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Комментарий");
-        label.setWidth(labelWidth);
-        horizontalLayout.add(label, commentField);
-        return horizontalLayout;
-    }*/
-
 
     private Button buttonSave() {
         return new Button("Сохранить", event -> {

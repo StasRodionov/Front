@@ -7,6 +7,7 @@ import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -17,8 +18,12 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Route(value = "contracts", layout = AppView.class)
@@ -26,27 +31,17 @@ import com.vaadin.flow.router.Route;
 public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
-    private Grid<ContractDto> grid = new Grid<>(ContractDto.class);
-    private GridPaginator<ContractDto> paginator;
-
+    private Grid<ContractDto> grid;
 
     ContractsView(ContractService contractService) {
-
         this.contractService = contractService;
-        paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), grid, paginator);
-        getGrid();
-
-
+        reloadGrid();
     }
 
-
     private void getGrid() {
-
-        grid.setItems(contractService.getAll());
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setColumns("id", "contractDate", "companyDto", "contractorDto", "amount",
-                "bankAccountDto", "archive","comment", "number");
+                "bankAccountDto", "archive", "comment", "number");
         grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
         grid.getColumnByKey("contractDate").setAutoWidth(true).setHeader("Дата заключения");
         grid.getColumnByKey("companyDto").setHeader("Компания");
@@ -65,8 +60,18 @@ public class ContractsView extends VerticalLayout {
             contractModalWindow.open();
         });
     }
+
     private void reloadGrid() {
-        paginator.setData(contractService.getAll());
+        grid = new Grid<>(ContractDto.class);
+        GridPaginator<ContractDto> paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        getGrid();
+        removeAll();
+        add(getToolbar(), grid, paginator);
+        GridSortOrder<ContractDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("number"), SortDirection.ASCENDING);
+        List<GridSortOrder<ContractDto>> gridSortOrderList = new ArrayList<>();
+        gridSortOrderList.add(gridSortOrder);
+        grid.sort(gridSortOrderList);
     }
 
     private HorizontalLayout getToolbar() {
@@ -77,7 +82,6 @@ public class ContractsView extends VerticalLayout {
 
         return toolbar;
     }
-
 
     private Button getButtonCog() {
         final Button buttonCog = new Button();
@@ -109,7 +113,7 @@ public class ContractsView extends VerticalLayout {
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
         ContractModalWindow contractModalWindow = new ContractModalWindow(contractService);
         button.addClickListener(event -> contractModalWindow.open());
-        //button.addDetachListener(event -> u)
+       // button.addDetachListener(event -> reloadGrid());
         return button;
     }
 
