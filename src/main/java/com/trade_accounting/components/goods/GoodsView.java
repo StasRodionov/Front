@@ -222,7 +222,6 @@ public class GoodsView extends VerticalLayout {
      */
     private void updateTreeGrid() {
         List<ProductGroupDto> buffer = new LinkedList<>();
-        List<ProductGroupDto> bf = new LinkedList<>();
 
         ProductGroupDto element;
         ProductGroupDto parent;
@@ -234,27 +233,19 @@ public class GoodsView extends VerticalLayout {
                     PgTreeGrid.getTreeData().addItem(null, element);
                     buffer.add(element);
                     productGroupData.remove(element);
+                } else if (!buffer.isEmpty()) {
+                    for (int j = 0; j < buffer.size(); j++) {
+                        parent = buffer.get(j);
+                        if (parent.getId().equals(element.getParentId())) {
+                            PgTreeGrid.getTreeData().addItem(parent, element);
+                            buffer.add(element);
+                            productGroupData.remove(element);
+                            break;
+                        }
+                    }
                 }
-                ProductGroupDto el = element;
-                buffer.stream().filter(x -> x.getId().equals(el.getParentId())).forEachOrdered(x -> {
-                    PgTreeGrid.getTreeData().addItem(x, el);
-                    bf.add(el);
-                    productGroupData.remove(el);
-                });
-                buffer.addAll(bf);
-                bf.clear();
-
-//                    for (int j = 0; j < buffer.size(); j++) {
-//                        parent = buffer.get(j);
-//                        if (parent.getId().equals(element.getParentId())) {
-//                            PgTreeGrid.getTreeData().addItem(parent, element);
-//                            buffer.add(element);
-//                            productGroupData.remove(element);
-//                            break;
-//                        }
-//                    }
-
             }
         }
     }
+
 }
