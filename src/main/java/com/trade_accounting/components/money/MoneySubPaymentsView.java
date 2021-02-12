@@ -46,19 +46,19 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private void getGrid(){
-        Grid<PaymentDto> grid = new Grid<>(PaymentDto.class);
-        grid.setItems(paymentService.getAll());
-        grid.setColumns("id", "typeOfPayment", "number", "time", "companyDto", "contractorDto", "contractDto", "projectDto", "sum");
-        grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
-        grid.getColumnByKey("typeOfPayment").setAutoWidth(true).setHeader("Тип платежа");
-        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Номер платежа");
-        grid.getColumnByKey("time").setAutoWidth(true).setHeader("Дата");
-        grid.getColumnByKey("companyDto").setHeader("Компания");
-        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
-        grid.getColumnByKey("contractDto").setAutoWidth(true).setHeader("Договор");
-        grid.getColumnByKey("projectDto").setAutoWidth(true).setHeader("Проект");
-        grid.getColumnByKey("sum").setAutoWidth(true).setHeader("Сумма");
-        grid.setHeight("66vh");
+//        Grid<PaymentDto> grid = new Grid<>(PaymentDto.class);
+//        grid.setItems(paymentService.getAll());
+//        grid.setColumns("id", "typeOfPayment", "number", "time", "companyDto", "contractorDto", "contractDto", "projectDto", "sum");
+//        grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
+//        grid.getColumnByKey("typeOfPayment").setAutoWidth(true).setHeader("Тип платежа");
+//        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Номер платежа");
+//        grid.getColumnByKey("time").setAutoWidth(true).setHeader("Дата");
+//        grid.getColumnByKey("companyDto").setHeader("Компания");
+//        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
+//        grid.getColumnByKey("contractDto").setAutoWidth(true).setHeader("Договор");
+//        grid.getColumnByKey("projectDto").setAutoWidth(true).setHeader("Проект");
+//        grid.getColumnByKey("sum").setAutoWidth(true).setHeader("Сумма");
+//        grid.setHeight("66vh");
     }
 
     private HorizontalLayout getToolbar() {
@@ -68,12 +68,6 @@ public class MoneySubPaymentsView extends VerticalLayout {
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
-    }
-
-    private TextField getTextFieldLow() {
-        TextField text = new TextField("", "");
-        text.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return text;
     }
 
     private Button getButtonCog() {
@@ -102,7 +96,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private Button getButton() {
-        final Button button = new Button("Договор");
+        final Button button = new Button("Платеж");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
         return button;
     }
@@ -117,7 +111,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private H2 getTextContract() {
-        final H2 textCompany = new H2("Договора");
+        final H2 textCompany = new H2("Платежи");
         textCompany.setHeight("2.2em");
         return textCompany;
     }
@@ -137,12 +131,5 @@ public class MoneySubPaymentsView extends VerticalLayout {
         selector.setWidth("130px");
         return selector;
     }
-
-
-//    private H2 title(){
-//        H2 title = new H2("Платежи");
-//        title.setHeight("2.2em");
-//        return title;
-//    }
 
 }
