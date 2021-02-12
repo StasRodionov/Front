@@ -75,10 +75,10 @@ public class CurrencyView extends VerticalLayout {
     }
 
     private void configureFilter() {
-        filter.setVisibleFields(false, "name", "legalDetailDto");
+        filter.setVisibleFields(false, "name");
 
-        filter.setFieldToComboBox("payerVat", Boolean.TRUE, Boolean.FALSE);
-        filter.setFieldToIntegerField("inn");
+//        filter.setFieldToComboBox("payerVat", Boolean.TRUE, Boolean.FALSE);
+//        filter.setFieldToIntegerField("inn");
 
         filter.onSearchClick(e -> paginator.setData(currencyService.search(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(currencyService.getAll()));
