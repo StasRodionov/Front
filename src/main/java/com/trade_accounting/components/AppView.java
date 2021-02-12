@@ -61,9 +61,9 @@ public class AppView extends AppLayout {
         menuBar.setOpenOnHover(true);
         VerticalLayout profile = new VerticalLayout(VaadinIcon.USER.create(), menuBar);
         MenuItem profileMenuItem = menuBar.addItem("Профиль");
+        profile.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
+        profileMenuItem.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
         SubMenu projectSubMenu = profileMenuItem.getSubMenu();
-        MenuItem profileSubMenu = projectSubMenu.addItem("Профиль");
-        profileSubMenu.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
         MenuItem logout = projectSubMenu.addItem("Выход");
         logout.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("logout")));
 
