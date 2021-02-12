@@ -42,6 +42,18 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
+    public List<ProductDto> getAllLite() {
+        Call<List<ProductDto>> productGetAllLiteCall = productApi.getAllLite(productUrl);
+        try {
+            listProducts = productGetAllLiteCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ProductDto (лёгкое дто)");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при получении списка ProductDto (лёгкое дто) - {}", e);
+        }
+        return listProducts;
+    }
+
+    @Override
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
 

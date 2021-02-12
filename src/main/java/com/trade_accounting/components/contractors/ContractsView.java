@@ -7,7 +7,7 @@ import com.trade_accounting.services.interfaces.ContractService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -18,59 +18,60 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Route(value = "contracts", layout = AppView.class)
 @PageTitle("Договоры")
 public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
+    private Grid<ContractDto> grid;
 
-    private final List<ContractDto> finalData;
-    private List<ContractDto> data;
-    private final Grid<ContractDto> grid;
-    private final GridPaginator<ContractDto> paginator;
-
-    @Autowired
     ContractsView(ContractService contractService) {
-
         this.contractService = contractService;
-        this.finalData = contractService.getAll();
-        this.data = finalData;
-
-        this.grid = new Grid<>(ContractDto.class);
-        this.paginator = new GridPaginator<>(grid,data,100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        getGrid();
-
-        add(getToolbar(),grid,paginator);
-
+        reloadGrid();
     }
 
-
     private void getGrid() {
-
-        Grid<ContractDto> grid = new Grid<>(ContractDto.class);
-        grid.setItems(contractService.getAll());
-        grid.setColumns("id", "number", "contractDate", "date", "companyDto",
-                "bankAccountDto", "contractorDto", "amount", "archive", "comment", "legalDetailDto");
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.setColumns("id", "contractDate", "companyDto", "contractorDto", "amount",
+                "bankAccountDto", "archive", "comment", "number");
         grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
-        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Код");
         grid.getColumnByKey("contractDate").setAutoWidth(true).setHeader("Дата заключения");
-        grid.getColumnByKey("date").setAutoWidth(true).setHeader("Дата");
         grid.getColumnByKey("companyDto").setHeader("Компания");
-        grid.getColumnByKey("bankAccountDto").setHeader("Банковский Аккаунт");
         grid.getColumnByKey("contractorDto").setHeader("Контрагент");
         grid.getColumnByKey("amount").setAutoWidth(true).setHeader("Сумма");
+        grid.getColumnByKey("bankAccountDto").setHeader("Банковский Аккаунт");
         grid.getColumnByKey("archive").setAutoWidth(true).setHeader("Архив");
         grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
-        grid.getColumnByKey("legalDetailDto").setHeader("Реквизиты");
-        grid.setHeight("64vh");
+        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Сортировочный номер");
+        grid.setHeight("66vh");
+        grid.addItemDoubleClickListener(event -> {
+            ContractDto editContract = event.getItem();
+            ContractModalWindow contractModalWindow =
+                    new ContractModalWindow(editContract, contractService);
+            contractModalWindow.addDetachListener(e -> reloadGrid());
+            contractModalWindow.open();
+        });
+    }
 
+    private void reloadGrid() {
+        grid = new Grid<>(ContractDto.class);
+        GridPaginator<ContractDto> paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        getGrid();
+        removeAll();
+        add(getToolbar(), grid, paginator);
+        GridSortOrder<ContractDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("number"), SortDirection.ASCENDING);
+        List<GridSortOrder<ContractDto>> gridSortOrderList = new ArrayList<>();
+        gridSortOrderList.add(gridSortOrder);
+        grid.sort(gridSortOrderList);
     }
 
     private HorizontalLayout getToolbar() {
@@ -80,34 +81,6 @@ public class ContractsView extends VerticalLayout {
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
-    }
-
-    private HorizontalLayout getToolbarLow() {
-        HorizontalLayout toolbarLow = new HorizontalLayout();
-        toolbarLow.add(getAngleDoubleLeft(), getAngleLeft(), getTextFieldLow(), getAngleRight(), getAngleDoubleRight());
-        return toolbarLow;
-    }
-
-    private TextField getTextFieldLow() {
-        TextField text = new TextField("", "");
-        text.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return text;
-    }
-
-    private Button getAngleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
-    }
-
-    private Button getAngleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_LEFT));
-    }
-
-    private Button getAngleDoubleRight() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-    }
-
-    private Button getAngleDoubleLeft() {
-        return new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
     }
 
     private Button getButtonCog() {
@@ -138,6 +111,9 @@ public class ContractsView extends VerticalLayout {
     private Button getButton() {
         final Button button = new Button("Договор");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
+        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService);
+        button.addClickListener(event -> contractModalWindow.open());
+       // button.addDetachListener(event -> reloadGrid());
         return button;
     }
 
@@ -151,7 +127,7 @@ public class ContractsView extends VerticalLayout {
     }
 
     private H2 getTextContract() {
-        final H2 textCompany = new H2("Договора");
+        final H2 textCompany = new H2("Договоры");
         textCompany.setHeight("2.2em");
         return textCompany;
     }
