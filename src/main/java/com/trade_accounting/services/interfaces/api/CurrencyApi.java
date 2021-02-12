@@ -9,9 +9,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
-
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CurrencyApi {
 
@@ -19,6 +20,10 @@ public interface CurrencyApi {
     @GET("{url}")
     Call<List<CurrencyDto>> getAll(@Path(value = "url", encoded = true) String url);
 
+    @Headers("Accept: application/json")
+    @GET("{url}/search")
+    Call<List<CurrencyDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+    
     @Headers("Accept: application/json")
     @GET("{url}/id/{id}")
     Call<CurrencyDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
