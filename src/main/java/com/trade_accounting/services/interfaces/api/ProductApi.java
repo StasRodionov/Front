@@ -13,11 +13,13 @@ import java.util.List;
 
 public interface ProductApi {
 
-
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<ProductDto>> getAll(@Path(value = "url", encoded = true) String url);
 
+    @Headers("Accept: application/json")
+    @GET("{url}/lite")
+    Call<List<ProductDto>> getAllLite(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
