@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.RoleService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -25,17 +26,19 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final WarehouseService warehouseService;
     private final CurrencyService currencyService;
     private final RoleService roleService;
+    private final ImageService imageService;
     private final Div div;
     
     public ProfileView(UnitService unitService, CompanyService companyService,
                        EmployeeService employeeService, WarehouseService warehouseService,
-                       CurrencyService currencyService, RoleService roleService) {
+                       CurrencyService currencyService, RoleService roleService, ImageService imageService) {
         this.unitService = unitService;
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.warehouseService = warehouseService;
         this.currencyService = currencyService;
         this.roleService = roleService;
+        this.imageService = imageService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -71,7 +74,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                     break;
                 case "Сотрудники":
                     div.removeAll();
-                    div.add(new EmployeeView(employeeService, roleService));
+                    div.add(new EmployeeView(employeeService, roleService, imageService));
                     break;
                 case "Склады":
                     div.removeAll();

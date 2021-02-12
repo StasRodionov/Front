@@ -3,7 +3,9 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.RoleService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -32,14 +34,16 @@ public class EmployeeView extends VerticalLayout {
     private final Grid<EmployeeDto> grid;
     private final EmployeeService employeeService;
     private final RoleService roleService;
+    private final ImageService imageService;
     private List<EmployeeDto> data;
     private final List<EmployeeDto> finalData;
     private final GridPaginator<EmployeeDto> paginator;
 
-    public EmployeeView(EmployeeService employeeService, RoleService roleService) {
+    public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         this.finalData = employeeService.getAll();
+        this.imageService = imageService;
         this.data = finalData;
         this.grid = new Grid<>(EmployeeDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
@@ -61,7 +65,7 @@ public class EmployeeView extends VerticalLayout {
         grid.setColumns("lastName", "imageDto", "firstName",
                 "middleName", "email", "phone", "description", "roleDto");
         grid.getColumnByKey("lastName").setHeader("Фамилия");
-        grid.getColumnByKey("imageDto").setHeader("");
+        grid.getColumnByKey("imageDto").setHeader("Фото профиля");
         grid.getColumnByKey("firstName").setHeader("Имя");
         grid.getColumnByKey("middleName").setHeader("Отчество");
         grid.getColumnByKey("email").setHeader("E-mail");
@@ -71,8 +75,14 @@ public class EmployeeView extends VerticalLayout {
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
+            ImageDto imageDto = employeeDto.getImageDto();
             AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(employeeDto, employeeService, roleService);
+                    new AddEmployeeModalWindowView(
+                            employeeDto,
+                            employeeService,
+                            roleService,
+                            imageService,
+                            imageDto);
             addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
             addEmployeeModalWindowView.open();
         });
@@ -100,7 +110,12 @@ public class EmployeeView extends VerticalLayout {
         buttonUnit.addClickListener(click -> {
             log.info("Вы нажали кнопку для добавление сотрудника!");
             AddEmployeeModalWindowView addEmployeeModalWindowView =
-                    new AddEmployeeModalWindowView(null, employeeService, roleService);
+                    new AddEmployeeModalWindowView(
+                            null,
+                            employeeService,
+                            roleService,
+                            imageService,
+                            null);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
