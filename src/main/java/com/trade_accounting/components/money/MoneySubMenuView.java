@@ -1,6 +1,7 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.PaymentService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -14,8 +15,10 @@ import com.vaadin.flow.router.Route;
 public class MoneySubMenuView extends Div implements AfterNavigationObserver{
 
     private final Div div;
+    private final PaymentService paymentService;
 
-    public MoneySubMenuView() {
+    public MoneySubMenuView(PaymentService paymentService) {
+        this.paymentService = paymentService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -23,7 +26,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(String.valueOf(new MoneySubPaymentsView()));
+        div.add(new MoneySubPaymentsView(paymentService));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -47,7 +50,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
             switch (tabName) {
                 case "Платежи":
                     div.removeAll();
-                    div.add(String.valueOf(new MoneySubPaymentsView()));
+                    div.add(new MoneySubPaymentsView(paymentService));
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
