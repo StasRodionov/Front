@@ -42,7 +42,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private Grid getGrid() {
-        grid.setItems(paymentService.getAll());
+        grid.setItems(data);
         grid.addColumn("id").setHeader("ID");
         grid.addColumn("time").setFlexGrow(10).setHeader("Дата");
         grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)

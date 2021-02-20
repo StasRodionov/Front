@@ -5,7 +5,6 @@ import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.charts.model.Tooltip;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -31,21 +30,25 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
-        add(upperLayout(), configureGrid(), lowerLayout());
         updateList();
+        add(upperLayout(), configureGrid(), lowerLayout());
     }
 
     private Grid<InvoiceDto> configureGrid() {
         Icon check = new Icon(VaadinIcon.CHECK);
         check.setColor("green");
         check.getElement().setAttribute("title", "Проведена");
-        grid.setColumns("spend", "id", "date", "typeOfInvoice", "company", "contractor");
+        grid.setColumns("spend", "id", "date", "typeOfInvoice");
         grid.getColumnByKey("spend").setHeader(check);
         grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("date").setHeader("Дата");
-        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
-        grid.getColumnByKey("company").setHeader("Компания");
-        grid.getColumnByKey("contractor").setHeader("Контрагент");
+        grid.getColumnByKey("date").setHeader("Дата").setFlexGrow(10);
+        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура").setFlexGrow(4);
+        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setSortable(true).setHeader("Компания")
+                .setFlexGrow(10).setId("companyDto");
+        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setSortable(true).setHeader("Контрагент")
+                .setFlexGrow(10).setId("contractorDto");
+        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setSortable(true).setHeader("WarehouseDto")
+                .setFlexGrow(10).setId("warehouseDto");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
