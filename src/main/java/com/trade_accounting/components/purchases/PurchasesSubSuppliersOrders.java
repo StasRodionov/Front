@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
@@ -20,6 +21,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @Route(value = "suppliersOrders", layout = AppView.class)
 @PageTitle("Заказы поставщикам")
@@ -27,12 +30,25 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
 
     private final InvoiceService invoiceService;
+
+    private List<InvoiceDto> invoices;
+
+
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
+    private GridPaginator<InvoiceDto> paginator;
 
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
-        add(upperLayout(), configureGrid(), lowerLayout());
+
+        loadInvoices();
+        configurePaginator();
+
+        add(upperLayout(), configureGrid(), paginator);
         updateList();
+    }
+
+    private void loadInvoices() {
+        invoices = invoiceService.getAll();
     }
 
     private Grid<InvoiceDto> configureGrid() {
@@ -50,6 +66,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         return grid;
+    }
+
+    private void configurePaginator() {
+        paginator = new GridPaginator<>(grid, invoices, 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
     private HorizontalLayout upperLayout() {
