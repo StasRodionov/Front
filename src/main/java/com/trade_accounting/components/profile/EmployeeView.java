@@ -1,7 +1,9 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -38,6 +40,7 @@ public class EmployeeView extends VerticalLayout {
     private List<EmployeeDto> data;
     private final List<EmployeeDto> finalData;
     private final GridPaginator<EmployeeDto> paginator;
+    private final GridFilter<EmployeeDto> filter;
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService) {
         this.employeeService = employeeService;
@@ -52,8 +55,14 @@ public class EmployeeView extends VerticalLayout {
 
         configureGrid();
         updateGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+        add(upperLayout(), filter, grid, paginator);
+    }
 
-        add(upperLayout(), grid, paginator);
+    private void configureFilter() {
+        filter.onSearchClick(e -> paginator.setData(employeeService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(employeeService.getAll()));
     }
 
     private void updateGrid() {
@@ -64,14 +73,14 @@ public class EmployeeView extends VerticalLayout {
     private void configureGrid() {
         grid.setColumns("lastName", "imageDto", "firstName",
                 "middleName", "email", "phone", "description", "roleDto");
-        grid.getColumnByKey("lastName").setHeader("Фамилия");
-        grid.getColumnByKey("imageDto").setHeader("Фото профиля");
-        grid.getColumnByKey("firstName").setHeader("Имя");
-        grid.getColumnByKey("middleName").setHeader("Отчество");
-        grid.getColumnByKey("email").setHeader("E-mail");
-        grid.getColumnByKey("phone").setHeader("Телефон");
-        grid.getColumnByKey("description").setHeader("Описание");
-        grid.getColumnByKey("roleDto").setHeader("Роль");
+        grid.getColumnByKey("lastName").setHeader("Фамилия").setId("Фамилия");
+        grid.getColumnByKey("imageDto").setHeader("Фото профиля").setId("Фото профиля");
+        grid.getColumnByKey("firstName").setHeader("Имя").setId("Имя");
+        grid.getColumnByKey("middleName").setHeader("Отчество").setId("Отчество");
+        grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
+        grid.getColumnByKey("phone").setHeader("Телефон").setId("Телефон");
+        grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
+        grid.getColumnByKey("roleDto").setHeader("Роль").setId("Роль");
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
@@ -125,6 +134,7 @@ public class EmployeeView extends VerticalLayout {
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 

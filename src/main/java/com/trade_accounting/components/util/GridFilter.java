@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -212,7 +213,11 @@ public class GridFilter<T> extends HorizontalLayout {
     }
 
     private void configureFilterField() {
-        grid.getColumns().forEach(e -> this.add(getFilterTextField(e.getKey())));
+        grid.getColumns().forEach(e -> {
+            if (!e.getKey().equals("imageDto")){
+                this.add(getFilterTextField(e.getKey()));
+            }
+        });
     }
 
     private TextField getFilterTextField(String columnKey) {
@@ -221,6 +226,8 @@ public class GridFilter<T> extends HorizontalLayout {
 
         filter.addValueChangeListener(e -> onFilterChange(filter));
         filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
+        Grid.Column<T> column = grid.getColumnByKey(columnKey);
+        Optional<String> id = column.getId();
         if (grid.getColumnByKey(columnKey).getId().isPresent()) {
             filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
         }
