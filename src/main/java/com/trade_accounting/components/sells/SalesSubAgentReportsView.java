@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
+import org.vaadin.klaudeta.PaginatedGrid;
 
 import java.util.List;
 
@@ -33,7 +35,10 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final List<InvoiceDto> data;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
+
+    private HorizontalLayout actions;
+    private Grid<InvoiceDto> grid;
+    private GridPaginator<InvoiceDto> paginator;
 
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
@@ -43,12 +48,23 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         this.companyService = companyService;
         this.data = getData();
 
-        add(upperLayout(), grid, lowerLayout());
+        configureActions();
         configureGrid();
-        updateList();
+        configurePaginator();
+
+        add(actions, grid, paginator);
+    }
+
+    private void configureActions () {
+        actions = new HorizontalLayout();
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
+        actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
     }
 
     private void configureGrid() {
+        grid = new Grid<>(InvoiceDto.class);
+        grid.setItems(data);
         grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
 
         grid.getColumnByKey("id").setHeader("id");
@@ -70,22 +86,9 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         });
     }
 
-    private HorizontalLayout upperLayout() {
-        HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
-                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
-        upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        return upper;
-    }
-
-    private HorizontalLayout lowerLayout() {
-        HorizontalLayout lower = new HorizontalLayout();
-        lower.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
-                new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
-                textField(),
-                new Button(new Icon(VaadinIcon.ANGLE_RIGHT)),
-                new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT)));
-        return lower;
+    private void configurePaginator() {
+        paginator = new GridPaginator<>(grid, data, 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
     private Button buttonQuestion(){

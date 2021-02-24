@@ -39,6 +39,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.data = paymentService.getAll();
         this.grid = new Grid<>(PaymentDto.class);
         this.paginator = new GridPaginator<>(grid,data,100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         getGrid();
 
         add(getToolbar(),grid,paginator);

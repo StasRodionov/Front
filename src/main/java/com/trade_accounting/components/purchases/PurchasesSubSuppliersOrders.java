@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
@@ -20,6 +21,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @Route(value = "suppliersOrders", layout = AppView.class)
 @PageTitle("Заказы поставщикам")
@@ -27,15 +30,41 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
 
     private final InvoiceService invoiceService;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
+
+    private List<InvoiceDto> invoices;
+
+
+    private HorizontalLayout actions;
+    private Grid<InvoiceDto> grid;
+    private GridPaginator<InvoiceDto> paginator;
 
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
-        add(upperLayout(), configureGrid(), lowerLayout());
-        updateList();
+
+        loadInvoices();
+
+        configureActions();
+        configureGrid();
+        configurePaginator();
+
+        add(actions, grid, paginator);
     }
 
-    private Grid<InvoiceDto> configureGrid() {
+    private void loadInvoices() {
+        invoices = invoiceService.getAll();
+    }
+
+    private void configureActions() {
+        actions = new HorizontalLayout();
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
+                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
+        actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+    }
+
+    private void configureGrid() {
+        grid = new Grid<>(InvoiceDto.class);
+        grid.setItems(invoices);
+
         Icon check = new Icon(VaadinIcon.CHECK);
         check.setColor("green");
         check.getElement().setAttribute("title", "Проведена");
@@ -49,29 +78,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        return grid;
     }
 
-    private HorizontalLayout upperLayout() {
-        HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
-                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
-        upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-        return upper;
-    }
-
-    private HorizontalLayout lowerLayout() {
-        HorizontalLayout lower = new HorizontalLayout();
-        lower.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
-                new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
-                textField(),
-                new Button(new Icon(VaadinIcon.ANGLE_RIGHT)),
-                new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT)));
-        return lower;
-    }
-
-    private void updateList() {
-        grid.setItems(invoiceService.getAll());
+    private void configurePaginator() {
+        paginator = new GridPaginator<>(grid, invoices, 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
     private Button buttonQuestion() {
