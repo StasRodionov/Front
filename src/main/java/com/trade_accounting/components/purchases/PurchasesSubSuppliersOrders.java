@@ -1,10 +1,12 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.charts.model.Tooltip;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -19,6 +21,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @Route(value = "suppliersOrders", layout = AppView.class)
 @PageTitle("Заказы поставщикам")
@@ -26,55 +30,59 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
 
     private final InvoiceService invoiceService;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
+
+    private List<InvoiceDto> invoices;
+
+
+    private HorizontalLayout actions;
+    private Grid<InvoiceDto> grid;
+    private GridPaginator<InvoiceDto> paginator;
 
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
-        updateList();
-        add(upperLayout(), configureGrid(), lowerLayout());
+
+        loadInvoices();
+
+        configureActions();
+        configureGrid();
+        configurePaginator();
+
+        add(actions, grid, paginator);
     }
 
-    private Grid<InvoiceDto> configureGrid() {
+    private void loadInvoices() {
+        invoices = invoiceService.getAll();
+    }
+
+    private void configureActions() {
+        actions = new HorizontalLayout();
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
+                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
+        actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+    }
+
+    private void configureGrid() {
+        grid = new Grid<>(InvoiceDto.class);
+        grid.setItems(invoices);
+
         Icon check = new Icon(VaadinIcon.CHECK);
         check.setColor("green");
         check.getElement().setAttribute("title", "Проведена");
-        grid.setColumns("spend", "id", "date", "typeOfInvoice");
+        grid.setColumns("spend", "id", "date", "typeOfInvoice", "company", "contractor");
         grid.getColumnByKey("spend").setHeader(check);
         grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("date").setHeader("Дата").setFlexGrow(10);
-        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура").setFlexGrow(4);
-        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setSortable(true).setHeader("Компания")
-                .setFlexGrow(10).setId("companyDto");
-        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setSortable(true).setHeader("Контрагент")
-                .setFlexGrow(10).setId("contractorDto");
-        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setSortable(true).setHeader("WarehouseDto")
-                .setFlexGrow(10).setId("warehouseDto");
+        grid.getColumnByKey("date").setHeader("Дата");
+        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
+        grid.getColumnByKey("company").setHeader("Компания");
+        grid.getColumnByKey("contractor").setHeader("Контрагент");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        return grid;
     }
 
-    private HorizontalLayout upperLayout() {
-        HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
-                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
-        upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-        return upper;
-    }
-
-    private HorizontalLayout lowerLayout() {
-        HorizontalLayout lower = new HorizontalLayout();
-        lower.add(new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT)),
-                new Button(new Icon(VaadinIcon.ANGLE_LEFT)),
-                textField(),
-                new Button(new Icon(VaadinIcon.ANGLE_RIGHT)),
-                new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT)));
-        return lower;
-    }
-
-    private void updateList() {
-        grid.setItems(invoiceService.getAll());
+    private void configurePaginator() {
+        paginator = new GridPaginator<>(grid, invoices, 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
     private Button buttonQuestion() {
