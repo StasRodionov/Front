@@ -52,12 +52,12 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
+        grid.setColumns("id", "date", "typeOfInvoice", "companyDto", "contractorDto", "spend");
         grid.getColumnByKey("id").setHeader("id");
         grid.getColumnByKey("date").setHeader("Дата");
         grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
-        grid.getColumnByKey("company").setHeader("Компания");
-        grid.getColumnByKey("contractor").setHeader("Контрагент");
+        grid.getColumnByKey("companyDto").setHeader("Компания");
+        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
         grid.getColumnByKey("spend").setHeader("Проведена");
         grid.setHeight("66vh");
 

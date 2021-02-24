@@ -1,9 +1,7 @@
 package com.trade_accounting.components.money;
 
-import com.helger.commons.thirdparty.IThirdPartyModuleProviderSPI;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.PaymentDto;
 import com.trade_accounting.services.interfaces.PaymentService;
 import com.vaadin.flow.component.button.Button;
@@ -31,35 +29,36 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private final PaymentService paymentService;
 
     private final List<PaymentDto> data;
-    private final Grid<PaymentDto> grid;
+    private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
 
-    MoneySubPaymentsView(PaymentService paymentService){
+    MoneySubPaymentsView(PaymentService paymentService) {
         this.paymentService = paymentService;
         this.data = paymentService.getAll();
-        this.grid = new Grid<>(PaymentDto.class);
-        this.paginator = new GridPaginator<>(grid,data,100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         getGrid();
-
-        add(getToolbar(),grid,paginator);
+        this.paginator = new GridPaginator<>(grid, data, 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(getToolbar(), grid, paginator);
 
     }
 
-    private void getGrid(){
-//        Grid<PaymentDto> grid = new Grid<>(PaymentDto.class);
-//        grid.setItems(paymentService.getAll());
-//        grid.setColumns("id", "typeOfPayment", "number", "time", "companyDto", "contractorDto", "contractDto", "projectDto", "sum");
-//        grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
-//        grid.getColumnByKey("typeOfPayment").setAutoWidth(true).setHeader("Тип платежа");
-//        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Номер платежа");
-//        grid.getColumnByKey("time").setAutoWidth(true).setHeader("Дата");
-//        grid.getColumnByKey("companyDto").setHeader("Компания");
-//        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
-//        grid.getColumnByKey("contractDto").setAutoWidth(true).setHeader("Договор");
-//        grid.getColumnByKey("projectDto").setAutoWidth(true).setHeader("Проект");
-//        grid.getColumnByKey("sum").setAutoWidth(true).setHeader("Сумма");
-//        grid.setHeight("66vh");
+    private Grid getGrid() {
+        grid.setItems(data);
+        grid.addColumn("id").setHeader("ID");
+        grid.addColumn("time").setFlexGrow(10).setHeader("Дата");
+        grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
+                .setHeader("Компания").setId("companyDto");
+        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма");
+        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж");
+        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа");
+        grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
+                .setHeader("Контрагент").setId("contractorDto");
+        grid.addColumn(pDto -> pDto.getContractDto().getNumber()).setFlexGrow(7).setSortable(true)
+                .setHeader("Договор").setId("contractDto");
+        grid.addColumn(pDto -> pDto.getProjectDto().getName()).setFlexGrow(7).setSortable(true)
+                .setHeader("Проект").setId("projectDto");
+        grid.setHeight("66vh");
+        return grid;
     }
 
     private HorizontalLayout getToolbar() {
