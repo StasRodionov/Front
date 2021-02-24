@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.api.EmployeeApi;
@@ -14,6 +15,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -60,6 +62,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         });
  */
         return employeeDtoList;
+    }
+
+    @Override
+    public List<EmployeeDto> search(Map<String, String> query) {
+        List<EmployeeDto> companyDtoList = new ArrayList<>();
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.search(employeeUrl, query);
+
+        try {
+            companyDtoList = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
+
+        return companyDtoList;
     }
 
     @Override

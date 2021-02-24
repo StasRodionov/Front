@@ -9,14 +9,20 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EmployeeApi {
 
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<EmployeeDto>> getAll(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search")
+    Call<List<EmployeeDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
