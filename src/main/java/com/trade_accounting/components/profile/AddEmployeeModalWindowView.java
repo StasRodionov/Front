@@ -192,7 +192,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         label.setWidth(labelWidth);
         phoneAdd.setWidth(fieldWidth);
         phoneAdd.setPlaceholder("Введите номер телефона");
-        phoneAdd.addValidator(new RegexpValidator("Введите правильно номер телефона", "^[\\d+]{11}$"));
+        phoneAdd.addValidator(new RegexpValidator("Введите правильно номер телефона", "^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$"));
         phoneAdd.setRequired(true);
         if(employeeDto!=null) {
             phoneAdd.setValue(employeeDto.getPhone());
