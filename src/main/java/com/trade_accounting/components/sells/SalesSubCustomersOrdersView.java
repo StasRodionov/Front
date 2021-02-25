@@ -52,13 +52,13 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setColumns("id", "date", "typeOfInvoice", "companyDto", "contractorDto", "spend");
+        grid.setColumns("id", "date", "typeOfInvoice", "spend");
         grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("date").setHeader("Дата");
-        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
-        grid.getColumnByKey("companyDto").setHeader("Компания");
-        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
-        grid.getColumnByKey("spend").setHeader("Проведена");
+        grid.getColumnByKey("date").setHeader("Дата").setFlexGrow(10);
+        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура").setFlexGrow(3);
+        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setFlexGrow(10).setId("companyDto");
+        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setFlexGrow(10).setId("contractorDto");
+        grid.getColumnByKey("spend").setHeader("Проведена").setFlexGrow(2);
         grid.setHeight("66vh");
 
         grid.setColumnReorderingAllowed(true);
