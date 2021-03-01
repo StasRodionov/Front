@@ -8,6 +8,7 @@ import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -44,6 +45,7 @@ public class GoodsView extends VerticalLayout {
 
     private final ProductService productService;
     private final ProductGroupService productGroupService;
+    private final UnitService unitService;
 
     private List<ProductDto> liteProducts;
     private List<ProductDto> filteredData = new LinkedList<>();
@@ -55,9 +57,10 @@ public class GoodsView extends VerticalLayout {
     private SplitLayout middleLayout;//двухоконный layout в котором размещаются грид и древовидный грид
     private GridPaginator<ProductDto> paginator;
 
-    public GoodsView(ProductService productService, ProductGroupService productGroupService) {
+    public GoodsView(ProductService productService, ProductGroupService productGroupService, UnitService unitService) {
         this.productService = productService;
         this.productGroupService = productGroupService;
+        this.unitService = unitService;
 
         loadLiteProducts();
         setUpperLayout();
@@ -85,7 +88,7 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusGoods() {
         Button addGoodsButton = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
-        addGoodsButton.addClickListener(e -> new GoodsModalWindow().open());
+        addGoodsButton.addClickListener(e -> new GoodsModalWindow(unitService).open());
         return addGoodsButton;
     }
 
