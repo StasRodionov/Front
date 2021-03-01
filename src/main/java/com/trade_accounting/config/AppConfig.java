@@ -1,5 +1,7 @@
 package com.trade_accounting.config;
 
+import com.trade_accounting.components.authentication.LoginView;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import okhttp3.Interceptor;
@@ -36,26 +38,37 @@ public class AppConfig {
                                     .build();
                             return chain.proceed(newRequest);
                         } else {
+                            UI.getCurrent().navigate(LoginView.class);//доб.
                             return chain.proceed(originalRequest);
                         }
                     }
                 })
                 .addNetworkInterceptor(new Interceptor() {
+
                     @Override
                     public Response intercept(Chain chain) throws IOException {
                         Response originalResponse = chain.proceed(chain.request());
 
-                        if (originalResponse.code() == 401) {
-                            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
-
-                            if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) != null) {
-                                wrappedSession.removeAttribute(TOKEN_ATTRIBUTE_NAME);
-                            }
-
-                            return originalResponse;
-                        } else {
-                            return originalResponse;
+                        WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();//перенос.
+                        if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//доб.
+                            UI.getCurrent().navigate(LoginView.class);//доб.
                         }
+
+                        if (originalResponse.code() == 401 ) {
+                            if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//испр !=.
+                                wrappedSession.removeAttribute(TOKEN_ATTRIBUTE_NAME);
+                                UI.getCurrent().navigate(LoginView.class);//доб.
+                            }
+                            try (Response newResponse = originalResponse
+                                    .newBuilder()
+                                    .request((new Request.Builder()).url("http://localhost:4444/login")
+                                            .build()).build())
+                                            {
+                                originalResponse = newResponse;
+                            }
+                        }
+                        return originalResponse;
+
                     }
                 })
                 .build();
