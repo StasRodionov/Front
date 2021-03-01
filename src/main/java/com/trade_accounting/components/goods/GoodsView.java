@@ -81,7 +81,9 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonPlusGoods() {
-        return new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button addGoodsButton = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
+        addGoodsButton.addClickListener(e -> new GoodsModalWindow().open());
+        return addGoodsButton;
     }
 
     private Button buttonPlusService() {
