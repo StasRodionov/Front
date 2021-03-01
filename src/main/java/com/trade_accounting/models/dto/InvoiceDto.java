@@ -12,8 +12,8 @@ public class InvoiceDto {
     private Long id;
     private String date;
     private String  typeOfInvoice;
-    private CompanyDto company;
-    private ContractorDto contractor;
+    private CompanyDto companyDto;
+    private ContractorDto contractorDto;
     private WarehouseDto warehouseDto;
     private boolean isSpend;
 }

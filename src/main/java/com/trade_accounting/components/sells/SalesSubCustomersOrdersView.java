@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -33,8 +34,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final List<InvoiceDto> data;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class);
+    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
+    private final GridFilter<InvoiceDto> filter;
 
 //    private static final int ITEMS_PER_PAGE = 100;
 
@@ -46,19 +48,21 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
         this.companyService = companyService;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(), grid, paginator);
         configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureGrid() {
-        grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
-        grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("date").setHeader("Дата");
-        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
-        grid.getColumnByKey("company").setHeader("Компания");
-        grid.getColumnByKey("contractor").setHeader("Контрагент");
-        grid.getColumnByKey("spend").setHeader("Проведена");
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn("date").setHeader("Дата").setId("Дата");
+        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
+        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
+        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto").setId("Компания");
+        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
         grid.setHeight("66vh");
 
         grid.setColumnReorderingAllowed(true);
@@ -70,6 +74,14 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
             addModalWin.addDetachListener(e -> updateList());
             addModalWin.open();
         });
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
     }
 
     private HorizontalLayout upperLayout() {
@@ -103,6 +115,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
@@ -166,7 +179,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
 
     private void updateList() {
         grid.setItems(invoiceService.getAll());
-        System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {

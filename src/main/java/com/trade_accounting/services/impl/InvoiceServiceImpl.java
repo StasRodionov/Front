@@ -11,8 +11,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -43,25 +46,34 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<InvoiceDto> getAll() {
 
-        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.getAll(invoiceUrl);
         List<InvoiceDto> invoiceDtoList = new ArrayList<>();
-        invoiceDtoListCall.enqueue(new Callback<>() {
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.getAll(invoiceUrl);
 
-            @Override
-            public void onResponse(Call<List<InvoiceDto>> call, Response<List<InvoiceDto>> response) {
-                if (response.isSuccessful()) {
-                    invoiceDtoList.addAll(response.body());
-                    log.info("Успешно выполнен запрос на получение списка InvoiceDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {}", response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<InvoiceDto>> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос списка InvoiceDto", throwable);
-            }
-        });
+        try {
+            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка InvoiceDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {}", e);
+        }
+//        invoiceDtoListCall.enqueue(new Callback<>() {
+//
+//            @Override
+//            public void onResponse(Call<List<InvoiceDto>> call, Response<List<InvoiceDto>> response) {
+//                System.out.println("********************************************");
+//                System.out.println(response.code());
+//                if (response.isSuccessful()) {
+//                    invoiceDtoList.addAll(response.body());
+//                    log.info("Успешно выполнен запрос на получение списка InvoiceDto");
+//                } else {
+//                    log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {}", response.errorBody());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<InvoiceDto>> call, Throwable throwable) {
+//                log.error("Произошла ошибка при получении ответа на запрос списка InvoiceDto", throwable);
+//            }
+//        });
         return invoiceDtoList;
     }
 
@@ -102,6 +114,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         });
         return invoiceDto;
     }
+
+    @Override
+    public List<InvoiceDto> search(Map<String, String> query) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.search(invoiceUrl, query);
+
+        try {
+            invoiceDtoList = invoiceDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return invoiceDtoList;
+    }
+
 
     /*@Override
     public void create(InvoiceDto invoiceDto) {

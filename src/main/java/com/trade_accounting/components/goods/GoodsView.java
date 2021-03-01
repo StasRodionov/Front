@@ -1,6 +1,7 @@
 package com.trade_accounting.components.goods;
 
 
+import com.sun.source.tree.Tree;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ProductDto;
@@ -22,6 +23,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.selection.SingleSelect;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -31,6 +33,7 @@ import org.vaadin.klaudeta.PaginatedGrid;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Route(value = "good", layout = AppView.class)
@@ -186,7 +189,7 @@ public class GoodsView extends VerticalLayout {
 
     private void setGrid() {
         grid = new PaginatedGrid<>(ProductDto.class);
-        grid.setWidth("80%");
+        grid.setWidth("75%");
         grid.setHeight("100%");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -203,25 +206,32 @@ public class GoodsView extends VerticalLayout {
     /**
      * Метод возвращает подготовленный древовидный грид
     **/
-    public void setTreeGrid() {
+    private void setTreeGrid() {
         treeGrid = new TreeGrid<>();
         treeGrid.setHeight("100%");
-        treeGrid.setWidth("20%");
+        treeGrid.setWidth("25%");
         treeGrid.setThemeName("dense", true);
+        treeGrid.addClassName("treeGreed");
 
-        treeGrid.addHierarchyColumn(ProductGroupDto::getName)
+        Grid.Column<ProductGroupDto> column = treeGrid
+                .addHierarchyColumn(x -> "")
+                .setHeader("Товарная группа")
+                .setFlexGrow(0)
+                .setWidth("auto")
                 .setSortProperty("sortNumber")
-                .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber))
-                .setHeader("Товарная группа");
+                .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber));
+
+        treeGrid.addColumn(ProductGroupDto::getName);
+
         HeaderRow header = treeGrid.appendHeaderRow();
         treeGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        SingleSelect<Grid<ProductGroupDto>, ProductGroupDto> singleSelect = treeGrid.asSingleSelect();
-        singleSelect.addValueChangeListener(event -> {
-            ProductGroupDto selected = event.getValue();
-            filteredData.clear();
-            filteredData = productService.getAllByProductGroupId(selected.getId());
-            paginator.setData(filteredData);
-            header.getCells().forEach(x -> x.setText(selected.getName()));
+        treeGrid.addSelectionListener(event -> {
+           Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
+           if (optional.isPresent()){
+               filteredData = productService.getAllByProductGroupId(optional.get().getId());
+               paginator.setData(filteredData);
+               header.getCell(column).setText(optional.get().getName());
+           }
         });
         updateTreeGrid();
     }

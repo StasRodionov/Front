@@ -28,7 +28,8 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final RoleService roleService;
     private final ImageService imageService;
     private final Div div;
-    
+    private final Div divMenu;
+
     public ProfileView(UnitService unitService, CompanyService companyService,
                        EmployeeService employeeService, WarehouseService warehouseService,
                        CurrencyService currencyService, RoleService roleService, ImageService imageService) {
@@ -40,7 +41,8 @@ public class ProfileView extends Div implements AfterNavigationObserver {
         this.roleService = roleService;
         this.imageService = imageService;
         div = new Div();
-        add(configurationSubMenu(), div);
+        divMenu = new Div();
+        add(divMenu, div);
     }
 
     @Override
@@ -52,6 +54,8 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             }
         });
         getUI().ifPresent(ui -> {
+            divMenu.removeAll();
+            divMenu.add(configurationSubMenu());
             div.removeAll();
             div.add(new CompanyView(companyService));
         });
