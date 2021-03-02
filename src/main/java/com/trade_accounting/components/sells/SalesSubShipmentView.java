@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -33,6 +34,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
+    private final WarehouseService warehouseService;
     private final List<InvoiceDto> data;
 
     private HorizontalLayout actions;
@@ -42,10 +44,12 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     public SalesSubShipmentView(InvoiceService invoiceService,
                                 ContractorService contractorService,
-                                CompanyService companyService) {
+                                CompanyService companyService,
+                                WarehouseService warehouseService) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
+        this.warehouseService = warehouseService;
         this.data = getData();
 
         configureActions();
@@ -79,7 +83,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
-                    invoiceService, contractorService, companyService);
+                    invoiceService, contractorService, companyService, warehouseService);
             addModalWin.addDetachListener(e -> updateList());
             addModalWin.open();
         });

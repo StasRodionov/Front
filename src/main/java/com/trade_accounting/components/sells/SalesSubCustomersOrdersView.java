@@ -4,9 +4,11 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -33,6 +35,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
+    private final WarehouseService warehouseService;
     private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
@@ -42,10 +45,13 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
 
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
                                        ContractorService contractorService,
-                                       CompanyService companyService) {
+                                       CompanyService companyService,
+                                       WarehouseService warehouseService
+                                       ) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
+        this.warehouseService = warehouseService;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
@@ -64,13 +70,13 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
         grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
         grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
         grid.setHeight("66vh");
-
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
-                    invoiceService, contractorService, companyService);
+                    invoiceService, contractorService, companyService, warehouseService);
             addModalWin.addDetachListener(e -> updateList());
             addModalWin.open();
         });
@@ -107,7 +113,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
     private Button buttonUnit() {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
         SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
-                contractorService, companyService);
+                contractorService, companyService, warehouseService);
         addModalWin.addDetachListener(event -> updateList());
         buttonUnit.addClickListener(event -> addModalWin.open());
         return buttonUnit;
