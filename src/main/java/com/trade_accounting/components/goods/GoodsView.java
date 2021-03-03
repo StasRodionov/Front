@@ -1,14 +1,11 @@
 package com.trade_accounting.components.goods;
 
 
-import com.sun.source.tree.Tree;
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -24,54 +21,144 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
-import com.vaadin.flow.data.provider.hierarchy.TreeData;
-import com.vaadin.flow.data.selection.SingleSelect;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.klaudeta.PaginatedGrid;
 
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Route(value = "good", layout = AppView.class)
-@PageTitle("Товары и услуги")
+@SpringComponent
+@UIScope
 public class GoodsView extends VerticalLayout {
 
     private static final String VALUE_SELECT_WIDTH = "120px";
 
     private final ProductService productService;
     private final ProductGroupService productGroupService;
-    private final UnitService unitService;
 
-    private List<ProductDto> liteProducts;
-    private List<ProductDto> filteredData = new LinkedList<>();
-    private List<ProductGroupDto> productGroupData;//данные для древовидного layout
+    private final GoodsModalWindow goodsModalWindow;
 
-    private Grid<ProductDto> grid;
-    private TreeGrid<ProductGroupDto> treeGrid;//древовидный layout
-    private HorizontalLayout upperLayout;
-    private SplitLayout middleLayout;//двухоконный layout в котором размещаются грид и древовидный грид
-    private GridPaginator<ProductDto> paginator;
+    private final TreeGrid<ProductGroupDto> treeGrid;
+    private final GridPaginator<ProductDto> paginator;
 
-    public GoodsView(ProductService productService, ProductGroupService productGroupService, UnitService unitService) {
+    @Autowired
+    public GoodsView(ProductService productService, ProductGroupService productGroupService, GoodsModalWindow goodsModalWindow) {
         this.productService = productService;
         this.productGroupService = productGroupService;
-        this.unitService = unitService;
+        this.goodsModalWindow = goodsModalWindow;
 
-        loadLiteProducts();
-        setUpperLayout();
-        setMiddleLayout();
-        setPaginator();
+        treeGrid = getTreeGrid();
+        Grid<ProductDto> grid = getGrid();
+        paginator = getPaginator(grid);
 
-        add(upperLayout, middleLayout, paginator);
+        add(getUpperLayout(), getMiddleLayout(grid), paginator);
     }
 
-    private void loadLiteProducts() {
-        liteProducts = productService.getAllLite();
+    public void updateData() {
+        paginator.setData(productService.getAllLite());
+        updateTreeGrid(productGroupService.getAll());
+    }
+
+    private HorizontalLayout getUpperLayout() {
+        HorizontalLayout upperLayout = new HorizontalLayout();
+        upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(),
+                buttonPlusService(), buttonPlusSet(), buttonPlusGroup(),
+                buttonFilter(), text(), numberField(), valueSelect(), valueSelectPrint(),
+                valueSelectImport(), valueSelectExport(), buttonSettings());
+        upperLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        return upperLayout;
+    }
+
+    private SplitLayout getMiddleLayout(Grid<ProductDto> grid) {
+        SplitLayout middleLayout = new SplitLayout();
+        middleLayout.setWidth("100%");
+        middleLayout.setHeight("66vh");
+        middleLayout.addToPrimary(treeGrid);
+        middleLayout.addToSecondary(grid);
+        return middleLayout;
+    }
+
+    private GridPaginator<ProductDto> getPaginator(Grid<ProductDto> grid) {
+        GridPaginator<ProductDto> paginator = new GridPaginator<>(grid, new ArrayList<>(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        return paginator;
+    }
+
+    private Grid<ProductDto> getGrid() {
+        Grid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
+        grid.setWidth("75%");
+        grid.setHeight("100%");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.setColumns("name", "description", "weight", "volume", "purchasePrice");
+        grid.getColumnByKey("name").setHeader("Наименование");
+        grid.getColumnByKey("description").setHeader("Артикул");
+        grid.getColumnByKey("weight").setHeader("Вес");
+        grid.getColumnByKey("volume").setHeader("Объем");
+        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена");
+        return grid;
+    }
+
+    private TreeGrid<ProductGroupDto> getTreeGrid() {
+        TreeGrid<ProductGroupDto> treeGrid = new TreeGrid<>();
+        treeGrid.setHeight("100%");
+        treeGrid.setWidth("25%");
+        treeGrid.setThemeName("dense", true);
+        treeGrid.addClassName("treeGreed");
+
+        Grid.Column<ProductGroupDto> column = treeGrid
+                .addHierarchyColumn(x -> "")
+                .setHeader("Товарная группа")
+                .setFlexGrow(0)
+                .setWidth("auto")
+                .setSortProperty("sortNumber")
+                .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber));
+
+        treeGrid.addColumn(ProductGroupDto::getName);
+        HeaderRow header = treeGrid.appendHeaderRow();
+        treeGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        treeGrid.addSelectionListener(event -> {
+            Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
+            if (optional.isPresent()) {
+                paginator.setData(productService.getAllByProductGroupId(optional.get().getId()));
+                header.getCell(column).setText(optional.get().getName());
+            }
+        });
+        return treeGrid;
+    }
+
+    private void updateTreeGrid(List<ProductGroupDto> productGroupData) {
+        treeGrid.getTreeData().clear();
+        List<ProductGroupDto> buffer = new ArrayList<>();
+        ProductGroupDto element;
+        ProductGroupDto parent;
+        while (!productGroupData.isEmpty()) {
+            for (int i = 0; i < productGroupData.size(); i++) {
+                element = productGroupData.get(i);
+                if (element.getParentId() == null) {
+                    treeGrid.getTreeData().addItem(null, element);
+                    buffer.add(element);
+                    productGroupData.remove(element);
+                } else if (!buffer.isEmpty()) {
+                    for (int j = 0; j < buffer.size(); j++) {
+                        parent = buffer.get(j);
+                        if (parent.getId().equals(element.getParentId())) {
+                            treeGrid.getTreeData().addItem(parent, element);
+                            buffer.add(element);
+                            productGroupData.remove(element);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private Button buttonQuestion() {
@@ -88,7 +175,7 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusGoods() {
         Button addGoodsButton = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
-        addGoodsButton.addClickListener(e -> new GoodsModalWindow(unitService).open());
+        addGoodsButton.addClickListener(e -> goodsModalWindow.open());
         return addGoodsButton;
     }
 
@@ -165,108 +252,5 @@ public class GoodsView extends VerticalLayout {
         return valueSelect;
     }
 
-    private void setUpperLayout() {
-        upperLayout = new HorizontalLayout();
-        upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(),
-                buttonPlusService(), buttonPlusSet(), buttonPlusGroup(),
-                buttonFilter(), text(), numberField(), valueSelect(), valueSelectPrint(),
-                valueSelectImport(), valueSelectExport(), buttonSettings());
-        upperLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-    }
 
-    private void setMiddleLayout() {
-        setTreeGrid();
-        setGrid();
-
-        middleLayout = new SplitLayout();
-        middleLayout.setWidth("100%");
-        middleLayout.setHeight("66vh");
-        middleLayout.addToPrimary(treeGrid);
-        middleLayout.addToSecondary(grid);
-    }
-
-    private void setPaginator() {
-        paginator = new GridPaginator<>(grid, liteProducts, 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-    }
-
-    private void setGrid() {
-        grid = new PaginatedGrid<>(ProductDto.class);
-        grid.setWidth("75%");
-        grid.setHeight("100%");
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
-        grid.setColumns("name", "description", "weight", "volume", "purchasePrice");
-        grid.getColumnByKey("name").setHeader("Наименование");
-        grid.getColumnByKey("description").setHeader("Артикул");
-        grid.getColumnByKey("weight").setHeader("Вес");
-        grid.getColumnByKey("volume").setHeader("Объем");
-        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена");
-        grid.setItems(liteProducts);
-    }
-
-    /**
-     * Метод возвращает подготовленный древовидный грид
-    **/
-    private void setTreeGrid() {
-        treeGrid = new TreeGrid<>();
-        treeGrid.setHeight("100%");
-        treeGrid.setWidth("25%");
-        treeGrid.setThemeName("dense", true);
-        treeGrid.addClassName("treeGreed");
-
-        Grid.Column<ProductGroupDto> column = treeGrid
-                .addHierarchyColumn(x -> "")
-                .setHeader("Товарная группа")
-                .setFlexGrow(0)
-                .setWidth("auto")
-                .setSortProperty("sortNumber")
-                .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber));
-
-        treeGrid.addColumn(ProductGroupDto::getName);
-
-        HeaderRow header = treeGrid.appendHeaderRow();
-        treeGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        treeGrid.addSelectionListener(event -> {
-           Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
-           if (optional.isPresent()){
-               filteredData = productService.getAllByProductGroupId(optional.get().getId());
-               paginator.setData(filteredData);
-               header.getCell(column).setText(optional.get().getName());
-           }
-        });
-        updateTreeGrid();
-    }
-
-    /**
-     * Метод обновляет содержимое древовидного грида
-     */
-    private void updateTreeGrid() {
-        List<ProductGroupDto> buffer = new LinkedList<>();
-
-        ProductGroupDto element;
-        ProductGroupDto parent;
-        productGroupData = productGroupService.getAll();
-        while (!productGroupData.isEmpty()) {
-            for (int i = 0; i < productGroupData.size(); i++) {
-                element = productGroupData.get(i);
-                if (element.getParentId() == null) {
-                    treeGrid.getTreeData().addItem(null, element);
-                    buffer.add(element);
-                    productGroupData.remove(element);
-                } else if (!buffer.isEmpty()) {
-                    for (int j = 0; j < buffer.size(); j++) {
-                        parent = buffer.get(j);
-                        if (parent.getId().equals(element.getParentId())) {
-                            treeGrid.getTreeData().addItem(parent, element);
-                            buffer.add(element);
-                            productGroupData.remove(element);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

@@ -13,10 +13,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 
-
+@SpringComponent
+@UIScope
 public class GoodsModalWindow extends Dialog {
 
 
@@ -34,6 +38,7 @@ public class GoodsModalWindow extends Dialog {
     private final String labelWidth = "100px";
     private final String fieldWidth = "400px";
 
+    @Autowired
     public GoodsModalWindow(UnitService unitService) {
         this.unitService = unitService;
 
@@ -49,12 +54,15 @@ public class GoodsModalWindow extends Dialog {
         add(getHorizontalLayout("Описание", descriptionField));
 
         unitDtoSelect.setItemLabelGenerator(UnitDto::getFullName);
-        unitDtoSelect.setItems(unitService.getAll());
         add(getHorizontalLayout("Единицы измерения", unitDtoSelect));
 
     }
 
-
+    @Override
+    public void open() {
+        unitDtoSelect.setItems(unitService.getAll());
+        super.open();
+    }
 
     private HorizontalLayout getHeader() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
