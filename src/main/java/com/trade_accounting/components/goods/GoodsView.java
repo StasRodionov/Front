@@ -48,7 +48,9 @@ public class GoodsView extends VerticalLayout {
     private final GridPaginator<ProductDto> paginator;
 
     @Autowired
-    public GoodsView(ProductService productService, ProductGroupService productGroupService, GoodsModalWindow goodsModalWindow) {
+    public GoodsView(ProductService productService,
+                     ProductGroupService productGroupService,
+                     GoodsModalWindow goodsModalWindow) {
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
