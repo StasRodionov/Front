@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
 
 @Component
-
 public class ConfigureUIServiceInitListener implements VaadinServiceInitListener {
 
     @Override
