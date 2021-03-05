@@ -1,7 +1,7 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -19,7 +19,6 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public class SalesModalWinCustomersOrders extends Dialog {
 
@@ -41,7 +40,7 @@ public class SalesModalWinCustomersOrders extends Dialog {
                                         ContractorService contractorService,
                                         CompanyService companyService,
                                         WarehouseService warehouseService
-                                        ) {
+    ) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -56,17 +55,14 @@ public class SalesModalWinCustomersOrders extends Dialog {
         typeOfInvoiceField.setValue(getFieldValueNotNull(invoiceDto.getTypeOfInvoice()));
 
         if (invoiceDto.getCompanyDto() != null) {
-            companySelect.setPlaceholder(invoiceDto.getCompanyDto().getName());
             companySelect.setValue(invoiceDto.getCompanyDto());
         }
 
         if (invoiceDto.getContractorDto() != null) {
             contractorSelect.setValue(invoiceDto.getContractorDto());
-            contractorSelect.setPlaceholder(invoiceDto.getContractorDto().getName());
         }
 
         if (invoiceDto.getWarehouseDto() != null) {
-            warehouseSelect.setPlaceholder(invoiceDto.getWarehouseDto().getName());
             warehouseSelect.setValue(invoiceDto.getWarehouseDto());
         }
 
