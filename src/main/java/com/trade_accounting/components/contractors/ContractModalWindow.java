@@ -6,7 +6,6 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
-import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -23,12 +22,9 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
 
 public class ContractModalWindow extends Dialog {
 
@@ -93,87 +89,14 @@ public class ContractModalWindow extends Dialog {
         }
         selectContractor.setValue(dto.getContractorDto());
         if (dto.getCompanyDto() != null) {
-//            setField(selectCompany, dto.getCompanyDto());
             selectCompany.setValue(dto.getCompanyDto());
-//            companyId = dto.getCompanyDto().getId();
-//            setField(companyName, dto.getCompanyDto().getName());
-//            setField(companyInn, dto.getCompanyDto().getInn());
-//            setField(companyAddress, dto.getCompanyDto().getAddress());
-//            setField(companyCommentToAddress, dto.getCompanyDto().getCommentToAddress());
-//            setField(companyEmail, dto.getCompanyDto().getEmail());
-//            setField(companyPhone, dto.getCompanyDto().getPhone());
-//            setField(companyFax, dto.getCompanyDto().getFax());
-//            setField(companyLeader, dto.getCompanyDto().getLeader());
-//            setField(companyLeaderManagerPosition, dto.getCompanyDto().getLeaderManagerPosition());
-//            setField(companyLeaderSignature, dto.getCompanyDto().getLeaderSignature());
-//            setField(companyChiefAccountant, dto.getCompanyDto().getChiefAccountant());
-//            setField(companyChiefAccountantSignature, dto.getCompanyDto().getChiefAccountantSignature());
-//            setField(companyPayerVat, Boolean.TRUE.equals(dto.getCompanyDto().getPayerVat()) ? "Да" : "Нет");
-//            setField(companySortNumber, dto.getCompanyDto().getSortNumber());
-//            setField(companyStamp, dto.getCompanyDto().getStamp());
         }
 
         if (dto.getLegalDetailDto() != null) {
             setField(selectLegalDetail, dto.getLegalDetailDto());
-//            selectLegalDetail.setItems(selectCompany.getValue().getLegalDetailDto());
-//            selectLegalDetail.setValue(dto.getLegalDetailDto());
-
-
-//            legalDetailId = dto.getLegalDetailDto().getId();
-//            setField(legalDetailLastName, dto.getLegalDetailDto().getLastName());
-//            setField(legalDetailFirstName, dto.getLegalDetailDto().getFirstName());
-//            setField(legalDetailMiddleName, dto.getLegalDetailDto().getMiddleName());
-//            setField(legalDetailAddress, dto.getLegalDetailDto().getAddress());
-//            setField(legalDetailCommentToAddress, dto.getLegalDetailDto().getCommentToAddress());
-//            setField(legalDetailInn, dto.getLegalDetailDto().getInn());
-//            setField(legalDetailOkpo, dto.getLegalDetailDto().getOkpo());
-//            setField(legalDetailOgrnip, dto.getLegalDetailDto().getOgrnip());
-//            setField(legalDetailNumberOfTheCertificate, dto.getLegalDetailDto().getNumberOfTheCertificate());
-//            setDate(legalDetailDateOfTheCertificate, dto.getLegalDetailDto().getDateOfTheCertificate());
-//
-//            if (dto.getLegalDetailDto().getTypeOfContractorDto() != null) {
-//                typeOfContractorId = dto.getLegalDetailDto().getTypeOfContractorDto().getId();
-//                setField(typeOfContractorName, dto.getLegalDetailDto().getTypeOfContractorDto().getName());
-//                setField(typeOfContractorSortNumber, dto.getLegalDetailDto().getTypeOfContractorDto().getSortNumber());
-//            }
         }
 
         setField(selectBankAccount, dto.getBankAccountDto());
-
-//        selectBankAccount.setItems(selectCompany.getValue().getBankAccountDto());
-//        selectBankAccount.setValue(dto.getBankAccountDto());
-//        selectContractor.setValue(dto.getContractorDto());
-
-//        bankAccountId = dto.getBankAccountDto().getId();
-//        setField(bankAccountRcbic, dto.getBankAccountDto().getRcbic());
-//        setField(bankAccountBank, dto.getBankAccountDto().getBank());
-//        setField(bankAccountAddress, dto.getBankAccountDto().getAddress());
-//        setField(bankAccountCorrespondentAccount, dto.getBankAccountDto().getCorrespondentAccount());
-//        setField(bankAccountAccount, dto.getBankAccountDto().getAccount());
-//        setField(bankAccountMainAccount, Boolean.TRUE.equals(dto.getBankAccountDto().getMainAccount()) ? "Да" : "Нет");
-//        setField(bankAccountSortNumber, dto.getBankAccountDto().getSortNumber());
-
-//        contractorId = dto.getContractorDto().getId();
-//        setField(contractorName, dto.getContractorDto().getName());
-//        setField(contractorInn, dto.getContractorDto().getInn());
-//        setField(contractorSortNumber, dto.getContractorDto().getSortNumber());
-//        setField(contractorPhone, dto.getContractorDto().getPhone());
-//        setField(contractorFax, dto.getContractorDto().getFax());
-//        setField(contractorEmail, dto.getContractorDto().getEmail());
-//        setField(contractorAddress, dto.getContractorDto().getAddress());
-//        setField(contractorCommentToAddress, dto.getContractorDto().getCommentToAddress());
-//        setField(contractorComment, dto.getContractorDto().getComment());
-//
-//        if (dto.getContractorDto().getContractorGroupDto() != null) {
-//            contractorGroupId = dto.getContractorDto().getContractorGroupDto().getId();
-//            setField(contractorGroupName, dto.getContractorDto().getContractorGroupDto().getName());
-//            setField(contractorGroupSortNumber, dto.getContractorDto().getContractorGroupDto().getSortNumber());
-//        }
-//        if (dto.getContractorDto().getTypeOfPriceDto() != null) {
-//            typeOfPriceId = dto.getContractorDto().getTypeOfPriceDto().getId();
-//            setField(typeOfPriceName, dto.getContractorDto().getTypeOfPriceDto().getName());
-//            setField(typeOfPriceSortNumber, dto.getContractorDto().getTypeOfPriceDto().getSortNumber());
-//        }
 
     }
 
