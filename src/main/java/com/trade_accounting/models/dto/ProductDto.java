@@ -31,7 +31,7 @@ public class ProductDto {
 
     private ContractorDto contractorDto;
 
-    private List<TypeOfPriceDto> typeOfPriceDto;
+    private List<PriceDto> priceDtos;
 
     private TaxSystemDto taxSystemDto;
 
@@ -41,19 +41,4 @@ public class ProductDto {
 
     private AttributeOfCalculationObjectDto attributeOfCalculationObjectDto;
 
-    public ProductDto(Long id,
-                      String name,
-                      BigDecimal weight,
-                      BigDecimal volume,
-                      BigDecimal purchasePrice,
-                      String description,
-                      Boolean archive) {
-        this.id = id;
-        this.name = name;
-        this.weight = weight;
-        this.volume = volume;
-        this.purchasePrice = purchasePrice;
-        this.description = description;
-        this.archive = archive;
-    }
 }

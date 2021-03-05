@@ -13,6 +13,7 @@ import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -55,6 +56,7 @@ public class GoodsView extends VerticalLayout {
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
 
+        goodsModalWindow.setGoodsView(this);
         treeGrid = getTreeGrid();
         Grid<ProductDto> grid = getGrid();
         paginator = getPaginator(grid);
@@ -63,8 +65,17 @@ public class GoodsView extends VerticalLayout {
     }
 
     public void updateData() {
-        paginator.setData(productService.getAllLite());
-        updateTreeGrid(productGroupService.getAll());
+
+            paginator.setData(productService.getAllLite());
+            updateTreeGrid(productGroupService.getAll());
+
+
+
+    }
+
+    public void updateAfterModalWindowClose() {
+        Optional<ProductGroupDto> optional = treeGrid.getSelectedItems().stream().findFirst();
+        optional.ifPresent(productGroupDto -> paginator.setData(productService.getAllByProductGroup(productGroupDto)));
     }
 
     private HorizontalLayout getUpperLayout() {
@@ -129,7 +140,7 @@ public class GoodsView extends VerticalLayout {
         treeGrid.addSelectionListener(event -> {
             Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
-                paginator.setData(productService.getAllByProductGroupId(optional.get().getId()));
+                paginator.setData(productService.getAllByProductGroup(optional.get()));
                 header.getCell(column).setText(optional.get().getName());
             }
         });
