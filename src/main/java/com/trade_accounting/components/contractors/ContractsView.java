@@ -2,8 +2,13 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.services.interfaces.BankAccountService;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -31,10 +36,16 @@ import java.util.List;
 public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
+    private final ContractorService contractorService;
+    private final CompanyService companyService;
+
     private Grid<ContractDto> grid;
 
-    ContractsView(ContractService contractService) {
+    ContractsView(ContractService contractService, ContractorService contractorService,
+                  CompanyService companyService) {
         this.contractService = contractService;
+        this.contractorService = contractorService;
+        this.companyService = companyService;
         reloadGrid();
     }
 
@@ -55,8 +66,8 @@ public class ContractsView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             ContractDto editContract = event.getItem();
             ContractModalWindow contractModalWindow =
-                    new ContractModalWindow(editContract, contractService);
-            contractModalWindow.addDetachListener(e -> reloadGrid());
+                    new ContractModalWindow(editContract, contractService, contractorService, companyService);
+//            contractModalWindow.addDetachListener(e -> reloadGrid());
             contractModalWindow.open();
         });
     }
@@ -111,9 +122,11 @@ public class ContractsView extends VerticalLayout {
     private Button getButton() {
         final Button button = new Button("Договор");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService);
+        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService, contractorService,
+                companyService);
         button.addClickListener(event -> contractModalWindow.open());
-       // button.addDetachListener(event -> reloadGrid());
+//        button.addDetachListener(event -> reloadGrid());
+        contractModalWindow.addDetachListener(event -> reloadGrid());
         return button;
     }
 
@@ -123,6 +136,7 @@ public class ContractsView extends VerticalLayout {
         buttonRefresh = new Button();
         buttonRefresh.setIcon(circle);
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(click -> reloadGrid());
         return buttonRefresh;
     }
 
