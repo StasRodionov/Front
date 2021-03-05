@@ -1,12 +1,14 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.api.ProductApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
@@ -71,8 +73,9 @@ public class ProductServiceImp implements ProductService {
         Call<Void> productCall = productApi.create(productUrl, productDto);
         try {
             productCall.execute();
+            log.info("Отправлен запрос на добовление продукта {}", productDto.getName());
         } catch (IOException e) {
-            log.error("Произошла ошибка при создании ProductDto - {}", e);
+            log.error("Произошла ошибка при создании ProductDto {} - {}", productDto.getName(), e.getMessage());
         }
     }
 
@@ -98,11 +101,11 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getAllByProductGroupId(Long l) {
-        Call<List<ProductDto>> productGetAllCall = productApi.getAllByProductGroup(productUrl, l);
+    public List<ProductDto> getAllByProductGroup(ProductGroupDto productGroupDto) {
+        Call<List<ProductDto>> productGetAllCall = productApi.getAllByProductGroupId(productUrl, productGroupDto.getId());
         try {
             listProducts = productGetAllCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ProductDto");
+            log.info("Успешно выполнен запрос на получение списка ProductDto принадлежащих группе {}", productGroupDto.getName());
         } catch (IOException e) {
             log.error("Произошла ошибка при получении списка ProductDto - {}", e);
         }
