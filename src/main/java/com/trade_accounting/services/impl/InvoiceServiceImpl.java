@@ -14,6 +14,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -113,6 +114,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         });
         return invoiceDto;
     }
+
+    @Override
+    public List<InvoiceDto> search(Map<String, String> query) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.search(invoiceUrl, query);
+
+        try {
+            invoiceDtoList = invoiceDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return invoiceDtoList;
+    }
+
 
     /*@Override
     public void create(InvoiceDto invoiceDto) {
