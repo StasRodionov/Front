@@ -36,9 +36,9 @@ public class ProductGroupServiceImpl implements ProductGroupService {
 
         try {
             productGroupDtoList = productGroupDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ProductDto");
+            log.info("Успешно выполнен запрос на получение списка ProductGroupDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при получении списка ProductDto - {}", e);
+            log.error("Произошла ошибка при получении списка ProductGroupDto - {}", e);
         }
 
         return productGroupDtoList;
