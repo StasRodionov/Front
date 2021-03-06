@@ -41,8 +41,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
-//    private static final int ITEMS_PER_PAGE = 100;
-
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
                                        ContractorService contractorService,
                                        CompanyService companyService,
