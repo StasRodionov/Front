@@ -31,16 +31,16 @@ public class ContractModalWindow extends Dialog {
     private static final String FIELD_WIDTH = "400px";
 
     private Long contractId;
-    private DatePicker dateField = new DatePicker();
-    private TextField amountField = new TextField();
-    private Checkbox archiveField = new Checkbox();
-    private TextField commentField = new TextField();
-    private ValidTextField numberField = new ValidTextField();
+    private final DatePicker dateField = new DatePicker();
+    private final TextField amountField = new TextField();
+    private final Checkbox archiveField = new Checkbox();
+    private final TextField commentField = new TextField();
+    private final ValidTextField numberField = new ValidTextField();
 
-    private Select<ContractorDto> selectContractor = new Select<>();
-    private Select<CompanyDto> selectCompany = new Select<>();
-    private Select<BankAccountDto> selectBankAccount = new Select<>();
-    private Select<LegalDetailDto> selectLegalDetail = new Select<>();
+    private final Select<ContractorDto> selectContractor = new Select<>();
+    private final Select<CompanyDto> selectCompany = new Select<>();
+    private final Select<BankAccountDto> selectBankAccount = new Select<>();
+    private final Select<LegalDetailDto> selectLegalDetail = new Select<>();
 
 
     private final String labelWidth = "100px";
