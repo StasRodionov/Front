@@ -24,7 +24,7 @@ public interface ImageApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
+    Call<ImageDto> create(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")

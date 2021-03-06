@@ -109,16 +109,16 @@ public class ImageServiceImpl implements ImageService {
     }*/
 
     @Override
-    public void create(ImageDto imageDto) {
-        Call<Void> imageDtoCall = imageApi.create(imageUrl, imageDto);
+    public ImageDto create(ImageDto imageDto) {
+        Call<ImageDto> imageDtoCall = imageApi.create(imageUrl, imageDto);
 
         try {
-            imageDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание нового экземпляра ImageDto {}", imageDto);
+            return imageDtoCall.execute().body();
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на создание нового экземпляра ImageDto {}: {}",
                     imageDto, e);
         }
+        return imageDto;
     }
 
 

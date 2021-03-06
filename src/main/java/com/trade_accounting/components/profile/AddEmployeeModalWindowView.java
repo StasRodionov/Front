@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -19,18 +20,15 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import lombok.extern.slf4j.Slf4j;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,6 +80,8 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private String pathImageResult;
 
+    private Component avatar;
+
     public AddEmployeeModalWindowView(EmployeeDto employeeDto,
                                       EmployeeService employeeService,
                                       RoleService roleService,
@@ -130,6 +130,7 @@ public class AddEmployeeModalWindowView extends Dialog {
     private HorizontalLayout lowerLayout() {
         HorizontalLayout lowerLayout = new HorizontalLayout();
         div.removeAll();
+
         div.add(addEmployeeLastName(),
                 addEmployeeFirstName(),
                 addEmployeeMiddleName(),
@@ -138,20 +139,19 @@ public class AddEmployeeModalWindowView extends Dialog {
                 addEmployeeInn(),
                 addEmployeeDescription(),
                 addEmployeePassword(),
-                rolesSelect(),
-                addEmployeeImage()
+                rolesSelect()
         );
         add(div);
         return lowerLayout;
     }
 
-    private Component addEmployeeImage() {
+    private Component addEmployeeImage(long id) {
         Label label = new Label("Фото профиля");
         label.setWidth(labelWidth);
-        imageAdd.setWidth(fieldWidth);
-        imageAdd.setPlaceholder("Добавьте фото профиля");
-        HorizontalLayout addEmployeeImageAddLayout = new HorizontalLayout(label, imageAdd);
-        return addEmployeeImageAddLayout;
+        Image avatar = new Image("name", "alt");
+        avatar.setSrc("/content?id=" + id);
+
+        return new HorizontalLayout(label, avatar);
     }
 
     private Component addEmployeePassword() {
@@ -171,7 +171,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         emailAdd.setPlaceholder("Введите Email");
         emailAdd.addValidator(new EmailValidator("Введите правильно адрес электронной почты!"));
         emailAdd.setRequired(true);
-        if(employeeDto!=null) {
+        if (employeeDto != null) {
             emailAdd.setValue(employeeDto.getEmail());
         }
         HorizontalLayout addEmployeeEmailAddLayout = new HorizontalLayout(label, emailAdd);
@@ -194,7 +194,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         phoneAdd.setPlaceholder("Введите номер телефона");
         phoneAdd.addValidator(new RegexpValidator("Введите правильно номер телефона", "^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$"));
         phoneAdd.setRequired(true);
-        if(employeeDto!=null) {
+        if (employeeDto != null) {
             phoneAdd.setValue(employeeDto.getPhone());
         }
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, phoneAdd);
@@ -209,7 +209,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         innAdd.setPattern("^[\\d+]{12}$");
         innAdd.addValidator(new RegexpValidator("Введите правильно ИНН", "^[\\d+]{12}$"));
         innAdd.setRequired(true);
-        if(employeeDto!=null) {
+        if (employeeDto != null) {
             innAdd.setValue(employeeDto.getInn());
         }
         HorizontalLayout addEmployeeInnAddLayout = new HorizontalLayout(label, innAdd);
@@ -223,7 +223,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         lastNameAdd.setWidth(fieldWidth);
         lastNameAdd.setPlaceholder("Введите фамилию");
         lastNameAdd.setRequired(true);
-        if(employeeDto!=null) {
+        if (employeeDto != null) {
             lastNameAdd.setValue(employeeDto.getLastName());
         }
         HorizontalLayout lastNameLayout = new HorizontalLayout(label, lastNameAdd);
@@ -237,7 +237,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         firstNameAdd.setPlaceholder("Введите Имя");
         firstNameAdd.setRequired(true);
         firstNameAdd.addValidator(new StringLengthValidator("Введите правильно имя", 1, 50));
-        if(employeeDto!=null) {
+        if (employeeDto != null) {
             firstNameAdd.setValue(employeeDto.getFirstName());
         }
         HorizontalLayout firstNameLayout = new HorizontalLayout(label, firstNameAdd);
@@ -277,9 +277,9 @@ public class AddEmployeeModalWindowView extends Dialog {
             if (id == null) {
                 System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
 
-                if (!lastNameAdd.isRequiredVerify()||!firstNameAdd.isRequiredVerify()||!emailAdd.isRequiredVerify()
-                        ||!phoneAdd.isRequiredVerify()||!innAdd.isRequiredVerify()){
-                   return;
+                if (!lastNameAdd.isRequiredVerify() || !firstNameAdd.isRequiredVerify() || !emailAdd.isRequiredVerify()
+                        || !phoneAdd.isRequiredVerify() || !innAdd.isRequiredVerify()) {
+                    return;
                 }
 
                 if (emailAdd.isInvalid() || innAdd.isInvalid() || phoneAdd.isInvalid() || lastNameAdd.isInvalid() || firstNameAdd.isInvalid()) {
@@ -360,24 +360,27 @@ public class AddEmployeeModalWindowView extends Dialog {
         Dialog dialog = new Dialog();
         MemoryBuffer memoryBuffer = new MemoryBuffer();
         Upload upload = new Upload(memoryBuffer);
+        upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/gif");
 
-        upload.addFinishedListener(event -> {
-            pathImageResult = pathImageSave + event.getFileName();
-            File newFile = new File(pathImageResult);
-            ImageDto imageResult = new ImageDto();
-            imageResult.setImageUrl(pathImageResult);
-
-            try (InputStream inputStream = memoryBuffer.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(newFile)) {
-                newFile.createNewFile();
-                fos.write(inputStream.readAllBytes());
-                fos.flush();
-                imageService.create(imageResult);
-                log.info("Фото профиля успешно загружено");
-                System.out.println("Фото профиля успешно загружено");
-            } catch (IOException e) {
-                log.error("При загрузке фото профиля произошла ошибка");
+        if (imageDto != null && imageDto.getId() != null) {
+            if (avatar != null) {
+                div.remove(avatar);
             }
+            div.add(avatar = addEmployeeImage(imageDto.getId()));
+        }
+        upload.addFinishedListener(event -> {
+            try {
+                byte[] content = memoryBuffer.getInputStream().readAllBytes();
+                String fileName = memoryBuffer.getFileName();
+                imageDto = new ImageDto();
+                imageDto.setContent(content);
+                imageDto.setFileName(fileName);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            imageDto = imageService.create(imageDto);
+
             dialog.close();
         });
 

@@ -10,7 +10,7 @@ public interface ImageService {
 
     ImageDto getById(Long id);
 
-    void create(ImageDto imageDto);
+    ImageDto create(ImageDto imageDto);
 
     void update(ImageDto imageDto);
 
