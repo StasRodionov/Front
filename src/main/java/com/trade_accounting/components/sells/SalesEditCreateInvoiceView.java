@@ -18,6 +18,7 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -54,6 +55,8 @@ public class SalesEditCreateInvoiceView extends Div {
     private Select<CompanyDto> companySelect = new Select<>();
     private Select<ContractorDto> contractorSelect = new Select<>();
     private Select<WarehouseDto> warehouseSelect = new Select<>();
+
+    private H4 totalPrice = new H4();
 
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
     private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
@@ -109,7 +112,8 @@ public class SalesEditCreateInvoiceView extends Div {
     private HorizontalLayout horizontalLayout2() {
         HorizontalLayout horizontalLayout2 = new HorizontalLayout();
         horizontalLayout2.add(configureCompanySelect(),
-                configureWarehouseSelect()
+                configureWarehouseSelect(),
+                configureTotalPrice()
         );
         return horizontalLayout2;
     }
@@ -173,6 +177,23 @@ public class SalesEditCreateInvoiceView extends Div {
         return horizontalLayout;
     }
 
+    private HorizontalLayout configureTotalPrice() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(totalPriceTitle(), totalPrice());
+        return horizontalLayout;
+    }
+
+    private H4 totalPriceTitle() {
+        H4 totalPriceTitle = new H4("Итого:");
+        totalPriceTitle.setHeight("2.0em");
+        return totalPriceTitle;
+    }
+
+    private H4 totalPrice() {
+        totalPrice.setText(getTotalPrice().toString());
+        totalPrice.setHeight("2.0em");
+        return totalPrice;
+    }
 
     private H2 title() {
         H2 title = new H2("Добавление/редактирование заказа");
@@ -207,10 +228,10 @@ public class SalesEditCreateInvoiceView extends Div {
     }
 
     private Button buttonAddProduct() {
-        return new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
+        Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
             salesChooseGoodsModalWin.open();
-        }
-        );
+        });
+        return button;
     }
 
     public void addProduct(ProductDto productDto) {
@@ -222,6 +243,7 @@ public class SalesEditCreateInvoiceView extends Div {
             tempInvoiceProductDtoList.add(invoiceProductDto);
         }
         paginator.setData(tempInvoiceProductDtoList);
+        setTotalPrice();
     }
 
     private boolean isProductInList(ProductDto productDto) {
@@ -233,4 +255,18 @@ public class SalesEditCreateInvoiceView extends Div {
         }
         return isExists;
     }
+
+    private BigDecimal getTotalPrice() {
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
+            totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
+                    .multiply(invoiceProductDto.getAmount()));
+        }
+        return totalPrice;
+    }
+
+    private void setTotalPrice() {
+        totalPrice.setText(getTotalPrice().toString());
+    }
+
 }
