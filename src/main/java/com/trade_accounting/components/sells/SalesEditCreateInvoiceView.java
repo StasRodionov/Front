@@ -6,6 +6,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -31,6 +32,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class SalesEditCreateInvoiceView extends Div {
     private Select<ContractorDto> contractorSelect = new Select<>();
     private Select<WarehouseDto> warehouseSelect = new Select<>();
 
-    private List<InvoiceProductDto> tempProductDtoList = new ArrayList<>();
+    private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
     private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<InvoiceProductDto> paginator;
     private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
@@ -71,19 +73,21 @@ public class SalesEditCreateInvoiceView extends Div {
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
         configureGrid();
-        paginator = new GridPaginator<>(grid, tempProductDtoList, 100);
+        paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 100);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
 
     private void configureGrid() {
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn(inPrDto -> inPrDto.getProductDto().getName()).setHeader("Название").setKey("productDto").setId("Название");
+        grid.setItems(tempInvoiceProductDtoList);
+//        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn(inPrDto -> inPrDto.getProductDto().getName()).setHeader("Название").setKey("productDtoName").setId("Название");
+        grid.addColumn(inPrDto -> inPrDto.getProductDto().getDescription()).setHeader("Описание").setKey("productDtoDescr").setId("Описание");
         grid.addColumn("amount").setHeader("Количество").setId("Количество");
         grid.addColumn("price").setHeader("Цена").setId("Цена");
         grid.setHeight("36vh");
         grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+//        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private HorizontalLayout upperButtonsLayout() {
@@ -196,6 +200,9 @@ public class SalesEditCreateInvoiceView extends Div {
 
     private Button buttonClose() {
         Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
+        buttonUnit.addClickListener(event -> {
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells"));
+        });
         return buttonUnit;
     }
 
@@ -204,5 +211,26 @@ public class SalesEditCreateInvoiceView extends Div {
             salesChooseGoodsModalWin.open();
         }
         );
+    }
+
+    public void addProduct(ProductDto productDto) {
+        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
+        invoiceProductDto.setProductDto(productDto);
+        invoiceProductDto.setAmount(BigDecimal.ONE);
+        invoiceProductDto.setPrice(productDto.getPurchasePrice());
+        if (!isProductInList(productDto)) {
+            tempInvoiceProductDtoList.add(invoiceProductDto);
+        }
+        paginator.setData(tempInvoiceProductDtoList);
+    }
+
+    private boolean isProductInList(ProductDto productDto) {
+        boolean isExists = false;
+        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
+            if (invoiceProductDto.getProductDto().getId() == productDto.getId()) {
+                isExists = true;
+            }
+        }
+        return isExists;
     }
 }
