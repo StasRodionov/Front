@@ -4,11 +4,8 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,35 +18,40 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
 
 @Slf4j
 @Route(value = "customersOrders", layout = AppView.class)
 @PageTitle("Заказы покупателей")
-public class SalesSubCustomersOrdersView extends VerticalLayout {
+@SpringComponent
+@UIScope
+public class SalesSubCustomersOrdersView extends VerticalLayout implements AfterNavigationObserver {
 
     private final InvoiceService invoiceService;
-    private final ContractorService contractorService;
-    private final CompanyService companyService;
-    private final WarehouseService warehouseService;
+
+    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+
     private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
+    @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
-                                       ContractorService contractorService,
-                                       CompanyService companyService,
-                                       WarehouseService warehouseService
-                                       ) {
+                                       @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView
+    ) {
+        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.invoiceService = invoiceService;
-        this.contractorService = contractorService;
-        this.companyService = companyService;
-        this.warehouseService = warehouseService;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
@@ -73,10 +75,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
 
         grid.addItemDoubleClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
-            SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
-                    invoiceService, contractorService, companyService, warehouseService);
-            addModalWin.addDetachListener(e -> updateList());
-            addModalWin.open();
+            salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
+            UI.getCurrent().navigate("sells/customer-order-edit");
         });
     }
 
@@ -87,6 +87,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
         filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
     }
+
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
@@ -110,10 +111,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
-                contractorService, companyService, warehouseService);
-        addModalWin.addDetachListener(event -> updateList());
-        buttonUnit.addClickListener(event -> addModalWin.open());
+        buttonUnit.addClickListener(event -> {
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+        });
         return buttonUnit;
     }
 
@@ -189,5 +189,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
         return invoiceService.getAll();
     }
 
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
+    }
 }
 

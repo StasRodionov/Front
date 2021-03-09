@@ -55,14 +55,17 @@ public class SalesModalWinCustomersOrders extends Dialog {
         typeOfInvoiceField.setValue(getFieldValueNotNull(invoiceDto.getTypeOfInvoice()));
 
         if (invoiceDto.getCompanyDto() != null) {
+            companySelect.setPlaceholder(invoiceDto.getCompanyDto().getName());
             companySelect.setValue(invoiceDto.getCompanyDto());
         }
 
         if (invoiceDto.getContractorDto() != null) {
             contractorSelect.setValue(invoiceDto.getContractorDto());
+            contractorSelect.setPlaceholder(invoiceDto.getContractorDto().getName());
         }
 
         if (invoiceDto.getWarehouseDto() != null) {
+            warehouseSelect.setPlaceholder(invoiceDto.getWarehouseDto().getName());
             warehouseSelect.setValue(invoiceDto.getWarehouseDto());
         }
 

@@ -60,8 +60,9 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
-            System.out.println(productSelect.getValue());
+            if (productSelect.getValue() != null){
             salesEditCreateInvoiceView.addProduct(productSelect.getValue());
+            }
             close();
         });
     }
