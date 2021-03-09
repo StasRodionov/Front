@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.ImageDto;
+import com.vaadin.flow.server.StreamResource;
 
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface ImageService {
     void update(ImageDto imageDto);
 
     void deleteById(Long id);
+
+    StreamResource download(ImageDto imageDto);
 }

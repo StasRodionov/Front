@@ -80,7 +80,9 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private String pathImageResult;
 
-    private Component avatar;
+    private Component photoComnponent;
+
+    private Image avatar;
 
     public AddEmployeeModalWindowView(EmployeeDto employeeDto,
                                       EmployeeService employeeService,
@@ -103,6 +105,7 @@ public class AddEmployeeModalWindowView extends Dialog {
             descriptionAdd.setValue(getFieldValueNotNull(employeeDto.getDescription()));
             passwordAdd.setValue(getFieldValueNotNull(employeeDto.getPassword()));
             roles = employeeDto.getRoleDto();
+            this.imageDto = imageDto;
 
             if (imageDto != null) {
                 imageAdd.setValue(getFieldValueNotNull(employeeDto.getImageDto().getImageUrl()));
@@ -111,13 +114,13 @@ public class AddEmployeeModalWindowView extends Dialog {
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
-        add(title(), header(), lowerLayout());
+        add(title(), header()/*, lowerLayout()*/); //не понял почему 2 раза подряд добавляется группа компонентов lowerLayuot()
         add(upperLayout(), lowerLayout());
     }
 
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
-        header.add(addButtonShow(), getCancelButton(), getDeleteButton(), getImageButton());
+        header.add(addButtonSave(), getCancelButton(), getDeleteButton(), getImageButton());
         return header;
     }
 
@@ -139,19 +142,23 @@ public class AddEmployeeModalWindowView extends Dialog {
                 addEmployeeInn(),
                 addEmployeeDescription(),
                 addEmployeePassword(),
-                rolesSelect()
+                rolesSelect(),
+                addEmployeeImage(imageDto)
         );
         add(div);
         return lowerLayout;
     }
 
-    private Component addEmployeeImage(long id) {
+    private Component addEmployeeImage(ImageDto imageDto) {
         Label label = new Label("Фото профиля");
         label.setWidth(labelWidth);
-        Image avatar = new Image("name", "alt");
-        avatar.setSrc("/content?id=" + id);
+//        avatar = new Image(imageService.download(imageDto), "Добавьте фото");
+        avatar = new Image(imageService.download(imageDto), "Добавьте фото");
+        avatar.setWidth("135px");
+        avatar.setHeight("200px");
+        photoComnponent = new HorizontalLayout(label, avatar);
 
-        return new HorizontalLayout(label, avatar);
+        return photoComnponent;
     }
 
     private Component addEmployeePassword() {
@@ -271,9 +278,9 @@ public class AddEmployeeModalWindowView extends Dialog {
         return horizontalLayout;
     }
 
-    private Component addButtonShow() {
-        Button addButtonShow = new Button("Сохранить");
-        addButtonShow.addClickListener(click -> {
+    private Component addButtonSave() {
+        Button buttonSave = new Button("Сохранить");
+        buttonSave.addClickListener(click -> {
             if (id == null) {
                 System.out.println("Вы нажали кнопку для сохранения нового сотрудника!");
 
@@ -298,7 +305,7 @@ public class AddEmployeeModalWindowView extends Dialog {
                 close();
             }
         });
-        return addButtonShow;
+        return buttonSave;
     }
 
     private EmployeeDto setEmployeeDto(Long id) {
@@ -326,9 +333,9 @@ public class AddEmployeeModalWindowView extends Dialog {
     }
 
     private ImageDto getImages() {
-        ImageDto updateImageDto = new ImageDto();
-        updateImageDto.setImageUrl(pathImageResult);
-        return updateImageDto;
+//        ImageDto updateImageDto = new ImageDto();
+//        updateImageDto.setImageUrl(pathImageResult);
+        return imageDto;
     }
 
     private Button getCancelButton() {
@@ -362,12 +369,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         Upload upload = new Upload(memoryBuffer);
         upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/gif");
 
-        if (imageDto != null && imageDto.getId() != null) {
-            if (avatar != null) {
-                div.remove(avatar);
-            }
-            div.add(avatar = addEmployeeImage(imageDto.getId()));
-        }
+
         upload.addFinishedListener(event -> {
             try {
                 byte[] content = memoryBuffer.getInputStream().readAllBytes();
@@ -379,7 +381,14 @@ public class AddEmployeeModalWindowView extends Dialog {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            imageDto = imageService.create(imageDto);
+            imageService.create(imageDto);
+
+            if (imageDto != null && imageDto.getId() != null) {
+                if (photoComnponent != null) {
+                    div.remove(photoComnponent);
+                }
+                div.add(photoComnponent = addEmployeeImage(imageDto));
+            }
 
             dialog.close();
         });

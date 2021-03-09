@@ -3,17 +3,19 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.RoleService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,6 +24,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
@@ -71,16 +74,31 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setColumns("lastName", "imageDto", "firstName",
-                "middleName", "email", "phone", "description", "roleDto");
-        grid.getColumnByKey("lastName").setHeader("Фамилия").setId("Фамилия");
-        grid.getColumnByKey("imageDto").setHeader("Фото профиля").setId("Фото профиля");
-        grid.getColumnByKey("firstName").setHeader("Имя").setId("Имя");
-        grid.getColumnByKey("middleName").setHeader("Отчество").setId("Отчество");
-        grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
-        grid.getColumnByKey("phone").setHeader("Телефон").setId("Телефон");
-        grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
-        grid.getColumnByKey("roleDto").setHeader("Роль").setId("Роль");
+        grid.removeAllColumns();
+
+        grid.addColumn("lastName").setHeader("Фамилия").setId("Фамилия");
+        Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
+            @Override
+            public Component createComponent(EmployeeDto item) {
+                ImageDto imageDto = item.getImageDto();
+                if (imageDto != null) {
+                    Image image = new Image(imageService.download(imageDto), "");
+                    image.setHeight("48px");
+                    image.setWidth("32px");
+
+                    return image;
+                }
+                return new Label();
+            }
+        }).setHeader("Фото");
+        photoColumn.getElement().getStyle().set("border-radius", "50%");
+        photoColumn.setKey("imageDto").setId("Фото");
+        grid.addColumn("firstName").setHeader("Имя").setId("Имя");
+        grid.addColumn("middleName").setHeader("Отчество").setId("Отчество");
+        grid.addColumn("email").setHeader("E-mail").setId("E-mail");
+        grid.addColumn("phone").setHeader("Телефон").setId("Телефон");
+        grid.addColumn("description").setHeader("Описание").setId("Описание");
+        grid.addColumn("roleDto").setHeader("Роль").setId("Роль");
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();

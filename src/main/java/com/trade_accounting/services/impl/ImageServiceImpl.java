@@ -3,18 +3,19 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.api.ImageApi;
+import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -219,4 +220,16 @@ public class ImageServiceImpl implements ImageService {
         });
     }*/
 
+    @Override
+    public StreamResource download(ImageDto imageDto) {
+        return new StreamResource("photo", () -> {
+            InputStream in = null;
+            try {
+                in = new FileInputStream(imageDto.getImageUrl());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return in;
+        });
+    }
 }
