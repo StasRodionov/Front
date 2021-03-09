@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
@@ -36,17 +37,19 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
     private GridPaginator<InvoiceDto> paginator;
+    private final GridFilter<InvoiceDto> filter;
 
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
 
         loadInvoices();
-
         configureActions();
         configureGrid();
         configurePaginator();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
 
-        add(actions, grid, paginator);
+        add(actions, filter, grid, paginator);
     }
 
     private void loadInvoices() {
@@ -61,20 +64,14 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private Grid<InvoiceDto> configureGrid() {
-        Icon check = new Icon(VaadinIcon.CHECK);
-        check.setColor("green");
-        check.getElement().setAttribute("title", "Проведена");
-        grid.setColumns("spend", "id", "date", "typeOfInvoice");
-        grid.getColumnByKey("spend").setHeader(check);
-        grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("date").setHeader("Дата").setFlexGrow(10);
-        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура").setFlexGrow(4);
-        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setSortable(true).setHeader("Компания")
-                .setFlexGrow(10).setId("companyDto");
-        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setSortable(true).setHeader("Контрагент")
-                .setFlexGrow(10).setId("contractorDto");
-        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setSortable(true).setHeader("WarehouseDto")
-                .setFlexGrow(10).setId("warehouseDto");
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn("date").setHeader("Дата").setId("Дата");
+        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
+        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
+        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto").setId("Компания");
+        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
+
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -84,6 +81,14 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     private void configurePaginator() {
         paginator = new GridPaginator<>(grid, invoices, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
     }
 
     private Button buttonQuestion() {
@@ -111,6 +116,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
