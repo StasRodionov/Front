@@ -1,9 +1,12 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.BankAccountService;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -21,13 +24,16 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     private final ContractService contractService;
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
+    private final CompanyService companyService;
 
     public ContractorsView(ContractService contractService,
                            ContractorService contractorService,
-                           ContractorGroupService contractorGroupService) {
+                           ContractorGroupService contractorGroupService,
+                           CompanyService companyService) {
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.contractorGroupService = contractorGroupService;
+        this.companyService = companyService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -64,7 +70,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                     break;
                 case "Договоры":
                     div.removeAll();
-                    div.add(new ContractsView(contractService));
+                    div.add(new ContractsView(contractService, contractorService, companyService));
                     break;
             }
         });
