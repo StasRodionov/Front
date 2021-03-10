@@ -30,19 +30,22 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
     private final WarehouseService warehouseService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
+    private final SalesSubShipmentView salesSubShipmentView;
+
 
     @Autowired
     public SalesSubMenuView(InvoiceService invoiceService,
                             ContractorService contractorService,
                             CompanyService companyService,
                             WarehouseService warehouseService,
-                            @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView
-                            ) {
+                            @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
+                            @Lazy SalesSubShipmentView salesSubShipmentView) {
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
+        this.salesSubShipmentView = salesSubShipmentView;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -89,15 +92,15 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Счета покупателям":
                     div.removeAll();
-                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, contractorService, companyService,warehouseService));
+                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, contractorService, companyService, warehouseService));
                     break;
-//                case "Отгрузки":
-//                    div.removeAll();
-//                    div.add(new SalesSubShipmentView(invoiceService, contractorService, companyService,warehouseService));
-//                    break;
+                case "Отгрузки":
+                    div.removeAll();
+                    div.add(salesSubShipmentView);
+                    break;
                 case "Отчеты комиссионера":
                     div.removeAll();
-                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService,warehouseService));
+                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService));
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
