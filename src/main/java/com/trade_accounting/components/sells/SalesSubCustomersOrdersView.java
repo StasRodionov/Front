@@ -106,7 +106,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
+        SalesModalWinCustomersOrders addModalWin =
+                new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
                 contractorService, companyService);
         addModalWin.addDetachListener(event -> updateList());
         buttonUnit.addClickListener(event -> addModalWin.open());
@@ -120,8 +121,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout {
     }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+//        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
+//        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private NumberField numberField() {
