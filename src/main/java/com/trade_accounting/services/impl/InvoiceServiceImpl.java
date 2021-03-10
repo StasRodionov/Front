@@ -145,14 +145,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
     @Override
-    public void create(InvoiceDto invoiceDto) {
+    public Response<InvoiceDto> create(InvoiceDto invoiceDto) {
 
         Call<InvoiceDto> invoiceDtoCall = invoiceApi.create(invoiceUrl, invoiceDto);
+        Response<InvoiceDto> resp = Response.success(new InvoiceDto());
 
         try {
-            Response<?> resp = invoiceDtoCall.execute();
-            System.out.println("ssssssssssssssssssssssssssssssssss");
-            System.out.println(resp.body());
+            resp = invoiceDtoCall.execute();
             log.info("Успешно выполнен запрос на создание Invoice");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e);
@@ -175,6 +174,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 //                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра InvoiceDto", throwable);
 //            }
 //        });
+        return resp;
     }
 
     /*@Override

@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
@@ -39,6 +40,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import retrofit2.Response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -60,6 +62,7 @@ public class SalesEditCreateInvoiceView extends Div {
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
 
     private final String labelWidth = "100px";
     private final String fieldWidth = "300px";
@@ -90,6 +93,7 @@ public class SalesEditCreateInvoiceView extends Div {
                                       CompanyService companyService,
                                       WarehouseService warehouseService,
                                       InvoiceService invoiceService,
+                                      InvoiceProductService invoiceProductService,
                                       SalesChooseGoodsModalWin salesChooseGoodsModalWin
 
     ) {
@@ -97,6 +101,7 @@ public class SalesEditCreateInvoiceView extends Div {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
+        this.invoiceProductService = invoiceProductService;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
         configureGrid();
@@ -336,7 +341,17 @@ public class SalesEditCreateInvoiceView extends Div {
                 invoiceDto.setTypeOfInvoice("RECEIPT");
                 invoiceDto.setSpend(isSpend.getValue());
 
-                invoiceService.create(invoiceDto);
+                Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
+                System.out.println("body ****!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
+                InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
+                System.out.println(invoiceDtoResponse.body());
+                InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
+                invoiceProductDto.setInvoiceDto(invoiceDtoForProducts);
+                invoiceProductDto.setProductDto(tempInvoiceProductDtoList.get(0).getProductDto());
+                invoiceProductDto.setPrice(BigDecimal.valueOf(3432));
+                invoiceProductDto.setAmount(BigDecimal.valueOf(13));
+                System.out.println(invoiceProductDto);
+                invoiceProductService.create(invoiceProductDto);
                 clearFields();
 
                 UI.getCurrent().navigate("sells");
