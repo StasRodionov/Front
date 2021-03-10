@@ -74,10 +74,12 @@ public class ContractsView extends VerticalLayout {
                 return noIcon;
             }
         })).setHeader("Архив").setKey("archive");
+
         grid.addColumn(contractDto -> contractDto.getLegalDetailDto().getLastName() + " " +
                 contractDto.getLegalDetailDto().getFirstName() + " " +
                 contractDto.getLegalDetailDto().getMiddleName())
                 .setHeader("Юридические детали").setKey("legalDetails");
+
         grid.setColumnOrder(
                 grid.getColumnByKey("id"),
                 grid.getColumnByKey("contractDate"),
@@ -89,13 +91,14 @@ public class ContractsView extends VerticalLayout {
                 grid.getColumnByKey("archive"),
                 grid.getColumnByKey("comment"),
                 grid.getColumnByKey("number"));
+
         grid.setHeight("66vh");
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
         grid.addItemDoubleClickListener(event -> {
             ContractDto editContract = event.getItem();
             ContractModalWindow contractModalWindow =
                     new ContractModalWindow(editContract, contractService, contractorService, companyService);
-//            contractModalWindow.addDetachListener(e -> reloadGrid());
+            contractModalWindow.addDetachListener(e -> reloadGrid());
             contractModalWindow.open();
         });
     }
@@ -153,7 +156,6 @@ public class ContractsView extends VerticalLayout {
         ContractModalWindow contractModalWindow = new ContractModalWindow(contractService, contractorService,
                 companyService);
         button.addClickListener(event -> contractModalWindow.open());
-//        button.addDetachListener(event -> reloadGrid());
         contractModalWindow.addDetachListener(event -> reloadGrid());
         return button;
     }
