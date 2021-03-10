@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -51,18 +52,45 @@ public class ContractsView extends VerticalLayout {
 
     private void getGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setColumns("id", "contractDate", "companyDto", "contractorDto", "amount",
-                "bankAccountDto", "archive", "comment", "number");
-        grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
-        grid.getColumnByKey("contractDate").setAutoWidth(true).setHeader("Дата заключения");
-        grid.getColumnByKey("companyDto").setHeader("Компания");
-        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
-        grid.getColumnByKey("amount").setAutoWidth(true).setHeader("Сумма");
-        grid.getColumnByKey("bankAccountDto").setHeader("Банковский Аккаунт");
-        grid.getColumnByKey("archive").setAutoWidth(true).setHeader("Архив");
-        grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
-        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Сортировочный номер");
+        grid.setColumns("id", "contractDate", "amount", "comment", "number");
+        grid.getColumnByKey("id").setHeader("ID");
+        grid.getColumnByKey("contractDate").setHeader("Дата заключения");
+        grid.getColumnByKey("amount").setHeader("Сумма");
+        grid.getColumnByKey("comment").setHeader("Комментарий");
+        grid.getColumnByKey("number").setHeader("Сортировочный номер");
+        grid.addColumn(contractDto -> contractDto.getCompanyDto().getName())
+                .setHeader("Компания").setKey("company");
+        grid.addColumn(contractDto -> contractDto.getContractorDto().getName())
+                .setHeader("Контрагент").setKey("contractor");
+        grid.addColumn(contractDto -> contractDto.getBankAccountDto().getBank() + " " +
+                contractDto.getBankAccountDto().getAccount())
+                .setHeader("Банковский аккаунт").setKey("bankAccount");
+        grid.addColumn(new ComponentRenderer<>(contractDto -> {
+            if (contractDto.getArchive()){
+                return new Icon(VaadinIcon.CHECK_CIRCLE);
+            } else {
+                Icon noIcon = new Icon(VaadinIcon.CIRCLE_THIN);
+                noIcon.setColor("white");
+                return noIcon;
+            }
+        })).setHeader("Архив").setKey("archive");
+        grid.addColumn(contractDto -> contractDto.getLegalDetailDto().getLastName() + " " +
+                contractDto.getLegalDetailDto().getFirstName() + " " +
+                contractDto.getLegalDetailDto().getMiddleName())
+                .setHeader("Юридические детали").setKey("legalDetails");
+        grid.setColumnOrder(
+                grid.getColumnByKey("id"),
+                grid.getColumnByKey("contractDate"),
+                grid.getColumnByKey("amount"),
+                grid.getColumnByKey("company"),
+                grid.getColumnByKey("legalDetails"),
+                grid.getColumnByKey("contractor"),
+                grid.getColumnByKey("bankAccount"),
+                grid.getColumnByKey("archive"),
+                grid.getColumnByKey("comment"),
+                grid.getColumnByKey("number"));
         grid.setHeight("66vh");
+        grid.getColumns().forEach(column -> column.setAutoWidth(true));
         grid.addItemDoubleClickListener(event -> {
             ContractDto editContract = event.getItem();
             ContractModalWindow contractModalWindow =

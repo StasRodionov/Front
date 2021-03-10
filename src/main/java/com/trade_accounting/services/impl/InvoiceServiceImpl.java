@@ -52,9 +52,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         try {
             invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
             log.info("Успешно выполнен запрос на получение списка InvoiceDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {}", e);
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {IOException}", e);
         }
+
 //        invoiceDtoListCall.enqueue(new Callback<>() {
 //
 //            @Override
