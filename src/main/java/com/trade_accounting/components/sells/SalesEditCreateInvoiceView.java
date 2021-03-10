@@ -34,6 +34,8 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -56,7 +58,7 @@ import java.util.WeakHashMap;
 @PageTitle("Изменить заказ")
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends Div {
+public class SalesEditCreateInvoiceView extends Div implements AfterNavigationObserver {
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -442,6 +444,7 @@ public class SalesEditCreateInvoiceView extends Div {
     }
 
     private BigDecimal getTotalPrice() {
+        System.out.println(companySelect.getValue());
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
             totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
@@ -457,10 +460,17 @@ public class SalesEditCreateInvoiceView extends Div {
     private void clearFields() {
         invoiceId.clear();
         dateField.clear();
-        companySelect.clear();
-        contractorSelect.clear();
-        warehouseSelect.clear();
+        companySelect.setValue(null);
+        contractorSelect.setValue(null);
+        warehouseSelect.setValue(null);
         isSpend.clear();
+        contractorSelect.setInvalid(false);
+        companySelect.setInvalid(false);
+        warehouseSelect.setInvalid(false);
+//        tempInvoiceProductDtoList.clear();
     }
 
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+    }
 }
