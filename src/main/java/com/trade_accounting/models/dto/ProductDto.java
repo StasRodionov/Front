@@ -31,7 +31,7 @@ public class ProductDto {
 
     private ContractorDto contractorDto;
 
-    private List<PriceDto> priceDtos;
+    private List<ProductPriceDto> productPriceDtos;
 
     private TaxSystemDto taxSystemDto;
 
