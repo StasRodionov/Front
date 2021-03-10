@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -44,5 +45,9 @@ public class CompanyDto {
 
     private String stamp;
 
+    @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;
+
+    @EqualsAndHashCode.Exclude
+    private List<BankAccountDto> bankAccountDto;
 }

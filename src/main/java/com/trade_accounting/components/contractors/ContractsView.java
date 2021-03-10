@@ -2,8 +2,13 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.services.interfaces.BankAccountService;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -19,6 +24,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -31,32 +37,65 @@ import java.util.List;
 public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
+    private final ContractorService contractorService;
+    private final CompanyService companyService;
+
     private Grid<ContractDto> grid;
 
-    ContractsView(ContractService contractService) {
+    ContractsView(ContractService contractService, ContractorService contractorService,
+                  CompanyService companyService) {
         this.contractService = contractService;
+        this.contractorService = contractorService;
+        this.companyService = companyService;
         reloadGrid();
     }
 
     private void getGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setColumns("id", "contractDate", "companyDto", "contractorDto", "amount",
-                "bankAccountDto", "archive", "comment", "number");
-        grid.getColumnByKey("id").setAutoWidth(true).setHeader("ID");
-        grid.getColumnByKey("contractDate").setAutoWidth(true).setHeader("Дата заключения");
-        grid.getColumnByKey("companyDto").setHeader("Компания");
-        grid.getColumnByKey("contractorDto").setHeader("Контрагент");
-        grid.getColumnByKey("amount").setAutoWidth(true).setHeader("Сумма");
-        grid.getColumnByKey("bankAccountDto").setHeader("Банковский Аккаунт");
-        grid.getColumnByKey("archive").setAutoWidth(true).setHeader("Архив");
-        grid.getColumnByKey("comment").setAutoWidth(true).setHeader("Комментарий");
-        grid.getColumnByKey("number").setAutoWidth(true).setHeader("Сортировочный номер");
+        grid.setColumns("id", "contractDate", "amount", "comment", "number");
+        grid.getColumnByKey("id").setHeader("ID");
+        grid.getColumnByKey("contractDate").setHeader("Дата заключения");
+        grid.getColumnByKey("amount").setHeader("Сумма");
+        grid.getColumnByKey("comment").setHeader("Комментарий");
+        grid.getColumnByKey("number").setHeader("Сортировочный номер");
+        grid.addColumn(contractDto -> contractDto.getCompanyDto().getName())
+                .setHeader("Компания").setKey("company");
+        grid.addColumn(contractDto -> contractDto.getContractorDto().getName())
+                .setHeader("Контрагент").setKey("contractor");
+        grid.addColumn(contractDto -> contractDto.getBankAccountDto().getBank() + " " +
+                contractDto.getBankAccountDto().getAccount())
+                .setHeader("Банковский аккаунт").setKey("bankAccount");
+        grid.addColumn(new ComponentRenderer<>(contractDto -> {
+            if (contractDto.getArchive()){
+                return new Icon(VaadinIcon.CHECK_CIRCLE);
+            } else {
+                Icon noIcon = new Icon(VaadinIcon.CIRCLE_THIN);
+                noIcon.setColor("white");
+                return noIcon;
+            }
+        })).setHeader("Архив").setKey("archive");
+        grid.addColumn(contractDto -> contractDto.getLegalDetailDto().getLastName() + " " +
+                contractDto.getLegalDetailDto().getFirstName() + " " +
+                contractDto.getLegalDetailDto().getMiddleName())
+                .setHeader("Юридические детали").setKey("legalDetails");
+        grid.setColumnOrder(
+                grid.getColumnByKey("id"),
+                grid.getColumnByKey("contractDate"),
+                grid.getColumnByKey("amount"),
+                grid.getColumnByKey("company"),
+                grid.getColumnByKey("legalDetails"),
+                grid.getColumnByKey("contractor"),
+                grid.getColumnByKey("bankAccount"),
+                grid.getColumnByKey("archive"),
+                grid.getColumnByKey("comment"),
+                grid.getColumnByKey("number"));
         grid.setHeight("66vh");
+        grid.getColumns().forEach(column -> column.setAutoWidth(true));
         grid.addItemDoubleClickListener(event -> {
             ContractDto editContract = event.getItem();
             ContractModalWindow contractModalWindow =
-                    new ContractModalWindow(editContract, contractService);
-            contractModalWindow.addDetachListener(e -> reloadGrid());
+                    new ContractModalWindow(editContract, contractService, contractorService, companyService);
+//            contractModalWindow.addDetachListener(e -> reloadGrid());
             contractModalWindow.open();
         });
     }
@@ -111,9 +150,11 @@ public class ContractsView extends VerticalLayout {
     private Button getButton() {
         final Button button = new Button("Договор");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService);
+        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService, contractorService,
+                companyService);
         button.addClickListener(event -> contractModalWindow.open());
-       // button.addDetachListener(event -> reloadGrid());
+//        button.addDetachListener(event -> reloadGrid());
+        contractModalWindow.addDetachListener(event -> reloadGrid());
         return button;
     }
 
@@ -123,6 +164,7 @@ public class ContractsView extends VerticalLayout {
         buttonRefresh = new Button();
         buttonRefresh.setIcon(circle);
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(click -> reloadGrid());
         return buttonRefresh;
     }
 

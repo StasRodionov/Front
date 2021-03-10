@@ -53,5 +53,6 @@ public class ContractDto {
 
     public void setDate(String contractDate) {
         this.date = LocalDate.parse(contractDate);
+        this.contractDate = contractDate;
     }
 }
