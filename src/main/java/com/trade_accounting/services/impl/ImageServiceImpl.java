@@ -221,11 +221,12 @@ public class ImageServiceImpl implements ImageService {
     }*/
 
     @Override
-    public StreamResource download(ImageDto imageDto) {
+    public StreamResource loadImage(ImageDto imageDto) {
         return new StreamResource("photo", () -> {
             InputStream in = null;
             try {
                 in = new FileInputStream(imageDto.getImageUrl());
+                log.info("Картинка загрузилсь успешно");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }

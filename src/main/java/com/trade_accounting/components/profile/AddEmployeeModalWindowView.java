@@ -152,8 +152,7 @@ public class AddEmployeeModalWindowView extends Dialog {
     private Component addEmployeeImage(ImageDto imageDto) {
         Label label = new Label("Фото профиля");
         label.setWidth(labelWidth);
-//        avatar = new Image(imageService.download(imageDto), "Добавьте фото");
-        avatar = new Image(imageService.download(imageDto), "Добавьте фото");
+        avatar = new Image(imageService.loadImage(imageDto), "Добавьте фото");
         avatar.setWidth("135px");
         avatar.setHeight("200px");
         photoComnponent = new HorizontalLayout(label, avatar);
@@ -381,9 +380,9 @@ public class AddEmployeeModalWindowView extends Dialog {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            imageService.create(imageDto);
+             imageDto = imageService.create(imageDto);
 
-            if (imageDto != null && imageDto.getId() != null) {
+            if (imageDto != null /*&& imageDto.getId() != null*/) {
                 if (photoComnponent != null) {
                     div.remove(photoComnponent);
                 }

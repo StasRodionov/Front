@@ -82,7 +82,7 @@ public class EmployeeView extends VerticalLayout {
             public Component createComponent(EmployeeDto item) {
                 ImageDto imageDto = item.getImageDto();
                 if (imageDto != null) {
-                    Image image = new Image(imageService.download(imageDto), "");
+                    Image image = new Image(imageService.loadImage(imageDto), "");
                     image.setHeight("48px");
                     image.setWidth("32px");
 

@@ -17,5 +17,5 @@ public interface ImageService {
 
     void deleteById(Long id);
 
-    StreamResource download(ImageDto imageDto);
+    StreamResource loadImage(ImageDto imageDto);
 }
