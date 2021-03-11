@@ -66,8 +66,8 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
 
-    private final String labelWidth = "100px";
-    private final String fieldWidth = "300px";
+    private final  String labelWidth = "100px";
+    private final  String fieldWidth = "300px";
     private TextField invoiceId = new TextField();
     private DateTimePicker dateField = new DateTimePicker();
     private TextField typeOfInvoiceField = new TextField();
@@ -77,8 +77,8 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private final Select<WarehouseDto> warehouseSelect = new Select<>();
 
     TextField amountField = new TextField();
-
     private H4 totalPrice = new H4();
+    public H2 title = new H2("Добавление заказа");
 
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
 
@@ -97,7 +97,6 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService,
                                       SalesChooseGoodsModalWin salesChooseGoodsModalWin
-
     ) {
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -305,7 +304,6 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     private H2 title() {
-        H2 title = new H2("Добавление/редактирование заказа");
         title.setHeight("2.0em");
         return title;
     }
@@ -354,7 +352,6 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
                 invoiceProductDto.setAmount(BigDecimal.valueOf(13));
                 System.out.println(invoiceProductDto);
                 invoiceProductService.create(invoiceProductDto);
-                clearFields();
 
                 UI.getCurrent().navigate("sells");
             }
@@ -365,6 +362,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private Button buttonClose() {
         Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         buttonUnit.addClickListener(event -> {
+            clearFields();
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells"));
         });
         return buttonUnit;
@@ -403,6 +401,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     public void setInvoiceDataForEdit(InvoiceDto invoiceDto) {
+
         if (invoiceDto.getId() != null) {
             invoiceId.setValue(invoiceDto.getId().toString());
         }
@@ -457,7 +456,11 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         totalPrice.setText(getTotalPrice().toString());
     }
 
-    private void clearFields() {
+    public void isTitleUpdate(boolean isUpdate) {
+        title.setText(isUpdate ? "Редактирование заказа" : "Добавление заказа");
+    }
+
+    public void clearFields() {
         invoiceId.clear();
         dateField.clear();
         companySelect.setValue(null);
@@ -467,7 +470,8 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         contractorSelect.setInvalid(false);
         companySelect.setInvalid(false);
         warehouseSelect.setInvalid(false);
-//        tempInvoiceProductDtoList.clear();
+        title.setText("Добавление аказа");
+        tempInvoiceProductDtoList = new ArrayList<>();
     }
 
     @Override
