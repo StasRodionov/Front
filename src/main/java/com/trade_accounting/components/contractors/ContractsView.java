@@ -38,20 +38,14 @@ import java.util.List;
 public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
-    private final ContractorService contractorService;
-    private final CompanyService companyService;
     private final ContractModalWindow contractModalWindow;
 
     private Grid<ContractDto> grid;
 
     @Autowired
     ContractsView(ContractService contractService,
-                  ContractorService contractorService,
-                  CompanyService companyService,
                   ContractModalWindow contractModalWindow) {
         this.contractService = contractService;
-        this.contractorService = contractorService;
-        this.companyService = companyService;
         this.contractModalWindow = contractModalWindow;
         contractModalWindow.addDetachListener(detachEvent -> reloadGrid());
         reloadGrid();
@@ -159,8 +153,6 @@ public class ContractsView extends VerticalLayout {
     private Button getButton() {
         final Button button = new Button("Договор");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-//        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService, contractorService,
-//                companyService);
         button.addClickListener(event -> {
             contractModalWindow.configure();
             contractModalWindow.open();
