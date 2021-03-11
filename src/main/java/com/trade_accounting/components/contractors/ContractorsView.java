@@ -14,7 +14,12 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 
+@SpringComponent
+@UIScope
 @Route(value = "contractors", layout = AppView.class)
 @PageTitle("Контрагенты")
 public class ContractorsView extends Div implements AfterNavigationObserver {
@@ -25,15 +30,19 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
     private final CompanyService companyService;
+    private final ContractsView contractsView;
 
+    @Autowired
     public ContractorsView(ContractService contractService,
                            ContractorService contractorService,
                            ContractorGroupService contractorGroupService,
-                           CompanyService companyService) {
+                           CompanyService companyService,
+                           ContractsView contractsView) {
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.contractorGroupService = contractorGroupService;
         this.companyService = companyService;
+        this.contractsView = contractsView;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -70,7 +79,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                     break;
                 case "Договоры":
                     div.removeAll();
-                    div.add(new ContractsView(contractService, contractorService, companyService));
+                    div.add(contractsView);
                     break;
             }
         });

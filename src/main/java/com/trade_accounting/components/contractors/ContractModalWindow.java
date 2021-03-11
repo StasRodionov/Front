@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
@@ -23,9 +24,20 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@SpringComponent
+@UIScope
 public class ContractModalWindow extends Dialog {
 
     private static final String FIELD_WIDTH = "400px";
@@ -51,31 +63,16 @@ public class ContractModalWindow extends Dialog {
     private final ContractorService contractorService;
     private final CompanyService companyService;
 
+    @Autowired
     public ContractModalWindow(ContractService contractService, ContractorService contractorService,
                                CompanyService companyService) {
         this.contractService = contractService;
         this.contractorService = contractorService;
         this.companyService = companyService;
 
-        configureModal("Добавление");
-    }
-
-
-    public ContractModalWindow(ContractDto contractDto,
-                               ContractService contractService, ContractorService contractorService,
-                               CompanyService companyService) {
-        this.contractService = contractService;
-        this.contractorService = contractorService;
-        this.companyService = companyService;
-
-        configureModal("Редактирование");
-        setFields(contractDto);
-    }
-
-    private void configureModal(String title) {
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
-        add(header(title), accordionCompany());
+        add(header(""), accordionCompany());
     }
 
     private void setFields(ContractDto dto) {
@@ -100,7 +97,6 @@ public class ContractModalWindow extends Dialog {
 
     }
 
-
     private void setField(AbstractField field, Object value) {
         if (value != null) {
             field.setValue(value);
@@ -110,10 +106,12 @@ public class ContractModalWindow extends Dialog {
     private HorizontalLayout header(String titleText) {
         HorizontalLayout header = new HorizontalLayout();
         H2 title = new H2(titleText);
+        title.setId("title");
         title.setHeight("2.2em");
         title.setWidth("345px");
         header.add(title);
         header.add(getDeleteButton(), buttonSave(), buttonCancel());
+        header.setId("header");
         return header;
     }
 
@@ -159,6 +157,7 @@ public class ContractModalWindow extends Dialog {
         selectContractor.setItems(contractorService.getAll());
         selectContractor.setItemLabelGenerator(contractorDto -> contractorDto.getName());
         selectContractor.setWidth(FIELD_WIDTH);
+
         return getHorizontalLayout("Контрактор", selectContractor);
     }
 
@@ -168,8 +167,10 @@ public class ContractModalWindow extends Dialog {
                 companyDto -> companyDto.getName() + ", ИНН: " + companyDto.getInn()
         );
         selectCompany.addValueChangeListener(event -> {
-            selectBankAccount.setItems(selectCompany.getValue().getBankAccountDto());
-            selectLegalDetail.setItems(selectCompany.getValue().getLegalDetailDto());
+            if (selectCompany.getValue() != null) {
+                selectBankAccount.setItems(selectCompany.getValue().getBankAccountDto());
+                selectLegalDetail.setItems(selectCompany.getValue().getLegalDetailDto());
+            }
         });
         selectCompany.setWidth(FIELD_WIDTH);
         return getHorizontalLayout("Компания", selectCompany);
@@ -225,7 +226,6 @@ public class ContractModalWindow extends Dialog {
 
     private Button buttonSave() {
         return new Button("Сохранить", event -> {
-
             ContractDto contractDto = new ContractDto();
             contractDto.setDate(dateField.getValue().toString());
             contractDto.setAmount(new BigDecimal(amountField.getValue()));
@@ -243,13 +243,14 @@ public class ContractModalWindow extends Dialog {
             } else {
                 contractService.update(contractDto);
             }
+            clearAllFields();
             close();
-
         });
     }
 
     private Button buttonCancel() {
         Button cancelButton = new Button("Закрыть", event -> {
+            clearAllFields();
             close();
         });
         return cancelButton;
@@ -258,9 +259,37 @@ public class ContractModalWindow extends Dialog {
     private Button getDeleteButton() {
         Button deleteButton = new Button("Удалить", event -> {
             contractService.deleteById(contractId);
+            clearAllFields();
             close();
         });
         return deleteButton;
     }
 
+    public void configure(){
+        setHeader("Добавление");
+    }
+
+    public void configure(ContractDto contractDto){
+        setHeader("Редактирование");
+        setFields(contractDto);
+    }
+
+    private void clearAllFields(){
+        dateField.clear();
+        amountField.clear();
+        archiveField.clear();
+        commentField.clear();
+        numberField.clear();
+        Stream.of(selectContractor, selectCompany, selectBankAccount, selectLegalDetail)
+                .forEach(select -> select.clear());
+    }
+
+    private void setHeader(String text){
+        H2 title = (H2) this.getChildren()
+                .filter(element -> element.getId().isPresent() && element.getId().get().equals("header"))
+                .findFirst().get()
+                .getChildren().filter(component -> component.getId().isPresent() && component.getId().get().equals("title"))
+                .findFirst().get();
+        title.setText(text);
+    }
 }
