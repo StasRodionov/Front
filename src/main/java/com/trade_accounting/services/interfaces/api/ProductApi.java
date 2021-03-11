@@ -40,4 +40,8 @@ public interface ProductApi {
     @Headers("Accept: application/json")
     @GET("{url}/pg/{id}")
     Call<List<ProductDto>> getAllByProductGroupId(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/lite/pg/{id}")
+    Call<List<ProductDto>> getAllLiteByProductGroupId(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 }
