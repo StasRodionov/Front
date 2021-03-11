@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.api.ContractorApi;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -70,9 +72,25 @@ public class ContractorServiceImpl implements ContractorService {
             contractorDtoList = contractorDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка ContractorDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {}", e);
+            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
+    }
+        return contractorDtoList;
+}
+
+//добавил
+    @Override
+    public List<ContractorDto> searchContractor(Map<String, String> queryContractor) {
+        List<ContractorDto> contractorDtoList = new ArrayList<>();
+        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.searchContractor(contractorUrl, queryContractor);
+
+        try {
+            contractorDtoList = contractorDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка контрактов contractor");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение контрактов contractorDto - ", e);
         }
         return contractorDtoList;
+    //return null;
     }
 
     @Override

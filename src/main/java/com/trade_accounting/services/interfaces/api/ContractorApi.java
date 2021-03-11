@@ -9,8 +9,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ContractorApi {
 
@@ -29,6 +31,10 @@ public interface ContractorApi {
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
     Call<ContractorDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+//create
+    @Headers("Accept: application/json")
+    @GET("{url}/searchContractor")
+    Call<List<ContractorDto>> searchContractor(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> queryContractor);
 
     @Headers("Accept: application/json")
     @POST("{url}")
