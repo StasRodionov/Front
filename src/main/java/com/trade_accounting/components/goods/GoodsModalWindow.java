@@ -21,10 +21,10 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SpringComponent
 @UIScope
@@ -53,11 +53,11 @@ public class GoodsModalWindow extends Dialog {
     private final Select<ProductGroupDto> productGroupDtoSelect = new Select<>();
     private final Select<AttributeOfCalculationObjectDto> attributeOfCalculationObjectSelect = new Select<>();
 
-    private final MultiselectComboBox<TypeOfPriceDto> multiSelectTypeOfPrice = new MultiselectComboBox<>();
-    private final VerticalLayout verticalLayoutForPrice = new VerticalLayout();
-    private Map<Long, NumberField> numberFields = new HashMap<>();
+    private final HorizontalLayout typeOfPriceLayout = new HorizontalLayout();
+    private Map<TypeOfPriceDto, NumberField> numberFields;
 
     private GoodsView goodsView;
+    private HorizontalLayout footer = new HorizontalLayout();
 
 
     @Autowired
@@ -104,46 +104,50 @@ public class GoodsModalWindow extends Dialog {
         attributeOfCalculationObjectSelect.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
         add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectSelect));
 
-
-        multiSelectTypeOfPrice.setItemLabelGenerator(TypeOfPriceDto::getName);
-        multiSelectTypeOfPrice.setWidth("600px");
-        multiSelectTypeOfPrice.setLabel("Типы цен");
-        multiSelectTypeOfPrice.addValueChangeListener(e -> {
-            verticalLayoutForPrice.removeAll();
-            Map<Long, NumberField> newMap = new HashMap<>();
-            Set<TypeOfPriceDto> set = multiSelectTypeOfPrice.getValue();
-            set.forEach(typeOfPriceDto -> {
-                NumberField numberField;
-                if (numberFields.containsKey(typeOfPriceDto.getId())){
-                    numberField = numberFields.get(typeOfPriceDto.getId());
-                }else {
-                    numberField = new NumberField();
-                }
-                newMap.put(typeOfPriceDto.getId(), numberField);
-                verticalLayoutForPrice.add(getHorizontalLayout(typeOfPriceDto.getName(), numberField));
-            });
-                    numberFields = newMap;
-        });
-        add(multiSelectTypeOfPrice);
-        verticalLayoutForPrice.setSpacing(false);
-        add(verticalLayoutForPrice);
-        add(getFooter());
+        add(getHorizontalLayout("Типы цен", typeOfPriceLayout));
+        add(footer);
     }
 
     @Override
     public void open() {
+        init();
+        initFooter(getAddButton());
+        super.open();
+    }
+    public void open(ProductDto productDto) {
+        init();
+        productDto = productService.getById(productDto.getId());
+        nameTextField.setValue(productDto.getName());
+        descriptionField.setValue(productDto.getDescription());
+        weightNumberField.setValue(productDto.getWeight().doubleValue());
+        volumeNumberField.setValue(productDto.getVolume().doubleValue());
+        purchasePriceNumberField.setValue(productDto.getPurchasePrice().doubleValue());
+
+        unitDtoSelect.setValue(productDto.getUnitDto());
+        contractorDtoSelect.setValue(productDto.getContractorDto());
+        taxSystemDtoSelect.setValue(productDto.getTaxSystemDto());
+        productGroupDtoSelect.setValue(productDto.getProductGroupDto());
+        attributeOfCalculationObjectSelect.setValue(productDto.getAttributeOfCalculationObjectDto());
+        initTypeOfPriceFrom(productDto.getProductPriceDtos());
+        initFooter(getUpdateButton(productDto));
+        super.open();
+    }
+
+    private void init() {
         nameTextField.clear();
         descriptionField.clear();
         weightNumberField.clear();
         volumeNumberField.clear();
         purchasePriceNumberField.clear();
+        footer.removeAll();
+        typeOfPriceLayout.removeAll();
+        numberFields = new HashMap<>();
         unitDtoSelect.setItems(unitService.getAll());
-        contractorDtoSelect.setItems(contractorService.getAll());
+        contractorDtoSelect.setItems(contractorService.getAllLite());
         taxSystemDtoSelect.setItems(taxSystemService.getAll());
         productGroupDtoSelect.setItems(productGroupService.getAll());
         attributeOfCalculationObjectSelect.setItems(attributeOfCalculationObjectService.getAll());
-        multiSelectTypeOfPrice.setItems(typeOfPriceService.getAll());
-        super.open();
+        typeOfPriceLayout.add(getTypeOfPriceForm(typeOfPriceService.getAll()));
     }
 
     private Component getHeader() {
@@ -155,13 +159,34 @@ public class GoodsModalWindow extends Dialog {
         horizontalLayout.add(getImageButton());
         return horizontalLayout;
     }
-    private Component getFooter() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        horizontalLayout.add(getAddButton());
-        horizontalLayout.add(new Button("Закрыть", event -> close()));
-        horizontalLayout.setPadding(true);
-        return horizontalLayout;
+    private void initFooter(Button button) {
+        footer.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        footer.add(button);
+        footer.add(new Button("Закрыть", event -> close()));
+        footer.setPadding(true);
+    }
+
+    private Component getTypeOfPriceForm(List<TypeOfPriceDto> typeOfPriceDtos) {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setPadding(false);
+        verticalLayout.setSpacing(false);
+        typeOfPriceDtos.forEach(typeOfPriceDto -> {
+            HorizontalLayout horizontalLayout = new HorizontalLayout();
+            Label label = new Label(typeOfPriceDto.getName());
+            label.setWidth("150px");
+            horizontalLayout.add(label);
+            NumberField numberField = new NumberField();
+            numberField.setWidth("200px");
+            numberFields.put(typeOfPriceDto, numberField);
+            horizontalLayout.add(numberField);
+            verticalLayout.add(horizontalLayout);
+        });
+        return verticalLayout;
+    }
+    private void initTypeOfPriceFrom(List<ProductPriceDto> list){
+        list.forEach(productPriceDto -> {
+            numberFields.get(productPriceDto.getTypeOfPriceDto()).setValue(productPriceDto.getValue().doubleValue());
+        });
     }
 
     private Component getImageButton() {
@@ -182,31 +207,56 @@ public class GoodsModalWindow extends Dialog {
     private Button getAddButton(){
         return new Button("Добавить", event -> {
             ProductDto productDto = new ProductDto();
-            productDto.setName(nameTextField.getValue());
-            productDto.setWeight(BigDecimal.valueOf(weightNumberField.getValue()));
-            productDto.setVolume(BigDecimal.valueOf(volumeNumberField.getValue()));
-            productDto.setPurchasePrice(BigDecimal.valueOf(purchasePriceNumberField.getValue()));
-            productDto.setDescription(descriptionField.getValue());
-            productDto.setUnitDto(unitDtoSelect.getValue());
-            productDto.setContractorDto(contractorDtoSelect.getValue());
-            productDto.setTaxSystemDto(taxSystemDtoSelect.getValue());
-            productDto.setProductGroupDto(productGroupDtoSelect.getValue());
-            productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectSelect.getValue()));
-
-            Set<TypeOfPriceDto> typeOfPriceDtos = multiSelectTypeOfPrice.getValue();
-            List<PriceDto> priceDtos = new ArrayList<>();
-            typeOfPriceDtos.forEach(typeOfPriceDto -> {
-                PriceDto price = new PriceDto();
-                price.setTypeOfPriceDto(typeOfPriceDto);
-                price.setValue(BigDecimal.valueOf(numberFields.get(typeOfPriceDto.getId()).getValue()));
-                priceDtos.add(price);
-            });
-            productDto.setPriceDtos(priceDtos);
+            updateProductDto(productDto);
             productService.create(productDto);
             Notification.show(String.format("Товар %s добавлен", productDto.getName()));
             goodsView.updateAfterModalWindowClose();
             close();
         });
+    }
+
+    private Button getUpdateButton(ProductDto productDto){
+        return new Button("Изменить", event -> {
+            updateProductDto(productDto);
+            productService.update(productDto);
+            Notification.show(String.format("Товар %s изменен", productDto.getName()));
+            goodsView.updateAfterModalWindowClose();
+            close();
+        });
+    }
+
+    private void updateProductDto(ProductDto productDto){
+        productDto.setName(nameTextField.getValue());
+        productDto.setWeight(BigDecimal.valueOf(weightNumberField.getValue()));
+        productDto.setVolume(BigDecimal.valueOf(volumeNumberField.getValue()));
+        productDto.setPurchasePrice(BigDecimal.valueOf(purchasePriceNumberField.getValue()));
+        productDto.setDescription(descriptionField.getValue());
+        productDto.setUnitDto(unitDtoSelect.getValue());
+        productDto.setContractorDto(contractorDtoSelect.getValue());
+        productDto.setTaxSystemDto(taxSystemDtoSelect.getValue());
+        productDto.setProductGroupDto(productGroupDtoSelect.getValue());
+        productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectSelect.getValue()));
+
+        if (productDto.getProductPriceDtos() == null)  {
+            productDto.setProductPriceDtos(new ArrayList<>());
+        }
+
+        numberFields.forEach((typeOfPriceDto, numberField) -> {
+            AtomicBoolean b = new AtomicBoolean(true);
+            productDto.getProductPriceDtos().forEach(productPriceDto -> {
+                if (productPriceDto.getTypeOfPriceDto().equals(typeOfPriceDto)){
+                    productPriceDto.setValue(BigDecimal.valueOf(numberField.getValue()));
+                    b.set(false);
+                }
+            });
+            if (b.get()){
+                ProductPriceDto productPriceDto = new ProductPriceDto();
+                productPriceDto.setTypeOfPriceDto(typeOfPriceDto);
+                productPriceDto.setValue(BigDecimal.valueOf(numberField.getValue()));
+                productDto.getProductPriceDtos().add(productPriceDto);
+            }
+        });
+
     }
 
 
@@ -215,6 +265,7 @@ public class GoodsModalWindow extends Dialog {
         Label label = new Label(labelText);
         field.setWidth("400px");
         label.setWidth("200px");
+        horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, label);
         horizontalLayout.add(label, field);
         return horizontalLayout;
     }
@@ -222,4 +273,6 @@ public class GoodsModalWindow extends Dialog {
     public void setGoodsView(GoodsView goodsView) {
         this.goodsView = goodsView;
     }
+
+
 }

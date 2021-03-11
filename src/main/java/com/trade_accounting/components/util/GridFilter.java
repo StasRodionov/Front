@@ -213,11 +213,14 @@ public class GridFilter<T> extends HorizontalLayout {
     }
 
     private void configureFilterField() {
-        grid.getColumns().forEach(e -> {
-            if (!e.getKey().equals("imageDto")){
-                this.add(getFilterTextField(e.getKey()));
-            }
-        });
+        try {
+            grid.getColumns().forEach(e -> {
+                if (!e.getKey().equals("imageDto")) {
+                    this.add(getFilterTextField(e.getKey()));
+                }
+            });
+        } catch (NullPointerException e) {
+        }
     }
 
     private TextField getFilterTextField(String columnKey) {
@@ -289,7 +292,7 @@ public class GridFilter<T> extends HorizontalLayout {
 
     private void onFilterChange(Component filter) {
         if (filter instanceof AbstractField) {
-            if(!((AbstractField<?, ?>) filter).isEmpty()) {
+            if (!((AbstractField<?, ?>) filter).isEmpty()) {
                 filterData.put(filter.getId().orElse(""), ((AbstractField<?, ?>) filter).getValue().toString());
             } else {
                 filterData.remove(filter.getId().orElse(""));

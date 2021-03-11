@@ -15,5 +15,5 @@ public class InvoiceDto {
     private CompanyDto companyDto;
     private ContractorDto contractorDto;
     private WarehouseDto warehouseDto;
-    private boolean isSpend;
+    private boolean spend;
 }

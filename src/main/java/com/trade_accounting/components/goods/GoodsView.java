@@ -6,14 +6,15 @@ import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -65,27 +66,36 @@ public class GoodsView extends VerticalLayout {
     }
 
     public void updateData() {
-
-            paginator.setData(productService.getAllLite());
-            updateTreeGrid(productGroupService.getAll());
-
-
-
+        paginator.setData(productService.getAllLite());
+        updateTreeGrid(productGroupService.getAll());
     }
 
     public void updateAfterModalWindowClose() {
         Optional<ProductGroupDto> optional = treeGrid.getSelectedItems().stream().findFirst();
-        optional.ifPresent(productGroupDto -> paginator.setData(productService.getAllByProductGroup(productGroupDto)));
+        if (optional.isPresent()) {
+            paginator.setData(productService.getAllLiteByProductGroup(optional.get()));
+        } else {
+            paginator.setData(productService.getAllLite());
+        }
     }
 
-    private HorizontalLayout getUpperLayout() {
+    private Component getUpperLayout() {
+        HorizontalLayout mainLayout = new HorizontalLayout();
+        mainLayout.add(buttonQuestion(), title(), buttonRefresh());
+        mainLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+
+        VerticalLayout verticalLayout = new VerticalLayout();
         HorizontalLayout upperLayout = new HorizontalLayout();
-        upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusGoods(),
+        upperLayout.add(buttonPlusGoods(),
                 buttonPlusService(), buttonPlusSet(), buttonPlusGroup(),
-                buttonFilter(), text(), numberField(), valueSelect(), valueSelectPrint(),
+                buttonFilter());
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(text(), numberField(), valueSelect(), valueSelectPrint(),
                 valueSelectImport(), valueSelectExport(), buttonSettings());
-        upperLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-        return upperLayout;
+        verticalLayout.add(upperLayout, horizontalLayout);
+        mainLayout.add(verticalLayout);
+        return mainLayout;
     }
 
     private SplitLayout getMiddleLayout(Grid<ProductDto> grid) {
@@ -98,7 +108,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     private GridPaginator<ProductDto> getPaginator(Grid<ProductDto> grid) {
-        GridPaginator<ProductDto> paginator = new GridPaginator<>(grid, new ArrayList<>(), 100);
+        GridPaginator<ProductDto> paginator = new GridPaginator<>(grid, new ArrayList<>(), 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         return paginator;
     }
@@ -110,12 +120,18 @@ public class GoodsView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("name", "description", "weight", "volume", "purchasePrice");
+        grid.setColumns("id", "name", "description", "weight", "volume", "purchasePrice");
+        grid.getColumnByKey("id").setHeader("id");
         grid.getColumnByKey("name").setHeader("Наименование");
         grid.getColumnByKey("description").setHeader("Артикул");
         grid.getColumnByKey("weight").setHeader("Вес");
         grid.getColumnByKey("volume").setHeader("Объем");
         grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена");
+
+        grid.addItemDoubleClickListener(event -> {
+            ProductDto productDto = event.getItem();
+            goodsModalWindow.open(productDto);
+        });
         return grid;
     }
 
@@ -135,13 +151,30 @@ public class GoodsView extends VerticalLayout {
                 .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber));
 
         treeGrid.addColumn(ProductGroupDto::getName);
-        HeaderRow header = treeGrid.appendHeaderRow();
+        HeaderRow.HeaderCell cell = treeGrid.appendHeaderRow().getCell(column);
+        Label label = new Label();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setPadding(false);
+        horizontalLayout.setMargin(false);
+        horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        Button closeButton = new Button(new Icon(VaadinIcon.CLOSE));
+        closeButton.setVisible(false);
+        closeButton.setMaxHeight("20px");
+        horizontalLayout.add(label, closeButton);
+        closeButton.addClickListener(event -> {
+            closeButton.setVisible(false);
+            label.setText("");
+            paginator.setData(productService.getAllLite());
+            treeGrid.deselectAll();
+        });
+        cell.setComponent(horizontalLayout);
         treeGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
         treeGrid.addSelectionListener(event -> {
             Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
-                paginator.setData(productService.getAllByProductGroup(optional.get()));
-                header.getCell(column).setText(optional.get().getName());
+                paginator.setData(productService.getAllLiteByProductGroup(optional.get()));
+                label.setText(optional.get().getName());
+                closeButton.setVisible(true);
             }
         });
         return treeGrid;
@@ -189,6 +222,7 @@ public class GoodsView extends VerticalLayout {
     private Button buttonPlusGoods() {
         Button addGoodsButton = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
         addGoodsButton.addClickListener(e -> goodsModalWindow.open());
+        addGoodsButton.getStyle().set("cursor", "pointer");
         return addGoodsButton;
     }
 
