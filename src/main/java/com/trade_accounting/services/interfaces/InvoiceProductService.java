@@ -10,6 +10,8 @@ public interface InvoiceProductService {
 
     InvoiceProductDto getById(Long id);
 
+    List<InvoiceProductDto> getByInvoiceId(Long id);
+
     void create(InvoiceProductDto invoiceProductDto);
 
     void update(InvoiceProductDto invoiceProductDto);

@@ -332,6 +332,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
                 }
                 InvoiceDto invoiceDto = saveInvoice();
                 addInvoiceProductToInvoicedDto(invoiceDto);
+                removeAllInvociceProductByInvoice(invoiceDto);
                 UI.getCurrent().navigate("sells");
             }
         });
@@ -485,6 +486,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     private void  removeAllInvociceProductByInvoice(InvoiceDto invoiceDto){
+        System.out.println(invoiceProductService.getByInvoiceId(invoiceDto.getId()));
 
     }
 
