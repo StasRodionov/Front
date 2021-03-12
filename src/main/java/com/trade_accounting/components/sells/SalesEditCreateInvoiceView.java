@@ -332,7 +332,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
                 }
                 InvoiceDto invoiceDto = saveInvoice();
                 addInvoiceProductToInvoicedDto(invoiceDto);
-                removeAllInvociceProductByInvoice(invoiceDto);
+                getListOfInvoiceProductByInvoice(invoiceDto);
                 UI.getCurrent().navigate("sells");
             }
         });
@@ -384,6 +384,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 
         if (invoiceDto.getId() != null) {
             invoiceIdField.setValue(invoiceDto.getId().toString());
+            setInvoiceProductDtoListForEdit(invoiceDto);
         }
 
         if (invoiceDto.getDate() != null) {
@@ -485,9 +486,14 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         }
     }
 
-    private void  removeAllInvociceProductByInvoice(InvoiceDto invoiceDto){
-        System.out.println(invoiceProductService.getByInvoiceId(invoiceDto.getId()));
+    private List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto){
+        List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceDto.getId());
+        return invoiceProductDtoList;
+    }
 
+    private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto){
+        tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
+        grid.setItems(tempInvoiceProductDtoList);
     }
 
     @Override
