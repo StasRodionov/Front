@@ -2,13 +2,8 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.services.interfaces.BankAccountService;
-import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -27,26 +22,30 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+@SpringComponent
+@UIScope
 @Route(value = "contracts", layout = AppView.class)
 @PageTitle("Договоры")
 public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
-    private final ContractorService contractorService;
-    private final CompanyService companyService;
+    private final ContractModalWindow contractModalWindow;
 
     private Grid<ContractDto> grid;
 
-    ContractsView(ContractService contractService, ContractorService contractorService,
-                  CompanyService companyService) {
+    @Autowired
+    ContractsView(ContractService contractService,
+                  ContractModalWindow contractModalWindow) {
         this.contractService = contractService;
-        this.contractorService = contractorService;
-        this.companyService = companyService;
+        this.contractModalWindow = contractModalWindow;
+        contractModalWindow.addDetachListener(detachEvent -> reloadGrid());
         reloadGrid();
     }
 
@@ -74,10 +73,12 @@ public class ContractsView extends VerticalLayout {
                 return noIcon;
             }
         })).setHeader("Архив").setKey("archive");
+
         grid.addColumn(contractDto -> contractDto.getLegalDetailDto().getLastName() + " " +
                 contractDto.getLegalDetailDto().getFirstName() + " " +
                 contractDto.getLegalDetailDto().getMiddleName())
                 .setHeader("Юридические детали").setKey("legalDetails");
+
         grid.setColumnOrder(
                 grid.getColumnByKey("id"),
                 grid.getColumnByKey("contractDate"),
@@ -89,13 +90,14 @@ public class ContractsView extends VerticalLayout {
                 grid.getColumnByKey("archive"),
                 grid.getColumnByKey("comment"),
                 grid.getColumnByKey("number"));
+
         grid.setHeight("66vh");
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
         grid.addItemDoubleClickListener(event -> {
             ContractDto editContract = event.getItem();
-            ContractModalWindow contractModalWindow =
-                    new ContractModalWindow(editContract, contractService, contractorService, companyService);
-//            contractModalWindow.addDetachListener(e -> reloadGrid());
+//            ContractModalWindow contractModalWindow =
+//                    new ContractModalWindow(editContract, contractService, contractorService, companyService);
+            contractModalWindow.configure(editContract);
             contractModalWindow.open();
         });
     }
@@ -150,11 +152,10 @@ public class ContractsView extends VerticalLayout {
     private Button getButton() {
         final Button button = new Button("Договор");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        ContractModalWindow contractModalWindow = new ContractModalWindow(contractService, contractorService,
-                companyService);
-        button.addClickListener(event -> contractModalWindow.open());
-//        button.addDetachListener(event -> reloadGrid());
-        contractModalWindow.addDetachListener(event -> reloadGrid());
+        button.addClickListener(event -> {
+            contractModalWindow.configure();
+            contractModalWindow.open();
+        });
         return button;
     }
 
