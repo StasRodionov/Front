@@ -10,11 +10,11 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -29,12 +29,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SpringComponent
 @UIScope
@@ -49,10 +43,10 @@ public class ContractModalWindow extends Dialog {
     private final TextField commentField = new TextField();
     private final ValidTextField numberField = new ValidTextField();
 
-    private final Select<ContractorDto> selectContractor = new Select<>();
-    private final Select<CompanyDto> selectCompany = new Select<>();
-    private final Select<BankAccountDto> selectBankAccount = new Select<>();
-    private final Select<LegalDetailDto> selectLegalDetail = new Select<>();
+    private final ComboBox<ContractorDto> selectContractor = new ComboBox<>();
+    private final ComboBox<CompanyDto> selectCompany = new ComboBox<>();
+    private final ComboBox<BankAccountDto> selectBankAccount = new ComboBox<>();
+    private final ComboBox<LegalDetailDto> selectLegalDetail = new ComboBox<>();
 
 
     private final String labelWidth = "100px";
@@ -96,6 +90,7 @@ public class ContractModalWindow extends Dialog {
         setField(selectBankAccount, dto.getBankAccountDto());
 
     }
+
 
     private void setField(AbstractField field, Object value) {
         if (value != null) {
