@@ -29,7 +29,7 @@ public interface InvoiceApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body InvoiceDto invoiceDto);
+    Call<InvoiceDto> create(@Path(value = "url", encoded = true) String url, @Body InvoiceDto invoiceDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")

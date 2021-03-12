@@ -21,13 +21,18 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @Slf4j
 @Route(value = "shipment", layout = AppView.class)
 @PageTitle("Отгрузки")
+@SpringComponent
+@UIScope
 public class SalesSubShipmentView extends VerticalLayout {
 
     private final InvoiceService invoiceService;
@@ -39,7 +44,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
 
-
+    @Autowired
     public SalesSubShipmentView(InvoiceService invoiceService,
                                 ContractorService contractorService,
                                 CompanyService companyService) {
@@ -76,13 +81,13 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(event -> {
-            InvoiceDto editInvoice = event.getItem();
-            SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
-                    invoiceService, contractorService, companyService);
-            addModalWin.addDetachListener(e -> updateList());
-            addModalWin.open();
-        });
+//        grid.addItemDoubleClickListener(event -> {
+//            InvoiceDto editInvoice = event.getItem();
+//            SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
+//                    invoiceService, contractorService, companyService);
+//            addModalWin.addDetachListener(e -> updateList());
+//            addModalWin.open();
+//        });
     }
 
     private void configurePaginator() {
@@ -90,19 +95,19 @@ public class SalesSubShipmentView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
-    private Button buttonQuestion(){
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private Button buttonRefresh(){
+    private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private Button buttonUnit(){
+    private Button buttonUnit() {
         Button buttonUnit = new Button("Отгрузка", new Icon(VaadinIcon.PLUS_CIRCLE));
 //        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
 //                contractorService, companyService);
@@ -111,12 +116,12 @@ public class SalesSubShipmentView extends VerticalLayout {
         return buttonUnit;
     }
 
-    private Button buttonFilter(){
+    private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         return buttonFilter;
     }
 
-    private Button buttonSettings(){
+    private Button buttonSettings() {
         Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
         return buttonSettings;
     }
@@ -136,13 +141,13 @@ public class SalesSubShipmentView extends VerticalLayout {
         return textField;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Отгрузки");
         title.setHeight("2.2em");
         return title;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> select = new Select<>();
         select.setItems("Изменить");
         select.setValue("Изменить");
@@ -150,7 +155,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         return select;
     }
 
-    private Select<String> valueStatus(){
+    private Select<String> valueStatus() {
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
@@ -158,7 +163,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         return status;
     }
 
-    private Select<String> valueCreate(){
+    private Select<String> valueCreate() {
         Select<String> create = new Select<>();
         create.setItems("Создать");
         create.setValue("Создать");
@@ -166,7 +171,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         return create;
     }
 
-    private Select<String> valuePrint(){
+    private Select<String> valuePrint() {
         Select<String> print = new Select<>();
         print.setItems("Печать");
         print.setValue("Печать");
@@ -182,9 +187,5 @@ public class SalesSubShipmentView extends VerticalLayout {
     private List<InvoiceDto> getData() {
         return invoiceService.getAll();
     }
-
-
-
-
 
 }
