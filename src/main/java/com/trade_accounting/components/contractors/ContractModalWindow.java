@@ -14,6 +14,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -21,7 +22,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.math.BigDecimal;
@@ -37,10 +37,10 @@ public class ContractModalWindow extends Dialog {
     private final TextField commentField = new TextField();
     private final ValidTextField numberField = new ValidTextField();
 
-    private final Select<ContractorDto> selectContractor = new Select<>();
-    private final Select<CompanyDto> selectCompany = new Select<>();
-    private final Select<BankAccountDto> selectBankAccount = new Select<>();
-    private final Select<LegalDetailDto> selectLegalDetail = new Select<>();
+    private final ComboBox<ContractorDto> selectContractor = new ComboBox<>();
+    private final ComboBox<CompanyDto> selectCompany = new ComboBox<>();
+    private final ComboBox<BankAccountDto> selectBankAccount = new ComboBox<>();
+    private final ComboBox<LegalDetailDto> selectLegalDetail = new ComboBox<>();
 
 
     private final String labelWidth = "100px";
@@ -51,7 +51,8 @@ public class ContractModalWindow extends Dialog {
     private final ContractorService contractorService;
     private final CompanyService companyService;
 
-    public ContractModalWindow(ContractService contractService, ContractorService contractorService,
+    public ContractModalWindow(ContractService contractService,
+                               ContractorService contractorService,
                                CompanyService companyService) {
         this.contractService = contractService;
         this.contractorService = contractorService;
@@ -62,7 +63,8 @@ public class ContractModalWindow extends Dialog {
 
 
     public ContractModalWindow(ContractDto contractDto,
-                               ContractService contractService, ContractorService contractorService,
+                               ContractService contractService,
+                               ContractorService contractorService,
                                CompanyService companyService) {
         this.contractService = contractService;
         this.contractorService = contractorService;
@@ -244,7 +246,6 @@ public class ContractModalWindow extends Dialog {
                 contractService.update(contractDto);
             }
             close();
-
         });
     }
 
