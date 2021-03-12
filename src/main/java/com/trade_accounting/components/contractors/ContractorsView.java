@@ -26,22 +26,16 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private final Div div;
 
-    private final ContractService contractService;
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
-    private final CompanyService companyService;
     private final ContractsView contractsView;
 
     @Autowired
-    public ContractorsView(ContractService contractService,
-                           ContractorService contractorService,
+    public ContractorsView(ContractorService contractorService,
                            ContractorGroupService contractorGroupService,
-                           CompanyService companyService,
                            ContractsView contractsView) {
         this.contractorService = contractorService;
-        this.contractService = contractService;
         this.contractorGroupService = contractorGroupService;
-        this.companyService = companyService;
         this.contractsView = contractsView;
         div = new Div();
         add(configurationSubMenu(), div);
