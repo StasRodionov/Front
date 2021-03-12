@@ -66,9 +66,9 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
 
-    private final  String labelWidth = "100px";
-    private final  String fieldWidth = "300px";
-    private TextField invoiceId = new TextField();
+    private final String labelWidth = "100px";
+    private final String fieldWidth = "300px";
+    private TextField invoiceIdField = new TextField();
     private DateTimePicker dateField = new DateTimePicker();
     private TextField typeOfInvoiceField = new TextField();
     private Checkbox isSpend = new Checkbox("Проведено");
@@ -182,6 +182,13 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 // Add a keypress listener that listens for an escape key up event.
         grid.getElement().addEventListener("keyup", event -> editor.cancel())
                 .setFilter("event.key === 'Escape' || event.key === 'Esc'");
+
+        grid.getElement().addEventListener("keyup", event -> {
+            editor.save();
+            setTotalPrice();
+            paginator.setData(tempInvoiceProductDtoList);
+            buttonAddProduct().focus();
+        }).setFilter("event.key === 'Enter'");
 
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
@@ -317,42 +324,14 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private Button buttonSave() {
         Button buttonSave = new Button("Сохранить", buttonClickEvent -> {
 
-            InvoiceDto invoiceDto = new InvoiceDto();
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
-
-                System.out.println("**************************************************************");
-                System.out.println(companySelect.getValue());
-                System.out.println(contractorSelect.getValue());
-                System.out.println(warehouseSelect.getValue());
-                System.out.println(isSpend.getValue());
-
                 if (dateField.getValue() == null) {
                     dateField.setValue(LocalDateTime.now());
                 }
-                if (!invoiceId.getValue().equals("")) {
-                    invoiceDto.setId(Long.parseLong(invoiceId.getValue()));
-                }
-                invoiceDto.setDate(dateField.getValue().toString());
-                invoiceDto.setCompanyDto(companySelect.getValue());
-                invoiceDto.setContractorDto(contractorSelect.getValue());
-                invoiceDto.setWarehouseDto(warehouseSelect.getValue());
-                invoiceDto.setTypeOfInvoice("RECEIPT");
-                invoiceDto.setSpend(isSpend.getValue());
-
-                Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
-                System.out.println("body ****!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
-                InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
-                System.out.println(invoiceDtoResponse.body());
-                InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-                invoiceProductDto.setInvoiceDto(invoiceDtoForProducts);
-                invoiceProductDto.setProductDto(tempInvoiceProductDtoList.get(0).getProductDto());
-                invoiceProductDto.setPrice(BigDecimal.valueOf(3432));
-                invoiceProductDto.setAmount(BigDecimal.valueOf(13));
-                System.out.println(invoiceProductDto);
-                invoiceProductService.create(invoiceProductDto);
-
+                InvoiceDto invoiceDto = saveInvoice();
+                addInvoiceProductToInvoicedDto(invoiceDto);
                 UI.getCurrent().navigate("sells");
             }
         });
@@ -362,7 +341,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private Button buttonClose() {
         Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         buttonUnit.addClickListener(event -> {
-            clearFields();
+            resetView();
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells"));
         });
         return buttonUnit;
@@ -403,7 +382,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     public void setInvoiceDataForEdit(InvoiceDto invoiceDto) {
 
         if (invoiceDto.getId() != null) {
-            invoiceId.setValue(invoiceDto.getId().toString());
+            invoiceIdField.setValue(invoiceDto.getId().toString());
         }
 
         if (invoiceDto.getDate() != null) {
@@ -456,12 +435,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         totalPrice.setText(getTotalPrice().toString());
     }
 
-    public void isTitleUpdate(boolean isUpdate) {
+    public void showUpdateTitle(boolean isUpdate) {
         title.setText(isUpdate ? "Редактирование заказа" : "Добавление заказа");
     }
 
-    public void clearFields() {
-        invoiceId.clear();
+    public void resetView() {
+        invoiceIdField.clear();
         dateField.clear();
         companySelect.setValue(null);
         contractorSelect.setValue(null);
@@ -472,6 +451,41 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         warehouseSelect.setInvalid(false);
         title.setText("Добавление аказа");
         tempInvoiceProductDtoList = new ArrayList<>();
+        paginator.setData(tempInvoiceProductDtoList);
+        setTotalPrice();
+    }
+
+    private InvoiceDto saveInvoice() {
+        InvoiceDto invoiceDto = new InvoiceDto();
+        if (!invoiceIdField.getValue().equals("")) {
+            invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
+        }
+        invoiceDto.setDate(dateField.getValue().toString());
+        invoiceDto.setCompanyDto(companySelect.getValue());
+        invoiceDto.setContractorDto(contractorSelect.getValue());
+        invoiceDto.setWarehouseDto(warehouseSelect.getValue());
+        invoiceDto.setTypeOfInvoice("RECEIPT");
+        invoiceDto.setSpend(isSpend.getValue());
+
+        Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
+        InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
+        System.out.println(invoiceDtoForProducts);
+        return invoiceDtoForProducts;
+    }
+
+    private void addInvoiceProductToInvoicedDto(InvoiceDto invoiceDto) {
+        for (InvoiceProductDto invoiceProductDto:tempInvoiceProductDtoList){
+        invoiceProductDto.setInvoiceDto(invoiceDto);
+        invoiceProductDto.setProductDto(invoiceProductDto.getProductDto());
+        invoiceProductDto.setPrice(invoiceProductDto.getPrice());
+        invoiceProductDto.setAmount(invoiceProductDto.getAmount());
+        invoiceProductService.create(invoiceProductDto);
+        System.out.println(invoiceProductDto);
+        }
+    }
+
+    private void  removeAllInvociceProductByInvoice(InvoiceDto invoiceDto){
+
     }
 
     @Override
