@@ -331,8 +331,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
                     dateField.setValue(LocalDateTime.now());
                 }
                 InvoiceDto invoiceDto = saveInvoice();
+
+                deleteAllInvoiceProductByInvoice(
+                        getListOfInvoiceProductByInvoice(invoiceDto)
+                );
+
                 addInvoiceProductToInvoicedDto(invoiceDto);
-                getListOfInvoiceProductByInvoice(invoiceDto);
                 UI.getCurrent().navigate("sells");
             }
         });
@@ -476,22 +480,27 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     private void addInvoiceProductToInvoicedDto(InvoiceDto invoiceDto) {
-        for (InvoiceProductDto invoiceProductDto:tempInvoiceProductDtoList){
-        invoiceProductDto.setInvoiceDto(invoiceDto);
-        invoiceProductDto.setProductDto(invoiceProductDto.getProductDto());
-        invoiceProductDto.setPrice(invoiceProductDto.getPrice());
-        invoiceProductDto.setAmount(invoiceProductDto.getAmount());
-        invoiceProductService.create(invoiceProductDto);
-        System.out.println(invoiceProductDto);
+        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
+            invoiceProductDto.setInvoiceDto(invoiceDto);
+            invoiceProductDto.setProductDto(invoiceProductDto.getProductDto());
+            invoiceProductDto.setPrice(invoiceProductDto.getPrice());
+            invoiceProductDto.setAmount(invoiceProductDto.getAmount());
+            invoiceProductService.create(invoiceProductDto);
         }
     }
 
-    private List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto){
+    private List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceDto.getId());
         return invoiceProductDtoList;
     }
 
-    private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto){
+    private void deleteAllInvoiceProductByInvoice(List<InvoiceProductDto> invoiceProductDtoList) {
+        for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
+            invoiceProductService.deleteById(invoiceProductDto.getId());
+        }
+    }
+
+    private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto) {
         tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
         grid.setItems(tempInvoiceProductDtoList);
     }
