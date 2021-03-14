@@ -59,7 +59,7 @@ public class ContractorServiceImpl implements ContractorService {
             contractorDtoList = contractorDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка ContractorDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {}", e);
+            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
         }
         return contractorDtoList;
     }

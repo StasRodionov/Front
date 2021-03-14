@@ -53,14 +53,12 @@ public class ContractorsTabView extends VerticalLayout {
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
-    //вставка/
     private final List<ContractorDto> data;
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
     private final GridPaginator<ContractorDto> paginator;
     private final GridFilter<ContractorDto> filter;
     //вставка текст поле
     private final TextField textField = new TextField();
-
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
@@ -78,7 +76,7 @@ public class ContractorsTabView extends VerticalLayout {
         this.filter = new GridFilter<>(grid);
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(), filter,  grid, paginator);
+        add(upperLayout(), filter, grid, paginator);
         configureSelectXlsTemplateButton();
 //        updateList();
     }
@@ -121,15 +119,12 @@ public class ContractorsTabView extends VerticalLayout {
         });
     }
 
-    //добавил
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
-        //filter.setFieldToDatePicker("date");
-//        filter.setFieldToComboBox("spend1", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator.setData(contractorService.searchContractor(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(contractorService.getAll()));
     }
-    //добавил
+
     private List<ContractorDto> getData() {
         return contractorService.getAll();
     }
@@ -158,9 +153,10 @@ public class ContractorsTabView extends VerticalLayout {
     //добавил
     public void updateListTextField() {
         if (!( textField.getValue().equals(""))) {
-        grid.setItems(contractorService.getAll(textField.getValue()));
+            grid.setItems(contractorService.getAll(textField.getValue()));
         } else {
-             grid.setItems(contractorService.getAll());
+            grid.setItems(contractorService.getAll("null"));
+            //grid.setItems(contractorService.getAll());
         }
     }
 
@@ -186,7 +182,7 @@ public class ContractorsTabView extends VerticalLayout {
         buttonUnit.addClickListener(event -> addContractorModalWindow.open());
         return buttonUnit;
     }
-    //добавил
+
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
@@ -220,15 +216,15 @@ public class ContractorsTabView extends VerticalLayout {
 
     private void updateList() {
         //this.grid = new Grid<>(ContractorDto.class);//испр. final
-        GridPaginator<ContractorDto> paginator
+        GridPaginator<ContractorDto> paginatorUpdateList
                 = new GridPaginator<>(grid, contractorService.getAll(), 9);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         configureGrid();
         removeAll();
         add(upperLayout(), grid, paginator);
     }
 
-    private void UploadXlsMenuItem(SubMenu subMenu) {
+    private void uploadXlsMenuItem(SubMenu subMenu) {
         MenuItem menuItem = subMenu.addItem("добавить шаблон");
         Dialog dialog = new Dialog();
         MemoryBuffer buffer = new MemoryBuffer();
@@ -262,7 +258,7 @@ public class ContractorsTabView extends VerticalLayout {
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.removeAll();
         templatesXlsMenuItems(printSubMenu);
-        UploadXlsMenuItem(printSubMenu);
+        uploadXlsMenuItem(printSubMenu);
     }
 
     private void templatesXlsMenuItems(SubMenu subMenu) {
