@@ -38,11 +38,16 @@ public class Notifications {
     }
 
     public void infoNotification(String message) {
+        notification.removeThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         abstractNotification(message, finishedCss, finishedStyle);
     }
 
     public void errorNotification(String message) {
+        notification.removeThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         abstractNotification(message, errorCss, errorStyle);
+        ;
     }
 
     private void abstractNotification(String message, String css, String styleName) {
@@ -50,11 +55,6 @@ public class Notifications {
         text.addClassName(styleName);
         notification.removeAll();
         notification.add(text);
-        if (css.equals(finishedCss)) {
-            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        } else {
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        }
         notification.setDuration(5000);
         notification.add(verticalLayout);
 

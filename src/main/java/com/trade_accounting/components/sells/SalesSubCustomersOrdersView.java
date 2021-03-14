@@ -34,6 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,10 +75,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn("date").setHeader("Дата").setId("Дата");
+        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setId("Дата");
         grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
         grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto").setId("Компания");
-//        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)
         ).setKey("spend").setHeader("Проведена").setId("Проведена");
 
@@ -229,6 +230,12 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
                     .multiply(invoiceProductDto.getAmount()));
         }
         return String.format("%.2f", totalPrice);
+    }
+
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
     }
 
     private List<InvoiceDto> getData() {
