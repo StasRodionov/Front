@@ -81,6 +81,8 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 
     private final TextField amountField = new TextField();
 
+    private final Button buttonDelete = new Button("Удалить", new Icon(VaadinIcon.TRASH));
+
     private final H4 totalPrice = new H4();
     private final H2 title = new H2("Добавление заказа");
 
@@ -204,7 +206,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 
     private HorizontalLayout upperButtonsLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonSave(), buttonClose(), buttonAddProduct());
+        upper.add(buttonQuestion(), title(), buttonSave(), configureDeleteButton(), buttonClose(), buttonAddProduct());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -343,7 +345,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 
                 addInvoiceProductToInvoicedDto(invoiceDto);
                 UI.getCurrent().navigate("sells");
-                showSuccessSaveNotification(invoiceDto.getId());
+                showSuccessSaveNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
             }
         });
         return buttonSave;
@@ -356,6 +358,15 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells"));
         });
         return buttonUnit;
+    }
+
+    private Button configureDeleteButton() {
+        buttonDelete.addClickListener(event -> {
+            deleteInvoiceById(Long.parseLong(invoiceIdField.getValue()));
+            resetView();
+            buttonDelete.getUI().ifPresent(ui -> ui.navigate("sells"));
+        });
+        return buttonDelete;
     }
 
     private Button buttonAddProduct() {
@@ -446,8 +457,9 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         totalPrice.setText(getTotalPrice().toString());
     }
 
-    public void showUpdateTitle(boolean isUpdate) {
+    public void setUpdateState(boolean isUpdate) {
         title.setText(isUpdate ? "Редактирование заказа" : "Добавление заказа");
+        buttonDelete.setVisible(isUpdate);
     }
 
     public void resetView() {
@@ -502,13 +514,19 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         }
     }
 
+    private void deleteInvoiceById(Long invoiceDtoId){
+        invoiceService.deleteById(invoiceDtoId);
+
+        Notification.show(String.format("deleted %s", invoiceDtoId));
+    }
+
     private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto) {
         tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
         grid.setItems(tempInvoiceProductDtoList);
     }
 
-    private void showSuccessSaveNotification(Long invoiceId){
-        Span text = new Span(String.format("Заказ № %s сохранен", invoiceId));
+    private void showSuccessSaveNotification(String string){
+        Span text = new Span(string);
         Notification notification = new Notification();
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         notification.setPosition(Notification.Position.MIDDLE);

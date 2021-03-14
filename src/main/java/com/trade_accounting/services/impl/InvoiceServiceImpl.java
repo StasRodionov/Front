@@ -233,21 +233,28 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Call<Void> invoiceDtoCall = invoiceApi.deleteById(invoiceUrl, id);
 
-        invoiceDtoCall.enqueue(new Callback<>() {
+        try {
+            invoiceDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление Invoice - {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление ProductDto - {}", id);
+        }
 
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на удаление экземпляра InvoiceDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceDto - {}", response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра InvoiceDto", throwable);
-            }
-        });
+//        invoiceDtoCall.enqueue(new Callback<>() {
+//
+//            @Override
+//            public void onResponse(Call<Void> call, Response<Void> response) {
+//                if (response.isSuccessful()) {
+//                    log.info("Успешно выполнен запрос на удаление экземпляра InvoiceDto");
+//                } else {
+//                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceDto - {}", response.errorBody());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Void> call, Throwable throwable) {
+//                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра InvoiceDto", throwable);
+//            }
+//        });
     }
 }
