@@ -520,6 +520,7 @@ public class SalesEditCreateInvoiceView extends Div {
 
     private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto) {
         tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
+        setTotalPrice();
         grid.setItems(tempInvoiceProductDtoList);
     }
 
