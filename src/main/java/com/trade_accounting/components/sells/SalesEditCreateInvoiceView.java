@@ -3,6 +3,7 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
@@ -26,19 +27,14 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -61,13 +57,14 @@ import java.util.WeakHashMap;
 @PageTitle("Изменить заказ")
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends Div implements AfterNavigationObserver {
+public class SalesEditCreateInvoiceView extends Div {
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
+    private final Notifications notifications;
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
@@ -102,6 +99,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
                                       WarehouseService warehouseService,
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService,
+                                      Notifications notifications,
                                       SalesChooseGoodsModalWin salesChooseGoodsModalWin
     ) {
         this.contractorService = contractorService;
@@ -109,6 +107,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
+        this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
         configureGrid();
@@ -345,7 +344,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 
                 addInvoiceProductToInvoicedDto(invoiceDto);
                 UI.getCurrent().navigate("sells");
-                showSuccessSaveNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
+                notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
             }
         });
         return buttonSave;
@@ -514,10 +513,9 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         }
     }
 
-    private void deleteInvoiceById(Long invoiceDtoId){
+    private void deleteInvoiceById(Long invoiceDtoId) {
         invoiceService.deleteById(invoiceDtoId);
-
-        Notification.show(String.format("deleted %s", invoiceDtoId));
+        notifications.infoNotification(String.format("Заказ № %s успешно удален", invoiceDtoId));
     }
 
     private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto) {
@@ -525,17 +523,4 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         grid.setItems(tempInvoiceProductDtoList);
     }
 
-    private void showSuccessSaveNotification(String string){
-        Span text = new Span(string);
-        Notification notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        notification.setPosition(Notification.Position.MIDDLE);
-        notification.setDuration(3000);
-        notification.add(text);
-        notification.open();
-    }
-
-    @Override
-    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-    }
 }
