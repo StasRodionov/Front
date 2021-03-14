@@ -18,6 +18,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -25,12 +26,14 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
@@ -66,19 +69,20 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
 
-    private final String labelWidth = "100px";
-    private final String fieldWidth = "300px";
-    private TextField invoiceIdField = new TextField();
-    private DateTimePicker dateField = new DateTimePicker();
-    private TextField typeOfInvoiceField = new TextField();
-    private Checkbox isSpend = new Checkbox("Проведено");
-    private final Select<CompanyDto> companySelect = new Select<>();
-    private final Select<ContractorDto> contractorSelect = new Select<>();
-    private final Select<WarehouseDto> warehouseSelect = new Select<>();
+    private static final String LABEL_WIDTH = "100px";
+    private static final String FIELD_WIDTH = "350px";
+    private final TextField invoiceIdField = new TextField();
+    private final DateTimePicker dateField = new DateTimePicker();
+    private final TextField typeOfInvoiceField = new TextField();
+    private final Checkbox isSpend = new Checkbox("Проведено");
+    private final ComboBox<CompanyDto> companySelect = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
+    private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
 
-    TextField amountField = new TextField();
-    private H4 totalPrice = new H4();
-    public H2 title = new H2("Добавление заказа");
+    private final TextField amountField = new TextField();
+
+    private final H4 totalPrice = new H4();
+    private final H2 title = new H2("Добавление заказа");
 
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
 
@@ -86,9 +90,9 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private final GridPaginator<InvoiceProductDto> paginator;
     private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
 
-    Editor<InvoiceProductDto> editor = grid.getEditor();
-    Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
-    Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
+    private final Editor<InvoiceProductDto> editor = grid.getEditor();
+    private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
+    private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
 
     @Autowired
     public SalesEditCreateInvoiceView(ContractorService contractorService,
@@ -234,8 +238,8 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private HorizontalLayout configureDateField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Дата");
-        label.setWidth(labelWidth);
-        dateField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        dateField.setWidth(FIELD_WIDTH);
         dateField.setHelperText("По умолчанию текущая дата/время");
         horizontalLayout.add(label, dateField);
         return horizontalLayout;
@@ -248,12 +252,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             companySelect.setItems(companies);
         }
         companySelect.setItemLabelGenerator(CompanyDto::getName);
-        companySelect.setWidth(fieldWidth);
+        companySelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(companySelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("companyDto");
         Label label = new Label("Компания");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         companyLayout.add(label, companySelect);
         return companyLayout;
     }
@@ -265,12 +269,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             contractorSelect.setItems(contractors);
         }
         contractorSelect.setItemLabelGenerator(ContractorDto::getName);
-        contractorSelect.setWidth(fieldWidth);
+        contractorSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("contractorDto");
         Label label = new Label("Контрагент");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorSelect);
         return horizontalLayout;
     }
@@ -282,12 +286,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             warehouseSelect.setItems(warehouses);
         }
         warehouseSelect.setItemLabelGenerator(WarehouseDto::getName);
-        warehouseSelect.setWidth(fieldWidth);
+        warehouseSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(warehouseSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("warehouseDto");
         Label label = new Label("Склад");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseSelect);
         return horizontalLayout;
     }
@@ -327,6 +331,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
+
                 if (dateField.getValue() == null) {
                     dateField.setValue(LocalDateTime.now());
                 }
@@ -338,6 +343,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 
                 addInvoiceProductToInvoicedDto(invoiceDto);
                 UI.getCurrent().navigate("sells");
+                showSuccessSaveNotification(invoiceDto.getId());
             }
         });
         return buttonSave;
@@ -428,7 +434,6 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     private BigDecimal getTotalPrice() {
-        System.out.println(companySelect.getValue());
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
             totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
@@ -456,8 +461,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         companySelect.setInvalid(false);
         warehouseSelect.setInvalid(false);
         title.setText("Добавление аказа");
-        tempInvoiceProductDtoList = new ArrayList<>();
-        paginator.setData(tempInvoiceProductDtoList);
+        paginator.setData(tempInvoiceProductDtoList = new ArrayList<>());
         setTotalPrice();
     }
 
@@ -472,10 +476,8 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         invoiceDto.setWarehouseDto(warehouseSelect.getValue());
         invoiceDto.setTypeOfInvoice("RECEIPT");
         invoiceDto.setSpend(isSpend.getValue());
-
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
         InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
-        System.out.println(invoiceDtoForProducts);
         return invoiceDtoForProducts;
     }
 
@@ -503,6 +505,16 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto) {
         tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
         grid.setItems(tempInvoiceProductDtoList);
+    }
+
+    private void showSuccessSaveNotification(Long invoiceId){
+        Span text = new Span(String.format("Заказ № %s сохранен", invoiceId));
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.setPosition(Notification.Position.MIDDLE);
+        notification.setDuration(3000);
+        notification.add(text);
+        notification.open();
     }
 
     @Override
