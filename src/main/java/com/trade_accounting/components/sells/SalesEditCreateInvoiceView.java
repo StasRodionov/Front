@@ -443,7 +443,7 @@ public class SalesEditCreateInvoiceView extends Div {
         return isExists;
     }
 
-    private BigDecimal getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
             totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
@@ -502,7 +502,7 @@ public class SalesEditCreateInvoiceView extends Div {
         }
     }
 
-    private List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
+    public List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceDto.getId());
         return invoiceProductDtoList;
     }
@@ -520,6 +520,7 @@ public class SalesEditCreateInvoiceView extends Div {
 
     private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto) {
         tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
+        setTotalPrice();
         grid.setItems(tempInvoiceProductDtoList);
     }
 
