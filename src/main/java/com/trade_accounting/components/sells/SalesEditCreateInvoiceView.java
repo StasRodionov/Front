@@ -513,7 +513,7 @@ public class SalesEditCreateInvoiceView extends Div {
         }
     }
 
-    private void deleteInvoiceById(Long invoiceDtoId) {
+    public void deleteInvoiceById(Long invoiceDtoId) {
         invoiceService.deleteById(invoiceDtoId);
         notifications.infoNotification(String.format("Заказ № %s успешно удален", invoiceDtoId));
     }

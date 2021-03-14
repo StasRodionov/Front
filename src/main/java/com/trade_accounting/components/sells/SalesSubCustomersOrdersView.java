@@ -3,6 +3,7 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -46,6 +48,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
+    private final Notifications notifications;
+
     private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
@@ -53,10 +57,11 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
-                                       @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView
-    ) {
+                                       @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
+                                       Notifications notifications) {
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.invoiceService = invoiceService;
+        this.notifications = notifications;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
@@ -171,9 +176,20 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedInvoices();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
     }
 
@@ -217,6 +233,17 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private List<InvoiceDto> getData() {
         return invoiceService.getAll();
+    }
+
+    private void deleteSelectedInvoices() {
+        if (grid.getSelectedItems().size() != 0) {
+            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
+                invoiceService.deleteById(invoiceDto.getId());
+                notifications.infoNotification("Выбранные заказы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
     }
 
     @Override

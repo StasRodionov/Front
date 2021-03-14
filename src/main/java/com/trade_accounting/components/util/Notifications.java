@@ -21,7 +21,7 @@ public class Notifications {
 
     private final String finishedStyle = "finished-style";
 
-    private final String errorCss = ".error-style { color: red; }";
+    private final String errorCss = ".error-style { color: white; }";
 
     private final String finishedCss = ".finished-style { color: black; }";
 
@@ -31,7 +31,7 @@ public class Notifications {
 
     private final Notification notification = new Notification();
 
-    public Notifications () {
+    public Notifications() {
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         ok.addClickListener(event -> notification.close());
         notification.setPosition(Notification.Position.BOTTOM_END);
@@ -50,7 +50,11 @@ public class Notifications {
         text.addClassName(styleName);
         notification.removeAll();
         notification.add(text);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        if (css.equals(finishedCss)) {
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        } else {
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
         notification.setDuration(5000);
         notification.add(verticalLayout);
 
