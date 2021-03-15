@@ -5,6 +5,7 @@ import com.trade_accounting.services.interfaces.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
@@ -47,17 +48,17 @@ public class GoodsModalWindow extends Dialog {
     private final NumberField volumeNumberField = new NumberField();
     private final NumberField purchasePriceNumberField = new NumberField();
 
-    private final Select<UnitDto> unitDtoSelect = new Select<>();
-    private final Select<ContractorDto> contractorDtoSelect = new Select<>();
-    private final Select<TaxSystemDto> taxSystemDtoSelect = new Select<>();
-    private final Select<ProductGroupDto> productGroupDtoSelect = new Select<>();
-    private final Select<AttributeOfCalculationObjectDto> attributeOfCalculationObjectSelect = new Select<>();
+    private final ComboBox<UnitDto> unitDtoComboBox = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
+    private final ComboBox<TaxSystemDto> taxSystemDtoComboBox = new ComboBox<>();
+    private final ComboBox<ProductGroupDto> productGroupDtoComboBox = new ComboBox<>();
+    private final ComboBox<AttributeOfCalculationObjectDto> attributeOfCalculationObjectComboBox = new ComboBox<>();
 
     private final HorizontalLayout typeOfPriceLayout = new HorizontalLayout();
     private Map<TypeOfPriceDto, NumberField> numberFields;
 
     private GoodsView goodsView;
-    private HorizontalLayout footer = new HorizontalLayout();
+    private final HorizontalLayout footer = new HorizontalLayout();
 
 
     @Autowired
@@ -89,31 +90,40 @@ public class GoodsModalWindow extends Dialog {
         add(getHorizontalLayout("Закупочная цена", purchasePriceNumberField));
         add(getHorizontalLayout("Описание", descriptionField));
 
-        unitDtoSelect.setItemLabelGenerator(UnitDto::getFullName);
-        add(getHorizontalLayout("Единицы измерения", unitDtoSelect));
+        unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
+        add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
 
-        contractorDtoSelect.setItemLabelGenerator(ContractorDto::getName);
-        add(getHorizontalLayout("Поставщик", contractorDtoSelect));
+        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
+        add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
 
-        taxSystemDtoSelect.setItemLabelGenerator(TaxSystemDto::getName);
-        add(getHorizontalLayout("Система налогообложения", taxSystemDtoSelect));
+        taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
+        add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
 
-        productGroupDtoSelect.setItemLabelGenerator(ProductGroupDto::getName);
-        add(getHorizontalLayout("Группа продуктов", productGroupDtoSelect));
+        productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
+        add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
 
-        attributeOfCalculationObjectSelect.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
-        add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectSelect));
+        attributeOfCalculationObjectComboBox.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
+        add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
 
         add(getHorizontalLayout("Типы цен", typeOfPriceLayout));
+        footer.getStyle().set("padding-bottom", "30px");
+        footer.getStyle().set("padding-top", "30px");
         add(footer);
     }
 
     @Override
     public void open() {
         init();
-        initFooter(getAddButton());
+        footer.add(getFooterHorizontalLayout(getAddButton()));
         super.open();
     }
+
+    @Override
+    public void close() {
+        goodsView.updateAfterModalWindowClose();
+        super.close();
+    }
+
     public void open(ProductDto productDto) {
         init();
         productDto = productService.getById(productDto.getId());
@@ -123,13 +133,13 @@ public class GoodsModalWindow extends Dialog {
         volumeNumberField.setValue(productDto.getVolume().doubleValue());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice().doubleValue());
 
-        unitDtoSelect.setValue(productDto.getUnitDto());
-        contractorDtoSelect.setValue(productDto.getContractorDto());
-        taxSystemDtoSelect.setValue(productDto.getTaxSystemDto());
-        productGroupDtoSelect.setValue(productDto.getProductGroupDto());
-        attributeOfCalculationObjectSelect.setValue(productDto.getAttributeOfCalculationObjectDto());
+        unitDtoComboBox.setValue(productDto.getUnitDto());
+        contractorDtoComboBox.setValue(productDto.getContractorDto());
+        taxSystemDtoComboBox.setValue(productDto.getTaxSystemDto());
+        productGroupDtoComboBox.setValue(productDto.getProductGroupDto());
+        attributeOfCalculationObjectComboBox.setValue(productDto.getAttributeOfCalculationObjectDto());
         initTypeOfPriceFrom(productDto.getProductPriceDtos());
-        initFooter(getUpdateButton(productDto));
+        footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
         super.open();
     }
 
@@ -142,11 +152,11 @@ public class GoodsModalWindow extends Dialog {
         footer.removeAll();
         typeOfPriceLayout.removeAll();
         numberFields = new HashMap<>();
-        unitDtoSelect.setItems(unitService.getAll());
-        contractorDtoSelect.setItems(contractorService.getAllLite());
-        taxSystemDtoSelect.setItems(taxSystemService.getAll());
-        productGroupDtoSelect.setItems(productGroupService.getAll());
-        attributeOfCalculationObjectSelect.setItems(attributeOfCalculationObjectService.getAll());
+        unitDtoComboBox.setItems(unitService.getAll());
+        contractorDtoComboBox.setItems(contractorService.getAllLite());
+        taxSystemDtoComboBox.setItems(taxSystemService.getAll());
+        productGroupDtoComboBox.setItems(productGroupService.getAll());
+        attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
         typeOfPriceLayout.add(getTypeOfPriceForm(typeOfPriceService.getAll()));
     }
 
@@ -159,11 +169,15 @@ public class GoodsModalWindow extends Dialog {
         horizontalLayout.add(getImageButton());
         return horizontalLayout;
     }
-    private void initFooter(Button button) {
-        footer.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        footer.add(button);
-        footer.add(new Button("Закрыть", event -> close()));
-        footer.setPadding(true);
+
+    private HorizontalLayout getFooterHorizontalLayout(Button addOrUpdateButton){
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        horizontalLayout.add(addOrUpdateButton);
+        horizontalLayout.add(new Button("Закрыть", event -> close()));
+        horizontalLayout.setMargin(false);
+        horizontalLayout.setWidth("100%");
+        return horizontalLayout;
     }
 
     private Component getTypeOfPriceForm(List<TypeOfPriceDto> typeOfPriceDtos) {
@@ -183,6 +197,7 @@ public class GoodsModalWindow extends Dialog {
         });
         return verticalLayout;
     }
+
     private void initTypeOfPriceFrom(List<ProductPriceDto> list){
         list.forEach(productPriceDto -> {
             numberFields.get(productPriceDto.getTypeOfPriceDto()).setValue(productPriceDto.getValue().doubleValue());
@@ -204,15 +219,24 @@ public class GoodsModalWindow extends Dialog {
         return imageButton;
     }
 
-    private Button getAddButton(){
+    private Button getAddButton() {
         return new Button("Добавить", event -> {
             ProductDto productDto = new ProductDto();
             updateProductDto(productDto);
             productService.create(productDto);
             Notification.show(String.format("Товар %s добавлен", productDto.getName()));
-            goodsView.updateAfterModalWindowClose();
             close();
         });
+    }
+
+    private Button getRemoveButton(ProductDto productDto) {
+        Button deleteButton = new Button("Удалить", buttonClickEvent -> {
+            productService.deleteById(productDto.getId());
+            Notification.show(String.format("Товар %s удален", productDto.getName()));
+            close();
+        });
+        deleteButton.setMinWidth("100px");
+        return deleteButton;
     }
 
     private Button getUpdateButton(ProductDto productDto){
@@ -220,7 +244,6 @@ public class GoodsModalWindow extends Dialog {
             updateProductDto(productDto);
             productService.update(productDto);
             Notification.show(String.format("Товар %s изменен", productDto.getName()));
-            goodsView.updateAfterModalWindowClose();
             close();
         });
     }
@@ -231,11 +254,11 @@ public class GoodsModalWindow extends Dialog {
         productDto.setVolume(BigDecimal.valueOf(volumeNumberField.getValue()));
         productDto.setPurchasePrice(BigDecimal.valueOf(purchasePriceNumberField.getValue()));
         productDto.setDescription(descriptionField.getValue());
-        productDto.setUnitDto(unitDtoSelect.getValue());
-        productDto.setContractorDto(contractorDtoSelect.getValue());
-        productDto.setTaxSystemDto(taxSystemDtoSelect.getValue());
-        productDto.setProductGroupDto(productGroupDtoSelect.getValue());
-        productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectSelect.getValue()));
+        productDto.setUnitDto(unitDtoComboBox.getValue());
+        productDto.setContractorDto(contractorDtoComboBox.getValue());
+        productDto.setTaxSystemDto(taxSystemDtoComboBox.getValue());
+        productDto.setProductGroupDto(productGroupDtoComboBox.getValue());
+        productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
 
         if (productDto.getProductPriceDtos() == null)  {
             productDto.setProductPriceDtos(new ArrayList<>());
@@ -258,7 +281,6 @@ public class GoodsModalWindow extends Dialog {
         });
 
     }
-
 
     private <T extends Component & HasSize> HorizontalLayout getHorizontalLayout(String labelText, T field) {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
