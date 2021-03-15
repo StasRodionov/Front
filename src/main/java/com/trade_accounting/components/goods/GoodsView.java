@@ -73,9 +73,9 @@ public class GoodsView extends VerticalLayout {
     public void updateAfterModalWindowClose() {
         Optional<ProductGroupDto> optional = treeGrid.getSelectedItems().stream().findFirst();
         if (optional.isPresent()) {
-            paginator.setData(productService.getAllLiteByProductGroup(optional.get()));
+            paginator.setData(productService.getAllLiteByProductGroup(optional.get()), true);
         } else {
-            paginator.setData(productService.getAllLite());
+            paginator.setData(productService.getAllLite(), true);
         }
     }
 
@@ -108,7 +108,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     private GridPaginator<ProductDto> getPaginator(Grid<ProductDto> grid) {
-        GridPaginator<ProductDto> paginator = new GridPaginator<>(grid, new ArrayList<>(), 50);
+        GridPaginator<ProductDto> paginator = new GridPaginator<>(grid, new ArrayList<>(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         return paginator;
     }
@@ -132,6 +132,7 @@ public class GoodsView extends VerticalLayout {
             ProductDto productDto = event.getItem();
             goodsModalWindow.open(productDto);
         });
+        grid.getColumns().forEach(column -> column.setAutoWidth(true));
         return grid;
     }
 

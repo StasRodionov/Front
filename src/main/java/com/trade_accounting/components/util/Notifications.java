@@ -4,14 +4,17 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
+@Component
 public class Notifications {
 
     private final String errorStyle = "error-style";
@@ -20,7 +23,7 @@ public class Notifications {
 
     private final String errorCss = ".error-style { color: red; }";
 
-    private final String finishedCss = ".finished-style { color: green; }";
+    private final String finishedCss = ".finished-style { color: black; }";
 
     private final Button ok = new Button("OK");
 
@@ -47,6 +50,8 @@ public class Notifications {
         text.addClassName(styleName);
         notification.removeAll();
         notification.add(text);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.setDuration(5000);
         notification.add(verticalLayout);
 
         StreamRegistration resource = UI.getCurrent().getSession().getResourceRegistry()
