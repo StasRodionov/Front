@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
@@ -93,6 +92,7 @@ public class ProductServiceImp implements ProductService {
     @Override
     public void deleteById(Long id) {
         Call<Void> productDeleteCall = productApi.deleteById(productUrl, id);
+        log.info("Отправлен запрос на удаление Product с id = {}", id);
         try {
             productDeleteCall.execute();
         } catch (IOException e) {
@@ -107,8 +107,23 @@ public class ProductServiceImp implements ProductService {
             listProducts = productGetAllCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка ProductDto принадлежащих группе {}", productGroupDto.getName());
         } catch (IOException e) {
-            log.error("Произошла ошибка при получении списка ProductDto - {}", e);
+            log.error("Произошла ошибка при получении списка ProductDto принадлежащих группе {} - {}", productGroupDto.getName(), e.getMessage());
         }
         return listProducts;
+    }
+
+    @Override
+    public List<ProductDto> getAllLiteByProductGroup(ProductGroupDto productGroupDto) {
+        Call<List<ProductDto>> getAllLiteByGroupIdCall = productApi.getAllLiteByProductGroupId(productUrl, productGroupDto.getId());
+        try {
+            List<ProductDto> productDtos = getAllLiteByGroupIdCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ProductDto (Лёгкое ДТО) принадлежащих группе {}",
+                    productGroupDto.getName());
+            return productDtos;
+        } catch (IOException e) {
+            log.error("Произошла ошибка при получении списка ProductDto (Лёгкое ДТО) принадлежащих группе {} - {}",
+                    productGroupDto.getName(), e.getMessage());
+        }
+        return null;
     }
 }

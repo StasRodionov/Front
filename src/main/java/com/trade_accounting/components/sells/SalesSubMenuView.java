@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -11,22 +12,41 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 @Route(value = "sells", layout = AppView.class)
 @PageTitle("Продажи")
+@SpringComponent
+@UIScope
 public class SalesSubMenuView extends Div implements AfterNavigationObserver {
 
     private final Div div;
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
+    private final WarehouseService warehouseService;
 
+    private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
+    private final SalesSubShipmentView salesSubShipmentView;
+
+
+    @Autowired
     public SalesSubMenuView(InvoiceService invoiceService,
                             ContractorService contractorService,
-                            CompanyService companyService) {
+                            CompanyService companyService,
+                            WarehouseService warehouseService,
+                            @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
+                            @Lazy SalesSubShipmentView salesSubShipmentView) {
+        this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
+        this.warehouseService = warehouseService;
+        this.salesSubShipmentView = salesSubShipmentView;
+
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -44,7 +64,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
         });
         getUI().ifPresent(ui -> {
             div.removeAll();
-            div.add(new SalesSubCustomersOrdersView(invoiceService, contractorService, companyService));
+            div.add(salesSubCustomersOrdersView);
         });
     }
 
@@ -68,19 +88,19 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Заказы покупателей":
                     div.removeAll();
-                    div.add(new SalesSubCustomersOrdersView(invoiceService, contractorService, companyService));
+                    div.add(salesSubCustomersOrdersView);
                     break;
                 case "Счета покупателям":
                     div.removeAll();
-                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, contractorService, companyService));
+                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, contractorService, companyService, warehouseService));
                     break;
                 case "Отгрузки":
                     div.removeAll();
-                    div.add(new SalesSubShipmentView(invoiceService, contractorService, companyService));
+                    div.add(salesSubShipmentView);
                     break;
                 case "Отчеты комиссионера":
                     div.removeAll();
-                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService));
+                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService));
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();

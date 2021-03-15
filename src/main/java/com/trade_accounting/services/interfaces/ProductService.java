@@ -20,5 +20,7 @@ public interface ProductService {
     void deleteById(Long id);
 
     List<ProductDto> getAllByProductGroup(ProductGroupDto productGroupDto);
+
+    List<ProductDto> getAllLiteByProductGroup(ProductGroupDto productGroupDto);
 }
 
