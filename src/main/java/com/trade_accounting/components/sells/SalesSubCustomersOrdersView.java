@@ -76,6 +76,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         grid.addItemDoubleClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
+            salesEditCreateInvoiceView.setUpdateState(true);
             UI.getCurrent().navigate("sells/customer-order-edit");
         });
     }
@@ -112,6 +113,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private Button buttonUnit() {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(event -> {
+            salesEditCreateInvoiceView.resetView();
+            salesEditCreateInvoiceView.setUpdateState(false);
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
         });
         return buttonUnit;

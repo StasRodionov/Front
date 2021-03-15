@@ -3,6 +3,7 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -30,12 +32,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -58,27 +57,31 @@ import java.util.WeakHashMap;
 @PageTitle("Изменить заказ")
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends Div implements AfterNavigationObserver {
+public class SalesEditCreateInvoiceView extends Div {
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
+    private final Notifications notifications;
 
-    private final String labelWidth = "100px";
-    private final String fieldWidth = "300px";
-    private TextField invoiceId = new TextField();
-    private DateTimePicker dateField = new DateTimePicker();
-    private TextField typeOfInvoiceField = new TextField();
-    private Checkbox isSpend = new Checkbox("Проведено");
-    private final Select<CompanyDto> companySelect = new Select<>();
-    private final Select<ContractorDto> contractorSelect = new Select<>();
-    private final Select<WarehouseDto> warehouseSelect = new Select<>();
+    private static final String LABEL_WIDTH = "100px";
+    private static final String FIELD_WIDTH = "350px";
+    private final TextField invoiceIdField = new TextField();
+    private final DateTimePicker dateField = new DateTimePicker();
+    private final TextField typeOfInvoiceField = new TextField();
+    private final Checkbox isSpend = new Checkbox("Проведено");
+    private final ComboBox<CompanyDto> companySelect = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
+    private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
 
-    TextField amountField = new TextField();
+    private final TextField amountField = new TextField();
 
-    private H4 totalPrice = new H4();
+    private final Button buttonDelete = new Button("Удалить", new Icon(VaadinIcon.TRASH));
+
+    private final H4 totalPrice = new H4();
+    private final H2 title = new H2("Добавление заказа");
 
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
 
@@ -86,9 +89,9 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private final GridPaginator<InvoiceProductDto> paginator;
     private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
 
-    Editor<InvoiceProductDto> editor = grid.getEditor();
-    Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
-    Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
+    private final Editor<InvoiceProductDto> editor = grid.getEditor();
+    private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
+    private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
 
     @Autowired
     public SalesEditCreateInvoiceView(ContractorService contractorService,
@@ -96,14 +99,15 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
                                       WarehouseService warehouseService,
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService,
+                                      Notifications notifications,
                                       SalesChooseGoodsModalWin salesChooseGoodsModalWin
-
     ) {
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
+        this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
         configureGrid();
@@ -184,6 +188,13 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         grid.getElement().addEventListener("keyup", event -> editor.cancel())
                 .setFilter("event.key === 'Escape' || event.key === 'Esc'");
 
+        grid.getElement().addEventListener("keyup", event -> {
+            editor.save();
+            setTotalPrice();
+            paginator.setData(tempInvoiceProductDtoList);
+            buttonAddProduct().focus();
+        }).setFilter("event.key === 'Enter'");
+
         Div buttons = new Div(save, cancel);
         editorColumn.setEditorComponent(buttons);
 
@@ -194,7 +205,7 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
 
     private HorizontalLayout upperButtonsLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonSave(), buttonClose(), buttonAddProduct());
+        upper.add(buttonQuestion(), title(), buttonSave(), configureDeleteButton(), buttonClose(), buttonAddProduct());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -228,8 +239,8 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private HorizontalLayout configureDateField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Дата");
-        label.setWidth(labelWidth);
-        dateField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        dateField.setWidth(FIELD_WIDTH);
         dateField.setHelperText("По умолчанию текущая дата/время");
         horizontalLayout.add(label, dateField);
         return horizontalLayout;
@@ -242,12 +253,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             companySelect.setItems(companies);
         }
         companySelect.setItemLabelGenerator(CompanyDto::getName);
-        companySelect.setWidth(fieldWidth);
+        companySelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(companySelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("companyDto");
         Label label = new Label("Компания");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         companyLayout.add(label, companySelect);
         return companyLayout;
     }
@@ -259,12 +270,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             contractorSelect.setItems(contractors);
         }
         contractorSelect.setItemLabelGenerator(ContractorDto::getName);
-        contractorSelect.setWidth(fieldWidth);
+        contractorSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("contractorDto");
         Label label = new Label("Контрагент");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorSelect);
         return horizontalLayout;
     }
@@ -276,12 +287,12 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
             warehouseSelect.setItems(warehouses);
         }
         warehouseSelect.setItemLabelGenerator(WarehouseDto::getName);
-        warehouseSelect.setWidth(fieldWidth);
+        warehouseSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(warehouseSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("warehouseDto");
         Label label = new Label("Склад");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseSelect);
         return horizontalLayout;
     }
@@ -305,7 +316,6 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     private H2 title() {
-        H2 title = new H2("Добавление/редактирование заказа");
         title.setHeight("2.0em");
         return title;
     }
@@ -319,44 +329,22 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private Button buttonSave() {
         Button buttonSave = new Button("Сохранить", buttonClickEvent -> {
 
-            InvoiceDto invoiceDto = new InvoiceDto();
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
 
-                System.out.println("**************************************************************");
-                System.out.println(companySelect.getValue());
-                System.out.println(contractorSelect.getValue());
-                System.out.println(warehouseSelect.getValue());
-                System.out.println(isSpend.getValue());
-
                 if (dateField.getValue() == null) {
                     dateField.setValue(LocalDateTime.now());
                 }
-                if (!invoiceId.getValue().equals("")) {
-                    invoiceDto.setId(Long.parseLong(invoiceId.getValue()));
-                }
-                invoiceDto.setDate(dateField.getValue().toString());
-                invoiceDto.setCompanyDto(companySelect.getValue());
-                invoiceDto.setContractorDto(contractorSelect.getValue());
-                invoiceDto.setWarehouseDto(warehouseSelect.getValue());
-                invoiceDto.setTypeOfInvoice("RECEIPT");
-                invoiceDto.setSpend(isSpend.getValue());
+                InvoiceDto invoiceDto = saveInvoice();
 
-                Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
-                System.out.println("body ****!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
-                InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
-                System.out.println(invoiceDtoResponse.body());
-                InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-                invoiceProductDto.setInvoiceDto(invoiceDtoForProducts);
-                invoiceProductDto.setProductDto(tempInvoiceProductDtoList.get(0).getProductDto());
-                invoiceProductDto.setPrice(BigDecimal.valueOf(3432));
-                invoiceProductDto.setAmount(BigDecimal.valueOf(13));
-                System.out.println(invoiceProductDto);
-                invoiceProductService.create(invoiceProductDto);
-                clearFields();
+                deleteAllInvoiceProductByInvoice(
+                        getListOfInvoiceProductByInvoice(invoiceDto)
+                );
 
+                addInvoiceProductToInvoicedDto(invoiceDto);
                 UI.getCurrent().navigate("sells");
+                notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
             }
         });
         return buttonSave;
@@ -365,9 +353,19 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     private Button buttonClose() {
         Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         buttonUnit.addClickListener(event -> {
+            resetView();
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells"));
         });
         return buttonUnit;
+    }
+
+    private Button configureDeleteButton() {
+        buttonDelete.addClickListener(event -> {
+            deleteInvoiceById(Long.parseLong(invoiceIdField.getValue()));
+            resetView();
+            buttonDelete.getUI().ifPresent(ui -> ui.navigate("sells"));
+        });
+        return buttonDelete;
     }
 
     private Button buttonAddProduct() {
@@ -403,8 +401,10 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     public void setInvoiceDataForEdit(InvoiceDto invoiceDto) {
+
         if (invoiceDto.getId() != null) {
-            invoiceId.setValue(invoiceDto.getId().toString());
+            invoiceIdField.setValue(invoiceDto.getId().toString());
+            setInvoiceProductDtoListForEdit(invoiceDto);
         }
 
         if (invoiceDto.getDate() != null) {
@@ -444,7 +444,6 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
     }
 
     private BigDecimal getTotalPrice() {
-        System.out.println(companySelect.getValue());
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
             totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
@@ -457,8 +456,13 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         totalPrice.setText(getTotalPrice().toString());
     }
 
-    private void clearFields() {
-        invoiceId.clear();
+    public void setUpdateState(boolean isUpdate) {
+        title.setText(isUpdate ? "Редактирование заказа" : "Добавление заказа");
+        buttonDelete.setVisible(isUpdate);
+    }
+
+    public void resetView() {
+        invoiceIdField.clear();
         dateField.clear();
         companySelect.setValue(null);
         contractorSelect.setValue(null);
@@ -467,10 +471,57 @@ public class SalesEditCreateInvoiceView extends Div implements AfterNavigationOb
         contractorSelect.setInvalid(false);
         companySelect.setInvalid(false);
         warehouseSelect.setInvalid(false);
-//        tempInvoiceProductDtoList.clear();
+        title.setText("Добавление аказа");
+        paginator.setData(tempInvoiceProductDtoList = new ArrayList<>());
+        setTotalPrice();
     }
 
-    @Override
-    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+    private InvoiceDto saveInvoice() {
+        InvoiceDto invoiceDto = new InvoiceDto();
+        if (!invoiceIdField.getValue().equals("")) {
+            invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
+        }
+        invoiceDto.setDate(dateField.getValue().toString());
+        invoiceDto.setCompanyDto(companySelect.getValue());
+        invoiceDto.setContractorDto(contractorSelect.getValue());
+        invoiceDto.setWarehouseDto(warehouseSelect.getValue());
+        invoiceDto.setTypeOfInvoice("RECEIPT");
+        invoiceDto.setSpend(isSpend.getValue());
+        Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
+        InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
+        return invoiceDtoForProducts;
     }
+
+    private void addInvoiceProductToInvoicedDto(InvoiceDto invoiceDto) {
+        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
+            invoiceProductDto.setInvoiceDto(invoiceDto);
+            invoiceProductDto.setProductDto(invoiceProductDto.getProductDto());
+            invoiceProductDto.setPrice(invoiceProductDto.getPrice());
+            invoiceProductDto.setAmount(invoiceProductDto.getAmount());
+            invoiceProductService.create(invoiceProductDto);
+        }
+    }
+
+    private List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
+        List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceDto.getId());
+        return invoiceProductDtoList;
+    }
+
+    private void deleteAllInvoiceProductByInvoice(List<InvoiceProductDto> invoiceProductDtoList) {
+        for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
+            invoiceProductService.deleteById(invoiceProductDto.getId());
+        }
+    }
+
+    private void deleteInvoiceById(Long invoiceDtoId) {
+        invoiceService.deleteById(invoiceDtoId);
+        notifications.infoNotification(String.format("Заказ № %s успешно удален", invoiceDtoId));
+    }
+
+    private void setInvoiceProductDtoListForEdit(InvoiceDto invoiceDto) {
+        tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
+        setTotalPrice();
+        grid.setItems(tempInvoiceProductDtoList);
+    }
+
 }
