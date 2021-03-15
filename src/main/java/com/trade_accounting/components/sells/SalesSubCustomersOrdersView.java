@@ -65,7 +65,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         this.invoiceService = invoiceService;
         this.notifications = notifications;
         this.data = getData();
-        paginator = new GridPaginator<>(grid, data, 100);
+        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -75,13 +75,16 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setId("Дата");
-        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto").setId("Компания");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)
-        ).setKey("spend").setHeader("Проведена").setId("Проведена");
+        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
+                .setId("Дата");
+        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto")
+                .setId("Контрагент");
+        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
+                .setId("Компания");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
+                .setId("Проведена");
 
-        grid.addColumn(iDto -> getTotalPrice(iDto)).setHeader("Сумма");
+        grid.addColumn(iDto -> getTotalPrice(iDto)).setHeader("Сумма").setSortable(true);
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -166,6 +169,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.addValueChangeListener(event -> {
+            System.out.println(event.getValue());
+        });
         return textField;
     }
 

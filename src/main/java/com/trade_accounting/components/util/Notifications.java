@@ -9,12 +9,14 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
-import org.springframework.stereotype.Component;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-@Component
+@SpringComponent
+@UIScope
 public class Notifications {
 
     private final String errorStyle = "error-style";
@@ -47,7 +49,6 @@ public class Notifications {
         notification.removeThemeVariants(NotificationVariant.LUMO_SUCCESS);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         abstractNotification(message, errorCss, errorStyle);
-        ;
     }
 
     private void abstractNotification(String message, String css, String styleName) {
