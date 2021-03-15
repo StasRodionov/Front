@@ -92,6 +92,7 @@ public class ProductServiceImp implements ProductService {
     @Override
     public void deleteById(Long id) {
         Call<Void> productDeleteCall = productApi.deleteById(productUrl, id);
+        log.info("Отправлен запрос на удаление Product с id = {}", id);
         try {
             productDeleteCall.execute();
         } catch (IOException e) {
