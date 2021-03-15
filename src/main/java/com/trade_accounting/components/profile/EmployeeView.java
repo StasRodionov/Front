@@ -82,7 +82,7 @@ public class EmployeeView extends VerticalLayout {
             public Component createComponent(EmployeeDto item) {
                 ImageDto imageDto = item.getImageDto();
                 if (imageDto != null) {
-                    Image image = new Image(imageService.loadImage(imageDto), "");
+                    Image image = imageService.uploadImage(imageDto);
                     image.setHeight("48px");
                     image.setWidth("32px");
 
@@ -91,7 +91,6 @@ public class EmployeeView extends VerticalLayout {
                 return new Label();
             }
         }).setHeader("Фото");
-        photoColumn.getElement().getStyle().set("border-radius", "50%");
         photoColumn.setKey("imageDto").setId("Фото");
         grid.addColumn("firstName").setHeader("Имя").setId("Имя");
         grid.addColumn("middleName").setHeader("Отчество").setId("Отчество");

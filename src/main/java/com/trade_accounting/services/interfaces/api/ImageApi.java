@@ -28,7 +28,7 @@ public interface ImageApi {
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
+    Call<ImageDto> update(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
