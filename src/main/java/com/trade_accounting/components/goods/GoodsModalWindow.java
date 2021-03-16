@@ -1,30 +1,51 @@
 package com.trade_accounting.components.goods;
 
-import com.trade_accounting.models.dto.*;
-import com.trade_accounting.services.interfaces.*;
+import com.trade_accounting.models.dto.AttributeOfCalculationObjectDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductGroupDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
+import com.trade_accounting.models.dto.TaxSystemDto;
+import com.trade_accounting.models.dto.TypeOfPriceDto;
+import com.trade_accounting.models.dto.UnitDto;
+import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectService;
+import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ImageService;
+import com.trade_accounting.services.interfaces.ProductGroupService;
+import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.TaxSystemService;
+import com.trade_accounting.services.interfaces.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SpringComponent
@@ -56,9 +77,12 @@ public class GoodsModalWindow extends Dialog {
 
     private final HorizontalLayout typeOfPriceLayout = new HorizontalLayout();
     private Map<TypeOfPriceDto, NumberField> numberFields;
+    private List<ImageDto> imageDtoList;
+    private final HorizontalLayout imageHorizontalLayout = new HorizontalLayout();
 
-    private GoodsView goodsView;
     private final HorizontalLayout footer = new HorizontalLayout();
+
+
 
 
     @Autowired
@@ -118,11 +142,6 @@ public class GoodsModalWindow extends Dialog {
         super.open();
     }
 
-    @Override
-    public void close() {
-        goodsView.updateAfterModalWindowClose();
-        super.close();
-    }
 
     public void open(ProductDto productDto) {
         init();
@@ -140,6 +159,7 @@ public class GoodsModalWindow extends Dialog {
         attributeOfCalculationObjectComboBox.setValue(productDto.getAttributeOfCalculationObjectDto());
         initTypeOfPriceFrom(productDto.getProductPriceDtos());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
+
         super.open();
     }
 
@@ -150,8 +170,10 @@ public class GoodsModalWindow extends Dialog {
         volumeNumberField.clear();
         purchasePriceNumberField.clear();
         footer.removeAll();
+        imageHorizontalLayout.removeAll();
         typeOfPriceLayout.removeAll();
         numberFields = new HashMap<>();
+        imageDtoList = new ArrayList<>();
         unitDtoComboBox.setItems(unitService.getAll());
         contractorDtoComboBox.setItems(contractorService.getAllLite());
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
@@ -166,7 +188,10 @@ public class GoodsModalWindow extends Dialog {
         title.setHeight("2.2em");
         title.setWidth("345px");
         horizontalLayout.add(title);
-        horizontalLayout.add(getImageButton());
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setPadding(false);
+        verticalLayout.add(getImageButton(), imageHorizontalLayout);
+        horizontalLayout.add(title, verticalLayout);
         return horizontalLayout;
     }
 
@@ -207,11 +232,23 @@ public class GoodsModalWindow extends Dialog {
     private Component getImageButton() {
         Button imageButton = new Button("Добавить фото");
         Dialog dialog = new Dialog();
-        MemoryBuffer memoryBuffer = new MemoryBuffer();
+        MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
         Upload upload = new Upload(memoryBuffer);
 
-        upload.addFinishedListener(event -> {
-                log.error("Не реализовано!");
+        upload.addSucceededListener(event -> {
+            try {
+                ImageDto imageDto = new ImageDto();
+                imageDto.setContent(memoryBuffer.getInputStream(event.getFileName()).readAllBytes());
+                imageDto.setImageUrl(event.getFileName());
+                imageDtoList.add(imageDto);
+                StreamResource resource = new StreamResource(imageDto.getImageUrl(), () -> new ByteArrayInputStream(imageDto.getContent()));
+                Image image = new Image(resource, "image");
+                image.setHeight("100px");
+                imageHorizontalLayout.add(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             dialog.close();
         });
         dialog.add(upload);
@@ -259,6 +296,7 @@ public class GoodsModalWindow extends Dialog {
         productDto.setTaxSystemDto(taxSystemDtoComboBox.getValue());
         productDto.setProductGroupDto(productGroupDtoComboBox.getValue());
         productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
+        productDto.setImageDtoList(imageDtoList);
 
         if (productDto.getProductPriceDtos() == null)  {
             productDto.setProductPriceDtos(new ArrayList<>());
@@ -291,10 +329,5 @@ public class GoodsModalWindow extends Dialog {
         horizontalLayout.add(label, field);
         return horizontalLayout;
     }
-
-    public void setGoodsView(GoodsView goodsView) {
-        this.goodsView = goodsView;
-    }
-
 
 }

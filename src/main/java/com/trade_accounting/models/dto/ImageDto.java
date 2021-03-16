@@ -15,6 +15,8 @@ public class ImageDto {
 
     private String imageUrl;
 
+    private byte[] content;
+
     private String sortNumber;
 
     private String content;
