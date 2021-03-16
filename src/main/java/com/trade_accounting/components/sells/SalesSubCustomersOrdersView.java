@@ -60,7 +60,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
-                                       Notifications notifications) {
+                                       @Lazy Notifications notifications) {
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.invoiceService = invoiceService;
         this.notifications = notifications;
