@@ -9,6 +9,7 @@ import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -50,6 +51,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.WeakHashMap;
 
 @Slf4j
@@ -380,12 +382,22 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductDto(productDto);
         invoiceProductDto.setAmount(BigDecimal.ONE);
-        invoiceProductDto.setPrice(productDto.getPurchasePrice());
+        invoiceProductDto.setPrice(
+                getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceDtos(),
+                        contractorSelect.getValue().getTypeOfPriceDto().getId()
+                )
+        );
         if (!isProductInList(productDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
             setTotalPrice();
         }
+    }
+
+    private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
+        Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
+                productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
+        return productPrice.get().getValue();
     }
 
     private void deleteProduct(Long id) {
@@ -454,7 +466,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private void setTotalPrice() {
-        totalPrice.setText(getTotalPrice().toString());
+        totalPrice.setText(
+                String.format("%.2f", getTotalPrice())
+        );
     }
 
     public void setUpdateState(boolean isUpdate) {
