@@ -19,7 +19,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.validator.EmailValidator;
@@ -30,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,8 +55,6 @@ public class AddEmployeeModalWindowView extends Dialog {
     private PasswordField passwordAdd = new PasswordField();
 
     private Select<RoleDto> rolesSelect = new Select<>();
-
-    private TextField imageAdd = new TextField();
 
     private final String labelWidth = "100px";
 
@@ -103,11 +99,7 @@ public class AddEmployeeModalWindowView extends Dialog {
             descriptionAdd.setValue(getFieldValueNotNull(employeeDto.getDescription()));
             passwordAdd.setValue(getFieldValueNotNull(employeeDto.getPassword()));
             roles = employeeDto.getRoleDto();
-            this.imageDto = employeeDto.getImageDto();
-
-            if (imageDto != null) {
-                imageAdd.setValue(getFieldValueNotNull(employeeDto.getImageDto().getImageUrl()));
-            }
+            this.imageDto = imageDto;
         }
 
         setCloseOnOutsideClick(false);
@@ -151,7 +143,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         Label label = new Label("Фото профиля");
         label.setWidth(labelWidth);
         if (imageDto != null && imageDto.getImageUrl() != null) {
-            avatar = imageService.uploadImage(imageDto);
+            avatar = imageService.getImage(imageDto);
         }
         avatar.setWidth("135px");
         avatar.setHeight("200px");
@@ -375,9 +367,7 @@ public class AddEmployeeModalWindowView extends Dialog {
             if (imageDto.getImageUrl() != null) {
                 imageDto.setImageUrl(null);
             }
-
-            String content = Base64.getEncoder().encodeToString(bytes);
-            imageDto.setContent(content);
+            imageDto.setContentEncoder(bytes);
             imageDto.setFileName(event.getFileName());
             div.add(avatarContainer = this.addEmployeeImage());
             dialog.close();

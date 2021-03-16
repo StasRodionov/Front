@@ -103,7 +103,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public Image uploadImage(ImageDto imageDto) {
+    public Image getImage(ImageDto imageDto) {
         ImageDto image = getById(imageDto.getId());
         byte[] content = Base64.getDecoder().decode(image.getContent());
 
