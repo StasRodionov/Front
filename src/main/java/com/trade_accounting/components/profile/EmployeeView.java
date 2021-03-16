@@ -102,6 +102,9 @@ public class EmployeeView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
             ImageDto imageDto = employeeDto.getImageDto();
+            if (imageDto == null) {
+                imageDto = new ImageDto();
+            }
             AddEmployeeModalWindowView addEmployeeModalWindowView =
                     new AddEmployeeModalWindowView(
                             employeeDto,
