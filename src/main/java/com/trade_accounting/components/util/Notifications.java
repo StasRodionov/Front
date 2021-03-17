@@ -9,19 +9,21 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
-import org.springframework.stereotype.Component;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-@Component
+@SpringComponent
+@UIScope
 public class Notifications {
 
     private final String errorStyle = "error-style";
 
     private final String finishedStyle = "finished-style";
 
-    private final String errorCss = ".error-style { color: red; }";
+    private final String errorCss = ".error-style { color: white; }";
 
     private final String finishedCss = ".finished-style { color: black; }";
 
@@ -31,17 +33,21 @@ public class Notifications {
 
     private final Notification notification = new Notification();
 
-    public Notifications () {
+    public Notifications() {
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         ok.addClickListener(event -> notification.close());
         notification.setPosition(Notification.Position.BOTTOM_END);
     }
 
     public void infoNotification(String message) {
+        notification.removeThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         abstractNotification(message, finishedCss, finishedStyle);
     }
 
     public void errorNotification(String message) {
+        notification.removeThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
         abstractNotification(message, errorCss, errorStyle);
     }
 
@@ -50,7 +56,6 @@ public class Notifications {
         text.addClassName(styleName);
         notification.removeAll();
         notification.add(text);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         notification.setDuration(5000);
         notification.add(verticalLayout);
 
