@@ -379,6 +379,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     public void addProduct(ProductDto productDto) {
+        System.out.println("***********************************************************");
+        System.out.println(contractorSelect.getValue());
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductDto(productDto);
         invoiceProductDto.setAmount(BigDecimal.ONE);
