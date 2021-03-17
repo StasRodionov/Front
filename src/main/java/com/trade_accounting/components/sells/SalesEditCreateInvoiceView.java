@@ -57,7 +57,7 @@ import java.util.WeakHashMap;
 @PageTitle("Изменить заказ")
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends Div {
+public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -111,7 +111,8 @@ public class SalesEditCreateInvoiceView extends Div {
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
         configureGrid();
-        paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 100);
+        paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
+        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
@@ -125,7 +126,7 @@ public class SalesEditCreateInvoiceView extends Div {
         Grid.Column<InvoiceProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
         grid.addColumn(inPrDto -> inPrDto.getProductDto().getUnitDto().getFullName()).setHeader("Единицы")
                 .setKey("productDtoUnit").setId("Единицы");
-        grid.addColumn("price").setHeader("Цена").setId("Цена");
+        grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
         grid.setHeight("36vh");
         grid.setColumnReorderingAllowed(true);
 //        grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -443,7 +444,7 @@ public class SalesEditCreateInvoiceView extends Div {
         return isExists;
     }
 
-    private BigDecimal getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
             totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
@@ -502,7 +503,7 @@ public class SalesEditCreateInvoiceView extends Div {
         }
     }
 
-    private List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
+    public List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceDto.getId());
         return invoiceProductDtoList;
     }
@@ -513,7 +514,7 @@ public class SalesEditCreateInvoiceView extends Div {
         }
     }
 
-    private void deleteInvoiceById(Long invoiceDtoId) {
+    public void deleteInvoiceById(Long invoiceDtoId) {
         invoiceService.deleteById(invoiceDtoId);
         notifications.infoNotification(String.format("Заказ № %s успешно удален", invoiceDtoId));
     }
