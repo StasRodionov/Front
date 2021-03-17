@@ -3,13 +3,17 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -18,6 +22,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -28,6 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -41,6 +50,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
+    private final Notifications notifications;
+
     private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
@@ -48,12 +59,13 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
-                                       @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView
-    ) {
+                                       @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
+                                       @Lazy Notifications notifications) {
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.invoiceService = invoiceService;
+        this.notifications = notifications;
         this.data = getData();
-        paginator = new GridPaginator<>(grid, data, 100);
+        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -62,13 +74,17 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void configureGrid() {
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn("date").setHeader("Дата").setId("Дата");
-        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
-        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
-        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto").setId("Компания");
-        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
+                .setId("Дата");
+        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto")
+                .setId("Контрагент");
+        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
+                .setId("Компания");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
+                .setId("Проведена");
+
+        grid.addColumn(iDto -> getTotalPrice(iDto)).setHeader("Сумма").setSortable(true);
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -87,6 +103,16 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
+    }
+
+    private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
+        if (invoiceDto.isSpend()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
     }
 
 
@@ -143,6 +169,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.addValueChangeListener(event -> {
+            System.out.println(event.getValue());
+        });
         return textField;
     }
 
@@ -154,9 +183,20 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedInvoices();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
     }
 
@@ -188,8 +228,35 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         grid.setItems(invoiceService.getAll());
     }
 
+    private String getTotalPrice(InvoiceDto invoiceDto) {
+        List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
+            totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
+                    .multiply(invoiceProductDto.getAmount()));
+        }
+        return String.format("%.2f", totalPrice);
+    }
+
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
+    }
+
     private List<InvoiceDto> getData() {
         return invoiceService.getAll();
+    }
+
+    private void deleteSelectedInvoices() {
+        if (grid.getSelectedItems().size() != 0) {
+            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
+                invoiceService.deleteById(invoiceDto.getId());
+                notifications.infoNotification("Выбранные заказы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
     }
 
     @Override
