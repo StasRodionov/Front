@@ -99,8 +99,8 @@ public class AddEmployeeModalWindowView extends Dialog {
             descriptionAdd.setValue(getFieldValueNotNull(employeeDto.getDescription()));
             passwordAdd.setValue(getFieldValueNotNull(employeeDto.getPassword()));
             roles = employeeDto.getRoleDto();
-            this.imageDto = imageDto;
         }
+        this.imageDto = imageDto;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -329,7 +329,7 @@ public class AddEmployeeModalWindowView extends Dialog {
     }
 
     private ImageDto getImages() {
-        if (imageDto.getId() == null) {
+        if (imageDto.getFileName() != null) {
             return imageService.create(imageDto);
         }
         return imageDto;
@@ -341,8 +341,8 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Component getDeleteButton() {
         return new Button("Удалить", event -> {
-                employeeService.deleteById(id);
-                close();
+            employeeService.deleteById(id);
+            close();
         });
     }
 
