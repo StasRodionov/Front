@@ -131,7 +131,8 @@ public class SalesModalWinCustomersOrders extends Dialog {
     private HorizontalLayout configureContractorSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Select<ContractorDto> labelSelect = new Select<>();
-        labelSelect.setItems(contractorService.getAll());
+        //labelSelect.setItems(contractorService.getAll());//для теста
+        labelSelect.setItems(contractorService.getAllString());//для теста
         labelSelect.setItemLabelGenerator(ContractorDto::getName);
         labelSelect.setWidth(fieldWidth);
         Label label = new Label("Контрагент");

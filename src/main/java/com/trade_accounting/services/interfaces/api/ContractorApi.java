@@ -19,6 +19,10 @@ public interface ContractorApi {
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<ContractorDto>> getAll(@Path(value = "url", encoded = true) String url);
+//create
+    @Headers("Accept: application/json")
+    @GET("{url}/getAllString")
+    Call<List<ContractorDto>> getAllString(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
     @GET("{url}/search/{searchTerm}")
@@ -43,4 +47,6 @@ public interface ContractorApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<ContractorDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+
 }

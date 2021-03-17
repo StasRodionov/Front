@@ -8,6 +8,8 @@ import java.util.Map;
 public interface ContractorService {
     List<ContractorDto> getAll();
 
+    List<ContractorDto> getAllString();
+
     List<ContractorDto> getAll(String searchTerm);
 
     ContractorDto getById(Long id);

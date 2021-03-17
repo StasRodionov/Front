@@ -57,12 +57,26 @@ public class ContractorServiceImpl implements ContractorService {
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
         try {
             contractorDtoList = contractorDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ContractorDto");
+            log.info("Успешно выполнен запрос на получение списка ContractorDto через getAll");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
         }
         return contractorDtoList;
     }
+
+    @Override //create method
+    public List<ContractorDto> getAllString() {
+        List<ContractorDto> contractorDtoListString = new ArrayList<>();
+        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAllString(contractorUrl);
+        try {
+            contractorDtoListString = contractorDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ContractorDto через getAllString ");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
+        }
+        return contractorDtoListString;
+    }
+
     @Override
     public List<ContractorDto> getAll(String searchTerm) {
     List<ContractorDto> contractorDtoList = new ArrayList<>();
@@ -86,7 +100,7 @@ public class ContractorServiceImpl implements ContractorService {
             contractorDtoList = contractorDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение списка контрактов contractor");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение контрактов contractorDto - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение контрактов contractorDto: {IOException}", e);
         }
         return contractorDtoList;
 
@@ -120,7 +134,7 @@ public class ContractorServiceImpl implements ContractorService {
             contractorDto = contractorDtoCall.execute().body();
             log.info("Успешно выполнен запрос на получение ContractorDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение ContractorDto - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение ContractorDto : {IOException}", e);
         }
 
         return contractorDto;
@@ -152,7 +166,7 @@ public class ContractorServiceImpl implements ContractorService {
             contractorDtoCall.execute().body();
             log.info("Успешно выполнен запрос на добавление экземпляра ContractorDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ContractorDto");
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ContractorDto : {IOException}", e);
         }
     }
 
@@ -180,7 +194,7 @@ public class ContractorServiceImpl implements ContractorService {
             contractorDtoCall.execute();
             log.info("Успешно выполнен запрос на изменение экземпляра ContractorDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на изменение экземпляра ContractorDto");
+            log.error("Произошла ошибка при выполнении запроса на изменение экземпляра ContractorDto: {IOException}", e);
         }
     }
 

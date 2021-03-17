@@ -21,9 +21,19 @@ public class ContractorDto {
     private String address;
     private String commentToAddress;
     private String comment;
+
     private ContractorGroupDto contractorGroupDto;
+    private String contractorGroup;
+
     private TypeOfContractorDto typeOfContractorDto;
+    private String typeOfContractor;
+
     private TypeOfPriceDto typeOfPriceDto;
+    private String typeOfPrice;
+
     private List<BankAccountDto> bankAccountDto;
+    String bankAccount;
+
     private LegalDetailDto legalDetailDto;
+    private String legalDetail;
 }
