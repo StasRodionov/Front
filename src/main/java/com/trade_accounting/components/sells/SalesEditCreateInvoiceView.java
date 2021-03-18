@@ -94,7 +94,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
 
-    Dialog dialog = new Dialog();
+    private final Dialog dialogOnChangeContractor = new Dialog();
+    private final Dialog dialogOnCloseView = new Dialog();
 
     private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<InvoiceProductDto> paginator;
@@ -123,6 +124,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
         configureRecalculateDialog();
+        configureCloseViewDialog();
 
         salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
             if (salesChooseGoodsModalWin.productSelect.getValue() != null) {
@@ -136,7 +138,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
             if (valueChangeEvent.isFromClient()) {
                 if (valueChangeEvent.getOldValue() != null && tempInvoiceProductDtoList.size() > 0) {
-                    dialog.open();
+                    dialogOnChangeContractor.open();
                 }
             }
         });
@@ -385,10 +387,14 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private Button buttonClose() {
         Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         buttonUnit.addClickListener(event -> {
-            resetView();
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells"));
+           dialogOnCloseView.open();
         });
         return buttonUnit;
+    }
+
+    private void closeView(){
+        resetView();
+        UI.getCurrent().navigate("sells");
     }
 
     private Button configureDeleteButton() {
@@ -586,24 +592,45 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private void configureRecalculateDialog() {
-        dialog.add(new Text("Вы меняете покупателя!! Пересчитать цены на продукты?"));
-        dialog.setCloseOnEsc(false);
-        dialog.setCloseOnOutsideClick(false);
+        dialogOnChangeContractor.add(new Text("Вы меняете покупателя!! Пересчитать цены на продукты?"));
+        dialogOnChangeContractor.setCloseOnEsc(false);
+        dialogOnChangeContractor.setCloseOnOutsideClick(false);
         Span message = new Span();
 
         Button confirmButton = new Button("Пересчитать", event -> {
             recalculateProductPrices();
-            dialog.close();
+            dialogOnChangeContractor.close();
         });
         Button cancelButton = new Button("Оставить как есть", event -> {
-            dialog.close();
+            dialogOnChangeContractor.close();
         });
 // Cancel action on ESC press
-        Shortcuts.addShortcutListener(dialog, () -> {
-            dialog.close();
+        Shortcuts.addShortcutListener(dialogOnChangeContractor, () -> {
+            dialogOnChangeContractor.close();
         }, Key.ESCAPE);
 
-        dialog.add(new Div(confirmButton, cancelButton));
+        dialogOnChangeContractor.add(new Div(confirmButton, new Div(), cancelButton));
+    }
+
+    private void configureCloseViewDialog() {
+        dialogOnCloseView.add(new Text("Вы уверены? Несохраненные данные будут потеряны!!!"));
+        dialogOnCloseView.setCloseOnEsc(false);
+        dialogOnCloseView.setCloseOnOutsideClick(false);
+        Span message = new Span();
+
+        Button confirmButton = new Button("Продолжить", event -> {
+            closeView();
+            dialogOnCloseView.close();
+        });
+        Button cancelButton = new Button("Отменить", event -> {
+            dialogOnCloseView.close();
+        });
+// Cancel action on ESC press
+        Shortcuts.addShortcutListener(dialogOnCloseView, () -> {
+            dialogOnCloseView.close();
+        }, Key.ESCAPE);
+
+        dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
 }
