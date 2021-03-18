@@ -126,6 +126,7 @@ public class SalesEditCreateInvoiceView extends Div {
                 .bind("contractorDto");
         binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
             if (valueChangeEvent.isFromClient()) {
+                recalculateProductPrices();
                 System.out.println("Change contractor");
             }
         });
@@ -559,6 +560,19 @@ public class SalesEditCreateInvoiceView extends Div {
         tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
         setTotalPrice();
         grid.setItems(tempInvoiceProductDtoList);
+    }
+
+    private void recalculateProductPrices() {
+        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
+            invoiceProductDto.setPrice(
+                    getPriceFromProductPriceByTypeOfPriceId(
+                            invoiceProductDto.getProductDto().getProductPriceDtos(),
+                            contractorSelect.getValue().getTypeOfPriceDto().getId()
+                    )
+            );
+            grid.setItems(tempInvoiceProductDtoList);
+            setTotalPrice();
+        }
     }
 
 }
