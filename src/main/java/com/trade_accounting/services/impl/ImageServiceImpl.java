@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.ByteArrayInputStream;
@@ -92,13 +93,19 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public void deleteById(Long id) {
         Call<Void> imageDtoCall = imageApi.deleteById(imageUrl, id);
+        Response<Void> response;
 
         try {
-            imageDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление ImageDto c id = {}", id);
+            response = imageDtoCall.execute();
+            if (response.isSuccessful()) {
+                log.info("Успешно выполнен запрос на удаление ImageDto c id = {}", id);
+            } else {
+                log.error("Произошла ошибка при выполнении запроса на удаление ImageDto с id= {} - {}",
+                        id, response.errorBody());
+            }
+
         } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на удаление ImageDto c id = {}: {}",
-                    id, e);
+            log.error("Произошла ошибка при отправке запроса на удаление ImageDto c id = {}: {}", id, e);
         }
     }
 
