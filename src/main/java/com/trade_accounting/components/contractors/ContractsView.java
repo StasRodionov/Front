@@ -1,9 +1,13 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.services.interfaces.ContractorService;
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -36,34 +40,52 @@ import java.util.List;
 public class ContractsView extends VerticalLayout {
 
     private final ContractService contractService;
+    private final ContractorService contractorService;
     private final ContractModalWindow contractModalWindow;
+    private final GridFilter<ContractDto> filter;
+    private final GridPaginator<ContractDto> paginator;
 
-    private Grid<ContractDto> grid;
+
+    private final Grid<ContractDto> grid;
 
     @Autowired
     ContractsView(ContractService contractService,
+                  ContractorService contractorService,
                   ContractModalWindow contractModalWindow) {
         this.contractService = contractService;
+        this.contractorService = contractorService;
         this.contractModalWindow = contractModalWindow;
+        grid = new Grid<>(ContractDto.class);
+        paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
+        add(getToolbar(), filter, grid, paginator);
+
+//        GridSortOrder<ContractDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("number"), SortDirection.ASCENDING);
+//        List<GridSortOrder<ContractDto>> gridSortOrderList = new ArrayList<>();
+//        gridSortOrderList.add(gridSortOrder);
+//        grid.sort(gridSortOrderList);
+
         contractModalWindow.addDetachListener(detachEvent -> reloadGrid());
-        reloadGrid();
     }
 
-    private void getGrid() {
+    private void configureGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setColumns("id", "contractDate", "amount", "comment", "number");
-        grid.getColumnByKey("id").setHeader("ID");
-        grid.getColumnByKey("contractDate").setHeader("Дата заключения");
-        grid.getColumnByKey("amount").setHeader("Сумма");
-        grid.getColumnByKey("comment").setHeader("Комментарий");
-        grid.getColumnByKey("number").setHeader("Сортировочный номер");
+        grid.getColumnByKey("id").setHeader("ID").setId("ID");
+        grid.getColumnByKey("contractDate").setHeader("Дата заключения").setId("Дата заключения");
+        grid.getColumnByKey("amount").setHeader("Сумма").setId("Сумма");
+        grid.getColumnByKey("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumnByKey("number").setHeader("Сортировочный номер").setId("Сортировочный номер");
         grid.addColumn(contractDto -> contractDto.getCompanyDto().getName())
-                .setHeader("Компания").setKey("company");
+                .setHeader("Компания").setKey("company").setId("Компания");
         grid.addColumn(contractDto -> contractDto.getContractorDto().getName())
-                .setHeader("Контрагент").setKey("contractor");
+                .setHeader("Контрагент").setKey("contractor").setId("Контрактор");
         grid.addColumn(contractDto -> contractDto.getBankAccountDto().getBank() + " " +
                 contractDto.getBankAccountDto().getAccount())
-                .setHeader("Банковский аккаунт").setKey("bankAccount");
+                .setHeader("Банковский аккаунт").setKey("bankAccount").setId("Банковский аккаунт");
         grid.addColumn(new ComponentRenderer<>(contractDto -> {
             if (contractDto.getArchive()){
                 return new Icon(VaadinIcon.CHECK_CIRCLE);
@@ -72,12 +94,12 @@ public class ContractsView extends VerticalLayout {
                 noIcon.setColor("white");
                 return noIcon;
             }
-        })).setHeader("Архив").setKey("archive");
+        })).setHeader("Архив").setKey("archive").setId("Архив");
 
         grid.addColumn(contractDto -> contractDto.getLegalDetailDto().getLastName() + " " +
                 contractDto.getLegalDetailDto().getFirstName() + " " +
                 contractDto.getLegalDetailDto().getMiddleName())
-                .setHeader("Юридические детали").setKey("legalDetails");
+                .setHeader("Юридические детали").setKey("legalDetails").setId("Юридические детали");
 
         grid.setColumnOrder(
                 grid.getColumnByKey("id"),
@@ -95,24 +117,22 @@ public class ContractsView extends VerticalLayout {
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
         grid.addItemDoubleClickListener(event -> {
             ContractDto editContract = event.getItem();
-//            ContractModalWindow contractModalWindow =
-//                    new ContractModalWindow(editContract, contractService, contractorService, companyService);
             contractModalWindow.configure(editContract);
             contractModalWindow.open();
         });
     }
 
     private void reloadGrid() {
-        grid = new Grid<>(ContractDto.class);
-        GridPaginator<ContractDto> paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        getGrid();
-        removeAll();
-        add(getToolbar(), grid, paginator);
-        GridSortOrder<ContractDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("number"), SortDirection.ASCENDING);
-        List<GridSortOrder<ContractDto>> gridSortOrderList = new ArrayList<>();
-        gridSortOrderList.add(gridSortOrder);
-        grid.sort(gridSortOrderList);
+        grid.setItems(contractService.getAll());
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToIntegerField("amount");
+        filter.setFieldToDatePicker("contractDate");
+        filter.setFieldToCheckBox("archive");
+        filter.onSearchClick(e -> paginator.setData(contractService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(contractService.getAll()));
     }
 
     private HorizontalLayout getToolbar() {
@@ -146,7 +166,9 @@ public class ContractsView extends VerticalLayout {
     }
 
     private Button getButtonFilter() {
-        return new Button("Фильтр");
+        Button buttonFilter =  new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
     }
 
     private Button getButton() {

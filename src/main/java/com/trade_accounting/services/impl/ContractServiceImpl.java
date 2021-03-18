@@ -5,6 +5,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
@@ -24,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -113,6 +115,20 @@ public class ContractServiceImpl implements ContractService {
         });
         */
         return contractDto;
+    }
+
+    @Override
+    public List<ContractDto> search(Map<String, String> query) {
+        List<ContractDto> contractDtoList = new ArrayList<>();
+        Call<List<ContractDto>> contractDtoListCall = contractApi.search(contractUrl, query);
+
+        try {
+            contractDtoList = contractDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка договоров");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ContractDto - ", e);
+        }
+        return contractDtoList;
     }
 
     @Override
