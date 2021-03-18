@@ -96,6 +96,7 @@ public class SalesEditCreateInvoiceView extends Div {
     private final Editor<InvoiceProductDto> editor = grid.getEditor();
     private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
     private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
+    private final Binder<InvoiceDto> binderInvoiceDtoContractorValueChangeListener = new Binder<>(InvoiceDto.class);
 
     @Autowired
     public SalesEditCreateInvoiceView(ContractorService contractorService,
@@ -120,13 +121,22 @@ public class SalesEditCreateInvoiceView extends Div {
             }
         });
 
+        binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorDto");
+        binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
+            if (valueChangeEvent.isFromClient()) {
+                System.out.println("Change contractor");
+            }
+        });
+
+
         configureGrid();
         paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
 //        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
-
 
 
     private void configureGrid() {
@@ -384,9 +394,7 @@ public class SalesEditCreateInvoiceView extends Div {
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
-                System.out.println(contractorSelect.getValue());
                 salesChooseGoodsModalWin.open();
-                System.out.println("closed");
             }
         });
         return button;
@@ -473,7 +481,7 @@ public class SalesEditCreateInvoiceView extends Div {
     public BigDecimal getTotalPrice() {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
+            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
                     .multiply(invoiceProductDto.getAmount()));
         }
         return totalPrice;
