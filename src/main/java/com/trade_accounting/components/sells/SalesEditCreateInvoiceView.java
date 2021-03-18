@@ -209,9 +209,14 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> {
-            editor.save();
-            setTotalPrice();
-            paginator.setData(tempInvoiceProductDtoList);
+            if (binderInvoiceProductDto.validate().isOk()) {
+                editor.save();
+                setTotalPrice();
+                paginator.setData(tempInvoiceProductDtoList);
+            } else {
+                binderInvoiceProductDto.validate().notifyBindingValidationStatusHandlers();
+                editor.cancel();
+            }
         });
         save.addClassName("save");
 
@@ -223,9 +228,14 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 .setFilter("event.key === 'Escape' || event.key === 'Esc'");
 
         grid.getElement().addEventListener("keyup", event -> {
-            editor.save();
-            setTotalPrice();
-            paginator.setData(tempInvoiceProductDtoList);
+            if (binderInvoiceProductDto.validate().isOk()) {
+                editor.save();
+                setTotalPrice();
+                paginator.setData(tempInvoiceProductDtoList);
+            } else {
+                binderInvoiceProductDto.validate().notifyBindingValidationStatusHandlers();
+                editor.cancel();
+            }
             buttonAddProduct().focus();
         }).setFilter("event.key === 'Enter'");
 
@@ -387,12 +397,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private Button buttonClose() {
         Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         buttonUnit.addClickListener(event -> {
-           dialogOnCloseView.open();
+            dialogOnCloseView.open();
         });
         return buttonUnit;
     }
 
-    private void closeView(){
+    private void closeView() {
         resetView();
         UI.getCurrent().navigate("sells");
     }
