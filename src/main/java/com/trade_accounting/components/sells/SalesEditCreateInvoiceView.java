@@ -16,18 +16,23 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -61,7 +66,7 @@ import java.util.WeakHashMap;
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends Div {
+public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -89,6 +94,8 @@ public class SalesEditCreateInvoiceView extends Div {
 
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
 
+    Dialog dialog = new Dialog();
+
     private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<InvoiceProductDto> paginator;
     private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
@@ -115,6 +122,8 @@ public class SalesEditCreateInvoiceView extends Div {
         this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
+        configureRecalculateDialog();
+
         salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
             if (salesChooseGoodsModalWin.productSelect.getValue() != null) {
                 addProduct(salesChooseGoodsModalWin.productSelect.getValue());
@@ -126,15 +135,16 @@ public class SalesEditCreateInvoiceView extends Div {
                 .bind("contractorDto");
         binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
             if (valueChangeEvent.isFromClient()) {
-                recalculateProductPrices();
-                System.out.println("Change contractor");
+                if (valueChangeEvent.getOldValue() != null && tempInvoiceProductDtoList.size() > 0) {
+                    dialog.open();
+                }
             }
         });
 
 
         configureGrid();
         paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
-//        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
@@ -573,6 +583,27 @@ public class SalesEditCreateInvoiceView extends Div {
             grid.setItems(tempInvoiceProductDtoList);
             setTotalPrice();
         }
+    }
+
+    private void configureRecalculateDialog() {
+        dialog.add(new Text("Вы меняете покупателя!! Пересчитать цены на продукты?"));
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+        Span message = new Span();
+
+        Button confirmButton = new Button("Пересчитать", event -> {
+            recalculateProductPrices();
+            dialog.close();
+        });
+        Button cancelButton = new Button("Оставить как есть", event -> {
+            dialog.close();
+        });
+// Cancel action on ESC press
+        Shortcuts.addShortcutListener(dialog, () -> {
+            dialog.close();
+        }, Key.ESCAPE);
+
+        dialog.add(new Div(confirmButton, cancelButton));
     }
 
 }
