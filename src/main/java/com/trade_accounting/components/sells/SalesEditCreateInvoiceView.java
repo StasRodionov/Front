@@ -37,6 +37,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -57,9 +58,10 @@ import java.util.WeakHashMap;
 @Slf4j
 @Route(value = "sells/customer-order-edit", layout = AppView.class)
 @PageTitle("Изменить заказ")
+@PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends VerticalLayout {
+public class SalesEditCreateInvoiceView extends Div {
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -75,7 +77,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final TextField typeOfInvoiceField = new TextField();
     private final Checkbox isSpend = new Checkbox("Проведено");
     private final ComboBox<CompanyDto> companySelect = new ComboBox<>();
-    private final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
+    public final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
 
     private final TextField amountField = new TextField();
@@ -112,12 +114,20 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
+        salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
+            if (salesChooseGoodsModalWin.productSelect.getValue() != null) {
+                addProduct(salesChooseGoodsModalWin.productSelect.getValue());
+            }
+        });
+
         configureGrid();
         paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+//        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
+
+
 
     private void configureGrid() {
         grid.setItems(tempInvoiceProductDtoList);
@@ -161,20 +171,18 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             return edit;
         });
 
-        Grid.Column<InvoiceProductDto> deleteColumn = grid.addComponentColumn(column -> {
+        grid.addComponentColumn(column -> {
             Button edit = new Button(new Icon(VaadinIcon.TRASH));
             edit.addClassName("delete");
-            edit.addClickListener(e -> {
-                deleteProduct(column.getProductDto().getId());
-            });
+            edit.addClickListener(e -> deleteProduct(column.getProductDto().getId()));
             edit.setEnabled(!editor.isOpen());
             editButtons.add(edit);
             return edit;
         });
 
-        editor.addOpenListener(e -> editButtons.stream()
+        editor.addOpenListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editor.isOpen())));
-        editor.addCloseListener(e -> editButtons.stream()
+        editor.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> {
@@ -373,14 +381,18 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private Button buttonAddProduct() {
         Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
-            salesChooseGoodsModalWin.open();
+            if (!binderInvoiceDto.validate().isOk()) {
+                binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
+            } else {
+                System.out.println(contractorSelect.getValue());
+                salesChooseGoodsModalWin.open();
+                System.out.println("closed");
+            }
         });
         return button;
     }
 
     public void addProduct(ProductDto productDto) {
-        System.out.println("***********************************************************");
-        System.out.println(contractorSelect.getValue());
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductDto(productDto);
         invoiceProductDto.setAmount(BigDecimal.ONE);

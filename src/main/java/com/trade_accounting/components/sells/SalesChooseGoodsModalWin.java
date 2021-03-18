@@ -7,6 +7,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +24,12 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     private final ProductService productService;
 
-    private final ComboBox<ProductDto> productSelect = new ComboBox<>();
+    public final ComboBox<ProductDto> productSelect = new ComboBox<>();
 
-    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
-    @Autowired
-    public SalesChooseGoodsModalWin(ProductService productService,
-                                    @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView
+    public SalesChooseGoodsModalWin(ProductService productService
     ) {
         this.productService = productService;
-        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
 
         add(header(), configureProductSelect());
     }
@@ -60,15 +57,13 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     private Button getSaveButton() {
         return new Button("Добавить", event -> {
-            if (productSelect.getValue() != null) {
-                salesEditCreateInvoiceView.addProduct(productSelect.getValue());
-            }
             close();
         });
     }
 
     private Button getCloseButton() {
         return new Button("Закрыть", event -> {
+            productSelect.setValue(null);
             close();
         });
     }
