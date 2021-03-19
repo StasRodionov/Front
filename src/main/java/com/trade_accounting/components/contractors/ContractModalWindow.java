@@ -244,20 +244,18 @@ public class ContractModalWindow extends Dialog {
     }
 
     private Button buttonCancel() {
-        Button cancelButton = new Button("Закрыть", event -> {
+        return new Button("Закрыть", event -> {
             clearAllFields();
             close();
         });
-        return cancelButton;
     }
 
     private Button getDeleteButton() {
-        Button deleteButton = new Button("Удалить", event -> {
+        return new Button("Удалить", event -> {
             contractService.deleteById(contractId);
             clearAllFields();
             close();
         });
-        return deleteButton;
     }
 
     public void configure(){
