@@ -421,6 +421,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
+                salesChooseGoodsModalWin.updateProductList();
                 salesChooseGoodsModalWin.open();
             }
         });

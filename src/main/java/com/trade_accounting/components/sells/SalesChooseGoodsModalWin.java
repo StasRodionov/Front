@@ -7,11 +7,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
 
@@ -23,6 +20,8 @@ public class SalesChooseGoodsModalWin extends Dialog {
     private static final String FIELD_WIDTH = "300px";
 
     private final ProductService productService;
+
+    private List<ProductDto> productDtos;
 
     public final ComboBox<ProductDto> productSelect = new ComboBox<>();
 
@@ -41,9 +40,13 @@ public class SalesChooseGoodsModalWin extends Dialog {
         return headerLayout;
     }
 
+    public void updateProductList() {
+        productSelect.setItems(productService.getAll());
+    }
+
     private HorizontalLayout configureProductSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        List<ProductDto> productDtos = productService.getAll();
+        productDtos = productService.getAll();
         if (productDtos != null) {
             productSelect.setItems(productDtos);
         }
