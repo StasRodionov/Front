@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
@@ -59,7 +60,8 @@ public class ProductServiceImp implements ProductService {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
 
             try {
-                productDto = productGetCall.execute().body();
+                Response<ProductDto> execute = productGetCall.execute();
+                productDto = execute.body();
                 log.info("Успешно выполнен запрос на получение ProductDto");
             } catch (IOException e) {
                 log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e);

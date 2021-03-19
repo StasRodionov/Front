@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
 
@@ -79,7 +80,8 @@ public class AppConfig {
     public Retrofit retrofit(@Value("${base_url}") String baseUrl) {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
+                //TODO
+                .addConverterFactory(JacksonConverterFactory.create())
                 .client(authorizationInterceptor())
                 .build();
     }

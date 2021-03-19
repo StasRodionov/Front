@@ -157,6 +157,13 @@ public class GoodsModalWindow extends Dialog {
         taxSystemDtoComboBox.setValue(productDto.getTaxSystemDto());
         productGroupDtoComboBox.setValue(productDto.getProductGroupDto());
         attributeOfCalculationObjectComboBox.setValue(productDto.getAttributeOfCalculationObjectDto());
+        imageDtoList = productDto.getImageDtoList();
+        for (ImageDto imageDto : imageDtoList) {
+            StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
+            Image image = new Image(resource, "image");
+            image.setHeight("100px");
+            imageHorizontalLayout.add(image);
+        }
         initTypeOfPriceFrom(productDto.getProductPriceDtos());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
 
@@ -180,6 +187,7 @@ public class GoodsModalWindow extends Dialog {
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
         typeOfPriceLayout.add(getTypeOfPriceForm(typeOfPriceService.getAll()));
+
     }
 
     private Component getHeader() {
@@ -239,9 +247,8 @@ public class GoodsModalWindow extends Dialog {
             try {
                 ImageDto imageDto = new ImageDto();
                 imageDto.setContent(memoryBuffer.getInputStream(event.getFileName()).readAllBytes());
-                imageDto.setImageUrl(event.getFileName());
                 imageDtoList.add(imageDto);
-                StreamResource resource = new StreamResource(imageDto.getImageUrl(), () -> new ByteArrayInputStream(imageDto.getContent()));
+                StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
                 Image image = new Image(resource, "image");
                 image.setHeight("100px");
                 imageHorizontalLayout.add(image);
