@@ -22,9 +22,6 @@ public class ProductServiceImp implements ProductService {
     private final String productUrl;
     private final ProductApi productApi;
 
-    List<ProductDto> listProducts = new ArrayList<>();
-    ProductDto productDto = new ProductDto();
-
 
     ProductServiceImp(@Value("${product_url}") String productUrl, Retrofit retrofit) {
         this.productUrl = productUrl;
@@ -33,38 +30,27 @@ public class ProductServiceImp implements ProductService {
 
     @Override
     public List<ProductDto> getAll() {
-        Call<List<ProductDto>> productGetAllCall = productApi.getAll(productUrl);
+        Call<List<ProductDto>> productGetAllLiteCall = productApi.getAll(productUrl);
+        List<ProductDto> list = new ArrayList<>();
         try {
-            listProducts = productGetAllCall.execute().body();
+            list = productGetAllLiteCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка ProductDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при получении списка ProductDto - {}", e);
+            log.error("Произошла ошибка при получении списка ProductDto - {}", e.getMessage());
         }
-        return listProducts;
-    }
-
-    @Override
-    public List<ProductDto> getAllLite() {
-        Call<List<ProductDto>> productGetAllLiteCall = productApi.getAllLite(productUrl);
-        try {
-            listProducts = productGetAllLiteCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ProductDto (лёгкое дто)");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при получении списка ProductDto (лёгкое дто) - {}", e);
-        }
-        return listProducts;
+        return list;
     }
 
     @Override
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
-
+        ProductDto productDto = new ProductDto();
             try {
                 Response<ProductDto> execute = productGetCall.execute();
                 productDto = execute.body();
                 log.info("Успешно выполнен запрос на получение ProductDto");
             } catch (IOException e) {
-                log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e);
+                log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
             }
         return productDto;
     }
@@ -86,7 +72,7 @@ public class ProductServiceImp implements ProductService {
         try {
             productUpdateCall.execute();
         } catch (IOException e) {
-            log.error("Произошла ошибка при обновлении ProductDto - {}", e);
+            log.error("Произошла ошибка при обновлении ProductDto - {}", e.getMessage());
         }
 
     }
@@ -98,34 +84,21 @@ public class ProductServiceImp implements ProductService {
         try {
             productDeleteCall.execute();
         } catch (IOException e) {
-            log.error("Произошла ошибка при удалении ProductDto - {}", e);
+            log.error("Произошла ошибка при удалении ProductDto - {}", e.getMessage());
         }
     }
 
     @Override
     public List<ProductDto> getAllByProductGroup(ProductGroupDto productGroupDto) {
         Call<List<ProductDto>> productGetAllCall = productApi.getAllByProductGroupId(productUrl, productGroupDto.getId());
+        List<ProductDto> productDtos = new ArrayList<>();
         try {
-            listProducts = productGetAllCall.execute().body();
+            productDtos = productGetAllCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка ProductDto принадлежащих группе {}", productGroupDto.getName());
         } catch (IOException e) {
             log.error("Произошла ошибка при получении списка ProductDto принадлежащих группе {} - {}", productGroupDto.getName(), e.getMessage());
         }
-        return listProducts;
+        return productDtos;
     }
 
-    @Override
-    public List<ProductDto> getAllLiteByProductGroup(ProductGroupDto productGroupDto) {
-        Call<List<ProductDto>> getAllLiteByGroupIdCall = productApi.getAllLiteByProductGroupId(productUrl, productGroupDto.getId());
-        try {
-            List<ProductDto> productDtos = getAllLiteByGroupIdCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ProductDto (Лёгкое ДТО) принадлежащих группе {}",
-                    productGroupDto.getName());
-            return productDtos;
-        } catch (IOException e) {
-            log.error("Произошла ошибка при получении списка ProductDto (Лёгкое ДТО) принадлежащих группе {} - {}",
-                    productGroupDto.getName(), e.getMessage());
-        }
-        return null;
-    }
 }

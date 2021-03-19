@@ -35,7 +35,7 @@ public class ProductDto {
 
     private TaxSystemDto taxSystemDto;
 
-    private List<ImageDto> imageDtoList;
+    private List<ImageDto> imageDtos;
 
     private ProductGroupDto productGroupDto;
 

@@ -64,9 +64,9 @@ public class GoodsView extends VerticalLayout {
         goodsModalWindow.addDetachListener(detachEvent -> {
             Optional<ProductGroupDto> optional = treeGrid.getSelectedItems().stream().findFirst();
             if (optional.isPresent()) {
-                paginator.setData(productService.getAllLiteByProductGroup(optional.get()), true);
+                paginator.setData(productService.getAllByProductGroup(optional.get()), true);
             } else {
-                paginator.setData(productService.getAllLite(), true);
+                paginator.setData(productService.getAll(), true);
             }
         });
 
@@ -74,7 +74,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     public void updateData() {
-        paginator.setData(productService.getAllLite());
+        paginator.setData(productService.getAll());
         updateTreeGrid(productGroupService.getAll());
     }
 
@@ -164,7 +164,7 @@ public class GoodsView extends VerticalLayout {
         closeButton.addClickListener(event -> {
             closeButton.setVisible(false);
             label.setText("");
-            paginator.setData(productService.getAllLite());
+            paginator.setData(productService.getAll());
             treeGrid.deselectAll();
         });
         cell.setComponent(horizontalLayout);
@@ -172,7 +172,7 @@ public class GoodsView extends VerticalLayout {
         treeGrid.addSelectionListener(event -> {
             Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
-                paginator.setData(productService.getAllLiteByProductGroup(optional.get()));
+                paginator.setData(productService.getAllByProductGroup(optional.get()));
                 label.setText(optional.get().getName());
                 closeButton.setVisible(true);
             }

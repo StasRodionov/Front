@@ -19,10 +19,6 @@ public interface ProductApi {
     Call<List<ProductDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
-    @GET("{url}/lite")
-    Call<List<ProductDto>> getAllLite(@Path(value = "url", encoded = true) String url);
-
-    @Headers("Accept: application/json")
     @GET("{url}/{id}")
     Call <ProductDto> getById(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
 
@@ -41,8 +37,4 @@ public interface ProductApi {
     @Headers("Accept: application/json")
     @GET("{url}/pg/{id}")
     Call<List<ProductDto>> getAllByProductGroupId(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
-
-    @Headers("Accept: application/json")
-    @GET("{url}/lite/pg/{id}")
-    Call<List<ProductDto>> getAllLiteByProductGroupId(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 }

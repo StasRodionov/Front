@@ -56,7 +56,6 @@ public class GoodsModalWindow extends Dialog {
     private final UnitService unitService;
     private final ContractorService contractorService;
     private final TaxSystemService taxSystemService;
-    private final ImageService imageService;
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
@@ -89,7 +88,6 @@ public class GoodsModalWindow extends Dialog {
     public GoodsModalWindow(UnitService unitService,
                             ContractorService contractorService,
                             TaxSystemService taxSystemService,
-                            ImageService imageService,
                             ProductService productService,
                             ProductGroupService productGroupService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
@@ -97,7 +95,6 @@ public class GoodsModalWindow extends Dialog {
         this.unitService = unitService;
         this.contractorService = contractorService;
         this.taxSystemService = taxSystemService;
-        this.imageService = imageService;
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
@@ -157,7 +154,7 @@ public class GoodsModalWindow extends Dialog {
         taxSystemDtoComboBox.setValue(productDto.getTaxSystemDto());
         productGroupDtoComboBox.setValue(productDto.getProductGroupDto());
         attributeOfCalculationObjectComboBox.setValue(productDto.getAttributeOfCalculationObjectDto());
-        imageDtoList = productDto.getImageDtoList();
+        imageDtoList = productDto.getImageDtos();
         for (ImageDto imageDto : imageDtoList) {
             StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
             Image image = new Image(resource, "image");
@@ -303,7 +300,7 @@ public class GoodsModalWindow extends Dialog {
         productDto.setTaxSystemDto(taxSystemDtoComboBox.getValue());
         productDto.setProductGroupDto(productGroupDtoComboBox.getValue());
         productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
-        productDto.setImageDtoList(imageDtoList);
+        productDto.setImageDtos(imageDtoList);
 
         if (productDto.getProductPriceDtos() == null)  {
             productDto.setProductPriceDtos(new ArrayList<>());
