@@ -134,7 +134,6 @@ public class ContractorsTabView extends VerticalLayout {
     //добавил
     private List<ContractorDto> getData() {
         return contractorService.getAll();
-//        //return null;
     }
 
     private HorizontalLayout upperLayout() {
@@ -172,8 +171,6 @@ public class ContractorsTabView extends VerticalLayout {
         Button buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
-
-       // return new Button("Фильтр");
     }
 
     private Button buttonSettings() {

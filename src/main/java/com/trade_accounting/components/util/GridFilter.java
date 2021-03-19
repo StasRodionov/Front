@@ -6,6 +6,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -114,6 +115,16 @@ public class GridFilter<T> extends HorizontalLayout {
         this.getChildren().forEach(e -> {
             if (e.getId().orElse("").equals(columnKey)) {
                 this.replace(e, integerField);
+            }
+        });
+    }
+
+    public void setFieldToCheckBox(String columnKey){
+        Checkbox checkbox = getFilterCheckbox(columnKey);
+
+        this.getChildren().forEach(e -> {
+            if (e.getId().orElse("").equals(columnKey)) {
+                this.replace(e, checkbox);
             }
         });
     }
@@ -288,6 +299,15 @@ public class GridFilter<T> extends HorizontalLayout {
         filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
 
         return filter;
+    }
+
+    private Checkbox getFilterCheckbox(String columnKey){
+        Checkbox checkbox = new Checkbox();
+        checkbox.setId(columnKey);
+        checkbox.addValueChangeListener(e -> onFilterChange(checkbox));
+        checkbox.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
+
+        return checkbox;
     }
 
     private void onFilterChange(Component filter) {
