@@ -47,7 +47,7 @@ Configutation:
     Logger:
       additivity: false
       AppenderRef:
-        - level: info
+        - level: debug
           ref: console_appender
         - level: error
           ref: file_appender
