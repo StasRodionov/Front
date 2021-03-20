@@ -128,11 +128,11 @@ public class ContractorsTabView extends VerticalLayout {
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.onSearchClick(e -> paginator.setData(contractorService.searchContractor(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(contractorService.getAllString()));
+        filter.onClearClick(e -> paginator.setData(contractorService.getAllContractorDto()));
     }
 
     private List<ContractorDto> getData() {
-        return contractorService.getAllString();
+        return contractorService.getAllContractorDto();
     }
 
     private HorizontalLayout upperLayout() {
@@ -222,7 +222,7 @@ public class ContractorsTabView extends VerticalLayout {
     private void updateList() {
         //this.grid = new Grid<>(ContractorDto.class);//испр. final
         GridPaginator<ContractorDto> paginatorUpdateList
-                = new GridPaginator<>(grid, contractorService.getAllString(), 15);
+                = new GridPaginator<>(grid, contractorService.getAllContractorDto(), 15);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         configureGrid();
         removeAll();
@@ -278,7 +278,7 @@ public class ContractorsTabView extends VerticalLayout {
 
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
-        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAllString());
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAllContractorDto());
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), templateName);
     }
 

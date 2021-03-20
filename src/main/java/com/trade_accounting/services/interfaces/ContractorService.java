@@ -8,7 +8,7 @@ import java.util.Map;
 public interface ContractorService {
     List<ContractorDto> getAll();
 
-    List<ContractorDto> getAllString();
+    List<ContractorDto> getAllContractorDto();
 
     List<ContractorDto> getAll(String searchTerm);
 

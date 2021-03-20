@@ -57,7 +57,7 @@ public class ContractorServiceImpl implements ContractorService {
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
         try {
             contractorDtoList = contractorDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ContractorDto через getAll");
+            log.info("Успешно выполнен запрос на получение списка ContractorDto через getAll ");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
         }
@@ -65,12 +65,12 @@ public class ContractorServiceImpl implements ContractorService {
     }
 
     @Override //create method
-    public List<ContractorDto> getAllString() {
+    public List<ContractorDto> getAllContractorDto() {
         List<ContractorDto> contractorDtoListString = new ArrayList<>();
-        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAllString(contractorUrl);
+        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAllContractorDto(contractorUrl);
         try {
             contractorDtoListString = contractorDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ContractorDto через getAllString ");
+            log.info("Успешно выполнен запрос на получение списка ContractorDto через getAllContractorDto ");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
         }
