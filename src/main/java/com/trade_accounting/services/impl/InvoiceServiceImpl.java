@@ -147,26 +147,36 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
     @Override
-    public void create(InvoiceDto invoiceDto) {
+    public Response<InvoiceDto> create(InvoiceDto invoiceDto) {
 
-        Call<Void> invoiceDtoCall = invoiceApi.create(invoiceUrl, invoiceDto);
+        Call<InvoiceDto> invoiceDtoCall = invoiceApi.create(invoiceUrl, invoiceDto);
+        Response<InvoiceDto> resp = Response.success(new InvoiceDto());
 
-        invoiceDtoCall.enqueue(new Callback<>() {
+        try {
+            resp = invoiceDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание Invoice");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e);
+        }
 
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на создание экземпляра InvoiceDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра InvoiceDto - {}", response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра InvoiceDto", throwable);
-            }
-        });
+//        invoiceDtoCall.enqueue(new Callback<>() {
+//
+//            @Override
+//            public void onResponse(Call<Void> call, Response<Void> response) {
+//                if (response.isSuccessful()) {
+//                    log.info(response.body().toString());
+//                    log.info("Успешно выполнен запрос на создание экземпляра InvoiceDto");
+//                } else {
+//                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра InvoiceDto - {}", response.errorBody());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Void> call, Throwable throwable) {
+//                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра InvoiceDto", throwable);
+//            }
+//        });
+        return resp;
     }
 
     /*@Override
@@ -223,21 +233,28 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Call<Void> invoiceDtoCall = invoiceApi.deleteById(invoiceUrl, id);
 
-        invoiceDtoCall.enqueue(new Callback<>() {
+        try {
+            invoiceDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление Invoice - {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление ProductDto - {}", id);
+        }
 
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на удаление экземпляра InvoiceDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceDto - {}", response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра InvoiceDto", throwable);
-            }
-        });
+//        invoiceDtoCall.enqueue(new Callback<>() {
+//
+//            @Override
+//            public void onResponse(Call<Void> call, Response<Void> response) {
+//                if (response.isSuccessful()) {
+//                    log.info("Успешно выполнен запрос на удаление экземпляра InvoiceDto");
+//                } else {
+//                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceDto - {}", response.errorBody());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Void> call, Throwable throwable) {
+//                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра InvoiceDto", throwable);
+//            }
+//        });
     }
 }

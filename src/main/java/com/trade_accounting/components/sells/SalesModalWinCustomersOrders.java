@@ -2,10 +2,13 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -21,50 +24,78 @@ import java.util.List;
 public class SalesModalWinCustomersOrders extends Dialog {
 
     private DateTimePicker dateField = new DateTimePicker();
-//    private TextField dateField = new TextField();
     private TextField typeOfInvoiceField = new TextField();
-//    private TextField companyField = new TextField();
-//    private TextField contractorField = new TextField();
+    private Select<CompanyDto> companySelect = new Select<>();
+    private Select<ContractorDto> contractorSelect = new Select<>();
+    private Select<WarehouseDto> warehouseSelect = new Select<>();
 
     private String labelWidth = "100px";
     private String fieldWidth = "300px";
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
+    private final WarehouseService warehouseService;
 
     public SalesModalWinCustomersOrders(InvoiceDto invoiceDto,
                                         InvoiceService invoiceService,
                                         ContractorService contractorService,
-                                        CompanyService companyService) {
+                                        CompanyService companyService,
+                                        WarehouseService warehouseService
+    ) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
+        this.warehouseService = warehouseService;
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
+        add(headerOne(), headerTwo());
         if (invoiceDto.getDate() != null) {
             dateField.setValue(LocalDateTime.parse(invoiceDto.getDate()));
         }
+
         typeOfInvoiceField.setValue(getFieldValueNotNull(invoiceDto.getTypeOfInvoice()));
-//        companyField.setValue(getFieldValueNotNull(invoiceDto.getCompany().toString()));
-//        contractorField.setValue(getFieldValueNotNull(invoiceDto.getContractor().toString()));
-        add(headerOne(), headerTwo());
+
+        if (invoiceDto.getCompanyDto() != null) {
+            companySelect.setPlaceholder(invoiceDto.getCompanyDto().getName());
+            companySelect.setValue(invoiceDto.getCompanyDto());
+        }
+
+        if (invoiceDto.getContractorDto() != null) {
+            contractorSelect.setValue(invoiceDto.getContractorDto());
+            contractorSelect.setPlaceholder(invoiceDto.getContractorDto().getName());
+        }
+
+        if (invoiceDto.getWarehouseDto() != null) {
+            warehouseSelect.setPlaceholder(invoiceDto.getWarehouseDto().getName());
+            warehouseSelect.setValue(invoiceDto.getWarehouseDto());
+        }
+
     }
 
     private HorizontalLayout headerOne() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(getSaveButton(), getCloseButton(), getChangeButton(), getCreateButton(), getPrintButton());
+        horizontalLayout.add(getSaveButton(), getCloseButton()
+//                ,getChangeButton(), getCreateButton(), getPrintButton()
+        );
         return horizontalLayout;
     }
 
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
             InvoiceDto newInvoiceDto = new InvoiceDto();
-            newInvoiceDto.setDate(dateField.getValue().toString());
-            newInvoiceDto.setTypeOfInvoice(typeOfInvoiceField.getValue());
+            System.out.println("**************************************************************");
+            System.out.println(dateField.getValue());
+            System.out.println(typeOfInvoiceField.getValue());
+            System.out.println(companySelect.getValue());
+            System.out.println(contractorSelect.getValue());
+            System.out.println(warehouseSelect.getValue());
+//            System.out.println(companyField.getValue());
+//            newInvoiceDto.setDate(dateField.getValue().toString());
+//            newInvoiceDto.setTypeOfInvoice(typeOfInvoiceField.getValue());
 //            newInvoiceDto.setCompany(companyField.getValue());
 //            invoiceService.create(newInvoiceDto);
-            invoiceService.create(newInvoiceDto);
-            close();
+//            invoiceService.create(newInvoiceDto);
+//            close();
         });
     }
 
@@ -74,24 +105,25 @@ public class SalesModalWinCustomersOrders extends Dialog {
         });
     }
 
-    private Button getChangeButton() {
-        return new Button("Изменить");
-    }
-
-    private Button getCreateButton() {
-        return new Button("Сохранить док-т");
-    }
-
-    private Button getPrintButton() {
-        return new Button("Печать");
-    }
+//    private Button getChangeButton() {
+//        return new Button("Изменить");
+//    }
+//
+//    private Button getCreateButton() {
+//        return new Button("Сохранить док-т");
+//    }
+//
+//    private Button getPrintButton() {
+//        return new Button("Печать");
+//    }
 
     private VerticalLayout headerTwo() {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.add(configureDateField(),
                 configureTypeOfInvoiceField(),
                 configureCompanySelect(),
-                configureContractorSelect());
+                configureContractorSelect(),
+                configureWarehouseSelect());
         return verticalLayout;
     }
 
@@ -115,29 +147,43 @@ public class SalesModalWinCustomersOrders extends Dialog {
 
     private HorizontalLayout configureCompanySelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Select<CompanyDto> labelSelect = new Select<>();
         List<CompanyDto> companies = companyService.getAll();
         if (companies != null) {
-            labelSelect.setItems(companies);
+            companySelect.setItems(companies);
         }
-        labelSelect.setItemLabelGenerator(CompanyDto::getName);
-        labelSelect.setWidth(fieldWidth);
+        companySelect.setItemLabelGenerator(CompanyDto::getName);
+        companySelect.setWidth(fieldWidth);
         Label label = new Label("Компания");
         label.setWidth(labelWidth);
-        horizontalLayout.add(label, labelSelect);
+        horizontalLayout.add(label, companySelect);
         return horizontalLayout;
     }
 
     private HorizontalLayout configureContractorSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Select<ContractorDto> labelSelect = new Select<>();
-        //labelSelect.setItems(contractorService.getAll());//для теста
-        labelSelect.setItems(contractorService.getAllContractorDto());//для теста
-        labelSelect.setItemLabelGenerator(ContractorDto::getName);
-        labelSelect.setWidth(fieldWidth);
+        List<ContractorDto> contractors = contractorService.getAll();
+        if (contractors != null) {
+            contractorSelect.setItems(contractors);
+        }
+        contractorSelect.setItemLabelGenerator(ContractorDto::getName);
+        contractorSelect.setWidth(fieldWidth);
         Label label = new Label("Контрагент");
         label.setWidth(labelWidth);
-        horizontalLayout.add(label, labelSelect);
+        horizontalLayout.add(label, contractorSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout configureWarehouseSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<WarehouseDto> warehouses = warehouseService.getAll();
+        if (warehouses != null) {
+            warehouseSelect.setItems(warehouses);
+        }
+        warehouseSelect.setItemLabelGenerator(WarehouseDto::getName);
+        warehouseSelect.setWidth(fieldWidth);
+        Label label = new Label("Склад");
+        label.setWidth(labelWidth);
+        horizontalLayout.add(label, warehouseSelect);
         return horizontalLayout;
     }
 

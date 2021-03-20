@@ -25,6 +25,10 @@ public interface ContractorApi {
     Call<List<ContractorDto>> getAllContractorDto(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
+    @GET("{url}/lite")
+    Call<List<ContractorDto>> getAllLite(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
     @GET("{url}/search/{searchTerm}")
     Call<List<ContractorDto>> getAll(@Path(value = "url", encoded = true) String url,@Path("searchTerm") String searchTerm);
 

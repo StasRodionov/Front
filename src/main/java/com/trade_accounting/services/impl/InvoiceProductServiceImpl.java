@@ -20,7 +20,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final InvoiceProductApi invoiceProductApi;
     private final String invoiceProductUrl;
 
-    public InvoiceProductServiceImpl(@Value("{invoice_product_url}") String invoiceProductUrl, Retrofit retrofit){
+    public InvoiceProductServiceImpl(@Value("${invoice_product_url}") String invoiceProductUrl, Retrofit retrofit){
         invoiceProductApi = retrofit.create(InvoiceProductApi.class);
         this.invoiceProductUrl = invoiceProductUrl;
     }
@@ -49,6 +49,19 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
             log.error("Произошла ошибка при выполнении запроса на получение экземпляра InvoiceDto по id= {} - {}", id, e);
         }
         return invoiceProductDto;
+    }
+
+    @Override
+    public List<InvoiceProductDto> getByInvoiceId(Long id) {
+        List<InvoiceProductDto> invoiceProductDtoList = null;
+        Call<List<InvoiceProductDto>> invoiceProductDtoCall = invoiceProductApi.getByInvoiceId(invoiceProductUrl + "/invoice_product", id);
+        try{
+            invoiceProductDtoList = invoiceProductDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка InvoiceProductDto с Invoice.id = {}", id);
+        } catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceProductDto по id= {} - {}", id, e);
+        }
+        return invoiceProductDtoList;
     }
 
     @Override

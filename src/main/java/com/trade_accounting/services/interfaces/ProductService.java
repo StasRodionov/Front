@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductGroupDto;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public interface ProductService {
 
     void deleteById(Long id);
 
-    List<ProductDto> getAllByProductGroupId(Long l);
+    List<ProductDto> getAllByProductGroup(ProductGroupDto productGroupDto);
+
+    List<ProductDto> getAllLiteByProductGroup(ProductGroupDto productGroupDto);
 }
 

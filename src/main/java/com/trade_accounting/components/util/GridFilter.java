@@ -6,6 +6,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -118,6 +119,16 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
+    public void setFieldToCheckBox(String columnKey){
+        Checkbox checkbox = getFilterCheckbox(columnKey);
+
+        this.getChildren().forEach(e -> {
+            if (e.getId().orElse("").equals(columnKey)) {
+                this.replace(e, checkbox);
+            }
+        });
+    }
+
     /**
      * Sets visible to fields from column key.
      *
@@ -213,11 +224,14 @@ public class GridFilter<T> extends HorizontalLayout {
     }
 
     private void configureFilterField() {
-        grid.getColumns().forEach(e -> {
-            if (!e.getKey().equals("imageDto")){
-                this.add(getFilterTextField(e.getKey()));
-            }
-        });
+        try {
+            grid.getColumns().forEach(e -> {
+                if (!e.getKey().equals("imageDto")) {
+                    this.add(getFilterTextField(e.getKey()));
+                }
+            });
+        } catch (NullPointerException e) {
+        }
     }
 
     private TextField getFilterTextField(String columnKey) {
@@ -287,9 +301,18 @@ public class GridFilter<T> extends HorizontalLayout {
         return filter;
     }
 
+    private Checkbox getFilterCheckbox(String columnKey){
+        Checkbox checkbox = new Checkbox();
+        checkbox.setId(columnKey);
+        checkbox.addValueChangeListener(e -> onFilterChange(checkbox));
+        checkbox.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
+
+        return checkbox;
+    }
+
     private void onFilterChange(Component filter) {
         if (filter instanceof AbstractField) {
-            if(!((AbstractField<?, ?>) filter).isEmpty()) {
+            if (!((AbstractField<?, ?>) filter).isEmpty()) {
                 filterData.put(filter.getId().orElse(""), ((AbstractField<?, ?>) filter).getValue().toString());
             } else {
                 filterData.remove(filter.getId().orElse(""));

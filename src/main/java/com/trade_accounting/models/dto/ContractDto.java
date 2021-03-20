@@ -2,6 +2,7 @@ package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class ContractDto {
 
     private Long id;
@@ -51,5 +53,6 @@ public class ContractDto {
 
     public void setDate(String contractDate) {
         this.date = LocalDate.parse(contractDate);
+        this.contractDate = contractDate;
     }
 }

@@ -1,9 +1,12 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.BankAccountService;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -11,31 +14,35 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 
+@SpringComponent
+@UIScope
 @Route(value = "contractors", layout = AppView.class)
 @PageTitle("Контрагенты")
 public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private final Div div;
 
-    private final ContractService contractService;
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
+    private final ContractsView contractsView;
 
-    public ContractorsView(ContractService contractService,
-                           ContractorService contractorService,
-                           ContractorGroupService contractorGroupService) {
+    @Autowired
+    public ContractorsView(ContractorService contractorService,
+                           ContractorGroupService contractorGroupService,
+                           ContractsView contractsView) {
         this.contractorService = contractorService;
-        this.contractService = contractService;
         this.contractorGroupService = contractorGroupService;
+        this.contractsView = contractsView;
         div = new Div();
         add(configurationSubMenu(), div);
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-//            div.removeAll();
-//            div.add(new ContractorsTabView(contractorService, contractorGroupService));
 
             AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
             appView.getChildren().forEach(e -> {
@@ -64,7 +71,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                     break;
                 case "Договоры":
                     div.removeAll();
-                    div.add(new ContractsView(contractService));
+                    div.add(contractsView);
                     break;
             }
         });

@@ -2,14 +2,18 @@ package com.trade_accounting.components.util;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.function.SerializableComparator;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Server-side component for pagination grid.
@@ -39,12 +43,14 @@ public class GridPaginator<T> extends HorizontalLayout {
         this.grid = grid;
         this.data = data;
         this.itemsPerPage = itemsPerPage;
-        this.currentPage = 1;
 
+
+        grid.setPageSize(itemsPerPage);
+        grid.addSortListener(this::sort);
         calculateNumberOfPages();
         configureButton();
         configureTextField();
-
+        setCurrentPageAndReloadGrid(1);
         reloadGrid();
 
         add(firstPageButton, prevPageButton, pageItemsTextField, nextPageButton, lastPageButton);
@@ -61,71 +67,10 @@ public class GridPaginator<T> extends HorizontalLayout {
     }
 
     private void configureButton() {
-        if (currentPage == 1) {
-            firstPageButton.setEnabled(false);
-            prevPageButton.setEnabled(false);
-        }
-
-        if (data.isEmpty() || data.size() <= itemsPerPage) {
-            nextPageButton.setEnabled(false);
-            lastPageButton.setEnabled(false);
-        }
-
-        nextPageButton.addClickListener(e -> {
-            if (numberOfPages == currentPage + 1) {
-                setCurrentPage(currentPage + 1);
-
-                nextPageButton.setEnabled(false);
-                lastPageButton.setEnabled(false);
-            } else {
-                setCurrentPage(currentPage + 1);
-            }
-
-            prevPageButton.setEnabled(true);
-            firstPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
-
-        lastPageButton.addClickListener(e -> {
-            setCurrentPage(getNumberOfPages());
-
-            nextPageButton.setEnabled(false);
-            lastPageButton.setEnabled(false);
-
-            prevPageButton.setEnabled(true);
-            firstPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
-
-        prevPageButton.addClickListener(e -> {
-            if (getCurrentPage() - 1 == 1) {
-                setCurrentPage(getCurrentPage() - 1);
-
-                prevPageButton.setEnabled(false);
-                firstPageButton.setEnabled(false);
-            } else {
-                setCurrentPage(getCurrentPage() - 1);
-            }
-
-            nextPageButton.setEnabled(true);
-            lastPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
-
-        firstPageButton.addClickListener(e -> {
-            setCurrentPage(1);
-
-            prevPageButton.setEnabled(false);
-            firstPageButton.setEnabled(false);
-
-            nextPageButton.setEnabled(true);
-            lastPageButton.setEnabled(true);
-
-            reloadGrid();
-        });
+        nextPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(currentPage + 1));
+        lastPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(getNumberOfPages()));
+        prevPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(getCurrentPage() - 1));
+        firstPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(1));
     }
 
     private void configureTextField() {
@@ -160,7 +105,11 @@ public class GridPaginator<T> extends HorizontalLayout {
     }
 
     private void calculateNumberOfPages() {
-        this.numberOfPages = (int) Math.ceil((float) data.size() / itemsPerPage);
+        if (data.size() == 0) {
+            this.numberOfPages = 1;
+        }else {
+            this.numberOfPages = (int) Math.ceil((float) data.size() / itemsPerPage);
+        }
     }
 
     /**
@@ -168,9 +117,7 @@ public class GridPaginator<T> extends HorizontalLayout {
      */
     public void reloadGrid() {
         grid.setItems(getPageData());
-
         pageItemsTextField.setPlaceholder(getCurrentGridPageItems());
-
         grid.getDataProvider().refreshAll();
     }
 
@@ -189,16 +136,24 @@ public class GridPaginator<T> extends HorizontalLayout {
      *
      * @param currentPage new current page
      */
-    public void setCurrentPage(int currentPage) {
+    public void setCurrentPageAndReloadGrid(int currentPage) {
         if (currentPage > numberOfPages) {
             throw new IllegalArgumentException("The current page: ["+ currentPage +"] greater than maximum number of page.");
         }
+        this.currentPage = currentPage;
+        firstPageButton.setEnabled(true);
+        nextPageButton.setEnabled(true);
+        lastPageButton.setEnabled(true);
+        prevPageButton.setEnabled(true);
 
         if (currentPage == 1) {
             firstPageButton.setEnabled(false);
             prevPageButton.setEnabled(false);
         }
-        this.currentPage = currentPage;
+        if (currentPage == getNumberOfPages()) {
+            lastPageButton.setEnabled(false);
+            nextPageButton.setEnabled(false);
+        }
         reloadGrid();
     }
 
@@ -211,17 +166,6 @@ public class GridPaginator<T> extends HorizontalLayout {
         return numberOfPages;
     }
 
-    /**
-     * Sets the number of pages of the paginator. Is has to be greater than 0.
-     *
-     * @param numberOfPages number of pages
-     */
-    public void setNumberOfPages(int numberOfPages) {
-        if (numberOfPages < 1) {
-            throw new IllegalArgumentException("The number of pages has to be greater than 0");
-        }
-        this.numberOfPages = numberOfPages;
-    }
 
     /**
      * Sets the number of items per page of the paginator. Is has to be greater than 0.
@@ -235,7 +179,7 @@ public class GridPaginator<T> extends HorizontalLayout {
         this.itemsPerPage = itemsPerPage;
         calculateNumberOfPages();
 
-        setCurrentPage(1);
+        setCurrentPageAndReloadGrid(1);
     }
 
     /**
@@ -245,22 +189,38 @@ public class GridPaginator<T> extends HorizontalLayout {
      * @param data data for grid
      */
     public void setData(List<T> data) {
-        this.data = data;
+        setData(data, false);
+    }
 
-        if (data.size() <= itemsPerPage) {
-            setNumberOfPages(1);
 
-            nextPageButton.setEnabled(false);
-            lastPageButton.setEnabled(false);
-        } else {
-            calculateNumberOfPages();
-
-            nextPageButton.setEnabled(true);
-            lastPageButton.setEnabled(true);
+    /**
+     * Sets new data for paginator.
+     *
+     * @param data data for grid
+     * @param saveCurrentPage save current page flag
+     */
+    public void setData(List<T> data, boolean saveCurrentPage){
+        SerializableComparator<T> comparator = grid.getDataCommunicator().getInMemorySorting();
+        if (comparator != null){
+            data = data.stream().sorted(comparator).collect(Collectors.toList());
         }
 
-        setCurrentPage(1);
+        this.data = data;
+        calculateNumberOfPages();
 
-        reloadGrid();
+        if (saveCurrentPage && numberOfPages >= currentPage){
+            setCurrentPageAndReloadGrid(getCurrentPage());
+        }else {
+            setCurrentPageAndReloadGrid(1);
+        }
     }
+
+    private void sort(SortEvent<Grid<T>, GridSortOrder<T>> gridGridSortOrderSortEvent) {
+        gridGridSortOrderSortEvent.getSortOrder().forEach(tGridSortOrder -> {
+            SerializableComparator<T> comparator = tGridSortOrder.getSorted().getComparator(tGridSortOrder.getDirection());
+            data = data.stream().sorted(comparator).collect(Collectors.toList());
+        });
+        setData(data, true);
+    }
+
 }

@@ -2,30 +2,28 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.services.interfaces.ProductGroupService;
-import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+
 
 @Route(value = "goods", layout = AppView.class)
 @PageTitle("Товары")
+@SpringComponent
+@UIScope
 public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
-    private final ProductService productService;
-    private final ProductGroupService productGroupService;
 
-    private final Div div;
+    private final GoodsView goodsView;
 
-    GoodsSubMenuView(ProductService productService, ProductGroupService productGroupService) {
-        this.productService = productService;
-        this.productGroupService = productGroupService;
-        div = new Div();
+    private final Div div = new Div();
+
+    public GoodsSubMenuView(GoodsView goodsView) {
+        this.goodsView = goodsView;
         add(configurationSubMenu(), div);
     }
 
@@ -35,7 +33,9 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         goodsLayout.addClickListener(e ->
                 goodsLayout.getUI().ifPresent(ui -> {
                     div.removeAll();
-                    div.add(new GoodsView(productService, productGroupService));
+                    goodsView.updateData();
+                    div.add(goodsView);
+
                 }));
         Tab realisationLayout = new Tab(new Label("Оприходывания"));
         Tab chargesLayout = new Tab("Списания");
@@ -71,7 +71,9 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         });
         getUI().ifPresent(ui -> {
             div.removeAll();
-            div.add(new GoodsView(productService, productGroupService));
+            goodsView.updateData();
+            div.add(goodsView);
+
         });
     }
 }

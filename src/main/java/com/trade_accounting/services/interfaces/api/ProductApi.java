@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces.api;
 import com.trade_accounting.models.dto.ProductDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
@@ -34,10 +35,14 @@ public interface ProductApi {
     Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ProductDto productDto);
 
     @Headers("Accept: application/json")
-    @GET("{url}/{id}")
+    @DELETE("{url}/{id}")
     Call <Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
 
     @Headers("Accept: application/json")
     @GET("{url}/pg/{id}")
-    Call<List<ProductDto>> getAllByProductGroup(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
+    Call<List<ProductDto>> getAllByProductGroupId(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/lite/pg/{id}")
+    Call<List<ProductDto>> getAllLiteByProductGroupId(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 }

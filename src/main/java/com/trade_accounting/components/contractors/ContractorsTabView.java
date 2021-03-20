@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.vaadin.flow.component.UI;
@@ -204,6 +205,8 @@ public class ContractorsTabView extends VerticalLayout {
         numberField.setWidth("45px");
         return numberField;
     }
+
+
 
     private H2 title() {
         H2 title = new H2("Контрагенты");

@@ -22,6 +22,10 @@ public interface InvoiceProductApi {
         Call<InvoiceProductDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
         @Headers("Accept: application/json")
+        @GET("{url}/{id}")
+        Call<List<InvoiceProductDto>> getByInvoiceId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+        @Headers("Accept: application/json")
         @POST("{url}")
         Call<Void> create(@Path(value = "url", encoded = true) String url, @Body InvoiceProductDto invoiceProductDto);
 

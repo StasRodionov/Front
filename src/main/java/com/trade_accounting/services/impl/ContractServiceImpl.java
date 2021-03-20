@@ -1,6 +1,13 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.BankAccountDto;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.models.dto.TypeOfContractorDto;
+import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.api.ContractApi;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +20,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -102,14 +110,30 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    public List<ContractDto> search(Map<String, String> query) {
+        List<ContractDto> contractDtoList = new ArrayList<>();
+        Call<List<ContractDto>> contractDtoListCall = contractApi.search(contractUrl, query);
+
+        try {
+            contractDtoList = contractDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка договоров");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ContractDto - ", e);
+        }
+        return contractDtoList;
+    }
+
+    @Override
     public void create(ContractDto contractDto) {
         Call<Void> contractDtoCall = contractApi.create(contractUrl, contractDto);
+
         try {
             contractDtoCall.execute().body();
             log.info("Успешно выполнен запрос на создание нового экземпляра {}", contractDto);
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}", contractDto, e);
         }
+
 /*
         contractDtoCall.enqueue(new Callback<>() {
             @Override
@@ -141,6 +165,7 @@ public class ContractServiceImpl implements ContractService {
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на обновление {}: {}", contractDto, e);
         }
+
         /*
         contractDtoCall.enqueue(new Callback<>() {
             @Override
@@ -174,6 +199,7 @@ public class ContractServiceImpl implements ContractService {
             log.error("Произошла ошибка при отправке запроса на удаление ContractDto c id = {}: {}",
                     id, e);
         }
+
         /*
         contractDtoCall.enqueue(new Callback<Void>() {
             @Override

@@ -79,13 +79,13 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public List<ContractorDto> getAll(String searchTerm) {
-    List<ContractorDto> contractorDtoList = new ArrayList<>();
-    Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl, searchTerm);
+        List<ContractorDto> contractorDtoList = new ArrayList<>();
+        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl, searchTerm);
         try {
-        contractorDtoList = contractorDtoListCall.execute().body();
-        log.info("Успешно выполнен запрос на получение списка ContractorDto");
-    } catch (IOException e) {
-        log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
+            contractorDtoList = contractorDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ContractorDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
     }
         return contractorDtoList;
 }
@@ -103,8 +103,20 @@ public class ContractorServiceImpl implements ContractorService {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение контрактов contractorDto: {IOException}", e);
         }
         return contractorDtoList;
+    //return null;
+    }
 
-        //return null;
+    @Override
+    public List<ContractorDto> getAllLite() {
+        List<ContractorDto> contractorDtoList = new ArrayList<>();
+        Call<List<ContractorDto>> call = contractorApi.getAllLite(contractorUrl);
+        try {
+            contractorDtoList = call.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ContractorDto (Лёгкое ДТО)");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при получении списка ContractorDto (Легкое ДТО): {}", e.getMessage());
+        }
+        return contractorDtoList;
     }
 
     @Override

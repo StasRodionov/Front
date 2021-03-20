@@ -21,4 +21,6 @@ public interface ContractorService {
     void update(ContractorDto contractorDto);
 
     void deleteById(Long id);
+
+    List<ContractorDto> getAllLite();
 }
