@@ -17,11 +17,4 @@ public class ImageDto {
 
     private String sortNumber;
 
-    private String content;
-
-    private String fileName;
-
-    public void setContentEncoder(byte[] bytes) {
-        content = Base64.getEncoder().encodeToString(bytes);
-    }
 }

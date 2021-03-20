@@ -80,7 +80,6 @@ public class AppConfig {
     public Retrofit retrofit(@Value("${base_url}") String baseUrl) {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                //TODO
                 .addConverterFactory(JacksonConverterFactory.create())
                 .client(authorizationInterceptor())
                 .build();
