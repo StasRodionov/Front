@@ -136,10 +136,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("contractorDto");
         binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
-            if (valueChangeEvent.isFromClient()) {
-                if (valueChangeEvent.getOldValue() != null && tempInvoiceProductDtoList.size() > 0) {
-                    dialogOnChangeContractor.open();
-                }
+            if (
+                    valueChangeEvent.isFromClient()
+                            && valueChangeEvent.getOldValue() != null
+                            && !tempInvoiceProductDtoList.isEmpty()
+            ) {
+                dialogOnChangeContractor.open();
             }
         });
 
@@ -447,7 +449,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
         Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
                 productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
-        return productPrice.get().getValue();
+        return productPrice.isPresent() ? productPrice.get().getValue() : BigDecimal.ZERO;
     }
 
     private void deleteProduct(Long id) {
