@@ -449,6 +449,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
         Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
                 productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
+
+        //TODO
+        // Когда переделают инициализвцию продуктов (у которых есть список ProductPrice) на бэке
+        // использовать return который закоментирован
+        // return productPrice.get().getValue();
+
         return productPrice.isPresent() ? productPrice.get().getValue() : BigDecimal.ZERO;
     }
 
