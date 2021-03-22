@@ -114,7 +114,8 @@ public class ImageServiceImpl implements ImageService {
         ImageDto image = getById(imageDto.getId());
         byte[] content = Base64.getDecoder().decode(image.getContent());
 
-        return new Image(new StreamResource(image.getFileName(), () ->
-                new ByteArrayInputStream(content)), "");
+       // return new Image(new StreamResource(image.getFileName(), () ->
+         //       new ByteArrayInputStream(content)), "");
+        return new Image();
     }
 }

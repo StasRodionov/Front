@@ -142,9 +142,9 @@ public class AddEmployeeModalWindowView extends Dialog {
     private Component addEmployeeImage() {
         Label label = new Label("Фото профиля");
         label.setWidth(labelWidth);
-        if (imageDto != null && imageDto.getImageUrl() != null) {
-            avatar = imageService.getImage(imageDto);
-        }
+       // if (imageDto != null && imageDto.getImageUrl() != null) {
+        //    avatar = imageService.getImage(imageDto);
+        //}
         avatar.setWidth("135px");
         avatar.setHeight("200px");
         if (avatarContainer != null) {
@@ -329,9 +329,9 @@ public class AddEmployeeModalWindowView extends Dialog {
     }
 
     private ImageDto getImages() {
-        if (imageDto.getFileName() != null) {
-            return imageService.create(imageDto);
-        }
+       // if (imageDto.getFileName() != null) {
+        //    return imageService.create(imageDto);
+       // }
         return imageDto;
     }
 
@@ -364,11 +364,11 @@ public class AddEmployeeModalWindowView extends Dialog {
             avatar = new Image(new StreamResource(event.getFileName(), () ->
                     new ByteArrayInputStream(finalBytes)), "");
             imageDto = new ImageDto();
-            if (imageDto.getImageUrl() != null) {
-                imageDto.setImageUrl(null);
-            }
-            imageDto.setContentEncoder(bytes);
-            imageDto.setFileName(event.getFileName());
+           // if (imageDto.getImageUrl() != null) {
+           //     imageDto.setImageUrl(null);
+           // }
+           // imageDto.setContentEncoder(bytes);
+            //imageDto.setFileName(event.getFileName());
             div.add(avatarContainer = this.addEmployeeImage());
             dialog.close();
         });
