@@ -232,7 +232,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
-            totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
+            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
                     .multiply(invoiceProductDto.getAmount()));
         }
         return String.format("%.2f", totalPrice);

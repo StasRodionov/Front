@@ -9,8 +9,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
 
@@ -23,16 +21,14 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     private final ProductService productService;
 
-    private final ComboBox<ProductDto> productSelect = new ComboBox<>();
+    private List<ProductDto> productDtos;
 
-    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    public final ComboBox<ProductDto> productSelect = new ComboBox<>();
 
-    @Autowired
-    public SalesChooseGoodsModalWin(ProductService productService,
-                                    @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView
+
+    public SalesChooseGoodsModalWin(ProductService productService
     ) {
         this.productService = productService;
-        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
 
         add(header(), configureProductSelect());
     }
@@ -44,9 +40,13 @@ public class SalesChooseGoodsModalWin extends Dialog {
         return headerLayout;
     }
 
+    public void updateProductList() {
+        productSelect.setItems(productService.getAll());
+    }
+
     private HorizontalLayout configureProductSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        List<ProductDto> productDtos = productService.getAll();
+        productDtos = productService.getAll();
         if (productDtos != null) {
             productSelect.setItems(productDtos);
         }
@@ -60,15 +60,13 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     private Button getSaveButton() {
         return new Button("Добавить", event -> {
-            if (productSelect.getValue() != null) {
-                salesEditCreateInvoiceView.addProduct(productSelect.getValue());
-            }
             close();
         });
     }
 
     private Button getCloseButton() {
         return new Button("Закрыть", event -> {
+            productSelect.setValue(null);
             close();
         });
     }

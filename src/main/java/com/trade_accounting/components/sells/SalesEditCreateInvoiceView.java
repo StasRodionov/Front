@@ -9,24 +9,30 @@ import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -36,6 +42,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -50,11 +57,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.WeakHashMap;
 
 @Slf4j
 @Route(value = "sells/customer-order-edit", layout = AppView.class)
 @PageTitle("Изменить заказ")
+@PreserveOnRefresh
 @SpringComponent
 @UIScope
 public class SalesEditCreateInvoiceView extends VerticalLayout {
@@ -73,7 +82,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final TextField typeOfInvoiceField = new TextField();
     private final Checkbox isSpend = new Checkbox("Проведено");
     private final ComboBox<CompanyDto> companySelect = new ComboBox<>();
-    private final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
+    public final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
 
     private final TextField amountField = new TextField();
@@ -85,6 +94,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
 
+    private final Dialog dialogOnChangeContractor = new Dialog();
+    private final Dialog dialogOnCloseView = new Dialog();
+
     private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<InvoiceProductDto> paginator;
     private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
@@ -92,6 +104,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final Editor<InvoiceProductDto> editor = grid.getEditor();
     private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
     private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
+    private final Binder<InvoiceDto> binderInvoiceDtoContractorValueChangeListener = new Binder<>(InvoiceDto.class);
 
     @Autowired
     public SalesEditCreateInvoiceView(ContractorService contractorService,
@@ -110,12 +123,36 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
 
+        configureRecalculateDialog();
+        configureCloseViewDialog();
+
+        salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
+            if (salesChooseGoodsModalWin.productSelect.getValue() != null) {
+                addProduct(salesChooseGoodsModalWin.productSelect.getValue());
+            }
+        });
+
+        binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorDto");
+        binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
+            if (
+                    valueChangeEvent.isFromClient()
+                            && valueChangeEvent.getOldValue() != null
+                            && !tempInvoiceProductDtoList.isEmpty()
+            ) {
+                dialogOnChangeContractor.open();
+            }
+        });
+
+
         configureGrid();
         paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
+
 
     private void configureGrid() {
         grid.setItems(tempInvoiceProductDtoList);
@@ -159,26 +196,29 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             return edit;
         });
 
-        Grid.Column<InvoiceProductDto> deleteColumn = grid.addComponentColumn(column -> {
+        grid.addComponentColumn(column -> {
             Button edit = new Button(new Icon(VaadinIcon.TRASH));
             edit.addClassName("delete");
-            edit.addClickListener(e -> {
-                deleteProduct(column.getProductDto().getId());
-            });
+            edit.addClickListener(e -> deleteProduct(column.getProductDto().getId()));
             edit.setEnabled(!editor.isOpen());
             editButtons.add(edit);
             return edit;
         });
 
-        editor.addOpenListener(e -> editButtons.stream()
+        editor.addOpenListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editor.isOpen())));
-        editor.addCloseListener(e -> editButtons.stream()
+        editor.addCloseListener(e -> editButtons
                 .forEach(button -> button.setEnabled(!editor.isOpen())));
 
         Button save = new Button("Save", e -> {
-            editor.save();
-            setTotalPrice();
-            paginator.setData(tempInvoiceProductDtoList);
+            if (binderInvoiceProductDto.validate().isOk()) {
+                editor.save();
+                setTotalPrice();
+                paginator.setData(tempInvoiceProductDtoList);
+            } else {
+                binderInvoiceProductDto.validate().notifyBindingValidationStatusHandlers();
+                editor.cancel();
+            }
         });
         save.addClassName("save");
 
@@ -190,9 +230,14 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 .setFilter("event.key === 'Escape' || event.key === 'Esc'");
 
         grid.getElement().addEventListener("keyup", event -> {
-            editor.save();
-            setTotalPrice();
-            paginator.setData(tempInvoiceProductDtoList);
+            if (binderInvoiceProductDto.validate().isOk()) {
+                editor.save();
+                setTotalPrice();
+                paginator.setData(tempInvoiceProductDtoList);
+            } else {
+                binderInvoiceProductDto.validate().notifyBindingValidationStatusHandlers();
+                editor.cancel();
+            }
             buttonAddProduct().focus();
         }).setFilter("event.key === 'Enter'");
 
@@ -354,10 +399,14 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private Button buttonClose() {
         Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         buttonUnit.addClickListener(event -> {
-            resetView();
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells"));
+            dialogOnCloseView.open();
         });
         return buttonUnit;
+    }
+
+    private void closeView() {
+        resetView();
+        UI.getCurrent().navigate("sells");
     }
 
     private Button configureDeleteButton() {
@@ -371,7 +420,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private Button buttonAddProduct() {
         Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
-            salesChooseGoodsModalWin.open();
+            if (!binderInvoiceDto.validate().isOk()) {
+                binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
+            } else {
+                salesChooseGoodsModalWin.updateProductList();
+                salesChooseGoodsModalWin.open();
+            }
         });
         return button;
     }
@@ -380,12 +434,22 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductDto(productDto);
         invoiceProductDto.setAmount(BigDecimal.ONE);
-        invoiceProductDto.setPrice(productDto.getPurchasePrice());
+        invoiceProductDto.setPrice(
+                getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceDtos(),
+                        contractorSelect.getValue().getTypeOfPriceDto().getId()
+                )
+        );
         if (!isProductInList(productDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
             setTotalPrice();
         }
+    }
+
+    private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
+        Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
+                productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
+        return productPrice.isPresent() ? productPrice.get().getValue() : BigDecimal.ZERO;
     }
 
     private void deleteProduct(Long id) {
@@ -447,14 +511,16 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     public BigDecimal getTotalPrice() {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            totalPrice = totalPrice.add(invoiceProductDto.getProductDto().getPurchasePrice()
+            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
                     .multiply(invoiceProductDto.getAmount()));
         }
         return totalPrice;
     }
 
     private void setTotalPrice() {
-        totalPrice.setText(getTotalPrice().toString());
+        totalPrice.setText(
+                String.format("%.2f", getTotalPrice())
+        );
     }
 
     public void setUpdateState(boolean isUpdate) {
@@ -523,6 +589,61 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         tempInvoiceProductDtoList = getListOfInvoiceProductByInvoice(invoiceDto);
         setTotalPrice();
         grid.setItems(tempInvoiceProductDtoList);
+    }
+
+    private void recalculateProductPrices() {
+        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
+            invoiceProductDto.setPrice(
+                    getPriceFromProductPriceByTypeOfPriceId(
+                            invoiceProductDto.getProductDto().getProductPriceDtos(),
+                            contractorSelect.getValue().getTypeOfPriceDto().getId()
+                    )
+            );
+            grid.setItems(tempInvoiceProductDtoList);
+            setTotalPrice();
+        }
+    }
+
+    private void configureRecalculateDialog() {
+        dialogOnChangeContractor.add(new Text("Вы меняете покупателя!! Пересчитать цены на продукты?"));
+        dialogOnChangeContractor.setCloseOnEsc(false);
+        dialogOnChangeContractor.setCloseOnOutsideClick(false);
+        Span message = new Span();
+
+        Button confirmButton = new Button("Пересчитать", event -> {
+            recalculateProductPrices();
+            dialogOnChangeContractor.close();
+        });
+        Button cancelButton = new Button("Оставить как есть", event -> {
+            dialogOnChangeContractor.close();
+        });
+// Cancel action on ESC press
+        Shortcuts.addShortcutListener(dialogOnChangeContractor, () -> {
+            dialogOnChangeContractor.close();
+        }, Key.ESCAPE);
+
+        dialogOnChangeContractor.add(new Div(confirmButton, new Div(), cancelButton));
+    }
+
+    private void configureCloseViewDialog() {
+        dialogOnCloseView.add(new Text("Вы уверены? Несохраненные данные будут потеряны!!!"));
+        dialogOnCloseView.setCloseOnEsc(false);
+        dialogOnCloseView.setCloseOnOutsideClick(false);
+        Span message = new Span();
+
+        Button confirmButton = new Button("Продолжить", event -> {
+            closeView();
+            dialogOnCloseView.close();
+        });
+        Button cancelButton = new Button("Отменить", event -> {
+            dialogOnCloseView.close();
+        });
+// Cancel action on ESC press
+        Shortcuts.addShortcutListener(dialogOnCloseView, () -> {
+            dialogOnCloseView.close();
+        }, Key.ESCAPE);
+
+        dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
 }
