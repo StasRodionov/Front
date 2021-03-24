@@ -34,25 +34,6 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public List<ContractorDto> getAll() {
-//        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
-//
-//        contractorDtoListCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<List<ContractorDto>> call, Response<List<ContractorDto>> response) {
-//                if (response.isSuccessful()) {
-//                    contractorDtoList = response.body();
-//                    log.info("Успешно выполнен запрос на получение списка ContractorDto");
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на получение списка ContractorDto - {}",
-//                            response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<ContractorDto>> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос списка ContractorDto", throwable);
-//            }
-//        });
         List<ContractorDto> contractorDtoList = new ArrayList<>();
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
         try {
@@ -62,19 +43,6 @@ public class ContractorServiceImpl implements ContractorService {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
         }
         return contractorDtoList;
-    }
-
-    @Override //create method
-    public List<ContractorDto> getAllContractorDto() {
-        List<ContractorDto> contractorDtoListString = new ArrayList<>();
-        Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAllContractorDto(contractorUrl);
-        try {
-            contractorDtoListString = contractorDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ContractorDto через getAllContractorDto ");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
-        }
-        return contractorDtoListString;
     }
 
     @Override
@@ -90,7 +58,6 @@ public class ContractorServiceImpl implements ContractorService {
         return contractorDtoList;
 }
 
-//добавил
     @Override
     public List<ContractorDto> searchContractor(Map<String, String> queryContractor) {
         List<ContractorDto> contractorDtoList = new ArrayList<>();
@@ -103,7 +70,6 @@ public class ContractorServiceImpl implements ContractorService {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение контрактов contractorDto: {IOException}", e);
         }
         return contractorDtoList;
-    //return null;
     }
 
     @Override
@@ -121,25 +87,6 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public ContractorDto getById(Long id) {
-//        Call<ContractorDto> contractorDtoCall = contractorApi.getById(contractorUrl, id);
-//
-//        contractorDtoCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<ContractorDto> call, Response<ContractorDto> response) {
-//                if (response.isSuccessful()) {
-//                    contractorDto = response.body();
-//                    log.info("Успешно выполнен запрос на получение экземпляра ContractorDto по id= {}", id);
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра ContractorDto по id= {} - {}",
-//                            id, response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ContractorDto> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос экземпляра ContractorDto по id", throwable);
-//            }
-//        });
         Call<ContractorDto> contractorDtoCall = contractorApi.getById(contractorUrl, id);
 
         try {
@@ -154,24 +101,6 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public void create(ContractorDto contractorDto) {
-//        Call<ContractorDto> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
-//
-//        contractorDtoCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<ContractorDto> call, Response<ContractorDto> response) {
-//                if (response.isSuccessful()) {
-//                    log.info("Успешно выполнен запрос на создание экземпляра ContractorDto");
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра ContractorDto - {}",
-//                            response.errorBody());
-//                }
-//            }
-//            @Override
-//            public void onFailure(Call<ContractorDto> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра ContractorDto", throwable);
-//            }
-//        });
-
         Call<ContractorDto> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
 
         try {
@@ -184,22 +113,7 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public void update(ContractorDto contractorDto) {
-//        contractorDtoCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<ContractorDto> call, Response<ContractorDto> response) {
-//                if (response.isSuccessful()) {
-//                    log.info("Успешно выполнен запрос на обновление экземпляра ContractorDto");
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра ContractorDto - {}",
-//                            response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ContractorDto> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра ContractorDto", throwable);
-//            }
-//        });
+
         Call<ContractorDto> contractorDtoCall = contractorApi.update(contractorUrl, contractorDto);
 
         try {

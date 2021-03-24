@@ -1,12 +1,8 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.services.interfaces.BankAccountService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;

@@ -34,21 +34,20 @@ public class ContractorDto {
 
     @EqualsAndHashCode.Exclude
     private ContractorGroupDto contractorGroupDto;
-    private String contractorGroup;
+    private String contractorGroupName;
 
     @EqualsAndHashCode.Exclude
     private TypeOfContractorDto typeOfContractorDto;
-    private String typeOfContractor;
+    private String typeOfContractorName;
 
     @EqualsAndHashCode.Exclude
     private TypeOfPriceDto typeOfPriceDto;
-    private String typeOfPrice;
+    private String typeOfPriceName;
 
     @EqualsAndHashCode.Exclude
     private List<BankAccountDto> bankAccountDto;
-    String bankAccount;
 
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;
-    private String legalDetail;
+    private String legalDetailInn;
 }

@@ -6,15 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 public interface ContractorService {
+
+    List<ContractorDto> searchContractor(Map<String, String> queryContractor);
+
     List<ContractorDto> getAll();
 
-    List<ContractorDto> getAllContractorDto();
+    List<ContractorDto> getAllLite();
 
     List<ContractorDto> getAll(String searchTerm);
 
     ContractorDto getById(Long id);
-
-    List<ContractorDto> searchContractor(Map<String, String> queryContractor);
 
     void create(ContractorDto contractorDto);
 
@@ -22,5 +23,5 @@ public interface ContractorService {
 
     void deleteById(Long id);
 
-    List<ContractorDto> getAllLite();
+
 }
