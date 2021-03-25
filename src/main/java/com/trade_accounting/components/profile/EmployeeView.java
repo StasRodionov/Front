@@ -27,8 +27,10 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @Slf4j
@@ -82,9 +84,9 @@ public class EmployeeView extends VerticalLayout {
             public Component createComponent(EmployeeDto item) {
                 ImageDto imageDto = item.getImageDto();
                 if (imageDto != null) {
-                    Image image = imageService.getImage(imageDto);
+                    Image image = new Image(new StreamResource("image", () ->
+                            new ByteArrayInputStream(imageDto.getContent())), "");
                     image.setHeight("48px");
-                    image.setWidth("32px");
 
                     return image;
                 }
@@ -102,9 +104,6 @@ public class EmployeeView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
             ImageDto imageDto = employeeDto.getImageDto();
-            if (imageDto == null) {
-                imageDto = new ImageDto();
-            }
             AddEmployeeModalWindowView addEmployeeModalWindowView =
                     new AddEmployeeModalWindowView(
                             employeeDto,
