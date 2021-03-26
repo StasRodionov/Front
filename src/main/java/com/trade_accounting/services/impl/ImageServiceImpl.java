@@ -108,14 +108,4 @@ public class ImageServiceImpl implements ImageService {
             log.error("Произошла ошибка при отправке запроса на удаление ImageDto c id = {}: {}", id, e);
         }
     }
-
-    @Override
-    public Image getImage(ImageDto imageDto) {
-        ImageDto image = getById(imageDto.getId());
-        byte[] content = Base64.getDecoder().decode(image.getContent());
-
-       // return new Image(new StreamResource(image.getFileName(), () ->
-         //       new ByteArrayInputStream(content)), "");
-        return new Image();
-    }
 }
