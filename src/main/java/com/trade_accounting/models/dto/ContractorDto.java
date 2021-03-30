@@ -35,14 +35,17 @@ public class ContractorDto {
     @EqualsAndHashCode.Exclude
     private ContractorGroupDto contractorGroupDto;
     private String contractorGroupName;
+    private long contractorGroupId;
 
     @EqualsAndHashCode.Exclude
     private TypeOfContractorDto typeOfContractorDto;
     private String typeOfContractorName;
+    private long typeOfContractorId;
 
     @EqualsAndHashCode.Exclude
     private TypeOfPriceDto typeOfPriceDto;
     private String typeOfPriceName;
+    private long typeOfPriceId;
 
     @EqualsAndHashCode.Exclude
     private List<BankAccountDto> bankAccountDto;
@@ -50,4 +53,7 @@ public class ContractorDto {
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;
     private String legalDetailInn;
+    private long legalDetailId;
+
+
 }

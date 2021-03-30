@@ -97,6 +97,16 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn("typeOfContractorName").setHeader("тип контракта").setId("тип контракта");
         grid.addColumn("typeOfPriceName").setHeader("тип прайса").setId("тип прайса");
         grid.addColumn("legalDetailInn").setHeader("юр. детали").setId("юр. детали");
+
+//        grid.addColumn("contractorGroupDto").setHeader("группа контракта").setId("группа контракта");
+//        grid.addColumn("typeOfContractorDto").setHeader("тип контракта").setId("тип контракта");
+//        grid.addColumn("typeOfPriceDto").setHeader("тип прайса").setId("тип прайса");
+
+////        grid.addColumn("legalDetailDto").setHeader("юр. детали").setId("юр. детали");
+//        grid.addColumn("contractorGroupId").setHeader("группа контракта").setId("группа контракта");
+//        grid.addColumn("typeOfContractorId").setHeader("тип контракта").setId("тип контракта");
+//        grid.addColumn("typeOfPriceId").setHeader("тип прайса").setId("тип прайса");
+//        grid.addColumn("legalDetailId").setHeader("юр. детали").setId("юр. детали");
         grid.setHeight("64vh");
 
         grid.setColumnReorderingAllowed(true);
@@ -211,7 +221,7 @@ public class ContractorsTabView extends VerticalLayout {
     private void updateList() {
         //this.grid = new Grid<>(ContractorDto.class);//испр. final
         GridPaginator<ContractorDto> paginatorUpdateList
-                = new GridPaginator<>(grid, contractorService.getAll(), 15);
+                = new GridPaginator<>(grid, contractorService.getAll(), 14);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         configureGrid();
         removeAll();

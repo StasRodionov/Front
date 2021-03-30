@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.api.ContractorApi;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +74,7 @@ public class ContractorServiceImpl implements ContractorService {
     @Override
     public List<ContractorDto> getAllLite() {
         List<ContractorDto> contractorDtoList = new ArrayList<>();
-        Call<List<ContractorDto>> call = contractorApi.getAllLite(contractorUrl);
+        Call<List<ContractorDto>> call = contractorApi.getAll(contractorUrl);
         try {
             contractorDtoList = call.execute().body();
             log.info("Успешно выполнен запрос на получение списка ContractorDto (Лёгкое ДТО)");
@@ -100,6 +99,7 @@ public class ContractorServiceImpl implements ContractorService {
     }
 
     @Override
+
     public void create(ContractorDto contractorDto) {
         Call<ContractorDto> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
 

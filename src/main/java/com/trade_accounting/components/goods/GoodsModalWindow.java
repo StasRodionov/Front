@@ -153,7 +153,7 @@ public class GoodsModalWindow extends Dialog {
         typeOfPriceLayout.removeAll();
         numberFields = new HashMap<>();
         unitDtoComboBox.setItems(unitService.getAll());
-        contractorDtoComboBox.setItems(contractorService.getAllLite());
+        contractorDtoComboBox.setItems(contractorService.getAll());//изменил
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
