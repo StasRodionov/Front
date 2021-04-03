@@ -1,24 +1,47 @@
 package com.trade_accounting.components.contractors;
 
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.models.dto.TypeOfContractorDto;
+import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.TypeOfContractorService;
+import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.RegexpValidator;
+import org.apache.tomcat.util.json.JSONParser;
+import org.apache.tomcat.util.json.ParseException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.DataInput;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Objects;
 
 public class ContractorModalWindow extends Dialog {
 
@@ -33,20 +56,36 @@ public class ContractorModalWindow extends Dialog {
     private final TextArea commentToAddressField = new TextArea();
     private final TextArea commentField = new TextArea();
 
-    private final Select<ContractorGroupDto> contractorGroupDtoSelect = new Select<>();
+    private final ComboBox<ContractorGroupDto> contractorGroupDtoSelect = new ComboBox<>();
+    private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
+    private final ComboBox<TypeOfPriceDto> typeOfPriceDtoSelect = new ComboBox<>();
+    private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
+    private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
 
-    private final String labelWidth = "100px";
 
-    private final String fieldWidth = "400px";
+    private final String LABEL_WIDTH = "100px";
+
+    private final String FIELD_WIDTH = "400px";
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
+    private final TypeOfContractorService typeOfContractorService;
+    private final TypeOfPriceService typeOfPriceService;
+    private final LegalDetailService legalDetailService;
+
+
 
     public ContractorModalWindow(ContractorDto contractorDto,
                                  ContractorService contractorService,
-                                 ContractorGroupService contractorGroupService) {
+                                 ContractorGroupService contractorGroupService,
+                                 TypeOfContractorService typeOfContractorService,
+                                 TypeOfPriceService typeOfPriceService,
+                                 LegalDetailService legalDetailService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
+        this.typeOfContractorService = typeOfContractorService;
+        this.typeOfPriceService = typeOfPriceService;
+        this.legalDetailService = legalDetailService;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -60,8 +99,31 @@ public class ContractorModalWindow extends Dialog {
         addressField.setValue(getFieldValueNotNull(contractorDto.getAddress()));
         commentToAddressField.setValue(getFieldValueNotNull(contractorDto.getCommentToAddress()));
         commentField.setValue(getFieldValueNotNull(contractorDto.getComment()));
-
         add(new Text("Наименование"), header(), contractorsAccordion());
+    }
+
+
+    public void setContractorDataForEdit(ContractorDto contractorDto) {
+        if (contractorDto.getContractorGroupName() != null) {
+            contractorGroupDtoSelect.setValue(contractorService
+                    .getById(contractorDto.getId()).getContractorGroupDto());
+        }
+
+        if (contractorDto.getTypeOfContractorName() != null) {
+            typeOfContractorDtoSelect.setValue(contractorService
+                    .getById(contractorDto.getId()).getTypeOfContractorDto());
+        }
+
+        if (contractorDto.getTypeOfPriceName() != null) {
+            typeOfPriceDtoSelect.setValue(contractorService
+                    .getById(contractorDto.getId()).getTypeOfPriceDto());
+        }
+
+        if (contractorDto.getLegalDetailInn() != null) {
+            legalDetailDtoSelect.setValue(contractorService
+                    .getById(contractorDto.getId()).getLegalDetailDto());
+        }
+
     }
 
     private Accordion contractorsAccordion() {
@@ -75,7 +137,12 @@ public class ContractorModalWindow extends Dialog {
                 configureEmailField(),
                 configureAddressField(),
                 configureCommentToAddressField(),
-                configureCommentField());
+                configureCommentField(),
+                typeOfContractorSelect(),
+                typeOfPriceSelect(),
+                LegalDetailSelect()
+        );
+
         accordion.add("О контрагенте", verticalLayout).addThemeVariants(DetailsVariant.FILLED);
         accordion.add("Контактные лица", new VerticalLayout()).addThemeVariants(DetailsVariant.FILLED);
         accordion.add("Реквизиты", new VerticalLayout()).addThemeVariants(DetailsVariant.FILLED);
@@ -94,20 +161,81 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout contractorGroupSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Группы");
-        contractorGroupDtoSelect.setItems(contractorGroupService.getAll());
+        List<ContractorGroupDto> contractorGroupDtoList = contractorGroupService.getAll();
+
+        if (contractorGroupDtoList != null) {
+            contractorGroupDtoSelect.setItems(contractorGroupDtoList);
+        }
         contractorGroupDtoSelect.setItemLabelGenerator(ContractorGroupDto::getName);
-        contractorGroupDtoSelect.setWidth(fieldWidth);
-        label.setWidth(labelWidth);
+        contractorGroupDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(contractorGroupDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorGroupDto");
+        Label label = new Label("Группа контракта");
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorGroupDtoSelect);
+        return horizontalLayout;
+
+    }
+
+    private HorizontalLayout typeOfContractorSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        List<TypeOfContractorDto> typeOfContractorDtoList = typeOfContractorService.getAll();
+        if (typeOfContractorDtoList != null) {
+            typeOfContractorDtoSelect.setItems(typeOfContractorDtoList);
+        }
+        typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
+        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(typeOfContractorDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("typeOfContractorDto");
+        Label label = new Label("Тип контракта");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, typeOfContractorDtoSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout typeOfPriceSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        List<TypeOfPriceDto> typeOfPriceDtoList = typeOfPriceService.getAll();
+        if (typeOfPriceDtoList != null) {
+            typeOfPriceDtoSelect.setItems(typeOfPriceDtoList);
+        }
+        typeOfPriceDtoSelect.setItemLabelGenerator(TypeOfPriceDto::getName);
+        typeOfPriceDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(typeOfPriceDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("typeOfPriceDto");
+        Label label = new Label("Тип прайса");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, typeOfPriceDtoSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout LegalDetailSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<LegalDetailDto> legalDetailDtoList = legalDetailService.getAll();
+        if (legalDetailDtoList != null) {
+            legalDetailDtoSelect.setItems(legalDetailDtoList);
+        }
+        legalDetailDtoSelect.setItemLabelGenerator(LegalDetailDto::getInn);
+        legalDetailDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(legalDetailDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("legalDetailDto");
+        Label label = new Label("Юр. детали");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, legalDetailDtoSelect);
         return horizontalLayout;
     }
 
     private HorizontalLayout configureInnField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Инн");
-        label.setWidth(labelWidth);
-        innField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        innField.setWidth(FIELD_WIDTH);
         innField.addInputListener(inputEvent ->
                 innField.addValidator(new RegexpValidator("Only 10 or 12 digits.",
                         "^([0-9]{10}|[0-9]{12})$")));
@@ -118,8 +246,8 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout configureSortNumberField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Код");
-        label.setWidth(labelWidth);
-        sortNumberField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        sortNumberField.setWidth(FIELD_WIDTH);
         horizontalLayout.add(label, sortNumberField);
         return horizontalLayout;
     }
@@ -127,8 +255,8 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout configurePhoneField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Телефон");
-        label.setWidth(labelWidth);
-        phoneField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        phoneField.setWidth(FIELD_WIDTH);
         horizontalLayout.add(label, phoneField);
         return horizontalLayout;
     }
@@ -136,8 +264,8 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout configureFaxField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Факс");
-        label.setWidth(labelWidth);
-        faxField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        faxField.setWidth(FIELD_WIDTH);
         horizontalLayout.add(label, faxField);
         return horizontalLayout;
     }
@@ -145,7 +273,7 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout configureEmailField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Емейл");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         emailField.setWidth("345px");
         Button emailButton = new Button();
         emailButton.setIcon(new Icon(VaadinIcon.ENVELOPE));
@@ -156,7 +284,7 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout configureAddressField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Фактический адресс");
-        label.setWidth(labelWidth);
+        label.setWidth(LABEL_WIDTH);
         addressField.setWidth("345px");
         Button emailButton = new Button();
         emailButton.setIcon(new Icon(VaadinIcon.CARET_DOWN));
@@ -167,8 +295,8 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout configureCommentToAddressField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Комментарий к адресу");
-        label.setWidth(labelWidth);
-        commentToAddressField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        commentToAddressField.setWidth(FIELD_WIDTH);
         commentToAddressField.getStyle().set("minHeight", "120px");
         horizontalLayout.add(label, commentToAddressField);
         return horizontalLayout;
@@ -177,8 +305,8 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout configureCommentField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Комментарий");
-        label.setWidth(labelWidth);
-        commentField.setWidth(fieldWidth);
+        label.setWidth(LABEL_WIDTH);
+        commentField.setWidth(FIELD_WIDTH);
         commentField.getStyle().set("minHeight", "120px");
         horizontalLayout.add(label, commentField);
         return horizontalLayout;
@@ -217,14 +345,14 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setAddress(addressField.getValue());
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
-        //добавил
-        contractorDto.setContractorGroupId(contractorGroupDtoSelect.getValue().getId());
 
+        contractorDto.setContractorGroupId(contractorGroupDtoSelect.getValue().getId());
+        contractorDto.setTypeOfContractorId(typeOfContractorDtoSelect.getValue().getId());
+        contractorDto.setTypeOfPriceId(typeOfPriceDtoSelect.getValue().getId());
+        contractorDto.setLegalDetailId(legalDetailDtoSelect.getValue().getId());
     }
 
     private Button getCancelButton() {
-//        Button cancelButton = new Button("Закрыть", event -> { close(); });
-//        return cancelButton;
         return new Button("Закрыть", event -> close());
     }
 

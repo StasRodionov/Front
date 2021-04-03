@@ -14,4 +14,6 @@ public class ContractorGroupDto {
     private String name;
 
     private String sortNumber;
+
+
 }

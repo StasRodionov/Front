@@ -10,6 +10,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.http.Path;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -94,7 +95,6 @@ public class ContractorServiceImpl implements ContractorService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение ContractorDto : {IOException}", e);
         }
-
         return contractorDto;
     }
 

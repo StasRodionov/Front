@@ -3,6 +3,9 @@ package com.trade_accounting.components.contractors;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.TypeOfContractorService;
+import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -24,14 +27,23 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
+    private final TypeOfContractorService typeOfContractorService;
+    private final TypeOfPriceService typeOfPriceService;
+    private final LegalDetailService legalDetailService;
     private final ContractsView contractsView;
 
     @Autowired
     public ContractorsView(ContractorService contractorService,
                            ContractorGroupService contractorGroupService,
+                           TypeOfContractorService typeOfContractorService,
+                           TypeOfPriceService typeOfPriceService,
+                           LegalDetailService legalDetailService,
                            ContractsView contractsView) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
+        this.typeOfContractorService = typeOfContractorService;
+        this.typeOfPriceService = typeOfPriceService;
+        this.legalDetailService = legalDetailService;
         this.contractsView = contractsView;
         div = new Div();
         add(configurationSubMenu(), div);
@@ -48,7 +60,10 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
             });
             getUI().ifPresent(ui -> {
                 div.removeAll();
-                div.add(new ContractorsTabView(contractorService, contractorGroupService));
+                div.add(new ContractorsTabView(contractorService, contractorGroupService,
+                        typeOfContractorService,
+                        typeOfPriceService,
+                        legalDetailService));
             });
     }
 
@@ -63,7 +78,8 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Контрагенты":
                     div.removeAll();
-                    div.add(new ContractorsTabView(contractorService,contractorGroupService));
+                    div.add(new ContractorsTabView(contractorService,contractorGroupService,
+                            typeOfContractorService, typeOfPriceService, legalDetailService));
                     break;
                 case "Договоры":
                     div.removeAll();
