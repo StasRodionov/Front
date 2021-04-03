@@ -58,7 +58,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
-    private final String typeOfInvoice = TypeOfInvoice.EXPENSE.toString();
+    private final String typeOfInvoice = TypeOfInvoice.RECEIPT.toString();
 
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,

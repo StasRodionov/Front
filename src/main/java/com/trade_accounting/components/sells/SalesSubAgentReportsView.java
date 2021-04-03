@@ -43,7 +43,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
 
-    private final String typeOfInvoice = TypeOfInvoice.EXPENSE.toString();
+    private final String typeOfInvoice = TypeOfInvoice.RECEIPT.toString();
 
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,

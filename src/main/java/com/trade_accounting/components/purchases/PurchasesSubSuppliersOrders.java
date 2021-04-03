@@ -33,7 +33,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
     private List<InvoiceDto> invoices;
 
-    private final String typeOfInvoice = TypeOfInvoice.RECEIPT.toString();
+    private final String typeOfInvoice = TypeOfInvoice.EXPENSE.toString();
 
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);

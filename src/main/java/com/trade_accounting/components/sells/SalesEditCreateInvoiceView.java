@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
+import com.trade_accounting.models.dto.TypeOfInvoice;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -558,7 +559,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         invoiceDto.setCompanyDto(companySelect.getValue());
         invoiceDto.setContractorDto(contractorSelect.getValue());
         invoiceDto.setWarehouseDto(warehouseSelect.getValue());
-        invoiceDto.setTypeOfInvoice("RECEIPT");
+        invoiceDto.setTypeOfInvoice(TypeOfInvoice.RECEIPT.toString());
         invoiceDto.setSpend(isSpend.getValue());
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
         InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
