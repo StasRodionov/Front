@@ -127,6 +127,21 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public List<InvoiceDto> getByTypeOfInvoice(String typeOfInvoice) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.getByTypeOfInvoice(invoiceUrl, typeOfInvoice);
+
+        try {
+            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка InvoiceDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {IOException}", e);
+        }
+        return invoiceDtoList;
+    }
+
+    @Override
     public List<InvoiceDto> search(Map<String, String> query) {
         List<InvoiceDto> invoiceDtoList = new ArrayList<>();
         Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.search(invoiceUrl, query);

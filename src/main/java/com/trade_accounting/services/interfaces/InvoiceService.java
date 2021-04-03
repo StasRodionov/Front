@@ -11,6 +11,8 @@ public interface InvoiceService {
 
     InvoiceDto getById(Long id);
 
+    List<InvoiceDto> getByTypeOfInvoice(String typeOfInvoice);
+
     List<InvoiceDto> search(Map<String, String> query);
 
     Response<InvoiceDto> create(InvoiceDto invoiceDto);
