@@ -21,12 +21,12 @@ public interface InvoiceApi {
     Call<List<InvoiceDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
-    @GET("{url}/{id}")
-    Call<InvoiceDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    @GET("{url}")
+    Call<List<InvoiceDto>> getAll(@Path(value = "url", encoded = true) String url, @Query("typeOfInvoice") String typeOfInvoice);
 
     @Headers("Accept: application/json")
-    @GET("{url}?typeOfInvoice={typeOfInvoice}")
-    Call<List<InvoiceDto>> getByTypeOfInvoice(@Path(value = "url", encoded = true) String url, @Query("typeOfInvoice") String typeOfInvoice);
+    @GET("{url}/{id}")
+    Call<InvoiceDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
     @GET("{url}/search")

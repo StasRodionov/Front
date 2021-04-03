@@ -3,6 +3,7 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.TypeOfInvoice;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
@@ -43,6 +44,8 @@ public class SalesSubShipmentView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
+
+    private final String typeOfInvoice = TypeOfInvoice.EXPENSE.toString();
 
     @Autowired
     public SalesSubShipmentView(InvoiceService invoiceService,
@@ -180,12 +183,12 @@ public class SalesSubShipmentView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
         System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
 }

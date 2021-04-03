@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.TypeOfInvoice;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,13 +29,11 @@ import java.util.List;
 @PageTitle("Заказы поставщикам")
 public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
-
     private final InvoiceService invoiceService;
 
     private List<InvoiceDto> invoices;
 
-    private final String typeOfInvoice = "RECEIPT";
-
+    private final String typeOfInvoice = TypeOfInvoice.RECEIPT.toString();
 
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
@@ -55,7 +54,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private void loadInvoices() {
-        invoices = invoiceService.getByTypeOfInvoice(typeOfInvoice);
+        invoices = invoiceService.getAll(typeOfInvoice);
     }
 
     private void configureActions() {
@@ -90,7 +89,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
     private Button buttonQuestion() {

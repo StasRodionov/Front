@@ -79,6 +79,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceDtoList;
     }
 
+    @Override
+    public List<InvoiceDto> getAll(String typeOfInvoice) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.getAll(invoiceUrl, typeOfInvoice);
+
+        try {
+            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка InvoiceDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {IOException}", e);
+        }
+        return invoiceDtoList;
+    }
+
     /*@Override
     public InvoiceDto getById(Long id) {
         InvoiceDto invoiceDto = null;
@@ -124,21 +139,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 //            }
 //        });
 //        return invoiceDto;
-    }
-
-    @Override
-    public List<InvoiceDto> getByTypeOfInvoice(String typeOfInvoice) {
-        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
-        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.getByTypeOfInvoice(invoiceUrl, typeOfInvoice);
-
-        try {
-            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
-            log.info("Успешно выполнен запрос на получение списка InvoiceDto");
-        } catch (IOException | NullPointerException e) {
-            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
-            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {IOException}", e);
-        }
-        return invoiceDtoList;
     }
 
     @Override
