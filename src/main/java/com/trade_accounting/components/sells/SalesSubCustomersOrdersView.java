@@ -23,6 +23,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -52,7 +53,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private final Notifications notifications;
 
-    private final List<InvoiceDto> data;
+    private List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
@@ -169,7 +170,11 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
         textField.addValueChangeListener(event -> {
+            grid.setItems(data.stream()
+                    .filter(saleItem -> saleItem.getId().toString().contains(event.getValue()) ||
+                            saleItem.getContractorDto().getName().contains(event.getValue())));
             System.out.println(event.getValue());
         });
         return textField;
@@ -225,7 +230,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        data = getData();
+        grid.setItems(data);
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
