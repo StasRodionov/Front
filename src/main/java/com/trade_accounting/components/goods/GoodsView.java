@@ -19,7 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -91,7 +91,7 @@ public class GoodsView extends VerticalLayout {
                 buttonFilter());
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(text(), numberField(), valueSelect(), valueSelectPrint(),
+        horizontalLayout.add(text(), BigDecimalField(), valueSelect(), valueSelectPrint(),
                 valueSelectImport(), valueSelectExport(), buttonSettings());
         verticalLayout.add(upperLayout, horizontalLayout);
         mainLayout.add(verticalLayout);
@@ -268,8 +268,8 @@ public class GoodsView extends VerticalLayout {
         return textCompany;
     }
 
-    private NumberField numberField() {
-        NumberField numberField = new NumberField();
+    private BigDecimalField BigDecimalField() {
+        BigDecimalField numberField = new BigDecimalField();
         numberField.setPlaceholder("0");
         numberField.setWidth("35px");
         return numberField;

@@ -45,13 +45,13 @@ public class ProductServiceImp implements ProductService {
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
         ProductDto productDto = new ProductDto();
-            try {
-                Response<ProductDto> execute = productGetCall.execute();
-                productDto = execute.body();
-                log.info("Успешно выполнен запрос на получение ProductDto");
-            } catch (IOException e) {
-                log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
-            }
+        try {
+            Response<ProductDto> execute = productGetCall.execute();
+            productDto = execute.body();
+            log.info("Успешно выполнен запрос на получение ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
+        }
         return productDto;
     }
 
