@@ -4,7 +4,6 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.TypeOfInvoice;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -33,7 +32,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
     private List<InvoiceDto> invoices;
 
-    private final String typeOfInvoice = TypeOfInvoice.EXPENSE.toString();
+    private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);

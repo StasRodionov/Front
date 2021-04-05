@@ -3,7 +3,6 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.TypeOfInvoice;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
@@ -41,7 +40,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
 
-    private final String typeOfInvoice = TypeOfInvoice.RECEIPT.toString();
+    private final String typeOfInvoice = "RECEIPT";
 
     public SalesSubInvoicesToBuyersView(InvoiceService invoiceService,
                                         ContractorService contractorService,

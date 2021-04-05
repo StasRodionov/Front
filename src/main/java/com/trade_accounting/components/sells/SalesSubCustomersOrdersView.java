@@ -6,7 +6,6 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.models.dto.TypeOfInvoice;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -58,7 +57,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
-    private final String typeOfInvoice = TypeOfInvoice.RECEIPT.toString();
+    private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
