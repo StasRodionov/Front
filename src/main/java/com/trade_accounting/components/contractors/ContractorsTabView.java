@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
@@ -63,7 +64,6 @@ public class ContractorsTabView extends VerticalLayout {
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
     private final GridPaginator<ContractorDto> paginator;
     private final GridFilter<ContractorDto> filter;
-
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
@@ -113,14 +113,23 @@ public class ContractorsTabView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
-            ContractorDto editContractor = event.getItem();
-            ContractorModalWindow addContractorModalWindow =
-                    new ContractorModalWindow(editContractor,
+            ContractorDto editContractorDto = event.getItem();
+            ContractorModalWindow addContractorModalWindowUpdate =
+                    new ContractorModalWindow(editContractorDto,
                             contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
-            addContractorModalWindow.setContractorDataForEdit(editContractor);
-            addContractorModalWindow.addDetachListener(e -> updateList());
-            addContractorModalWindow.open();
+            addContractorModalWindowUpdate.addDetachListener(e -> updateList());
+            addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
+            addContractorModalWindowUpdate.open();
         });
+    }
+    private Button buttonUnit() {
+        Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
+        ContractorModalWindow addContractorModalWindowCreate =
+                new ContractorModalWindow(new ContractorDto(),
+                        contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
+        buttonUnit.addClickListener(event -> addContractorModalWindowCreate.open());
+        addContractorModalWindowCreate.addDetachListener(event -> updateList());
+        return buttonUnit;
     }
 
     private void configureFilter() {
@@ -179,16 +188,6 @@ public class ContractorsTabView extends VerticalLayout {
         return buttonRefresh;
     }
 
-    private Button buttonUnit() {
-        Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
-        ContractorModalWindow addContractorModalWindow =
-                new ContractorModalWindow(new ContractorDto(),
-                        contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
-        addContractorModalWindow.addDetachListener(event -> updateList());
-        buttonUnit.addClickListener(event -> addContractorModalWindow.open());
-        return buttonUnit;
-    }
-
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
@@ -221,9 +220,8 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void updateList() {
-        //this.grid = new Grid<>(ContractorDto.class);//испр. final
         GridPaginator<ContractorDto> paginatorUpdateList
-                = new GridPaginator<>(grid, contractorService.getAll(), 10);
+                = new GridPaginator<>(grid, contractorService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
         add(upperLayout(), grid, paginator);
