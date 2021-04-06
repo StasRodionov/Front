@@ -79,6 +79,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceDtoList;
     }
 
+    @Override
+    public List<InvoiceDto> getAll(String typeOfInvoice) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.getAll(invoiceUrl, typeOfInvoice);
+
+        try {
+            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка InvoiceDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {IOException}", e);
+        }
+        return invoiceDtoList;
+    }
+
     /*@Override
     public InvoiceDto getById(Long id) {
         InvoiceDto invoiceDto = null;
@@ -97,24 +112,33 @@ public class InvoiceServiceImpl implements InvoiceService {
     public InvoiceDto getById(Long id) {
         Call<InvoiceDto> invoiceDtoCall = invoiceApi.getById(invoiceUrl, id);
 
-        invoiceDtoCall.enqueue(new Callback<>() {
 
-            @Override
-            public void onResponse(Call<InvoiceDto> call, Response<InvoiceDto> response) {
-                if (response.isSuccessful()) {
-                    invoiceDto = response.body();
-                    log.info("Успешно выполнен запрос на получение экзаепляра InvoiceDto с id = {}", id);
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра InvoiceDto - {}", response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<InvoiceDto> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос экземпляра InvoiceDto", throwable);
-            }
-        });
+        try {
+            invoiceDto = invoiceDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
         return invoiceDto;
+
+//        invoiceDtoCall.enqueue(new Callback<>() {
+//
+//            @Override
+//            public void onResponse(Call<InvoiceDto> call, Response<InvoiceDto> response) {
+//                if (response.isSuccessful()) {
+//                    invoiceDto = response.body();
+//                    log.info("Успешно выполнен запрос на получение экзаепляра InvoiceDto с id = {}", id);
+//                } else {
+//                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра InvoiceDto - {}", response.errorBody());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<InvoiceDto> call, Throwable throwable) {
+//                log.error("Произошла ошибка при получении ответа на запрос экземпляра InvoiceDto", throwable);
+//            }
+//        });
+//        return invoiceDto;
     }
 
     @Override

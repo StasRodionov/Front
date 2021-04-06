@@ -142,10 +142,9 @@ public class AddEmployeeModalWindowView extends Dialog {
     private Component addEmployeeImage() {
         Label label = new Label("Фото профиля");
         label.setWidth(labelWidth);
-        if (imageDto != null && imageDto.getImageUrl() != null) {
-            avatar = imageService.getImage(imageDto);
+        if (imageDto != null && imageDto.getContent() != null) {
+            avatar = this.setImage(imageDto.getContent());
         }
-        avatar.setWidth("135px");
         avatar.setHeight("200px");
         if (avatarContainer != null) {
             div.remove(avatarContainer);
@@ -291,12 +290,8 @@ public class AddEmployeeModalWindowView extends Dialog {
                 }
             } else {
                 log.info("Вы нажали кнопку для обновления сотрудника!");
-                ImageDto previousImage = employeeDto.getImageDto();
                 EmployeeDto updateEmployeeDto = setEmployeeDto(id);
                 employeeService.update(updateEmployeeDto);
-                if (previousImage != null) {
-                    imageService.deleteById(previousImage.getId());
-                }
                 div.removeAll();
                 close();
             }
@@ -318,7 +313,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         updateEmployeeDto.setDescription(descriptionAdd.getValue());
         updateEmployeeDto.setPassword(passwordAdd.getValue());
         updateEmployeeDto.setRoleDto(getRoles());
-        updateEmployeeDto.setImageDto(getImages());
+        updateEmployeeDto.setImageDto(imageDto);
         return updateEmployeeDto;
     }
 
@@ -326,13 +321,6 @@ public class AddEmployeeModalWindowView extends Dialog {
         Set<RoleDto> roleDtos = new HashSet<>();
         roleDtos.add(rolesSelect.getValue());
         return roleDtos;
-    }
-
-    private ImageDto getImages() {
-        if (imageDto.getFileName() != null) {
-            return imageService.create(imageDto);
-        }
-        return imageDto;
     }
 
     private Button getCancelButton() {
@@ -354,21 +342,15 @@ public class AddEmployeeModalWindowView extends Dialog {
         upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/gif");
 
         upload.addFinishedListener(event -> {
-            byte[] bytes = new byte[0];
+            byte[] content = new byte[0];
             try {
-                bytes = memoryBuffer.getInputStream().readAllBytes();
+                content = memoryBuffer.getInputStream().readAllBytes();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            byte[] finalBytes = bytes;
-            avatar = new Image(new StreamResource(event.getFileName(), () ->
-                    new ByteArrayInputStream(finalBytes)), "");
+            avatar = this.setImage(content);
             imageDto = new ImageDto();
-            if (imageDto.getImageUrl() != null) {
-                imageDto.setImageUrl(null);
-            }
-            imageDto.setContentEncoder(bytes);
-            imageDto.setFileName(event.getFileName());
+            imageDto.setContent(content);
             div.add(avatarContainer = this.addEmployeeImage());
             dialog.close();
         });
@@ -386,5 +368,9 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private String getFieldValueNotNull(String value) {
         return value == null ? "" : value;
+    }
+
+    private Image setImage(byte[] content) {
+        return new Image(new StreamResource("image", () -> new ByteArrayInputStream(content)), "");
     }
 }

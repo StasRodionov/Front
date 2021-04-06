@@ -13,15 +13,8 @@ public class ImageDto {
 
     private Long id;
 
-    private String imageUrl;
+    private byte[] content;
 
     private String sortNumber;
 
-    private String content;
-
-    private String fileName;
-
-    public void setContentEncoder(byte[] bytes) {
-        content = Base64.getEncoder().encodeToString(bytes);
-    }
 }

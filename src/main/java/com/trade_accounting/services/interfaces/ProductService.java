@@ -9,8 +9,6 @@ public interface ProductService {
 
     List<ProductDto> getAll();
 
-    List<ProductDto> getAllLite();
-
     ProductDto getById(Long id);
 
     void create(ProductDto productDto);
@@ -21,6 +19,7 @@ public interface ProductService {
 
     List<ProductDto> getAllByProductGroup(ProductGroupDto productGroupDto);
 
-    List<ProductDto> getAllLiteByProductGroup(ProductGroupDto productGroupDto);
+    List<ProductDto> search(String query);
+
 }
 

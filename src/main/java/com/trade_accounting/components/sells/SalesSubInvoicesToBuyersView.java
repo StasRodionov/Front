@@ -40,6 +40,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
 
+    private final String typeOfInvoice = "RECEIPT";
+
     public SalesSubInvoicesToBuyersView(InvoiceService invoiceService,
                                         ContractorService contractorService,
                                         CompanyService companyService,
@@ -179,12 +181,12 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
         System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
 

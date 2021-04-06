@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
 
@@ -54,7 +54,7 @@ public class AppConfig {
                             UI.getCurrent().navigate(LoginView.class);//доб.
                         }
 
-                        if (originalResponse.code() == 401 ) {
+                        if (originalResponse.code() == 401) {
                             if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//испр !=.
                                 wrappedSession.removeAttribute(TOKEN_ATTRIBUTE_NAME);
                                 UI.getCurrent().navigate(LoginView.class);//доб.
@@ -62,8 +62,7 @@ public class AppConfig {
                             try (Response newResponse = originalResponse
                                     .newBuilder()
                                     .request((new Request.Builder()).url("http://localhost:4444/login")
-                                            .build()).build())
-                                            {
+                                            .build()).build()) {
                                 originalResponse = newResponse;
                             }
                         }
@@ -78,7 +77,7 @@ public class AppConfig {
     public Retrofit retrofit(@Value("${base_url}") String baseUrl) {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create())
                 .client(authorizationInterceptor())
                 .build();
     }
