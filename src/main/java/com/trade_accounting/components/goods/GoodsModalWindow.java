@@ -300,6 +300,9 @@ public class GoodsModalWindow extends Dialog {
         upload.addSucceededListener(event -> {
             try {
                 ImageDto imageDto = new ImageDto();
+                final String fileName = event.getFileName();
+                String fileExtension = fileName.substring(fileName.indexOf("."));
+                imageDto.setFileExtension(fileExtension);
                 imageDto.setContent(memoryBuffer.getInputStream(event.getFileName()).readAllBytes());
                 imageDtoList.add(imageDto);
                 StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
