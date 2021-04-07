@@ -373,7 +373,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private Button buttonSave() {
-        Button buttonSave = new Button("Сохранить", buttonClickEvent -> {
+        return new Button("Сохранить", buttonClickEvent -> {
 
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
@@ -393,7 +393,6 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
             }
         });
-        return buttonSave;
     }
 
     private Button buttonClose() {
@@ -419,7 +418,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private Button buttonAddProduct() {
-        Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
+        return new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
@@ -427,7 +426,6 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 salesChooseGoodsModalWin.open();
             }
         });
-        return button;
     }
 
     public void addProduct(ProductDto productDto) {

@@ -19,5 +19,7 @@ public interface ProductService {
 
     List<ProductDto> getAllByProductGroup(ProductGroupDto productGroupDto);
 
+    List<ProductDto> search(String query);
+
 }
 

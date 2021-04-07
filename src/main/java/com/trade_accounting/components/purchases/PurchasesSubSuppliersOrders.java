@@ -28,11 +28,11 @@ import java.util.List;
 @PageTitle("Заказы поставщикам")
 public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
-
     private final InvoiceService invoiceService;
 
     private List<InvoiceDto> invoices;
 
+    private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
@@ -53,7 +53,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private void loadInvoices() {
-        invoices = invoiceService.getAll();
+        invoices = invoiceService.getAll(typeOfInvoice);
     }
 
     private void configureActions() {
@@ -89,7 +89,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
     private Button buttonQuestion() {
