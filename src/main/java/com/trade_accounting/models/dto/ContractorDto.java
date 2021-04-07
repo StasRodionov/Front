@@ -49,6 +49,8 @@ public class ContractorDto {
 
     @EqualsAndHashCode.Exclude
     private List<BankAccountDto> bankAccountDto;
+    private Integer bankAccountSize;
+    private long bankAccountId;
 
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;

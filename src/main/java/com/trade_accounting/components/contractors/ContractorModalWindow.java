@@ -15,6 +15,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
@@ -139,7 +140,7 @@ public class ContractorModalWindow extends Dialog {
             if (typeOfContractorDtoList != null) {
                 typeOfContractorDtoLegalDetailField.setItems(typeOfContractorDtoList);
                 typeOfContractorDtoLegalDetailField.setValue(contractorService
-                        .getById(contractorDto.getId()).getTypeOfContractorDto());//contractorDto.getTypeOfContractorDto());
+                        .getById(contractorDto.getId()).getTypeOfContractorDto());
                 typeOfContractorDtoLegalDetailField.setItemLabelGenerator(TypeOfContractorDto::getName);
             }
 
@@ -149,9 +150,11 @@ public class ContractorModalWindow extends Dialog {
 
     private Details contractorsAccordion() {
         Details componentAll = new Details();
+        componentAll.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentAll.setOpened(true);
 
         Details componentFormContractDto = new Details("О контрагенте",new Text(" " ));
+        componentFormContractDto.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentFormContractDto.setOpened(true);
         componentFormContractDto.addContent(
                 contractorGroupSelect(),
@@ -167,19 +170,23 @@ public class ContractorModalWindow extends Dialog {
 
 
         Details componentContactFaces = new Details("Контактные лица",new Text("Добавить компоненты." ));
+        componentContactFaces.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentContactFaces.addOpenedChangeListener(e ->
                 Notification.show(e.isOpened() ? "Opened" : "Closed"));
         add(componentContactFaces);
 
         Details componentDetails = new Details("Реквизиты",new Text(" " ) );
+        componentDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentDetails.addContent(typeOfContractorSelect(),legalDetailSelect());
         add(componentDetails);
 
-        Details componentLayoutTypeOfPrice = new Details("Скидки",new Text(" " ) );
+        Details componentLayoutTypeOfPrice = new Details("Скидки и цены",new Text(" " ) );
+        componentLayoutTypeOfPrice.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentLayoutTypeOfPrice.addContent(typeOfPriceSelect());
         add(componentLayoutTypeOfPrice );
 
-        Details componentAccesses = new Details("Доступы",new Text(" Добавить компоненты." ));
+        Details componentAccesses = new Details("Доступ",new Text(" Добавить компоненты." ));
+        componentAccesses.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         //"Expandable Details",new Text("Toggle using mouse, Enter and Space keys."));
         add(componentAccesses);
 
@@ -207,7 +214,6 @@ public class ContractorModalWindow extends Dialog {
         accountForm.add(dateOfTheCertificateLegalDetailField);
 
 //            accountForm.add(typeOfContractorDtoLegalDetailField);
-
 
 //        accordion.setWidth("275px");
 //        accordion.add("Реквизиты", accountForm);

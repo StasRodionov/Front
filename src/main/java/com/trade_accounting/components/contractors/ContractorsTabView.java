@@ -104,10 +104,10 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn("address").setHeader("адресс").setId("адресс");
         grid.addColumn("commentToAddress").setHeader("комментарий к адресу").setId("комментарий к адресу");
         grid.addColumn("comment").setHeader("комментарий").setId("комментарий");
-        grid.addColumn("contractorGroupName").setHeader("группа контракта").setId("группа контракта");
-        grid.addColumn("typeOfContractorName").setHeader("тип контракта").setId("тип контракта");
-        grid.addColumn("typeOfPriceName").setHeader("тип прайса").setId("тип прайса");
-        grid.addColumn("legalDetailInn").setHeader("юр. детали").setId("юр. детали");
+        grid.addColumn("contractorGroupName").setHeader("Группы").setId("Группы");
+        grid.addColumn("typeOfContractorName").setHeader("Тип контрагента").setId("Тип контрагента");
+        grid.addColumn("typeOfPriceName").setHeader("Скидки и цены").setId("Скидки и цены");
+        grid.addColumn("legalDetailInn").setHeader("Реквизиты").setId("Реквизиты");
         grid.setHeight("64vh");
 
         grid.setColumnReorderingAllowed(true);
