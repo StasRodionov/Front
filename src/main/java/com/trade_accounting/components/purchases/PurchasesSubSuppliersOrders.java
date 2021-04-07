@@ -71,6 +71,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
         grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto").setId("Компания");
         grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
         grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
