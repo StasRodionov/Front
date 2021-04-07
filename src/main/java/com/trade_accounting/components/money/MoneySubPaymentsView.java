@@ -17,6 +17,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -49,7 +50,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
                 .setHeader("Компания").setId("companyDto");
         grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма");
-        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж");
+        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платежа");
         grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа");
         grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
                 .setHeader("Контрагент").setId("contractorDto");
@@ -88,6 +89,16 @@ public class MoneySubPaymentsView extends VerticalLayout {
         textField.setPlaceholder("Наименование или код");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setValueChangeMode(ValueChangeMode.LAZY);
+        textField.addValueChangeListener(event -> {
+            String search = textField.getValue().toLowerCase();
+            grid.setItems(data.stream().filter(x ->
+                    x.getCompanyDto().getName().toLowerCase().contains(search)      ||
+                    x.getContractorDto().getName().toLowerCase().contains(search)   ||
+                    x.getProjectDto().getName().toLowerCase().contains(search)      ||
+                    x.getContractDto().getNumber().toLowerCase().contains(search)
+            ));
+        });
         return textField;
     }
 
