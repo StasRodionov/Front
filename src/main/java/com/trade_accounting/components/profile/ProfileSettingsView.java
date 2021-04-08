@@ -3,86 +3,41 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.models.dto.PositionDto;
-import com.trade_accounting.models.dto.RoleDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.PositionService;
-import com.trade_accounting.services.interfaces.RoleService;
-import com.trade_accounting.services.interfaces.UnitService;
-import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.board.Board;
-import com.vaadin.flow.component.board.Row;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
-import org.atmosphere.interceptor.AtmosphereResourceStateRecovery;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Route(value = "profile/settings", layout = AppView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class ProfileSettingsView extends VerticalLayout {
 
-    private Long id;
-
     private ValidTextField firstName = new ValidTextField(true, "Имя");
-
     private ValidTextField middleName = new ValidTextField(false, "Отчество");
-
     private ValidTextField lastName = new ValidTextField(true, "Фамилия");
-
     private ValidTextField phone = new ValidTextField(true, "Телефон");
-
     private ValidTextField email = new ValidTextField(true, "E-mail");
-
     private ValidTextField position = new ValidTextField(false, "Должность");
-
     private ValidTextField inn = new ValidTextField(true, "ИНН");
-
     private PasswordField password = new PasswordField();
-
     private final String labelWidth = "100px";
-
     private final String fieldWidth = "400px";
 
     private Div div;
@@ -91,8 +46,8 @@ public class ProfileSettingsView extends VerticalLayout {
 
     private final PositionService positionService;
 
-    public ProfileSettingsView( EmployeeService employeeService,
-                                PositionService positionService){
+    public ProfileSettingsView(EmployeeService employeeService,
+                               PositionService positionService) {
         this.employeeService = employeeService;
         this.positionService = positionService;
         div = new Div();
@@ -147,7 +102,7 @@ public class ProfileSettingsView extends VerticalLayout {
         changePassword.addClickListener(event -> {
             ProfileSettingsModalWindow passwordChangeModal = new ProfileSettingsModalWindow(employeeService);
             passwordChangeModal.open();
-                });
+        });
         return changePassword;
     }
 
@@ -237,9 +192,9 @@ public class ProfileSettingsView extends VerticalLayout {
         Button buttonSave = new Button("Сохранить");
         buttonSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonSave.addClickListener(click -> {
-                log.info("Вы нажали кнопку для обновления сотрудника!");
-                EmployeeDto updateEmployeeDto = setEmployeeDto();
-                employeeService.update(updateEmployeeDto);
+            log.info("Вы нажали кнопку для обновления сотрудника!");
+            EmployeeDto updateEmployeeDto = setEmployeeDto();
+            employeeService.update(updateEmployeeDto);
         });
         return buttonSave;
     }
