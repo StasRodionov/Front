@@ -36,7 +36,6 @@ public class ProfileSettingsView extends VerticalLayout {
     private ValidTextField email = new ValidTextField(true, "E-mail");
     private ValidTextField position = new ValidTextField(false, "Должность");
     private ValidTextField inn = new ValidTextField(true, "ИНН");
-    private PasswordField password = new PasswordField();
     private final String labelWidth = "100px";
     private final String fieldWidth = "400px";
 

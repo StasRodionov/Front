@@ -40,8 +40,7 @@ public class ProfileSettingsModalWindow extends Dialog {
         div.add(currentEmployeePassword(),
                 updateEmployeePassword(),
                 updateEmployeePasswordCheck(),
-                getButtonSave(),
-                getButtonCancel()
+                buttons()
         );
         add(div);
         return main;
@@ -114,5 +113,10 @@ public class ProfileSettingsModalWindow extends Dialog {
 
     private Button getButtonCancel() {
         return new Button("Отменить", event -> close());
+    }
+
+    private Component buttons() {
+        HorizontalLayout buttonsLayout = new HorizontalLayout(getButtonSave(), getButtonCancel());
+        return buttonsLayout;
     }
 }
