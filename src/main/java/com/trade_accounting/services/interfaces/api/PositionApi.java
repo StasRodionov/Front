@@ -24,6 +24,10 @@ public interface PositionApi {
     Call<PositionDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
+    @GET("{url}/name/{name}")
+    Call<PositionDto> getByName(@Path(value = "url", encoded = true) String url, @Path("name") String name);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<Void> create(@Path(value = "url", encoded = true) String url, @Body PositionDto positionDto);
 
