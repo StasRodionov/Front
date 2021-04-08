@@ -91,20 +91,6 @@ public class ProfileSettingsView extends VerticalLayout {
 
     private final PositionService positionService;
 
-    private RoleService roleService;
-
-    private ImageService imageService;
-
-    private EmployeeDto employeeDto;
-
-    private ImageDto imageDto;
-
-    private Set<RoleDto> roles;
-
-    private Component avatarContainer;
-
-    private Image avatar = new Image();
-
     public ProfileSettingsView( EmployeeService employeeService,
                                 PositionService positionService){
         this.employeeService = employeeService;
@@ -129,8 +115,6 @@ public class ProfileSettingsView extends VerticalLayout {
 
     private HorizontalLayout lowerLayout() {
         HorizontalLayout lowerLayout = new HorizontalLayout();
-//        div.removeAll();
-
         add(addLoginInfo(), addPasswordButton());
         div.add(
                 addEmployeeFirstName(),
@@ -175,7 +159,7 @@ public class ProfileSettingsView extends VerticalLayout {
         email.setValue(employeeService.getPrincipal().getEmail());
         email.setPlaceholder("Введите е-mail");
         email.setRequired(true);
-        email.setHelperText("При изменении email требуется повторный логин");
+        email.setTitle("При изменении email потребуется повторный вход в учетную запись");
         HorizontalLayout addEmployeeEmailAddLayout = new HorizontalLayout(label, email);
         return addEmployeeEmailAddLayout;
     }

@@ -3,7 +3,7 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -11,10 +11,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-
-import javax.security.auth.message.callback.PasswordValidationCallback;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 public class ProfileSettingsModalWindow extends Dialog {
 
@@ -44,21 +41,26 @@ public class ProfileSettingsModalWindow extends Dialog {
                 updateEmployeePassword(),
                 updateEmployeePasswordCheck(),
                 getButtonSave(),
-                getCancelButton()
+                getButtonCancel()
         );
         add(div);
         return main;
     }
 
     private Component currentEmployeePassword() {
+        EmployeeDto employee = employeeService.getPrincipal();
         Label label = new Label("Текущий пароль:");
         label.setWidth(labelWidth);
-        Binder<EmployeeDto> binder = new Binder<>();
-        EmployeeDto employee = employeeService.getPrincipal();
         currentPassword.setWidth(fieldWidth);
         currentPassword.setRequired(true);
-        binder.forField(currentPassword).
-                withValidator(pw -> pw.equals(employee.getPassword()), "Invalid password");
+        currentPassword.setErrorMessage("Неверный пароль");
+        currentPassword.setValueChangeMode(ValueChangeMode.ON_BLUR);
+        currentPassword.addValueChangeListener(event -> {
+            Object v = event.getValue();
+            if (!v.equals((employee.getPassword()))) {
+                currentPassword.setInvalid(true);
+            } else currentPassword.setInvalid(false);
+        });
         HorizontalLayout checkPassword = new HorizontalLayout(label, currentPassword);
         return checkPassword;
     }
@@ -66,12 +68,8 @@ public class ProfileSettingsModalWindow extends Dialog {
     private Component updateEmployeePassword() {
         Label label = new Label("Новый пароль:");
         label.setWidth(labelWidth);
-//        Binder<EmployeeDto> binder = new Binder<>();
-//        EmployeeDto employee = employeeService.getPrincipal();
         updatePassword.setWidth(fieldWidth);
         updatePassword.setRequired(true);
-//        binder.forField(updatePassword).
-//                withValidator(pw -> pw.equals(employee.getPassword()), "Invalid password");
         HorizontalLayout newPasswordLayout = new HorizontalLayout(label, updatePassword);
         return newPasswordLayout;
     }
@@ -79,33 +77,42 @@ public class ProfileSettingsModalWindow extends Dialog {
     private Component updateEmployeePasswordCheck() {
         Label label = new Label("Проверка пароля:");
         label.setWidth(labelWidth);
-        Binder<EmployeeDto> binder = new Binder<>();
-//        EmployeeDto employee = employeeService.getPrincipal();
         updatePasswordCheck.setWidth(fieldWidth);
         updatePasswordCheck.setRequired(true);
-        binder.forField(updatePasswordCheck).
-                withValidator(pw -> pw.equals(updatePassword.getValue()), "Don't match");
+        updatePasswordCheck.setErrorMessage("Пароли не совпадают");
+        updatePasswordCheck.setValueChangeMode(ValueChangeMode.ON_BLUR);
+        updatePasswordCheck.addValueChangeListener(event -> {
+            Object v = event.getValue();
+            if (!v.equals(updatePassword.getValue())) {
+                updatePasswordCheck.setInvalid(true);
+            } else updatePasswordCheck.setInvalid(false);
+        });
         HorizontalLayout doubleCheck = new HorizontalLayout(label, updatePasswordCheck);
         return doubleCheck;
     }
 
-    private Component getButtonSave() {
+    private Button getButtonSave() {
         Button buttonSave = new Button("Сохранить");
         buttonSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
         EmployeeDto employee = employeeService.getPrincipal();
         buttonSave.addClickListener(click -> {
-            if (currentPassword.getValue() == null || currentPassword.getValue() != employee.getPassword()) {
-                return;
-            } else {
+            if (currentPassword.isInvalid() == false && updatePasswordCheck.isInvalid() == false) {
                 employee.setPassword(updatePassword.getValue());
+                employeeService.update(employee);
+            } else {
+                Dialog dialog = new Dialog();
+                dialog.add(new Text("Введены неверные данные"));
+                dialog.setWidth("400px");
+                dialog.setHeight("70px");
+                dialog.open();
             }
-            // UI.getCurrent().navigate("logout");
             close();
         });
         return buttonSave;
     }
 
-    private Button getCancelButton() {
+    private Button getButtonCancel() {
         return new Button("Отменить", event -> close());
     }
 }
