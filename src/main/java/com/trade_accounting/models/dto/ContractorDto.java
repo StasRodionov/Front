@@ -1,6 +1,5 @@
 package com.trade_accounting.models.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,16 +34,28 @@ public class ContractorDto {
 
     @EqualsAndHashCode.Exclude
     private ContractorGroupDto contractorGroupDto;
+    private String contractorGroupName;
+    private long contractorGroupId;
 
     @EqualsAndHashCode.Exclude
     private TypeOfContractorDto typeOfContractorDto;
+    private String typeOfContractorName;
+    private long typeOfContractorId;
 
     @EqualsAndHashCode.Exclude
     private TypeOfPriceDto typeOfPriceDto;
+    private String typeOfPriceName;
+    private long typeOfPriceId;
 
     @EqualsAndHashCode.Exclude
     private List<BankAccountDto> bankAccountDto;
+    private Integer bankAccountSize;
+    private long bankAccountId;
 
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;
+    private String legalDetailInn;
+    private long legalDetailId;
+
+
 }

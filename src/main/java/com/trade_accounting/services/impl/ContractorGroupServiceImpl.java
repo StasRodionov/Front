@@ -64,7 +64,8 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
 
     @Override
     public ContractorGroupDto getById(Long id) {
-        Call<ContractorGroupDto> contractorGroupDtoCall = contractorGroupApi.getById(contractorGroupUrl, id);
+        Call<ContractorGroupDto> contractorGroupDtoCall = contractorGroupApi
+                .getById(contractorGroupUrl, id);
 
 //        contractorGroupDtoCall.enqueue(new Callback<>() {
 //            @Override
@@ -92,6 +93,22 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
         }
 
         return contractorGroupDto;
+    }
+
+    //create
+    @Override
+    public ContractorGroupDto getByName(String name) {
+        Call<ContractorGroupDto> contractorGroupDtoCallName = contractorGroupApi
+                .getByName(contractorGroupUrl,name);
+        try {
+            contractorGroupDto = contractorGroupDtoCallName.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра ContractorGroupDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение экземпляра ContractorGroupDto с name = {}: {}", name, e);
+        }
+
+        return contractorGroupDto;
+       // return null;
     }
 
     @Override

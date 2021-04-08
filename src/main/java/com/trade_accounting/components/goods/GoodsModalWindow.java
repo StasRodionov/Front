@@ -229,7 +229,7 @@ public class GoodsModalWindow extends Dialog {
         bigDecimalFields = new HashMap<>();
         imageDtoList = new ArrayList<>();
         unitDtoComboBox.setItems(unitService.getAll());
-        contractorDtoComboBox.setItems(contractorService.getAllLite());
+        contractorDtoComboBox.setItems(contractorService.getAll());//изменил
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
