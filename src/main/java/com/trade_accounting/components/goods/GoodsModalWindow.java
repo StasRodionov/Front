@@ -25,6 +25,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -57,6 +59,7 @@ public class GoodsModalWindow extends Dialog {
     private final ContractorService contractorService;
     private final TaxSystemService taxSystemService;
     private final ProductService productService;
+    private final ImageService imageService;
     private final ProductGroupService productGroupService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
@@ -77,6 +80,7 @@ public class GoodsModalWindow extends Dialog {
     private final HorizontalLayout typeOfPriceLayout = new HorizontalLayout();
     private Map<TypeOfPriceDto, NumberField> numberFields;
     private List<ImageDto> imageDtoList;
+    private List<ImageDto> imageDtoListForRemove;
     private final HorizontalLayout imageHorizontalLayout = new HorizontalLayout();
 
     private final HorizontalLayout footer = new HorizontalLayout();
@@ -89,6 +93,7 @@ public class GoodsModalWindow extends Dialog {
                             ContractorService contractorService,
                             TaxSystemService taxSystemService,
                             ProductService productService,
+                            ImageService imageService,
                             ProductGroupService productGroupService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService) {
@@ -96,6 +101,7 @@ public class GoodsModalWindow extends Dialog {
         this.contractorService = contractorService;
         this.taxSystemService = taxSystemService;
         this.productService = productService;
+        this.imageService = imageService;
         this.productGroupService = productGroupService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
@@ -159,7 +165,7 @@ public class GoodsModalWindow extends Dialog {
             StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
             Image image = new Image(resource, "image");
             image.setHeight("100px");
-            imageHorizontalLayout.add(image);
+            imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
         }
         initTypeOfPriceFrom(productDto.getProductPriceDtos());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
@@ -178,6 +184,7 @@ public class GoodsModalWindow extends Dialog {
         typeOfPriceLayout.removeAll();
         numberFields = new HashMap<>();
         imageDtoList = new ArrayList<>();
+        imageDtoListForRemove = new ArrayList<>();
         unitDtoComboBox.setItems(unitService.getAll());
         contractorDtoComboBox.setItems(contractorService.getAllLite());
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
@@ -200,7 +207,7 @@ public class GoodsModalWindow extends Dialog {
         return horizontalLayout;
     }
 
-    private HorizontalLayout getFooterHorizontalLayout(Button addOrUpdateButton){
+    private HorizontalLayout getFooterHorizontalLayout(Button addOrUpdateButton) {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         horizontalLayout.add(addOrUpdateButton);
@@ -228,7 +235,7 @@ public class GoodsModalWindow extends Dialog {
         return verticalLayout;
     }
 
-    private void initTypeOfPriceFrom(List<ProductPriceDto> list){
+    private void initTypeOfPriceFrom(List<ProductPriceDto> list) {
         list.forEach(productPriceDto -> {
             numberFields.get(productPriceDto.getTypeOfPriceDto()).setValue(productPriceDto.getValue().doubleValue());
         });
@@ -280,16 +287,30 @@ public class GoodsModalWindow extends Dialog {
         return deleteButton;
     }
 
-    private Button getUpdateButton(ProductDto productDto){
+
+    private Button getRemoveImageButton(ProductDto productDto, Image image, ImageDto imageDto) {
+        Button deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), buttonClickEvent -> {
+            imageHorizontalLayout.remove(image);
+            productDto.getImageDtos().remove(imageDto);
+            imageDtoListForRemove.add(imageDto);
+        });
+
+        deleteButton.setMinWidth("10px");
+        return deleteButton;
+    }
+
+    private Button getUpdateButton(ProductDto productDto) {
         return new Button("Изменить", event -> {
             updateProductDto(productDto);
             productService.update(productDto);
+            imageDtoListForRemove.forEach(el->imageService.deleteById(el.getId()));
+
             Notification.show(String.format("Товар %s изменен", productDto.getName()));
             close();
         });
     }
 
-    private void updateProductDto(ProductDto productDto){
+    private void updateProductDto(ProductDto productDto) {
         productDto.setName(nameTextField.getValue());
         productDto.setWeight(BigDecimal.valueOf(weightNumberField.getValue()));
         productDto.setVolume(BigDecimal.valueOf(volumeNumberField.getValue()));
@@ -302,19 +323,19 @@ public class GoodsModalWindow extends Dialog {
         productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
         productDto.setImageDtos(imageDtoList);
 
-        if (productDto.getProductPriceDtos() == null)  {
+        if (productDto.getProductPriceDtos() == null) {
             productDto.setProductPriceDtos(new ArrayList<>());
         }
 
         numberFields.forEach((typeOfPriceDto, numberField) -> {
             AtomicBoolean b = new AtomicBoolean(true);
             productDto.getProductPriceDtos().forEach(productPriceDto -> {
-                if (productPriceDto.getTypeOfPriceDto().equals(typeOfPriceDto)){
+                if (productPriceDto.getTypeOfPriceDto().equals(typeOfPriceDto)) {
                     productPriceDto.setValue(BigDecimal.valueOf(numberField.getValue()));
                     b.set(false);
                 }
             });
-            if (b.get()){
+            if (b.get()) {
                 ProductPriceDto productPriceDto = new ProductPriceDto();
                 productPriceDto.setTypeOfPriceDto(typeOfPriceDto);
                 productPriceDto.setValue(BigDecimal.valueOf(numberField.getValue()));
