@@ -160,6 +160,10 @@ public class ProfileSettingsView extends VerticalLayout {
         Button changePassword = new Button("Изменить пароль");
         changePassword.setHeightFull();
         changePassword.setWidth("230px");
+        changePassword.addClickListener(event -> {
+            ProfileSettingsModalWindow passwordChangeModal = new ProfileSettingsModalWindow(employeeService);
+            passwordChangeModal.open();
+                });
         return changePassword;
     }
 
@@ -171,7 +175,7 @@ public class ProfileSettingsView extends VerticalLayout {
         email.setValue(employeeService.getPrincipal().getEmail());
         email.setPlaceholder("Введите е-mail");
         email.setRequired(true);
-        email.setHelperText("При изменении email зайдите в систему заново");
+        email.setHelperText("При изменении email требуется повторный логин");
         HorizontalLayout addEmployeeEmailAddLayout = new HorizontalLayout(label, email);
         return addEmployeeEmailAddLayout;
     }
