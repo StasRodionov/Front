@@ -83,6 +83,7 @@ public class CurrencyModalWindow extends Dialog {
         horizontalLayout.add(label, letterCodeField);
         return horizontalLayout;
     }
+
     private HorizontalLayout configureSortNumberField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Сортировочный номер");
@@ -102,7 +103,12 @@ public class CurrencyModalWindow extends Dialog {
             currencyDto.setDigitalCode(digitalCodeField.getValue());
             currencyDto.setLetterCode(letterCodeField.getValue());
             currencyDto.setSortNumber(sortNumberField.getValue());
-            currencyService.update(currencyDto);
+            if (currencyDto.getId() == null) {
+                currencyService.create(currencyDto);
+            } else {
+                currencyService.update(currencyDto);
+            }
+
             close();
         });
     }
