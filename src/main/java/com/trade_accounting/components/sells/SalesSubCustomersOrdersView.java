@@ -117,7 +117,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         }
     }
 
-
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
         upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),

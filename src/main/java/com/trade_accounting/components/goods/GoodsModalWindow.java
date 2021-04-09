@@ -72,7 +72,6 @@ public class GoodsModalWindow extends Dialog {
     private final BigDecimalField weightNumberField = new BigDecimalField();
     private final BigDecimalField volumeNumberField = new BigDecimalField();
     private final BigDecimalField purchasePriceNumberField = new BigDecimalField();
-
     private final ComboBox<UnitDto> unitDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<TaxSystemDto> taxSystemDtoComboBox = new ComboBox<>();
@@ -230,7 +229,7 @@ public class GoodsModalWindow extends Dialog {
         bigDecimalFields = new HashMap<>();
         imageDtoList = new ArrayList<>();
         unitDtoComboBox.setItems(unitService.getAll());
-        contractorDtoComboBox.setItems(contractorService.getAllLite());
+        contractorDtoComboBox.setItems(contractorService.getAll());//изменил
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());

@@ -33,4 +33,11 @@ public interface ContractorGroupApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    //добавил
+    @Headers("Accept: application/json")
+    @GET("{url}/{name}")
+    Call<ContractorGroupDto> getByName(@Path(value = "url", encoded = true) String url,
+                                       @Path("name") String name);
+
 }

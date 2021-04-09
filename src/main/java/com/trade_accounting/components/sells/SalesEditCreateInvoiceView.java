@@ -66,7 +66,7 @@ import java.util.WeakHashMap;
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends VerticalLayout {
+public class SalesEditCreateInvoiceView extends  VerticalLayout{
 
     private final ContractorService contractorService;
     private final CompanyService companyService;

@@ -10,6 +10,8 @@ public interface ContractorGroupService {
 
     ContractorGroupDto getById(Long id);
 
+    ContractorGroupDto getByName(String name);
+
     void create (ContractorGroupDto dto);
 
     void update (ContractorGroupDto dto);

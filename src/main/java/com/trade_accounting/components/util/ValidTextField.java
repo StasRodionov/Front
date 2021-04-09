@@ -40,6 +40,12 @@ public class ValidTextField extends TextField {
         this.nameField = nameField;
         binder.setBean(content);
     }
+    public ValidTextField(String label) {
+
+        setLabel(label);
+        binder.setBean(content);
+    }
+
 
     public void addValidator(
             SerializablePredicate<String> predicate,
