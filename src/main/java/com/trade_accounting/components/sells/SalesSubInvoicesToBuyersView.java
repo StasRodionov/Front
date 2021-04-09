@@ -36,6 +36,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private final List<InvoiceDto> data;
 
+
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
@@ -68,6 +69,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private void configureGrid() {
         grid = new Grid<>(InvoiceDto.class);
+        grid.setColumns("id", "date", "typeOfInvoice", "companyDto", "contractorDto", "warehouseDto","spend");
+        /*grid = new Grid<>(InvoiceDto.class);
         grid.setItems(data);
 
         grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
@@ -88,7 +91,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
             addModalWin.addDetachListener(e -> updateList());
             addModalWin.open();
         });
-
+*/
     }
 
     private void configurePaginator() {
