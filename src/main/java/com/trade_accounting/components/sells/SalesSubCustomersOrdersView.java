@@ -53,10 +53,12 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private final Notifications notifications;
 
-    private List<InvoiceDto> data;
+    private final List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
+
+    private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
@@ -103,7 +105,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
@@ -115,7 +117,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             return new Span("");
         }
     }
-
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
@@ -170,11 +171,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
-        textField.setValueChangeMode(ValueChangeMode.EAGER);
         textField.addValueChangeListener(event -> {
-            grid.setItems(data.stream()
-                    .filter(saleItem -> saleItem.getId().toString().contains(event.getValue()) ||
-                            saleItem.getContractorDto().getName().contains(event.getValue())));
             System.out.println(event.getValue());
         });
         return textField;
@@ -230,8 +227,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList() {
-        data = getData();
-        grid.setItems(data);
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
@@ -251,7 +247,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
     private void deleteSelectedInvoices() {

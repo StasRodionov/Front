@@ -5,7 +5,6 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
@@ -18,12 +17,8 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,7 +27,6 @@ import java.util.Objects;
 @Slf4j
 public class ContractServiceImpl implements ContractService {
     private final ContractApi contractApi;
-
     private final String contractUrl;
 
     @Autowired
@@ -43,7 +37,6 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public List<ContractDto> getAll() {
-
         List<ContractDto> contractDtoList = new ArrayList<>();
         Call<List<ContractDto>> contractDtoListCall = contractApi.getAll(contractUrl);
         try {
@@ -88,7 +81,6 @@ public class ContractServiceImpl implements ContractService {
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение ContractDto с id = {}: {}", id, e);
         }
-
         /*
 
         contractDtoCall.enqueue(new Callback<>() {

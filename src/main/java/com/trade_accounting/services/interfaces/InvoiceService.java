@@ -9,6 +9,8 @@ import java.util.Map;
 public interface InvoiceService {
     List<InvoiceDto> getAll();
 
+    List<InvoiceDto> getAll(String typeOfInvoice);
+
     InvoiceDto getById(Long id);
 
     List<InvoiceDto> search(Map<String, String> query);

@@ -23,7 +23,6 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
-import org.vaadin.klaudeta.PaginatedGrid;
 
 import java.util.List;
 
@@ -41,6 +40,8 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
+
+    private final String typeOfInvoice = "RECEIPT";
 
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
@@ -180,12 +181,12 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
         System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
 

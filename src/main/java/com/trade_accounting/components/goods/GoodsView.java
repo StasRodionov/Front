@@ -19,10 +19,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +91,7 @@ public class GoodsView extends VerticalLayout {
                 buttonFilter());
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(text(), numberField(), valueSelect(), valueSelectPrint(),
+        horizontalLayout.add(text(), BigDecimalField(), valueSelect(), valueSelectPrint(),
                 valueSelectImport(), valueSelectExport(), buttonSettings());
         verticalLayout.add(upperLayout, horizontalLayout);
         mainLayout.add(verticalLayout);
@@ -107,9 +108,9 @@ public class GoodsView extends VerticalLayout {
     }
 
     private GridPaginator<ProductDto> getPaginator(Grid<ProductDto> grid) {
-        GridPaginator<ProductDto> paginator = new GridPaginator<>(grid, new ArrayList<>(), 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        return paginator;
+        GridPaginator<ProductDto> gridPaginator = new GridPaginator<>(grid, new ArrayList<>(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, gridPaginator);
+        return gridPaginator;
     }
 
     private Grid<ProductDto> getGrid() {
@@ -136,13 +137,13 @@ public class GoodsView extends VerticalLayout {
     }
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
-        TreeGrid<ProductGroupDto> treeGrid = new TreeGrid<>();
-        treeGrid.setHeight("100%");
-        treeGrid.setWidth("25%");
-        treeGrid.setThemeName("dense", true);
-        treeGrid.addClassName("treeGreed");
+        TreeGrid<ProductGroupDto> treeGridLocal = new TreeGrid<>();
+        treeGridLocal.setHeight("100%");
+        treeGridLocal.setWidth("25%");
+        treeGridLocal.setThemeName("dense", true);
+        treeGridLocal.addClassName("treeGreed");
 
-        Grid.Column<ProductGroupDto> column = treeGrid
+        Grid.Column<ProductGroupDto> column = treeGridLocal
                 .addHierarchyColumn(x -> "")
                 .setHeader("Товарная группа")
                 .setFlexGrow(0)
@@ -150,8 +151,8 @@ public class GoodsView extends VerticalLayout {
                 .setSortProperty("sortNumber")
                 .setComparator(Comparator.comparing(ProductGroupDto::getSortNumber));
 
-        treeGrid.addColumn(ProductGroupDto::getName);
-        HeaderRow.HeaderCell cell = treeGrid.appendHeaderRow().getCell(column);
+        treeGridLocal.addColumn(ProductGroupDto::getName);
+        HeaderRow.HeaderCell cell = treeGridLocal.appendHeaderRow().getCell(column);
         Label label = new Label();
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setPadding(false);
@@ -165,11 +166,11 @@ public class GoodsView extends VerticalLayout {
             closeButton.setVisible(false);
             label.setText("");
             paginator.setData(productService.getAll());
-            treeGrid.deselectAll();
+            treeGridLocal.deselectAll();
         });
         cell.setComponent(horizontalLayout);
-        treeGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        treeGrid.addSelectionListener(event -> {
+        treeGridLocal.setSelectionMode(Grid.SelectionMode.SINGLE);
+        treeGridLocal.addSelectionListener(event -> {
             Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
                 paginator.setData(productService.getAllByProductGroup(optional.get()));
@@ -177,7 +178,7 @@ public class GoodsView extends VerticalLayout {
                 closeButton.setVisible(true);
             }
         });
-        return treeGrid;
+        return treeGridLocal;
     }
 
     private void updateTreeGrid(List<ProductGroupDto> productGroupData) {
@@ -250,8 +251,15 @@ public class GoodsView extends VerticalLayout {
         TextField text = new TextField();
         text.setPlaceholder("Наименование, код или артикул");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        text.setClearButtonVisible(true);
+        text.setValueChangeMode(ValueChangeMode.EAGER);
+        text.addValueChangeListener(e -> updateList(text));
         text.setWidth("300px");
         return text;
+    }
+
+    private void updateList(TextField text) {
+        paginator.setData(productService.search(text.getValue()));
     }
 
     private H2 title() {
@@ -260,8 +268,8 @@ public class GoodsView extends VerticalLayout {
         return textCompany;
     }
 
-    private NumberField numberField() {
-        NumberField numberField = new NumberField();
+    private BigDecimalField BigDecimalField() {
+        BigDecimalField numberField = new BigDecimalField();
         numberField.setPlaceholder("0");
         numberField.setWidth("35px");
         return numberField;

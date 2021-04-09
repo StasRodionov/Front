@@ -45,13 +45,13 @@ public class ProductServiceImp implements ProductService {
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
         ProductDto productDto = new ProductDto();
-            try {
-                Response<ProductDto> execute = productGetCall.execute();
-                productDto = execute.body();
-                log.info("Успешно выполнен запрос на получение ProductDto");
-            } catch (IOException e) {
-                log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
-            }
+        try {
+            Response<ProductDto> execute = productGetCall.execute();
+            productDto = execute.body();
+            log.info("Успешно выполнен запрос на получение ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
+        }
         return productDto;
     }
 
@@ -101,4 +101,16 @@ public class ProductServiceImp implements ProductService {
         return productDtos;
     }
 
+    @Override
+    public List<ProductDto> search(String query) {
+        List<ProductDto> productDtoList = new ArrayList<>();
+        Call<List<ProductDto>> productDtoListCall = productApi.search(productUrl, query);
+        try {
+            productDtoList = productDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ProductDto - ", e);
+        }
+        return productDtoList;
+    }
 }

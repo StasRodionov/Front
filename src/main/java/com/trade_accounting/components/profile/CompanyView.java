@@ -25,11 +25,14 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -124,6 +127,10 @@ public class CompanyView extends VerticalLayout {
         searchTextField.setPlaceholder("Наименование");
         searchTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         searchTextField.setWidth("300px");
+        // Добавляем лиснер для пойска
+        searchTextField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchTextField.addValueChangeListener(field -> fillList(field.getValue()));
+
 
         Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
@@ -134,6 +141,18 @@ public class CompanyView extends VerticalLayout {
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
+    }
+
+    //Ищем компанию по имени
+    private void fillList(String searchData) {
+        Map<String, String> companyName = new HashMap<>();
+
+        if (searchData.isEmpty()) {
+            grid.setItems(companyService.getAll());
+        } else {
+            companyName.put("name", searchData);
+            grid.setItems(companyService.search(companyName));
+        }
     }
 
     private Button getSettingButton() {

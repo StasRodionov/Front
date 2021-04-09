@@ -4,9 +4,12 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.TypeOfContractorService;
+import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -30,6 +33,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
@@ -53,30 +57,34 @@ public class ContractorsTabView extends VerticalLayout {
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
-    //вставка/
+    private final TypeOfContractorService typeOfContractorService;
+    private final TypeOfPriceService typeOfPriceService;
+    private final LegalDetailService legalDetailService;
     private final List<ContractorDto> data;
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
     private final GridPaginator<ContractorDto> paginator;
     private final GridFilter<ContractorDto> filter;
-
-    //private  Grid<ContractorDto> grid;
-
+    private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
-
     private final MenuItem print;
-
-
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
 
     public ContractorsTabView(ContractorService contractorService,
-                              ContractorGroupService contractorGroupService) {
+                              ContractorGroupService contractorGroupService,
+                              TypeOfContractorService typeOfContractorService,
+                              TypeOfPriceService typeOfPriceService,
+                              LegalDetailService legalDetailService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
+        this.typeOfContractorService = typeOfContractorService;
+        this.typeOfPriceService = typeOfPriceService;
+        this.legalDetailService = legalDetailService;
         print = selectXlsTemplateButton.addItem("печать");
 
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
+        //this.textField = new GridFilter<>(grid);
         this.filter = new GridFilter<>(grid);
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -86,19 +94,6 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void configureGrid() {
-//        grid.setColumns("id", "name", "inn", "sortNumber", "phone", "fax", "email", "address", "commentToAddress", "comment");
-//        grid.getColumnByKey("id").setHeader("ID");
-//        grid.getColumnByKey("name").setHeader("Наименование");
-//        grid.getColumnByKey("inn").setHeader("Инн");
-//        grid.getColumnByKey("sortNumber").setHeader("номер");
-//        grid.getColumnByKey("phone").setHeader("телефон");
-//        grid.getColumnByKey("fax").setHeader("факс");
-//        grid.getColumnByKey("email").setHeader("емэйл");
-//        grid.getColumnByKey("address").setHeader("адресс");
-//        grid.getColumnByKey("commentToAddress").setHeader("комментарий к адресу");
-//        grid.getColumnByKey("comment").setHeader("комментарий");
-//        grid.setHeight("64vh");
-
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("inn").setHeader("Инн").setId("Инн");
@@ -109,39 +104,75 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn("address").setHeader("адресс").setId("адресс");
         grid.addColumn("commentToAddress").setHeader("комментарий к адресу").setId("комментарий к адресу");
         grid.addColumn("comment").setHeader("комментарий").setId("комментарий");
+        grid.addColumn("contractorGroupName").setHeader("Группы").setId("Группы");
+        grid.addColumn("typeOfContractorName").setHeader("Тип контрагента").setId("Тип контрагента");
+        grid.addColumn("typeOfPriceName").setHeader("Скидки и цены").setId("Скидки и цены");
+        grid.addColumn("legalDetailInn").setHeader("Реквизиты").setId("Реквизиты");
         grid.setHeight("64vh");
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
-            ContractorDto editContractor = event.getItem();
-            ContractorModalWindow addContractorModalWindow =
-                    new ContractorModalWindow(editContractor,
-                            contractorService, contractorGroupService);
-            addContractorModalWindow.addDetachListener(e -> updateList());
-            addContractorModalWindow.open();
+            ContractorDto editContractorDto = event.getItem();
+            ContractorModalWindow addContractorModalWindowUpdate =
+                    new ContractorModalWindow(editContractorDto,
+                            contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
+            addContractorModalWindowUpdate.addDetachListener(e -> updateList());
+            addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
+            addContractorModalWindowUpdate.open();
         });
     }
+    private Button buttonUnit() {
+        Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
+        ContractorModalWindow addContractorModalWindowCreate =
+                new ContractorModalWindow(new ContractorDto(),
+                        contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
+        buttonUnit.addClickListener(event -> addContractorModalWindowCreate.open());
+        addContractorModalWindowCreate.addDetachListener(event -> updateList());
+        return buttonUnit;
+    }
 
-//добавил
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
-        //filter.setFieldToDatePicker("date");
-//        filter.setFieldToComboBox("spend1", Boolean.TRUE, Boolean.FALSE);
-        filter.onSearchClick(e -> paginator.setData(contractorService.searchContractor(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(contractorService.getAll()));
+        filter.onSearchClick(e ->
+                paginator.setData(contractorService.searchContractor(filter.getFilterData())));
+        filter.onClearClick(e ->
+                paginator.setData(contractorService.getAll()));
     }
-    //добавил
+
     private List<ContractorDto> getData() {
         return contractorService.getAll();
     }
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upperLayout = new HorizontalLayout();
-        upperLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), text(), numberField(),
+        upperLayout.add(buttonQuestion(), title(), buttonRefresh(),
+                buttonUnit(), buttonFilter(), text(), numberField(),
                 valueSelect(), buttonSettings(), selectXlsTemplateButton);
         upperLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperLayout;
+    }
+
+    private TextField text() {
+
+            textField.setWidth("300px");
+            textField.setPlaceholder("Наимен, ИНН, тел., коммент...");
+            textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+            textField.setClearButtonVisible(true);
+            textField.setValueChangeMode(ValueChangeMode.EAGER);
+            textField.addValueChangeListener(e -> updateListTextField());
+
+            setSizeFull();
+
+        return textField;
+    }
+
+    public void updateListTextField() {
+        if (!( textField.getValue().equals(""))) {
+            grid.setItems(contractorService.getAll(textField.getValue()));
+        } else {
+            grid.setItems(contractorService.getAll("null"));
+        }
     }
 
     private Button buttonQuestion() {
@@ -157,16 +188,6 @@ public class ContractorsTabView extends VerticalLayout {
         return buttonRefresh;
     }
 
-    private Button buttonUnit() {
-        Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
-        ContractorModalWindow addContractorModalWindow =
-                new ContractorModalWindow(new ContractorDto(),
-                        contractorService, contractorGroupService);
-        addContractorModalWindow.addDetachListener(event -> updateList());
-        buttonUnit.addClickListener(event -> addContractorModalWindow.open());
-        return buttonUnit;
-    }
-//добавил
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
@@ -184,14 +205,6 @@ public class ContractorsTabView extends VerticalLayout {
         return numberField;
     }
 
-    private TextField text() {
-        TextField text = new TextField();
-        text.setPlaceholder("Наимен, тел, соб, коммент...");
-        text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
-        text.setWidth("300px");
-        return text;
-    }
-
     private H2 title() {
         H2 title = new H2("Контрагенты");
         title.setHeight("2.2em");
@@ -207,16 +220,14 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private void updateList() {
-        //this.grid = new Grid<>(ContractorDto.class);//испр. final
-        GridPaginator<ContractorDto> paginator
-                = new GridPaginator<>(grid, contractorService.getAll(), 9);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        configureGrid();
+        GridPaginator<ContractorDto> paginatorUpdateList
+                = new GridPaginator<>(grid, contractorService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
         add(upperLayout(), grid, paginator);
     }
 
-    private void UploadXlsMenuItem(SubMenu subMenu) {
+    private void uploadXlsMenuItem(SubMenu subMenu) {
         MenuItem menuItem = subMenu.addItem("добавить шаблон");
         Dialog dialog = new Dialog();
         MemoryBuffer buffer = new MemoryBuffer();
@@ -250,7 +261,7 @@ public class ContractorsTabView extends VerticalLayout {
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.removeAll();
         templatesXlsMenuItems(printSubMenu);
-        UploadXlsMenuItem(printSubMenu);
+        uploadXlsMenuItem(printSubMenu);
     }
 
     private void templatesXlsMenuItems(SubMenu subMenu) {
@@ -268,7 +279,6 @@ public class ContractorsTabView extends VerticalLayout {
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll());
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), templateName);
     }
-
 
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
