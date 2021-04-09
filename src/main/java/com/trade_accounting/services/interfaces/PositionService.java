@@ -10,8 +10,6 @@ public interface PositionService {
 
     PositionDto getById(Long id);
 
-    PositionDto getByName(String name);
-
     void create(PositionDto positionDto);
 
     void update(PositionDto positionDto);

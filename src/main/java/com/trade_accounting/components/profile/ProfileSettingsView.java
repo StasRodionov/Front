@@ -7,15 +7,17 @@ import com.trade_accounting.models.dto.PositionDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
@@ -23,6 +25,8 @@ import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @Route(value = "profile/settings", layout = AppView.class)
 @PageTitle("Учетная запись")
@@ -34,7 +38,7 @@ public class ProfileSettingsView extends VerticalLayout {
     private ValidTextField lastName = new ValidTextField(true, "Фамилия");
     private ValidTextField phone = new ValidTextField(true, "Телефон");
     private ValidTextField email = new ValidTextField(true, "E-mail");
-    private ValidTextField position = new ValidTextField(false, "Должность");
+    private Select<PositionDto> position = new Select<>();
     private ValidTextField inn = new ValidTextField(true, "ИНН");
     private final String labelWidth = "100px";
     private final String fieldWidth = "400px";
@@ -181,8 +185,10 @@ public class ProfileSettingsView extends VerticalLayout {
         Label label = new Label("Должность");
         label.setWidth(labelWidth);
         position.setWidth(fieldWidth);
-        position.setPlaceholder("Введите должность");
-        position.setValue(employeeService.getPrincipal().getPositionDto().getName());
+        List<PositionDto> positions = positionService.getAll();
+        position.setItems(positions);
+        position.setItemLabelGenerator(PositionDto::getName);
+        position.setValue(employeeService.getPrincipal().getPositionDto());
         HorizontalLayout positionLayout = new HorizontalLayout(label, position);
         return positionLayout;
     }
@@ -204,15 +210,7 @@ public class ProfileSettingsView extends VerticalLayout {
         updateEmployeeDto.setLastName(lastName.getValue());
         updateEmployeeDto.setMiddleName(middleName.getValue());
         updateEmployeeDto.setEmail(email.getValue());
-        PositionDto updatePosition = positionService.getByName(position.getValue());
-        if (updatePosition.getName() != null && updatePosition.getName().equals(position.getValue())) {
-            updateEmployeeDto.setPositionDto(updatePosition);
-        } else {
-            PositionDto newPosition = new PositionDto();
-            newPosition.setName(position.getValue());
-            positionService.create(newPosition);
-            updateEmployeeDto.setPositionDto(positionService.getByName(position.getValue()));
-        }
+        updateEmployeeDto.setPositionDto(position.getValue());
         updateEmployeeDto.setInn(inn.getValue());
         updateEmployeeDto.setPhone(phone.getValue());
         return updateEmployeeDto;

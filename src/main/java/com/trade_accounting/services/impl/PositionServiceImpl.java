@@ -73,27 +73,6 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public PositionDto getByName(String name) {
-        Call<PositionDto> positionDtoCall = positionApi.getByName(positionUrl, name);
-        Response<PositionDto> response = null;
-
-        try {
-            response = positionDtoCall.execute();
-            if (response.isSuccessful()) {
-                positionDto = response.body();
-                log.info("Успешно выполнен запрос на получение экземпляра PositionDto по названию = {}", name);
-            } else {
-                log.error("Произошла ошибка при выполнении запроса на получение экземпляра PositionDto по названию = {} - {}",
-                        name, response.errorBody());
-            }
-
-        } catch (Exception e) {
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра PositionDto по названию");
-        }
-        return positionDto;
-    }
-
-    @Override
     public void create(PositionDto positionDto) {
 
         Call<Void> positionDtoCall = positionApi.create(positionUrl, positionDto);
