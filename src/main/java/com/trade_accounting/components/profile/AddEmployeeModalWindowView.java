@@ -38,35 +38,35 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Long id;
 
-    private ValidTextField firstNameAdd = new ValidTextField(true, "Имя");
+    private final ValidTextField firstNameAdd = new ValidTextField(true, "Имя");
 
-    private ValidTextField middleNameAdd = new ValidTextField();
+    private final ValidTextField middleNameAdd = new ValidTextField();
 
-    private ValidTextField lastNameAdd = new ValidTextField(true, "Фамилия");
+    private final ValidTextField lastNameAdd = new ValidTextField(true, "Фамилия");
 
-    private ValidTextField phoneAdd = new ValidTextField(true, "Телефон");
+    private final ValidTextField phoneAdd = new ValidTextField(true, "Телефон");
 
-    private ValidTextField emailAdd = new ValidTextField(true, "Адрес электронной почты");
+    private final ValidTextField emailAdd = new ValidTextField(true, "Адрес электронной почты");
 
-    private TextArea descriptionAdd = new TextArea();
+    private final TextArea descriptionAdd = new TextArea();
 
-    private ValidTextField innAdd = new ValidTextField(true, "ИНН");
+    private final ValidTextField innAdd = new ValidTextField(true, "ИНН");
 
-    private PasswordField passwordAdd = new PasswordField();
+    private final PasswordField passwordAdd = new PasswordField();
 
-    private Select<RoleDto> rolesSelect = new Select<>();
+    private final Select<RoleDto> rolesSelect = new Select<>();
 
     private final String labelWidth = "100px";
 
     private final String fieldWidth = "400px";
 
-    private Div div;
+    private final Div div;
 
     private final EmployeeService employeeService;
 
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    private ImageService imageService;
+    private final ImageService imageService;
 
     private EmployeeDto employeeDto;
 
@@ -350,6 +350,9 @@ public class AddEmployeeModalWindowView extends Dialog {
             }
             avatar = this.setImage(content);
             imageDto = new ImageDto();
+            final String fileName = event.getFileName();
+            String fileExtension = fileName.substring(fileName.indexOf("."));
+            imageDto.setFileExtension(fileExtension);
             imageDto.setContent(content);
             div.add(avatarContainer = this.addEmployeeImage());
             dialog.close();
