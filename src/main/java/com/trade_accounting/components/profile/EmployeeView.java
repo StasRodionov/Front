@@ -42,7 +42,7 @@ public class EmployeeView extends VerticalLayout {
     private final EmployeeService employeeService;
     private final RoleService roleService;
     private final ImageService imageService;
-    private List<EmployeeDto> data;
+    private final List<EmployeeDto> data;
     private final List<EmployeeDto> finalData;
     private final GridPaginator<EmployeeDto> paginator;
     private final GridFilter<EmployeeDto> filter;
@@ -158,8 +158,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private TextField text() {

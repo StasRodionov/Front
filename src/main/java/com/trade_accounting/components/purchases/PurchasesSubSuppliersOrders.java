@@ -35,20 +35,18 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
-    private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
+    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
-
         loadInvoices();
         configureActions();
         configureGrid();
         configurePaginator();
         this.filter = new GridFilter<>(grid);
         configureFilter();
-
         add(actions, filter, grid, paginator);
     }
 
@@ -111,8 +109,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private Button buttonUnit() {
-        Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return buttonUnit;
+        return new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonFilter() {
@@ -169,8 +166,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private TextField textField() {
