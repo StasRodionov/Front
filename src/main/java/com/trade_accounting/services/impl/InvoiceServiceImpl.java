@@ -155,6 +155,19 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceDtoList;
     }
 
+    @Override
+    public List<InvoiceDto> searchByString(String query, String typeOfInvoice) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.searchByString(invoiceUrl, query, typeOfInvoice);
+
+        try {
+            invoiceDtoList = invoiceDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка заказов покупателей");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка заказов покупателей - ", e);
+        }
+        return invoiceDtoList;
+    }
 
     /*@Override
     public void create(InvoiceDto invoiceDto) {

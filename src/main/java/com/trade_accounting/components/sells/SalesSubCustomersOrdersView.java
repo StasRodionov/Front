@@ -171,9 +171,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
-        textField.addValueChangeListener(event -> {
-            System.out.println(event.getValue());
-        });
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         return textField;
     }
 
@@ -226,8 +225,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         return print;
     }
 
-    private void updateList() {
-        grid.setItems(invoiceService.getAll(typeOfInvoice));
+    private void updateList(String text) {
+        grid.setItems(invoiceService.searchByString(text, typeOfInvoice));
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
@@ -263,7 +262,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        updateList();
+        updateList("");
     }
 }
 
