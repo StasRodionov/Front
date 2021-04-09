@@ -104,23 +104,23 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add(new String("SalesSubBuyersReturnsView"));
+                    div.add("SalesSubBuyersReturnsView");
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
-                    div.add(new String("SalesSubIssuedInvoicesView"));
+                    div.add("SalesSubIssuedInvoicesView");
                     break;
                 case "Прибыльность":
                     div.removeAll();
-                    div.add(new String("SalesSubProfitabilityView"));
+                    div.add("SalesSubProfitabilityView");
                     break;
                 case "Товары на реализации":
                     div.removeAll();
-                    div.add(new String("SalesSubGoodsForSaleView"));
+                    div.add("SalesSubGoodsForSaleView");
                     break;
                 case "Воронка продаж":
                     div.removeAll();
-                    div.add(new String("SalesSubSalesFunnelView"));
+                    div.add("SalesSubSalesFunnelView");
                     break;
             }
         });

@@ -1,6 +1,8 @@
 package com.trade_accounting.components.goods;
 
 
+import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
@@ -24,6 +26,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,7 @@ import java.util.Optional;
 
 @Slf4j
 @SpringComponent
+@Route(value = "customersProducts", layout = AppView.class)
 @UIScope
 public class GoodsView extends VerticalLayout {
 
@@ -49,6 +53,7 @@ public class GoodsView extends VerticalLayout {
 
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridPaginator<ProductDto> paginator;
+    private final GridFilter<ProductDto> filter;
 
     @Autowired
     public GoodsView(ProductService productService,
@@ -58,10 +63,12 @@ public class GoodsView extends VerticalLayout {
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
 
+
         treeGrid = getTreeGrid();
         Grid<ProductDto> grid = getGrid();
         paginator = getPaginator(grid);
-
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
         goodsModalWindow.addDetachListener(detachEvent -> {
             Optional<ProductGroupDto> optional = treeGrid.getSelectedItems().stream().findFirst();
             if (optional.isPresent()) {
@@ -71,7 +78,7 @@ public class GoodsView extends VerticalLayout {
             }
         });
 
-        add(getUpperLayout(), getMiddleLayout(grid), paginator);
+        add(getUpperLayout(),  filter, getMiddleLayout(grid), paginator);
     }
 
     public void updateData() {
@@ -121,12 +128,12 @@ public class GoodsView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.setColumns("id", "name", "description", "weight", "volume", "purchasePrice");
-        grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("name").setHeader("Наименование");
-        grid.getColumnByKey("description").setHeader("Артикул");
-        grid.getColumnByKey("weight").setHeader("Вес");
-        grid.getColumnByKey("volume").setHeader("Объем");
-        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена");
+        grid.getColumnByKey("id").setHeader("id").setId("ID");
+        grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
+        grid.getColumnByKey("weight").setHeader("Вес").setId("Вес");
+        grid.getColumnByKey("volume").setHeader("Объем").setId("Объем");
+        grid.getColumnByKey("description").setHeader("Артикул").setId("Артикул");
+        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена").setId("Закупочная цена");
 
         grid.addItemDoubleClickListener(event -> {
             ProductDto productDto = event.getItem();
@@ -134,6 +141,12 @@ public class GoodsView extends VerticalLayout {
         });
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
         return grid;
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> paginator.setData(productService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(productService.getAll()));
     }
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
@@ -240,7 +253,9 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
     }
 
     private Button buttonSettings() {
