@@ -93,4 +93,18 @@ public class PaymentServiceImpl implements PaymentService {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PaymentDto по id= {} - {}", id, e);
         }
     }
+
+    @Override
+    public List<PaymentDto> search(String request) {
+        List<PaymentDto> paymentDtoList = new ArrayList<>();
+        Call<List<PaymentDto>> paymentDtoListCall = paymentApi.search(paymentUrl, request);
+
+        try {
+            paymentDtoList = paymentDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск PaymentDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск PaymentDto - {}", e);
+        }
+        return paymentDtoList;
+    }
 }

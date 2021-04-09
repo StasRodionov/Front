@@ -29,7 +29,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private final PaymentService paymentService;
 
-    private final List<PaymentDto> data;
+    private List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
 
@@ -91,13 +91,13 @@ public class MoneySubPaymentsView extends VerticalLayout {
         textField.setWidth("300px");
         textField.setValueChangeMode(ValueChangeMode.LAZY);
         textField.addValueChangeListener(event -> {
-            String search = textField.getValue().toLowerCase();
-            grid.setItems(data.stream().filter(x ->
-                    x.getCompanyDto().getName().toLowerCase().contains(search)      ||
-                    x.getContractorDto().getName().toLowerCase().contains(search)   ||
-                    x.getProjectDto().getName().toLowerCase().contains(search)      ||
-                    x.getContractDto().getNumber().toLowerCase().contains(search)
-            ));
+            if(!textField.getValue().equals("")) {
+                data = paymentService.search(textField.getValue());
+            }
+            else {
+                data = paymentService.getAll();
+            }
+            grid.setItems(data);
         });
         return textField;
     }
