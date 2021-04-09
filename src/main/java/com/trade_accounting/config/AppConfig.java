@@ -54,7 +54,7 @@ public class AppConfig {
                             UI.getCurrent().navigate(LoginView.class);//доб.
                         }
 
-                        if (originalResponse.code() == 401 ) {
+                        if (originalResponse.code() == 401) {
                             if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//испр !=.
                                 wrappedSession.removeAttribute(TOKEN_ATTRIBUTE_NAME);
                                 UI.getCurrent().navigate(LoginView.class);//доб.
@@ -62,8 +62,7 @@ public class AppConfig {
                             try (Response newResponse = originalResponse
                                     .newBuilder()
                                     .request((new Request.Builder()).url("http://localhost:4444/login")
-                                            .build()).build())
-                                            {
+                                            .build()).build()) {
                                 originalResponse = newResponse;
                             }
                         }

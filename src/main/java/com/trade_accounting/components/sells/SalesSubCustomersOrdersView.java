@@ -57,6 +57,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
+    private final String typeOfInvoice = "RECEIPT";
+
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
@@ -102,7 +104,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
@@ -114,7 +116,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             return new Span("");
         }
     }
-
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
@@ -225,7 +226,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
@@ -245,7 +246,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
     private void deleteSelectedInvoices() {

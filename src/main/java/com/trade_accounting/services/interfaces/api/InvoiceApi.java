@@ -9,6 +9,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 import java.util.List;
@@ -18,6 +19,10 @@ public interface InvoiceApi {
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<InvoiceDto>> getAll(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
+    @GET("{url}")
+    Call<List<InvoiceDto>> getAll(@Path(value = "url", encoded = true) String url, @Query("typeOfInvoice") String typeOfInvoice);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")

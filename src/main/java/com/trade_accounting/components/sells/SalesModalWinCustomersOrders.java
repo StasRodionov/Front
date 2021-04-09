@@ -1,5 +1,6 @@
 package com.trade_accounting.components.sells;
 
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
@@ -22,11 +23,11 @@ import java.util.List;
 
 public class SalesModalWinCustomersOrders extends Dialog {
 
-    private DateTimePicker dateField = new DateTimePicker();
-    private TextField typeOfInvoiceField = new TextField();
-    private Select<CompanyDto> companySelect = new Select<>();
-    private Select<ContractorDto> contractorSelect = new Select<>();
-    private Select<WarehouseDto> warehouseSelect = new Select<>();
+    private final DateTimePicker dateField = new DateTimePicker();
+    private final TextField typeOfInvoiceField = new TextField();
+    private final Select<CompanyDto> companySelect = new Select<>();
+    private final Select<ContractorDto> contractorSelect = new Select<>();
+    private final Select<WarehouseDto> warehouseSelect = new Select<>();
 
     private String labelWidth = "100px";
     private String fieldWidth = "300px";
