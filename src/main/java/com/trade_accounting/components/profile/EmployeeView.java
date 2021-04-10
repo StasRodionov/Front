@@ -3,6 +3,7 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.TestPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -25,13 +26,17 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "employee", layout = AppView.class)
@@ -43,35 +48,38 @@ public class EmployeeView extends VerticalLayout {
     private final RoleService roleService;
     private final ImageService imageService;
     private List<EmployeeDto> data;
-    private final List<EmployeeDto> finalData;
-    private final GridPaginator<EmployeeDto> paginator;
+//    private final List<EmployeeDto> finalData;
+//    private final GridPaginator<EmployeeDto> paginator;
     private final GridFilter<EmployeeDto> filter;
+
+    //test
+    private final TestPaginator<EmployeeDto> testPaginator;
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
-        this.finalData = employeeService.getAll();
+//        this.finalData = employeeService.getAll();
         this.imageService = imageService;
-        this.data = finalData;
+//        this.data = finalData;
         this.grid = new Grid<>(EmployeeDto.class);
-        this.paginator = new GridPaginator<>(grid, data, 100);
+        this.testPaginator = new TestPaginator<>(grid, employeeService, 2);
 
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, testPaginator);
 
         configureGrid();
         updateGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
-        add(upperLayout(), filter, grid, paginator);
+        add(upperLayout(), filter, grid, testPaginator);
     }
 
     private void configureFilter() {
-        filter.onSearchClick(e -> paginator.setData(employeeService.search(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(employeeService.getAll()));
+        filter.onSearchClick(e -> testPaginator.setData(employeeService.search(filter.getFilterData())));
+        filter.onClearClick(e -> testPaginator.setData(employeeService.getAll()));
     }
 
     private void updateGrid() {
-        grid.setItems(employeeService.getAll());
+        //grid.setItems(employeeService.getAll());
         log.info("Таблица обновилась");
     }
 
@@ -167,7 +175,13 @@ public class EmployeeView extends VerticalLayout {
         text.setPlaceholder("Поиск");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
+        text.setValueChangeMode(ValueChangeMode.EAGER);
+        text.addValueChangeListener(e -> fillList(text.getValue()));
         return text;
+    }
+
+    private void fillList(String text) {
+        testPaginator.setData(employeeService.searchBySymbols(text));
     }
 
     private TextField textField() {

@@ -5,7 +5,7 @@ import com.trade_accounting.models.dto.EmployeeDto;
 import java.util.List;
 import java.util.Map;
 
-public interface EmployeeService {
+public interface EmployeeService extends PaginatorInterface<EmployeeDto>{
 
     List<EmployeeDto> getAll();
 
@@ -18,4 +18,6 @@ public interface EmployeeService {
     void update(EmployeeDto employeeDto);
 
     void deleteById(Long id);
+
+    List<EmployeeDto> searchBySymbols(String symbols);
 }

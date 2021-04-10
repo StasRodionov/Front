@@ -9,6 +9,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 import java.util.List;
@@ -17,8 +18,23 @@ import java.util.Map;
 public interface EmployeeApi {
 
     @Headers("Accept: application/json")
+    @GET("{url}/pages")
+    Call<List<EmployeeDto>> getListForPaginator(@Path(value = "url", encoded = true) String url,
+                                            @Query("pageNumber") Integer pageNumber,
+                                                @Query("rowsLimit") Integer rowsLimit);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/count")
+    Call<Long> getRowCount(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<EmployeeDto>> getAll(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/symbols")
+    Call<List<EmployeeDto>> searchBySymbols(@Path(value = "url", encoded = true) String url,
+                                            @Query("symbols") String symbols);
 
     @Headers("Accept: application/json")
     @GET("{url}/search")

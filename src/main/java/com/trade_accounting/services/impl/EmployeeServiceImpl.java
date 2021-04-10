@@ -28,6 +28,31 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.employeeUrl = employeeUrl;
         employeeApi = retrofit.create(EmployeeApi.class);
     }
+    public Long getRowCount() {
+        Call<Long> getRow = employeeApi.getRowCount(employeeUrl);
+        Long countRow = 0l;
+        try {
+            countRow = getRow.execute().body();
+            log.info("Успешно выполнен запрос");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
+        return countRow;
+    }
+    @Override
+    public List<EmployeeDto> searchBySymbols(String symbols) {
+        List<EmployeeDto> employeeDtos = new ArrayList<>();
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.searchBySymbols(employeeUrl, symbols);
+
+        try {
+            employeeDtos = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
+
+        return employeeDtos;
+    }
 
     @Override
     public List<EmployeeDto> getAll() {
@@ -76,6 +101,20 @@ public class EmployeeServiceImpl implements EmployeeService {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
         }
 
+        return companyDtoList;
+    }
+
+    @Override
+    public List<EmployeeDto> getList(int page, int count) {
+        List<EmployeeDto> companyDtoList = new ArrayList<>();
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForPaginator(employeeUrl, page, count);
+
+        try {
+            companyDtoList = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
         return companyDtoList;
     }
 
