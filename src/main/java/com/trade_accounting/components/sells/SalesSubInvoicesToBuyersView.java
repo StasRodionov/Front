@@ -68,20 +68,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid = new Grid<>(InvoiceDto.class);
-        grid.setColumns("id", "date", "typeOfInvoice", "companyDto", "contractorDto", "warehouseDto","spend");
-        /*grid = new Grid<>(InvoiceDto.class);
-        grid.setItems(data);
-
-        grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
-        grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("date").setHeader("Дата");
-        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
-        grid.getColumnByKey("company").setHeader("Компания");
-        grid.getColumnByKey("contractor").setHeader("Контрагент");
-        grid.getColumnByKey("spend").setHeader("Проведена");
+        grid = new Grid<>(InvoiceDto.class, false);
+        grid.addColumn("id").setHeader("№").setId("ID");
+        grid.addColumn("date").setHeader("Дата").setId("DATE");
+        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания");
+        grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент");
+        grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада");
         grid.setHeight("66vh");
-
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
@@ -91,7 +84,6 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
             addModalWin.addDetachListener(e -> updateList());
             addModalWin.open();
         });
-*/
     }
 
     private void configurePaginator() {
@@ -113,10 +105,6 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private Button buttonUnit(){
         Button buttonUnit = new Button("Счет", new Icon(VaadinIcon.PLUS_CIRCLE));
-//        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
-//                contractorService, companyService);
-//        addModalWin.addDetachListener(event -> updateList());
-//        buttonUnit.addClickListener(event -> addModalWin.open());
         return buttonUnit;
     }
 
