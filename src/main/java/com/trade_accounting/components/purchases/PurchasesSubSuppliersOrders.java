@@ -17,6 +17,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
@@ -122,8 +123,15 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
         final TextField textField = new TextField();
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.setClearButtonVisible(true);
+        textField.addValueChangeListener(e -> updateList(textField.getValue()));
         textField.setWidth("300px");
         return textField;
+    }
+
+    private void updateList(String text) {
+//        paginator.setData(invoiceService.search(text));
     }
 
     private NumberField numberField() {
