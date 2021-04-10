@@ -118,13 +118,11 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private Button buttonFilter(){
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр");
     }
 
     private Button buttonSettings(){
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private NumberField numberField() {

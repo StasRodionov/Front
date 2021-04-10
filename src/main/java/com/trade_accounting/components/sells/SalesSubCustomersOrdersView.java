@@ -86,7 +86,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
 
-        grid.addColumn(iDto -> getTotalPrice(iDto)).setHeader("Сумма").setSortable(true);
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -154,8 +154,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private NumberField numberField() {
@@ -250,7 +249,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void deleteSelectedInvoices() {
-        if (grid.getSelectedItems().size() != 0) {
+        if (grid.getSelectedItems().isEmpty()) {
             for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
                 invoiceService.deleteById(invoiceDto.getId());
                 notifications.infoNotification("Выбранные заказы успешно удалены");
