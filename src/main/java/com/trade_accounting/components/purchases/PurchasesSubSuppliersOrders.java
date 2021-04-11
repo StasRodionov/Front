@@ -131,7 +131,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private void updateList(String text) {
-//        paginator.setData(invoiceService.search(text));
+        if (text.isEmpty()) {
+            paginator.setData(invoiceService.getAll(typeOfInvoice));
+        } else paginator.setData(invoiceService.searchByString(text));
     }
 
     private NumberField numberField() {

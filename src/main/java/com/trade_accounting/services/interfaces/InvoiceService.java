@@ -14,6 +14,7 @@ public interface InvoiceService {
     InvoiceDto getById(Long id);
 
     List<InvoiceDto> search(Map<String, String> query);
+    List<InvoiceDto> searchByString(String query);
 
     Response<InvoiceDto> create(InvoiceDto invoiceDto);
 
