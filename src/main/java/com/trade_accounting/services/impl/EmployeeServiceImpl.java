@@ -30,6 +30,21 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public List<EmployeeDto> searchBySymbols(String symbols) {
+        List<EmployeeDto> employeeDtos = new ArrayList<>();
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.searchBySymbols(employeeUrl, symbols);
+
+        try {
+            employeeDtos = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
+
+        return employeeDtos;
+    }
+
+    @Override
     public List<EmployeeDto> getAll() {
 
         List<EmployeeDto> employeeDtoList = new ArrayList<>();

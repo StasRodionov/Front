@@ -18,4 +18,6 @@ public interface EmployeeService {
     void update(EmployeeDto employeeDto);
 
     void deleteById(Long id);
+
+    List<EmployeeDto> searchBySymbols(String symbols);
 }
