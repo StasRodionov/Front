@@ -250,7 +250,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void deleteSelectedInvoices() {
-        if (grid.getSelectedItems().isEmpty()) {
+        if (!grid.getSelectedItems().isEmpty()) {
             for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
                 invoiceService.deleteById(invoiceDto.getId());
                 notifications.infoNotification("Выбранные заказы успешно удалены");
