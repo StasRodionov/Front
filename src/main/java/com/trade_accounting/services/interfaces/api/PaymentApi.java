@@ -34,7 +34,7 @@ public interface PaymentApi {
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 
     @Headers("Accept: application/json")
-    @GET("{url}/search/{request}")
+    @GET("{url}/search/{search}")
     Call<List<PaymentDto>> search(@Path(value = "url", encoded = true) String url,
-                                  @Path(value = "request") String request);
+                                  @Path(value = "request") String search);
 }

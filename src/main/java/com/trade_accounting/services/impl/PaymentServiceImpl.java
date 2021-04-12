@@ -95,9 +95,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<PaymentDto> search(String request) {
+    public List<PaymentDto> search(String search) {
         List<PaymentDto> paymentDtoList = new ArrayList<>();
-        Call<List<PaymentDto>> paymentDtoListCall = paymentApi.search(paymentUrl, request);
+        Call<List<PaymentDto>> paymentDtoListCall = paymentApi.search(paymentUrl, search);
 
         try {
             paymentDtoList = paymentDtoListCall.execute().body();
