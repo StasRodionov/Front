@@ -36,5 +36,5 @@ public interface PaymentApi {
     @Headers("Accept: application/json")
     @GET("{url}/search/{search}")
     Call<List<PaymentDto>> search(@Path(value = "url", encoded = true) String url,
-                                  @Path(value = "request") String search);
+                                  @Path(value = "search") String search);
 }
