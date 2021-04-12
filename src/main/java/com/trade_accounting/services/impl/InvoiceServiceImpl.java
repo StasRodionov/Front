@@ -156,9 +156,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public List<InvoiceDto> searchByString(String query) {
+    public List<InvoiceDto> searchByStringAndTypeOfInvoice(String query, String typeOfInvoice) {
         List<InvoiceDto> invoiceDtoList = new ArrayList<>();
-        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.searchByString(invoiceUrl, query);
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.searchByString(invoiceUrl, query, typeOfInvoice);
 
         try {
             invoiceDtoList = invoiceDtoListCall.execute().body();

@@ -34,7 +34,9 @@ public interface InvoiceApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/searchByString")
-    Call<List<InvoiceDto>> searchByString(@Path(value = "url", encoded = true) String url, @Query("query") String query);
+    Call<List<InvoiceDto>> searchByString(@Path(value = "url", encoded = true) String url,
+                                          @Query("query") String query,
+                                          @Query("typeOfInvoice") String typeOfInvoice);
 
     @Headers("Accept: application/json")
     @POST("{url}")

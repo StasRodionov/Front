@@ -133,7 +133,8 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     private void updateList(String text) {
         if (text.isEmpty()) {
             paginator.setData(invoiceService.getAll(typeOfInvoice));
-        } else paginator.setData(invoiceService.searchByString(text));
+        } else paginator.setData(invoiceService
+                .searchByStringAndTypeOfInvoice(text, typeOfInvoice));
     }
 
     private NumberField numberField() {
