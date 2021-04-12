@@ -3,10 +3,8 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -23,6 +21,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 
 @Slf4j
@@ -31,9 +32,8 @@ import java.util.List;
 public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private final InvoiceService invoiceService;
-    private final ContractorService contractorService;
-    private final CompanyService companyService;
-    private final WarehouseService warehouseService;
+    private final InvoiceProductService invoiceProductService;
+
     private final List<InvoiceDto> data;
 
 
@@ -41,16 +41,12 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
 
-    private final String typeOfInvoice = "RECEIPT";
+    private static final String TYPE_OF_INVOICE = "RECEIPT";
 
-    public SalesSubInvoicesToBuyersView(InvoiceService invoiceService,
-                                        ContractorService contractorService,
-                                        CompanyService companyService,
-                                        WarehouseService warehouseService) {
+    public SalesSubInvoicesToBuyersView(InvoiceService invoiceService, InvoiceProductService invoiceProductService) {
         this.invoiceService = invoiceService;
-        this.contractorService = contractorService;
-        this.companyService = companyService;
-        this.warehouseService = warehouseService;
+        this.invoiceProductService = invoiceProductService;
+
         this.data = getData();
 
         configureActions();
@@ -70,20 +66,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private void configureGrid() {
         grid = new Grid<>(InvoiceDto.class, false);
         grid.addColumn("id").setHeader("№").setId("ID");
-        grid.addColumn("date").setHeader("Дата").setId("DATE");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время").setId("DATE");
         grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания");
         grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент");
         grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(event -> {
-            InvoiceDto editInvoice = event.getItem();
-            SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
-                    invoiceService, contractorService, companyService, warehouseService);
-            addModalWin.addDetachListener(e -> updateList());
-            addModalWin.open();
-        });
     }
 
     private void configurePaginator() {
@@ -172,16 +161,17 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll(typeOfInvoice));
+        grid.setItems(invoiceService.getAll(TYPE_OF_INVOICE));
         System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll(typeOfInvoice);
+        return invoiceService.getAll(TYPE_OF_INVOICE);
     }
 
-
-
-
+    private  static  String formatDate(String date) {
+        return LocalDateTime.parse(date)
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+    }
 
 }
