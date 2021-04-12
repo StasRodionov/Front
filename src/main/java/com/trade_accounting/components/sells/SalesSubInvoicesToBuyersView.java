@@ -40,6 +40,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
 
+    private final String typeOfInvoice = "RECEIPT";
+
     public SalesSubInvoicesToBuyersView(InvoiceService invoiceService,
                                         ContractorService contractorService,
                                         CompanyService companyService,
@@ -116,13 +118,11 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private Button buttonFilter(){
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр");
     }
 
     private Button buttonSettings(){
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private NumberField numberField() {
@@ -179,12 +179,12 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
         System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
 

@@ -1,18 +1,22 @@
 package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ContractorGroupDto;
 
 import java.util.List;
 import java.util.Map;
 
 public interface ContractorService {
+
+    List<ContractorDto> searchContractor(Map<String, String> queryContractor);
+
     List<ContractorDto> getAll();
+
+    List<ContractorDto> getAllLite();
 
     List<ContractorDto> getAll(String searchTerm);
 
     ContractorDto getById(Long id);
-
-    List<ContractorDto> searchContractor(Map<String, String> queryContractor);
 
     void create(ContractorDto contractorDto);
 
@@ -20,5 +24,5 @@ public interface ContractorService {
 
     void deleteById(Long id);
 
-    List<ContractorDto> getAllLite();
+
 }

@@ -57,6 +57,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
+    private final String typeOfInvoice = "RECEIPT";
+
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
@@ -84,7 +86,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
 
-        grid.addColumn(iDto -> getTotalPrice(iDto)).setHeader("Сумма").setSortable(true);
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -102,7 +104,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(invoiceService.getAll()));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
@@ -114,7 +116,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             return new Span("");
         }
     }
-
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
@@ -153,8 +154,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private NumberField numberField() {
@@ -225,7 +225,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
@@ -245,11 +245,11 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
     private void deleteSelectedInvoices() {
-        if (grid.getSelectedItems().size() != 0) {
+        if (grid.getSelectedItems().isEmpty()) {
             for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
                 invoiceService.deleteById(invoiceDto.getId());
                 notifications.infoNotification("Выбранные заказы успешно удалены");
