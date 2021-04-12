@@ -558,6 +558,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
         invoiceDto.setWarehouseDto(warehouseSelect.getValue());
         invoiceDto.setTypeOfInvoice("RECEIPT");
         invoiceDto.setSpend(isSpend.getValue());
+        invoiceDto.setComment("");
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
         InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
         return invoiceDtoForProducts;
