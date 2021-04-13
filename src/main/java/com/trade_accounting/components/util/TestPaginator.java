@@ -34,6 +34,8 @@ public class TestPaginator<T> extends HorizontalLayout {
     private final Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
     private final Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
     private final Long rowCount;
+    private boolean flag = false;
+    private GridFilter<T> gridFilter;
 
     /**
      * Creates a Paginator with specific number of items per page.
@@ -42,7 +44,9 @@ public class TestPaginator<T> extends HorizontalLayout {
      * @param paginatorInterface         data for grid
      * @param itemsPerPage number items per page
      */
-    public TestPaginator(Grid<T> grid, PaginatorInterface<T> paginatorInterface, int itemsPerPage) {
+    public TestPaginator(Grid<T> grid, PaginatorInterface<T> paginatorInterface,
+                         int itemsPerPage, GridFilter<T> gridFilter) {
+        this.gridFilter = gridFilter;
         this.grid = grid;
         this.paginatorInterface = paginatorInterface;
         this.itemsPerPage = itemsPerPage;
@@ -55,7 +59,7 @@ public class TestPaginator<T> extends HorizontalLayout {
         configureTextField();
         setCurrentPageAndReloadGrid(1);
         reloadGrid();
-
+        configureFilter();
         add(firstPageButton, prevPageButton, pageItemsTextField, nextPageButton, lastPageButton);
     }
 
@@ -65,10 +69,15 @@ public class TestPaginator<T> extends HorizontalLayout {
      * @param grid grid for pagination
      * @param paginatorInterface data for grid
      */
-    public TestPaginator(Grid<T> grid, PaginatorInterface<T> paginatorInterface) {
-        this(grid, paginatorInterface, 10);
+    public TestPaginator(Grid<T> grid, PaginatorInterface<T> paginatorInterface, GridFilter<T> gridFilter) {
+        this(grid, paginatorInterface, 10, gridFilter);
     }
 
+    private void configureFilter() {
+        gridFilter.onSearchClick(e -> this.setData(paginatorInterface.getListFilter(gridFilter.getFilterData(),
+                                                                            currentPage, itemsPerPage), true));
+        gridFilter.onClearClick(e -> this.setData(getPageData(), false));
+    }
     private void configureButton() {
         nextPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(currentPage + 1));
         lastPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(getNumberOfPages()));
@@ -85,9 +94,10 @@ public class TestPaginator<T> extends HorizontalLayout {
     }
 
     private List<T> getPageData() {
-
-        data = paginatorInterface.getList(currentPage, itemsPerPage);
-
+        //flag for filter
+        if (!flag) {
+            data = paginatorInterface.getList(currentPage, itemsPerPage);
+        }
 //        int from = (currentPage - 1) * itemsPerPage;
 //        int to = (from + itemsPerPage);
 //        to = Math.min(to, data.size());
@@ -192,8 +202,9 @@ public class TestPaginator<T> extends HorizontalLayout {
      *
      * @param data data for grid
      */
-    public void setData(List<T> data) {
-        setData(data, false);
+    public void setData(List<T> data, boolean flag) {
+        this.flag = flag;
+        setData(data, flag, false);
     }
 
 
@@ -203,12 +214,11 @@ public class TestPaginator<T> extends HorizontalLayout {
      * @param data data for grid
      * @param saveCurrentPage save current page flag
      */
-    public void setData(List<T> data, boolean saveCurrentPage){
+    public void setData(List<T> data, boolean flag, boolean saveCurrentPage){
         SerializableComparator<T> comparator = grid.getDataCommunicator().getInMemorySorting();
         if (comparator != null){
             data = data.stream().sorted(comparator).collect(Collectors.toList());
         }
-
         this.data = data;
         calculateNumberOfPages();
 

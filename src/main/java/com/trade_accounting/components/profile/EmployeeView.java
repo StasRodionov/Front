@@ -62,21 +62,22 @@ public class EmployeeView extends VerticalLayout {
         this.imageService = imageService;
 //        this.data = finalData;
         this.grid = new Grid<>(EmployeeDto.class);
-        this.testPaginator = new TestPaginator<>(grid, employeeService, 2);
+
+        configureGrid();
+        this.filter = new GridFilter<>(grid);
+        this.testPaginator = new TestPaginator<>(grid, employeeService, 3, filter);
 
         setHorizontalComponentAlignment(Alignment.CENTER, testPaginator);
 
-        configureGrid();
-        updateGrid();
-        this.filter = new GridFilter<>(grid);
-        configureFilter();
+//        updateGrid();
+//        configureFilter();
         add(upperLayout(), filter, grid, testPaginator);
     }
 
-    private void configureFilter() {
-        filter.onSearchClick(e -> testPaginator.setData(employeeService.search(filter.getFilterData())));
-        filter.onClearClick(e -> testPaginator.setData(employeeService.getAll()));
-    }
+//    private void configureFilter() {
+//        filter.onSearchClick(e -> testPaginator.setData(employeeService.search(filter.getFilterData())));
+//        filter.onClearClick(e -> testPaginator.setData(employeeService.getAll()));
+//    }
 
     private void updateGrid() {
         //grid.setItems(employeeService.getAll());
@@ -175,13 +176,7 @@ public class EmployeeView extends VerticalLayout {
         text.setPlaceholder("Поиск");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
-        text.setValueChangeMode(ValueChangeMode.EAGER);
-        text.addValueChangeListener(e -> fillList(text.getValue()));
         return text;
-    }
-
-    private void fillList(String text) {
-        testPaginator.setData(employeeService.searchBySymbols(text));
     }
 
     private TextField textField() {

@@ -6,5 +6,5 @@ import java.util.Map;
 public interface PaginatorInterface<T> {
     List<T> getList(int page, int count);
     Long getRowCount();
-//    List<T> getList(Map<String,String> map, int page, int count);
+    List<T> getListFilter(Map<String,String> map, int page, int count);
 }

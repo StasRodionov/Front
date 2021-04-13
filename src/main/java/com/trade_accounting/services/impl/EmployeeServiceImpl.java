@@ -39,19 +39,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         return countRow;
     }
+
     @Override
-    public List<EmployeeDto> searchBySymbols(String symbols) {
-        List<EmployeeDto> employeeDtos = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.searchBySymbols(employeeUrl, symbols);
+    public List<EmployeeDto> getListFilter(Map<String, String> query, int page, int count) {
+        List<EmployeeDto> companyDtoList = new ArrayList<>();
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForFilterPaginator(employeeUrl, query, page, count);
 
         try {
-            employeeDtos = companyDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+            companyDtoList = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto по фильтру");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
         }
 
-        return employeeDtos;
+        return companyDtoList;
     }
 
     @Override
@@ -111,7 +112,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         try {
             companyDtoList = companyDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto ленивый пагинатор");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
         }

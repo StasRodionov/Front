@@ -18,6 +18,4 @@ public interface EmployeeService extends PaginatorInterface<EmployeeDto>{
     void update(EmployeeDto employeeDto);
 
     void deleteById(Long id);
-
-    List<EmployeeDto> searchBySymbols(String symbols);
 }

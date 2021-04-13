@@ -18,9 +18,15 @@ import java.util.Map;
 public interface EmployeeApi {
 
     @Headers("Accept: application/json")
+    @GET("{url}/pages/search")
+    Call<List<EmployeeDto>> getListForFilterPaginator(@Path(value = "url", encoded = true) String url,
+                                                      @QueryMap Map<String, String> query,
+                                                    @Query("pageNumber") Integer pageNumber,
+                                                    @Query("rowsLimit") Integer rowsLimit);
+    @Headers("Accept: application/json")
     @GET("{url}/pages")
     Call<List<EmployeeDto>> getListForPaginator(@Path(value = "url", encoded = true) String url,
-                                            @Query("pageNumber") Integer pageNumber,
+                                                @Query("pageNumber") Integer pageNumber,
                                                 @Query("rowsLimit") Integer rowsLimit);
 
     @Headers("Accept: application/json")
@@ -30,11 +36,6 @@ public interface EmployeeApi {
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<EmployeeDto>> getAll(@Path(value = "url", encoded = true) String url);
-
-    @Headers("Accept: application/json")
-    @GET("{url}/symbols")
-    Call<List<EmployeeDto>> searchBySymbols(@Path(value = "url", encoded = true) String url,
-                                            @Query("symbols") String symbols);
 
     @Headers("Accept: application/json")
     @GET("{url}/search")
