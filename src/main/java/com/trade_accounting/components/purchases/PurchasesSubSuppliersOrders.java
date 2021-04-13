@@ -21,6 +21,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -33,6 +34,7 @@ import java.util.List;
 @Route(value = "suppliersOrders", layout = AppView.class)
 @PageTitle("Заказы поставщикам")
 @SpringComponent
+@UIScope
 public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
     private final InvoiceService invoiceService;
