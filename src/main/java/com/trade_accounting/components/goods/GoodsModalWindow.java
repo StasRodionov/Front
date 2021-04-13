@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TaxSystemService;
@@ -62,6 +63,7 @@ public class GoodsModalWindow extends Dialog {
     private final TaxSystemService taxSystemService;
     private final ProductService productService;
     private final ProductGroupService productGroupService;
+    private final ImageService imageService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
 
@@ -93,6 +95,7 @@ public class GoodsModalWindow extends Dialog {
                             TaxSystemService taxSystemService,
                             ProductService productService,
                             ProductGroupService productGroupService,
+                            ImageService imageService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService) {
         this.unitService = unitService;
@@ -100,6 +103,7 @@ public class GoodsModalWindow extends Dialog {
         this.taxSystemService = taxSystemService;
         this.productService = productService;
         this.productGroupService = productGroupService;
+        this.imageService = imageService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
 
@@ -314,6 +318,31 @@ public class GoodsModalWindow extends Dialog {
 
             dialog.close();
         });
+
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("500px");
+        layout.getStyle().set("overflow", "auto");
+
+        dialog.addOpenedChangeListener(dialogEvent -> {
+            if(dialogEvent.isOpened()) {
+                imageService.getAll().forEach(imageDto -> {
+                    if (!imageDtoList.contains(imageDto)) {
+                        StreamResource resource = new StreamResource("image",
+                                () -> new ByteArrayInputStream(imageDto.getContent()));
+                        Image image = new Image(resource, "image");
+                        image.setHeight("200px");
+                        image.addClickListener(event -> {
+                            imageDtoList.add(imageDto);
+                            imageHorizontalLayout.add(image);
+                            dialog.close();
+                        });
+                        layout.add(image);
+                    }
+                });
+            }
+        });
+
+        dialog.add(layout);
         dialog.add(upload);
         imageButton.addClickListener(x -> dialog.open());
         return imageButton;
