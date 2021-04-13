@@ -208,4 +208,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         });
  */
     }
+
+    @Override
+    public EmployeeDto getPrincipal() {
+        EmployeeDto employeeDto = new EmployeeDto();
+        Call<EmployeeDto> employeeDtoCall = employeeApi.getPrincipal(employeeUrl);
+        try {
+            employeeDto = employeeDtoCall.execute().body();
+            log.info("Успешно выполнен запрос информации о работнике");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса информации о работнике");
+        }
+        return employeeDto;
+    }
 }
