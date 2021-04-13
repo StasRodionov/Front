@@ -345,6 +345,7 @@ public class GoodsModalWindow extends Dialog {
     private Button getRemoveButton(ProductDto productDto) {
         Button deleteButton = new Button("Удалить", buttonClickEvent -> {
             productService.deleteById(productDto.getId());
+            productDto.getImageDtos().forEach(el->imageService.deleteById(el.getId()));
             Notification.show(String.format("Товар %s удален", productDto.getName()));
             close();
         });
