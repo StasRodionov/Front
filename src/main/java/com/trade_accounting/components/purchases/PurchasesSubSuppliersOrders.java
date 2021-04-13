@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
@@ -19,16 +20,23 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
 @Route(value = "suppliersOrders", layout = AppView.class)
 @PageTitle("Заказы поставщикам")
+@SpringComponent
 public class PurchasesSubSuppliersOrders extends VerticalLayout {
 
     private final InvoiceService invoiceService;
+    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
     private List<InvoiceDto> invoices;
 
@@ -39,8 +47,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
-    public PurchasesSubSuppliersOrders(InvoiceService invoiceService) {
+    @Autowired
+    public PurchasesSubSuppliersOrders(InvoiceService invoiceService,
+                                       @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
         this.invoiceService = invoiceService;
+        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         loadInvoices();
         configureActions();
         configureGrid();
@@ -62,9 +73,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private Grid<InvoiceDto> configureGrid() {
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn("date").setHeader("Дата").setId("Дата");
-        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
+                .setId("Дата");
+//        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
         grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
         grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto").setId("Компания");
         grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
@@ -109,7 +121,15 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
     }
 
     private Button buttonUnit() {
-        return new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonUnit.addClickListener(event -> {
+            salesEditCreateInvoiceView.resetView();
+            salesEditCreateInvoiceView.setUpdateState(false);
+            salesEditCreateInvoiceView.setType("EXPENSE");
+            salesEditCreateInvoiceView.setLocation("purchases");
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+        });
+        return buttonUnit;
     }
 
     private Button buttonFilter() {
@@ -173,5 +193,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout {
         TextField textField = new TextField("", "1-1 из 1");
         textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         return textField;
+    }
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
     }
 }

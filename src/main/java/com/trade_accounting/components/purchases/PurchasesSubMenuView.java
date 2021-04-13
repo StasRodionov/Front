@@ -17,9 +17,12 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
 
     private final Div div;
     private final InvoiceService invoiceService;
+    private final PurchasesSubSuppliersOrders purchasesSubSuppliersOrders;
 
-    public PurchasesSubMenuView(InvoiceService invoiceService) {
+
+    public PurchasesSubMenuView(InvoiceService invoiceService, PurchasesSubSuppliersOrders purchasesSubSuppliersOrders) {
         this.invoiceService = invoiceService;
+        this.purchasesSubSuppliersOrders = purchasesSubSuppliersOrders;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -34,7 +37,7 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
         });
         getUI().ifPresent(ui -> {
             div.removeAll();
-            div.add(new PurchasesSubSuppliersOrders(invoiceService));
+            div.add(purchasesSubSuppliersOrders);
         });
     }
 

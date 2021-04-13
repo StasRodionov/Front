@@ -105,6 +105,8 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
     private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
     private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
     private final Binder<InvoiceDto> binderInvoiceDtoContractorValueChangeListener = new Binder<>(InvoiceDto.class);
+    private String type = null;
+    private String location = null;
 
     @Autowired
     public SalesEditCreateInvoiceView(ContractorService contractorService,
@@ -382,14 +384,14 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
                 if (dateField.getValue() == null) {
                     dateField.setValue(LocalDateTime.now());
                 }
-                InvoiceDto invoiceDto = saveInvoice();
+                InvoiceDto invoiceDto = saveInvoice(type);
 
                 deleteAllInvoiceProductByInvoice(
                         getListOfInvoiceProductByInvoice(invoiceDto)
                 );
 
                 addInvoiceProductToInvoicedDto(invoiceDto);
-                UI.getCurrent().navigate("sells");
+                UI.getCurrent().navigate(location);
                 notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
             }
         });
@@ -547,7 +549,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
         setTotalPrice();
     }
 
-    private InvoiceDto saveInvoice() {
+    private InvoiceDto saveInvoice(String type) {
         InvoiceDto invoiceDto = new InvoiceDto();
         if (!invoiceIdField.getValue().equals("")) {
             invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
@@ -556,7 +558,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
         invoiceDto.setCompanyDto(companySelect.getValue());
         invoiceDto.setContractorDto(contractorSelect.getValue());
         invoiceDto.setWarehouseDto(warehouseSelect.getValue());
-        invoiceDto.setTypeOfInvoice("RECEIPT");
+        invoiceDto.setTypeOfInvoice(type);
         invoiceDto.setSpend(isSpend.getValue());
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
         InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
@@ -649,5 +651,11 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
 
         dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
+    public void setType(String type) {
+        this.type = type;
+    } public void setLocation(String location) {
+        this.location = location;
+    }
+
 
 }
