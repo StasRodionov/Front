@@ -3,6 +3,7 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
@@ -21,6 +22,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -70,6 +72,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания");
         grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент");
         grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада");
+        grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -169,9 +172,18 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return invoiceService.getAll(TYPE_OF_INVOICE);
     }
 
-    private  static  String formatDate(String date) {
+    private static String formatDate(String date) {
         return LocalDateTime.parse(date)
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+    }
+    private String getTotalPrice(Long id) {
+        var listOfInvoices = invoiceProductService.getByInvoiceId(id);
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (InvoiceProductDto invoiceProductDto : listOfInvoices) {
+            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
+                    .multiply(invoiceProductDto.getAmount()));
+        }
+        return String.format("%.2f", totalPrice);
     }
 
 }
