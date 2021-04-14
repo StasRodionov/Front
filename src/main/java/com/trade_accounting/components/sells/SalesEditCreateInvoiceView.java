@@ -414,7 +414,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
         buttonDelete.addClickListener(event -> {
             deleteInvoiceById(Long.parseLong(invoiceIdField.getValue()));
             resetView();
-            buttonDelete.getUI().ifPresent(ui -> ui.navigate("sells"));
+            buttonDelete.getUI().ifPresent(ui -> ui.navigate(location));
         });
         return buttonDelete;
     }
