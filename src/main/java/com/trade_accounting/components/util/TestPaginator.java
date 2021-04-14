@@ -98,6 +98,8 @@ public class TestPaginator<T> extends HorizontalLayout {
         if (!flag) {
             rowCount = paginatorInterface.getRowCount();
             data = paginatorInterface.getList(currentPage, itemsPerPage);
+        } else {
+            data = paginatorInterface.getListFilter(gridFilter.getFilterData(), currentPage, itemsPerPage);
         }
 //        int from = (currentPage - 1) * itemsPerPage;
 //        int to = (from + itemsPerPage);
