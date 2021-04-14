@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TaxSystemService;
@@ -24,6 +25,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -61,7 +64,9 @@ public class GoodsModalWindow extends Dialog {
     private final ContractorService contractorService;
     private final TaxSystemService taxSystemService;
     private final ProductService productService;
+    private final ImageService imageService;
     private final ProductGroupService productGroupService;
+    private final ImageService imageService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
 
@@ -81,6 +86,7 @@ public class GoodsModalWindow extends Dialog {
     private final HorizontalLayout typeOfPriceLayout = new HorizontalLayout();
     private Map<TypeOfPriceDto, BigDecimalField> bigDecimalFields;
     private List<ImageDto> imageDtoList;
+    private List<ImageDto> imageDtoListForRemove;
     private final HorizontalLayout imageHorizontalLayout = new HorizontalLayout();
 
     private final HorizontalLayout footer = new HorizontalLayout();
@@ -92,14 +98,18 @@ public class GoodsModalWindow extends Dialog {
                             ContractorService contractorService,
                             TaxSystemService taxSystemService,
                             ProductService productService,
+                            ImageService imageService,
                             ProductGroupService productGroupService,
+                            ImageService imageService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService) {
         this.unitService = unitService;
         this.contractorService = contractorService;
         this.taxSystemService = taxSystemService;
         this.productService = productService;
+        this.imageService = imageService;
         this.productGroupService = productGroupService;
+        this.imageService = imageService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
 
@@ -209,7 +219,7 @@ public class GoodsModalWindow extends Dialog {
             StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
             Image image = new Image(resource, "image");
             image.setHeight("100px");
-            imageHorizontalLayout.add(image);
+            imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
         }
         initTypeOfPriceFrom(productDto.getProductPriceDtos());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
@@ -228,6 +238,7 @@ public class GoodsModalWindow extends Dialog {
         typeOfPriceLayout.removeAll();
         bigDecimalFields = new HashMap<>();
         imageDtoList = new ArrayList<>();
+        imageDtoListForRemove = new ArrayList<>();
         unitDtoComboBox.setItems(unitService.getAll());
         contractorDtoComboBox.setItems(contractorService.getAll());//изменил
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
@@ -314,6 +325,31 @@ public class GoodsModalWindow extends Dialog {
 
             dialog.close();
         });
+
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("500px");
+        layout.getStyle().set("overflow", "auto");
+
+        dialog.addOpenedChangeListener(dialogEvent -> {
+            if(dialogEvent.isOpened()) {
+                imageService.getAll().forEach(imageDto -> {
+                    if (!imageDtoList.contains(imageDto)) {
+                        StreamResource resource = new StreamResource("image",
+                                () -> new ByteArrayInputStream(imageDto.getContent()));
+                        Image image = new Image(resource, "image");
+                        image.setHeight("200px");
+                        image.addClickListener(event -> {
+                            imageDtoList.add(imageDto);
+                            imageHorizontalLayout.add(image);
+                            dialog.close();
+                        });
+                        layout.add(image);
+                    }
+                });
+            }
+        });
+
+        dialog.add(layout);
         dialog.add(upload);
         imageButton.addClickListener(x -> dialog.open());
         return imageButton;
@@ -337,6 +373,7 @@ public class GoodsModalWindow extends Dialog {
     private Button getRemoveButton(ProductDto productDto) {
         Button deleteButton = new Button("Удалить", buttonClickEvent -> {
             productService.deleteById(productDto.getId());
+            productDto.getImageDtos().forEach(el->imageService.deleteById(el.getId()));
             Notification.show(String.format("Товар %s удален", productDto.getName()));
             close();
         });
@@ -344,10 +381,25 @@ public class GoodsModalWindow extends Dialog {
         return deleteButton;
     }
 
+
+
+    private Button getRemoveImageButton(ProductDto productDto, Image image, ImageDto imageDto) {
+        Button deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), buttonClickEvent -> {
+            imageHorizontalLayout.remove(image);
+            productDto.getImageDtos().remove(imageDto);
+            imageDtoListForRemove.add(imageDto);
+        });
+
+        deleteButton.setMinWidth("10px");
+        return deleteButton;
+    }
+
     private Button getUpdateButton(ProductDto productDto) {
         return new Button("Изменить", event -> {
             updateProductDto(productDto);
             productService.update(productDto);
+            imageDtoListForRemove.forEach(el->imageService.deleteById(el.getId()));
+
             Notification.show(String.format("Товар %s изменен", productDto.getName()));
             close();
         });
@@ -374,7 +426,9 @@ public class GoodsModalWindow extends Dialog {
             AtomicBoolean b = new AtomicBoolean(true);
             productDto.getProductPriceDtos().forEach(productPriceDto -> {
                 if (productPriceDto.getTypeOfPriceDto().equals(typeOfPriceDto)) {
+
                     productPriceDto.setValue(bigDecimalField.getValue());
+
                     b.set(false);
                 }
             });
