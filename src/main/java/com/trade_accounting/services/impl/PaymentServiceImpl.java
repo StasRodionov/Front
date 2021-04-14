@@ -12,6 +12,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -37,6 +38,20 @@ public class PaymentServiceImpl implements PaymentService {
             log.info("Успешно выполнен запрос на получение списка PaymentDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка PaymentDto - {}", e);
+        }
+        return paymentDtoList;
+    }
+
+    @Override
+    public List<PaymentDto> search(Map<String, String> query) {
+        List<PaymentDto> paymentDtoList = new ArrayList<>();
+        Call<List<PaymentDto>> paymentDtoListCall = paymentApi.search(paymentUrl, query);
+
+        try {
+            paymentDtoList = paymentDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка PaymentDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка PaymentDto - ", e);
         }
         return paymentDtoList;
     }
