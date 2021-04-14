@@ -544,7 +544,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
         contractorSelect.setInvalid(false);
         companySelect.setInvalid(false);
         warehouseSelect.setInvalid(false);
-//        title.setText("Добавление заказа");
+        title.setText("Добавление заказа");
         paginator.setData(tempInvoiceProductDtoList = new ArrayList<>());
         setTotalPrice();
     }
