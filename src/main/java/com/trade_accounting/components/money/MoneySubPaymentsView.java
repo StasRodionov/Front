@@ -17,6 +17,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -28,7 +29,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private final PaymentService paymentService;
 
-    private final List<PaymentDto> data;
+    private List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
 
@@ -49,7 +50,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
                 .setHeader("Компания").setId("companyDto");
         grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма");
-        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж");
+        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платежа");
         grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа");
         grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
                 .setHeader("Контрагент").setId("contractorDto");
@@ -88,6 +89,16 @@ public class MoneySubPaymentsView extends VerticalLayout {
         textField.setPlaceholder("Наименование или код");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setValueChangeMode(ValueChangeMode.LAZY);
+        textField.addValueChangeListener(event -> {
+            if(!textField.getValue().equals("")) {
+                data = paymentService.search(textField.getValue());
+            }
+            else {
+                data = paymentService.getAll();
+            }
+            grid.setItems(data);
+        });
         return textField;
     }
 
