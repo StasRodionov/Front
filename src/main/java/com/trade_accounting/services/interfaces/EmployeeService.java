@@ -20,4 +20,6 @@ public interface EmployeeService {
     void deleteById(Long id);
 
     List<EmployeeDto> searchBySymbols(String symbols);
+
+    EmployeeDto getPrincipal();
 }
