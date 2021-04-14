@@ -38,6 +38,6 @@ public interface PaymentApi {
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 
     @Headers("Accept: application/json")
-    @GET("{url}/search")
-    Call<List<PaymentDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+    @GET("{url}/filter")
+    Call<List<PaymentDto>> filter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 }

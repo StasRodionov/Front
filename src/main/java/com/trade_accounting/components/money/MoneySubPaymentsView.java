@@ -72,7 +72,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("time");
         filter.setFieldToComboBox("typeOfPayment", "OUTGOING", "INCOMING");
-        filter.onSearchClick(e -> paginator.setData(paymentService.search(filter.getFilterData())));
+        filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(paymentService.getAll()));
     }
 

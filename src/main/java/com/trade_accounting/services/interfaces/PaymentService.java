@@ -18,6 +18,6 @@ public interface PaymentService {
 
     void deleteById(Long id);
 
-    List<PaymentDto> search(Map<String, String> query);
+    List<PaymentDto> filter(Map<String, String> query);
 
 }
