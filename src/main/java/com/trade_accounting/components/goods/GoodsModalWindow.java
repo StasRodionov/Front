@@ -66,6 +66,7 @@ public class GoodsModalWindow extends Dialog {
     private final ProductService productService;
     private final ImageService imageService;
     private final ProductGroupService productGroupService;
+    private final ImageService imageService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
 
@@ -99,6 +100,7 @@ public class GoodsModalWindow extends Dialog {
                             ProductService productService,
                             ImageService imageService,
                             ProductGroupService productGroupService,
+                            ImageService imageService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService) {
         this.unitService = unitService;
@@ -107,6 +109,7 @@ public class GoodsModalWindow extends Dialog {
         this.productService = productService;
         this.imageService = imageService;
         this.productGroupService = productGroupService;
+        this.imageService = imageService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
 
@@ -322,6 +325,31 @@ public class GoodsModalWindow extends Dialog {
 
             dialog.close();
         });
+
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("500px");
+        layout.getStyle().set("overflow", "auto");
+
+        dialog.addOpenedChangeListener(dialogEvent -> {
+            if(dialogEvent.isOpened()) {
+                imageService.getAll().forEach(imageDto -> {
+                    if (!imageDtoList.contains(imageDto)) {
+                        StreamResource resource = new StreamResource("image",
+                                () -> new ByteArrayInputStream(imageDto.getContent()));
+                        Image image = new Image(resource, "image");
+                        image.setHeight("200px");
+                        image.addClickListener(event -> {
+                            imageDtoList.add(imageDto);
+                            imageHorizontalLayout.add(image);
+                            dialog.close();
+                        });
+                        layout.add(image);
+                    }
+                });
+            }
+        });
+
+        dialog.add(layout);
         dialog.add(upload);
         imageButton.addClickListener(x -> dialog.open());
         return imageButton;
