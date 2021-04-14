@@ -33,7 +33,7 @@ public class TestPaginator<T> extends HorizontalLayout {
     private final Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
     private final Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
     private final Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
-    private final Long rowCount;
+    private Long rowCount;
     private boolean flag = false;
     private GridFilter<T> gridFilter;
 
@@ -96,6 +96,7 @@ public class TestPaginator<T> extends HorizontalLayout {
     private List<T> getPageData() {
         //flag for filter
         if (!flag) {
+            rowCount = paginatorInterface.getRowCount();
             data = paginatorInterface.getList(currentPage, itemsPerPage);
         }
 //        int from = (currentPage - 1) * itemsPerPage;
@@ -203,6 +204,7 @@ public class TestPaginator<T> extends HorizontalLayout {
      * @param data data for grid
      */
     public void setData(List<T> data, boolean flag) {
+        rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
         this.flag = flag;
         setData(data, flag, false);
     }

@@ -34,6 +34,10 @@ public interface EmployeeApi {
     Call<Long> getRowCount(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
+    @GET("{url}/count")
+    Call<Long> getRowCount(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+
+    @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<EmployeeDto>> getAll(@Path(value = "url", encoded = true) String url);
 

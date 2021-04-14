@@ -28,8 +28,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.employeeUrl = employeeUrl;
         employeeApi = retrofit.create(EmployeeApi.class);
     }
+
     public Long getRowCount() {
         Call<Long> getRow = employeeApi.getRowCount(employeeUrl);
+        Long countRow = 0l;
+        try {
+            countRow = getRow.execute().body();
+            log.info("Успешно выполнен запрос");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
+        return countRow;
+    }
+
+    public Long getRowCount(Map<String, String> query) {
+        Call<Long> getRow = employeeApi.getRowCount(employeeUrl, query);
         Long countRow = 0l;
         try {
             countRow = getRow.execute().body();
