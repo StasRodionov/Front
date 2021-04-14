@@ -407,7 +407,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
 
     private void closeView() {
         resetView();
-        UI.getCurrent().navigate("sells");
+        UI.getCurrent().navigate(location);
     }
 
     private Button configureDeleteButton() {
@@ -544,7 +544,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
         contractorSelect.setInvalid(false);
         companySelect.setInvalid(false);
         warehouseSelect.setInvalid(false);
-        title.setText("Добавление аказа");
+//        title.setText("Добавление заказа");
         paginator.setData(tempInvoiceProductDtoList = new ArrayList<>());
         setTotalPrice();
     }

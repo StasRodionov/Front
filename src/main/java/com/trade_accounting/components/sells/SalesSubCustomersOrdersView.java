@@ -95,6 +95,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             InvoiceDto editInvoice = event.getItem();
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);
+            salesEditCreateInvoiceView.setType("RECEIPT");
+            salesEditCreateInvoiceView.setLocation("sells");
             UI.getCurrent().navigate("sells/customer-order-edit");
         });
     }

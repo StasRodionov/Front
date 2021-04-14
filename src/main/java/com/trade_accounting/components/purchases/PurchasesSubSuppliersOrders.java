@@ -110,6 +110,8 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             InvoiceDto editInvoice = event.getItem();
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);
+            salesEditCreateInvoiceView.setType("EXPENSE");
+            salesEditCreateInvoiceView.setLocation("purchases");
             UI.getCurrent().navigate("sells/customer-order-edit");
         });
         return grid;
