@@ -32,7 +32,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeDto> searchBySymbols(String symbols) {
         List<EmployeeDto> employeeDtos = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.searchBySymbols(employeeUrl, symbols);
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.searchBySymbols(employeeUrl, symbols.toLowerCase());
 
         try {
             employeeDtos = companyDtoListCall.execute().body();
