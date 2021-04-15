@@ -102,7 +102,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
                 .setId("Проведена");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
 //        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
-//        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
