@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -181,7 +182,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         if (text.isEmpty()) {
             paginator.setData(invoiceService.getAll(typeOfInvoice));
         } else paginator.setData(invoiceService
-                .findByStringAndTypeOfInvoice(text, typeOfInvoice));
+                .findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
 
     private NumberField numberField() {
