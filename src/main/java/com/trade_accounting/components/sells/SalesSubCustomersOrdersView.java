@@ -95,6 +95,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             InvoiceDto editInvoice = event.getItem();
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);
+            salesEditCreateInvoiceView.setType("RECEIPT");
+            salesEditCreateInvoiceView.setLocation("sells");
             UI.getCurrent().navigate("sells/customer-order-edit");
         });
     }
@@ -142,6 +144,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         buttonUnit.addClickListener(event -> {
             salesEditCreateInvoiceView.resetView();
             salesEditCreateInvoiceView.setUpdateState(false);
+            salesEditCreateInvoiceView.setType("RECEIPT");
+            salesEditCreateInvoiceView.setLocation("sells");
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
         });
         return buttonUnit;
