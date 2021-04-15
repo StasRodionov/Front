@@ -164,7 +164,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll(TYPE_OF_INVOICE));
+        grid.setItems(getData());
         System.out.println("Обновлен");
     }
 
@@ -172,18 +172,16 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return invoiceService.getAll(TYPE_OF_INVOICE);
     }
 
+
+    private String getTotalPrice(Long id) {
+        var totalPrice = invoiceProductService.getByInvoiceId(id).stream()
+                                    .map(ipdto -> ipdto.getPrice().multiply(ipdto.getAmount()))
+                                    .reduce(BigDecimal.valueOf(0.0), BigDecimal::add);
+        return String.format("%.2f", totalPrice);
+    }
+
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
     }
-    private String getTotalPrice(Long id) {
-        var listOfInvoices = invoiceProductService.getByInvoiceId(id);
-        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for (InvoiceProductDto invoiceProductDto : listOfInvoices) {
-            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-                    .multiply(invoiceProductDto.getAmount()));
-        }
-        return String.format("%.2f", totalPrice);
-    }
-
 }
