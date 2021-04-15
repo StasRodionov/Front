@@ -47,7 +47,7 @@ public class PrintContractorsXls extends PrintExcelDocument<ContractorDto> {
                 editCell.setCellValue(model.getEmail());
                 break;
             case ("<address>"):
-                editCell.setCellValue(model.getAddress());
+                editCell.setCellValue(model.getAddressDto().toString());
                 break;
             case ("<commentToAddress>"):
                 editCell.setCellValue(model.getCommentToAddress());

@@ -574,8 +574,7 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
     }
 
     public List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
-        List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceDto.getId());
-        return invoiceProductDtoList;
+        return invoiceProductService.getByInvoiceId(invoiceDto.getId());
     }
 
     private void deleteAllInvoiceProductByInvoice(List<InvoiceProductDto> invoiceProductDtoList) {
