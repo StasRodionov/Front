@@ -4,6 +4,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.api.EmployeeApi;
+import com.vaadin.flow.function.SerializableComparator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,23 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeServiceImpl(@Value("${employee_url}") String employeeUrl, Retrofit retrofit) {
         this.employeeUrl = employeeUrl;
         employeeApi = retrofit.create(EmployeeApi.class);
+    }
+
+    @Override
+    public List<EmployeeDto> getListFilterComparator(SerializableComparator<EmployeeDto> comparator,
+                                                     int page, int count) {
+        List<EmployeeDto> companyDtoList = new ArrayList<>();
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForFilterComparator(employeeUrl,
+                comparator, page, count);
+
+        try {
+            companyDtoList = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto по фильтру");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
+
+        return companyDtoList;
     }
 
     public Long getRowCount() {

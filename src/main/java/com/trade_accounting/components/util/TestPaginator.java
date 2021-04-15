@@ -236,7 +236,8 @@ public class TestPaginator<T> extends HorizontalLayout {
     private void sort(SortEvent<Grid<T>, GridSortOrder<T>> gridGridSortOrderSortEvent) {
         gridGridSortOrderSortEvent.getSortOrder().forEach(tGridSortOrder -> {
             SerializableComparator<T> comparator = tGridSortOrder.getSorted().getComparator(tGridSortOrder.getDirection());
-            data = data.stream().sorted(comparator).collect(Collectors.toList());
+            //data = data.stream().sorted(comparator).collect(Collectors.toList());
+            data = paginatorInterface.getListFilterComparator(comparator, currentPage, itemsPerPage);
         });
         setData(data, true);
     }

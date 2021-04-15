@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.EmployeeDto;
+import com.vaadin.flow.function.SerializableComparator;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -16,6 +17,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface EmployeeApi {
+
+    @Headers("Accept: application/json")
+    @GET("{url}/comparator")
+    Call<List<EmployeeDto>> getListForFilterComparator(@Path(value = "url", encoded = true) String url,
+                                                       @Query("comparator")SerializableComparator<EmployeeDto> comparator,
+                                                       @Query("pageNumber") Integer pageNumber,
+                                                       @Query("rowsLimit") Integer rowsLimit);
 
     @Headers("Accept: application/json")
     @GET("{url}/pages/search")
