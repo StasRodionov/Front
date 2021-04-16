@@ -12,6 +12,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -27,17 +28,22 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "customersOrders", layout = AppView.class)
@@ -58,6 +64,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final GridFilter<InvoiceDto> filter;
 
     private final String typeOfInvoice = "RECEIPT";
+    private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/sales_templates/";
 
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
@@ -86,7 +93,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
 
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setKey("sum").setSortable(true);
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -224,8 +231,27 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         Select<String> print = new Select<>();
         print.setItems("Печать");
         print.setValue("Печать");
+        getXlsFile().forEach(x -> print.add(getLinkToSalesXls(x)));
         print.setWidth("130px");
         return print;
+    }
+
+    private List<File> getXlsFile() {
+        File dir = new File(pathForSaveSalesXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles()))
+                .filter(File::isFile).filter(x -> x.getName().contains(".xls"))
+                .collect(Collectors.toList());
+    }
+
+    private Anchor getLinkToSalesXls(File file) {
+        String salesTemplate = file.getName();
+        List<String> sumList = new ArrayList<>();
+        List<InvoiceDto> list1 = invoiceService.getAll(typeOfInvoice);
+        for (InvoiceDto inc: list1) {
+            sumList.add(getTotalPrice(inc));
+        }
+        PrintSalesXls printSalesXls = new PrintSalesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), sumList);
+        return new Anchor(new StreamResource(salesTemplate, printSalesXls::createReport), salesTemplate);
     }
 
     private void updateList() {
