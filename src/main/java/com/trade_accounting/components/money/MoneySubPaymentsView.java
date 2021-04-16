@@ -1,6 +1,7 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.PaymentDto;
 import com.trade_accounting.services.interfaces.PaymentService;
@@ -21,6 +22,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Route(value = "MoneySubPaymentsView", layout = AppView.class)
@@ -32,34 +35,52 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
+    private final GridFilter<PaymentDto> filter;
 
     MoneySubPaymentsView(PaymentService paymentService) {
         this.paymentService = paymentService;
         this.data = paymentService.getAll();
         getGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), grid, paginator);
-
+        add(getToolbar(), filter, grid, paginator);
     }
 
     private Grid getGrid() {
         grid.setItems(data);
-        grid.addColumn("id").setHeader("ID");
-        grid.addColumn("time").setFlexGrow(10).setHeader("Дата");
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn(iDto -> formatDate(iDto.getTime())).setKey("time").setFlexGrow(10).setHeader("Дата").setId("Дата");
         grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
-                .setHeader("Компания").setId("companyDto");
-        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма");
-        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платежа");
-        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа");
+                .setHeader("Компания").setKey("companyDto").setId("Компания");
+        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
+        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платежа").setId("Номер платежа");
+        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
         grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
-                .setHeader("Контрагент").setId("contractorDto");
+                .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
         grid.addColumn(pDto -> pDto.getContractDto().getNumber()).setFlexGrow(7).setSortable(true)
-                .setHeader("Договор").setId("contractDto");
+                .setHeader("Договор").setKey("contractDto").setId("Договор");
         grid.addColumn(pDto -> pDto.getProjectDto().getName()).setFlexGrow(7).setSortable(true)
-                .setHeader("Проект").setId("projectDto");
+                .setHeader("Проект").setKey("projectDto").setId("Проект");
         grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         return grid;
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("time");
+        filter.setFieldToComboBox("typeOfPayment", "OUTGOING", "INCOMING");
+        filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(paymentService.getAll()));
+    }
+
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
     }
 
     private HorizontalLayout getToolbar() {
@@ -103,7 +124,9 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private Button getButtonFilter() {
-        return new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
     }
 
     private Button getButton() {
