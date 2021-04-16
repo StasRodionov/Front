@@ -2,6 +2,7 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.AddressDto;
+import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
@@ -12,6 +13,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -24,6 +26,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -49,6 +52,8 @@ public class ContractorModalWindow extends Dialog {
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
     private final ComboBox<TypeOfPriceDto> typeOfPriceDtoSelect = new ComboBox<>();
     private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
+    private final ComboBox<List<ContactDto>> contactDtoSelect = new ComboBox<>();
+    private final Binder<ContactDto> contactDtoBinder = new Binder<>(ContactDto.class);
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
     private final Binder<LegalDetailDto> legalDetailDtoBinder = new Binder<>(LegalDetailDto.class);
 
@@ -63,6 +68,7 @@ public class ContractorModalWindow extends Dialog {
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
+    private List<ContactDto> contactDto;
     List<TypeOfContractorDto> typeOfContractorDtoList;
     // private final TextField idLegalDetailField = new TextField("ID");
     private final TextField lastNameLegalDetailField = new TextField("Фамилия");
@@ -78,6 +84,7 @@ public class ContractorModalWindow extends Dialog {
 
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контракта.");
 //    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
+
 
     // блок адреса
     private final TextField addressIndex = new TextField();
@@ -192,10 +199,11 @@ public class ContractorModalWindow extends Dialog {
         add(componentFormContractDto);
 
 
-        Details componentContactFaces = new Details("Контактные лица", new Text("Добавить компоненты."));
+        Details componentContactFaces = new Details("Контактные лица", new Text(" "));
         componentContactFaces.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentContactFaces.addOpenedChangeListener(e ->
                 Notification.show(e.isOpened() ? "Opened" : "Closed"));
+        componentContactFaces.addContent(contactDetailSelect());
         add(componentContactFaces);
 
         Details componentDetails = new Details("Реквизиты", new Text(" "));
@@ -217,6 +225,53 @@ public class ContractorModalWindow extends Dialog {
                 componentDetails, componentLayoutTypeOfPrice, componentAccesses);
 
         return componentAll;
+
+    }
+
+    private VerticalLayout contactDetailSelect() {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        if (contractorDto.getId() != null) {
+            contactDto = contractorService
+                    .getById(contractorDto.getId()).getContactDto();
+            if (contactDto != null) {
+
+                contactDto.forEach(el->showContact(el, verticalLayout));
+            }
+//            legalDetailDtoSelect.setWidth(FIELD_WIDTH);
+        }
+        return verticalLayout;
+    }
+
+    private void showContact(ContactDto el, VerticalLayout verticalLayout) {
+        FormLayout contactForm = new FormLayout();
+        Style addressFormStyle = contactForm.getStyle();
+        addressFormStyle.set("width", "385px");
+        //Блок контактных лиц
+        TextField contactFullName = new TextField();
+        TextField contactPosition = new TextField();
+        TextField contactPhone = new TextField();
+        TextField contactEmail = new TextField();
+        TextField contactComment = new TextField();
+
+        contactForm.addFormItem(contactFullName, "ФИО");
+        contactForm.addFormItem(contactPosition, "Должность");
+        contactForm.addFormItem(contactPhone, "Телефон");
+        contactForm.addFormItem(contactEmail, "Электронный адрес");
+        contactForm.addFormItem(contactComment, "Комментарий");
+
+        contactFullName.setPlaceholder("ФИО");
+        contactFullName.setValue(el.getFullName());
+        contactFullName.setRequired(true);
+        contactPosition.setPlaceholder("Должность");
+        contactPosition.setValue(el.getPosition());
+        contactPhone.setPlaceholder("Телефон");
+        contactPhone.setValue(el.getPhone());
+        contactEmail.setPlaceholder("Электронный адрес");
+        contactEmail.setValue(el.getEmail());
+        contactComment.setPlaceholder("Комментарий");
+        contactComment.setValue(el.getComment());
+
+        verticalLayout.add(contactForm);
 
     }
 
