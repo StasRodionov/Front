@@ -66,7 +66,7 @@ import java.util.WeakHashMap;
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends VerticalLayout {
+public class SalesEditCreateInvoiceView extends  VerticalLayout{
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -105,6 +105,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
     private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
     private final Binder<InvoiceDto> binderInvoiceDtoContractorValueChangeListener = new Binder<>(InvoiceDto.class);
+    private String type = null;
+    private String location = null;
 
     @Autowired
     public SalesEditCreateInvoiceView(ContractorService contractorService,
@@ -373,7 +375,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private Button buttonSave() {
-        Button buttonSave = new Button("Сохранить", buttonClickEvent -> {
+        return new Button("Сохранить", buttonClickEvent -> {
 
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
@@ -382,18 +384,17 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 if (dateField.getValue() == null) {
                     dateField.setValue(LocalDateTime.now());
                 }
-                InvoiceDto invoiceDto = saveInvoice();
+                InvoiceDto invoiceDto = saveInvoice(type);
 
                 deleteAllInvoiceProductByInvoice(
                         getListOfInvoiceProductByInvoice(invoiceDto)
                 );
 
                 addInvoiceProductToInvoicedDto(invoiceDto);
-                UI.getCurrent().navigate("sells");
+                UI.getCurrent().navigate(location);
                 notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
             }
         });
-        return buttonSave;
     }
 
     private Button buttonClose() {
@@ -406,20 +407,20 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private void closeView() {
         resetView();
-        UI.getCurrent().navigate("sells");
+        UI.getCurrent().navigate(location);
     }
 
     private Button configureDeleteButton() {
         buttonDelete.addClickListener(event -> {
             deleteInvoiceById(Long.parseLong(invoiceIdField.getValue()));
             resetView();
-            buttonDelete.getUI().ifPresent(ui -> ui.navigate("sells"));
+            buttonDelete.getUI().ifPresent(ui -> ui.navigate(location));
         });
         return buttonDelete;
     }
 
     private Button buttonAddProduct() {
-        Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
+        return new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
@@ -427,7 +428,6 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 salesChooseGoodsModalWin.open();
             }
         });
-        return button;
     }
 
     public void addProduct(ProductDto productDto) {
@@ -544,12 +544,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         contractorSelect.setInvalid(false);
         companySelect.setInvalid(false);
         warehouseSelect.setInvalid(false);
-        title.setText("Добавление аказа");
+        title.setText("Добавление заказа");
         paginator.setData(tempInvoiceProductDtoList = new ArrayList<>());
         setTotalPrice();
     }
 
-    private InvoiceDto saveInvoice() {
+    private InvoiceDto saveInvoice(String type) {
         InvoiceDto invoiceDto = new InvoiceDto();
         if (!invoiceIdField.getValue().equals("")) {
             invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
@@ -558,7 +558,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         invoiceDto.setCompanyDto(companySelect.getValue());
         invoiceDto.setContractorDto(contractorSelect.getValue());
         invoiceDto.setWarehouseDto(warehouseSelect.getValue());
-        invoiceDto.setTypeOfInvoice("RECEIPT");
+        invoiceDto.setTypeOfInvoice(type);
         invoiceDto.setSpend(isSpend.getValue());
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
         InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
@@ -576,8 +576,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     public List<InvoiceProductDto> getListOfInvoiceProductByInvoice(InvoiceDto invoiceDto) {
-        List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceDto.getId());
-        return invoiceProductDtoList;
+        return invoiceProductService.getByInvoiceId(invoiceDto.getId());
     }
 
     private void deleteAllInvoiceProductByInvoice(List<InvoiceProductDto> invoiceProductDtoList) {
@@ -651,5 +650,11 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
         dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
+    public void setType(String type) {
+        this.type = type;
+    } public void setLocation(String location) {
+        this.location = location;
+    }
+
 
 }

@@ -79,6 +79,9 @@ public class ContractsView extends VerticalLayout {
         grid.getColumnByKey("amount").setHeader("Сумма").setId("Сумма");
         grid.getColumnByKey("comment").setHeader("Комментарий").setId("Комментарий");
         grid.getColumnByKey("number").setHeader("Сортировочный номер").setId("Сортировочный номер");
+
+
+
         grid.addColumn(contractDto -> contractDto.getCompanyDto().getName())
                 .setHeader("Компания").setKey("company").setId("Компания");
         grid.addColumn(contractDto -> contractDto.getContractorDto().getName())
@@ -112,6 +115,9 @@ public class ContractsView extends VerticalLayout {
                 grid.getColumnByKey("archive"),
                 grid.getColumnByKey("comment"),
                 grid.getColumnByKey("number"));
+
+
+
 
         grid.setHeight("66vh");
         grid.getColumns().forEach(column -> column.setAutoWidth(true));

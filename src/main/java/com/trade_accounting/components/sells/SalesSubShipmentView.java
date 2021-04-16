@@ -44,6 +44,8 @@ public class SalesSubShipmentView extends VerticalLayout {
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
 
+    private final String typeOfInvoice = "RECEIPT";
+
     @Autowired
     public SalesSubShipmentView(InvoiceService invoiceService,
                                 ContractorService contractorService,
@@ -180,12 +182,12 @@ public class SalesSubShipmentView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll());
+        grid.setItems(invoiceService.getAll(typeOfInvoice));
         System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
 }

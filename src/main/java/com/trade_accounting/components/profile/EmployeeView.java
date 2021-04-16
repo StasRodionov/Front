@@ -148,8 +148,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private TextField text() {

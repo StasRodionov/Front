@@ -1,7 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.PaymentDto;
-import com.trade_accounting.models.dto.ProjectDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -10,8 +10,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PaymentApi {
     @Headers("Accept: application/json")
@@ -33,4 +35,13 @@ public interface PaymentApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/filter")
+    Call<List<PaymentDto>> filter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search/{search}")
+    Call<List<PaymentDto>> search(@Path(value = "url", encoded = true) String url,
+                                  @Path(value = "search") String search);
 }

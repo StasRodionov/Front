@@ -4,6 +4,7 @@ import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductService {
 
@@ -19,5 +20,8 @@ public interface ProductService {
 
     List<ProductDto> getAllByProductGroup(ProductGroupDto productGroupDto);
 
+    List<ProductDto> search(String query);
+
+    List<ProductDto> searchByFilter(Map<String, String> query);
 }
 

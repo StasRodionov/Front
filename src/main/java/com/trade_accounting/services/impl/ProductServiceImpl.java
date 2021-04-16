@@ -14,16 +14,17 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
-public class ProductServiceImp implements ProductService {
+public class ProductServiceImpl implements ProductService {
 
     private final String productUrl;
     private final ProductApi productApi;
 
 
-    ProductServiceImp(@Value("${product_url}") String productUrl, Retrofit retrofit) {
+    ProductServiceImpl(@Value("${product_url}") String productUrl, Retrofit retrofit) {
         this.productUrl = productUrl;
         productApi = retrofit.create(ProductApi.class);
     }
@@ -45,13 +46,13 @@ public class ProductServiceImp implements ProductService {
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
         ProductDto productDto = new ProductDto();
-            try {
-                Response<ProductDto> execute = productGetCall.execute();
-                productDto = execute.body();
-                log.info("Успешно выполнен запрос на получение ProductDto");
-            } catch (IOException e) {
-                log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
-            }
+        try {
+            Response<ProductDto> execute = productGetCall.execute();
+            productDto = execute.body();
+            log.info("Успешно выполнен запрос на получение ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
+        }
         return productDto;
     }
 
@@ -101,4 +102,29 @@ public class ProductServiceImp implements ProductService {
         return productDtos;
     }
 
+    @Override
+    public List<ProductDto> search(String query) {
+        List<ProductDto> productDtoList = new ArrayList<>();
+        Call<List<ProductDto>> productDtoListCall = productApi.search(productUrl, query);
+        try {
+            productDtoList = productDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ProductDto - ", e);
+        }
+        return productDtoList;
+    }
+
+    @Override
+    public List<ProductDto> searchByFilter(Map<String, String> query) {
+        List<ProductDto> productDtoList = new ArrayList<>();
+        Call<List<ProductDto>> productDtoListCall = productApi.searchByFilter(productUrl, query);
+        try {
+            productDtoList = productDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос ФИЛЬТРА на поиск и получение списка ProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка ProductDto - ", e);
+        }
+        return productDtoList;
+    }
 }

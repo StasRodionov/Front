@@ -11,4 +11,6 @@ public interface EmployeeService extends PageableService<EmployeeDto> {
     void update(EmployeeDto employeeDto);
 
     void deleteById(Long id);
+
+    EmployeeDto getPrincipal();
 }

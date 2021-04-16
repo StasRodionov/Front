@@ -21,7 +21,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -236,8 +235,8 @@ public class GridFilter<T> extends HorizontalLayout {
 
     private TextField getFilterTextField(String columnKey) {
         TextField filter = new TextField();
+        filter.setMaxWidth("150px");
         filter.setId(columnKey);
-
         filter.addValueChangeListener(e -> onFilterChange(filter));
         filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
         Grid.Column<T> column = grid.getColumnByKey(columnKey);
