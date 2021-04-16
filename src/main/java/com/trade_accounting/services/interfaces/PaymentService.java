@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.PaymentDto;
 
 import java.util.List;
@@ -20,4 +19,5 @@ public interface PaymentService {
 
     List<PaymentDto> filter(Map<String, String> query);
 
+    List<PaymentDto> search(String search);
 }

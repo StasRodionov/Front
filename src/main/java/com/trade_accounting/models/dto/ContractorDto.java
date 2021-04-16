@@ -11,51 +11,28 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContractorDto {
-
     private Long id;
-
     private String name;
-
     private String inn;
-
     private String sortNumber;
-
     private String phone;
-
     private String fax;
-
     private String email;
 
-    private String address;
+    @EqualsAndHashCode.Exclude
+    private AddressDto addressDto;
 
     private String commentToAddress;
-
     private String comment;
 
     @EqualsAndHashCode.Exclude
     private ContractorGroupDto contractorGroupDto;
-    private String contractorGroupName;
-    private long contractorGroupId;
-
     @EqualsAndHashCode.Exclude
     private TypeOfContractorDto typeOfContractorDto;
-    private String typeOfContractorName;
-    private long typeOfContractorId;
-
     @EqualsAndHashCode.Exclude
     private TypeOfPriceDto typeOfPriceDto;
-    private String typeOfPriceName;
-    private long typeOfPriceId;
-
     @EqualsAndHashCode.Exclude
     private List<BankAccountDto> bankAccountDto;
-    private Integer bankAccountSize;
-    private long bankAccountId;
-
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;
-    private String legalDetailInn;
-    private long legalDetailId;
-
-
 }

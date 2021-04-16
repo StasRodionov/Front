@@ -10,16 +10,26 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 @Route(value = "purchases", layout = AppView.class)
 @PageTitle("Закупки")
+@SpringComponent
+@UIScope
 public class PurchasesSubMenuView extends Div implements AfterNavigationObserver {
 
     private final Div div;
     private final InvoiceService invoiceService;
+    private final PurchasesSubSuppliersOrders purchasesSubSuppliersOrders;
 
-    public PurchasesSubMenuView(InvoiceService invoiceService) {
+    @Autowired
+    public PurchasesSubMenuView(InvoiceService invoiceService,
+                                @Lazy PurchasesSubSuppliersOrders purchasesSubSuppliersOrders) {
         this.invoiceService = invoiceService;
+        this.purchasesSubSuppliersOrders = purchasesSubSuppliersOrders;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -34,7 +44,7 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
         });
         getUI().ifPresent(ui -> {
             div.removeAll();
-            div.add(new PurchasesSubSuppliersOrders(invoiceService));
+            div.add(purchasesSubSuppliersOrders);
         });
     }
 

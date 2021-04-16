@@ -4,7 +4,6 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
@@ -100,14 +99,14 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn("sortNumber").setHeader("номер").setId("номер");
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
-        grid.addColumn("email").setHeader("емэйл").setId("емэйл");
-        grid.addColumn("address").setHeader("адресс").setId("адресс");
-        grid.addColumn("commentToAddress").setHeader("комментарий к адресу").setId("комментарий к адресу");
-        grid.addColumn("comment").setHeader("комментарий").setId("комментарий");
-        grid.addColumn("contractorGroupName").setHeader("Группы").setId("Группы");
-        grid.addColumn("typeOfContractorName").setHeader("Тип контрагента").setId("Тип контрагента");
-        grid.addColumn("typeOfPriceName").setHeader("Скидки и цены").setId("Скидки и цены");
-        grid.addColumn("legalDetailInn").setHeader("Реквизиты").setId("Реквизиты");
+        grid.addColumn("email").setHeader("email").setId("email");
+        grid.addColumn(iDto -> iDto.getAddressDto().toString()).setHeader("Адрес").setId("Адрес");
+        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setId("комментарий к адресу");
+        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setId("комментарий");
+        grid.addColumn(iDto -> iDto.getContractorGroupDto().getName()).setHeader("Группы").setId("Группы");
+        grid.addColumn(iDto -> iDto.getTypeOfContractorDto().getName()).setHeader("Тип контрагента").setId("Тип контрагента");
+        grid.addColumn(iDto -> iDto.getTypeOfPriceDto().getName()).setHeader("Скидки и цены").setId("Скидки и цены");
+        grid.addColumn(iDto -> iDto.getLegalDetailDto().getInn()).setHeader("Реквизиты").setId("Реквизиты");
         grid.setHeight("64vh");
 
         grid.setColumnReorderingAllowed(true);
@@ -122,6 +121,7 @@ public class ContractorsTabView extends VerticalLayout {
             addContractorModalWindowUpdate.open();
         });
     }
+
     private Button buttonUnit() {
         Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
         ContractorModalWindow addContractorModalWindowCreate =
@@ -154,21 +154,18 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private TextField text() {
-
-            textField.setWidth("300px");
-            textField.setPlaceholder("Наимен, ИНН, тел., коммент...");
-            textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
-            textField.setClearButtonVisible(true);
-            textField.setValueChangeMode(ValueChangeMode.EAGER);
-            textField.addValueChangeListener(e -> updateListTextField());
-
-            setSizeFull();
-
+        textField.setWidth("300px");
+        textField.setPlaceholder("Наимен, ИНН, тел., коммент...");
+        textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setClearButtonVisible(true);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateListTextField());
+        setSizeFull();
         return textField;
     }
 
     public void updateListTextField() {
-        if (!( textField.getValue().equals(""))) {
+        if (!(textField.getValue().equals(""))) {
             grid.setItems(contractorService.getAll(textField.getValue()));
         } else {
             grid.setItems(contractorService.getAll("null"));
@@ -289,7 +286,6 @@ public class ContractorsTabView extends VerticalLayout {
         Div content = new Div();
         content.addClassName("my-style");
         content.setText(message);
-
         Notification notification = new Notification(content);
         notification.setDuration(5000);
         String styles = ".my-style { color: red; }";
