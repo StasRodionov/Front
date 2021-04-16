@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,9 +27,11 @@ public class LegalDetailDto {
 
     private String inn;
 
+    private String kpp;
+
     private String okpo;
 
-    private String ogrnip;
+    private String ogrn;
 
     private String numberOfTheCertificate;
 
@@ -36,5 +39,7 @@ public class LegalDetailDto {
 
     @EqualsAndHashCode.Exclude
     private TypeOfContractorDto typeOfContractorDto;
+    @EqualsAndHashCode.Exclude
+    private List<BankAccountDto> bankAccounts;
 }
 

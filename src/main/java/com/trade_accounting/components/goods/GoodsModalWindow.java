@@ -66,7 +66,7 @@ public class GoodsModalWindow extends Dialog {
     private final ProductService productService;
     private final ImageService imageService;
     private final ProductGroupService productGroupService;
-    private final ImageService imageService;
+    //private final ImageService imageService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
 
@@ -100,7 +100,7 @@ public class GoodsModalWindow extends Dialog {
                             ProductService productService,
                             ImageService imageService,
                             ProductGroupService productGroupService,
-                            ImageService imageService,
+                            //ImageService imageService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService) {
         this.unitService = unitService;
@@ -109,7 +109,7 @@ public class GoodsModalWindow extends Dialog {
         this.productService = productService;
         this.imageService = imageService;
         this.productGroupService = productGroupService;
-        this.imageService = imageService;
+        //this.imageService = imageService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
 
