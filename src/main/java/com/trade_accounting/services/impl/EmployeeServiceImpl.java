@@ -1,22 +1,16 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.api.EmployeeApi;
-import com.vaadin.flow.function.SerializableComparator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,38 +26,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeApi = retrofit.create(EmployeeApi.class);
     }
 
-    @Override
-    public List<EmployeeDto> getListFilterComparator(SerializableComparator<EmployeeDto> comparator,
-                                                     int page, int count) {
-        List<EmployeeDto> companyDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForFilterComparator(employeeUrl,
-                comparator, page, count);
 
-        try {
-            companyDtoList = companyDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto по фильтру");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
-        }
-
-        return companyDtoList;
-    }
-
-    public Long getRowCount() {
-        Call<Long> getRow = employeeApi.getRowCount(employeeUrl);
-        Long countRow = 0l;
-        try {
-            countRow = getRow.execute().body();
-            log.info("Успешно выполнен запрос");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
-        }
-        return countRow;
-    }
-
-    public Long getRowCount(Map<String, String> query) {
+    public Long getRowsCount(Map<String, String> query) {
         Call<Long> getRow = employeeApi.getRowCount(employeeUrl, query);
-        Long countRow = 0l;
+        Long countRow = 0L;
         try {
             countRow = getRow.execute().body();
             log.info("Успешно выполнен запрос");
@@ -74,9 +40,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeDto> getListFilter(Map<String, String> query, Map<String, String> sortParams, int page, int count) {
+    public List<EmployeeDto> getPage(Map<String, String> filterParams, Map<String, String> sortParams, int page, int count) {
         List<EmployeeDto> companyDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForFilterPaginator(employeeUrl, sortParams, query, page, count);
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getPage(employeeUrl, sortParams, filterParams, page, count);
 
         try {
             companyDtoList = companyDtoListCall.execute().body();
@@ -85,70 +51,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
         }
 
-        return companyDtoList;
-    }
-
-    @Override
-    public List<EmployeeDto> getAll() {
-
-        List<EmployeeDto> employeeDtoList = new ArrayList<>();
-
-        Call<List<EmployeeDto>> employeeDtoListCall = employeeApi.getAll(employeeUrl);
-
-        try {
-            employeeDtoList = employeeDtoListCall.execute().body();
-
-            log.info("Успешно выполнен запрос на получение списка EmployeeDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка EmployeeDto");
-        }
-/*        employeeDtoListCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<List<EmployeeDto>> call, Response<List<EmployeeDto>> response) {
-                if (response.isSuccessful()) {
-                    employeeDtoList = response.body();
-                    log.info("Успешно выполнен запрос на получение списка EmployeeDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение списка EmployeeDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<EmployeeDto>> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос списка EmployeeDto", throwable);
-            }
-        });
- */
-        return employeeDtoList;
-    }
-
-    @Override
-    public List<EmployeeDto> search(Map<String, String> query) {
-        List<EmployeeDto> companyDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.search(employeeUrl, query);
-
-        try {
-            companyDtoList = companyDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
-        }
-
-        return companyDtoList;
-    }
-
-    @Override
-    public List<EmployeeDto> getList(Map<String, String> sortParams, int page, int count) {
-        List<EmployeeDto> companyDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForPaginator(employeeUrl, sortParams, page, count);
-
-        try {
-            companyDtoList = companyDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto ленивый пагинатор");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
-        }
         return companyDtoList;
     }
 

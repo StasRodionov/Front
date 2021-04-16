@@ -2,8 +2,7 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.TestPaginator;
+import com.trade_accounting.components.util.LazyPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -26,17 +25,13 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Route(value = "employee", layout = AppView.class)
@@ -48,39 +43,25 @@ public class EmployeeView extends VerticalLayout {
     private final RoleService roleService;
     private final ImageService imageService;
     private List<EmployeeDto> data;
-//    private final List<EmployeeDto> finalData;
-//    private final GridPaginator<EmployeeDto> paginator;
     private final GridFilter<EmployeeDto> filter;
-
-    //test
-    private final TestPaginator<EmployeeDto> testPaginator;
+    private final LazyPaginator<EmployeeDto> lazyPaginator;
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
-//        this.finalData = employeeService.getAll();
         this.imageService = imageService;
-//        this.data = finalData;
         this.grid = new Grid<>(EmployeeDto.class);
 
         configureGrid();
         this.filter = new GridFilter<>(grid);
-        this.testPaginator = new TestPaginator<>(grid, employeeService, 3, filter);
+        this.lazyPaginator = new LazyPaginator<>(grid, employeeService, 2, filter);
 
-        setHorizontalComponentAlignment(Alignment.CENTER, testPaginator);
-
-//        updateGrid();
-//        configureFilter();
-        add(upperLayout(), filter, grid, testPaginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, lazyPaginator);
+        add(upperLayout(), filter, grid, lazyPaginator);
     }
 
-//    private void configureFilter() {
-//        filter.onSearchClick(e -> testPaginator.setData(employeeService.search(filter.getFilterData())));
-//        filter.onClearClick(e -> testPaginator.setData(employeeService.getAll()));
-//    }
-
     private void updateGrid() {
-        //grid.setItems(employeeService.getAll());
+        lazyPaginator.updateData(false);
         log.info("Таблица обновилась");
     }
 

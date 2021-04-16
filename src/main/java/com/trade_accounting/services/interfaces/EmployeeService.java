@@ -2,14 +2,7 @@ package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.EmployeeDto;
 
-import java.util.List;
-import java.util.Map;
-
-public interface EmployeeService extends PaginatorInterface<EmployeeDto>{
-
-    List<EmployeeDto> getAll();
-
-    List<EmployeeDto> search(Map<String, String> query);
+public interface EmployeeService extends PageableService<EmployeeDto> {
 
     EmployeeDto getById(Long id);
 

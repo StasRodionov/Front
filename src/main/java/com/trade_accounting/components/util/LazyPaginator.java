@@ -1,6 +1,6 @@
 package com.trade_accounting.components.util;
 
-import com.trade_accounting.services.interfaces.PaginatorInterface;
+import com.trade_accounting.services.interfaces.PageableService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
@@ -11,25 +11,23 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.function.SerializableComparator;
 
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Server-side component for pagination grid.
  */
-public class TestPaginator<T> extends HorizontalLayout {
+public class LazyPaginator<T> extends HorizontalLayout {
     private int itemsPerPage;
     private int numberOfPages;
     private int currentPage;
 
     private final Grid<T> grid;
     private List<T> data;
-    private PaginatorInterface<T> paginatorInterface;
+    private PageableService<T> pageableService;
     private IntegerField pageItemsTextField;
     private final Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
     private final Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
@@ -44,19 +42,18 @@ public class TestPaginator<T> extends HorizontalLayout {
      * Creates a Paginator with specific number of items per page.
      *
      * @param grid         grid for pagination
-     * @param paginatorInterface         data for grid
+     * @param pageableService         data for grid
      * @param itemsPerPage number items per page
      */
-    public TestPaginator(Grid<T> grid, PaginatorInterface<T> paginatorInterface,
+    public LazyPaginator(Grid<T> grid, PageableService<T> pageableService,
                          int itemsPerPage, GridFilter<T> gridFilter) {
         this.gridFilter = gridFilter;
         this.grid = grid;
-        this.paginatorInterface = paginatorInterface;
+        this.pageableService = pageableService;
         this.itemsPerPage = itemsPerPage;
-        this.data = paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage);
-        this.rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
-        this.sortParams.put("column", "id");
-        this.sortParams.put("direction", SortOrder.ASCENDING.toString());
+        this.data = pageableService.getPage(gridFilter.getFilterData(), this.sortParams, currentPage, itemsPerPage);
+        this.rowCount = pageableService.getRowsCount(gridFilter.getFilterData());
+        this.setSortParams("id", SortOrder.ASCENDING.toString());
         grid.setPageSize(itemsPerPage);
         grid.addSortListener(this::sort);
         calculateNumberOfPages();
@@ -68,26 +65,14 @@ public class TestPaginator<T> extends HorizontalLayout {
         add(firstPageButton, prevPageButton, pageItemsTextField, nextPageButton, lastPageButton);
     }
 
-    /**
-     * Creates a Paginator with 10 items per page.
-     *
-     * @param grid grid for pagination
-     * @param paginatorInterface data for grid
-     */
-    public TestPaginator(Grid<T> grid, PaginatorInterface<T> paginatorInterface, GridFilter<T> gridFilter) {
-        this(grid, paginatorInterface, 10, gridFilter);
-    }
-
     private void configureFilter() {
         gridFilter.onSearchClick(e -> {
             this.filterIsActive = true;
-            reloadGrid();
-//            this.setData(paginatorInterface.getListFilter(gridFilter.getFilterData(),
-//                    currentPage, itemsPerPage), true);
+            this.updateData(false);
         });
         gridFilter.onClearClick(e -> {
             this.filterIsActive = false;
-            this.setData(getPageData(), false);
+            this.updateData(false);
         });
     }
     private void configureButton() {
@@ -106,17 +91,8 @@ public class TestPaginator<T> extends HorizontalLayout {
     }
 
     private List<T> getPageData() {
-        //flag for filter
-        if (filterIsActive) {
-            rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
-            data = paginatorInterface.getListFilter(gridFilter.getFilterData(), this.sortParams, currentPage, itemsPerPage);
-        } else {
-            data = paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage);
-        }
-//        int from = (currentPage - 1) * itemsPerPage;
-//        int to = (from + itemsPerPage);
-//        to = Math.min(to, data.size());
-
+        rowCount = pageableService.getRowsCount(gridFilter.getFilterData());
+        data = pageableService.getPage(gridFilter.getFilterData(), this.sortParams, currentPage, itemsPerPage);
         return data;
     }
 
@@ -195,50 +171,14 @@ public class TestPaginator<T> extends HorizontalLayout {
         return numberOfPages;
     }
 
-
     /**
-     * Sets the number of items per page of the paginator. Is has to be greater than 0.
+     * Updates all necessary data for grid update.
      *
-     * @param itemsPerPage items per page
-     */
-    public void setItemsPerPage(int itemsPerPage) {
-        if (itemsPerPage < 1) {
-            throw new IllegalArgumentException("The number of items per page has to be greater than 0");
-        }
-        this.itemsPerPage = itemsPerPage;
-        calculateNumberOfPages();
-
-        setCurrentPageAndReloadGrid(1);
-    }
-
-    /**
-     * Sets new data for paginator.
-     * Also set current page to 1 and reload grid.
-     *
-     * @param data data for grid
-     */
-    public void setData(List<T> data, boolean flag) {
-        rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
-        this.filterIsActive = flag;
-        setData(data, flag, false);
-    }
-
-
-    /**
-     * Sets new data for paginator.
-     *
-     * @param data data for grid
      * @param saveCurrentPage save current page flag
      */
-    public void setData(List<T> data, boolean flag, boolean saveCurrentPage){
-        rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
-//        SerializableComparator<T> comparator = grid.getDataCommunicator().getInMemorySorting();
-//        if (comparator != null){
-//            data = data.stream().sorted(comparator).collect(Collectors.toList());
-//        }
-//        this.data = data;
+    public void updateData(boolean saveCurrentPage){
+        rowCount = pageableService.getRowsCount(gridFilter.getFilterData());
         calculateNumberOfPages();
-
         if (saveCurrentPage && numberOfPages >= currentPage) {
             setCurrentPageAndReloadGrid(getCurrentPage());
         } else {
@@ -246,20 +186,20 @@ public class TestPaginator<T> extends HorizontalLayout {
         }
     }
 
-    //FIXME двойной вызов
+    private void setSortParams(String sortColumn, String sortDirection) {
+        this.sortParams.put("column", sortColumn);
+        this.sortParams.put("direction", sortDirection);
+    }
+
+    //FIXME двойной вызов при переходе сортировки между столбцами (сначала сбрасывается сортировка на одном, а потом ставится на другом)
     private void sort(SortEvent<Grid<T>, GridSortOrder<T>> gridGridSortOrderSortEvent) {
         if (!gridGridSortOrderSortEvent.getSortOrder().isEmpty()) {
             gridGridSortOrderSortEvent.getSortOrder().forEach(tGridSortOrder -> {
-                this.sortParams.put("column", tGridSortOrder.getSorted().getKey());
-                this.sortParams.put("direction", tGridSortOrder.getDirection().toString());
+                this.setSortParams(tGridSortOrder.getSorted().getKey(), tGridSortOrder.getDirection().toString());
             });
-            reloadGrid();
-//            setData(paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage), this.filterIsActive, true);
         } else {
-            this.sortParams.put("column", "id");
-            this.sortParams.put("direction", SortOrder.ASCENDING.toString());
-            reloadGrid();
-//            setData(paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage), this.filterIsActive, true);
+            this.setSortParams("id", SortOrder.ASCENDING.toString());
         }
+        updateData(true);
     }
 }

@@ -1,7 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.EmployeeDto;
-import com.vaadin.flow.function.SerializableComparator;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -13,48 +12,22 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public interface EmployeeApi {
 
     @Headers("Accept: application/json")
-    @GET("{url}/comparator")
-    Call<List<EmployeeDto>> getListForFilterComparator(@Path(value = "url", encoded = true) String url,
-                                                       @Query("comparator")SerializableComparator<EmployeeDto> comparator,
-                                                       @Query("pageNumber") Integer pageNumber,
-                                                       @Query("rowsLimit") Integer rowsLimit);
-
-    @Headers("Accept: application/json")
-    @GET("{url}/pages/search")
-    Call<List<EmployeeDto>> getListForFilterPaginator(@Path(value = "url", encoded = true) String url,
-                                                      @QueryMap Map<String, String> query,
-                                                      @QueryMap Map<String, String> sortParams,
-                                                      @Query("pageNumber") Integer pageNumber,
-                                                      @Query("rowsLimit") Integer rowsLimit);
-    @Headers("Accept: application/json")
     @GET("{url}/pages")
-    Call<List<EmployeeDto>> getListForPaginator(@Path(value = "url", encoded = true) String url,
-                                                @QueryMap Map<String, String> sortOrder,
-                                                @Query("pageNumber") Integer pageNumber,
-                                                @Query("rowsLimit") Integer rowsLimit);
-
-    @Headers("Accept: application/json")
-    @GET("{url}/count")
-    Call<Long> getRowCount(@Path(value = "url", encoded = true) String url);
+    Call<List<EmployeeDto>> getPage(@Path(value = "url", encoded = true) String url,
+                                    @QueryMap Map<String, String> query,
+                                    @QueryMap Map<String, String> sortParams,
+                                    @Query("pageNumber") Integer pageNumber,
+                                    @Query("rowsLimit") Integer rowsLimit);
 
     @Headers("Accept: application/json")
     @GET("{url}/count")
     Call<Long> getRowCount(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
-
-    @Headers("Accept: application/json")
-    @GET("{url}")
-    Call<List<EmployeeDto>> getAll(@Path(value = "url", encoded = true) String url);
-
-    @Headers("Accept: application/json")
-    @GET("{url}/search")
-    Call<List<EmployeeDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
