@@ -13,6 +13,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,11 +30,13 @@ public interface EmployeeApi {
     @GET("{url}/pages/search")
     Call<List<EmployeeDto>> getListForFilterPaginator(@Path(value = "url", encoded = true) String url,
                                                       @QueryMap Map<String, String> query,
-                                                    @Query("pageNumber") Integer pageNumber,
-                                                    @Query("rowsLimit") Integer rowsLimit);
+                                                      @QueryMap Map<String, String> sortParams,
+                                                      @Query("pageNumber") Integer pageNumber,
+                                                      @Query("rowsLimit") Integer rowsLimit);
     @Headers("Accept: application/json")
     @GET("{url}/pages")
     Call<List<EmployeeDto>> getListForPaginator(@Path(value = "url", encoded = true) String url,
+                                                @QueryMap Map<String, String> sortOrder,
                                                 @Query("pageNumber") Integer pageNumber,
                                                 @Query("rowsLimit") Integer rowsLimit);
 

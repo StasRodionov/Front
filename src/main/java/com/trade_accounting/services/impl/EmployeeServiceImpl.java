@@ -7,6 +7,7 @@ import com.trade_accounting.services.interfaces.api.EmployeeApi;
 import com.vaadin.flow.function.SerializableComparator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -15,6 +16,7 @@ import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,9 +74,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeDto> getListFilter(Map<String, String> query, int page, int count) {
+    public List<EmployeeDto> getListFilter(Map<String, String> query, Map<String, String> sortParams, int page, int count) {
         List<EmployeeDto> companyDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForFilterPaginator(employeeUrl, query, page, count);
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForFilterPaginator(employeeUrl, sortParams, query, page, count);
 
         try {
             companyDtoList = companyDtoListCall.execute().body();
@@ -137,9 +139,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeDto> getList(int page, int count) {
+    public List<EmployeeDto> getList(Map<String, String> sortParams, int page, int count) {
         List<EmployeeDto> companyDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForPaginator(employeeUrl, page, count);
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getListForPaginator(employeeUrl, sortParams, page, count);
 
         try {
             companyDtoList = companyDtoListCall.execute().body();

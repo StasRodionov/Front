@@ -13,6 +13,8 @@ import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableComparator;
 
+import javax.swing.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,8 +36,9 @@ public class TestPaginator<T> extends HorizontalLayout {
     private final Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
     private final Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
     private Long rowCount;
-    private boolean flag = false;
+    private boolean filterIsActive = false;
     private GridFilter<T> gridFilter;
+    private Map<String, String> sortParams = new HashMap<>();
 
     /**
      * Creates a Paginator with specific number of items per page.
@@ -50,8 +53,10 @@ public class TestPaginator<T> extends HorizontalLayout {
         this.grid = grid;
         this.paginatorInterface = paginatorInterface;
         this.itemsPerPage = itemsPerPage;
-        this.data = paginatorInterface.getList(currentPage, itemsPerPage);
-        this.rowCount = paginatorInterface.getRowCount();
+        this.data = paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage);
+        this.rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
+        this.sortParams.put("column", "id");
+        this.sortParams.put("direction", SortOrder.ASCENDING.toString());
         grid.setPageSize(itemsPerPage);
         grid.addSortListener(this::sort);
         calculateNumberOfPages();
@@ -74,9 +79,16 @@ public class TestPaginator<T> extends HorizontalLayout {
     }
 
     private void configureFilter() {
-        gridFilter.onSearchClick(e -> this.setData(paginatorInterface.getListFilter(gridFilter.getFilterData(),
-                                                                            currentPage, itemsPerPage), true));
-        gridFilter.onClearClick(e -> this.setData(getPageData(), false));
+        gridFilter.onSearchClick(e -> {
+            this.filterIsActive = true;
+            reloadGrid();
+//            this.setData(paginatorInterface.getListFilter(gridFilter.getFilterData(),
+//                    currentPage, itemsPerPage), true);
+        });
+        gridFilter.onClearClick(e -> {
+            this.filterIsActive = false;
+            this.setData(getPageData(), false);
+        });
     }
     private void configureButton() {
         nextPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(currentPage + 1));
@@ -95,11 +107,11 @@ public class TestPaginator<T> extends HorizontalLayout {
 
     private List<T> getPageData() {
         //flag for filter
-        if (!flag) {
-            rowCount = paginatorInterface.getRowCount();
-            data = paginatorInterface.getList(currentPage, itemsPerPage);
+        if (filterIsActive) {
+            rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
+            data = paginatorInterface.getListFilter(gridFilter.getFilterData(), this.sortParams, currentPage, itemsPerPage);
         } else {
-            data = paginatorInterface.getListFilter(gridFilter.getFilterData(), currentPage, itemsPerPage);
+            data = paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage);
         }
 //        int from = (currentPage - 1) * itemsPerPage;
 //        int to = (from + itemsPerPage);
@@ -207,7 +219,7 @@ public class TestPaginator<T> extends HorizontalLayout {
      */
     public void setData(List<T> data, boolean flag) {
         rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
-        this.flag = flag;
+        this.filterIsActive = flag;
         setData(data, flag, false);
     }
 
@@ -219,27 +231,35 @@ public class TestPaginator<T> extends HorizontalLayout {
      * @param saveCurrentPage save current page flag
      */
     public void setData(List<T> data, boolean flag, boolean saveCurrentPage){
-        SerializableComparator<T> comparator = grid.getDataCommunicator().getInMemorySorting();
-        if (comparator != null){
-            data = data.stream().sorted(comparator).collect(Collectors.toList());
-        }
-        this.data = data;
+        rowCount = paginatorInterface.getRowCount(gridFilter.getFilterData());
+//        SerializableComparator<T> comparator = grid.getDataCommunicator().getInMemorySorting();
+//        if (comparator != null){
+//            data = data.stream().sorted(comparator).collect(Collectors.toList());
+//        }
+//        this.data = data;
         calculateNumberOfPages();
 
-        if (saveCurrentPage && numberOfPages >= currentPage){
+        if (saveCurrentPage && numberOfPages >= currentPage) {
             setCurrentPageAndReloadGrid(getCurrentPage());
-        }else {
+        } else {
             setCurrentPageAndReloadGrid(1);
         }
     }
 
+    //FIXME двойной вызов
     private void sort(SortEvent<Grid<T>, GridSortOrder<T>> gridGridSortOrderSortEvent) {
-        gridGridSortOrderSortEvent.getSortOrder().forEach(tGridSortOrder -> {
-            SerializableComparator<T> comparator = tGridSortOrder.getSorted().getComparator(tGridSortOrder.getDirection());
-            //data = data.stream().sorted(comparator).collect(Collectors.toList());
-            data = paginatorInterface.getListFilterComparator(comparator, currentPage, itemsPerPage);
-        });
-        setData(data, true);
+        if (!gridGridSortOrderSortEvent.getSortOrder().isEmpty()) {
+            gridGridSortOrderSortEvent.getSortOrder().forEach(tGridSortOrder -> {
+                this.sortParams.put("column", tGridSortOrder.getSorted().getKey());
+                this.sortParams.put("direction", tGridSortOrder.getDirection().toString());
+            });
+            reloadGrid();
+//            setData(paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage), this.filterIsActive, true);
+        } else {
+            this.sortParams.put("column", "id");
+            this.sortParams.put("direction", SortOrder.ASCENDING.toString());
+            reloadGrid();
+//            setData(paginatorInterface.getList(this.sortParams, currentPage, itemsPerPage), this.filterIsActive, true);
+        }
     }
-
 }
