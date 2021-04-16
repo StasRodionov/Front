@@ -46,7 +46,7 @@ public class ContractorModalWindow extends Dialog {
     private final TextArea commentField = new TextArea();
 
     private final ComboBox<ContractorGroupDto> contractorGroupDtoSelect = new ComboBox<>();
-    private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
+    // private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
     private final ComboBox<TypeOfPriceDto> typeOfPriceDtoSelect = new ComboBox<>();
     private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
@@ -108,7 +108,8 @@ public class ContractorModalWindow extends Dialog {
 
         idField.setValue(getFieldValueNotNull(String.valueOf(contractorDto.getId())));
         nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
-        innField.setValue(getFieldValueNotNull(contractorDto.getLegalDetailDto().getInn()));
+        //innField.setValue("000");
+                //getFieldValueNotNull(contractorDto.getLegalDetailDto().getInn()));
         sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
         phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
         faxField.setValue(getFieldValueNotNull(contractorDto.getFax()));
@@ -136,10 +137,10 @@ public class ContractorModalWindow extends Dialog {
                     .getById(contractorDto.getId()).getContractorGroupDto());
         }
 
-        if (contractorDto.getLegalDetailDto().getTypeOfContractorDto().getName() != null) {
-            typeOfContractorDtoSelect.setValue(contractorService
-                    .getById(contractorDto.getId()).getLegalDetailDto().getTypeOfContractorDto());
-        }
+//        if (contractorDto.getLegalDetailDto().getTypeOfContractorDto().getName() != null) {
+//            typeOfContractorDtoSelect.setValue(contractorService
+//                    .getById(contractorDto.getId()).getLegalDetailDto().getTypeOfContractorDto());
+//        }
 
         if (contractorDto.getTypeOfPriceDto().getName() != null) {
             typeOfPriceDtoSelect.setValue(contractorService
@@ -158,13 +159,14 @@ public class ContractorModalWindow extends Dialog {
             ogrnLegalDetailField.setValue(legalDetailDto.getOgrn());
             numberOfTheCertificateLegalDetailField.setValue(legalDetailDto.getNumberOfTheCertificate());
             dateOfTheCertificateLegalDetailField.setValue(legalDetailDto.getDateOfTheCertificate());
+            typeOfContractorDtoLegalDetailField.setValue(legalDetailDto.getTypeOfContractorDto());
 
-            if (typeOfContractorDtoList != null) {
-                typeOfContractorDtoLegalDetailField.setItems(typeOfContractorDtoList);
-                typeOfContractorDtoLegalDetailField.setValue(contractorService
-                        .getById(contractorDto.getId()).getLegalDetailDto().getTypeOfContractorDto());
-                typeOfContractorDtoLegalDetailField.setItemLabelGenerator(TypeOfContractorDto::getName);
-            }
+//            if (typeOfContractorDtoList != null) {
+//                typeOfContractorDtoLegalDetailField.setItems(typeOfContractorDtoList);
+//                typeOfContractorDtoLegalDetailField.setValue(contractorService
+//                        .getById(contractorDto.getId()).getLegalDetailDto().getTypeOfContractorDto());
+//                typeOfContractorDtoLegalDetailField.setItemLabelGenerator(TypeOfContractorDto::getName);
+//            }
 
         }
 
@@ -180,7 +182,7 @@ public class ContractorModalWindow extends Dialog {
         componentFormContractDto.setOpened(true);
         componentFormContractDto.addContent(
                 contractorGroupSelect(),
-                configureInnField(),
+                // configureInnField(),
                 configurePhoneField(),
                 configureFaxField(),
                 configureEmailField(),
@@ -200,7 +202,7 @@ public class ContractorModalWindow extends Dialog {
 
         Details componentDetails = new Details("Реквизиты", new Text(" "));
         componentDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-        componentDetails.addContent(typeOfContractorSelect(), legalDetailSelect());
+        // componentDetails.addContent(typeOfContractorSelect(), legalDetailSelect());
         add(componentDetails);
 
         Details componentLayoutTypeOfPrice = new Details("Скидки и цены", new Text(" "));
@@ -270,23 +272,23 @@ public class ContractorModalWindow extends Dialog {
 
     }
 
-    private HorizontalLayout typeOfContractorSelect() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-
-        typeOfContractorDtoList = typeOfContractorService.getAll();
-        if (typeOfContractorDtoList != null) {
-            typeOfContractorDtoSelect.setItems(typeOfContractorDtoList);
-        }
-        typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
-        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
-        contractorDtoBinder.forField(typeOfContractorDtoSelect)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("typeOfContractorDto");
-        Label label = new Label("Тип контрагента");
-        label.setWidth(LABEL_WIDTH);
-        horizontalLayout.add(label, typeOfContractorDtoSelect);
-        return horizontalLayout;
-    }
+//    private HorizontalLayout typeOfContractorSelect() {
+//        HorizontalLayout horizontalLayout = new HorizontalLayout();
+//
+//        typeOfContractorDtoList = typeOfContractorService.getAll();
+//        if (typeOfContractorDtoList != null) {
+//            typeOfContractorDtoSelect.setItems(typeOfContractorDtoList);
+//        }
+//        typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
+//        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
+//        contractorDtoBinder.forField(typeOfContractorDtoSelect)
+//                .withValidator(Objects::nonNull, "Не заполнено!")
+//                .bind("typeOfContractorDto");
+//        Label label = new Label("Тип контрагента");
+//        label.setWidth(LABEL_WIDTH);
+//        horizontalLayout.add(label, typeOfContractorDtoSelect);
+//        return horizontalLayout;
+//    }
 
     private HorizontalLayout typeOfPriceSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -344,21 +346,21 @@ public class ContractorModalWindow extends Dialog {
         return horizontalLayout;
     }
 
-    private HorizontalLayout configureInnField() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Инн");
-        label.setWidth(LABEL_WIDTH);
-        innField.setWidth(FIELD_WIDTH);
-        contractorDtoBinder.forField(innField)
-                .asRequired("Не заполнено!")
-                .bind("inn");
-        innField.addInputListener(inputEvent ->
-                innField.addValidator(new RegexpValidator("Only 10 or 12 digits.",
-                        "^([0-9]{10}|[0-9]{12})$")));
-
-        horizontalLayout.add(label, innField);
-        return horizontalLayout;
-    }
+//    private HorizontalLayout configureInnField() {
+//        HorizontalLayout horizontalLayout = new HorizontalLayout();
+//        Label label = new Label("Инн");
+//        label.setWidth(LABEL_WIDTH);
+//        innField.setWidth(FIELD_WIDTH);
+//        contractorDtoBinder.forField(innField)
+//                .asRequired("Не заполнено!")
+//                .bind("inn");
+//        innField.addInputListener(inputEvent ->
+//                innField.addValidator(new RegexpValidator("Only 10 or 12 digits.",
+//                        "^([0-9]{10}|[0-9]{12})$")));
+//
+//        horizontalLayout.add(label, innField);
+//        return horizontalLayout;
+//    }
 
     private HorizontalLayout configurePhoneField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
