@@ -178,11 +178,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         return textField;
     }
 
-    private void updateList(String text) {
-        if (text.isEmpty()) {
+    private void updateList(String query) {
+        if (query.isEmpty()) {
             paginator.setData(invoiceService.getAll(typeOfInvoice));
         } else paginator.setData(invoiceService
-                .findBySearchAndTypeOfInvoice(text, typeOfInvoice));
+                .findBySearchAndTypeOfInvoice(query, typeOfInvoice));
     }
 
     private NumberField numberField() {
