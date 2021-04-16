@@ -173,7 +173,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void fillList(String text) {
-        paginator.setData(employeeService.searchBySymbols(text));
+        paginator.setData(employeeService.findBySearch(text));
     }
 
     private TextField textField() {

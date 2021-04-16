@@ -18,9 +18,9 @@ import java.util.Map;
 public interface EmployeeApi {
 
     @Headers("Accept: application/json")
-    @GET("{url}/symbols")
-    Call<List<EmployeeDto>> searchBySymbols(@Path(value = "url", encoded = true) String url,
-                                            @Query("symbols") String symbols);
+    @GET("{url}/findBySearch")
+    Call<List<EmployeeDto>> findBySearch(@Path(value = "url", encoded = true) String url,
+                                            @Query("search") String search);
 
     @Headers("Accept: application/json")
     @GET("{url}")
