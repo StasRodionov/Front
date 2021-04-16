@@ -18,13 +18,13 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class ProductServiceImp implements ProductService {
+public class ProductServiceImpl implements ProductService {
 
     private final String productUrl;
     private final ProductApi productApi;
 
 
-    ProductServiceImp(@Value("${product_url}") String productUrl, Retrofit retrofit) {
+    ProductServiceImpl(@Value("${product_url}") String productUrl, Retrofit retrofit) {
         this.productUrl = productUrl;
         productApi = retrofit.create(ProductApi.class);
     }
