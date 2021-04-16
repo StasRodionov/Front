@@ -13,7 +13,6 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -52,8 +51,6 @@ public class ContractorModalWindow extends Dialog {
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
     private final ComboBox<TypeOfPriceDto> typeOfPriceDtoSelect = new ComboBox<>();
     private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
-    private final ComboBox<List<ContactDto>> contactDtoSelect = new ComboBox<>();
-    private final Binder<ContactDto> contactDtoBinder = new Binder<>(ContactDto.class);
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
     private final Binder<LegalDetailDto> legalDetailDtoBinder = new Binder<>(LegalDetailDto.class);
 
@@ -233,12 +230,12 @@ public class ContractorModalWindow extends Dialog {
         if (contractorDto.getId() != null) {
             contactDto = contractorService
                     .getById(contractorDto.getId()).getContactDto();
+            verticalLayout.add(getAddContactButton(verticalLayout));
             if (contactDto != null) {
-
                 contactDto.forEach(el->showContact(el, verticalLayout));
             }
-//            legalDetailDtoSelect.setWidth(FIELD_WIDTH);
         }
+
         return verticalLayout;
     }
 
@@ -253,6 +250,7 @@ public class ContractorModalWindow extends Dialog {
         TextField contactEmail = new TextField();
         TextField contactComment = new TextField();
 
+        contactForm.add("Контактное лицо");
         contactForm.addFormItem(contactFullName, "ФИО");
         contactForm.addFormItem(contactPosition, "Должность");
         contactForm.addFormItem(contactPhone, "Телефон");
@@ -271,7 +269,19 @@ public class ContractorModalWindow extends Dialog {
         contactComment.setPlaceholder("Комментарий");
         contactComment.setValue(el.getComment());
 
-        verticalLayout.add(contactForm);
+        verticalLayout.addComponentAtIndex(1,contactForm);
+
+    }
+
+    private Button getAddContactButton(VerticalLayout verticalLayout) {
+        ContactDto contactDto = ContactDto.builder().fullName("").position("")
+                .phone("").email("").comment("").build();
+        Button addContactButton = new Button("", event -> {
+            showContact(contactDto,verticalLayout);
+        });
+        addContactButton.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
+
+        return addContactButton;
 
     }
 
