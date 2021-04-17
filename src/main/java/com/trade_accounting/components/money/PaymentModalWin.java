@@ -25,6 +25,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -56,7 +57,8 @@ public class PaymentModalWin extends Dialog {
     private final ComboBox <ContractDto> contractDtoComboBox = new ComboBox<>();
     private final ComboBox <ProjectDto> projectDtoComboBox = new ComboBox<>();
     private final TextField payNumber = new TextField();
-    Div div = new Div();
+    private final BigDecimalField sum = new BigDecimalField();
+//    Div div = new Div();
 //    private final PaymentDto paymentDto =getPaymentdto();
 
     @Autowired
@@ -98,6 +100,7 @@ public class PaymentModalWin extends Dialog {
         add(getHorizontalLayout("Контрагент", contractorDtoComboBox));
         add(getHorizontalLayout("Договор", contractDtoComboBox));
         add(getHorizontalLayout("Проект", projectDtoComboBox));
+        add(getHorizontalLayout("Сумма", sum));
 //        getPaymentdto();
         add(getFooter());
 
@@ -147,6 +150,7 @@ public class PaymentModalWin extends Dialog {
         paymentDto.setContractDto(contractDtoComboBox.getValue());
         paymentDto.setProjectDto(projectDtoComboBox.getValue());
         paymentDto.setNumber(payNumber.getValue());
+        paymentDto.setSum(sum.getValue());
 
         if (typeofPaymentBox.getValue().equals("Входящий")) {
             paymentDto.setTypeOfPayment("INCOMING");
