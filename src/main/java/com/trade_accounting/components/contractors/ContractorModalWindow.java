@@ -27,7 +27,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.dom.Style;
 
 import java.util.List;
@@ -46,7 +45,6 @@ public class ContractorModalWindow extends Dialog {
     private final TextArea commentField = new TextArea();
 
     private final ComboBox<ContractorGroupDto> contractorGroupDtoSelect = new ComboBox<>();
-    // private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
     private final ComboBox<TypeOfPriceDto> typeOfPriceDtoSelect = new ComboBox<>();
     private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
@@ -63,8 +61,6 @@ public class ContractorModalWindow extends Dialog {
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
-    List<TypeOfContractorDto> typeOfContractorDtoList;
-    // private final TextField idLegalDetailField = new TextField("ID");
     private final TextField lastNameLegalDetailField = new TextField("Фамилия");
     private final TextField firstNameLegalDetailField = new TextField("Имя");
     private final TextField middleNameLegalDetailField = new TextField("Отчество");
@@ -108,8 +104,6 @@ public class ContractorModalWindow extends Dialog {
 
         idField.setValue(getFieldValueNotNull(String.valueOf(contractorDto.getId())));
         nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
-        //innField.setValue("000");
-                //getFieldValueNotNull(contractorDto.getLegalDetailDto().getInn()));
         sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
         phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
         faxField.setValue(getFieldValueNotNull(contractorDto.getFax()));
@@ -137,11 +131,6 @@ public class ContractorModalWindow extends Dialog {
                     .getById(contractorDto.getId()).getContractorGroupDto());
         }
 
-//        if (contractorDto.getLegalDetailDto().getTypeOfContractorDto().getName() != null) {
-//            typeOfContractorDtoSelect.setValue(contractorService
-//                    .getById(contractorDto.getId()).getLegalDetailDto().getTypeOfContractorDto());
-//        }
-
         if (contractorDto.getTypeOfPriceDto().getName() != null) {
             typeOfPriceDtoSelect.setValue(contractorService
                     .getById(contractorDto.getId()).getTypeOfPriceDto());
@@ -160,14 +149,6 @@ public class ContractorModalWindow extends Dialog {
             numberOfTheCertificateLegalDetailField.setValue(legalDetailDto.getNumberOfTheCertificate());
             dateOfTheCertificateLegalDetailField.setValue(legalDetailDto.getDateOfTheCertificate());
             typeOfContractorDtoLegalDetailField.setValue(legalDetailDto.getTypeOfContractorDto());
-
-//            if (typeOfContractorDtoList != null) {
-//                typeOfContractorDtoLegalDetailField.setItems(typeOfContractorDtoList);
-//                typeOfContractorDtoLegalDetailField.setValue(contractorService
-//                        .getById(contractorDto.getId()).getLegalDetailDto().getTypeOfContractorDto());
-//                typeOfContractorDtoLegalDetailField.setItemLabelGenerator(TypeOfContractorDto::getName);
-//            }
-
         }
 
     }
@@ -182,7 +163,6 @@ public class ContractorModalWindow extends Dialog {
         componentFormContractDto.setOpened(true);
         componentFormContractDto.addContent(
                 contractorGroupSelect(),
-                // configureInnField(),
                 configurePhoneField(),
                 configureFaxField(),
                 configureEmailField(),
@@ -272,24 +252,6 @@ public class ContractorModalWindow extends Dialog {
 
     }
 
-//    private HorizontalLayout typeOfContractorSelect() {
-//        HorizontalLayout horizontalLayout = new HorizontalLayout();
-//
-//        typeOfContractorDtoList = typeOfContractorService.getAll();
-//        if (typeOfContractorDtoList != null) {
-//            typeOfContractorDtoSelect.setItems(typeOfContractorDtoList);
-//        }
-//        typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
-//        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
-//        contractorDtoBinder.forField(typeOfContractorDtoSelect)
-//                .withValidator(Objects::nonNull, "Не заполнено!")
-//                .bind("typeOfContractorDto");
-//        Label label = new Label("Тип контрагента");
-//        label.setWidth(LABEL_WIDTH);
-//        horizontalLayout.add(label, typeOfContractorDtoSelect);
-//        return horizontalLayout;
-//    }
-
     private HorizontalLayout typeOfPriceSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
@@ -345,22 +307,6 @@ public class ContractorModalWindow extends Dialog {
 
         return horizontalLayout;
     }
-
-//    private HorizontalLayout configureInnField() {
-//        HorizontalLayout horizontalLayout = new HorizontalLayout();
-//        Label label = new Label("Инн");
-//        label.setWidth(LABEL_WIDTH);
-//        innField.setWidth(FIELD_WIDTH);
-//        contractorDtoBinder.forField(innField)
-//                .asRequired("Не заполнено!")
-//                .bind("inn");
-//        innField.addInputListener(inputEvent ->
-//                innField.addValidator(new RegexpValidator("Only 10 or 12 digits.",
-//                        "^([0-9]{10}|[0-9]{12})$")));
-//
-//        horizontalLayout.add(label, innField);
-//        return horizontalLayout;
-//    }
 
     private HorizontalLayout configurePhoneField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -543,7 +489,6 @@ public class ContractorModalWindow extends Dialog {
 
     private void saveFields(ContractorDto contractorDto) {
         contractorDto.setName(nameField.getValue());
-        // contractorDto.setInn(innField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
@@ -557,12 +502,10 @@ public class ContractorModalWindow extends Dialog {
         if (contractorDto.getId() != null) {
             contractorDto.getLegalDetailDto().setId(legalDetailDtoSelect.getValue().getId());
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
-            // contractorDto.getTypeOfContractorDto().setId(typeOfContractorDtoSelect.getValue().getId());
             contractorDto.getTypeOfPriceDto().setId(typeOfPriceDtoSelect.getValue().getId());
         } else {
             contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
-            // contractorDto.setTypeOfContractorDto(typeOfContractorDtoSelect.getValue());
             contractorDto.setTypeOfPriceDto(typeOfPriceDtoSelect.getValue());
         }
     }

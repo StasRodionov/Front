@@ -95,7 +95,6 @@ public class ContractorsTabView extends VerticalLayout {
     private void configureGrid() {
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
-        // grid.addColumn("inn").setHeader("Инн").setId("Инн");
         grid.addColumn("sortNumber").setHeader("номер").setId("номер");
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
