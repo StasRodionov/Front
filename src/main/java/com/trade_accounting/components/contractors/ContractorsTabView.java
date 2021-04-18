@@ -103,7 +103,6 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setId("комментарий к адресу");
         grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setId("комментарий");
         grid.addColumn(iDto -> iDto.getContractorGroupDto().getName()).setHeader("Группы").setId("Группы");
-        grid.addColumn(iDto -> iDto.getLegalDetailDto().getTypeOfContractorDto().getName()).setHeader("Тип контрагента").setId("Тип контрагента");
         grid.addColumn(iDto -> iDto.getTypeOfPriceDto().getName()).setHeader("Скидки и цены").setId("Скидки и цены");
         grid.addColumn(iDto -> iDto.getLegalDetailDto().getInn()).setHeader("Реквизиты").setId("Реквизиты");
         grid.setHeight("64vh");
