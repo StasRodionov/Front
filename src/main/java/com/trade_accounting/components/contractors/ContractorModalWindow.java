@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.details.Details;
@@ -45,6 +46,7 @@ public class ContractorModalWindow extends Dialog {
     private final TextArea commentField = new TextArea();
 
     private final ComboBox<ContractorGroupDto> contractorGroupDtoSelect = new ComboBox<>();
+    private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
     private final ComboBox<TypeOfPriceDto> typeOfPriceDtoSelect = new ComboBox<>();
     private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
@@ -61,6 +63,7 @@ public class ContractorModalWindow extends Dialog {
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
+    List<TypeOfContractorDto> typeOfContractorDtoList;
     private final TextField lastNameLegalDetailField = new TextField("Фамилия");
     private final TextField firstNameLegalDetailField = new TextField("Имя");
     private final TextField middleNameLegalDetailField = new TextField("Отчество");
@@ -69,11 +72,10 @@ public class ContractorModalWindow extends Dialog {
     private final ValidTextField innLegalDetailField = new ValidTextField("Инн");
     private final TextField okpoLegalDetailField = new TextField("ОКПО");
     private final TextField ogrnLegalDetailField = new TextField("ОГРН");
-    private final TextField numberOfTheCertificateLegalDetailField = new TextField("Номер сертефиката");
-    private final TextField dateOfTheCertificateLegalDetailField = new TextField("Дата сертефиката");
+    private final TextField numberOfTheCertificateLegalDetailField = new TextField("Номер сертификата");
+    private final TextField dateOfTheCertificateLegalDetailField = new TextField("Дата сертификата");
 
-    private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контракта.");
-//    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
+    private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контрагента");
 
     // блок адреса
     private final TextField addressIndex = new TextField();
@@ -98,6 +100,7 @@ public class ContractorModalWindow extends Dialog {
         this.typeOfPriceService = typeOfPriceService;
         this.legalDetailService = legalDetailService;
         this.contractorDto = contractorDto;
+        legalDetailDto = contractorDto.getLegalDetailDto();
 
         setCloseOnOutsideClick(true);
         setCloseOnEsc(true);
@@ -137,7 +140,6 @@ public class ContractorModalWindow extends Dialog {
         }
 
         if (contractorDto.getLegalDetailDto().getInn() != null) {
-            // idLegalDetailField.setValue(String.valueOf(legalDetailDto.getId()));
             lastNameLegalDetailField.setValue(legalDetailDto.getLastName());
             firstNameLegalDetailField.setValue(legalDetailDto.getFirstName());
             middleNameLegalDetailField.setValue(legalDetailDto.getMiddleName());
@@ -148,9 +150,7 @@ public class ContractorModalWindow extends Dialog {
             ogrnLegalDetailField.setValue(legalDetailDto.getOgrn());
             numberOfTheCertificateLegalDetailField.setValue(legalDetailDto.getNumberOfTheCertificate());
             dateOfTheCertificateLegalDetailField.setValue(legalDetailDto.getDateOfTheCertificate());
-            typeOfContractorDtoLegalDetailField.setValue(legalDetailDto.getTypeOfContractorDto());
         }
-
     }
 
     private Details contractorsAccordion() {
@@ -182,7 +182,7 @@ public class ContractorModalWindow extends Dialog {
 
         Details componentDetails = new Details("Реквизиты", new Text(" "));
         componentDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-        // componentDetails.addContent(typeOfContractorSelect(), legalDetailSelect());
+        componentDetails.addContent(typeOfContractorSelect(), legalDetailSelect());
         add(componentDetails);
 
         Details componentLayoutTypeOfPrice = new Details("Скидки и цены", new Text(" "));
@@ -203,7 +203,7 @@ public class ContractorModalWindow extends Dialog {
     }
 
     private FormLayout contractorsAccordionCreate() {
-        //Accordion accordion = new Accordion();
+        Accordion accordion = new Accordion();
         FormLayout accountForm = new FormLayout();
         accountForm.add(lastNameLegalDetailField);
         accountForm.add(firstNameLegalDetailField);
@@ -215,9 +215,9 @@ public class ContractorModalWindow extends Dialog {
         accountForm.add(ogrnLegalDetailField);
         accountForm.add(numberOfTheCertificateLegalDetailField);
         accountForm.add(dateOfTheCertificateLegalDetailField);
-//            accountForm.add(typeOfContractorDtoLegalDetailField);
-//        accordion.setWidth("275px");
-//        accordion.add("Реквизиты", accountForm);
+        // accountForm.add(typeOfContractorDtoLegalDetailField);
+        accordion.setWidth("275px");
+        accordion.add("Реквизиты", accountForm);
 //        return accordion;
         accountForm.setWidth("275px");
         return accountForm;
@@ -251,6 +251,26 @@ public class ContractorModalWindow extends Dialog {
         return horizontalLayout;
 
     }
+
+    private HorizontalLayout typeOfContractorSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        typeOfContractorDtoList = typeOfContractorService.getAll();
+        if (typeOfContractorDtoList != null) {
+            typeOfContractorDtoSelect.setItems(typeOfContractorDtoList);
+            typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
+            typeOfContractorDtoSelect.setValue(legalDetailDto.getTypeOfContractorDto());
+        }
+        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
+        legalDetailDtoBinder.forField(typeOfContractorDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("typeOfContractorDto");
+        Label label = new Label("Тип контрагента");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, typeOfContractorDtoSelect);
+        return horizontalLayout;
+    }
+
 
     private HorizontalLayout typeOfPriceSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -298,7 +318,7 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDtoBinder.forField(okpoLegalDetailField)
                 .asRequired("Не заполнено!").bind("okpo");
         legalDetailDtoBinder.forField(ogrnLegalDetailField)
-                .asRequired("Не заполнено!").bind("ogrnip");
+                .asRequired("Не заполнено!").bind("ogrn");
         legalDetailDtoBinder.forField(numberOfTheCertificateLegalDetailField)
                 .asRequired("Не заполнено!").bind("numberOfTheCertificate");
         legalDetailDtoBinder.forField(dateOfTheCertificateLegalDetailField)
