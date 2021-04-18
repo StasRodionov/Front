@@ -32,7 +32,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.dom.Style;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ContractorModalWindow extends Dialog {
@@ -51,6 +54,8 @@ public class ContractorModalWindow extends Dialog {
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
     private final ComboBox<TypeOfPriceDto> typeOfPriceDtoSelect = new ComboBox<>();
     private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
+    private final Map<Long, List<TextField>> existContactTextFields = new HashMap<>();
+    private final List<List<TextField>> newContactTextFields = new ArrayList<>();
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
     private final Binder<LegalDetailDto> legalDetailDtoBinder = new Binder<>(LegalDetailDto.class);
 
@@ -66,8 +71,8 @@ public class ContractorModalWindow extends Dialog {
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
     private List<ContactDto> contactDto;
-    List<TypeOfContractorDto> typeOfContractorDtoList;
-    // private final TextField idLegalDetailField = new TextField("ID");
+    private final Binder<ContactDto> contactDtoBinder = new Binder<>(ContactDto.class);
+    private List<TypeOfContractorDto> typeOfContractorDtoList;
     private final TextField lastNameLegalDetailField = new TextField("Фамилия");
     private final TextField firstNameLegalDetailField = new TextField("Имя");
     private final TextField middleNameLegalDetailField = new TextField("Отчество");
@@ -91,6 +96,7 @@ public class ContractorModalWindow extends Dialog {
     private final TextField addressStreet = new TextField();
     private final TextField addressHouse = new TextField();
     private final TextField addressApartment = new TextField();
+    private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
 
     private final HorizontalLayout block;
 
@@ -232,7 +238,7 @@ public class ContractorModalWindow extends Dialog {
                     .getById(contractorDto.getId()).getContactDto();
             verticalLayout.add(getAddContactButton(verticalLayout));
             if (contactDto != null) {
-                contactDto.forEach(el->showContact(el, verticalLayout));
+                contactDto.forEach(el -> showContact(el, verticalLayout));
             }
         }
 
@@ -252,14 +258,25 @@ public class ContractorModalWindow extends Dialog {
 
         contactForm.add("Контактное лицо");
         contactForm.addFormItem(contactFullName, "ФИО");
+        contactDtoBinder.forField(contactFullName).bind(ContactDto::getFullName, ContactDto::setFullName);
+
         contactForm.addFormItem(contactPosition, "Должность");
+        contactDtoBinder.forField(contactPosition).bind(ContactDto::getPosition, ContactDto::setPosition);
+
         contactForm.addFormItem(contactPhone, "Телефон");
+        contactDtoBinder.forField(contactPhone).bind(ContactDto::getPhone, ContactDto::setPhone);
+
         contactForm.addFormItem(contactEmail, "Электронный адрес");
+        contactDtoBinder.forField(contactEmail).bind(ContactDto::getEmail, ContactDto::setEmail);
+
+
         contactForm.addFormItem(contactComment, "Комментарий");
+        contactDtoBinder.forField(contactComment).bind(ContactDto::getComment, ContactDto::setComment);
 
         contactFullName.setPlaceholder("ФИО");
         contactFullName.setValue(el.getFullName());
         contactFullName.setRequired(true);
+        contactFullName.setRequiredIndicatorVisible(true);
         contactPosition.setPlaceholder("Должность");
         contactPosition.setValue(el.getPosition());
         contactPhone.setPlaceholder("Телефон");
@@ -269,7 +286,13 @@ public class ContractorModalWindow extends Dialog {
         contactComment.setPlaceholder("Комментарий");
         contactComment.setValue(el.getComment());
 
-        verticalLayout.addComponentAtIndex(1,contactForm);
+        if (el.getId() == null) {
+            newContactTextFields.add(List.of(contactFullName, contactPosition, contactPhone, contactEmail, contactComment));
+        } else {
+            existContactTextFields.put(el.getId(), List.of(contactFullName, contactPosition, contactPhone, contactEmail, contactComment));
+        }
+
+        verticalLayout.addComponentAtIndex(1, contactForm);
 
     }
 
@@ -277,7 +300,7 @@ public class ContractorModalWindow extends Dialog {
         ContactDto contactDto = ContactDto.builder().fullName("").position("")
                 .phone("").email("").comment("").build();
         Button addContactButton = new Button("", event -> {
-            showContact(contactDto,verticalLayout);
+            showContact(contactDto, verticalLayout);
         });
         addContactButton.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
 
@@ -467,9 +490,9 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Фактический адрес");
         label.setWidth(LABEL_WIDTH);
-        contractorDtoBinder.forField(addressField)
+/*        contractorDtoBinder.forField(addressField)
                 .asRequired("Не заполнено!")
-                .bind("addressDto");
+                .bind("addressDto");*/
         addressField.setWidth("345px");
         horizontalLayout.add(label, addressField, dropDownAddressButton(block));
         return horizontalLayout;
@@ -484,12 +507,25 @@ public class ContractorModalWindow extends Dialog {
         addressFormStyle.set("padding-left", "10px");
 
         addressForm.addFormItem(addressIndex, "Индекс");
+        addressDtoBinder.forField(addressIndex).bind(AddressDto::getIndex, AddressDto::setIndex);
+
         addressForm.addFormItem(addressCountry, "Страна");
+        addressDtoBinder.forField(addressCountry).bind(AddressDto::getCountry, AddressDto::setCountry);
+
         addressForm.addFormItem(addressRegion, "Область");
+        addressDtoBinder.forField(addressRegion).bind(AddressDto::getRegion, AddressDto::setRegion);
+
         addressForm.addFormItem(addressCity, "Город");
+        addressDtoBinder.forField(addressCity).bind(AddressDto::getCity, AddressDto::setCity);
+
         addressForm.addFormItem(addressStreet, "Улица");
+        addressDtoBinder.forField(addressStreet).bind(AddressDto::getStreet, AddressDto::setStreet);
+
         addressForm.addFormItem(addressHouse, "Дом");
+        addressDtoBinder.forField(addressHouse).bind(AddressDto::getHouse, AddressDto::setHouse);
+
         addressForm.addFormItem(addressApartment, "Квартира");
+        addressDtoBinder.forField(addressApartment).bind(AddressDto::getApartment, AddressDto::setApartment);
 
         if (contractorDto.getId() != null) {
             addressIndex.setPlaceholder("Индекс");
@@ -610,19 +646,56 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-        contractorDto.setAddressDto(AddressDto.builder()
-                .another(addressField.getValue())
-                .build());
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
-
+        List<ContactDto> newContactDtoList = new ArrayList<>();
         if (contractorDto.getId() != null) {
+            Long addressId = contractorDto.getAddressDto().getId();
+            contractorDto.setAddressDto(AddressDto.builder()
+                    .id(addressId)
+                    .index(addressIndex.getValue())
+                    .country(addressCountry.getValue())
+                    .region(addressRegion.getValue())
+                    .city(addressCity.getValue())
+                    .street(addressStreet.getValue())
+                    .house(addressHouse.getValue())
+                    .apartment(addressApartment.getValue())
+                    .build());
             contractorDto.getLegalDetailDto().setId(legalDetailDtoSelect.getValue().getId());
+            contractorDto.getContactDto().forEach(contact -> {
+                Long contactId = contact.getId();
+
+                newContactDtoList.add(ContactDto.builder().id(contactId)
+                        .fullName(existContactTextFields.get(contactId).get(0).getValue())
+                        .position(existContactTextFields.get(contactId).get(1).getValue())
+                        .phone(existContactTextFields.get(contactId).get(2).getValue())
+                        .email(existContactTextFields.get(contactId).get(3).getValue())
+                        .comment(existContactTextFields.get(contactId).get(4).getValue())
+                        .build());
+            });
+            newContactTextFields.forEach(contact -> {
+                newContactDtoList.add(ContactDto.builder().fullName(contact.get(0).getValue())
+                        .position(contact.get(1).getValue())
+                        .phone(contact.get(2).getValue())
+                        .email(contact.get(3).getValue())
+                        .comment(contact.get(4).getValue())
+                        .build());
+            });
+            contractorDto.setContactDto(newContactDtoList);
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.getTypeOfContractorDto().setId(typeOfContractorDtoSelect.getValue().getId());
             contractorDto.getTypeOfPriceDto().setId(typeOfPriceDtoSelect.getValue().getId());
         } else {
+            contractorDto.setAddressDto(AddressDto.builder()
+                    .index(addressIndex.getValue())
+                    .country(addressCountry.getValue())
+                    .region(addressRegion.getValue())
+                    .city(addressCity.getValue())
+                    .street(addressStreet.getValue())
+                    .house(addressHouse.getValue())
+                    .apartment(addressApartment.getValue())
+                    .build());
             contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
             contractorDto.setTypeOfContractorDto(typeOfContractorDtoSelect.getValue());

@@ -104,7 +104,7 @@ public class ContractorServiceImpl implements ContractorService {
         Call<ContractorDto> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
 
         try {
-            contractorDtoCall.execute().body();
+            contractorDtoCall.execute();
             log.info("Успешно выполнен запрос на добавление экземпляра ContractorDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ContractorDto : {IOException}", e);
