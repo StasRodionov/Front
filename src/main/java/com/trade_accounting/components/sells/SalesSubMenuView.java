@@ -3,6 +3,7 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
@@ -28,6 +29,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
+    private  final InvoiceProductService invoiceProductService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
@@ -38,8 +40,9 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
                             ContractorService contractorService,
                             CompanyService companyService,
                             WarehouseService warehouseService,
-                            @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
+                            InvoiceProductService invoiceProductService, @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
                             @Lazy SalesSubShipmentView salesSubShipmentView) {
+        this.invoiceProductService = invoiceProductService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
@@ -92,7 +95,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Счета покупателям":
                     div.removeAll();
-                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, contractorService, companyService, warehouseService));
+                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, invoiceProductService));
                     break;
                 case "Отгрузки":
                     div.removeAll();
