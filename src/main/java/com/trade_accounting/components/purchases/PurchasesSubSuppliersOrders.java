@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.contractors.PrintContractorsXls;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -12,32 +13,53 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+//import ru.curs.xylophone.XML2SpreadSheetError;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "suppliersOrders", layout = AppView.class)
@@ -53,11 +75,16 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private List<InvoiceDto> invoices;
 
     private final String typeOfInvoice = "EXPENSE";
+//    private final XLSPrinter xlsPrinter;
 
     private HorizontalLayout actions;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
+    private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final MenuItem print;
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
+
 
     @Autowired
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService,
@@ -66,12 +93,15 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         this.invoiceService = invoiceService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.notifications = notifications;
+        print = selectXlsTemplateButton.addItem("печать");
+//        this.xlsPrinter = xlsPrinter;
         loadInvoices();
         configureActions();
         configureGrid();
         configurePaginator();
         this.filter = new GridFilter<>(grid);
         configureFilter();
+        configureSelectXlsTemplateButton();
         add(actions, filter, grid, paginator);
     }
 
@@ -83,7 +113,8 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private void configureActions() {
         actions = new HorizontalLayout();
         actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
-                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
+                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings(),
+                selectXlsTemplateButton);
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
 
@@ -213,12 +244,101 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         return create;
     }
 
+
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать");
+        print.setItems("Все заказы","отмеченные");
         print.setValue("Печать");
         print.setWidth("130px");
+//        print.addValueChangeListener(event ->{
+//            if (print.getValue().equals("Все заказы")) {
+//                List<InvoiceDto> printInvoices = invoiceService.getAll(typeOfInvoice);
+//                for (InvoiceDto inv : printInvoices) {
+//                    try {
+//                        xlsPrinter.writeXLS(inv, getTotalPrice(inv) );
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    } catch (XML2SpreadSheetError xml2SpreadSheetError) {
+//                        xml2SpreadSheetError.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
         return print;
+    }
+    private void uploadXlsMenuItem(SubMenu subMenu) {
+        MenuItem menuItem = subMenu.addItem("добавить шаблон");
+        Dialog dialog = new Dialog();
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        configureUploadFinishedListener(upload, buffer, dialog);
+        dialog.add(upload);
+        menuItem.addClickListener(x -> dialog.open());
+    }
+
+    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog) {
+        upload.addFinishedListener(event -> {
+            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
+                getErrorNotification("Файл с таки именем уже существует");
+            } else {
+                File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
+                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
+                    fos.write(buffer.getInputStream().readAllBytes());
+                    configureSelectXlsTemplateButton();
+                    getInfoNotification("Файл успешно загружен");
+                    log.info("xls шаблон успешно загружен");
+                } catch (IOException e) {
+                    getErrorNotification("При загрузке шаблона произошла ошибка");
+                    log.error("при загрузке xls шаблона произошла ошибка");
+                }
+                dialog.close();
+            }
+        });
+    }
+
+    private void configureSelectXlsTemplateButton() {
+        SubMenu printSubMenu = print.getSubMenu();
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
+        uploadXlsMenuItem(printSubMenu);
+    }
+
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+    }
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll());
+        printInvoicesXls.setType(typeOfInvoice);
+        return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
+    }
+
+    private void getInfoNotification(String message) {
+        Notification notification = new Notification(message, 5000);
+        notification.open();
+    }
+
+    private void getErrorNotification(String message) {
+        Div content = new Div();
+        content.addClassName("my-style");
+        content.setText(message);
+        Notification notification = new Notification(content);
+        notification.setDuration(5000);
+        String styles = ".my-style { color: red; }";
+        StreamRegistration resource = UI.getCurrent().getSession()
+                .getResourceRegistry()
+                .registerResource(new StreamResource("styles.css", () ->
+                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
+        UI.getCurrent().getPage().addStyleSheet(
+                "base://" + resource.getResourceUri().toString());
+        notification.open();
     }
 
     private Button buttonSettings() {
@@ -247,7 +367,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
-    private String getTotalPrice(InvoiceDto invoiceDto) {
+    protected String getTotalPrice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
