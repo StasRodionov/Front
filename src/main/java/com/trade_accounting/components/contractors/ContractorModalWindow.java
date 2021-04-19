@@ -23,7 +23,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -70,7 +69,6 @@ public class ContractorModalWindow extends Dialog {
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
-    private List<ContactDto> contactDto;
     private final Binder<ContactDto> contactDtoBinder = new Binder<>(ContactDto.class);
     private List<TypeOfContractorDto> typeOfContractorDtoList;
     private final TextField lastNameLegalDetailField = new TextField("Фамилия");
@@ -204,8 +202,6 @@ public class ContractorModalWindow extends Dialog {
 
         Details componentContactFaces = new Details("Контактные лица", new Text(" "));
         componentContactFaces.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-        componentContactFaces.addOpenedChangeListener(e ->
-                Notification.show(e.isOpened() ? "Opened" : "Closed"));
         componentContactFaces.addContent(contactDetailSelect());
         add(componentContactFaces);
 
@@ -233,19 +229,19 @@ public class ContractorModalWindow extends Dialog {
 
     private VerticalLayout contactDetailSelect() {
         VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.add(getAddContactButton(verticalLayout));
         if (contractorDto.getId() != null) {
-            contactDto = contractorService
+            List<ContactDto> contactDtos = contractorService
                     .getById(contractorDto.getId()).getContactDto();
-            verticalLayout.add(getAddContactButton(verticalLayout));
-            if (contactDto != null) {
-                contactDto.forEach(el -> showContact(el, verticalLayout));
+            if (contactDtos != null) {
+                contactDtos.forEach(contactDto -> showContact(contactDto, verticalLayout));
             }
         }
 
         return verticalLayout;
     }
 
-    private void showContact(ContactDto el, VerticalLayout verticalLayout) {
+    private void showContact(ContactDto contact, VerticalLayout verticalLayout) {
         FormLayout contactForm = new FormLayout();
         Style addressFormStyle = contactForm.getStyle();
         addressFormStyle.set("width", "385px");
@@ -258,7 +254,7 @@ public class ContractorModalWindow extends Dialog {
 
         contactForm.add("Контактное лицо");
         contactForm.addFormItem(contactFullName, "ФИО");
-        contactDtoBinder.forField(contactFullName).bind(ContactDto::getFullName, ContactDto::setFullName);
+        contactDtoBinder.forField(contactFullName).asRequired("Обязательное поле").bind(ContactDto::getFullName, ContactDto::setFullName);
 
         contactForm.addFormItem(contactPosition, "Должность");
         contactDtoBinder.forField(contactPosition).bind(ContactDto::getPosition, ContactDto::setPosition);
@@ -274,22 +270,22 @@ public class ContractorModalWindow extends Dialog {
         contactDtoBinder.forField(contactComment).bind(ContactDto::getComment, ContactDto::setComment);
 
         contactFullName.setPlaceholder("ФИО");
-        contactFullName.setValue(el.getFullName());
+        contactFullName.setValue(contact.getFullName());
         contactFullName.setRequired(true);
         contactFullName.setRequiredIndicatorVisible(true);
         contactPosition.setPlaceholder("Должность");
-        contactPosition.setValue(el.getPosition());
+        contactPosition.setValue(contact.getPosition());
         contactPhone.setPlaceholder("Телефон");
-        contactPhone.setValue(el.getPhone());
+        contactPhone.setValue(contact.getPhone());
         contactEmail.setPlaceholder("Электронный адрес");
-        contactEmail.setValue(el.getEmail());
+        contactEmail.setValue(contact.getEmail());
         contactComment.setPlaceholder("Комментарий");
-        contactComment.setValue(el.getComment());
+        contactComment.setValue(contact.getComment());
 
-        if (el.getId() == null) {
+        if (contact.getId() == null) {
             newContactTextFields.add(List.of(contactFullName, contactPosition, contactPhone, contactEmail, contactComment));
         } else {
-            existContactTextFields.put(el.getId(), List.of(contactFullName, contactPosition, contactPhone, contactEmail, contactComment));
+            existContactTextFields.put(contact.getId(), List.of(contactFullName, contactPosition, contactPhone, contactEmail, contactComment));
         }
 
         verticalLayout.addComponentAtIndex(1, contactForm);
@@ -297,10 +293,10 @@ public class ContractorModalWindow extends Dialog {
     }
 
     private Button getAddContactButton(VerticalLayout verticalLayout) {
-        ContactDto contactDto = ContactDto.builder().fullName("").position("")
+        ContactDto newContactDto = ContactDto.builder().fullName("").position("")
                 .phone("").email("").comment("").build();
         Button addContactButton = new Button("", event -> {
-            showContact(contactDto, verticalLayout);
+            showContact(newContactDto, verticalLayout);
         });
         addContactButton.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
 
@@ -663,6 +659,7 @@ public class ContractorModalWindow extends Dialog {
                     .apartment(addressApartment.getValue())
                     .build());
             contractorDto.getLegalDetailDto().setId(legalDetailDtoSelect.getValue().getId());
+
             contractorDto.getContactDto().forEach(contact -> {
                 Long contactId = contact.getId();
 
@@ -683,6 +680,7 @@ public class ContractorModalWindow extends Dialog {
                         .build());
             });
             contractorDto.setContactDto(newContactDtoList);
+
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.getTypeOfContractorDto().setId(typeOfContractorDtoSelect.getValue().getId());
             contractorDto.getTypeOfPriceDto().setId(typeOfPriceDtoSelect.getValue().getId());
@@ -696,6 +694,17 @@ public class ContractorModalWindow extends Dialog {
                     .house(addressHouse.getValue())
                     .apartment(addressApartment.getValue())
                     .build());
+
+            newContactTextFields.forEach(contact -> {
+                newContactDtoList.add(ContactDto.builder().fullName(contact.get(0).getValue())
+                        .position(contact.get(1).getValue())
+                        .phone(contact.get(2).getValue())
+                        .email(contact.get(3).getValue())
+                        .comment(contact.get(4).getValue())
+                        .build());
+            });
+            contractorDto.setContactDto(newContactDtoList);
+
             contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
             contractorDto.setTypeOfContractorDto(typeOfContractorDtoSelect.getValue());
