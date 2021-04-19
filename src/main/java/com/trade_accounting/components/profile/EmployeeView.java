@@ -25,6 +25,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
@@ -166,7 +167,13 @@ public class EmployeeView extends VerticalLayout {
         text.setPlaceholder("Поиск");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
+        text.setValueChangeMode(ValueChangeMode.EAGER);
+        text.addValueChangeListener(e -> fillList(text.getValue()));
         return text;
+    }
+
+    private void fillList(String text) {
+        paginator.setData(employeeService.findBySearch(text));
     }
 
     private TextField textField() {

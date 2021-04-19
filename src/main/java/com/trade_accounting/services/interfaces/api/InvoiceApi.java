@@ -33,6 +33,12 @@ public interface InvoiceApi {
     Call<List<InvoiceDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
+    @GET("{url}/searchByString")
+    Call<List<InvoiceDto>> search(@Path(value = "url", encoded = true) String url,
+                                          @Query("search") String search,
+                                          @Query("typeOfInvoice") String typeOfInvoice);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<InvoiceDto> create(@Path(value = "url", encoded = true) String url, @Body InvoiceDto invoiceDto);
 
