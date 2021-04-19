@@ -230,7 +230,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList(String text) {
-        grid.setItems(invoiceService.searchByString(text, typeOfInvoice));
+        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
