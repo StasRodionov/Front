@@ -30,6 +30,21 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public List<EmployeeDto> findBySearch(String search) {
+        List<EmployeeDto> employeeDtos = new ArrayList<>();
+        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.findBySearch(employeeUrl, search.toLowerCase());
+
+        try {
+            employeeDtos = companyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+        }
+
+        return employeeDtos;
+    }
+
+    @Override
     public List<EmployeeDto> getAll() {
 
         List<EmployeeDto> employeeDtoList = new ArrayList<>();
