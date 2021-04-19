@@ -378,8 +378,6 @@ public class GoodsModalWindow extends Dialog {
         return deleteButton;
     }
 
-
-
     private Button getRemoveImageButton(ProductDto productDto, Image image, ImageDto imageDto) {
         Button deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), buttonClickEvent -> {
             imageHorizontalLayout.remove(image);

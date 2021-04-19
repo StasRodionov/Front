@@ -85,7 +85,6 @@ public class ContractorModalWindow extends Dialog {
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контракта.");
 //    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
 
-
     // блок адреса
     private final TextField addressIndex = new TextField();
     private final TextField addressCountry = new TextField();
@@ -486,9 +485,6 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Фактический адрес");
         label.setWidth(LABEL_WIDTH);
-/*        contractorDtoBinder.forField(addressField)
-                .asRequired("Не заполнено!")
-                .bind("addressDto");*/
         addressField.setWidth("345px");
         horizontalLayout.add(label, addressField, dropDownAddressButton(block));
         return horizontalLayout;
@@ -642,6 +638,9 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
+        contractorDto.setAddressDto(AddressDto.builder()
+                .another(addressField.getValue())
+                .build());
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
