@@ -10,7 +10,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.http.Path;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,7 +103,7 @@ public class ContractorServiceImpl implements ContractorService {
         Call<ContractorDto> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
 
         try {
-            contractorDtoCall.execute().body();
+            contractorDtoCall.execute();
             log.info("Успешно выполнен запрос на добавление экземпляра ContractorDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ContractorDto : {IOException}", e);

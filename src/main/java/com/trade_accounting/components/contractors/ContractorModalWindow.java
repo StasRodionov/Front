@@ -63,8 +63,7 @@ public class ContractorModalWindow extends Dialog {
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
-    List<TypeOfContractorDto> typeOfContractorDtoList;
-    // private final TextField idLegalDetailField = new TextField("ID");
+    private List<TypeOfContractorDto> typeOfContractorDtoList;
     private final TextField lastNameLegalDetailField = new TextField("Фамилия");
     private final TextField firstNameLegalDetailField = new TextField("Имя");
     private final TextField middleNameLegalDetailField = new TextField("Отчество");
@@ -77,7 +76,6 @@ public class ContractorModalWindow extends Dialog {
     private final TextField dateOfTheCertificateLegalDetailField = new TextField("Дата сертефиката");
 
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контракта.");
-//    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
 
     // блок адреса
     private final TextField addressIndex = new TextField();
@@ -87,6 +85,7 @@ public class ContractorModalWindow extends Dialog {
     private final TextField addressStreet = new TextField();
     private final TextField addressHouse = new TextField();
     private final TextField addressApartment = new TextField();
+    private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
 
     private final HorizontalLayout block;
 
@@ -316,7 +315,6 @@ public class ContractorModalWindow extends Dialog {
                 legalDetailDtoSelect.setValue(contractorService
                         .getById(contractorDto.getId()).getLegalDetailDto());
             }
-//            legalDetailDtoSelect.setWidth(FIELD_WIDTH);
         }
 
         legalDetailDtoBinder.forField(lastNameLegalDetailField)
@@ -402,9 +400,6 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Фактический адрес");
         label.setWidth(LABEL_WIDTH);
-        contractorDtoBinder.forField(addressField)
-                .asRequired("Не заполнено!")
-                .bind("addressDto");
         addressField.setWidth("345px");
         horizontalLayout.add(label, addressField, dropDownAddressButton(block));
         return horizontalLayout;
@@ -419,12 +414,25 @@ public class ContractorModalWindow extends Dialog {
         addressFormStyle.set("padding-left", "10px");
 
         addressForm.addFormItem(addressIndex, "Индекс");
+        addressDtoBinder.forField(addressIndex).bind(AddressDto::getIndex, AddressDto::setIndex);
+
         addressForm.addFormItem(addressCountry, "Страна");
+        addressDtoBinder.forField(addressCountry).bind(AddressDto::getCountry, AddressDto::setCountry);
+
         addressForm.addFormItem(addressRegion, "Область");
+        addressDtoBinder.forField(addressRegion).bind(AddressDto::getRegion, AddressDto::setRegion);
+
         addressForm.addFormItem(addressCity, "Город");
+        addressDtoBinder.forField(addressCity).bind(AddressDto::getCity, AddressDto::setCity);
+
         addressForm.addFormItem(addressStreet, "Улица");
+        addressDtoBinder.forField(addressStreet).bind(AddressDto::getStreet, AddressDto::setStreet);
+
         addressForm.addFormItem(addressHouse, "Дом");
+        addressDtoBinder.forField(addressHouse).bind(AddressDto::getHouse, AddressDto::setHouse);
+
         addressForm.addFormItem(addressApartment, "Квартира");
+        addressDtoBinder.forField(addressApartment).bind(AddressDto::getApartment, AddressDto::setApartment);
 
         if (contractorDto.getId() != null) {
             addressIndex.setPlaceholder("Индекс");
@@ -495,7 +503,6 @@ public class ContractorModalWindow extends Dialog {
 
     private Button getSaveButton() {
         if (nameField.isEmpty()) {
-            //ContractorDto contractorDtoNew = new ContractorDto();
             legalDetailDto = new LegalDetailDto();
             return new Button("Добавить", event -> {
                 saveFieldsCreate(legalDetailDto);
@@ -509,12 +516,11 @@ public class ContractorModalWindow extends Dialog {
         } else {
             contractorDto = contractorService.getById(Long.valueOf(idField.getValue()));
             return new Button("Изменить", event -> {
-                saveFieldsCreate(legalDetailDto);//,contractorDto
+                saveFieldsCreate(legalDetailDto);
                 legalDetailService.create(legalDetailDto);
                 saveFields(contractorDto);
                 contractorService.update(contractorDto);
-                if (!innField.isEmpty() && innField.getValue()
-                        .matches("^([0-9]{10}|[0-9]{12})$")) {
+                if (!innField.isEmpty() && innField.getValue().matches("^([0-9]{10}|[0-9]{12})$")) {
                     close();
                 }
             });
@@ -545,19 +551,36 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-        contractorDto.setAddressDto(AddressDto.builder()
-                .another(addressField.getValue())
-                .build());
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
 
         if (contractorDto.getId() != null) {
+            Long addressId = contractorDto.getAddressDto().getId();
+            contractorDto.setAddressDto(AddressDto.builder()
+                    .id(addressId)
+                    .index(addressIndex.getValue())
+                    .country(addressCountry.getValue())
+                    .region(addressRegion.getValue())
+                    .city(addressCity.getValue())
+                    .street(addressStreet.getValue())
+                    .house(addressHouse.getValue())
+                    .apartment(addressApartment.getValue())
+                    .build());
             contractorDto.getLegalDetailDto().setId(legalDetailDtoSelect.getValue().getId());
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.getTypeOfContractorDto().setId(typeOfContractorDtoSelect.getValue().getId());
             contractorDto.getTypeOfPriceDto().setId(typeOfPriceDtoSelect.getValue().getId());
         } else {
+            contractorDto.setAddressDto(AddressDto.builder()
+                    .index(addressIndex.getValue())
+                    .country(addressCountry.getValue())
+                    .region(addressRegion.getValue())
+                    .city(addressCity.getValue())
+                    .street(addressStreet.getValue())
+                    .house(addressHouse.getValue())
+                    .apartment(addressApartment.getValue())
+                    .build());
             contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
             contractorDto.setTypeOfContractorDto(typeOfContractorDtoSelect.getValue());

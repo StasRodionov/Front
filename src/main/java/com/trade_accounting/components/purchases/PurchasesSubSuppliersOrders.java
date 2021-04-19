@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -101,7 +102,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
                 .setId("Проведена");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
 //        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
-//        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
@@ -170,8 +171,18 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         final TextField textField = new TextField();
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.setClearButtonVisible(true);
+        textField.addValueChangeListener(e -> updateList(textField.getValue()));
         textField.setWidth("300px");
         return textField;
+    }
+
+    private void updateList(String search) {
+        if (search.isEmpty()) {
+            paginator.setData(invoiceService.getAll(typeOfInvoice));
+        } else paginator.setData(invoiceService
+                .findBySearchAndTypeOfInvoice(search, typeOfInvoice));
     }
 
     private NumberField numberField() {
