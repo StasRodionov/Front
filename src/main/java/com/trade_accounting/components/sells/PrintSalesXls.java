@@ -29,7 +29,6 @@ public class PrintSalesXls extends PrintExcelDocument<InvoiceDto> {
                 editCell.setCellValue(LocalDateTime.now());
                 break;
             case ("<authorName>"):
-                System.err.println(employeeService.getPrincipal().getEmail());
                 editCell.setCellValue(employeeService.getPrincipal().getEmail());
                 break;
         }
