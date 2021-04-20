@@ -1,5 +1,6 @@
 package com.trade_accounting.components.money;
 
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
@@ -17,7 +18,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -27,18 +27,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @SpringComponent
 @UIScope
@@ -58,8 +54,8 @@ public class PaymentModalWin extends Dialog {
     private final ComboBox <ProjectDto> projectDtoComboBox = new ComboBox<>();
     private final TextField payNumber = new TextField();
     private final BigDecimalField sum = new BigDecimalField();
-//    Div div = new Div();
-//    private final PaymentDto paymentDto =getPaymentdto();
+
+    private final Notifications notifications;
 
     @Autowired
 
@@ -67,12 +63,13 @@ public class PaymentModalWin extends Dialog {
                            CompanyService companyService,
                            ContractorService contractorService,
                            ProjectService projectService,
-                           ContractService contractService) {
+                           ContractService contractService, Notifications notifications) {
         this.paymentService = paymentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.projectService = projectService;
         this.contractService = contractService;
+        this.notifications = notifications;
 
 
         typeofPaymentBox.setItems("Входящий","Исходящий");
@@ -84,28 +81,22 @@ public class PaymentModalWin extends Dialog {
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
         projectDtoComboBox.setItems(projectService.getAll());
         projectDtoComboBox.setItemLabelGenerator(ProjectDto:: getName);
-//        div.add(getHorizontalLayout("Дата", dateField),
-//                getHorizontalLayout("Компания", companyDtoComboBox),
-//                getHorizontalLayout("Номер платежа",payNumber),
-//                getHorizontalLayout("Тип платежа", typeofPaymentBox),
-//                getHorizontalLayout("Контрагент", contractorDtoComboBox),
-//                getHorizontalLayout("Проект", projectDtoComboBox));
+        payNumber.setPattern("\\d*");
+        payNumber.setErrorMessage("только арабские цифры");
+        sum.setPlaceholder("введите число меньше 10^17");
+
         setCloseOnOutsideClick(true);
         setCloseOnEsc(true);
         add(getHeader());
         add(getHorizontalLayout("Дата", dateField));
         add(getHorizontalLayout("Компания", companyDtoComboBox));
-        add(getHorizontalLayout("Номер платежа",payNumber));
+        add(getHorizontalLayout("Номер платежа", payNumber));
         add(getHorizontalLayout("Тип платежа", typeofPaymentBox));
         add(getHorizontalLayout("Контрагент", contractorDtoComboBox));
         add(getHorizontalLayout("Договор", contractDtoComboBox));
         add(getHorizontalLayout("Проект", projectDtoComboBox));
         add(getHorizontalLayout("Сумма", sum));
-//        getPaymentdto();
         add(getFooter());
-
-
-
 
     }
     private Component getHeader() {
@@ -114,10 +105,6 @@ public class PaymentModalWin extends Dialog {
         title.setHeight("1.5em");
         title.setWidth("345px");
         horizontalLayout.add(title);
-//        VerticalLayout verticalLayout = new VerticalLayout();
-//        verticalLayout.setPadding(false);
-////        verticalLayout.add(getImageButton(), imageHorizontalLayout);
-//        horizontalLayout.add(title, verticalLayout);
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
         return horizontalLayout;
     }
@@ -130,18 +117,6 @@ public class PaymentModalWin extends Dialog {
         horizontalLayout.add(label, field);
         return horizontalLayout;
     }
-//    private PaymentDto getPaymentdto() {
-//        PaymentDto paymentDto = new PaymentDto();
-//        paymentDto.setTime(LocalDateTime.now().toString());
-//        paymentDto.setCompanyDto(companyService.getById(1L));
-//        paymentDto.setContractorDto(contractorService.getById(1L));
-//        paymentDto.setContractDto(contractService.getById(1L));
-//        paymentDto.setProjectDto(projectService.getById(1L));
-//        paymentDto.setNumber("00010");
-
-    //        paymentDto.setTypeOfPayment(typeofPaymentBox.getValue());
-//        return paymentDto;
-//    }
     private PaymentDto updatePaymentDto() {
         PaymentDto paymentDto = new PaymentDto();
         paymentDto.setTime(dateField.getValue().toString());
@@ -171,15 +146,21 @@ public class PaymentModalWin extends Dialog {
         projectDtoComboBox.clear();
         payNumber.clear();
         typeofPaymentBox.clear();
+        sum.clear();
     }
     private Button getSaveButton() {
         return new Button("Сохранить", new Icon(VaadinIcon.PLUS_CIRCLE), event ->{
-//                updatePaymentDto();
-            paymentService.create(updatePaymentDto());
-//                div.removeAll();
-            reset();
-            UI.getCurrent().navigate("money");
-            close();});
+            if (sum.getValue().compareTo(BigDecimal.valueOf(9999999999999999L))<0) {
+                paymentService.create(updatePaymentDto());
+                reset();
+                UI.getCurrent().navigate("money");
+                close();
+            }
+            else {
+                sum.clear();
+                notifications.errorNotification("Ошибка сохранения. Число в поле \"Сумма\" превышает допустимый диапазон");
+            }
+           });
     }
     private Button getCancelButton() {
         return new Button("Отмена",new Icon(VaadinIcon.CLOSE), event ->{
