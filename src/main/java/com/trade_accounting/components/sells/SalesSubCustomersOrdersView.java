@@ -6,6 +6,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -64,6 +65,7 @@ import java.util.stream.Collectors;
 public class SalesSubCustomersOrdersView extends VerticalLayout implements AfterNavigationObserver {
 
     private final InvoiceService invoiceService;
+    private final EmployeeService employeeService;
 
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
@@ -80,8 +82,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
-                                       @Lazy Notifications notifications) {
+                                       @Lazy Notifications notifications, EmployeeService employeeService) {
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        this.employeeService = employeeService;
         this.invoiceService = invoiceService;
         this.notifications = notifications;
         this.data = getData();
@@ -297,7 +300,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         for (InvoiceDto inc: list1) {
             sumList.add(getTotalPrice(inc));
         }
-        PrintSalesXls printSalesXls = new PrintSalesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), sumList);
+        PrintSalesXls printSalesXls = new PrintSalesXls(file.getPath(), invoiceService.getAll(typeOfInvoice),
+                sumList, employeeService);
         return new Anchor(new StreamResource(salesTemplate, printSalesXls::createReport), salesTemplate);
     }
 
