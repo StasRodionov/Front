@@ -12,5 +12,7 @@ public interface EmployeeService extends PageableService<EmployeeDto> {
 
     void deleteById(Long id);
 
+    List<EmployeeDto> findBySearch(String search);
+
     EmployeeDto getPrincipal();
 }

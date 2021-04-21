@@ -23,6 +23,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -87,6 +88,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
                 .setId("Проведена");
 
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -173,9 +175,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
-        textField.addValueChangeListener(event -> {
-            System.out.println(event.getValue());
-        });
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         return textField;
     }
 
@@ -228,8 +229,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         return print;
     }
 
-    private void updateList() {
-        grid.setItems(invoiceService.getAll(typeOfInvoice));
+    private void updateList(String text) {
+        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
@@ -265,7 +266,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        updateList();
+        updateList("");
     }
 }
 
