@@ -3,7 +3,6 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.button.Button;
@@ -20,7 +19,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,10 +33,13 @@ import java.util.List;
 @Slf4j
 @Route(value = "invoicesToBuyers", layout = AppView.class)
 @PageTitle("Счета покупателям")
+@SpringComponent
+@UIScope
 public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
+    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
     private final List<InvoiceDto> data;
 
@@ -45,9 +50,11 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private static final String TYPE_OF_INVOICE = "RECEIPT";
 
-    public SalesSubInvoicesToBuyersView(InvoiceService invoiceService, InvoiceProductService invoiceProductService) {
+    public SalesSubInvoicesToBuyersView(InvoiceService invoiceService, InvoiceProductService invoiceProductService,
+                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
+        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
 
         this.data = getData();
 
@@ -97,6 +104,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private Button buttonUnit(){
         Button buttonUnit = new Button("Счет", new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonUnit.addClickListener(event -> {
+            salesEditCreateInvoiceView.resetView();
+            salesEditCreateInvoiceView.setUpdateState(false);
+            salesEditCreateInvoiceView.setType("RECEIPT");
+            salesEditCreateInvoiceView.setLocation("sells");
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+        });
         return buttonUnit;
     }
 
