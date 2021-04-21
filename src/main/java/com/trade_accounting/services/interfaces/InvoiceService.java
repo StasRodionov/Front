@@ -14,6 +14,7 @@ public interface InvoiceService {
     InvoiceDto getById(Long id);
 
     List<InvoiceDto> search(Map<String, String> query);
+
     List<InvoiceDto> findBySearchAndTypeOfInvoice(String search, String typeOfInvoice);
 
     Response<InvoiceDto> create(InvoiceDto invoiceDto);
@@ -21,4 +22,6 @@ public interface InvoiceService {
     void update(InvoiceDto invoiceDto);
 
     void deleteById(Long id);
+
+
 }
