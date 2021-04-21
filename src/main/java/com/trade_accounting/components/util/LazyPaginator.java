@@ -67,11 +67,9 @@ public class LazyPaginator<T> extends HorizontalLayout {
 
     private void configureFilter() {
         gridFilter.onSearchClick(e -> {
-            this.filterIsActive = true;
             this.updateData(false);
         });
         gridFilter.onClearClick(e -> {
-            this.filterIsActive = false;
             this.updateData(false);
         });
     }
