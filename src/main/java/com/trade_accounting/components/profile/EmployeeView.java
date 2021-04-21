@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "employee", layout = AppView.class)
@@ -163,7 +164,8 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void fillList(String text) {
-        paginator.setData(employeeService.findBySearch(text));
+//        paginator.setData(employeeService.findBySearch(text));
+        lazyPaginator.setSearchText(text);
     }
 
     private TextField textField() {

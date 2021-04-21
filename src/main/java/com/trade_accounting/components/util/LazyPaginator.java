@@ -13,6 +13,7 @@ import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import javax.swing.*;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class LazyPaginator<T> extends HorizontalLayout {
     private boolean filterIsActive = false;
     private GridFilter<T> gridFilter;
     private Map<String, String> sortParams = new HashMap<>();
+    private Map<String, String> filterData = new HashMap<>();
 
     /**
      * Creates a Paginator with specific number of items per page.
@@ -65,14 +67,31 @@ public class LazyPaginator<T> extends HorizontalLayout {
         add(firstPageButton, prevPageButton, pageItemsTextField, nextPageButton, lastPageButton);
     }
 
+    public void setSearchText(String text) {
+        this.filterData.put("search", text);
+        this.updateData(false);
+    }
+
     private void configureFilter() {
         gridFilter.onSearchClick(e -> {
+            this.filterData.putAll(gridFilter.getFilterData());
             this.updateData(false);
         });
         gridFilter.onClearClick(e -> {
+            this.clearFilterData();
             this.updateData(false);
         });
     }
+
+
+    private void clearFilterData() {
+        this.filterData.forEach((key, value) -> {
+            if (!key.equals("search")) {
+                filterData.remove(key);
+            }
+        });
+    }
+
     private void configureButton() {
         nextPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(currentPage + 1));
         lastPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(getNumberOfPages()));
@@ -90,7 +109,7 @@ public class LazyPaginator<T> extends HorizontalLayout {
 
     private List<T> getPageData() {
         rowCount = pageableService.getRowsCount(gridFilter.getFilterData());
-        data = pageableService.getPage(gridFilter.getFilterData(), this.sortParams, currentPage, itemsPerPage);
+        data = pageableService.getPage(this.filterData, this.sortParams, currentPage, itemsPerPage);
         return data;
     }
 
