@@ -16,9 +16,11 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
 
     private final Div div;
     private final PaymentService paymentService;
+    private final PaymentModalWin paymentModalWin;
 
-    public MoneySubMenuView(PaymentService paymentService) {
+    public MoneySubMenuView(PaymentService paymentService, PaymentModalWin paymentModalWin) {
         this.paymentService = paymentService;
+        this.paymentModalWin = paymentModalWin;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -26,7 +28,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new MoneySubPaymentsView(paymentService));
+        div.add(new MoneySubPaymentsView(paymentService, paymentModalWin));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -38,11 +40,11 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
 
     private Tabs configurationSubMenu() {
         Tabs tabs = new Tabs(
-        new Tab("Платежи"),
-        new Tab("Движение денежных средств"),
-        new Tab("Прибыли и убытки"),
-        new Tab("Взаиморасчеты"),
-        new Tab("Корректировки")
+                new Tab("Платежи"),
+                new Tab("Движение денежных средств"),
+                new Tab("Прибыли и убытки"),
+                new Tab("Взаиморасчеты"),
+                new Tab("Корректировки")
         );
 
         tabs.addSelectedChangeListener(event -> {
@@ -50,7 +52,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
             switch (tabName) {
                 case "Платежи":
                     div.removeAll();
-                    div.add(new MoneySubPaymentsView(paymentService));
+                    div.add(new MoneySubPaymentsView(paymentService, paymentModalWin));
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
