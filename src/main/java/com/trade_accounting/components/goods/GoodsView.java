@@ -13,6 +13,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -27,12 +28,20 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.klaudeta.PaginatedGrid;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -301,8 +310,10 @@ public class GoodsView extends VerticalLayout {
     private Select<String> valueSelectPrint() {
         Select<String> valueSelect = new Select<>();
         valueSelect.setWidth(VALUE_SELECT_WIDTH);
-        valueSelect.setItems("Печать");
-        valueSelect.setValue("Печать");
+        valueSelect.setPlaceholder("Печать");
+        Anchor anchor = new Anchor(new StreamResource("goods.xls",
+                this::buildXlsPage), "Список товаров");
+        valueSelect.add(anchor);
         return valueSelect;
     }
 
@@ -322,5 +333,20 @@ public class GoodsView extends VerticalLayout {
         return valueSelect;
     }
 
+    private ByteArrayInputStream buildXlsPage() {
+        XSSFWorkbook workbook = new XSSFWorkbook();
 
+        //Create a blank sheet
+        XSSFSheet sheet = workbook.createSheet("Товары");
+
+        Row row = sheet.createRow(0);
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Список товаров");
+        try(var out = new ByteArrayOutputStream()) {
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
