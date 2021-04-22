@@ -1,15 +1,13 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.models.dto.PageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.api.EmployeeApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
@@ -42,18 +40,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         return employeeDtos;
-    }
-
-    public Long getRowsCount(Map<String, String> query) {
-        Call<Long> getRow = employeeApi.getRowCount(employeeUrl, query);
-        Long countRow = 0L;
-        try {
-            countRow = getRow.execute().body();
-            log.info("Успешно выполнен запрос");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
-        }
-        return countRow;
     }
 
     @Override
@@ -107,18 +93,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeDto> getPage(Map<String, String> filterParams, Map<String, String> sortParams, int page, int count) {
-        List<EmployeeDto> companyDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> companyDtoListCall = employeeApi.getPage(employeeUrl, sortParams, filterParams, page, count);
+    public PageDto<EmployeeDto> getPage(Map<String, String> filterParams, Map<String, String> sortParams, int page, int count) {
+        PageDto<EmployeeDto> employeeDtoList = new PageDto<>();
+
+        Call<PageDto<EmployeeDto>> employeeDtoListCall = employeeApi.getPage(employeeUrl, sortParams, filterParams, page, count);
 
         try {
-            companyDtoList = companyDtoListCall.execute().body();
+            employeeDtoList = employeeDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto по фильтру");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
         }
-
-        return companyDtoList;
+        return employeeDtoList;
     }
 
     @Override

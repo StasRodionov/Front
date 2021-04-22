@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.models.dto.PageDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -28,11 +29,11 @@ public interface EmployeeApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/pages")
-    Call<List<EmployeeDto>> getPage(@Path(value = "url", encoded = true) String url,
-                                    @QueryMap Map<String, String> query,
-                                    @QueryMap Map<String, String> sortParams,
-                                    @Query("pageNumber") Integer pageNumber,
-                                    @Query("rowsLimit") Integer rowsLimit);
+    Call<PageDto<EmployeeDto>> getPage(@Path(value = "url", encoded = true) String url,
+                                       @QueryMap Map<String, String> query,
+                                       @QueryMap Map<String, String> sortParams,
+                                       @Query("pageNumber") Integer pageNumber,
+                                       @Query("rowsLimit") Integer rowsLimit);
 
     @Headers("Accept: application/json")
     @GET("{url}/count")

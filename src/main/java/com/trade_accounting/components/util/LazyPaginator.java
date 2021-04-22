@@ -1,5 +1,6 @@
 package com.trade_accounting.components.util;
 
+import com.trade_accounting.models.dto.PageDto;
 import com.trade_accounting.services.interfaces.PageableService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -13,30 +14,27 @@ import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import javax.swing.*;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Server-side component for pagination grid.
  */
 public class LazyPaginator<T> extends HorizontalLayout {
-    private int itemsPerPage;
+    private final int itemsPerPage;
     private int numberOfPages;
-    private int currentPage;
+    private int currentPage = 1;
 
     private final Grid<T> grid;
-    private List<T> data;
-    private PageableService<T> pageableService;
+    private PageDto<T> pageData;
+    private final PageableService<T> pageableService;
     private IntegerField pageItemsTextField;
     private final Button firstPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_LEFT));
     private final Button prevPageButton = new Button(new Icon(VaadinIcon.ANGLE_LEFT));
     private final Button nextPageButton = new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
     private final Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
     private Long rowCount;
-    private boolean filterIsActive = false;
-    private GridFilter<T> gridFilter;
+    private final GridFilter<T> gridFilter;
     private Map<String, String> sortParams = new HashMap<>();
     private Map<String, String> filterData = new HashMap<>();
 
@@ -53,16 +51,14 @@ public class LazyPaginator<T> extends HorizontalLayout {
         this.grid = grid;
         this.pageableService = pageableService;
         this.itemsPerPage = itemsPerPage;
-        this.data = pageableService.getPage(gridFilter.getFilterData(), this.sortParams, currentPage, itemsPerPage);
-        this.rowCount = pageableService.getRowsCount(gridFilter.getFilterData());
+        this.filterData.put("search", "");
         this.setSortParams("id", SortOrder.ASCENDING.toString());
+        this.updatePageData();
         grid.setPageSize(itemsPerPage);
         grid.addSortListener(this::sort);
-        calculateNumberOfPages();
         configureButton();
         configureTextField();
-        setCurrentPageAndReloadGrid(1);
-        reloadGrid();
+        setCurrentPageAndReloadGrid(currentPage);
         configureFilter();
         add(firstPageButton, prevPageButton, pageItemsTextField, nextPageButton, lastPageButton);
     }
@@ -74,7 +70,7 @@ public class LazyPaginator<T> extends HorizontalLayout {
 
     private void configureFilter() {
         gridFilter.onSearchClick(e -> {
-            this.filterData.putAll(gridFilter.getFilterData());
+            this.filterData = gridFilter.getFilterData();
             this.updateData(false);
         });
         gridFilter.onClearClick(e -> {
@@ -83,19 +79,17 @@ public class LazyPaginator<T> extends HorizontalLayout {
         });
     }
 
-
+    /**
+     * Clears additional filter data
+     */
     private void clearFilterData() {
-        this.filterData.forEach((key, value) -> {
-            if (!key.equals("search")) {
-                filterData.remove(key);
-            }
-        });
+        this.filterData.keySet().removeIf(key -> !key.equals("search"));
     }
 
     private void configureButton() {
         nextPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(currentPage + 1));
-        lastPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(getNumberOfPages()));
-        prevPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(getCurrentPage() - 1));
+        lastPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(numberOfPages));
+        prevPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(currentPage - 1));
         firstPageButton.addClickListener(e -> setCurrentPageAndReloadGrid(1));
     }
 
@@ -107,49 +101,25 @@ public class LazyPaginator<T> extends HorizontalLayout {
         pageItemsTextField.setPlaceholder(getCurrentGridPageItems());
     }
 
-    private List<T> getPageData() {
-        rowCount = pageableService.getRowsCount(gridFilter.getFilterData());
-        data = pageableService.getPage(this.filterData, this.sortParams, currentPage, itemsPerPage);
-        return data;
+    private void updatePageData() {
+        this.pageData = pageableService.getPage(this.filterData, this.sortParams, currentPage, itemsPerPage);
+        this.numberOfPages = pageData.getTotalPages();
+        this.rowCount = pageData.getTotalElements();
     }
 
     private String getCurrentGridPageItems() {
-        int start = currentPage;
-        int end = itemsPerPage * currentPage;
-
-        if (start != 1) {
-            start = ((itemsPerPage * currentPage) - itemsPerPage) + 1;
-        }
-
-        end = (int) Math.min(end, rowCount);
-
-        return start + "-" + end + " из " + rowCount;
-    }
-
-    private void calculateNumberOfPages() {
-        if (rowCount == 0) {
-            this.numberOfPages = 1;
-        }else {
-            this.numberOfPages = (int) Math.ceil((float) rowCount / itemsPerPage);
-        }
+        int startElement = (currentPage - 1) * itemsPerPage + 1;
+        int endElement = startElement + this.pageData.getNumberOfElements() - 1;
+        return (startElement != 0 ? startElement : 1) + "-" + endElement + " из " + rowCount;
     }
 
     /**
      * Reload grid and sets data to grid from the value of current page.
      */
-    public void reloadGrid() {
-        grid.setItems(getPageData());
+    private void reloadGrid() {
+        grid.setItems(this.pageData.getContent());
         pageItemsTextField.setPlaceholder(getCurrentGridPageItems());
         grid.getDataProvider().refreshAll();
-    }
-
-    /**
-     * Gets the current page of paginator.
-     *
-     * @return currentPage current page
-     */
-    public int getCurrentPage() {
-        return currentPage;
     }
 
     /**
@@ -158,7 +128,13 @@ public class LazyPaginator<T> extends HorizontalLayout {
      *
      * @param currentPage new current page
      */
-    public void setCurrentPageAndReloadGrid(int currentPage) {
+    private void setCurrentPageAndReloadGrid(int currentPage) {
+        setCurrentPage(currentPage);
+        this.updatePageData();
+        reloadGrid();
+    }
+
+    private void setCurrentPage(int currentPage) {
         if (currentPage > numberOfPages) {
             throw new IllegalArgumentException("The current page: ["+ currentPage +"] greater than maximum number of page.");
         }
@@ -172,20 +148,10 @@ public class LazyPaginator<T> extends HorizontalLayout {
             firstPageButton.setEnabled(false);
             prevPageButton.setEnabled(false);
         }
-        if (currentPage == getNumberOfPages()) {
+        if (currentPage == numberOfPages) {
             lastPageButton.setEnabled(false);
             nextPageButton.setEnabled(false);
         }
-        reloadGrid();
-    }
-
-    /**
-     * Gets the number of pages of the paginator.
-     *
-     * @return numberOfPages number of pages
-     */
-    public int getNumberOfPages() {
-        return numberOfPages;
     }
 
     /**
@@ -194,13 +160,13 @@ public class LazyPaginator<T> extends HorizontalLayout {
      * @param saveCurrentPage save current page flag
      */
     public void updateData(boolean saveCurrentPage){
-        rowCount = pageableService.getRowsCount(gridFilter.getFilterData());
-        calculateNumberOfPages();
-        if (saveCurrentPage && numberOfPages >= currentPage) {
-            setCurrentPageAndReloadGrid(getCurrentPage());
+        this.updatePageData();
+        if (saveCurrentPage && this.numberOfPages >= currentPage) {
+            setCurrentPage(currentPage);
         } else {
-            setCurrentPageAndReloadGrid(1);
+            setCurrentPage(1);
         }
+        reloadGrid();
     }
 
     private void setSortParams(String sortColumn, String sortDirection) {
@@ -211,9 +177,8 @@ public class LazyPaginator<T> extends HorizontalLayout {
     //FIXME двойной вызов при переходе сортировки между столбцами (сначала сбрасывается сортировка на одном, а потом ставится на другом)
     private void sort(SortEvent<Grid<T>, GridSortOrder<T>> gridGridSortOrderSortEvent) {
         if (!gridGridSortOrderSortEvent.getSortOrder().isEmpty()) {
-            gridGridSortOrderSortEvent.getSortOrder().forEach(tGridSortOrder -> {
-                this.setSortParams(tGridSortOrder.getSorted().getKey(), tGridSortOrder.getDirection().toString());
-            });
+            gridGridSortOrderSortEvent.getSortOrder().forEach(tGridSortOrder ->
+                    this.setSortParams(tGridSortOrder.getSorted().getKey(), tGridSortOrder.getDirection().toString()));
         } else {
             this.setSortParams("id", SortOrder.ASCENDING.toString());
         }
