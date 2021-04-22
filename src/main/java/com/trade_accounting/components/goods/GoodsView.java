@@ -33,7 +33,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +42,13 @@ import org.vaadin.klaudeta.PaginatedGrid;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.IntStream;
 
 @Slf4j
 @SpringComponent
@@ -333,20 +336,58 @@ public class GoodsView extends VerticalLayout {
         return valueSelect;
     }
 
-    private ByteArrayInputStream buildXlsPage() {
-        XSSFWorkbook workbook = new XSSFWorkbook();
+    private InputStream buildXlsPage() {
 
-        //Create a blank sheet
-        XSSFSheet sheet = workbook.createSheet("Товары");
+        /*var columns = List.of();
 
-        Row row = sheet.createRow(0);
-        Cell cell = row.createCell(0);
-        cell.setCellValue("Список товаров");
-        try(var out = new ByteArrayOutputStream()) {
-            workbook.write(out);
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        */
+        return  new NaiveXlsGrid().setHeader("Товары")
+                .setMetadata("Создал: Андрей")
+                .setColumns("№", "Наименование", "Артикул", "Вес", "Объем", "Закупочная цена")
+                .getAsStream();
+
+    }
+    class NaiveXlsGrid<T> {
+        private String header;
+        private String metadata;
+        private String [] columns;
+        private BiFunction<T, Cell, Cell> [] projections;
+
+        public NaiveXlsGrid setHeader(String header) {
+            this.header = header;
+            return this;
+        }
+        public NaiveXlsGrid setMetadata(String metadata) {
+            this.metadata = metadata;
+            return this;
+        }
+        public NaiveXlsGrid setColumns(String...columns) {
+            this.columns = columns;
+            return this;
+        }
+        public NaiveXlsGrid setProjections(BiFunction<T, Cell, Cell>...projections) {
+            this.projections = projections;
+            return this;
+        }
+        public Workbook getWorkbook() {
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            XSSFSheet sheet = workbook.createSheet();
+            sheet.createRow(0).createCell(0).setCellValue(header);
+            sheet.createRow(1).createCell(0).setCellValue(metadata);
+            var th = sheet.createRow(2);
+            IntStream.range(0, columns.length).forEach(i -> {
+                Cell cell = th.createCell(i);
+                cell.setCellValue(columns[i]);
+            });
+            return workbook;
+        }
+        public InputStream getAsStream() {
+            try(var out = new ByteArrayOutputStream()) {
+                getWorkbook().write(out);
+                return new ByteArrayInputStream(out.toByteArray());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
