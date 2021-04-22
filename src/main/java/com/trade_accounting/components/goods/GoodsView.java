@@ -339,11 +339,9 @@ public class GoodsView extends VerticalLayout {
 
     private InputStream buildXlsPage() {
 
-        /*var columns = List.of();
 
-        */
         return  new NaiveXlsGrid<ProductDto>().setHeader("Товары")
-                .setMetadata("Создал: Андрей")
+                .setMetadata("Создал: " )
                 .setColumns("№", "Наименование", "Артикул", "Вес", "Объем", "Закупочная цена")
                 .setMappings(
                         (product, cell) -> cell.setCellValue(product.getId()),
