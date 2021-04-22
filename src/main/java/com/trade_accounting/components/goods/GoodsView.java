@@ -33,6 +33,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -47,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -341,9 +342,17 @@ public class GoodsView extends VerticalLayout {
         /*var columns = List.of();
 
         */
-        return  new NaiveXlsGrid().setHeader("Товары")
+        return  new NaiveXlsGrid<ProductDto>().setHeader("Товары")
                 .setMetadata("Создал: Андрей")
                 .setColumns("№", "Наименование", "Артикул", "Вес", "Объем", "Закупочная цена")
+                .setMappings(
+                        (product, cell) -> cell.setCellValue(product.getId()),
+                        (product, cell) -> cell.setCellValue(product.getName()),
+                        (product, cell) -> cell.setCellValue(product.getDescription()),
+                        (product, cell) -> cell.setCellValue(product.getWeight().doubleValue()),
+                        (product, cell) -> cell.setCellValue(product.getVolume().doubleValue()),
+                        (product, cell) -> cell.setCellValue(product.getPurchasePrice().doubleValue()))
+                .setData(productService.getAll())
                 .getAsStream();
 
     }
@@ -351,22 +360,27 @@ public class GoodsView extends VerticalLayout {
         private String header;
         private String metadata;
         private String [] columns;
-        private BiFunction<T, Cell, Cell> [] projections;
+        private BiConsumer<T, Cell>[] mappings;
+        List<T> data;
 
-        public NaiveXlsGrid setHeader(String header) {
+        public NaiveXlsGrid<T> setHeader(String header) {
             this.header = header;
             return this;
         }
-        public NaiveXlsGrid setMetadata(String metadata) {
+        public NaiveXlsGrid<T> setMetadata(String metadata) {
             this.metadata = metadata;
             return this;
         }
-        public NaiveXlsGrid setColumns(String...columns) {
+        public NaiveXlsGrid<T> setColumns(String...columns) {
             this.columns = columns;
             return this;
         }
-        public NaiveXlsGrid setProjections(BiFunction<T, Cell, Cell>...projections) {
-            this.projections = projections;
+        public NaiveXlsGrid<T> setMappings(BiConsumer<T, Cell>...mappings) {
+            this.mappings = mappings;
+            return this;
+        }
+        public NaiveXlsGrid<T> setData(List<T> data) {
+            this.data = data;
             return this;
         }
         public Workbook getWorkbook() {
@@ -374,12 +388,24 @@ public class GoodsView extends VerticalLayout {
             XSSFSheet sheet = workbook.createSheet();
             sheet.createRow(0).createCell(0).setCellValue(header);
             sheet.createRow(1).createCell(0).setCellValue(metadata);
+
             var th = sheet.createRow(2);
             IntStream.range(0, columns.length).forEach(i -> {
                 Cell cell = th.createCell(i);
                 cell.setCellValue(columns[i]);
             });
+
+            IntStream.range(3, data.size() + 3)
+                    .mapToObj(sheet::createRow)
+                    .forEach(this::populateRow);
+
             return workbook;
+        }
+        private void populateRow(Row row) {
+            var idx = row.getRowNum() - 3;
+            IntStream.range(0, mappings.length).forEach(i -> {
+                mappings[i].accept(data.get(idx), row.createCell(i));
+            });
         }
         public InputStream getAsStream() {
             try(var out = new ByteArrayOutputStream()) {
