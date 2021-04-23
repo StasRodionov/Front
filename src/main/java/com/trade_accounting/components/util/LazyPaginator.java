@@ -35,7 +35,7 @@ public class LazyPaginator<T> extends HorizontalLayout {
     private final Button lastPageButton = new Button(new Icon(VaadinIcon.ANGLE_DOUBLE_RIGHT));
     private Long rowCount;
     private final GridFilter<T> gridFilter;
-    private Map<String, String> sortParams = new HashMap<>();
+    private Map<String, String> sortParams = Map.of("column", "id", "direction", SortOrder.ASCENDING.toString());
     private Map<String, String> filterData = new HashMap<>();
 
     /**
@@ -52,7 +52,6 @@ public class LazyPaginator<T> extends HorizontalLayout {
         this.pageableService = pageableService;
         this.itemsPerPage = itemsPerPage;
         this.filterData.put("search", "");
-        this.setSortParams("id", SortOrder.ASCENDING.toString());
         this.updatePageData();
         grid.setPageSize(itemsPerPage);
         grid.addSortListener(this::sort);
