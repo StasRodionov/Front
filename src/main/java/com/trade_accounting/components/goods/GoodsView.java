@@ -307,7 +307,7 @@ public class GoodsView extends VerticalLayout {
         valueSelect.setWidth(VALUE_SELECT_WIDTH);
         valueSelect.setPlaceholder("Печать");
         Anchor anchor = new Anchor(new StreamResource("goods.xls",
-                this::buildXlsPage), "Список товаров");
+                this::buildXlsTable), "Список товаров");
         valueSelect.add(anchor);
         return valueSelect;
     }
@@ -328,7 +328,7 @@ public class GoodsView extends VerticalLayout {
         return valueSelect;
     }
 
-    private InputStream buildXlsPage() {
+    private InputStream buildXlsTable() {
         return  new NaiveXlsTableBuilder<ProductDto>().header("Товары")
                 .metadata("Создал: " )
                 .columns("№", "Наименование", "Артикул", "Вес", "Объем", "Закупочная цена")
