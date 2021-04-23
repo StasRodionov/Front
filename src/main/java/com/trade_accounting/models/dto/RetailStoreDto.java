@@ -16,5 +16,9 @@ public class RetailStoreDto {
     private boolean isActive;
     private String activityStatus;
     private BigDecimal revenue;
+    private String organization;
+    private String salesInvoicePrefix;
+    private String defaultTaxationSystem;
+    private String orderTaxationSystem;
 
 }

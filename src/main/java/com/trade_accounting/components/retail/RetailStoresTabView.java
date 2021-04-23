@@ -75,7 +75,7 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonCreate(), buttonFilter());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
     }
@@ -94,12 +94,20 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
+        buttonRefresh.addClickListener(e -> updateList());
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private Button buttonUnit() {
-        return new Button("Точка продаж", new Icon(VaadinIcon.PLUS_CIRCLE));
+    private Button buttonCreate() {
+        Button createRetailStoreButton = new Button("Точка продаж", new Icon(VaadinIcon.PLUS_CIRCLE));
+        RetailStoreModalWindow retailStoreModalWindow = new RetailStoreModalWindow(retailStoreService);
+        createRetailStoreButton.addClickListener(e -> {
+            retailStoreModalWindow.addDetachListener(event -> updateList());
+            retailStoreModalWindow.open();
+        });
+        createRetailStoreButton.getStyle().set("cursor", "pointer");
+        return createRetailStoreButton;
     }
 
     private Button buttonFilter() {
@@ -107,7 +115,11 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     }
 
     private void updateList() {
-        grid.setItems(retailStoreService.getAll());
+        GridPaginator<RetailStoreDto> paginatorUpdateList
+                = new GridPaginator<>(grid, retailStoreService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        removeAll();
+        add(upperLayout(), grid, paginatorUpdateList);
     }
 
     @Override
