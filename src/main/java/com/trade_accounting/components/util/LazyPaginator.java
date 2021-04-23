@@ -70,7 +70,8 @@ public class LazyPaginator<T> extends HorizontalLayout {
 
     private void configureFilter() {
         gridFilter.onSearchClick(e -> {
-            this.filterData = gridFilter.getFilterData();
+            this.clearFilterData();
+            this.filterData.putAll(gridFilter.getFilterData());
             this.updateData(false);
         });
         gridFilter.onClearClick(e -> {
@@ -160,11 +161,13 @@ public class LazyPaginator<T> extends HorizontalLayout {
      * @param saveCurrentPage save current page flag
      */
     public void updateData(boolean saveCurrentPage){
-        this.updatePageData();
         if (saveCurrentPage && this.numberOfPages >= currentPage) {
+            this.updatePageData();
             setCurrentPage(currentPage);
         } else {
-            setCurrentPage(1);
+            currentPage = 1;
+            this.updatePageData();
+            setCurrentPage(currentPage);
         }
         reloadGrid();
     }

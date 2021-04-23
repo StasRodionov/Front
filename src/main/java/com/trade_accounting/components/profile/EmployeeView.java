@@ -44,7 +44,6 @@ public class EmployeeView extends VerticalLayout {
     private final EmployeeService employeeService;
     private final RoleService roleService;
     private final ImageService imageService;
-    private List<EmployeeDto> data;
     private final GridFilter<EmployeeDto> filter;
     private final LazyPaginator<EmployeeDto> lazyPaginator;
 
@@ -164,14 +163,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void fillList(String text) {
-//        paginator.setData(employeeService.findBySearch(text));
         lazyPaginator.setSearchText(text);
-    }
-
-    private TextField textField() {
-        TextField textField = new TextField("", "1-1 из 1");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return textField;
     }
 
     private H2 title() {
