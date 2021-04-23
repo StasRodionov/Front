@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "invoicesToBuyers", layout = AppView.class)
@@ -47,6 +49,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
+    private final GridFilter<InvoiceDto> filter;
 
     private static final String TYPE_OF_INVOICE = "RECEIPT";
 
@@ -62,7 +65,10 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         configureGrid();
         configurePaginator();
 
-        add(actions, grid, paginator);
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
+        add(actions, filter, grid, paginator);
     }
 
     private void configureActions() {
@@ -74,11 +80,15 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private void configureGrid() {
         grid = new Grid<>(InvoiceDto.class, false);
-        grid.addColumn("id").setHeader("№").setId("ID");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время").setId("DATE");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания");
-        grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент");
-        grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада");
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
+                .setKey("date").setId("Дата");
+        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания")
+                .setKey("companyDto").setId("Компания");
+        grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент")
+                .setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада")
+                .setKey("warehouseDto").setId("Со склада");
         grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
@@ -88,6 +98,17 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private void configurePaginator() {
         paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfInvoice", TYPE_OF_INVOICE);
+            paginator.setData(invoiceService.search(map));
+        });
+        filter.onClearClick(e -> paginator.setData(getData()));
     }
 
     private Button buttonQuestion(){
@@ -115,7 +136,9 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private Button buttonFilter(){
-        return new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
     }
 
     private Button buttonSettings(){
@@ -173,11 +196,6 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         print.setValue("Печать");
         print.setWidth("130px");
         return print;
-    }
-
-    private void updateList() {
-        grid.setItems(getData());
-        System.out.println("Обновлен");
     }
 
     private List<InvoiceDto> getData() {
