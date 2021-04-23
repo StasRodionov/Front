@@ -56,19 +56,19 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
-                    div.add(String.valueOf(new MoneySubCashFlowView()));
+                    div.add(new MoneySubCashFlowView());
                     break;
                 case "Прибыли и убытки":
                     div.removeAll();
-                    div.add(String.valueOf(new MoneySubProfitLossView()));
+                    div.add(new MoneySubProfitLossView());
                     break;
                 case "Взаиморасчеты":
                     div.removeAll();
-                    div.add(String.valueOf(new MoneySubMutualSettlementsView()));
+                    div.add(new MoneySubMutualSettlementsView());
                     break;
                 case "Корректировки":
                     div.removeAll();
-                    div.add(String.valueOf(new MoneySubCorrectionView()));
+                    div.add(new MoneySubCorrectionView());
                     break;
             }
         });
