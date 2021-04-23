@@ -33,6 +33,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
+    private final SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView;
 
 
     @Autowired
@@ -41,7 +42,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
                             CompanyService companyService,
                             WarehouseService warehouseService,
                             InvoiceProductService invoiceProductService, @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
-                            @Lazy SalesSubShipmentView salesSubShipmentView) {
+                            @Lazy SalesSubShipmentView salesSubShipmentView,
+                            @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView) {
         this.invoiceProductService = invoiceProductService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
         this.invoiceService = invoiceService;
@@ -49,6 +51,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.salesSubShipmentView = salesSubShipmentView;
+        this.salesSubInvoicesToBuyersView = salesSubInvoicesToBuyersView;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -95,7 +98,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Счета покупателям":
                     div.removeAll();
-                    div.add(new SalesSubInvoicesToBuyersView(invoiceService, invoiceProductService));
+                    div.add(salesSubInvoicesToBuyersView);
                     break;
                 case "Отгрузки":
                     div.removeAll();

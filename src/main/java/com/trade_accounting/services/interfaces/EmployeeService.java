@@ -19,5 +19,7 @@ public interface EmployeeService {
 
     void deleteById(Long id);
 
+    List<EmployeeDto> findBySearch(String search);
+
     EmployeeDto getPrincipal();
 }
