@@ -2,7 +2,7 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.LazyPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "employee", layout = AppView.class)
@@ -43,36 +44,25 @@ public class EmployeeView extends VerticalLayout {
     private final EmployeeService employeeService;
     private final RoleService roleService;
     private final ImageService imageService;
-    private final List<EmployeeDto> data;
-    private final List<EmployeeDto> finalData;
-    private final GridPaginator<EmployeeDto> paginator;
     private final GridFilter<EmployeeDto> filter;
+    private final LazyPaginator<EmployeeDto> lazyPaginator;
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
-        this.finalData = employeeService.getAll();
         this.imageService = imageService;
-        this.data = finalData;
         this.grid = new Grid<>(EmployeeDto.class);
-        this.paginator = new GridPaginator<>(grid, data, 100);
-
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
 
         configureGrid();
-        updateGrid();
         this.filter = new GridFilter<>(grid);
-        configureFilter();
-        add(upperLayout(), filter, grid, paginator);
-    }
+        this.lazyPaginator = new LazyPaginator<>(grid, employeeService, 2, filter);
 
-    private void configureFilter() {
-        filter.onSearchClick(e -> paginator.setData(employeeService.search(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(employeeService.getAll()));
+        setHorizontalComponentAlignment(Alignment.CENTER, lazyPaginator);
+        add(upperLayout(), filter, grid, lazyPaginator);
     }
 
     private void updateGrid() {
-        grid.setItems(employeeService.getAll());
+        lazyPaginator.updateData(false);
         log.info("Таблица обновилась");
     }
 
@@ -173,13 +163,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void fillList(String text) {
-        paginator.setData(employeeService.findBySearch(text));
-    }
-
-    private TextField textField() {
-        TextField textField = new TextField("", "1-1 из 1");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return textField;
+        lazyPaginator.setSearchText(text);
     }
 
     private H2 title() {

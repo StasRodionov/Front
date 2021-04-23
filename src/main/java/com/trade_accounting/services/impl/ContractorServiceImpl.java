@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.api.ContractorApi;
 import lombok.extern.slf4j.Slf4j;
@@ -53,15 +54,40 @@ public class ContractorServiceImpl implements ContractorService {
             log.info("Успешно выполнен запрос на получение списка ContractorDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
-    }
+        }
         return contractorDtoList;
-}
+    }
+
+    @Override
+    public List<FiasModelDto> getAllAddressByLevel(String level) {
+        List<FiasModelDto> regionsList = new ArrayList<>();
+        Call<List<FiasModelDto>> listCall = contractorApi.searchAddressByLevel(contractorUrl, level);
+        try {
+            regionsList = listCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка из БД Адресов");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка из БД Адресов: {IOException}", e);
+        }
+        return regionsList;
+    }
+
+    @Override
+    public List<FiasModelDto> getAddressesByGuid(String aoguid) {
+        List<FiasModelDto> citiesList = new ArrayList<>();
+        Call<List<FiasModelDto>> listCall = contractorApi.searchAddressByAoguid(contractorUrl, aoguid);
+        try {
+            citiesList = listCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка из БД Адресов");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка из БД Адресов: {IOException}", e);
+        }
+        return citiesList;
+    }
 
     @Override
     public List<ContractorDto> searchContractor(Map<String, String> queryContractor) {
         List<ContractorDto> contractorDtoList = new ArrayList<>();
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.searchContractor(contractorUrl, queryContractor);
-
         try {
             contractorDtoList = contractorDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение списка контрактов contractor");
@@ -87,7 +113,6 @@ public class ContractorServiceImpl implements ContractorService {
     @Override
     public ContractorDto getById(Long id) {
         Call<ContractorDto> contractorDtoCall = contractorApi.getById(contractorUrl, id);
-
         try {
             contractorDto = contractorDtoCall.execute().body();
             log.info("Успешно выполнен запрос на получение ContractorDto по id = " + id);
@@ -101,7 +126,6 @@ public class ContractorServiceImpl implements ContractorService {
 
     public void create(ContractorDto contractorDto) {
         Call<ContractorDto> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
-
         try {
             contractorDtoCall.execute();
             log.info("Успешно выполнен запрос на добавление экземпляра ContractorDto");
@@ -112,9 +136,7 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public void update(ContractorDto contractorDto) {
-
         Call<ContractorDto> contractorDtoCall = contractorApi.update(contractorUrl, contractorDto);
-
         try {
             contractorDtoCall.execute();
             log.info("Успешно выполнен запрос на изменение экземпляра ContractorDto");
@@ -126,7 +148,6 @@ public class ContractorServiceImpl implements ContractorService {
     @Override
     public void deleteById(Long id) {
         Call<ContractorDto> contractorDtoCall = contractorApi.deleteById(contractorUrl, id);
-
         contractorDtoCall.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ContractorDto> call, Response<ContractorDto> response) {
