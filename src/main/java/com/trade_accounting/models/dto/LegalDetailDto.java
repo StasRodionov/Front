@@ -18,7 +18,8 @@ public class LegalDetailDto {
 
     private String middleName;
 
-    private String address;
+    @EqualsAndHashCode.Exclude
+    private AddressDto addressDto;
 
     private String commentToAddress;
 

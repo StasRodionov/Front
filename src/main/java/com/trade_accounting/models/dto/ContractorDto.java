@@ -25,6 +25,8 @@ public class ContractorDto {
     private String comment;
 
     @EqualsAndHashCode.Exclude
+    private List<ContactDto> contactDto;
+    @EqualsAndHashCode.Exclude
     private ContractorGroupDto contractorGroupDto;
     @EqualsAndHashCode.Exclude
     private TypeOfPriceDto typeOfPriceDto;
