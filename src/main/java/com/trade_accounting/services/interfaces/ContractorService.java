@@ -1,7 +1,7 @@
 package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.FiasModelDto;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +16,10 @@ public interface ContractorService {
 
     List<ContractorDto> getAll(String searchTerm);
 
+    List<FiasModelDto> getAllAddressByLevel(String searchLevel);
+
+    List<FiasModelDto> getAddressesByGuid(String aoguid);
+
     ContractorDto getById(Long id);
 
     void create(ContractorDto contractorDto);
@@ -23,6 +27,4 @@ public interface ContractorService {
     void update(ContractorDto contractorDto);
 
     void deleteById(Long id);
-
-
 }

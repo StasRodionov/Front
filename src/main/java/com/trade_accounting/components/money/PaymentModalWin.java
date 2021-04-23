@@ -133,7 +133,7 @@ public class PaymentModalWin extends Dialog {
         }
         else {
             paymentDto.setTypeOfPayment("OUTGOING");
-        };
+        }
         System.out.println(typeofPaymentBox.getValue());
         System.out.println(paymentDto.getTypeOfPayment());
         return paymentDto;

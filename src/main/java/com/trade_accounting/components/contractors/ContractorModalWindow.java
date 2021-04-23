@@ -5,6 +5,7 @@ import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
@@ -38,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
@@ -92,9 +95,9 @@ public class ContractorModalWindow extends Dialog {
     // блок адреса
     private final TextField addressIndex = new TextField();
     private final TextField addressCountry = new TextField();
-    private final TextField addressRegion = new TextField();
-    private final TextField addressCity = new TextField();
-    private final TextField addressStreet = new TextField();
+    public final ComboBox<String> addressRegion = new ComboBox<>();
+    private final ComboBox<String> addressCity = new ComboBox<>();
+    private final ComboBox<String> addressStreet = new ComboBox<>();
     private final TextField addressHouse = new TextField();
     private final TextField addressApartment = new TextField();
     private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
@@ -619,6 +622,10 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout configureAddressBlock() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<FiasModelDto> addressByLevel1 = contractorService.getAllAddressByLevel("1");
+        var listRegion = addressByLevel1.stream()
+                .map(x -> (x.getFormalname() + " " + x.getShortname() + "."))
+                .collect(Collectors.toList());
         FormLayout addressForm = new FormLayout();
         Style addressFormStyle = addressForm.getStyle();
         addressFormStyle.set("width", "385px");
@@ -632,13 +639,16 @@ public class ContractorModalWindow extends Dialog {
         addressDtoBinder.forField(addressCountry).bind(AddressDto::getCountry, AddressDto::setCountry);
 
         addressForm.addFormItem(addressRegion, "Область");
+        addressRegion.setItems(listRegion);
         addressDtoBinder.forField(addressRegion).bind(AddressDto::getRegion, AddressDto::setRegion);
 
         addressForm.addFormItem(addressCity, "Город");
         addressDtoBinder.forField(addressCity).bind(AddressDto::getCity, AddressDto::setCity);
+        addressCity.setItems(List.of(""));
 
         addressForm.addFormItem(addressStreet, "Улица");
         addressDtoBinder.forField(addressStreet).bind(AddressDto::getStreet, AddressDto::setStreet);
+        addressStreet.setItems(List.of(""));
 
         addressForm.addFormItem(addressHouse, "Дом");
         addressDtoBinder.forField(addressHouse).bind(AddressDto::getHouse, AddressDto::setHouse);
@@ -647,22 +657,37 @@ public class ContractorModalWindow extends Dialog {
         addressDtoBinder.forField(addressApartment).bind(AddressDto::getApartment, AddressDto::setApartment);
 
         if (contractorDto.getId() != null) {
-            addressIndex.setPlaceholder("Индекс");
             addressIndex.setValue(contractorDto.getAddressDto().getIndex());
-            addressCountry.setPlaceholder("Страна");
             addressCountry.setValue(contractorDto.getAddressDto().getCountry());
-            addressRegion.setPlaceholder("Область");
-            addressRegion.setValue(contractorDto.getAddressDto().getRegion());
-            addressCity.setPlaceholder("Город");
-            addressCity.setValue(contractorDto.getAddressDto().getCity());
-            addressStreet.setPlaceholder("Улица");
-            addressStreet.setValue(contractorDto.getAddressDto().getStreet());
-            addressHouse.setPlaceholder("Номер дома");
+            addressRegion.setPlaceholder(contractorDto.getAddressDto().getRegion());
+            addressCity.setPlaceholder(contractorDto.getAddressDto().getCity());
+            addressStreet.setPlaceholder(contractorDto.getAddressDto().getStreet());
             addressHouse.setValue(contractorDto.getAddressDto().getHouse());
-            addressApartment.setPlaceholder("Номер квартиры");
             addressApartment.setValue(contractorDto.getAddressDto().getApartment());
         }
-
+        AtomicReference<List<FiasModelDto>> citiesByRegion = new AtomicReference<>();
+        addressRegion.addValueChangeListener(event -> {
+            String regionValue = addressRegion.getValue();
+            if (regionValue != null) {
+                String aoguid = addressByLevel1.stream()
+                        .filter(x -> (x.getFormalname() + " " + x.getShortname() + ".").equals(regionValue))
+                        .findFirst()
+                        .get()
+                        .getAoguid();
+                citiesByRegion.set(contractorService.getAddressesByGuid(aoguid));
+                addressCity.setItems(contractorService.getAddressesByGuid(aoguid).stream()
+                        .map(x -> (x.getShortname() + " " + x.getFormalname())));
+                System.out.println(aoguid);
+            }
+        });
+        addressCity.addValueChangeListener(event -> {
+            String cityValue = addressCity.getValue();
+            if (cityValue != null) {
+                String aoguid = citiesByRegion.get().get(0).getAoguid();
+                addressStreet.setItems(contractorService.getAddressesByGuid(aoguid).stream().map(x -> (x.getShortname() + " " + x.getFormalname())));
+                System.out.println(aoguid);
+            }
+        });
         horizontalLayout.add(addressForm);
         horizontalLayout.setVisible(false);
         return horizontalLayout;
@@ -833,6 +858,15 @@ public class ContractorModalWindow extends Dialog {
         List<ContactDto> newContactDtoList = new ArrayList<>();
         if (contractorDto.getId() != null) {
             Long addressId = contractorDto.getAddressDto().getId();
+            if (addressRegion.getValue() == null) {
+                addressRegion.setValue(contractorDto.getAddressDto().getRegion());
+            }
+            if (addressCity.getValue() == null) {
+                addressCity.setValue(contractorDto.getAddressDto().getCity());
+            }
+            if (addressStreet.getValue() == null) {
+                addressStreet.setValue(contractorDto.getAddressDto().getStreet());
+            }
             contractorDto.setAddressDto(AddressDto.builder()
                     .id(addressId)
                     .index(addressIndex.getValue())

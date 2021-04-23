@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.FiasModelDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -20,10 +21,6 @@ public interface ContractorApi {
     @GET("{url}")
     Call<List<ContractorDto>> getAll(@Path(value = "url", encoded = true) String url);
 
-//    @Headers("Accept: application/json")
-//    @GET("{url}/lite")
-//    Call<List<ContractorDto>> getAllLite(@Path(value = "url", encoded = true) String url);
-
     @Headers("Accept: application/json")
     @GET("{url}/search/{searchTerm}")
     Call<List<ContractorDto>> getAll(@Path(value = "url", encoded = true) String url,@Path("searchTerm") String searchTerm);
@@ -37,6 +34,14 @@ public interface ContractorApi {
     Call<List<ContractorDto>> searchContractor(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> queryContractor);
 
     @Headers("Accept: application/json")
+    @GET("{url}/searchAddressByLevel/{level}")
+    Call<List<FiasModelDto>> searchAddressByLevel(@Path(value = "url", encoded = true) String url, @Path("level") String level);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchAddressByAoguid/{guid}")
+    Call<List<FiasModelDto>> searchAddressByAoguid(@Path(value = "url", encoded = true) String url, @Path("guid") String guid);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<ContractorDto> create(@Path(value = "url", encoded = true) String url, @Body ContractorDto contractorDto);
 
@@ -47,6 +52,4 @@ public interface ContractorApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<ContractorDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
-
-
 }
