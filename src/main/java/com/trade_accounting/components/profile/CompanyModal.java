@@ -101,7 +101,7 @@ public class CompanyModal extends Dialog {
             setField(legalDetailLastName, dto.getLegalDetailDto().getLastName());
             setField(legalDetailFirstName, dto.getLegalDetailDto().getFirstName());
             setField(legalDetailMiddleName, dto.getLegalDetailDto().getMiddleName());
-            setField(legalDetailAddress, dto.getLegalDetailDto().getAddress());
+            setField(legalDetailAddress, dto.getLegalDetailDto().getAddressDto().getAnother());
             setField(legalDetailCommentToAddress, dto.getLegalDetailDto().getCommentToAddress());
             setField(legalDetailInn, dto.getLegalDetailDto().getInn());
             setField(legalDetailOkpo, dto.getLegalDetailDto().getOkpo());
@@ -139,7 +139,7 @@ public class CompanyModal extends Dialog {
             legalDetailDto.setLastName(legalDetailLastName.getValue());
             legalDetailDto.setFirstName(legalDetailFirstName.getValue());
             legalDetailDto.setMiddleName(legalDetailMiddleName.getValue());
-            legalDetailDto.setAddress(legalDetailAddress.getValue());
+//            legalDetailDto.setAddressDto(legalDetailAddress.getValue());
             legalDetailDto.setCommentToAddress(legalDetailCommentToAddress.getValue());
             legalDetailDto.setInn(legalDetailInn.getValue());
             legalDetailDto.setOkpo(legalDetailOkpo.getValue());

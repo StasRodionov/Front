@@ -1,6 +1,7 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -13,43 +14,70 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Розница")
 public class RetailView extends Div implements AfterNavigationObserver {
 
-    public RetailView() {
-        add(configurationSubMenu());
+    private final Div div;
+    private final RetailStoreService retailStoreService;
+
+    public RetailView(RetailStoreService retailStoreService) {
+        this.retailStoreService = retailStoreService;
+        div = new Div();
+        add(configurationSubMenu(), div);
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
-        appView.getChildren().forEach(e -> {
-            if (e.getClass() == Tabs.class) {
-                ((Tabs) e).setSelectedIndex(6);
-            }
-        });
+        div.removeAll();
+        div.add(new RetailStoresTabView(retailStoreService));
     }
 
     private Tabs configurationSubMenu() {
-        Tab pointsOfSalesLayout = new Tab("Точки продаж");
-        Tab shiftsLayout = new Tab("Смены");
-        Tab salesLayout = new Tab("Продажи");
-        Tab returnsLayout = new Tab("Возвраты");
-        Tab depositingLayout = new Tab("Внесения");
-        Tab paymentsLayout = new Tab("Выплаты");
-        Tab operationsWithPointsLayout = new Tab("Операции с баллами");
-        Tab prepaymentsLayout = new Tab("Предоплаты");
-        Tab refundsOfPrepaymentsLayout = new Tab("Возвраты предоплат");
-        Tab cloudReceiptQueueLayout = new Tab("Очередь облачных чеков");
 
-        return new Tabs(
-                pointsOfSalesLayout,
-                shiftsLayout,
-                salesLayout,
-                returnsLayout,
-                depositingLayout,
-                paymentsLayout,
-                operationsWithPointsLayout,
-                prepaymentsLayout,
-                refundsOfPrepaymentsLayout,
-                cloudReceiptQueueLayout
-                );
+        Tabs tabs = new Tabs(
+                new Tab("Точки продаж"),
+                new Tab("Смены"),
+                new Tab("Продажи"),
+                new Tab("Возвраты"),
+                new Tab("Внесения"),
+                new Tab("Выплаты"),
+                new Tab("Операции с баллами"),
+                new Tab("Предоплаты"),
+                new Tab("Возвраты предоплат"),
+                new Tab("Очередь облачных чеков")
+        );
+
+        tabs.addSelectedChangeListener(event -> {
+            String tabName = event.getSelectedTab().getLabel();
+            switch (tabName) {
+                case "Точки продаж":
+                    div.removeAll();
+                    div.add(new RetailStoresTabView(retailStoreService));
+                    break;
+                case "Смены":
+                    div.removeAll();
+                    break;
+                case "Продажи":
+                    div.removeAll();
+                    break;
+                case "Возвраты":
+                    div.removeAll();
+                    break;
+                case "Внесения":
+                    div.removeAll();
+                    break;
+                case "Операции с баллами":
+                    div.removeAll();
+                    break;
+                case "Предоплаты":
+                    div.removeAll();
+                    break;
+                case "Возвраты предоплат":
+                    div.removeAll();
+                    break;
+                case "Очередь облачных чеков":
+                    div.removeAll();
+                    break;
+            }
+        });
+
+        return tabs;
     }
 }
