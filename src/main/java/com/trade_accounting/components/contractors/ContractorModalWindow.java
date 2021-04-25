@@ -109,9 +109,9 @@ public class ContractorModalWindow extends Dialog {
     private final TextField addressStreetLegalDetail = new TextField();
     private final TextField addressHouseLegalDetail = new TextField();
     private final TextField addressApartmentLegalDetail = new TextField();
-    private final HorizontalLayout blockLegalDetail;
 
-    private final HorizontalLayout block;
+    private final HorizontalLayout legalAddressBlock;
+    private final HorizontalLayout physicalAddressBlock;
 
     public ContractorModalWindow(ContractorDto contractorDto,
                                  ContractorService contractorService,
@@ -139,8 +139,8 @@ public class ContractorModalWindow extends Dialog {
         addressField.setValue(getAddress(contractorDto));
         commentToAddressField.setValue(getStringValueOf(ContractorDto::getCommentToAddress));
         commentField.setValue(getStringValueOf(ContractorDto::getComment));
-        block = configureAddressBlock();
-        blockLegalDetail = configureAddressBlockLegalDetail();
+        physicalAddressBlock = configureAddressBlock();
+        legalAddressBlock = configureAddressBlockLegalDetail();
         add(new Text(getShortName()), header(), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
@@ -214,7 +214,7 @@ public class ContractorModalWindow extends Dialog {
                 configureFaxField(),
                 configureEmailField(),
                 configureAddressField(),
-                block,
+                physicalAddressBlock,
                 configureCommentToAddressField(),
                 configureCommentField(),
                 configureSortNumberField());
@@ -397,7 +397,7 @@ public class ContractorModalWindow extends Dialog {
         accountForm.add(middleName);
         accountForm.add(name);
         accountForm.add(configureAddressFieldLegalDetail());
-        accountForm.add(blockLegalDetail);
+        accountForm.add(legalAddressBlock);
         accountForm.add(commentToAddress);
         accountForm.add(kpp);
         accountForm.add(okpo);
@@ -448,7 +448,7 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label(labelFrom);
         label.setWidth(LABEL_WIDTH);
         if ("address".equals(bind)) {
-            horizontalLayout.add(label, textArea, dropDownAddressButton(block));
+            horizontalLayout.add(label, textArea, dropDownAddressButton(physicalAddressBlock));
         } else {
             horizontalLayout.add(label, textArea);
         }
@@ -601,7 +601,7 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label("Фактический адрес");
         label.setWidth(LABEL_WIDTH);
         addressField.setWidth("345px");
-        horizontalLayout.add(label, addressField, dropDownAddressButton(block));
+        horizontalLayout.add(label, addressField, dropDownAddressButton(physicalAddressBlock));
         return horizontalLayout;
     }
 
@@ -610,7 +610,7 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label("Юридический адрес");
         label.setWidth(LABEL_WIDTH);
         addressLegalDetailField.setWidth("345px");
-        horizontalLayout.add(label, addressLegalDetailField, dropDownAddressButton(blockLegalDetail));
+        horizontalLayout.add(label, addressLegalDetailField, dropDownAddressButton(legalAddressBlock));
         horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, label);
         return horizontalLayout;
     }
