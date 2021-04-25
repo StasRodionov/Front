@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
     private final TextArea nameField = new TextArea();
-    // private final ValidTextField innField = new ValidTextField();
     private final TextField sortNumberField = new TextField();
     private final TextField phoneField = new TextField();
     private final TextField faxField = new TextField();
@@ -175,6 +174,7 @@ public class ContractorModalWindow extends Dialog {
         }
 
         if (contractorDto.getLegalDetailDto().getInn() != null) {
+            typeOfContractorDtoSelect.setValue(legalDetailDto.getTypeOfContractorDto());
             lastNameLegalDetailField.setValue(legalDetailDto.getLastName());
             firstNameLegalDetailField.setValue(legalDetailDto.getFirstName());
             middleNameLegalDetailField.setValue(legalDetailDto.getMiddleName());
@@ -326,8 +326,6 @@ public class ContractorModalWindow extends Dialog {
         // HorizontalLayout address = getArea(legalDetailDtoBinder, addressLegalDetailField, "address", "Адрес");
         HorizontalLayout commentToAddress = getArea(legalDetailDtoBinder, commentToAddressLegalDetailField, "commentToAddress", "Комментарий к адресу");
         HorizontalLayout kpp = getNumberField(legalDetailDtoBinder, kppLegalDetailField, "kpp", "КПП");
-        // kppLegalDetailField.setValue("ждём появлени КПП в сущности");
-        // HorizontalLayout kpp = getSmallField(kppLegalDetailField, "КПП"); // - временная заглушка
         HorizontalLayout okpo = getNumberField(legalDetailDtoBinder, okpoLegalDetailField, "okpo", "ОКПО");
         HorizontalLayout ogrnip = getNumberField(legalDetailDtoBinder, ogrnLegalDetailField, "ogrn", "ОГРН");
         HorizontalLayout numberOfTheCertificate = getNumberField(legalDetailDtoBinder,
@@ -825,9 +823,7 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDto.setLastName(lastNameLegalDetailField.getValue());
         legalDetailDto.setFirstName(firstNameLegalDetailField.getValue());
         legalDetailDto.setMiddleName(middleNameLegalDetailField.getValue());
-        // Long addressId = contractorDto.getAddressDto().getId();
         legalDetailDto.setAddressDto(AddressDto.builder()
-                //.id(addressId)
                 .index(addressIndexLegalDetail.getValue())
                 .country(addressCountryLegalDetail.getValue())
                 .region(addressRegionLegalDetail.getValue())
@@ -844,7 +840,7 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDto.setNumberOfTheCertificate(numberOfTheCertificateLegalDetailField.getValue());
         legalDetailDto.setDateOfTheCertificate(dateOfTheCertificateLegalDetailField.getValue());
 
-        legalDetailDto.setTypeOfContractorDto(typeOfContractorDtoLegalDetailField.getValue());
+        legalDetailDto.setTypeOfContractorDto(typeOfContractorDtoSelect.getValue());
 
         return legalDetailDto;
     }
