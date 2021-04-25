@@ -37,7 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
@@ -127,38 +129,34 @@ public class ContractorModalWindow extends Dialog {
         setCloseOnOutsideClick(true);
         setCloseOnEsc(true);
 
-        idField.setValue(getFieldValueNotNull(String.valueOf(contractorDto.getId())));
-        nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
-        innField.setValue(getFieldValueNotNull(contractorDto.getInn()));
-        sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
-        phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
-        faxField.setValue(getFieldValueNotNull(contractorDto.getFax()));
-        emailField.setValue(getFieldValueNotNull(contractorDto.getEmail()));
-        addressField.setValue(getFieldValueNotNull(
-                getAddress(contractorDto)
-        ));
-        commentToAddressField.setValue(getFieldValueNotNull(contractorDto.getCommentToAddress()));
-        commentField.setValue(getFieldValueNotNull(contractorDto.getComment()));
+        idField.setValue(getStringValueOf(ContractorDto::getId));
+        nameField.setValue(getStringValueOf(ContractorDto::getName));
+        innField.setValue(getStringValueOf(ContractorDto::getInn));
+        sortNumberField.setValue(getStringValueOf(ContractorDto::getSortNumber));
+        phoneField.setValue(getStringValueOf(ContractorDto::getPhone));
+        faxField.setValue(getStringValueOf(ContractorDto::getFax));
+        emailField.setValue(getStringValueOf(ContractorDto::getEmail));
+        addressField.setValue(getAddress(contractorDto));
+        commentToAddressField.setValue(getStringValueOf(ContractorDto::getCommentToAddress));
+        commentField.setValue(getStringValueOf(ContractorDto::getComment));
         block = configureAddressBlock();
         blockLegalDetail = configureAddressBlockLegalDetail();
-        add(new Text("Наименование"), header(), contractorsAccordion());
+        add(new Text(getShortName()), header(), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 
+    private String getStringValueOf(Function<ContractorDto, ?> projection) {
+        return Optional.ofNullable(projection.apply(contractorDto))
+                .map(field -> field.toString()).orElse("");
+    }
     private String getAddress(ContractorDto contractorDto) {
-        if (contractorDto.getId() != null) {
-            return contractorService.getById(contractorDto.getId()).getAddressDto().getAnother();
-        } else {
-            return "";
-        }
+        return contractorDto.getId() == null ?
+                "" : contractorService.getById(contractorDto.getId()).getAddressDto().getAnother();
     }
 
     private String getAddressFromLegalDetail(LegalDetailDto legalDetailDto) {
-        if (legalDetailDto.getId() != null) {
-            return legalDetailService.getById(legalDetailDto.getId()).getAddressDto().getAnother();
-        } else {
-            return "";
-        }
+        return legalDetailDto.getId() == null ?
+                "" :  legalDetailService.getById(legalDetailDto.getId()).getAddressDto().getAnother();
     }
 
     public void setContractorDataForEdit(ContractorDto contractorDto) {
@@ -903,6 +901,14 @@ public class ContractorModalWindow extends Dialog {
 
     private String getFieldValueNotNull(String value) {
         return value == null ? "" : value;
+    }
+
+    private String getShortName() {
+        var fullName = nameField.getValue();
+        if(fullName == "") return  fullName;
+        var i = fullName.length() - 1;
+        while(fullName.charAt(i) != ',') { i--; }
+        return fullName.substring(0, i);
     }
 
 }
