@@ -92,7 +92,7 @@ public class ContractorModalWindow extends Dialog {
 //    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
 
     // блок адреса
-    private final AddressBlock physicalAddressBlock;
+    private final AddressBlock physicalAddressBlock = new AddressBlock(AddressType.PHYSICAL);
 
 
     private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
@@ -135,7 +135,6 @@ public class ContractorModalWindow extends Dialog {
         addressField.setValue(getAddress(contractorDto));
         commentToAddressField.setValue(getStringValueOf(ContractorDto::getCommentToAddress));
         commentField.setValue(getStringValueOf(ContractorDto::getComment));
-        physicalAddressBlock = new AddressBlock(AddressType.PHYSICAL);
         legalAddressBlock = configureAddressBlockLegalDetail();
         add(new Text(getShortName()), header(), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
