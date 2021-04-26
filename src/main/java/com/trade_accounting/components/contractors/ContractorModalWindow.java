@@ -17,6 +17,7 @@ import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -86,7 +87,7 @@ public class ContractorModalWindow extends Dialog {
     private final ValidTextField okpoLegalDetailField = new ValidTextField(); //"ОКПО"
     private final ValidTextField ogrnLegalDetailField = new ValidTextField(); //"ОГРН"
     private final ValidTextField numberOfTheCertificateLegalDetailField = new ValidTextField(); //"Номер сертефиката"
-    private final TextField dateOfTheCertificateLegalDetailField = new TextField(); //"Дата сертефиката"
+    private final DatePicker dateOfTheCertificateLegalDetailField = new DatePicker(); //"Дата сертефиката"
 
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контрагента");
 
@@ -185,7 +186,7 @@ public class ContractorModalWindow extends Dialog {
             okpoLegalDetailField.setValue(legalDetailDto.getOkpo());
             ogrnLegalDetailField.setValue(legalDetailDto.getOgrn());
             numberOfTheCertificateLegalDetailField.setValue(legalDetailDto.getNumberOfTheCertificate());
-            dateOfTheCertificateLegalDetailField.setValue(legalDetailDto.getDateOfTheCertificate());
+            dateOfTheCertificateLegalDetailField.setValue(legalDetailDto.getDate());
         }
     }
 
@@ -330,7 +331,7 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout ogrnip = getNumberField(legalDetailDtoBinder, ogrnLegalDetailField, "ogrn", "ОГРН");
         HorizontalLayout numberOfTheCertificate = getNumberField(legalDetailDtoBinder,
                 numberOfTheCertificateLegalDetailField, "numberOfTheCertificate", "Номер сертефиката");
-        HorizontalLayout dateOfTheCertificate = getField(legalDetailDtoBinder, dateOfTheCertificateLegalDetailField,
+        HorizontalLayout dateOfTheCertificate = getDateField(legalDetailDtoBinder, dateOfTheCertificateLegalDetailField,
                 "dateOfTheCertificate", "Дата сертефиката");
 
         FormLayout accountForm = new FormLayout();
@@ -395,6 +396,20 @@ public class ContractorModalWindow extends Dialog {
 
         accountForm.setWidth("575px");
         return accountForm;
+    }
+
+    //Получение универсального поля
+    private HorizontalLayout getDateField(Binder<?> binder, DatePicker textField, String bind, String label) {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        textField.setWidth(FIELD_WIDTH);
+        binder.forField(textField)
+                .asRequired("Не заполнено!")
+                .bind(bind);
+        Label labelInside = new Label(label);
+        labelInside.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(labelInside, textField);
+        horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, labelInside);
+        return horizontalLayout;
     }
 
     //Получение универсального поля
@@ -795,8 +810,7 @@ public class ContractorModalWindow extends Dialog {
             legalDetailDto = new LegalDetailDto();
             return new Button("Добавить", event -> {
                 saveFieldsCreate(legalDetailDto);
-
-                legalDetailService.create(legalDetailDto);
+//                legalDetailService.create(legalDetailDto);
                 saveFields(contractorDto);
                 contractorService.create(contractorDto);
                 if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
@@ -838,7 +852,7 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDto.setOkpo(okpoLegalDetailField.getValue());
         legalDetailDto.setOgrn(ogrnLegalDetailField.getValue());
         legalDetailDto.setNumberOfTheCertificate(numberOfTheCertificateLegalDetailField.getValue());
-        legalDetailDto.setDateOfTheCertificate(dateOfTheCertificateLegalDetailField.getValue());
+        legalDetailDto.setDateOfTheCertificate(dateOfTheCertificateLegalDetailField.getValue().toString());
 
         legalDetailDto.setTypeOfContractorDto(typeOfContractorDtoSelect.getValue());
 
