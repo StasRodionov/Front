@@ -43,13 +43,13 @@ public interface ContractorApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<ContractorDto> create(@Path(value = "url", encoded = true) String url, @Body ContractorDto contractorDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body ContractorDto contractorDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<ContractorDto> update(@Path(value = "url", encoded = true) String url, @Body ContractorDto contractorDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ContractorDto contractorDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
-    Call<ContractorDto> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }
