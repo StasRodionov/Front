@@ -2,6 +2,7 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.AddressDto;
+import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
@@ -9,11 +10,13 @@ import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
+import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -27,12 +30,14 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.dom.Style;
-
+import com.vaadin.flow.component.checkbox.Checkbox;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +67,9 @@ public class ContractorModalWindow extends Dialog {
     private final List<List<TextField>> newContactTextFields = new ArrayList<>();
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
     private final Binder<LegalDetailDto> legalDetailDtoBinder = new Binder<>(LegalDetailDto.class);
+    private final Binder<BankAccountDto> bankAccountDtoBinder = new Binder<>(BankAccountDto.class);
+    private final Map<Long, List<TextField>> existBankAccountTextFields = new HashMap<>();
+    private final List<List<TextField>> newBankAccountTextFields = new ArrayList<>();
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "400px";
@@ -72,6 +80,7 @@ public class ContractorModalWindow extends Dialog {
     private final TypeOfContractorService typeOfContractorService;
     private final TypeOfPriceService typeOfPriceService;
     private final LegalDetailService legalDetailService;
+    private final BankAccountService bankAccountService;
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
@@ -119,13 +128,15 @@ public class ContractorModalWindow extends Dialog {
                                  ContractorGroupService contractorGroupService,
                                  TypeOfContractorService typeOfContractorService,
                                  TypeOfPriceService typeOfPriceService,
-                                 LegalDetailService legalDetailService) {
+                                 LegalDetailService legalDetailService,
+                                 BankAccountService bankAccountService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
         this.typeOfContractorService = typeOfContractorService;
         this.typeOfPriceService = typeOfPriceService;
         this.legalDetailService = legalDetailService;
         this.contractorDto = contractorDto;
+        this.bankAccountService = bankAccountService;
 
         setCloseOnOutsideClick(true);
         setCloseOnEsc(true);
@@ -330,6 +341,81 @@ public class ContractorModalWindow extends Dialog {
 
     }
 
+    private void showCheckingAccount(FormLayout formLayout) {
+        FormLayout form = new FormLayout();
+        form.getStyle().set("background", "#f3f5f7");
+        form.getStyle().set("padding-left", "10px");
+        form.getStyle().set("margin-top", "10px");
+
+        Button buttonCloseForm = new Button(new Icon(VaadinIcon.CLOSE_SMALL), event -> removeForm(form));
+        buttonCloseForm.setMaxWidth("10px");
+
+        TextField bankFieldAccount = new TextField();
+        TextField addressFieldAccount = new TextField();
+        TextField сorFieldAccount = new TextField();
+        TextField checkingAccountField = new TextField();
+        Checkbox checkboxBuff = new Checkbox("Основной счет");
+
+        List<BankAccountDto> bankAccountDtoList = bankAccountService.getAll();
+        ComboBox<BankAccountDto> bikFieldAccount = new ComboBox<>("",bankAccountDtoList);
+        bikFieldAccount.setItemLabelGenerator(BankAccountDto::getRcbic);
+        bikFieldAccount.addValueChangeListener(event -> {
+            bankFieldAccount.setValue(event.getValue().getBank());
+            addressFieldAccount.setValue(event.getValue().getAddress());
+        });
+
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setAlignItems(FlexComponent.Alignment.END);
+        verticalLayout.setHeight("10px");
+        verticalLayout.setMargin(true);
+        verticalLayout.getStyle().set("margin-top", "0px");
+        verticalLayout.getStyle().set("margin-bottom", "0px");
+        verticalLayout.add(buttonCloseForm);
+
+        form.add(verticalLayout);
+        form.addFormItem(bikFieldAccount, "БИК");
+//        bankAccountDtoBinder.forField(bikFieldAccount)
+//                .bind(BankAccountDto::getRcbic, BankAccountDto::setRcbic);
+
+        form.addFormItem(bankFieldAccount, "Банк");
+        bankAccountDtoBinder.forField(bankFieldAccount)
+                .bind(BankAccountDto::getBank, BankAccountDto::setBank);
+
+        form.addFormItem(addressFieldAccount, "Адрес");
+        bankAccountDtoBinder.forField(addressFieldAccount)
+                .bind(BankAccountDto::getAddress, BankAccountDto::setAddress);
+
+        form.addFormItem(сorFieldAccount, "Корр.счет");
+        bankAccountDtoBinder.forField(сorFieldAccount)
+                .bind(BankAccountDto::getCorrespondentAccount, BankAccountDto::setCorrespondentAccount);
+
+        form.addFormItem(checkingAccountField, "Расчетный счет");
+        bankAccountDtoBinder.forField(checkingAccountField)
+                .bind(BankAccountDto::getAccount, BankAccountDto::setAccount);
+
+        form.add(checkboxBuff);
+        bankAccountDtoBinder.forField(checkboxBuff)
+                .bind(BankAccountDto::getMainAccount, BankAccountDto::setMainAccount);
+
+//        newBankAccountTextFields.add(List.of(bikFieldAccount, bankFieldAccount,
+//                addressFieldAccount, сorFieldAccount, checkingAccountField));
+
+        formLayout.add(form);
+    }
+
+    private void removeForm(FormLayout formLayout) {
+        formLayout.removeAll();
+        formLayout.getStyle().set("margin-top", "0px");
+    }
+
+    private Button getAddContractorButton(FormLayout formLayout) {
+        Button button = new Button("Расчетный лист", event -> {
+            showCheckingAccount(formLayout);
+        });
+        button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
+        button.setMaxWidth("225px");
+        return button;
+    }
     private FormLayout contractorsAccordionCreate() {
         //Получение select-ора "Тип контрагента"
         HorizontalLayout typeOfContractor = typeOfContractorSelect();
@@ -409,6 +495,8 @@ public class ContractorModalWindow extends Dialog {
         accountForm.add(ogrnip);
         accountForm.add(numberOfTheCertificate);
         accountForm.add(dateOfTheCertificate);
+
+        accountForm.add(getAddContractorButton(accountForm));
 
         accountForm.setWidth("575px");
         return accountForm;
@@ -856,6 +944,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
         List<ContactDto> newContactDtoList = new ArrayList<>();
+        List<BankAccountDto> newBankAccountDtoList = new ArrayList<>();
         if (contractorDto.getId() != null) {
             Long addressId = contractorDto.getAddressDto().getId();
             if (addressRegion.getValue() == null) {
@@ -898,6 +987,18 @@ public class ContractorModalWindow extends Dialog {
                         .comment(contact.get(4).getValue())
                         .build());
             });
+
+            newBankAccountTextFields.forEach(bankAccount -> {
+                newBankAccountDtoList.add(BankAccountDto.builder()
+                        .rcbic(bankAccount.get(0).getValue())
+                        .bank(bankAccount.get(1).getValue())
+                        .address(bankAccount.get(2).getValue())
+                        .correspondentAccount(bankAccount.get(3).getValue())
+                        .account(bankAccount.get(4).getValue())
+                        .build());
+            });
+
+            contractorDto.setBankAccountDto(newBankAccountDtoList);
             contractorDto.setContactDto(newContactDtoList);
 
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
