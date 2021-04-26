@@ -18,11 +18,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ErrorLevel;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RetailStoreModalWindow extends Dialog {
@@ -42,6 +45,7 @@ public class RetailStoreModalWindow extends Dialog {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private RetailStoreDto retailStoreDtoToEdit = new RetailStoreDto();
+    private Binder<RetailStoreDto> retailStoreDtoBinder = new Binder<>(RetailStoreDto.class);
 
     public RetailStoreModalWindow(RetailStoreService retailStoreService, CompanyService companyService,
                                   EmployeeService employeeService) {
@@ -86,7 +90,9 @@ public class RetailStoreModalWindow extends Dialog {
     private Component addStoreName() {
         Label label = new Label("Наименование");
         label.setWidth(labelWidth);
-        name.setRequired(true);
+        retailStoreDtoBinder.forField(name).
+                withValidator(text -> text.length() >= 1, "Поле должно быть заполнено", ErrorLevel.ERROR)
+                .bind("name");
         name.setWidth(fieldWidth);
         return new HorizontalLayout(label, name);
     }
@@ -96,6 +102,9 @@ public class RetailStoreModalWindow extends Dialog {
         label.setWidth(labelWidth);
         organization.setItems(companyService.getAll());
         organization.setItemLabelGenerator(CompanyDto :: getName);
+        retailStoreDtoBinder.forField(organization).
+                withValidator(Objects::nonNull, "Поле должно быть заполнено", ErrorLevel.ERROR)
+                .bind("organizationDto");
         organization.setWidth(fieldWidth);
         return new HorizontalLayout(label, organization);
     }
@@ -142,59 +151,83 @@ public class RetailStoreModalWindow extends Dialog {
                 retailStoreDtoToEdit.setActive(isActive.getValue());
                 retailStoreDtoToEdit.setName(name.getValue());
                 retailStoreDtoToEdit.setActivityStatus("Онлайн");
-                retailStoreDtoToEdit.setRevenue(new BigDecimal(10_000));
+                retailStoreDtoToEdit.setRevenue(new BigDecimal(0_00));
                 retailStoreDtoToEdit.setOrganizationDto(organization.getValue());
                 retailStoreDtoToEdit.setSalesInvoicePrefix(salesInvoicePrefix.getValue());
                 retailStoreDtoToEdit.setDefaultTaxationSystem(defaultTaxationSystem.getValue());
                 retailStoreDtoToEdit.setOrderTaxationSystem(orderTaxationSystem.getValue());
-                retailStoreDtoToEdit.setCashiersDto(new ArrayList<>(cashiers.getSelectedItems()));
-                retailStoreService.update(retailStoreDtoToEdit);
+                if (cashiers.isEmpty()) {
+                    cashiers.setValue(new HashSet<>(retailStoreDtoToEdit.getCashiersDto()));
+                }
+                retailStoreDtoToEdit.setCashiersDto(new ArrayList<>(cashiers.getValue()));
+                if (retailStoreDtoBinder.validate().isOk()) {
+                    retailStoreService.update(retailStoreDtoToEdit);
+                    clearAll();
+                    close();
+                } else {
+                    retailStoreDtoBinder.validate().notifyBindingValidationStatusHandlers();
+                }
             } else {
                 RetailStoreDto retailStoreDto = new RetailStoreDto();
                 retailStoreDto.setActive(isActive.getValue());
                 retailStoreDto.setName(name.getValue());
                 retailStoreDto.setActivityStatus("Онлайн");
-                retailStoreDto.setRevenue(new BigDecimal(10_000));
+                retailStoreDto.setRevenue(new BigDecimal(0_00));
                 retailStoreDto.setOrganizationDto(organization.getValue());
                 retailStoreDto.setSalesInvoicePrefix(salesInvoicePrefix.getValue());
                 retailStoreDto.setDefaultTaxationSystem(defaultTaxationSystem.getValue());
                 retailStoreDto.setOrderTaxationSystem(orderTaxationSystem.getValue());
                 retailStoreDto.setCashiersDto(new ArrayList<>(cashiers.getSelectedItems()));
-                retailStoreService.create(retailStoreDto);
+                if (retailStoreDtoBinder.validate().isOk()) {
+                    retailStoreService.create(retailStoreDto);
+                    clearAll();
+                    close();
+                } else {
+                    retailStoreDtoBinder.validate().notifyBindingValidationStatusHandlers();
+                }
             }
-            close();
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         return saveButton;
     }
 
     private Button getCloseButton() {
-        return new Button("Закрыть", event -> close());
+        return new Button("Закрыть", event -> {clearAll(); close();});
     }
 
     public void setRetailStoreDataEdit(RetailStoreDto retailStoreDto) {
         retailStoreDtoToEdit = retailStoreDto;
-        if (retailStoreDto.isActive()) {
+        if (retailStoreDtoToEdit.isActive()) {
             isActive.setValue(true);
         }
-        if (retailStoreDto.getName() != null) {
+        if (retailStoreDtoToEdit.getName() != null) {
             name.setValue(retailStoreDto.getName());
         }
-        if (retailStoreDto.getOrganizationDto() != null) {
+        if (retailStoreDtoToEdit.getOrganizationDto() != null) {
             organization.setValue(retailStoreDto.getOrganizationDto());
         }
-        if (retailStoreDto.getSalesInvoicePrefix() != null) {
+        if (retailStoreDtoToEdit.getSalesInvoicePrefix() != null) {
             salesInvoicePrefix.setValue(retailStoreDto.getSalesInvoicePrefix());
         }
-        if (retailStoreDto.getDefaultTaxationSystem() != null) {
+        if (retailStoreDtoToEdit.getDefaultTaxationSystem() != null) {
             defaultTaxationSystem.setValue(retailStoreDto.getDefaultTaxationSystem());
         }
-        if (retailStoreDto.getOrderTaxationSystem() != null) {
+        if (retailStoreDtoToEdit.getOrderTaxationSystem() != null) {
             orderTaxationSystem.setValue(retailStoreDto.getOrderTaxationSystem());
         }
-        if (retailStoreDto.getCashiersDto() != null) {
-            List<EmployeeDto> employees  = retailStoreDto.getCashiersDto();
-            cashiers.setValue(new HashSet<>(employees));
+
+        if (retailStoreDtoToEdit.getCashiersDto() != null) {
+            cashiers.setValue(new HashSet<>(retailStoreDto.getCashiersDto()));
         }
+    }
+
+    public void clearAll() {
+        isActive.clear();
+        name.clear();
+        organization.clear();
+        salesInvoicePrefix.clear();
+        defaultTaxationSystem.clear();
+        orderTaxationSystem.clear();
+        cashiers.clear();
     }
 }

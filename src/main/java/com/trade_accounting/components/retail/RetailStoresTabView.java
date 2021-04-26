@@ -85,6 +85,8 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
                 retailStoreModalWindow.addDetachListener(e -> updateList());
                 retailStoreModalWindow.open();
                 });
+        GridSortOrder<RetailStoreDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
+        grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
     }
 
@@ -143,8 +145,7 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     private void updateList() {
         GridPaginator<RetailStoreDto> paginatorUpdateList
                 = new GridPaginator<>(grid, retailStoreService.getAll(), 100);
-        Grid.Column idColumn = grid.getColumnByKey("id");
-        GridSortOrder<RetailStoreDto> order = new GridSortOrder<RetailStoreDto>(idColumn, SortDirection.ASCENDING);
+        GridSortOrder<RetailStoreDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
