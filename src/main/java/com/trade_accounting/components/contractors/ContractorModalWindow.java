@@ -795,8 +795,7 @@ public class ContractorModalWindow extends Dialog {
             legalDetailDto = new LegalDetailDto();
             return new Button("Добавить", event -> {
                 saveFieldsCreate(legalDetailDto);
-
-                legalDetailService.create(legalDetailDto);
+//                legalDetailService.create(legalDetailDto);
                 saveFields(contractorDto);
                 contractorService.create(contractorDto);
                 if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
