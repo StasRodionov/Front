@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
@@ -92,7 +93,7 @@ public class ContractorModalWindow extends Dialog {
 //    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
 
     // блок адреса
-    private final AddressBlock physicalAddressBlock = new AddressBlock(AddressType.PHYSICAL);
+    private final AddressBlock physicalAddressBlock;
 
 
     private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
@@ -136,6 +137,7 @@ public class ContractorModalWindow extends Dialog {
         commentToAddressField.setValue(getStringValueOf(ContractorDto::getCommentToAddress));
         commentField.setValue(getStringValueOf(ContractorDto::getComment));
         legalAddressBlock = configureAddressBlockLegalDetail();
+        physicalAddressBlock = new AddressBlock(contractorDto::getAddressDto);
         add(new Text(getShortName()), header(), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
@@ -854,10 +856,10 @@ public class ContractorModalWindow extends Dialog {
         while(fullName.charAt(i) != ',') { i--; }
         return fullName.substring(0, i);
     }
-    private enum AddressType {PHYSICAL, LEGAL}
+
 
     private class AddressBlock {
-        private AddressType addressType;
+        private Supplier<AddressDto> addressDtoSupplier;
         private HorizontalLayout layout;
         private final TextField addressIndex = new TextField();
         private final TextField addressCountry = new TextField();
@@ -868,8 +870,8 @@ public class ContractorModalWindow extends Dialog {
         private final TextField addressApartment = new TextField();
         private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
 
-        private AddressBlock(AddressType addressType) {
-            this.addressType = addressType;
+        private AddressBlock(Supplier<AddressDto> addressDtoSupplier) {
+            this.addressDtoSupplier = addressDtoSupplier;
             this.layout = configureAddressBlock();
         }
         private HorizontalLayout configureAddressBlock() {
