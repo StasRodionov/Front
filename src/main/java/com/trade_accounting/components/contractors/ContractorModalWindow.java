@@ -95,19 +95,8 @@ public class ContractorModalWindow extends Dialog {
     // блок адреса
     private final AddressBlock physicalAddressBlock;
 
-
-    private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
-
     // блок юр адреса
-    private final TextField addressIndexLegalDetail = new TextField();
-    private final TextField addressCountryLegalDetail = new TextField();
-    private final TextField addressRegionLegalDetail = new TextField();
-    private final TextField addressCityLegalDetail = new TextField();
-    private final TextField addressStreetLegalDetail = new TextField();
-    private final TextField addressHouseLegalDetail = new TextField();
-    private final TextField addressApartmentLegalDetail = new TextField();
-
-    private final HorizontalLayout legalAddressBlock;
+    private final AddressBlock legalAddressBlock;
 
 
     public ContractorModalWindow(ContractorDto contractorDto,
@@ -136,8 +125,11 @@ public class ContractorModalWindow extends Dialog {
         addressField.setValue(getAddress(contractorDto));
         commentToAddressField.setValue(getStringValueOf(ContractorDto::getCommentToAddress));
         commentField.setValue(getStringValueOf(ContractorDto::getComment));
-        legalAddressBlock = configureAddressBlockLegalDetail();
         physicalAddressBlock = new AddressBlock(contractorDto::getAddressDto);
+        legalAddressBlock = new AddressBlock(
+                contractorDto.getLegalDetailDto() == null ?
+                        null :  contractorDto.getLegalDetailDto()::getAddressDto
+        );
         add(new Text(getShortName()), header(), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
@@ -394,7 +386,7 @@ public class ContractorModalWindow extends Dialog {
         accountForm.add(middleName);
         accountForm.add(name);
         accountForm.add(configureAddressFieldLegalDetail());
-        accountForm.add(legalAddressBlock);
+        accountForm.add(legalAddressBlock.getLayout());
         accountForm.add(commentToAddress);
         accountForm.add(kpp);
         accountForm.add(okpo);
@@ -607,57 +599,8 @@ public class ContractorModalWindow extends Dialog {
         Label label = new Label("Юридический адрес");
         label.setWidth(LABEL_WIDTH);
         addressLegalDetailField.setWidth("345px");
-        horizontalLayout.add(label, addressLegalDetailField, dropDownAddressButton(legalAddressBlock));
+        horizontalLayout.add(label, addressLegalDetailField, dropDownAddressButton(legalAddressBlock.getLayout()));
         horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, label);
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout configureAddressBlockLegalDetail() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        FormLayout addressForm = new FormLayout();
-        Style addressFormStyle = addressForm.getStyle();
-        addressFormStyle.set("width", "385px");
-        addressFormStyle.set("margin-left", "132px");
-        addressFormStyle.set("padding-left", "10px");
-
-        addressForm.addFormItem(addressIndexLegalDetail, "Индекс");
-        addressDtoBinder.forField(addressIndexLegalDetail).bind(AddressDto::getIndex, AddressDto::setIndex);
-
-        addressForm.addFormItem(addressCountryLegalDetail, "Страна");
-        addressDtoBinder.forField(addressCountryLegalDetail).bind(AddressDto::getCountry, AddressDto::setCountry);
-
-        addressForm.addFormItem(addressRegionLegalDetail, "Область");
-        addressDtoBinder.forField(addressRegionLegalDetail).bind(AddressDto::getRegion, AddressDto::setRegion);
-
-        addressForm.addFormItem(addressCityLegalDetail, "Город");
-        addressDtoBinder.forField(addressCityLegalDetail).bind(AddressDto::getCity, AddressDto::setCity);
-
-        addressForm.addFormItem(addressStreetLegalDetail, "Улица");
-        addressDtoBinder.forField(addressStreetLegalDetail).bind(AddressDto::getStreet, AddressDto::setStreet);
-
-        addressForm.addFormItem(addressHouseLegalDetail, "Дом");
-        addressDtoBinder.forField(addressHouseLegalDetail).bind(AddressDto::getHouse, AddressDto::setHouse);
-
-        addressForm.addFormItem(addressApartmentLegalDetail, "Квартира");
-        addressDtoBinder.forField(addressApartmentLegalDetail).bind(AddressDto::getApartment, AddressDto::setApartment);
-        if (contractorDto.getId() != null) {
-            addressIndexLegalDetail.setPlaceholder("Индекс");
-            addressIndexLegalDetail.setValue(contractorDto.getLegalDetailDto().getAddressDto().getIndex());
-            addressCountryLegalDetail.setPlaceholder("Страна");
-            addressCountryLegalDetail.setValue(contractorDto.getLegalDetailDto().getAddressDto().getCountry());
-            addressRegionLegalDetail.setPlaceholder("Область");
-            addressRegionLegalDetail.setValue(contractorDto.getLegalDetailDto().getAddressDto().getRegion());
-            addressCityLegalDetail.setPlaceholder("Город");
-            addressCityLegalDetail.setValue(contractorDto.getLegalDetailDto().getAddressDto().getCity());
-            addressStreetLegalDetail.setPlaceholder("Улица");
-            addressStreetLegalDetail.setValue(contractorDto.getLegalDetailDto().getAddressDto().getStreet());
-            addressHouseLegalDetail.setPlaceholder("Номер дома");
-            addressHouseLegalDetail.setValue(contractorDto.getLegalDetailDto().getAddressDto().getHouse());
-            addressApartmentLegalDetail.setPlaceholder("Номер квартиры");
-            addressApartmentLegalDetail.setValue(contractorDto.getLegalDetailDto().getAddressDto().getApartment());
-        }
-        horizontalLayout.add(addressForm);
-        horizontalLayout.setVisible(false);
         return horizontalLayout;
     }
 
@@ -742,13 +685,13 @@ public class ContractorModalWindow extends Dialog {
         Long addressId = contractorDto.getLegalDetailDto().getAddressDto().getId();
         legalDetailDto.setAddressDto(AddressDto.builder()
                 .id(addressId)
-                .index(addressIndexLegalDetail.getValue())
-                .country(addressCountryLegalDetail.getValue())
-                .region(addressRegionLegalDetail.getValue())
-                .city(addressCityLegalDetail.getValue())
-                .street(addressStreetLegalDetail.getValue())
-                .house(addressHouseLegalDetail.getValue())
-                .apartment(addressApartmentLegalDetail.getValue())
+                .index(legalAddressBlock.getIndex())
+                .country(legalAddressBlock.getCountry())
+                .region(legalAddressBlock.getRegion())
+                .city(legalAddressBlock.getCity())
+                .street(legalAddressBlock.getStreet())
+                .house(legalAddressBlock.getHouse())
+                .apartment(legalAddressBlock.getApartment())
                 .build());
         legalDetailDto.setCommentToAddress(commentToAddressLegalDetailField.getValue());
         legalDetailDto.setInn(innLegalDetailField.getValue());
@@ -905,19 +848,19 @@ public class ContractorModalWindow extends Dialog {
 
             if (contractorDto.getId() != null) {
                 addressIndex.setPlaceholder("Индекс");
-                addressIndex.setValue(contractorDto.getAddressDto().getIndex());
+                addressIndex.setValue(addressDtoSupplier.get().getIndex());
                 addressCountry.setPlaceholder("Страна");
-                addressCountry.setValue(contractorDto.getAddressDto().getCountry());
+                addressCountry.setValue(addressDtoSupplier.get().getCountry());
                 addressRegion.setPlaceholder("Область");
-                addressRegion.setValue(contractorDto.getAddressDto().getRegion());
+                addressRegion.setValue(addressDtoSupplier.get().getRegion());
                 addressCity.setPlaceholder("Город");
-                addressCity.setValue(contractorDto.getAddressDto().getCity());
+                addressCity.setValue(addressDtoSupplier.get().getCity());
                 addressStreet.setPlaceholder("Улица");
-                addressStreet.setValue(contractorDto.getAddressDto().getStreet());
+                addressStreet.setValue(addressDtoSupplier.get().getStreet());
                 addressHouse.setPlaceholder("Номер дома");
-                addressHouse.setValue(contractorDto.getAddressDto().getHouse());
+                addressHouse.setValue(addressDtoSupplier.get().getHouse());
                 addressApartment.setPlaceholder("Номер квартиры");
-                addressApartment.setValue(contractorDto.getAddressDto().getApartment());
+                addressApartment.setValue(addressDtoSupplier.get().getApartment());
             }
 
             horizontalLayout.add(addressForm);
