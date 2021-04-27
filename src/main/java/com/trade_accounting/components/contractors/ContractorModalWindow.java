@@ -99,6 +99,8 @@ public class ContractorModalWindow extends Dialog {
     private final TextField dateOfTheCertificateLegalDetailField = new TextField(); //"Дата сертефиката"
 
     private List<String> bankAccountDtoList;
+    private RadioButtonGroup<FormLayout> radioButtonGroup = new RadioButtonGroup<>();
+
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контракта.");
 //    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
 
@@ -370,11 +372,11 @@ public class ContractorModalWindow extends Dialog {
             bankAccountDtoList = bankAccountService.getBankUniqueBic();
         }
         ComboBox<String> bikFieldAccount = new ComboBox<>("",bankAccountDtoList);
-//        bikFieldAccount.setItemLabelGenerator(List::get);
-//        bikFieldAccount.addValueChangeListener(event -> {
-//            bankFieldAccount.setValue(event.getValue().getBank());
-//            addressFieldAccount.setValue(event.getValue().getAddress());
-//        });
+        bikFieldAccount.addValueChangeListener(event -> {
+            BankAccountDto bankAccountDtoBuff = bankAccountService.getByBic(event.getValue());
+            bankFieldAccount.setValue(event.getValue());
+            addressFieldAccount.setValue(event.getValue());
+        });
 
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setAlignItems(FlexComponent.Alignment.END);

@@ -15,6 +15,10 @@ import java.util.List;
 public interface BankAccountApi {
 
     @Headers("Accept: application/json")
+    @GET("{url}/bic/{uniqBic}")
+    Call<BankAccountDto> getByBic(@Path(value = "url", encoded = true) String url, @Path("uniqBic") String uniqBic);
+
+    @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<BankAccountDto>> getAll(@Path(value = "url", encoded = true) String url);
 
