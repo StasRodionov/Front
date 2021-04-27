@@ -210,7 +210,6 @@ public class ContractorModalWindow extends Dialog {
                 configureSortNumberField());
         add(componentFormContractDto);
 
-
         Details componentContactFaces = new Details("Контактные лица", new Text(" "));
         componentContactFaces.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentContactFaces.addContent(contactDetailSelect());
@@ -219,11 +218,13 @@ public class ContractorModalWindow extends Dialog {
         Details componentDetails = new Details("Реквизиты", new Text(" "));
         componentDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentDetails.addContent(legalDetailSelect());
+        componentDetails.setOpened(true);
         add(componentDetails);
 
         Details componentLayoutTypeOfPrice = new Details("Скидки и цены", new Text(" "));
         componentLayoutTypeOfPrice.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentLayoutTypeOfPrice.addContent(typeOfPriceSelect());
+        componentLayoutTypeOfPrice.setOpened(true);
         add(componentLayoutTypeOfPrice);
 
         Details componentAccesses = new Details("Доступ", new Text(" Добавить компоненты."));
@@ -324,7 +325,6 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout firstName = getField(legalDetailDtoBinder, firstNameLegalDetailField, "firstName", "Имя");
         HorizontalLayout middleName = getField(legalDetailDtoBinder, middleNameLegalDetailField, "middleName", "Отчество");
         HorizontalLayout name = getArea(contractorDtoBinder, nameField, "name", "Полное наименование");
-        // HorizontalLayout address = getArea(legalDetailDtoBinder, addressLegalDetailField, "address", "Адрес");
         HorizontalLayout commentToAddress = getArea(legalDetailDtoBinder, commentToAddressLegalDetailField, "commentToAddress", "Комментарий к адресу");
         HorizontalLayout kpp = getNumberField(legalDetailDtoBinder, kppLegalDetailField, "kpp", "КПП");
         HorizontalLayout okpo = getNumberField(legalDetailDtoBinder, okpoLegalDetailField, "okpo", "ОКПО");
@@ -332,7 +332,7 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout numberOfTheCertificate = getNumberField(legalDetailDtoBinder,
                 numberOfTheCertificateLegalDetailField, "numberOfTheCertificate", "Номер сертефиката");
         HorizontalLayout dateOfTheCertificate = getDateField(legalDetailDtoBinder, dateOfTheCertificateLegalDetailField,
-                "dateOfTheCertificate", "Дата сертефиката");
+                "date", "Дата сертефиката");
 
         FormLayout accountForm = new FormLayout();
         AtomicBoolean legalEntity = new AtomicBoolean(false);
@@ -398,16 +398,18 @@ public class ContractorModalWindow extends Dialog {
         return accountForm;
     }
 
-    //Получение универсального поля
-    private HorizontalLayout getDateField(Binder<?> binder, DatePicker textField, String bind, String label) {
+    //Получение универсального поля даты
+    private HorizontalLayout getDateField(Binder<?> binder, DatePicker datePicker, String bind, String label) {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        textField.setWidth(FIELD_WIDTH);
-        binder.forField(textField)
+        datePicker.setWidth(FIELD_WIDTH);
+        binder.forField(datePicker)
                 .asRequired("Не заполнено!")
                 .bind(bind);
         Label labelInside = new Label(label);
         labelInside.setWidth(LABEL_WIDTH);
-        horizontalLayout.add(labelInside, textField);
+        datePicker.setReadOnly(false);
+        datePicker.setClearButtonVisible(true);
+        horizontalLayout.add(labelInside, datePicker);
         horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, labelInside);
         return horizontalLayout;
     }
@@ -553,29 +555,9 @@ public class ContractorModalWindow extends Dialog {
                 legalDetailDtoSelect.setValue(contractorService
                         .getById(contractorDto.getId()).getLegalDetailDto());
             }
-//            legalDetailDtoSelect.setWidth(FIELD_WIDTH);
+
         }
 
-        legalDetailDtoBinder.forField(lastNameLegalDetailField)
-                .asRequired("Не заполнено!").bind("lastName");
-        legalDetailDtoBinder.forField(firstNameLegalDetailField)
-                .asRequired("Не заполнено!").bind("firstName");
-        legalDetailDtoBinder.forField(middleNameLegalDetailField)
-                .asRequired("Не заполнено!").bind("middleName");
-//        legalDetailDtoBinder.forField(addressLegalDetailField)
-//                .asRequired("Не заполнено!").bind("addressDto");
-        legalDetailDtoBinder.forField(commentToAddressLegalDetailField)
-                .asRequired("Не заполнено!").bind("commentToAddress");
-        legalDetailDtoBinder.forField(innLegalDetailField)
-                .asRequired("Не заполнено!").bind("inn");
-        legalDetailDtoBinder.forField(okpoLegalDetailField)
-                .asRequired("Не заполнено!").bind("okpo");
-        legalDetailDtoBinder.forField(ogrnLegalDetailField)
-                .asRequired("Не заполнено!").bind("ogrn");
-        legalDetailDtoBinder.forField(numberOfTheCertificateLegalDetailField)
-                .asRequired("Не заполнено!").bind("numberOfTheCertificate");
-        legalDetailDtoBinder.forField(dateOfTheCertificateLegalDetailField)
-                .asRequired("Не заполнено!").bind("dateOfTheCertificate");
         horizontalLayout.add(contractorsAccordionCreate());
 
         return horizontalLayout;

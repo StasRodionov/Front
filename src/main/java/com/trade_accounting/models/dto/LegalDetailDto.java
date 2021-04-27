@@ -63,6 +63,11 @@ public class LegalDetailDto {
         this.typeOfContractorDto = typeOfContractorDto;
     }
 
+    public LocalDate getDate() {
+        return LocalDate.parse(
+                dateOfTheCertificate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
     public void setDate(String dateOfTheCertificate) {
         this.date = LocalDate.parse(dateOfTheCertificate);
         this.dateOfTheCertificate = dateOfTheCertificate;
