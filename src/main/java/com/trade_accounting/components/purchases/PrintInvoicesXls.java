@@ -9,14 +9,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class PrintInvoicesXls extends PrintExcelDocument<InvoiceDto> {
-    String type;
-    PurchasesSubSuppliersOrders purchasesSubSuppliersOrders;
     private final EmployeeService employeeService;
     private final List<String> sumList;
     private int lengthOfsumList = 0;
 
 
-    protected PrintInvoicesXls(String pathToXlsTemplate, List<InvoiceDto> list, List<String> sumList, EmployeeService employeeService) {
+    protected PrintInvoicesXls(String pathToXlsTemplate, List<InvoiceDto> list,
+                               List<String> sumList, EmployeeService employeeService) {
         super(pathToXlsTemplate, list);
         this.employeeService = employeeService;
         this.sumList = sumList;

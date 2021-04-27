@@ -104,11 +104,6 @@
             <artifactId>jsr305</artifactId>
             <version>3.0.2</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>ru.curs</groupId>-->
-<!--            <artifactId>xylophone</artifactId>-->
-<!--            <version>6.1.52</version>-->
-<!--        </dependency>-->
 
     </dependencies>
 
