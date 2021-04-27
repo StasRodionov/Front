@@ -95,7 +95,6 @@ public class ContractorsTabView extends VerticalLayout {
     private void configureGrid() {
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
-        grid.addColumn("inn").setHeader("Инн").setId("Инн");
         grid.addColumn("sortNumber").setHeader("номер").setId("номер");
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
@@ -104,7 +103,6 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setId("комментарий к адресу");
         grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setId("комментарий");
         grid.addColumn(iDto -> iDto.getContractorGroupDto().getName()).setHeader("Группы").setId("Группы");
-        grid.addColumn(iDto -> iDto.getTypeOfContractorDto().getName()).setHeader("Тип контрагента").setId("Тип контрагента");
         grid.addColumn(iDto -> iDto.getTypeOfPriceDto().getName()).setHeader("Скидки и цены").setId("Скидки и цены");
         grid.addColumn(iDto -> iDto.getLegalDetailDto().getInn()).setHeader("Реквизиты").setId("Реквизиты");
         grid.setHeight("64vh");

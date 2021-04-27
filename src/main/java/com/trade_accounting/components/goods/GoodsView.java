@@ -4,6 +4,7 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.NaiveXlsTableBuilder;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -27,12 +29,14 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.klaudeta.PaginatedGrid;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -301,8 +305,10 @@ public class GoodsView extends VerticalLayout {
     private Select<String> valueSelectPrint() {
         Select<String> valueSelect = new Select<>();
         valueSelect.setWidth(VALUE_SELECT_WIDTH);
-        valueSelect.setItems("Печать");
-        valueSelect.setValue("Печать");
+        valueSelect.setPlaceholder("Печать");
+        Anchor anchor = new Anchor(new StreamResource("goods.xls",
+                this::buildXlsTable), "Список товаров");
+        valueSelect.add(anchor);
         return valueSelect;
     }
 
@@ -322,5 +328,19 @@ public class GoodsView extends VerticalLayout {
         return valueSelect;
     }
 
+    private InputStream buildXlsTable() {
+        return  new NaiveXlsTableBuilder<ProductDto>().header("Товары")
+                .metadata("Создал: " )
+                .columns("№", "Наименование", "Артикул", "Вес", "Объем", "Закупочная цена")
+                .mappings(
+                        (product, cell) -> cell.setCellValue(product.getId()),
+                        (product, cell) -> cell.setCellValue(product.getName()),
+                        (product, cell) -> cell.setCellValue(product.getDescription()),
+                        (product, cell) -> cell.setCellValue(product.getWeight().doubleValue()),
+                        (product, cell) -> cell.setCellValue(product.getVolume().doubleValue()),
+                        (product, cell) -> cell.setCellValue(product.getPurchasePrice().doubleValue()))
+                .data(productService.getAll())
+                .getAsStream();
 
+    }
 }

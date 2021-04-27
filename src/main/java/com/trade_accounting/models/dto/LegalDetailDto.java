@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,15 +18,18 @@ public class LegalDetailDto {
 
     private String middleName;
 
-    private String address;
+    @EqualsAndHashCode.Exclude
+    private AddressDto addressDto;
 
     private String commentToAddress;
 
     private String inn;
 
+    private String kpp;
+
     private String okpo;
 
-    private String ogrnip;
+    private String ogrn;
 
     private String numberOfTheCertificate;
 

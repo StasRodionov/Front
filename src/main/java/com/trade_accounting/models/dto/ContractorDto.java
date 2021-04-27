@@ -13,7 +13,6 @@ import java.util.List;
 public class ContractorDto {
     private Long id;
     private String name;
-    private String inn;
     private String sortNumber;
     private String phone;
     private String fax;
@@ -26,9 +25,9 @@ public class ContractorDto {
     private String comment;
 
     @EqualsAndHashCode.Exclude
-    private ContractorGroupDto contractorGroupDto;
+    private List<ContactDto> contactDto;
     @EqualsAndHashCode.Exclude
-    private TypeOfContractorDto typeOfContractorDto;
+    private ContractorGroupDto contractorGroupDto;
     @EqualsAndHashCode.Exclude
     private TypeOfPriceDto typeOfPriceDto;
     @EqualsAndHashCode.Exclude

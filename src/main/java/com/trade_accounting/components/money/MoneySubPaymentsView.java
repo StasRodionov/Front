@@ -1,10 +1,14 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.PaymentDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.PaymentService;
+import com.trade_accounting.services.interfaces.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -22,67 +26,83 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Route(value = "MoneySubPaymentsView", layout = AppView.class)
 @PageTitle("Платежи")
 public class MoneySubPaymentsView extends VerticalLayout {
-
     private final PaymentService paymentService;
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
+    private final ProjectService projectService;
+    private final ContractService contractService;
+    private final Notifications notifications;
 
-    private List<PaymentDto> data;
+    private final List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
-    private final GridFilter<PaymentDto> filter;
+    private final PaymentModalWin paymentModalWin;
 
-    MoneySubPaymentsView(PaymentService paymentService) {
+    MoneySubPaymentsView(PaymentService paymentService,
+                         CompanyService companyService,
+                         ContractorService contractorService,
+                         ProjectService projectService,
+                         ContractService contractService,
+                         Notifications notifications,
+                         PaymentModalWin paymentModalWin) {
         this.paymentService = paymentService;
         this.data = paymentService.getAll();
+        this.companyService = companyService;
+        this.contractorService = contractorService;
+        this.projectService = projectService;
+        this.contractService = contractService;
+        this.notifications = notifications;
+        this.paymentModalWin = paymentModalWin;
         getGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
-        this.filter = new GridFilter<>(grid);
-        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), filter, grid, paginator);
+        add(getToolbar(), grid, paginator);
+
     }
 
     private Grid getGrid() {
         grid.setItems(data);
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn(iDto -> formatDate(iDto.getTime())).setKey("time").setFlexGrow(10).setHeader("Дата").setId("Дата");
+        grid.addColumn("id").setHeader("ID");
+        grid.addColumn("time").setFlexGrow(10).setHeader("Дата");
         grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
-                .setHeader("Компания").setKey("companyDto").setId("Компания");
-        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
-        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платежа").setId("Номер платежа");
-        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
+                .setHeader("Компания").setId("companyDto");
+        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма");
+        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж");
+        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа");
         grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
-                .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
+                .setHeader("Контрагент").setId("contractorDto");
         grid.addColumn(pDto -> pDto.getContractDto().getNumber()).setFlexGrow(7).setSortable(true)
-                .setHeader("Договор").setKey("contractDto").setId("Договор");
+                .setHeader("Договор").setId("contractDto");
         grid.addColumn(pDto -> pDto.getProjectDto().getName()).setFlexGrow(7).setSortable(true)
-                .setHeader("Проект").setKey("projectDto").setId("Проект");
+                .setHeader("Проект").setId("projectDto");
         grid.setHeight("66vh");
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addItemDoubleClickListener(event -> {
+            PaymentDto editPaymentDto = event.getItem();
+            PaymentModalWin addPaymentModalWin = new PaymentModalWin(
+                    paymentService,
+                    companyService,
+                    contractorService,
+                    projectService,
+                    contractService,
+                    notifications);
+            addPaymentModalWin.addDetachListener(e -> updateList());
+            addPaymentModalWin.setPaymentDataForEdit(editPaymentDto);
+            addPaymentModalWin.open();
+        });
         return grid;
     }
-
-    private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.setFieldToDatePicker("time");
-        filter.setFieldToComboBox("typeOfPayment", "OUTGOING", "INCOMING");
-        filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(paymentService.getAll()));
+    private void updateList() {
+        GridPaginator<PaymentDto> paginatorUpdateList
+                = new GridPaginator<>(grid, paymentService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        removeAll();
+        add(getToolbar(), grid, paginator);
     }
-
-    private String formatDate(String stringDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
-        return formatDateTime.format(formatter);
-    }
-
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getButton(),
@@ -110,28 +130,23 @@ public class MoneySubPaymentsView extends VerticalLayout {
         textField.setPlaceholder("Наименование или код");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
-        textField.setValueChangeMode(ValueChangeMode.LAZY);
-        textField.addValueChangeListener(event -> {
-            if(!textField.getValue().equals("")) {
-                data = paymentService.search(textField.getValue());
-            }
-            else {
-                data = paymentService.getAll();
-            }
-            grid.setItems(data);
-        });
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         return textField;
     }
-
+    private void updateList(String search) {
+        if (search.isEmpty()) {
+            paginator.setData(paymentService.getAll());
+        } else paginator.setData(paymentService.search(search));
+    }
     private Button getButtonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
-        return buttonFilter;
+        return new Button("Фильтр");
     }
 
     private Button getButton() {
         final Button button = new Button("Платеж");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(event -> paymentModalWin.open());
         return button;
     }
 
