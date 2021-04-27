@@ -15,4 +15,6 @@ public interface BankAccountService {
     void update(BankAccountDto dto);
 
     void deleteById(Long id);
+
+    List<String> getBankUniqueBic();
 }

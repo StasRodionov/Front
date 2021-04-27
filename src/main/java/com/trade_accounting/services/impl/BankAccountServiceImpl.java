@@ -29,6 +29,21 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    public List<String> getBankUniqueBic() {
+        List<String> bankUniqueBic = new ArrayList<>();
+        Call<List<String>> bankAccountDtoListCall = bankAccountApi.getBankUniqueBic(bankAccountUrl);
+
+        try {
+            bankUniqueBic.addAll(bankAccountDtoListCall.execute().body());
+            log.info("Успешно выполнен запрос на получение списка BankAccountDto с уникальным биком");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка BankAccountDto - {}", e);
+        }
+
+        return bankUniqueBic;
+    }
+
+    @Override
     public List<BankAccountDto> getAll() {
 
         List<BankAccountDto> bankAccountDtoList = new ArrayList<>();

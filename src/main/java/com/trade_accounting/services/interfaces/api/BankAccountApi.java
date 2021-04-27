@@ -19,6 +19,10 @@ public interface BankAccountApi {
     Call<List<BankAccountDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
+    @GET("{url}/bic")
+    Call<List<String>> getBankUniqueBic(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
     @GET("{url}/{id}")
     Call<BankAccountDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 

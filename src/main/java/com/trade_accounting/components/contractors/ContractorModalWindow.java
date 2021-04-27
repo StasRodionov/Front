@@ -98,6 +98,7 @@ public class ContractorModalWindow extends Dialog {
     private final ValidTextField numberOfTheCertificateLegalDetailField = new ValidTextField(); //"Номер сертефиката"
     private final TextField dateOfTheCertificateLegalDetailField = new TextField(); //"Дата сертефиката"
 
+    private List<String> bankAccountDtoList;
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контракта.");
 //    private final TextField  typeOfContractorDtoLegalDetailTextField = new TextField("Тип контракта.");
 
@@ -336,17 +337,25 @@ public class ContractorModalWindow extends Dialog {
             showContact(newContactDto, verticalLayout);
         });
         addContactButton.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
-
         return addContactButton;
 
     }
+    private Checkbox checkboxSave;
 
+    private void test(Checkbox checkbox) {
+        if (checkboxSave != null) {
+            checkboxSave.setEnabled(true);
+            checkboxSave.setValue(false);
+        }
+        checkbox.setValue(true);
+        checkbox.setEnabled(false);
+        checkboxSave = checkbox;
+    }
     private void showCheckingAccount(FormLayout formLayout) {
         FormLayout form = new FormLayout();
         form.getStyle().set("background", "#f3f5f7");
         form.getStyle().set("padding-left", "10px");
         form.getStyle().set("margin-top", "10px");
-
         Button buttonCloseForm = new Button(new Icon(VaadinIcon.CLOSE_SMALL), event -> removeForm(form));
         buttonCloseForm.setMaxWidth("10px");
 
@@ -355,14 +364,17 @@ public class ContractorModalWindow extends Dialog {
         TextField сorFieldAccount = new TextField();
         TextField checkingAccountField = new TextField();
         Checkbox checkboxBuff = new Checkbox("Основной счет");
+        checkboxBuff.addValueChangeListener(event -> test(checkboxBuff));
 
-        List<BankAccountDto> bankAccountDtoList = bankAccountService.getAll();
-        ComboBox<BankAccountDto> bikFieldAccount = new ComboBox<>("",bankAccountDtoList);
-        bikFieldAccount.setItemLabelGenerator(BankAccountDto::getRcbic);
-        bikFieldAccount.addValueChangeListener(event -> {
-            bankFieldAccount.setValue(event.getValue().getBank());
-            addressFieldAccount.setValue(event.getValue().getAddress());
-        });
+        if (bankFieldAccount.isEmpty()) {
+            bankAccountDtoList = bankAccountService.getBankUniqueBic();
+        }
+        ComboBox<String> bikFieldAccount = new ComboBox<>("",bankAccountDtoList);
+//        bikFieldAccount.setItemLabelGenerator(List::get);
+//        bikFieldAccount.addValueChangeListener(event -> {
+//            bankFieldAccount.setValue(event.getValue().getBank());
+//            addressFieldAccount.setValue(event.getValue().getAddress());
+//        });
 
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setAlignItems(FlexComponent.Alignment.END);
