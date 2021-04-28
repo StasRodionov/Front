@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +17,9 @@ public class RetailStoreDto {
     private boolean isActive;
     private String activityStatus;
     private BigDecimal revenue;
-
+    private CompanyDto organizationDto;
+    private String salesInvoicePrefix;
+    private String defaultTaxationSystem;
+    private String orderTaxationSystem;
+    private List<EmployeeDto> cashiersDto;
 }
