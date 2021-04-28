@@ -1,6 +1,7 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.PaymentDto;
@@ -41,6 +42,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private final List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
+    private final GridFilter<PaymentDto> filter;
     private final PaymentModalWin paymentModalWin;
 
     MoneySubPaymentsView(PaymentService paymentService,
@@ -60,26 +62,39 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.paymentModalWin = paymentModalWin;
         getGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), grid, paginator);
+        add(getToolbar(), filter, grid, paginator);
 
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("time");
+        filter.setFieldToIntegerField("sum");
+        filter.setFieldToIntegerField("number");
+        filter.setFieldToComboBox("typeOfPayment", "Входящий", "Исходящий");
+        filter.setFieldToIntegerField("contractDto");
+        filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(paymentService.getAll()));
     }
 
     private Grid getGrid() {
         grid.setItems(data);
-        grid.addColumn("id").setHeader("ID");
-        grid.addColumn("time").setFlexGrow(10).setHeader("Дата");
+        grid.addColumn("id").setHeader("ID").setId("№");
+        grid.addColumn("time").setFlexGrow(10).setHeader("Дата").setId("Дата");
         grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
-                .setHeader("Компания").setId("companyDto");
-        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма");
-        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж");
-        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа");
+                .setKey("companyDto").setHeader("Компания").setId("Компания");
+        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
+        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж").setId("Номер платежа");
+        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
         grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
-                .setHeader("Контрагент").setId("contractorDto");
+                .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(pDto -> pDto.getContractDto().getNumber()).setFlexGrow(7).setSortable(true)
-                .setHeader("Договор").setId("contractDto");
+                .setKey("contractDto").setHeader("Договор").setId("Договор");
         grid.addColumn(pDto -> pDto.getProjectDto().getName()).setFlexGrow(7).setSortable(true)
-                .setHeader("Проект").setId("projectDto");
+                .setKey("projectDto").setHeader("Проект").setId("Проект");
         grid.setHeight("66vh");
         grid.addItemDoubleClickListener(event -> {
             PaymentDto editPaymentDto = event.getItem();
@@ -140,7 +155,9 @@ public class MoneySubPaymentsView extends VerticalLayout {
         } else paginator.setData(paymentService.search(search));
     }
     private Button getButtonFilter() {
-        return new Button("Фильтр");
+        Button filterButton = new Button("Фильтр");
+        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return filterButton;
     }
 
     private Button getButton() {

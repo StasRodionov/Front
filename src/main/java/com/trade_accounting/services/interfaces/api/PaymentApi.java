@@ -37,7 +37,7 @@ public interface PaymentApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/filter")
-    Call<List<PaymentDto>> filter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+    Call<List<PaymentDto>> filter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> filterData);
 
     @Headers("Accept: application/json")
     @GET("{url}/search/{search}")
