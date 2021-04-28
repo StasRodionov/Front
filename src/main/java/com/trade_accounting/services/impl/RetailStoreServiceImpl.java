@@ -58,15 +58,41 @@ public class RetailStoreServiceImpl implements RetailStoreService {
     @Override
     public void create(RetailStoreDto retailStoreDto) {
 
+        Call<Void> retailStoreDtoCall = retailStoreApi.create(retailStoreUrl, retailStoreDto);
+
+        try {
+            retailStoreDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание экземпляра RetailStoreDto");
+        }
+        catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра RetailStoreDto - {}", e);
+        }
+
     }
 
     @Override
     public void update(RetailStoreDto retailStoreDto) {
+        Call<Void> retailStoreDtoCall = retailStoreApi.update(retailStoreUrl, retailStoreDto);
 
+        try {
+            retailStoreDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра RetailStoreDto");
+        }
+        catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра RetailStoreDto - {}", e);
+        }
     }
 
     @Override
     public void deleteById(Long id) {
+        Call<Void> retailStoreDtoCall = retailStoreApi.deleteById(retailStoreUrl, id);
 
+        try {
+            retailStoreDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра RetailStoreDto");
+        }
+        catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра RetailStoreDto - {}", e);
+        }
     }
 }
