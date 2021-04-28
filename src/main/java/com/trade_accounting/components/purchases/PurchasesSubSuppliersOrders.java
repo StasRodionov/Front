@@ -7,38 +7,56 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "suppliersOrders", layout = AppView.class)
@@ -50,6 +68,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final InvoiceService invoiceService;
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
     private final Notifications notifications;
+    private final EmployeeService employeeService;
 
     private List<InvoiceDto> invoices;
 
@@ -59,14 +78,17 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/invoices_templates/";
+
 
     @Autowired
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
-                                       @Lazy Notifications notifications) {
+                                       @Lazy Notifications notifications, EmployeeService employeeService) {
         this.invoiceService = invoiceService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.notifications = notifications;
+        this.employeeService = employeeService;
         loadInvoices();
         configureActions();
         configureGrid();
@@ -85,6 +107,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         actions = new HorizontalLayout();
         actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
+
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
 
@@ -105,6 +128,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
         grid.setHeight("66vh");
+        grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
@@ -137,9 +161,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         return buttonQuestion;
     }
 
-    private H2 title() {
-        H2 title = new H2("Заказы поставщикам");
+    private H4 title() {
+        H4 title = new H4("Заказы поставщикам");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
     }
 
@@ -175,6 +200,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         textField.setClearButtonVisible(true);
         textField.addValueChangeListener(e -> updateList(textField.getValue()));
         textField.setWidth("300px");
+        textField.setWidth("220px");
         return textField;
     }
 
@@ -212,7 +238,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
-        status.setWidth("130px");
+        status.setWidth("110px");
         return status;
     }
 
@@ -220,16 +246,93 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         Select<String> create = new Select<>();
         create.setItems("Создать");
         create.setValue("Создать");
-        create.setWidth("130px");
+        create.setWidth("110px");
         return create;
     }
 
+
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать");
+        print.setItems("Печать", "Добавить шаблон");
         print.setValue("Печать");
-        print.setWidth("130px");
+        getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+        uploadXlsMenuItem(print);
+        print.setWidth("110px");
         return print;
+    }
+    private void uploadXlsMenuItem(Select<String> print) {
+        Dialog dialog = new Dialog();
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        configureUploadFinishedListener(upload, buffer, dialog, print);
+        dialog.add(upload);
+        print.addValueChangeListener(x -> {
+            if(print.getValue().equals("Добавить шаблон")) {dialog.open();
+                }
+        });
+    }
+
+    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog,
+                                                 Select<String> print) {
+        upload.addFinishedListener(event -> {
+            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
+                getErrorNotification("Файл с таки именем уже существует");
+            } else {
+                File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
+                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
+                    fos.write(buffer.getInputStream().readAllBytes());
+                    getInfoNotification("Файл успешно загружен");
+                    log.info("xls шаблон успешно загружен");
+                    print.removeAll();
+                    getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+
+                } catch (IOException e) {
+                    getErrorNotification("При загрузке шаблона произошла ошибка");
+                    log.error("при загрузке xls шаблона произошла ошибка");
+                }
+                print.setValue("Печать");
+                dialog.close();
+            }
+        });
+    }
+
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        List<String> sumList = new ArrayList<>();
+        List<InvoiceDto> list1 = invoiceService.getAll(typeOfInvoice);
+        for (InvoiceDto inc: list1) {
+            sumList.add(getTotalPrice(inc));
+        }
+        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), loadInvoices(), sumList, employeeService);
+        return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
+    }
+
+    private void getInfoNotification(String message) {
+        Notification notification = new Notification(message, 5000);
+        notification.open();
+    }
+
+    private void getErrorNotification(String message) {
+        Div content = new Div();
+        content.addClassName("my-style");
+        content.setText(message);
+        Notification notification = new Notification(content);
+        notification.setDuration(5000);
+        String styles = ".my-style { color: red; }";
+        StreamRegistration resource = UI.getCurrent().getSession()
+                .getResourceRegistry()
+                .registerResource(new StreamResource("styles.css", () ->
+                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
+        UI.getCurrent().getPage().addStyleSheet(
+                "base://" + resource.getResourceUri().toString());
+        notification.open();
     }
 
     private Button buttonSettings() {
@@ -258,7 +361,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
-    private String getTotalPrice(InvoiceDto invoiceDto) {
+    protected String getTotalPrice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
