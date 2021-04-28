@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "suppliersOrders", layout = AppView.class)
@@ -127,7 +128,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
-        filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfInvoice", typeOfInvoice);
+            paginator.setData(invoiceService.search(map));
+        });
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
