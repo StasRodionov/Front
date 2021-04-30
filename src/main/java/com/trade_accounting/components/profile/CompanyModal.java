@@ -144,7 +144,7 @@ public class CompanyModal extends Dialog {
             setField(legalDetailOkpo, companyDto.getLegalDetailDto().getOkpo());
             setField(legalDetailOgrnip, companyDto.getLegalDetailDto().getOgrn());
             setField(legalDetailNumberOfTheCertificate, companyDto.getLegalDetailDto().getNumberOfTheCertificate());
-            setDate(legalDetailDateOfTheCertificate, companyDto.getLegalDetailDto().getDateOfTheCertificate());
+            setDate(legalDetailDateOfTheCertificate, companyDto.getLegalDetailDto().getDate());
 
             if (companyDto.getLegalDetailDto().getTypeOfContractorDto() != null) {
                 typeOfContractorId = companyDto.getLegalDetailDto().getTypeOfContractorDto().getId();
@@ -182,7 +182,7 @@ public class CompanyModal extends Dialog {
             legalDetailDto.setOkpo(legalDetailOkpo.getValue());
             legalDetailDto.setOgrn(legalDetailOgrnip.getValue());
             legalDetailDto.setNumberOfTheCertificate(legalDetailNumberOfTheCertificate.getValue());
-            legalDetailDto.setDateOfTheCertificate(legalDetailDateOfTheCertificate.getValue() != null
+            legalDetailDto.setDate(legalDetailDateOfTheCertificate.getValue() != null
                     ? legalDetailDateOfTheCertificate.getValue().toString() : null);
             legalDetailDto.setTypeOfContractorDto(typeOfContractorDto);
 
@@ -467,9 +467,9 @@ public class CompanyModal extends Dialog {
         }
     }
 
-    private void setDate(AbstractField field, String date) {
+    private void setDate(AbstractField field, LocalDate date) {
         if (date != null) {
-            field.setValue(LocalDate.parse(date));
+            field.setValue(date);
         }
     }
 

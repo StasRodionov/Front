@@ -42,4 +42,9 @@ public class EmployeeDto {
     private Set<RoleDto> roleDto;
 
     private ImageDto imageDto;
+
+    @Override
+    public String toString() {
+        return firstName + " " + lastName;
+    }
 }

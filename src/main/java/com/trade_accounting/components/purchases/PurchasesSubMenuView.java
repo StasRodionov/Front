@@ -24,12 +24,15 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
     private final Div div;
     private final InvoiceService invoiceService;
     private final PurchasesSubSuppliersOrders purchasesSubSuppliersOrders;
+    private final PurchasesSubVendorAccounts purchasesSubVendorAccounts;
 
     @Autowired
     public PurchasesSubMenuView(InvoiceService invoiceService,
-                                @Lazy PurchasesSubSuppliersOrders purchasesSubSuppliersOrders) {
+                                @Lazy PurchasesSubSuppliersOrders purchasesSubSuppliersOrders,
+                                @Lazy PurchasesSubVendorAccounts purchasesSubVendorAccounts) {
         this.invoiceService = invoiceService;
         this.purchasesSubSuppliersOrders = purchasesSubSuppliersOrders;
+        this.purchasesSubVendorAccounts = purchasesSubVendorAccounts;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -56,7 +59,7 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
         Tab invoicesReceivedLayout = new Tab(new Label("Счета-фактуры полученные"));
         Tab purchasingManagementLayout = new Tab(new Label("Управление закупками"));
 
-        return new Tabs(
+        Tabs tabs = new Tabs(
                 supplierOrdersLayout,
                 vendorAccountsLayout,
                 admissionsLayout,
@@ -64,5 +67,17 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
                 invoicesReceivedLayout,
                 purchasingManagementLayout
         );
+
+        tabs.addSelectedChangeListener(event -> {
+            Tab tab = event.getSelectedTab();
+            if (supplierOrdersLayout.equals(tab)) {
+                div.removeAll();
+                div.add(purchasesSubSuppliersOrders);
+            } else if (vendorAccountsLayout.equals(tab)) {
+                div.removeAll();
+                div.add(purchasesSubVendorAccounts);
+            }
+        });
+        return tabs;
     }
 }

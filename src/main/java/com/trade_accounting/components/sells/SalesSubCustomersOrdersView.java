@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+//import com.trade_accounting.components.purchases.XLSPrinter;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -54,6 +55,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -127,7 +129,11 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
-        filter.onSearchClick(e -> paginator.setData(invoiceService.search(filter.getFilterData())));
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfInvoice", typeOfInvoice);
+            paginator.setData(invoiceService.search(map));
+        });
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 

@@ -43,9 +43,16 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<PaymentDto> filter(Map<String, String> query) {
+    public List<PaymentDto> filter(Map<String, String> filterData) {
+        if (filterData.get("typeOfPayment") != null) {
+            if (filterData.get("typeOfPayment").equals("Входящий")) {
+                filterData.put("typeOfPayment", "INCOMING");
+            } else {
+                filterData.put("typeOfPayment", "OUTGOING");
+            }
+        }
         List<PaymentDto> paymentDtoList = new ArrayList<>();
-        Call<List<PaymentDto>> paymentDtoListCall = paymentApi.filter(paymentUrl, query);
+        Call<List<PaymentDto>> paymentDtoListCall = paymentApi.filter(paymentUrl, filterData);
 
         try {
             paymentDtoList = paymentDtoListCall.execute().body();
