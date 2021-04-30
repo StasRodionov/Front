@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
@@ -8,17 +9,24 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.DetailsVariant;
 
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.dom.Style;
 
 import java.time.LocalDate;
 
@@ -27,6 +35,7 @@ public class CompanyModal extends Dialog {
     private static final String FIELD_WIDTH = "400px";
 
     private Long companyId;
+    private CompanyDto companyDto;
     private final TextField name = new TextField();
     private final TextField inn = new TextField();
     private final TextArea address = new TextArea();
@@ -44,6 +53,7 @@ public class CompanyModal extends Dialog {
     private final TextField stamp = new TextField();
 
     private Long legalDetailId;
+    private LegalDetailDto legalDetailDto;
     private final TextField legalDetailLastName = new TextField();
     private final TextField legalDetailFirstName = new TextField();
     private final TextField legalDetailMiddleName = new TextField();
@@ -55,6 +65,26 @@ public class CompanyModal extends Dialog {
     private final TextField legalDetailNumberOfTheCertificate = new TextField();
     private final DatePicker legalDetailDateOfTheCertificate = new DatePicker();
 
+    private final TextField addressIndex = new TextField();
+    private final TextField addressCountry = new TextField();
+    public final ComboBox<String> addressRegion = new ComboBox<>();
+    private final ComboBox<String> addressCity = new ComboBox<>();
+    private final ComboBox<String> addressStreet = new ComboBox<>();
+    private final TextField addressHouse = new TextField();
+    private final TextField addressApartment = new TextField();
+   //private final Binder<AddressDto> addressDtoBinder = new Binder<>(AddressDto.class);
+
+    private final TextArea addressLegalDetailField = new TextArea();
+    private final TextField addressIndexLegalDetail = new TextField();
+    private final TextField addressCountryLegalDetail = new TextField();
+    private final TextField addressRegionLegalDetail = new TextField();
+    private final TextField addressCityLegalDetail = new TextField();
+    private final TextField addressStreetLegalDetail = new TextField();
+    private final TextField addressHouseLegalDetail = new TextField();
+    private final TextField addressApartmentLegalDetail = new TextField();
+    //private final HorizontalLayout blockLegalDetail;
+    private HorizontalLayout block;
+
     private Long typeOfContractorId;
     private final TextField typeOfContractorName = new TextField();
     private final TextField typeOfContractorSortNumber = new TextField();
@@ -63,56 +93,63 @@ public class CompanyModal extends Dialog {
 
     public CompanyModal(CompanyService companyService) {
         this.companyService = companyService;
+        this.companyDto = new CompanyDto();
+        block = configureLegalDetailAddressBlock();
         configureModal("Добавление");
     }
 
     public CompanyModal(CompanyDto companyDto, CompanyService companyService) {
         this.companyService = companyService;
+        this.companyDto = companyDto;
+        block = configureLegalDetailAddressBlock();
         configureModal("Редактирование");
-        setFields(companyDto);
+        setFields();
     }
 
     private void configureModal(String title) {
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
+        setHeightFull();
         add(header(title), accordionCompany());
     }
 
-    private void setFields(CompanyDto dto) {
-        companyId = dto.getId();
-        setField(name, dto.getName());
-        setField(inn, dto.getInn());
-        setField(address, dto.getAddress());
-        setField(commentToAddress, dto.getCommentToAddress());
-        setField(email, dto.getEmail());
-        setField(phone, dto.getPhone());
-        setField(fax, dto.getFax());
-        setField(leader, dto.getLeader());
-        setField(leaderManagerPosition, dto.getLeaderManagerPosition());
-        setField(leaderSignature, dto.getLeaderSignature());
-        setField(chiefAccountant, dto.getChiefAccountant());
-        setField(chiefAccountantSignature, dto.getChiefAccountantSignature());
-        setField(payerVat, Boolean.TRUE.equals(dto.getPayerVat()) ? "Да" : "Нет");
-        setField(sortNumber, dto.getSortNumber());
-        setField(stamp, dto.getStamp());
+    private void setFields() {
+        companyId = companyDto.getId();
+        setField(name, companyDto.getName());
+        setField(inn, companyDto.getInn());
+        setField(address, companyDto.getAddress());
+        setField(commentToAddress, companyDto.getCommentToAddress());
+        setField(email, companyDto.getEmail());
+        setField(phone, companyDto.getPhone());
+        setField(fax, companyDto.getFax());
+        setField(leader, companyDto.getLeader());
+        setField(leaderManagerPosition, companyDto.getLeaderManagerPosition());
+        setField(leaderSignature, companyDto.getLeaderSignature());
+        setField(chiefAccountant, companyDto.getChiefAccountant());
+        setField(chiefAccountantSignature, companyDto.getChiefAccountantSignature());
+        setField(payerVat, Boolean.TRUE.equals(companyDto.getPayerVat()) ? "Да" : "Нет");
+        setField(sortNumber, companyDto.getSortNumber());
+        setField(stamp, companyDto.getStamp());
 
-        if (dto.getLegalDetailDto() != null) {
-            legalDetailId = dto.getLegalDetailDto().getId();
-            setField(legalDetailLastName, dto.getLegalDetailDto().getLastName());
-            setField(legalDetailFirstName, dto.getLegalDetailDto().getFirstName());
-            setField(legalDetailMiddleName, dto.getLegalDetailDto().getMiddleName());
-            setField(legalDetailAddress, dto.getLegalDetailDto().getAddressDto().getAnother());
-            setField(legalDetailCommentToAddress, dto.getLegalDetailDto().getCommentToAddress());
-            setField(legalDetailInn, dto.getLegalDetailDto().getInn());
-            setField(legalDetailOkpo, dto.getLegalDetailDto().getOkpo());
-            setField(legalDetailOgrnip, dto.getLegalDetailDto().getOgrn());
-            setField(legalDetailNumberOfTheCertificate, dto.getLegalDetailDto().getNumberOfTheCertificate());
-            setDate(legalDetailDateOfTheCertificate, dto.getLegalDetailDto().getDateOfTheCertificate());
+        if (companyDto.getLegalDetailDto() != null) {
+            legalDetailId = companyDto.getLegalDetailDto().getId();
+            setField(legalDetailLastName, companyDto.getLegalDetailDto().getLastName());
+            setField(legalDetailFirstName, companyDto.getLegalDetailDto().getFirstName());
+            setField(legalDetailMiddleName, companyDto.getLegalDetailDto().getMiddleName());
+            if(companyDto.getLegalDetailDto().getAddressDto() != null){
+                setField(legalDetailAddress, companyDto.getLegalDetailDto().getAddressDto().getAnother());
+            }
+            setField(legalDetailCommentToAddress, companyDto.getLegalDetailDto().getCommentToAddress());
+            setField(legalDetailInn, companyDto.getLegalDetailDto().getInn());
+            setField(legalDetailOkpo, companyDto.getLegalDetailDto().getOkpo());
+            setField(legalDetailOgrnip, companyDto.getLegalDetailDto().getOgrn());
+            setField(legalDetailNumberOfTheCertificate, companyDto.getLegalDetailDto().getNumberOfTheCertificate());
+            setDate(legalDetailDateOfTheCertificate, companyDto.getLegalDetailDto().getDateOfTheCertificate());
 
-            if (dto.getLegalDetailDto().getTypeOfContractorDto() != null) {
-                typeOfContractorId = dto.getLegalDetailDto().getTypeOfContractorDto().getId();
-                setField(typeOfContractorName, dto.getLegalDetailDto().getTypeOfContractorDto().getName());
-                setField(typeOfContractorSortNumber, dto.getLegalDetailDto().getTypeOfContractorDto().getSortNumber());
+            if (companyDto.getLegalDetailDto().getTypeOfContractorDto() != null) {
+                typeOfContractorId = companyDto.getLegalDetailDto().getTypeOfContractorDto().getId();
+                setField(typeOfContractorName, companyDto.getLegalDetailDto().getTypeOfContractorDto().getName());
+                setField(typeOfContractorSortNumber, companyDto.getLegalDetailDto().getTypeOfContractorDto().getSortNumber());
             }
         }
     }
@@ -139,7 +176,7 @@ public class CompanyModal extends Dialog {
             legalDetailDto.setLastName(legalDetailLastName.getValue());
             legalDetailDto.setFirstName(legalDetailFirstName.getValue());
             legalDetailDto.setMiddleName(legalDetailMiddleName.getValue());
-//            legalDetailDto.setAddressDto(legalDetailAddress.getValue());
+            legalDetailDto.setAddressDto(getAddressDto());
             legalDetailDto.setCommentToAddress(legalDetailCommentToAddress.getValue());
             legalDetailDto.setInn(legalDetailInn.getValue());
             legalDetailDto.setOkpo(legalDetailOkpo.getValue());
@@ -149,8 +186,6 @@ public class CompanyModal extends Dialog {
                     ? legalDetailDateOfTheCertificate.getValue().toString() : null);
             legalDetailDto.setTypeOfContractorDto(typeOfContractorDto);
 
-            CompanyDto companyDto = new CompanyDto();
-            companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
             companyDto.setAddress(address.getValue());
@@ -216,6 +251,7 @@ public class CompanyModal extends Dialog {
                 configureLegalDetailFirstName(),
                 configureLegalDetailMiddleName(),
                 configureLegalDetailAddress(),
+                block,
                 configureLegalDetailCommentToAddress(),
                 configureLegalDetailInn(),
                 configureLegalDetailOkpo(),
@@ -242,6 +278,49 @@ public class CompanyModal extends Dialog {
     private HorizontalLayout configureAddress() {
         address.setWidth(FIELD_WIDTH);
         return getHorizontalLayout("Адрес", address);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressBlock() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        FormLayout addressForm = new FormLayout();
+        Style addressFormStyle = addressForm.getStyle();
+        addressFormStyle.set("width", "385px");
+        addressFormStyle.set("margin-left", "132px");
+        addressFormStyle.set("padding-left", "10px");
+
+        addressForm.addFormItem(addressIndexLegalDetail, "Индекс");
+
+        addressForm.addFormItem(addressCountryLegalDetail, "Страна");
+
+        addressForm.addFormItem(addressRegionLegalDetail, "Область");
+
+        addressForm.addFormItem(addressCityLegalDetail, "Город");
+
+        addressForm.addFormItem(addressStreetLegalDetail, "Улица");
+
+        addressForm.addFormItem(addressHouseLegalDetail, "Дом");
+
+        addressForm.addFormItem(addressApartmentLegalDetail, "Квартира");
+
+        if (companyDto.getId() != null && companyDto.getLegalDetailDto().getAddressDto() != null) {
+            addressIndexLegalDetail.setPlaceholder("Индекс");
+            addressIndexLegalDetail.setValue(companyDto.getLegalDetailDto().getAddressDto().getIndex());
+            addressCountryLegalDetail.setPlaceholder("Страна");
+            addressCountryLegalDetail.setValue(companyDto.getLegalDetailDto().getAddressDto().getCountry());
+            addressRegionLegalDetail.setPlaceholder("Область");
+            addressRegionLegalDetail.setValue(companyDto.getLegalDetailDto().getAddressDto().getRegion());
+            addressCityLegalDetail.setPlaceholder("Город");
+            addressCityLegalDetail.setValue(companyDto.getLegalDetailDto().getAddressDto().getCity());
+            addressStreetLegalDetail.setPlaceholder("Улица");
+            addressStreetLegalDetail.setValue(companyDto.getLegalDetailDto().getAddressDto().getStreet());
+            addressHouseLegalDetail.setPlaceholder("Номер дома");
+            addressHouseLegalDetail.setValue(companyDto.getLegalDetailDto().getAddressDto().getHouse());
+            addressApartmentLegalDetail.setPlaceholder("Номер квартиры");
+            addressApartmentLegalDetail.setValue(companyDto.getLegalDetailDto().getAddressDto().getApartment());
+        }
+        horizontalLayout.add(addressForm);
+        horizontalLayout.setVisible(false);
+        return horizontalLayout;
     }
 
     private HorizontalLayout configureCommentToAddress() {
@@ -321,8 +400,19 @@ public class CompanyModal extends Dialog {
     }
 
     private HorizontalLayout configureLegalDetailAddress() {
-        legalDetailAddress.setWidth(FIELD_WIDTH);
-        return getHorizontalLayout("Адрес", legalDetailAddress);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Юридический адрес");
+        addressLegalDetailField.setWidth("345px");
+        horizontalLayout.add(label, addressLegalDetailField, dropDownAddressButton(block));
+        horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, label);
+        return horizontalLayout;
+    }
+
+    private Button dropDownAddressButton(HorizontalLayout layout) {
+        Button button = new Button();
+        button.setIcon(new Icon(VaadinIcon.CARET_DOWN));
+        button.addClickListener(e -> layout.setVisible(!layout.isVisible()));
+        return button;
     }
 
     private HorizontalLayout configureLegalDetailCommentToAddress() {
@@ -381,5 +471,16 @@ public class CompanyModal extends Dialog {
         if (date != null) {
             field.setValue(LocalDate.parse(date));
         }
+    }
+
+    private AddressDto getAddressDto(){
+        AddressDto addressDto = new AddressDto();
+        addressDto.setCountry(addressCountry.getValue());
+        addressDto.setRegion(addressRegion.getValue());
+        addressDto.setCity(addressCity.getValue());
+        addressDto.setStreet(addressStreet.getValue());
+        addressDto.setHouse(addressHouse.getValue());
+        addressDto.setApartment(addressApartment.getValue());
+        return addressDto;
     }
 }
