@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -38,6 +39,8 @@ public class ContractorServiceImpl implements ContractorService {
         Call<List<ContractorDto>> contractorDtoListCall = contractorApi.getAll(contractorUrl);
         try {
             contractorDtoList = contractorDtoListCall.execute().body();
+            Objects.requireNonNull(contractorDtoList).forEach(contr -> contr.getLegalDetailDto().setDate(
+                    contr.getLegalDetailDto().getDateOfTheCertificate()));
             log.info("Успешно выполнен запрос на получение списка ContractorDto через getAll ");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ContractorDto: {IOException}", e);
@@ -123,20 +126,19 @@ public class ContractorServiceImpl implements ContractorService {
     }
 
     @Override
-
     public void create(ContractorDto contractorDto) {
-        Call<ContractorDto> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
+        Call<Void> contractorDtoCall = contractorApi.create(contractorUrl, contractorDto);
         try {
             contractorDtoCall.execute();
             log.info("Успешно выполнен запрос на добавление экземпляра ContractorDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ContractorDto : {IOException}", e);
+            log.error("Произошла ошибка при выполнении запроса на добавление экземпляра ContractorDto : {IOException}", e);
         }
     }
 
     @Override
     public void update(ContractorDto contractorDto) {
-        Call<ContractorDto> contractorDtoCall = contractorApi.update(contractorUrl, contractorDto);
+        Call<Void> contractorDtoCall = contractorApi.update(contractorUrl, contractorDto);
         try {
             contractorDtoCall.execute();
             log.info("Успешно выполнен запрос на изменение экземпляра ContractorDto");
@@ -147,22 +149,12 @@ public class ContractorServiceImpl implements ContractorService {
 
     @Override
     public void deleteById(Long id) {
-        Call<ContractorDto> contractorDtoCall = contractorApi.deleteById(contractorUrl, id);
-        contractorDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<ContractorDto> call, Response<ContractorDto> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на удаление экземпляра ContractorDto с id= {}", id);
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ContractorDto с id= {} - {}",
-                            id, response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ContractorDto> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра ContractorDto", throwable);
-            }
-        });
+        Call<Void> contractorDtoCall = contractorApi.deleteById(contractorUrl, id);
+        try {
+            contractorDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра ContractorDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ContractorDto : {IOException}", e);
+        }
     }
 }

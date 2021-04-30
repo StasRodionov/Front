@@ -20,6 +20,8 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -172,6 +174,13 @@ public class GridFilter<T> extends HorizontalLayout {
      * @return filter data
      */
     public Map<String, String> getFilterData() {
+        String datetime = filterData.get("date");
+        if(datetime != null) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+                filterData.put("date", LocalDate.parse(datetime).atTime(0,0,0,0).format(formatter));
+            } catch (Exception ignored) {}
+        }
         return filterData;
     }
 
