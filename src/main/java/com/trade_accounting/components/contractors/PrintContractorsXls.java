@@ -32,7 +32,7 @@ public class PrintContractorsXls extends PrintExcelDocument<ContractorDto> {
                 editCell.setCellValue(model.getName());
                 break;
             case ("<inn>"):
-                editCell.setCellValue(model.getInn());
+                editCell.setCellValue(model.getLegalDetailDto().getInn());
                 break;
             case ("<sortNumber>"):
                 editCell.setCellValue(model.getSortNumber());

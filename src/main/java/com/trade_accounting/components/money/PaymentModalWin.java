@@ -27,52 +27,42 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.ValueContext;
-import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @SpringComponent
 @UIScope
 @Slf4j
-
 public class PaymentModalWin extends Dialog {
     private final PaymentService paymentService;
-    private final CompanyService companyService;
-    private final ContractorService contractorService;
-    private final ProjectService projectService;
-    private final ContractService contractService;
-    private final DateTimePicker dateField = new DateTimePicker();
-    private final ComboBox <String> typeofPaymentBox = new ComboBox<>();
-    private final ComboBox <CompanyDto> companyDtoComboBox = new ComboBox<>();
-    private final ComboBox <ContractorDto> contractorDtoComboBox = new ComboBox<>();
-    private final ComboBox <ContractDto> contractDtoComboBox = new ComboBox<>();
-    private final ComboBox <ProjectDto> projectDtoComboBox = new ComboBox<>();
-    private final TextField payNumber = new TextField();
-    private final BigDecimalField sum = new BigDecimalField();
-
     private final Notifications notifications;
 
-    @Autowired
+    private final DateTimePicker dateField = new DateTimePicker();
+    private final ComboBox<String> typeofPaymentBox = new ComboBox<>();
+    private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
+    private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
+    private final ComboBox<ProjectDto> projectDtoComboBox = new ComboBox<>();
+    private final TextField payNumber = new TextField();
+    private final BigDecimalField sum = new BigDecimalField();
+    private PaymentDto paymentDto;
 
-    public PaymentModalWin(PaymentService paymentService,
-                           CompanyService companyService,
-                           ContractorService contractorService,
-                           ProjectService projectService,
-                           ContractService contractService, Notifications notifications) {
+    //    @Autowired
+    public PaymentModalWin(
+            PaymentService paymentService,
+            CompanyService companyService,
+            ContractorService contractorService,
+            ProjectService projectService,
+            ContractService contractService,
+            Notifications notifications
+    ) {
         this.paymentService = paymentService;
-        this.companyService = companyService;
-        this.contractorService = contractorService;
-        this.projectService = projectService;
-        this.contractService = contractService;
         this.notifications = notifications;
-
-
-        typeofPaymentBox.setItems("Входящий","Исходящий");
+        typeofPaymentBox.setItems("Входящий", "Исходящий");
         companyDtoComboBox.setItems(companyService.getAll());
         companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
         contractDtoComboBox.setItems(contractService.getAll());
@@ -80,7 +70,7 @@ public class PaymentModalWin extends Dialog {
         contractorDtoComboBox.setItems(contractorService.getAll());
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
         projectDtoComboBox.setItems(projectService.getAll());
-        projectDtoComboBox.setItemLabelGenerator(ProjectDto:: getName);
+        projectDtoComboBox.setItemLabelGenerator(ProjectDto::getName);
         payNumber.setPattern("\\d*");
         payNumber.setErrorMessage("только арабские цифры");
         sum.setPlaceholder("введите число меньше 10^17");
@@ -97,8 +87,8 @@ public class PaymentModalWin extends Dialog {
         add(getHorizontalLayout("Проект", projectDtoComboBox));
         add(getHorizontalLayout("Сумма", sum));
         add(getFooter());
-
     }
+
     private Component getHeader() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         H2 title = new H2("Добавление платежа");
@@ -108,6 +98,7 @@ public class PaymentModalWin extends Dialog {
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
         return horizontalLayout;
     }
+
     private <T extends Component & HasSize> HorizontalLayout getHorizontalLayout(String labelText, T field) {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label(labelText);
@@ -117,6 +108,7 @@ public class PaymentModalWin extends Dialog {
         horizontalLayout.add(label, field);
         return horizontalLayout;
     }
+
     private PaymentDto updatePaymentDto() {
         PaymentDto paymentDto = new PaymentDto();
         paymentDto.setTime(dateField.getValue().toString());
@@ -126,18 +118,19 @@ public class PaymentModalWin extends Dialog {
         paymentDto.setProjectDto(projectDtoComboBox.getValue());
         paymentDto.setNumber(payNumber.getValue());
         paymentDto.setSum(sum.getValue());
-
+        if (this.paymentDto != null && this.paymentDto.getId() != null) {
+            paymentDto.setId(this.paymentDto.getId());
+        }
         if (typeofPaymentBox.getValue().equals("Входящий")) {
             paymentDto.setTypeOfPayment("INCOMING");
-
-        }
-        else {
+        } else {
             paymentDto.setTypeOfPayment("OUTGOING");
         }
         System.out.println(typeofPaymentBox.getValue());
         System.out.println(paymentDto.getTypeOfPayment());
         return paymentDto;
     }
+
     private void reset() {
         dateField.clear();
         companyDtoComboBox.clear();
@@ -148,22 +141,28 @@ public class PaymentModalWin extends Dialog {
         typeofPaymentBox.clear();
         sum.clear();
     }
+
     private Button getSaveButton() {
-        return new Button("Сохранить", new Icon(VaadinIcon.PLUS_CIRCLE), event ->{
-            if (sum.getValue().compareTo(BigDecimal.valueOf(9999999999999999L))<0) {
-                paymentService.create(updatePaymentDto());
+        return new Button("Сохранить", new Icon(VaadinIcon.PLUS_CIRCLE), event -> {
+            if (sum.getValue().compareTo(BigDecimal.valueOf(9999999999999999L)) < 0) {
+                PaymentDto paymentDto = updatePaymentDto();
+                if (paymentDto.getId() == null) {
+                    paymentService.create(paymentDto);
+                } else {
+                    paymentService.update(paymentDto);
+                }
                 reset();
                 UI.getCurrent().navigate("money");
                 close();
-            }
-            else {
+            } else {
                 sum.clear();
                 notifications.errorNotification("Ошибка сохранения. Число в поле \"Сумма\" превышает допустимый диапазон");
             }
-           });
+        });
     }
+
     private Button getCancelButton() {
-        return new Button("Отмена",new Icon(VaadinIcon.CLOSE), event ->{
+        return new Button("Отмена", new Icon(VaadinIcon.CLOSE), event -> {
             reset();
             close();
         });
@@ -185,4 +184,15 @@ public class PaymentModalWin extends Dialog {
         return footer;
     }
 
+    public void setPaymentDataForEdit(PaymentDto editPaymentDto) {
+        this.paymentDto = editPaymentDto;
+        companyDtoComboBox.setValue(paymentDto.getCompanyDto());
+        typeofPaymentBox.setValue(paymentDto.getTypeOfPayment());
+        contractDtoComboBox.setValue(paymentDto.getContractDto());
+        contractorDtoComboBox.setValue(paymentDto.getContractorDto());
+        projectDtoComboBox.setValue(paymentDto.getProjectDto());
+        payNumber.setValue(paymentDto.getNumber());
+        sum.setValue(paymentDto.getSum());
+        dateField.setValue(LocalDateTime.now());
+    }
 }
