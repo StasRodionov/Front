@@ -6,7 +6,7 @@ import com.trade_accounting.models.dto.ProductGroupDto;
 import java.util.List;
 import java.util.Map;
 
-public interface ProductService {
+public interface ProductService extends PageableService<ProductDto>{
 
     List<ProductDto> getAll();
 

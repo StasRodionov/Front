@@ -4,6 +4,7 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.LazyPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
@@ -52,13 +53,11 @@ public class GoodsView extends VerticalLayout {
 
     private final ProductService productService;
     private final ProductGroupService productGroupService;
-
     private final GoodsModalWindow goodsModalWindow;
-
     private final TreeGrid<ProductGroupDto> treeGrid;
-    private final GridPaginator<ProductDto> paginator;
     private final GridFilter<ProductDto> filter;
-
+    private final LazyPaginator<ProductDto> lazyPaginator;
+    private final Grid<ProductDto> grid;
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
@@ -69,24 +68,16 @@ public class GoodsView extends VerticalLayout {
 
 
         treeGrid = getTreeGrid();
-        Grid<ProductDto> grid = getGrid();
-        paginator = getPaginator(grid);
-        this.filter = new GridFilter<>(grid);
-        configureFilter();
-        goodsModalWindow.addDetachListener(detachEvent -> {
-            Optional<ProductGroupDto> optional = treeGrid.getSelectedItems().stream().findFirst();
-            if (optional.isPresent()) {
-                paginator.setData(productService.getAllByProductGroup(optional.get()), true);
-            } else {
-                paginator.setData(productService.getAll(), true);
-            }
-        });
+        this.grid = getGrid();
 
-        add(getUpperLayout(),  filter, getMiddleLayout(grid), paginator);
+        this.filter = new GridFilter<>(grid);
+        this.lazyPaginator = new LazyPaginator<>(grid, productService, 50, filter);
+        setHorizontalComponentAlignment(Alignment.CENTER, lazyPaginator);
+        add(getUpperLayout(),  filter, getMiddleLayout(grid), lazyPaginator);
     }
 
     public void updateData() {
-        paginator.setData(productService.getAll());
+        lazyPaginator.updateData(false);
         updateTreeGrid(productGroupService.getAll());
     }
 
@@ -147,12 +138,6 @@ public class GoodsView extends VerticalLayout {
         return grid;
     }
 
-    private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.onSearchClick(e -> paginator.setData(productService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(productService.getAll()));
-    }
-
     private TreeGrid<ProductGroupDto> getTreeGrid() {
         TreeGrid<ProductGroupDto> treeGridLocal = new TreeGrid<>();
         treeGridLocal.setHeight("100%");
@@ -182,7 +167,7 @@ public class GoodsView extends VerticalLayout {
         closeButton.addClickListener(event -> {
             closeButton.setVisible(false);
             label.setText("");
-            paginator.setData(productService.getAll());
+            lazyPaginator.updateData(false);
             treeGridLocal.deselectAll();
         });
         cell.setComponent(horizontalLayout);
@@ -190,7 +175,7 @@ public class GoodsView extends VerticalLayout {
         treeGridLocal.addSelectionListener(event -> {
             Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
-                paginator.setData(productService.getAllByProductGroup(optional.get()));
+                lazyPaginator.updateData(false);
                 label.setText(optional.get().getName());
                 closeButton.setVisible(true);
             }
@@ -278,7 +263,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     private void updateList(TextField text) {
-        paginator.setData(productService.search(text.getValue()));
+        lazyPaginator.updateData(false);
     }
 
     private H2 title() {

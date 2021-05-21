@@ -1,5 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
+import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.models.dto.PageDto;
 import com.trade_accounting.models.dto.ProductDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -24,6 +26,14 @@ public interface ProductApi {
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
     Call <ProductDto> getById(@Path(value = "url", encoded = true) String url, @Path(value="id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/pages")
+    Call<PageDto<ProductDto>> getPage(@Path(value = "url", encoded = true) String url,
+                                       @QueryMap Map<String, String> query,
+                                       @QueryMap Map<String, String> sortParams,
+                                       @Query("pageNumber") Integer pageNumber,
+                                       @Query("rowsLimit") Integer rowsLimit);
 
     @Headers("Accept: application/json")
     @POST("{url}")
