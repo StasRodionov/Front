@@ -30,7 +30,7 @@ public class CompanyDto {
 
    // private String address;
 
-    @EqualsAndHashCode
+    @EqualsAndHashCode.Exclude
     private AddressDto addressDto; //внести изменения в классы, использующие CompanyDto
 
 
