@@ -28,7 +28,11 @@ public class CompanyDto {
 
     private Boolean payerVat;
 
-    private String address;
+   // private String address;
+
+    @EqualsAndHashCode
+    private AddressDto addressDto; //внести изменения в классы, использующие CompanyDto
+
 
     private String commentToAddress;
 

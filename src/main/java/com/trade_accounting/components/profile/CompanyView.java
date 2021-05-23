@@ -106,6 +106,7 @@ public class CompanyView extends VerticalLayout {
         grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
     }
 
+
     private void reloadGrid() {
         paginator.setData(companyService.getAll());
     }

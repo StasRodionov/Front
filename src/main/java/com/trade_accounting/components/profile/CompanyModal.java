@@ -229,6 +229,7 @@ public class CompanyModal extends Dialog {
         return accordion;
     }
 
+
     private HorizontalLayout configureName() {
         name.setWidth(FIELD_WIDTH);
         return getHorizontalLayout("Наименование", name);
