@@ -71,7 +71,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final Notifications notifications;
     private final EmployeeService employeeService;
 
-    private List<InvoiceDto> invoices;
+    private final List<InvoiceDto> data;
 
     private final String typeOfInvoice = "EXPENSE";
 
@@ -86,30 +86,26 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     public PurchasesSubSuppliersOrders(InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                        @Lazy Notifications notifications, EmployeeService employeeService) {
-        this.invoiceService = invoiceService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
-        this.notifications = notifications;
         this.employeeService = employeeService;
-        loadInvoices();
-        configureActions();
+        this.invoiceService = invoiceService;
+        this.notifications = notifications;
+        this.data = getData();
+        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
-        configurePaginator();
         this.filter = new GridFilter<>(grid);
         configureFilter();
-        add(actions, filter, grid, paginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(configureActions(), filter, grid, paginator);
     }
 
-    private List<InvoiceDto> loadInvoices() {
-        invoices = invoiceService.getAll(typeOfInvoice);
-        return invoices;
-    }
 
-    private void configureActions() {
-        actions = new HorizontalLayout();
-        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
+    private HorizontalLayout configureActions() {
+        HorizontalLayout upper = new HorizontalLayout();
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
-
-        actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        return upper;
     }
 
     private Grid<InvoiceDto> configureGrid() {
@@ -143,11 +139,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         return grid;
     }
 
-    private void configurePaginator() {
-        paginator = new GridPaginator<>(grid, invoices, 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+    private List<InvoiceDto> getData() {
+        return invoiceService.getAll(typeOfInvoice);
     }
-
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
@@ -225,7 +219,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
         select.setValue("Изменить");
         select.setWidth("130px");
         select.addValueChangeListener(event -> {
@@ -233,7 +230,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
                 deleteSelectedInvoices();
                 grid.deselectAll();
                 select.setValue("Изменить");
-                paginator.setData(loadInvoices());
+                paginator.setData(getData());
             }
         });
         return select;
@@ -315,7 +312,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         for (InvoiceDto inc: list1) {
             sumList.add(getTotalPrice(inc));
         }
-        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), loadInvoices(), sumList, employeeService);
+        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
     }
 
@@ -376,7 +373,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         return String.format("%.2f", totalPrice);
     }
     private void deleteSelectedInvoices() {
-        if (grid.getSelectedItems().isEmpty()) {
+        if (!grid.getSelectedItems().isEmpty()) {
             for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
                 invoiceService.deleteById(invoiceDto.getId());
                 notifications.infoNotification("Выбранные заказы успешно удалены");
