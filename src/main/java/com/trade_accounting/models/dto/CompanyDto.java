@@ -53,4 +53,5 @@ public class CompanyDto {
 
     @EqualsAndHashCode.Exclude
     private List<BankAccountDto> bankAccountDto;
+
 }

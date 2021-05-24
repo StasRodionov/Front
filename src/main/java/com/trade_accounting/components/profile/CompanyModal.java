@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
@@ -134,7 +135,7 @@ public class CompanyModal extends Dialog {
             typeOfContractorDto.setName(typeOfContractorName.getValue());
             typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
 
-            LegalDetailDto legalDetailDto = new LegalDetailDto();
+            LegalDetailDto legalDetailDto = new LegalDetailDto(); //также сделать для адреса
             legalDetailDto.setId(legalDetailId);
             legalDetailDto.setLastName(legalDetailLastName.getValue());
             legalDetailDto.setFirstName(legalDetailFirstName.getValue());
@@ -153,7 +154,14 @@ public class CompanyModal extends Dialog {
             companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
-            companyDto.setAddress(address.getValue());
+           // companyDto.setAddress(address.getValue());
+            AddressDto addressDto = new AddressDto();
+            addressDto.setId();
+            addressDto.setIndex();
+            addressDto.setCity();
+            addressDto.setStreet();
+            addressDto.setHouse();
+
             companyDto.setCommentToAddress(commentToAddress.getValue());
             companyDto.setEmail(email.getValue());
             companyDto.setPhone(phone.getValue());
