@@ -62,7 +62,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         this.data = getData();
 
         configureActions();
-        configureGrid();
+//        configureGrid();
         configurePaginator();
 
         add(actions, grid, paginator);
