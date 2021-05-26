@@ -1,13 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.BankAccountDto;
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.ContractorGroupDto;
-import com.trade_accounting.models.dto.LegalDetailDto;
-import com.trade_accounting.models.dto.TypeOfContractorDto;
-import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.api.ContractApi;
 import lombok.extern.slf4j.Slf4j;

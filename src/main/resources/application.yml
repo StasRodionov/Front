@@ -54,4 +54,6 @@ project_url: api/project
 payment_url: api/payment
 
 retail_stores_url: api/retail_stores
+
+status_url: api/status
 #debug: true
