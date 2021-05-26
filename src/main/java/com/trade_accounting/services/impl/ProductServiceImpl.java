@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.PageDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductService;
@@ -124,6 +125,21 @@ public class ProductServiceImpl implements ProductService {
             log.info("Успешно выполнен запрос ФИЛЬТРА на поиск и получение списка ProductDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка ProductDto - ", e);
+        }
+        return productDtoList;
+    }
+
+    @Override
+    public PageDto<ProductDto> getPage(Map<String, String> filterParams, Map<String, String> sortParams, int page, int count) {
+        PageDto<ProductDto> productDtoList = new PageDto<>();
+
+        Call<PageDto<ProductDto>> productDtoListCall = productApi.getPage(productUrl, sortParams, filterParams, page, count);
+
+        try {
+            productDtoList = productDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка ProductDto по фильтру");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ProductDto - ", e);
         }
         return productDtoList;
     }
