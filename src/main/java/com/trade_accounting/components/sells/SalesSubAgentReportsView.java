@@ -7,10 +7,12 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -20,10 +22,14 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 
 @Slf4j
@@ -68,20 +74,25 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid = new Grid<>(InvoiceDto.class);
-        grid.setItems(data);
-        grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
-
-        grid.getColumnByKey("id").setHeader("id");
-        grid.getColumnByKey("date").setHeader("Дата");
-        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
-        grid.getColumnByKey("company").setHeader("Компания");
-        grid.getColumnByKey("contractor").setHeader("Контрагент");
-        grid.getColumnByKey("spend").setHeader("Проведена");
+        grid = new Grid<>(InvoiceDto.class, false);
+        grid.addColumn("id").setHeader("id").setId("id");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
+                .setKey("date").setId("Дата");
+        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Счет-фактура")
+                .setKey("typeOfInvoiceDTO").setId("Счет-фактура");
+        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания")
+                .setKey("companyDto").setId("Компания");
+        grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент")
+                .setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
+                .setId("Проведена");
         grid.setHeight("66vh");
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+
+
         grid.addItemDoubleClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
@@ -90,12 +101,24 @@ public class SalesSubAgentReportsView extends VerticalLayout {
             addModalWin.open();
         });
     }
-
+    private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
+        if (invoiceDto.isSpend()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
+    }
     private void configurePaginator() {
         paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
+    private static String formatDate(String date) {
+        return LocalDateTime.parse(date)
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+    }
     private Button buttonQuestion(){
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
