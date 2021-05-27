@@ -29,6 +29,8 @@ public class ProductDto {
 
     private Boolean archive = false;
 
+    private Boolean service = false;
+
     private ContractorDto contractorDto;
 
     private List<ProductPriceDto> productPriceDtos;
