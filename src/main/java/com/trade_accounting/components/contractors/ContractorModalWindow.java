@@ -754,7 +754,8 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
-        List<ContactDto> newContactDtoList = new ArrayList<>();
+        List<ContactDto> newContactDtoList = new ArrayList<>();//слетает здесь. Все данные адреса перемещаются в поле another
+
         if (contractorDto.getId() != null) {
             Long addressId = contractorDto.getAddressDto().getId();
             contractorDto.setAddressDto(AddressDto.builder()
