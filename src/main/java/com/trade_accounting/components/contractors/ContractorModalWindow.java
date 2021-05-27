@@ -750,11 +750,11 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setEmail(emailField.getValue());
         contractorDto.setAddressDto(AddressDto.builder()
                 .another(addressField.getValue())
-                .build());
-        contractorDto.setCommentToAddress(commentToAddressField.getValue());
+                .build());// слетает после выполнения этой части кода. AddressDto, передаваемое в качестве аргумента, вначале в порядке
+        contractorDto.setCommentToAddress(commentToAddressField.getValue());//здесь интересующие поля уже null. все данные перемещаются в поле another
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
-        List<ContactDto> newContactDtoList = new ArrayList<>();//слетает здесь. Все данные адреса перемещаются в поле another
+        List<ContactDto> newContactDtoList = new ArrayList<>();
 
         if (contractorDto.getId() != null) {
             Long addressId = contractorDto.getAddressDto().getId();
