@@ -24,7 +24,6 @@ public class ContractorDto {
     private String commentToAddress;
     private String comment;
     private String discountCardNumber;
-    private Boolean generalAccess;
 
     @EqualsAndHashCode.Exclude
     private List<ContactDto> contactDto;
@@ -37,9 +36,7 @@ public class ContractorDto {
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;
     @EqualsAndHashCode.Exclude
-    private StatusDto statusDto;
+    private ContractorStatusDto contractorStatusDto;
     @EqualsAndHashCode.Exclude
-    private EmployeeDto employeeDto;
-    @EqualsAndHashCode.Exclude
-    private DepartmentDto departmentDto;
+    private AccessParametersDto accessParametersDto;
 }
