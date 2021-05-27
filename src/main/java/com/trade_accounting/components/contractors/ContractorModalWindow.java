@@ -743,7 +743,7 @@ public class ContractorModalWindow extends Dialog {
         return legalDetailDto;
     }
 
-    private void saveFields(ContractorDto contractorDto) {
+    private void saveFields(ContractorDto contractorDto) {// продебажить здесь поля region, sity, street
         contractorDto.setName(nameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
