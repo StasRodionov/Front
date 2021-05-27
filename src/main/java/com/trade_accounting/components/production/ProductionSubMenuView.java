@@ -1,6 +1,7 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -8,6 +9,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "production", layout = AppView.class)
 @PageTitle("Производство")
@@ -15,11 +17,13 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
 
     private final Div div;
 
-
-    ProductionSubMenuView() {
+    @Autowired
+    public ProductionSubMenuView() {
         div = new Div();
         add(configurationSubMenu(), div);
     }
+
+
 
     private Tabs configurationSubMenu() {
 

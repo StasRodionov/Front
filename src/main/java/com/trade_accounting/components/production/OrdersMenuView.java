@@ -2,7 +2,8 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,6 +22,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @SpringComponent
 @UIScope
@@ -28,14 +33,15 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @Route(value = "orders", layout = AppView.class)
 public class OrdersMenuView  extends VerticalLayout {
 
-    private final GridFilter<ContractorDto> filter;  // пока не понял зачем добавил это!
-    private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
+    private final Grid<ProductDto> grid = new Grid<>(ProductDto.class, false);
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-    public OrdersMenuView() {
-        this.filter = new GridFilter<>(grid);
-        add(getTollBar());
+
+    OrdersMenuView() {
+        add(getTollBar(), grid);
+        configureGrid();
+        setSizeFull();
     }
 
     private HorizontalLayout getTollBar() {
@@ -71,7 +77,7 @@ public class OrdersMenuView  extends VerticalLayout {
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+//        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
@@ -127,7 +133,26 @@ public class OrdersMenuView  extends VerticalLayout {
         return textOrder;
     }
 
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
+    }
+
     private void configureGrid() {
+//        grid.setSizeFull();
+//        grid.setColumns("id", "name", "volume","contractorDto","description");
+//        grid.addColumn("id").setHeader("№").setId("№");
+//        grid.addColumn("date").setHeader("Время").setId("Время");
+//        grid.addColumn("companyDto").setHeader("Организация").setId("Организация");
+//        grid.addColumn("technologicalMap").setHeader("Технологическая карта").setId("Технологическая карта");
+//        grid.addColumn("valueProduction").setHeader("Объем производства").setId("Объем производства");
+//        grid.addColumn("produced").setHeader("Произведено").setId("Произведено");
+//        grid.addColumn("plannedProductionDate").setHeader("План. дата производства")
+//                .setId("План. дата производства");
+//        grid.addColumn("shipped").setHeader("Отправлено").setId("Отправлено");
+//        grid.addColumn("printed").setHeader("Напечатано").setId("Напечатано");
+//        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
     }
 }
