@@ -748,9 +748,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-        contractorDto.setAddressDto(AddressDto.builder()
-                .another(addressField.getValue())
-                .build());// слетает после выполнения этой части кода. AddressDto, передаваемое в качестве аргумента, вначале в порядке
+        contractorDto.setAddressDto(AddressDto.builder().another(addressField.getValue()).build());// слетает после выполнения этой части кода. AddressDto, передаваемое в качестве аргумента, вначале в порядке
         contractorDto.setCommentToAddress(commentToAddressField.getValue());//здесь интересующие поля уже null. все данные перемещаются в поле another
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
