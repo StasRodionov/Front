@@ -10,36 +10,51 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "production", layout = AppView.class)
 @PageTitle("Производство")
 public class ProductionSubMenuView extends Div implements AfterNavigationObserver {
-    ProductionSubMenuView() {
-        add(configurationSubMenu());
+    private final Div div;
+
+    @Autowired
+    public ProductionSubMenuView() {
+        div = new Div();
+        add(configurationSubMenu(), div);
     }
 
+
     private Tabs configurationSubMenu() {
-        Tab cardsLayout = new Tab("Тех. карты");
-        Tab ordersLayout = new Tab("Заказы на производство");
-        Tab operationsLayout = new Tab("Тех. операции");
 
-
-        return new Tabs(
-                cardsLayout,
-                ordersLayout,
-                operationsLayout
+        Tabs tabs = new Tabs(
+                new Tab("Тех. карты"),
+                new Tab("Заказы на производство"),
+                new Tab("Тех. операции")
         );
+        tabs.addSelectedChangeListener(event -> {
+            String name = event.getSelectedTab().getLabel();
+
+            switch (name) {
+                case "Тех. карты":
+                    div.removeAll();
+                    div.add(new FlowchartsViewTab());
+                    break;
+                case "Заказы на производство":
+                    div.removeAll();
+                    break;
+                case "Тех. операции":
+                    div.removeAll();
+                    break;
+            }
+        });
+        return tabs;
 
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
-        appView.getChildren().forEach(e -> {
-            if (e.getClass() == Tabs.class) {
-                ((Tabs) e).setSelectedIndex(7);
-            }
-        });
+        div.removeAll();
+        div.add(new FlowchartsViewTab());
     }
 }
 
