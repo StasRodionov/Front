@@ -13,7 +13,7 @@ public class AccessParametersDto {
 
     private Boolean generalAccess;
 
-    private EmployeeDto employeeDto;
+    private Long employeeId;
 
-    private DepartmentDto departmentDto;
+    private Long departmentId;
 }
