@@ -31,22 +31,21 @@ import java.time.format.DateTimeFormatter;
 @UIScope
 @PageTitle("Заказы на производство")
 @Route(value = "orders", layout = AppView.class)
-public class OrdersMenuView  extends VerticalLayout {
+public class OrdersMenuView extends VerticalLayout {
 
-    private final Grid<ProductDto> grid = new Grid<>(ProductDto.class, false);
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
 
     OrdersMenuView() {
-        add(getTollBar(), grid);
+        add(getTollBar());
         configureGrid();
         setSizeFull();
     }
 
     private HorizontalLayout getTollBar() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(buttonQuestion(),getTextOrder(),buttonRefresh(), buttonUnit(),
+        horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(),
                 buttonFilter(), text(), numberField(), valueSelect(), valueStatus(),
                 valuePrint(), buttonSettings(), selectXlsTemplateButton);
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -67,17 +66,16 @@ public class OrdersMenuView  extends VerticalLayout {
     }
 
     private void updateList() {
-        // update here
+
     }
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return  buttonUnit;
+        return buttonUnit;
     }
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
-//        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
@@ -87,7 +85,6 @@ public class OrdersMenuView  extends VerticalLayout {
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-//        textField.addValueChangeListener(e -> updateListTextField());     // здесь надо метод поиска реализовать!
         setSizeFull();
         return textField;
     }
@@ -127,32 +124,15 @@ public class OrdersMenuView  extends VerticalLayout {
         return print;
     }
 
-    private H2 getTextOrder () {
+    private H2 getTextOrder() {
         final H2 textOrder = new H2("Заказы на производство");
         textOrder.setHeight("2.2em");
         return textOrder;
     }
 
-    private String formatDate(String stringDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
-        return formatDateTime.format(formatter);
-    }
 
     private void configureGrid() {
-//        grid.setSizeFull();
-//        grid.setColumns("id", "name", "volume","contractorDto","description");
-//        grid.addColumn("id").setHeader("№").setId("№");
-//        grid.addColumn("date").setHeader("Время").setId("Время");
-//        grid.addColumn("companyDto").setHeader("Организация").setId("Организация");
-//        grid.addColumn("technologicalMap").setHeader("Технологическая карта").setId("Технологическая карта");
-//        grid.addColumn("valueProduction").setHeader("Объем производства").setId("Объем производства");
-//        grid.addColumn("produced").setHeader("Произведено").setId("Произведено");
-//        grid.addColumn("plannedProductionDate").setHeader("План. дата производства")
-//                .setId("План. дата производства");
-//        grid.addColumn("shipped").setHeader("Отправлено").setId("Отправлено");
-//        grid.addColumn("printed").setHeader("Напечатано").setId("Напечатано");
-//        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+
 
     }
 }

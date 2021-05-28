@@ -24,7 +24,6 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     }
 
 
-
     private Tabs configurationSubMenu() {
 
         Tabs tabs = new Tabs(
@@ -50,31 +49,12 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
         });
         return tabs;
 
-
-//        Tab cardsLayout = new Tab("Тех. карты");
-//        Tab ordersLayout = new Tab("Тех. карты");
-//        Tab operationsLayout = new Tab("Тех. операции");
-//
-//
-//        return new Tabs(
-//                cardsLayout,
-//                ordersLayout,
-//                operationsLayout
-//        );
-
-
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
         div.add(new OrdersMenuView());
-//        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
-//        appView.getChildren().forEach(e -> {
-//            if (e.getClass() == Tabs.class) {
-//                ((Tabs) e).setSelectedIndex(7);
-//            }
-//        });
     }
 }
 
