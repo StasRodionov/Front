@@ -78,8 +78,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         grid.addColumn("id").setHeader("id").setId("id");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Счет-фактура")
-                .setKey("typeOfInvoiceDTO").setId("Счет-фактура");
+        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
         grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания")
                 .setKey("companyDto").setId("Компания");
         grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент")

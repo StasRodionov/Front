@@ -40,13 +40,13 @@ public class AppView extends AppLayout {
         money.addClickListener(e -> money.getUI().ifPresent(ui -> ui.navigate("money")));
 
         VerticalLayout retail = new VerticalLayout(VaadinIcon.SHOP.create(), new Label("Розница"));
-        retail.addClickListener(e -> retail.getUI().ifPresent(ui -> ui.navigate("retail")));
+        retail.addClickListener(e -> retail.getUI().ifPresent(ui -> ui.navigate("tasks")));
 
         VerticalLayout production = new VerticalLayout(VaadinIcon.FACTORY.create(), new Label("Производство"));
         production.addClickListener(e -> production.getUI().ifPresent(ui -> ui.navigate("production")));
 
         VerticalLayout tasks = new VerticalLayout(VaadinIcon.CHECK_SQUARE_O.create(), new Label("Задачи"));
-        tasks.addClickListener(e -> tasks.getUI().ifPresent(ui -> ui.navigate("tasks")));
+        tasks.addClickListener(e -> tasks.getUI().ifPresent(ui -> ui.navigate("retail")));
 
         VerticalLayout applications = new VerticalLayout(VaadinIcon.COGS.create(), new Label("Приложения"));
         applications.addClickListener(e -> applications.getUI().ifPresent(ui -> ui.navigate("")));
