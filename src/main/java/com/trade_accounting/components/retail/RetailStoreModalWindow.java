@@ -100,7 +100,6 @@ public class RetailStoreModalWindow extends Dialog {
     private Component addOrganization() {
         Label label = new Label("Организация");
         label.setWidth(labelWidth);
-        organization.setItems(companyService.getAll());
         organization.setItemLabelGenerator(CompanyDto :: getName);
         retailStoreDtoBinder.forField(organization).
                 withValidator(Objects::nonNull, "Поле должно быть заполнено", ErrorLevel.ERROR)

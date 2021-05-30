@@ -48,7 +48,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService, contractService, notifications, paymentModalWin));
+        div.add(new MoneySubPaymentsView(paymentService, companyService,
+                contractorService, projectService, contractService, notifications, paymentModalWin));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
