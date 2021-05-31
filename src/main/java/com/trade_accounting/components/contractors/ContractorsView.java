@@ -7,7 +7,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.StatusService;
+import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.html.Div;
@@ -34,7 +34,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     private final TypeOfContractorService typeOfContractorService;
     private final TypeOfPriceService typeOfPriceService;
     private final LegalDetailService legalDetailService;
-    private final StatusService statusService;
+    private final ContractorStatusService contractorStatusService;
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
     private final BankAccountService bankAccountService;
@@ -46,7 +46,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                            TypeOfContractorService typeOfContractorService,
                            TypeOfPriceService typeOfPriceService,
                            LegalDetailService legalDetailService,
-                           StatusService statusService,
+                           ContractorStatusService contractorStatusService,
                            DepartmentService departmentService,
                            EmployeeService employeeService,
                            BankAccountService bankAccountService,
@@ -57,7 +57,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
         this.typeOfPriceService = typeOfPriceService;
         this.legalDetailService = legalDetailService;
         this.contractsView = contractsView;
-        this.statusService = statusService;
+        this.contractorStatusService = contractorStatusService;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
@@ -80,7 +80,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                         typeOfContractorService,
                         typeOfPriceService,
                         legalDetailService,
-                        statusService,
+                        contractorStatusService,
                         departmentService,
                         employeeService,
                         bankAccountService));
@@ -99,7 +99,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                 case "Контрагенты":
                     div.removeAll();
                     div.add(new ContractorsTabView(contractorService,contractorGroupService,
-                            typeOfContractorService, typeOfPriceService, legalDetailService, statusService,
+                            typeOfContractorService, typeOfPriceService, legalDetailService, contractorStatusService,
                             departmentService, employeeService, bankAccountService));
                     break;
                 case "Договоры":
