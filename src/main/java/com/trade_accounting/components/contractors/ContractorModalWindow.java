@@ -1,21 +1,31 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.ValidTextField;
+import com.trade_accounting.models.dto.AccessParametersDto;
 import com.trade_accounting.models.dto.AddressDto;
+import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.ContractorStatusDto;
+import com.trade_accounting.models.dto.DepartmentDto;
+import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
+import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.DepartmentService;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
@@ -56,6 +66,8 @@ public class ContractorModalWindow extends Dialog {
     private final TextArea addressField = new TextArea();
     private final TextArea commentToAddressField = new TextArea();
     private final TextArea commentField = new TextArea();
+    private final TextField discountCardField = new TextField();
+    private final Checkbox generalAccess = new Checkbox();
 
     private final ComboBox<ContractorGroupDto> contractorGroupDtoSelect = new ComboBox<>();
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoSelect = new ComboBox<>();
@@ -63,8 +75,14 @@ public class ContractorModalWindow extends Dialog {
     private final ComboBox<LegalDetailDto> legalDetailDtoSelect = new ComboBox<>();
     private final Map<Long, List<TextField>> existContactTextFields = new HashMap<>();
     private final List<List<TextField>> newContactTextFields = new ArrayList<>();
+    private final Map<Long, List<TextField>> existBankAccountTextFields = new HashMap<>();
+    private final List<List<TextField>> newBankAccountTextFields = new ArrayList<>();
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
     private final Binder<LegalDetailDto> legalDetailDtoBinder = new Binder<>(LegalDetailDto.class);
+    private final Binder<BankAccountDto> bankAccountDtoBinder = new Binder<>(BankAccountDto.class);
+    private final ComboBox<ContractorStatusDto> statusDtoSelect = new ComboBox<>();
+    private final ComboBox<DepartmentDto> departmentDtoSelect = new ComboBox<>();
+    private final ComboBox<EmployeeDto> employeeDtoSelect = new ComboBox<>();
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "400px";
@@ -75,11 +93,19 @@ public class ContractorModalWindow extends Dialog {
     private final TypeOfContractorService typeOfContractorService;
     private final TypeOfPriceService typeOfPriceService;
     private final LegalDetailService legalDetailService;
+    private final ContractorStatusService contractorStatusService;
+    private final DepartmentService departmentService;
+    private final EmployeeService employeeService;
+    private final BankAccountService bankAccountService;
+
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
     private final Binder<ContactDto> contactDtoBinder = new Binder<>(ContactDto.class);
     private List<TypeOfContractorDto> typeOfContractorDtoList;
+    private List<ContractorStatusDto> statusDtoList;
+    private List<DepartmentDto> departmentDtoList;
+    private List<EmployeeDto> employeeDtoList;
     private final TextField lastNameLegalDetailField = new TextField(); //"Фамилия"
     private final TextField firstNameLegalDetailField = new TextField(); //"Имя"
     private final TextField middleNameLegalDetailField = new TextField(); //"Отчество"
@@ -128,13 +154,21 @@ public class ContractorModalWindow extends Dialog {
                                  ContractorGroupService contractorGroupService,
                                  TypeOfContractorService typeOfContractorService,
                                  TypeOfPriceService typeOfPriceService,
-                                 LegalDetailService legalDetailService) {
+                                 LegalDetailService legalDetailService,
+                                 ContractorStatusService contractorStatusService,
+                                 DepartmentService departmentService,
+                                 EmployeeService employeeService,
+                                 BankAccountService bankAccountService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
         this.typeOfContractorService = typeOfContractorService;
         this.typeOfPriceService = typeOfPriceService;
         this.legalDetailService = legalDetailService;
         this.contractorDto = contractorDto;
+        this.contractorStatusService = contractorStatusService;
+        this.departmentService = departmentService;
+        this.employeeService = employeeService;
+        this.bankAccountService = bankAccountService;
         legalDetailDto = contractorDto.getLegalDetailDto();
 
         setCloseOnOutsideClick(true);
@@ -217,6 +251,7 @@ public class ContractorModalWindow extends Dialog {
         componentFormContractDto.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentFormContractDto.setOpened(true);
         componentFormContractDto.addContent(
+                contractorStatusSelect(),
                 contractorGroupSelect(),
                 configurePhoneField(),
                 configureFaxField(),
@@ -236,18 +271,22 @@ public class ContractorModalWindow extends Dialog {
         Details componentDetails = new Details("Реквизиты", new Text(" "));
         componentDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentDetails.addContent(legalDetailSelect());
+        componentDetails.addContent(bankAccountSelect());
         componentDetails.setOpened(true);
         add(componentDetails);
 
         Details componentLayoutTypeOfPrice = new Details("Скидки и цены", new Text(" "));
         componentLayoutTypeOfPrice.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         componentLayoutTypeOfPrice.addContent(typeOfPriceSelect());
+        componentLayoutTypeOfPrice.addContent(configureDiscountCardField());
         componentLayoutTypeOfPrice.setOpened(true);
         add(componentLayoutTypeOfPrice);
 
-        Details componentAccesses = new Details("Доступ", new Text(" Добавить компоненты."));
+        Details componentAccesses = new Details("Доступ", new Text(" "));
         componentAccesses.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-        //"Expandable Details",new Text("Toggle using mouse, Enter and Space keys."));
+        componentAccesses.addContent(employeeSelect());
+        componentAccesses.addContent(departmentSelect());
+        componentAccesses.addContent(generalAccessCheckbox());
         add(componentAccesses);
 
         componentAll.addContent(componentFormContractDto, componentContactFaces,
@@ -331,6 +370,92 @@ public class ContractorModalWindow extends Dialog {
         addContactButton.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
 
         return addContactButton;
+
+    }
+
+    private VerticalLayout bankAccountSelect() {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.add(getAddBankAccountButton(verticalLayout));
+        if (contractorDto.getId() != null) {
+            List<BankAccountDto> bankAccountDtos = contractorService
+                    .getById(contractorDto.getId()).getBankAccountDto();
+            if (bankAccountDtos != null) {
+                bankAccountDtos.forEach(bankAccountDto -> showBankAccount(bankAccountDto, verticalLayout));
+            }
+        }
+
+        return verticalLayout;
+    }
+
+    private void showBankAccount(BankAccountDto bankAccount, VerticalLayout verticalLayout) {
+        FormLayout bankAccountForm = new FormLayout();
+        Style addressFormStyle = bankAccountForm.getStyle();
+        addressFormStyle.set("width", "385px");
+        TextField bankAccountBIK = new TextField();
+        TextField bankAccountBank = new TextField();
+        TextField bankAccountAddress = new TextField();
+        TextField bankAccountCorrespondentAccount = new TextField();
+        TextField bankAccountAccount = new TextField();
+
+        bankAccountForm.addFormItem(bankAccountBIK, "БИК");
+        bankAccountDtoBinder.forField(bankAccountBIK).asRequired("Обязательное поле").bind(BankAccountDto::getRcbic, BankAccountDto::setRcbic);
+
+        bankAccountForm.addFormItem(bankAccountBank, "Банк");
+        bankAccountDtoBinder.forField(bankAccountBank).asRequired("Обязательное поле").bind(BankAccountDto::getBank, BankAccountDto::setBank);
+
+        bankAccountForm.addFormItem(bankAccountAddress, "Адрес");
+        bankAccountDtoBinder.forField(bankAccountAddress).asRequired("Обязательное поле").bind(BankAccountDto::getAddress, BankAccountDto::setAddress);
+
+        bankAccountForm.addFormItem(bankAccountCorrespondentAccount, "Корр. счет");
+        bankAccountDtoBinder.forField(bankAccountCorrespondentAccount).asRequired("Обязательное поле").bind(BankAccountDto::getCorrespondentAccount, BankAccountDto::setCorrespondentAccount);
+
+        bankAccountForm.addFormItem(bankAccountAccount, "Рассчётный счет");
+        bankAccountDtoBinder.forField(bankAccountAccount).asRequired("Обязательное поле").bind(BankAccountDto::getAccount, BankAccountDto::setAccount);
+
+        bankAccountBIK.setPlaceholder("БИК");
+        bankAccountBIK.setValue(bankAccount.getRcbic());
+        bankAccountBIK.setRequired(true);
+        bankAccountBIK.setRequiredIndicatorVisible(true);
+
+        bankAccountBank.setPlaceholder("Банк");
+        bankAccountBank.setValue(bankAccount.getBank());
+        bankAccountBank.setRequired(true);
+        bankAccountBank.setRequiredIndicatorVisible(true);
+
+        bankAccountAddress.setPlaceholder("Адрес");
+        bankAccountAddress.setValue(bankAccount.getAddress());
+        bankAccountAddress.setRequired(true);
+        bankAccountAddress.setRequiredIndicatorVisible(true);
+
+        bankAccountCorrespondentAccount.setPlaceholder("Корр. счёт");
+        bankAccountCorrespondentAccount.setValue(bankAccount.getCorrespondentAccount());
+        bankAccountCorrespondentAccount.setRequired(true);
+        bankAccountCorrespondentAccount.setRequiredIndicatorVisible(true);
+
+        bankAccountAccount.setPlaceholder("Рассчётный счёт");
+        bankAccountAccount.setValue(bankAccount.getAccount());
+        bankAccountAccount.setRequired(true);
+        bankAccountAccount.setRequiredIndicatorVisible(true);
+
+        if (bankAccount.getId() == null) {
+            newBankAccountTextFields.add(List.of(bankAccountBIK, bankAccountBank, bankAccountAddress, bankAccountCorrespondentAccount, bankAccountAccount));
+        } else {
+            existBankAccountTextFields.put(bankAccount.getId(), List.of(bankAccountBIK, bankAccountBank, bankAccountAddress, bankAccountCorrespondentAccount, bankAccountAccount));
+        }
+
+        verticalLayout.addComponentAtIndex(1, bankAccountForm);
+
+    }
+
+    private Button getAddBankAccountButton(VerticalLayout verticalLayout) {
+        BankAccountDto newBankAccountDto = BankAccountDto.builder().rcbic("").bank("").address("")
+                .correspondentAccount("").account("").build();
+        Button addBankAccountButton = new Button("Рассчётный счёт", event -> {
+            showBankAccount(newBankAccountDto, verticalLayout);
+        });
+        addBankAccountButton.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
+
+        return addBankAccountButton;
 
     }
 
@@ -545,6 +670,79 @@ public class ContractorModalWindow extends Dialog {
 
     }
 
+    //Получени select-ора "Статус" в поле "О контрагенте"
+    private HorizontalLayout contractorStatusSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        statusDtoList = contractorStatusService.getAll();
+        if (statusDtoList != null) {
+            List<ContractorStatusDto> list = statusDtoList;
+            statusDtoSelect.setItems(list);
+        }
+        statusDtoSelect.setItemLabelGenerator(ContractorStatusDto::getName);
+        statusDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(statusDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorStatusDto");
+        Label label = new Label("Статус");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, statusDtoSelect);
+        return horizontalLayout;
+    }
+
+    //Получени select-ора "Отдел" в поле "Доступ"
+    private HorizontalLayout departmentSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        departmentDtoList = departmentService.getAll();
+        if (departmentDtoList != null) {
+            List<DepartmentDto> list = departmentDtoList;
+            departmentDtoSelect.setItems(list);
+        }
+        departmentDtoSelect.setItemLabelGenerator(DepartmentDto::getName);
+        departmentDtoSelect.setWidth(FIELD_WIDTH);
+        Label label = new Label("Отдел");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, departmentDtoSelect);
+        return horizontalLayout;
+    }
+
+    //Получени select-ора "Сотрудник" в поле "Доступ"
+    private HorizontalLayout employeeSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        employeeDtoList = employeeService.getAll();
+        if (employeeDtoList != null) {
+            List<EmployeeDto> list = employeeDtoList;
+            employeeDtoSelect.setItems(list);
+        }
+        employeeDtoSelect.setItemLabelGenerator(EmployeeDto::getFirstName);
+        employeeDtoSelect.setWidth(FIELD_WIDTH);
+        Label label = new Label("Сотрудник");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, employeeDtoSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout statusSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<ContractorGroupDto> contractorGroupDtoList = contractorGroupService.getAll();
+
+        if (contractorGroupDtoList != null) {
+            contractorGroupDtoSelect.setItems(contractorGroupDtoList);
+        }
+        contractorGroupDtoSelect.setItemLabelGenerator(ContractorGroupDto::getName);
+        contractorGroupDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(contractorGroupDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorGroupDto");
+        Label label = new Label("Группы");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, contractorGroupDtoSelect);
+        return horizontalLayout;
+
+    }
+
     private HorizontalLayout typeOfPriceSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
@@ -683,6 +881,26 @@ public class ContractorModalWindow extends Dialog {
         return horizontalLayout;
     }
 
+    private HorizontalLayout generalAccessCheckbox() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Общий доступ");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, generalAccess);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout configureDiscountCardField() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Номер диск. карты");
+        label.setWidth(LABEL_WIDTH);
+        discountCardField.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(discountCardField)
+                .asRequired("Не заполнено!")
+                .bind("discountCardNumber");
+        horizontalLayout.add(label, discountCardField);
+        return horizontalLayout;
+    }
+
     private Button getSaveButton() {
         if (nameField.isEmpty()) {
             legalDetailDto = new LegalDetailDto();
@@ -752,8 +970,14 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setCommentToAddress(commentToAddressField.getValue());//здесь интересующие поля уже null. все данные перемещаются в поле another
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
-        List<ContactDto> newContactDtoList = new ArrayList<>();
+        contractorDto.setDiscountCardNumber(discountCardField.getValue());
+        contractorDto.setContractorStatusDto(statusDtoSelect.getValue());
+        contractorDto.setAccessParametersDto(AccessParametersDto.builder()
+                .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
+        .employeeId(employeeDtoSelect.getValue().getId()).build());
 
+        List<ContactDto> newContactDtoList = new ArrayList<>();
+        List<BankAccountDto> newBankAccountDtoList = new ArrayList<>();
         if (contractorDto.getId() != null) {
             Long addressId = contractorDto.getAddressDto().getId();
             contractorDto.setAddressDto(AddressDto.builder()
@@ -790,6 +1014,28 @@ public class ContractorModalWindow extends Dialog {
             });
             contractorDto.setContactDto(newContactDtoList);
 
+            contractorDto.getBankAccountDto().forEach(bankAccount -> {
+                Long bankAccountId = bankAccount.getId();
+
+                newBankAccountDtoList.add(BankAccountDto.builder().id(bankAccountId)
+                        .rcbic(existBankAccountTextFields.get(bankAccountId).get(0).getValue())
+                        .bank(existBankAccountTextFields.get(bankAccountId).get(1).getValue())
+                        .address(existBankAccountTextFields.get(bankAccountId).get(2).getValue())
+                        .correspondentAccount(existBankAccountTextFields.get(bankAccountId).get(3).getValue())
+                        .account(existBankAccountTextFields.get(bankAccountId).get(4).getValue())
+                        .build());
+            });
+            newBankAccountTextFields.forEach(bankAccount -> {
+                newBankAccountDtoList.add(BankAccountDto.builder()
+                        .rcbic(bankAccount.get(0).getValue())
+                        .bank(bankAccount.get(1).getValue())
+                        .address(bankAccount.get(2).getValue())
+                        .correspondentAccount(bankAccount.get(3).getValue())
+                        .account(bankAccount.get(4).getValue())
+                        .build());
+            });
+            contractorDto.setBankAccountDto(newBankAccountDtoList);
+
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.getTypeOfPriceDto().setId(typeOfPriceDtoSelect.getValue().getId());
         } else {
@@ -812,6 +1058,17 @@ public class ContractorModalWindow extends Dialog {
                         .build());
             });
             contractorDto.setContactDto(newContactDtoList);
+
+            newBankAccountTextFields.forEach(bankAccount -> {
+                newBankAccountDtoList.add(BankAccountDto.builder()
+                        .rcbic(bankAccount.get(0).getValue())
+                        .bank(bankAccount.get(1).getValue())
+                        .address(bankAccount.get(2).getValue())
+                        .correspondentAccount(bankAccount.get(3).getValue())
+                        .account(bankAccount.get(4).getValue())
+                        .build());
+            });
+            contractorDto.setBankAccountDto(newBankAccountDtoList);
 
             contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
