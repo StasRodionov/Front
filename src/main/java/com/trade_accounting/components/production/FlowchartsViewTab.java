@@ -5,6 +5,7 @@ import com.trade_accounting.components.AppView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -29,13 +30,13 @@ public class FlowchartsViewTab extends VerticalLayout {
 
     public FlowchartsViewTab() {
         setSizeFull();
-        add(getToolBar());
+        add(getToolBar(), getLabelFlowcharts());
         setHorizontalComponentAlignment(Alignment.CENTER);
     }
 
     private HorizontalLayout getToolBar() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(buttonQuestion(),title(),buttonRefresh(),buttonPlusFlowcharts(), buttonPlusGroup(),
+        horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonPlusFlowcharts(), buttonPlusGroup(),
                 buttonFilter(), text(), bigDecimalField(), valueSelect());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
@@ -98,6 +99,15 @@ public class FlowchartsViewTab extends VerticalLayout {
         return valueSelect;
     }
 
+    private VerticalLayout getLabelFlowcharts() {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        Label label = new Label("Тех. карты");
+        label.setWidth("300px");
+        label.setHeight("30px");
+        label.getElement().getStyle().set("background-color", "#e4f1fa");
+        verticalLayout.add(label);
+        return verticalLayout;
+    }
 
 
 }
