@@ -83,13 +83,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-//        grid.addItemDoubleClickListener(event -> {
-//            InvoiceDto editInvoice = event.getItem();
-//            SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
-//                    invoiceService, contractorService, companyService);
-//            addModalWin.addDetachListener(e -> updateList());
-//            addModalWin.open();
-//        });
+       
     }
 
     private void configurePaginator() {
@@ -111,10 +105,6 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Отгрузка", new Icon(VaadinIcon.PLUS_CIRCLE));
-//        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
-//                contractorService, companyService);
-//        addModalWin.addDetachListener(event -> updateList());
-//        buttonUnit.addClickListener(event -> addModalWin.open());
         return buttonUnit;
     }
 

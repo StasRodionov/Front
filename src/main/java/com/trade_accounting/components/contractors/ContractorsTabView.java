@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -41,7 +42,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -57,6 +62,7 @@ import java.util.stream.Collectors;
 @Route(value = "contractorsTabView", layout = AppView.class)
 @PageTitle("Контрагенты")
 public class ContractorsTabView extends VerticalLayout {
+
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
@@ -75,6 +81,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
+
 
     public ContractorsTabView(ContractorService contractorService,
                               ContractorGroupService contractorGroupService,
@@ -105,6 +112,8 @@ public class ContractorsTabView extends VerticalLayout {
         configureSelectXlsTemplateButton();
 //        updateList();
     }
+
+
 
     private void configureGrid() {
         grid.addColumn("id").setHeader("ID").setId("ID");
@@ -251,7 +260,7 @@ public class ContractorsTabView extends VerticalLayout {
     private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog) {
         upload.addFinishedListener(event -> {
             if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
-                getErrorNotification("Файл с таки именем уже существует");
+                getErrorNotification("Файл с таким именем уже существует");
             } else {
                 File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
                 try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {

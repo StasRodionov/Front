@@ -961,15 +961,13 @@ public class ContractorModalWindow extends Dialog {
         return legalDetailDto;
     }
 
-    private void saveFields(ContractorDto contractorDto) {
+    private void saveFields(ContractorDto contractorDto) {// продебажить здесь поля region, sity, street
         contractorDto.setName(nameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-        contractorDto.setAddressDto(AddressDto.builder()
-                .another(addressField.getValue())
-                .build());
-        contractorDto.setCommentToAddress(commentToAddressField.getValue());
+        contractorDto.setAddressDto(AddressDto.builder().another(addressField.getValue()).build());// слетает после выполнения этой части кода. AddressDto, передаваемое в качестве аргумента, вначале в порядке
+        contractorDto.setCommentToAddress(commentToAddressField.getValue());//здесь интересующие поля уже null. все данные перемещаются в поле another
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
         contractorDto.setDiscountCardNumber(discountCardField.getValue());
@@ -1040,7 +1038,6 @@ public class ContractorModalWindow extends Dialog {
 
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.getTypeOfPriceDto().setId(typeOfPriceDtoSelect.getValue().getId());
-
         } else {
             contractorDto.setAddressDto(AddressDto.builder()
                     .index(physicalAddressBlock.getIndex())
@@ -1076,7 +1073,6 @@ public class ContractorModalWindow extends Dialog {
             contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
             contractorDto.setTypeOfPriceDto(typeOfPriceDtoSelect.getValue());
-
         }
     }
 

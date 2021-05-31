@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Service
 @Slf4j
-public class ContractServiceImpl implements ContractService {
+public class ContractServiceImpl implements ContractService  {
     private final ContractApi contractApi;
     private final String contractUrl;
 
@@ -60,6 +60,19 @@ public class ContractServiceImpl implements ContractService {
             }
         });
 */
+        return contractDtoList;
+    }
+
+    @Override  // добавил
+    public List<ContractDto> getAll(String searchContr) {
+        List<ContractDto> contractDtoList = new ArrayList<>();
+        Call<List<ContractDto>> contractDtoListCall = contractApi.getAll(contractUrl, searchContr);
+        try {
+            contractDtoList = contractDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка ContractDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка ContractDto: {IOException}", e);
+        }
         return contractDtoList;
     }
 
@@ -121,7 +134,7 @@ public class ContractServiceImpl implements ContractService {
         Call<Void> contractDtoCall = contractApi.create(contractUrl, contractDto);
 
         try {
-            contractDtoCall.execute().body();
+            contractDtoCall.execute();
             log.info("Успешно выполнен запрос на создание нового экземпляра {}", contractDto);
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}", contractDto, e);
