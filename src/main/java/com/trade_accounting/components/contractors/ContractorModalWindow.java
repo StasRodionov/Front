@@ -743,8 +743,8 @@ public class ContractorModalWindow extends Dialog {
         return legalDetailDto;
     }
 
-    private void saveFields(ContractorDto contractorDto) { // при редактировании запись перемещается в конец списка.
-        contractorDto.setName(nameField.getValue());//но сортировка по id должна быть сохранена. Это получается каждый раз id пересчитывать?
+    private void saveFields(ContractorDto contractorDto) { // при редактировании запись перемещается в конец списка. так быть не должно.
+        contractorDto.setName(nameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());

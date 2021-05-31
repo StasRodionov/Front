@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Route(value = "contractorsTabView", layout = AppView.class)
 @PageTitle("Контрагенты")
-public class ContractorsTabView extends VerticalLayout {
+public class ContractorsTabView extends VerticalLayout {//найти здесь коллекцию, куда он кладёт контрагентов
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
@@ -114,7 +114,7 @@ public class ContractorsTabView extends VerticalLayout {
             ContractorModalWindow addContractorModalWindowUpdate =
                     new ContractorModalWindow(editContractorDto,
                             contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
-            addContractorModalWindowUpdate.addDetachListener(e -> updateList());
+            addContractorModalWindowUpdate.addDetachListener(e -> updateList());//возможно проблема здесь
             addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
             addContractorModalWindowUpdate.open();
         });
@@ -214,7 +214,7 @@ public class ContractorsTabView extends VerticalLayout {
         return valueSelect;
     }
 
-    private void updateList() {
+    private void updateList() { //а что если тут организовать проверку?
         GridPaginator<ContractorDto> paginatorUpdateList
                 = new GridPaginator<>(grid, contractorService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
