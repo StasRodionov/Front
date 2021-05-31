@@ -114,7 +114,7 @@ public class ContractorsTabView extends VerticalLayout {//найти здесь 
             ContractorModalWindow addContractorModalWindowUpdate =
                     new ContractorModalWindow(editContractorDto,
                             contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
-          //  addContractorModalWindowUpdate.addDetachListener(e -> updateList());//если убираем эту строку, то в конец не улетает при нажатии.
+            addContractorModalWindowUpdate.addDetachListener(e -> updateList());//если убираем эту строку, то в конец не улетает при нажатии.
             addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);//Но и не сохраняется
             addContractorModalWindowUpdate.open();
         });
@@ -214,11 +214,11 @@ public class ContractorsTabView extends VerticalLayout {//найти здесь 
         return valueSelect;
     }
 
-    private void updateList() { //а что если тут организовать проверку?
+    private void updateList() { 
         GridPaginator<ContractorDto> paginatorUpdateList
                 = new GridPaginator<>(grid, contractorService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
-        removeAll();
+        removeAll();//без этих 2 методов не работает
         add(upperLayout(), grid, paginator);
     }
 
