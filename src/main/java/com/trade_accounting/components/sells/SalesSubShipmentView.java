@@ -56,7 +56,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         this.data = getData();
 
         configureActions();
-//        configureGrid();
+        configureGrid();
         configurePaginator();
 
         add(actions, grid, paginator);
@@ -69,22 +69,22 @@ public class SalesSubShipmentView extends VerticalLayout {
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
     }
 
-//    private void configureGrid() {
-//        grid = new Grid<>(InvoiceDto.class);
-//        grid.setItems(data);
-//
-//        grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
-//        grid.getColumnByKey("id").setHeader("id");
-//        grid.getColumnByKey("date").setHeader("Дата");
-//        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
-//        grid.getColumnByKey("company").setHeader("Компания");
-//        grid.getColumnByKey("contractor").setHeader("Контрагент");
-//        grid.getColumnByKey("spend").setHeader("Проведена");
-//        grid.setHeight("66vh");
-//        grid.setColumnReorderingAllowed(true);
-//        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-//
-//    }
+    private void configureGrid() {
+        grid = new Grid<>(InvoiceDto.class);
+        grid.setItems(data);
+
+        grid.setColumns("id", "date", "typeOfInvoice", "company", "contractor", "spend");
+        grid.getColumnByKey("id").setHeader("id");
+        grid.getColumnByKey("date").setHeader("Дата");
+        grid.getColumnByKey("typeOfInvoice").setHeader("Счет-фактура");
+        grid.getColumnByKey("company").setHeader("Компания");
+        grid.getColumnByKey("contractor").setHeader("Контрагент");
+        grid.getColumnByKey("spend").setHeader("Проведена");
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+       
+    }
 
     private void configurePaginator() {
         paginator = new GridPaginator<>(grid, data, 100);
@@ -105,10 +105,6 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Отгрузка", new Icon(VaadinIcon.PLUS_CIRCLE));
-//        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
-//                contractorService, companyService);
-//        addModalWin.addDetachListener(event -> updateList());
-//        buttonUnit.addClickListener(event -> addModalWin.open());
         return buttonUnit;
     }
 
