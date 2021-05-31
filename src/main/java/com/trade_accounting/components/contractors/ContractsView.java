@@ -4,14 +4,11 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
-import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,17 +19,19 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
 
+@Slf4j
 @SpringComponent
 @UIScope
 @Route(value = "contracts", layout = AppView.class)
@@ -44,9 +43,9 @@ public class ContractsView extends VerticalLayout {
     private final ContractModalWindow contractModalWindow;
     private final GridFilter<ContractDto> filter;
     private final GridPaginator<ContractDto> paginator;
-
-
+    private final TextField textField = new TextField();
     private final Grid<ContractDto> grid;
+
 
     @Autowired
     ContractsView(ContractService contractService,
@@ -163,12 +162,24 @@ public class ContractsView extends VerticalLayout {
         return numberField;
     }
 
+    // WHERE!!!
     private TextField getTextField() {
-        final TextField textField = new TextField();
         textField.setPlaceholder("Наименование или код");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setClearButtonVisible(true);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateTextField());
+        setSizeFull();
         return textField;
+    }
+
+    public void updateTextField() {
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(contractService.getAll(textField.getValue()));
+        } else {
+            grid.setItems(contractService.getAll("null"));
+        }
     }
 
     private Button getButtonFilter() {

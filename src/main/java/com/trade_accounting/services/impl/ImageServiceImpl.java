@@ -3,20 +3,16 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.api.ImageApi;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -37,7 +33,7 @@ public class ImageServiceImpl implements ImageService {
         Call<List<ImageDto>> imageDtoListCall = imageApi.getAll(imageUrl);
 
         try {
-            imageDtoList.addAll(imageDtoListCall.execute().body());
+            imageDtoList.addAll(Objects.requireNonNull(imageDtoListCall.execute().body()));
             log.info("Успешно выполнен запрос на получение списка ImageDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка ImageDto: {}", e);

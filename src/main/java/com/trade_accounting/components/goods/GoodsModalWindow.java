@@ -304,7 +304,7 @@ public class GoodsModalWindow extends Dialog {
         MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
         Upload upload = new Upload(memoryBuffer);
 
-        upload.addSucceededListener(event -> {
+        upload.addFinishedListener(event -> {
             try {
                 ImageDto imageDto = new ImageDto();
                 final String fileName = event.getFileName();
@@ -326,27 +326,6 @@ public class GoodsModalWindow extends Dialog {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setWidth("500px");
         layout.getStyle().set("overflow", "auto");
-
-        dialog.addOpenedChangeListener(dialogEvent -> {
-            if(dialogEvent.isOpened()) {
-                imageService.getAll().forEach(imageDto -> {
-                    if (!imageDtoList.contains(imageDto)) {
-                        StreamResource resource = new StreamResource("image",
-                                () -> new ByteArrayInputStream(imageDto.getContent()));
-                        Image image = new Image(resource, "image");
-                        image.setHeight("200px");
-                        image.addClickListener(event -> {
-                            imageDtoList.add(imageDto);
-                            imageHorizontalLayout.add(image);
-                            dialog.close();
-                        });
-                        layout.add(image);
-                    }
-                });
-            }
-        });
-
-        dialog.add(layout);
         dialog.add(upload);
         imageButton.addClickListener(x -> dialog.open());
         return imageButton;

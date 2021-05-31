@@ -5,8 +5,10 @@ import com.trade_accounting.models.dto.ContractDto;
 import java.util.List;
 import java.util.Map;
 
-public interface ContractService {
+public interface ContractService  {
     List<ContractDto> getAll();
+
+    List<ContractDto> getAll(String searchContr);
 
     ContractDto getById(Long id);
 
@@ -17,4 +19,6 @@ public interface ContractService {
     void update(ContractDto contractDto);
 
     void deleteById(Long id);
+
+
 }
