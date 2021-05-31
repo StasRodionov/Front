@@ -10,7 +10,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.StatusService;
+import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.UI;
@@ -63,7 +63,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final TypeOfContractorService typeOfContractorService;
     private final TypeOfPriceService typeOfPriceService;
     private final LegalDetailService legalDetailService;
-    private final StatusService statusService;
+    private final ContractorStatusService contractorStatusService;
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
     private final BankAccountService bankAccountService;
@@ -80,7 +80,7 @@ public class ContractorsTabView extends VerticalLayout {
                               ContractorGroupService contractorGroupService,
                               TypeOfContractorService typeOfContractorService,
                               TypeOfPriceService typeOfPriceService,
-                              LegalDetailService legalDetailService, StatusService statusService,
+                              LegalDetailService legalDetailService, ContractorStatusService contractorStatusService,
                               DepartmentService departmentService, EmployeeService employeeService,
                               BankAccountService bankAccountService) {
         this.contractorService = contractorService;
@@ -88,7 +88,7 @@ public class ContractorsTabView extends VerticalLayout {
         this.typeOfContractorService = typeOfContractorService;
         this.typeOfPriceService = typeOfPriceService;
         this.legalDetailService = legalDetailService;
-        this.statusService = statusService;
+        this.contractorStatusService = contractorStatusService;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
@@ -128,7 +128,7 @@ public class ContractorsTabView extends VerticalLayout {
             ContractorModalWindow addContractorModalWindowUpdate =
                     new ContractorModalWindow(editContractorDto,
                             contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
-                            legalDetailService, statusService, departmentService, employeeService, bankAccountService);
+                            legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService);
             addContractorModalWindowUpdate.addDetachListener(e -> updateList());
             addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
             addContractorModalWindowUpdate.open();
@@ -140,7 +140,7 @@ public class ContractorsTabView extends VerticalLayout {
         ContractorModalWindow addContractorModalWindowCreate =
                 new ContractorModalWindow(new ContractorDto(),
                         contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
-                        legalDetailService, statusService, departmentService, employeeService, bankAccountService);
+                        legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService);
         buttonUnit.addClickListener(event -> addContractorModalWindowCreate.open());
         addContractorModalWindowCreate.addDetachListener(event -> updateList());
         return buttonUnit;

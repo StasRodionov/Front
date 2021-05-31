@@ -1,16 +1,17 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.ValidTextField;
+import com.trade_accounting.models.dto.AccessParametersDto;
 import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.ContractorStatusDto;
 import com.trade_accounting.models.dto.DepartmentDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
-import com.trade_accounting.models.dto.StatusDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.BankAccountService;
@@ -19,7 +20,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.StatusService;
+import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.Text;
@@ -79,7 +80,7 @@ public class ContractorModalWindow extends Dialog {
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
     private final Binder<LegalDetailDto> legalDetailDtoBinder = new Binder<>(LegalDetailDto.class);
     private final Binder<BankAccountDto> bankAccountDtoBinder = new Binder<>(BankAccountDto.class);
-    private final ComboBox<StatusDto> statusDtoSelect = new ComboBox<>();
+    private final ComboBox<ContractorStatusDto> statusDtoSelect = new ComboBox<>();
     private final ComboBox<DepartmentDto> departmentDtoSelect = new ComboBox<>();
     private final ComboBox<EmployeeDto> employeeDtoSelect = new ComboBox<>();
 
@@ -92,7 +93,7 @@ public class ContractorModalWindow extends Dialog {
     private final TypeOfContractorService typeOfContractorService;
     private final TypeOfPriceService typeOfPriceService;
     private final LegalDetailService legalDetailService;
-    private final StatusService statusService;
+    private final ContractorStatusService contractorStatusService;
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
     private final BankAccountService bankAccountService;
@@ -102,7 +103,7 @@ public class ContractorModalWindow extends Dialog {
     private LegalDetailDto legalDetailDto;
     private final Binder<ContactDto> contactDtoBinder = new Binder<>(ContactDto.class);
     private List<TypeOfContractorDto> typeOfContractorDtoList;
-    private List<StatusDto> statusDtoList;
+    private List<ContractorStatusDto> statusDtoList;
     private List<DepartmentDto> departmentDtoList;
     private List<EmployeeDto> employeeDtoList;
     private final TextField lastNameLegalDetailField = new TextField(); //"Фамилия"
@@ -154,7 +155,7 @@ public class ContractorModalWindow extends Dialog {
                                  TypeOfContractorService typeOfContractorService,
                                  TypeOfPriceService typeOfPriceService,
                                  LegalDetailService legalDetailService,
-                                 StatusService statusService,
+                                 ContractorStatusService contractorStatusService,
                                  DepartmentService departmentService,
                                  EmployeeService employeeService,
                                  BankAccountService bankAccountService) {
@@ -164,7 +165,7 @@ public class ContractorModalWindow extends Dialog {
         this.typeOfPriceService = typeOfPriceService;
         this.legalDetailService = legalDetailService;
         this.contractorDto = contractorDto;
-        this.statusService = statusService;
+        this.contractorStatusService = contractorStatusService;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
@@ -673,16 +674,16 @@ public class ContractorModalWindow extends Dialog {
     private HorizontalLayout contractorStatusSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
-        statusDtoList = statusService.getAll();
+        statusDtoList = contractorStatusService.getAll();
         if (statusDtoList != null) {
-            List<StatusDto> list = statusDtoList;
+            List<ContractorStatusDto> list = statusDtoList;
             statusDtoSelect.setItems(list);
         }
-        statusDtoSelect.setItemLabelGenerator(StatusDto::getTypeOfStatus);
+        statusDtoSelect.setItemLabelGenerator(ContractorStatusDto::getName);
         statusDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(statusDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("statusDto");
+                .bind("contractorStatusDto");
         Label label = new Label("Статус");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, statusDtoSelect);
@@ -700,9 +701,6 @@ public class ContractorModalWindow extends Dialog {
         }
         departmentDtoSelect.setItemLabelGenerator(DepartmentDto::getName);
         departmentDtoSelect.setWidth(FIELD_WIDTH);
-        contractorDtoBinder.forField(departmentDtoSelect)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("departmentDto");
         Label label = new Label("Отдел");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, departmentDtoSelect);
@@ -720,9 +718,6 @@ public class ContractorModalWindow extends Dialog {
         }
         employeeDtoSelect.setItemLabelGenerator(EmployeeDto::getFirstName);
         employeeDtoSelect.setWidth(FIELD_WIDTH);
-        contractorDtoBinder.forField(employeeDtoSelect)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("employeeDto");
         Label label = new Label("Сотрудник");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, employeeDtoSelect);
@@ -977,8 +972,11 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
-        contractorDto.setGeneralAccess(generalAccess.getValue());
         contractorDto.setDiscountCardNumber(discountCardField.getValue());
+        contractorDto.setContractorStatusDto(statusDtoSelect.getValue());
+        contractorDto.setAccessParametersDto(AccessParametersDto.builder()
+                .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
+        .employeeId(employeeDtoSelect.getValue().getId()).build());
 
         List<ContactDto> newContactDtoList = new ArrayList<>();
         List<BankAccountDto> newBankAccountDtoList = new ArrayList<>();
@@ -1042,9 +1040,7 @@ public class ContractorModalWindow extends Dialog {
 
             contractorDto.getContractorGroupDto().setId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.getTypeOfPriceDto().setId(typeOfPriceDtoSelect.getValue().getId());
-            contractorDto.getEmployeeDto().setId(employeeDtoSelect.getValue().getId());
-            contractorDto.getDepartmentDto().setId(departmentDtoSelect.getValue().getId());
-            contractorDto.getStatusDto().setId(statusDtoSelect.getValue().getId());
+
         } else {
             contractorDto.setAddressDto(AddressDto.builder()
                     .index(physicalAddressBlock.getIndex())
@@ -1080,9 +1076,7 @@ public class ContractorModalWindow extends Dialog {
             contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
             contractorDto.setTypeOfPriceDto(typeOfPriceDtoSelect.getValue());
-            contractorDto.setEmployeeDto(employeeDtoSelect.getValue());
-            contractorDto.setDepartmentDto(departmentDtoSelect.getValue());
-            contractorDto.setStatusDto(statusDtoSelect.getValue());
+
         }
     }
 
