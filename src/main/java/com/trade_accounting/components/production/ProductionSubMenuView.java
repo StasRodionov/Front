@@ -53,16 +53,8 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
-        appView.getChildren().forEach(e -> {
-            if (e.getClass() == Tabs.class) {
-                ((Tabs) e).setSelectedIndex(4);
-            }
-        });
-        getUI().ifPresent(ui -> {
-            div.removeAll();
-            div.add(new FlowchartsViewTab());
-        });
+        div.removeAll();
+        div.add(new FlowchartsViewTab());
 
     }
 }
