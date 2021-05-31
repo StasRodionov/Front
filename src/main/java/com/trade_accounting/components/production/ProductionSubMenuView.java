@@ -1,6 +1,7 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.contractors.ContractorsTabView;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -39,6 +40,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                     break;
                 case "Заказы на производство":
                     div.removeAll();
+                    div.add(new OrdersMenuView());
                     break;
                 case "Тех. операции":
                     div.removeAll();
@@ -53,6 +55,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
         div.add(new FlowchartsViewTab());
+
     }
 }
 
