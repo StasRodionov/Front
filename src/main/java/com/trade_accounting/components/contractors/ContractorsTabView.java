@@ -114,8 +114,8 @@ public class ContractorsTabView extends VerticalLayout {//найти здесь 
             ContractorModalWindow addContractorModalWindowUpdate =
                     new ContractorModalWindow(editContractorDto,
                             contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
-          //  addContractorModalWindowUpdate.addDetachListener(e -> updateList());//если убираем эту строку, то в конец не улетает при нажатии
-            addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
+          //  addContractorModalWindowUpdate.addDetachListener(e -> updateList());//если убираем эту строку, то в конец не улетает при нажатии.
+            addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);//Но и не сохраняется
             addContractorModalWindowUpdate.open();
         });
     }
