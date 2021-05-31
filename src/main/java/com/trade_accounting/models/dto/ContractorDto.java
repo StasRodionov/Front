@@ -23,6 +23,7 @@ public class ContractorDto {
 
     private String commentToAddress;
     private String comment;
+    private String discountCardNumber;
 
     @EqualsAndHashCode.Exclude
     private List<ContactDto> contactDto;
@@ -34,4 +35,8 @@ public class ContractorDto {
     private List<BankAccountDto> bankAccountDto;
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;
+    @EqualsAndHashCode.Exclude
+    private ContractorStatusDto contractorStatusDto;
+    @EqualsAndHashCode.Exclude
+    private AccessParametersDto accessParametersDto;
 }
