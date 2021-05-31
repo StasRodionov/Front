@@ -23,9 +23,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
         add(configurationSubMenu(), div);
     }
 
-
     private Tabs configurationSubMenu() {
-
         Tabs tabs = new Tabs(
                 new Tab("Тех. карты"),
                 new Tab("Заказы на производство"),
@@ -37,10 +35,10 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
             switch (name) {
                 case "Тех. карты":
                     div.removeAll();
+                    div.add(new FlowchartsViewTab());
                     break;
                 case "Заказы на производство":
                     div.removeAll();
-                    div.add(new OrdersMenuView());
                     break;
                 case "Тех. операции":
                     div.removeAll();
@@ -54,7 +52,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new OrdersMenuView());
+        div.add(new FlowchartsViewTab());
     }
 }
 
