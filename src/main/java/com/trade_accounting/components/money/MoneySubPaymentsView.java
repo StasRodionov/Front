@@ -26,9 +26,11 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+@Slf4j
 @Route(value = "MoneySubPaymentsView", layout = AppView.class)
 @PageTitle("Платежи")
 public class MoneySubPaymentsView extends VerticalLayout {
@@ -60,13 +62,13 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.contractService = contractService;
         this.notifications = notifications;
         this.paymentModalWin = paymentModalWin;
+
         getGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         this.filter = new GridFilter<>(grid);
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getToolbar(), filter, grid, paginator);
-
     }
 
     private void configureFilter() {
@@ -111,6 +113,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         });
         return grid;
     }
+
     private void updateList() {
         GridPaginator<PaymentDto> paginatorUpdateList
                 = new GridPaginator<>(grid, paymentService.getAll(), 100);
@@ -121,7 +124,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getButton(),
-                getButtonFilter(), getTextField(), getNumberField(), getSelect(), getButtonCog());
+                getButtonFilter(), getTextField(), getNumberField(), getSelect(), getPrint(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
@@ -198,4 +201,21 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return selector;
     }
 
+    private Select<String> getPrint() {
+        Select getPrint = new Select();
+        getPrint.setWidth("130px");
+        getPrint.setItems("Печать", "Список всех платежей");
+        getPrint.setValue("Печать");
+        uploadListAllPays(getPrint);
+        return getPrint;
+    }
+
+    private void uploadListAllPays(Select<String> print) {
+        PaymentPrintModal paymentPrintModal = new PaymentPrintModal(paymentService);
+        print.addValueChangeListener(x -> {
+            if (x.getValue().equals("Список всех платежей")) {
+               paymentPrintModal.open();
+            }
+        });
+    }
 }
