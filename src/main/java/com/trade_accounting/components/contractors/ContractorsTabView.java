@@ -4,9 +4,13 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.DepartmentService;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.Component;
@@ -65,6 +69,10 @@ public class ContractorsTabView extends VerticalLayout {
     private final TypeOfContractorService typeOfContractorService;
     private final TypeOfPriceService typeOfPriceService;
     private final LegalDetailService legalDetailService;
+    private final ContractorStatusService contractorStatusService;
+    private final DepartmentService departmentService;
+    private final EmployeeService employeeService;
+    private final BankAccountService bankAccountService;
     private final List<ContractorDto> data;
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
     private final GridPaginator<ContractorDto> paginator;
@@ -79,12 +87,18 @@ public class ContractorsTabView extends VerticalLayout {
                               ContractorGroupService contractorGroupService,
                               TypeOfContractorService typeOfContractorService,
                               TypeOfPriceService typeOfPriceService,
-                              LegalDetailService legalDetailService) {
+                              LegalDetailService legalDetailService, ContractorStatusService contractorStatusService,
+                              DepartmentService departmentService, EmployeeService employeeService,
+                              BankAccountService bankAccountService) {
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
         this.typeOfContractorService = typeOfContractorService;
         this.typeOfPriceService = typeOfPriceService;
         this.legalDetailService = legalDetailService;
+        this.contractorStatusService = contractorStatusService;
+        this.departmentService = departmentService;
+        this.employeeService = employeeService;
+        this.bankAccountService = bankAccountService;
         print = selectXlsTemplateButton.addItem("печать");
 
         this.data = getData();
@@ -122,7 +136,8 @@ public class ContractorsTabView extends VerticalLayout {
             ContractorDto editContractorDto = event.getItem();
             ContractorModalWindow addContractorModalWindowUpdate =
                     new ContractorModalWindow(editContractorDto,
-                            contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
+                            contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
+                            legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService);
             addContractorModalWindowUpdate.addDetachListener(e -> updateList());
             addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
             addContractorModalWindowUpdate.open();
@@ -133,7 +148,8 @@ public class ContractorsTabView extends VerticalLayout {
         Button buttonUnit = new Button("Контрагент", new Icon(VaadinIcon.PLUS_CIRCLE));
         ContractorModalWindow addContractorModalWindowCreate =
                 new ContractorModalWindow(new ContractorDto(),
-                        contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService, legalDetailService);
+                        contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
+                        legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService);
         buttonUnit.addClickListener(event -> addContractorModalWindowCreate.open());
         addContractorModalWindowCreate.addDetachListener(event -> updateList());
         return buttonUnit;

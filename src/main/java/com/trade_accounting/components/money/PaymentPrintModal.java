@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 @Slf4j
 public class PaymentPrintModal extends Dialog {
     private static final String LABEL_WIDTH = "500px";
@@ -82,7 +83,7 @@ public class PaymentPrintModal extends Dialog {
             if (x.getValue().equals("Скачать в формате Excel")) {
                 getXlsFile().forEach(i -> add(getLinkToPaymentsXls(i)));
             } else {
-                close();
+              close();
             }
         });
     }

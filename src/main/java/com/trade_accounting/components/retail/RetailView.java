@@ -11,9 +11,14 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "retail", layout = AppView.class)
 @PageTitle("Розница")
+@SpringComponent
+@UIScope
 public class RetailView extends Div implements AfterNavigationObserver {
 
     private final Div div;
@@ -21,6 +26,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
 
+    @Autowired
     public RetailView(RetailStoreService retailStoreService,
                       CompanyService companyService, EmployeeService employeeService) {
         this.retailStoreService = retailStoreService;
@@ -34,6 +40,12 @@ public class RetailView extends Div implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
         div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService));
+        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+        appView.getChildren().forEach(e -> {
+            if (e.getClass() == Tabs.class) {
+                ((Tabs) e).setSelectedIndex(7);
+            }
+        });
     }
 
     private Tabs configurationSubMenu() {
