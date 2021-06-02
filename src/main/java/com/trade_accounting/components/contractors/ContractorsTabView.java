@@ -52,14 +52,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Route(value = "contractorsTabView", layout = AppView.class)
 @PageTitle("Контрагенты")
-public class ContractorsTabView extends VerticalLayout {//найти здесь коллекцию, куда он кладёт контрагентов
+public class ContractorsTabView extends VerticalLayout {
 
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
     private final TypeOfContractorService typeOfContractorService;
     private final TypeOfPriceService typeOfPriceService;
     private final LegalDetailService legalDetailService;
-    private final List<ContractorDto> data;
+    private final List<ContractorDto> data;//данные о контрагентах здесь. Придумать, как отсортировать. 
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
     private final GridPaginator<ContractorDto> paginator;
     private final GridFilter<ContractorDto> filter;
@@ -214,7 +214,7 @@ public class ContractorsTabView extends VerticalLayout {//найти здесь 
         return valueSelect;
     }
 
-    private void updateList() { 
+    private void updateList() {
         GridPaginator<ContractorDto> paginatorUpdateList
                 = new GridPaginator<>(grid, contractorService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
