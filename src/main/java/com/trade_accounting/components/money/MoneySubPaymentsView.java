@@ -121,6 +121,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         removeAll();
         add(getToolbar(), grid, paginator);
     }
+
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getButton(),
@@ -152,11 +153,13 @@ public class MoneySubPaymentsView extends VerticalLayout {
         textField.addValueChangeListener(event -> updateList(textField.getValue()));
         return textField;
     }
+
     private void updateList(String search) {
         if (search.isEmpty()) {
             paginator.setData(paymentService.getAll());
         } else paginator.setData(paymentService.search(search));
     }
+
     private Button getButtonFilter() {
         Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
@@ -214,7 +217,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         PaymentPrintModal paymentPrintModal = new PaymentPrintModal(paymentService);
         print.addValueChangeListener(x -> {
             if (x.getValue().equals("Список всех платежей")) {
-               paymentPrintModal.open();
+                paymentPrintModal.open();
             }
         });
     }

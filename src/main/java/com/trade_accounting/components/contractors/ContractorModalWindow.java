@@ -974,7 +974,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setContractorStatusDto(statusDtoSelect.getValue());
         contractorDto.setAccessParametersDto(AccessParametersDto.builder()
                 .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
-        .employeeId(employeeDtoSelect.getValue().getId()).build());
+                .employeeId(employeeDtoSelect.getValue().getId()).build());
 
         List<ContactDto> newContactDtoList = new ArrayList<>();
         List<BankAccountDto> newBankAccountDtoList = new ArrayList<>();

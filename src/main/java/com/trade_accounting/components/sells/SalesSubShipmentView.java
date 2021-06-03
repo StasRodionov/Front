@@ -93,6 +93,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
     }
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.isSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -130,6 +131,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         Button buttonFilter = new Button("Фильтр");
         return buttonFilter;
     }
+
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));

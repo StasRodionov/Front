@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Прибыли и убытки")
 public class MoneySubProfitLossView extends VerticalLayout {
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Прибыли и убытки");
         title.setHeight("2.2em");
         return title;

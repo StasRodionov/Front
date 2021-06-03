@@ -68,23 +68,23 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
 
-            AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
-            appView.getChildren().forEach(e -> {
-                if (e.getClass() == Tabs.class) {
-                    ((Tabs) e).setSelectedIndex(4);
-                }
-            });
-            getUI().ifPresent(ui -> {
-                div.removeAll();
-                div.add(new ContractorsTabView(contractorService, contractorGroupService,
-                        typeOfContractorService,
-                        typeOfPriceService,
-                        legalDetailService,
-                        contractorStatusService,
-                        departmentService,
-                        employeeService,
-                        bankAccountService));
-            });
+        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+        appView.getChildren().forEach(e -> {
+            if (e.getClass() == Tabs.class) {
+                ((Tabs) e).setSelectedIndex(4);
+            }
+        });
+        getUI().ifPresent(ui -> {
+            div.removeAll();
+            div.add(new ContractorsTabView(contractorService, contractorGroupService,
+                    typeOfContractorService,
+                    typeOfPriceService,
+                    legalDetailService,
+                    contractorStatusService,
+                    departmentService,
+                    employeeService,
+                    bankAccountService));
+        });
     }
 
     private Tabs configurationSubMenu() {
@@ -98,7 +98,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Контрагенты":
                     div.removeAll();
-                    div.add(new ContractorsTabView(contractorService,contractorGroupService,
+                    div.add(new ContractorsTabView(contractorService, contractorGroupService,
                             typeOfContractorService, typeOfPriceService, legalDetailService, contractorStatusService,
                             departmentService, employeeService, bankAccountService));
                     break;
