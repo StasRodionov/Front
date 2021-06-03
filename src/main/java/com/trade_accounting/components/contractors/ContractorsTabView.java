@@ -21,6 +21,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -37,6 +38,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -242,6 +244,8 @@ public class ContractorsTabView extends VerticalLayout {
     private void updateList() {
         GridPaginator<ContractorDto> paginatorUpdateList
                 = new GridPaginator<>(grid, contractorService.getAll(), 100);
+        GridSortOrder<ContractorDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
+        grid.sort(Arrays.asList(order));
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
         add(upperLayout(), grid, paginator);
