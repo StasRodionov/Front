@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
@@ -149,12 +150,14 @@ public class CompanyModal extends Dialog {
                     ? legalDetailDateOfTheCertificate.getValue().toString() : null);
             legalDetailDto.setTypeOfContractorDto(typeOfContractorDto);
 
+            AddressDto addressDto = new AddressDto();
+
             CompanyDto companyDto = new CompanyDto();
             companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
           //  companyDto.setAddress(address.getValue());
-            companyDto.setAddressDto();//сюда addressDto
+            companyDto.setAddressDto(addressDto);//собрать это addressDto
             companyDto.setCommentToAddress(commentToAddress.getValue());
             companyDto.setEmail(email.getValue());
             companyDto.setPhone(phone.getValue());
