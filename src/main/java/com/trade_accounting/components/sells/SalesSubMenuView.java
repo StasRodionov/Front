@@ -29,7 +29,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
-    private  final InvoiceProductService invoiceProductService;
+    private final InvoiceProductService invoiceProductService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;

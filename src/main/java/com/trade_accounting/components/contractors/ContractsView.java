@@ -80,7 +80,6 @@ public class ContractsView extends VerticalLayout {
         grid.getColumnByKey("number").setHeader("Сортировочный номер").setId("Сортировочный номер");
 
 
-
         grid.addColumn(contractDto -> contractDto.getCompanyDto().getName())
                 .setHeader("Компания").setKey("company").setId("Компания");
         grid.addColumn(contractDto -> contractDto.getContractorDto().getName())
@@ -89,7 +88,7 @@ public class ContractsView extends VerticalLayout {
                 contractDto.getBankAccountDto().getAccount())
                 .setHeader("Банковский аккаунт").setKey("bankAccount").setId("Банковский аккаунт");
         grid.addColumn(new ComponentRenderer<>(contractDto -> {
-            if (contractDto.getArchive()){
+            if (contractDto.getArchive()) {
                 return new Icon(VaadinIcon.CHECK_CIRCLE);
             } else {
                 Icon noIcon = new Icon(VaadinIcon.CIRCLE_THIN);
@@ -114,8 +113,6 @@ public class ContractsView extends VerticalLayout {
                 grid.getColumnByKey("archive"),
                 grid.getColumnByKey("comment"),
                 grid.getColumnByKey("number"));
-
-
 
 
         grid.setHeight("66vh");
@@ -183,7 +180,7 @@ public class ContractsView extends VerticalLayout {
     }
 
     private Button getButtonFilter() {
-        Button buttonFilter =  new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }

@@ -8,6 +8,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -23,8 +24,11 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -35,6 +39,8 @@ import java.util.List;
 @Slf4j
 @Route(value = "agentReports", layout = AppView.class)
 @PageTitle("Отчеты комиссионера")
+@SpringComponent
+@UIScope
 public class SalesSubAgentReportsView extends VerticalLayout {
 
     private final InvoiceService invoiceService;
@@ -46,6 +52,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
+    private SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
     private final String typeOfInvoice = "RECEIPT";
 
@@ -66,7 +73,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         add(actions, grid, paginator);
     }
 
-    private void configureActions () {
+    private void configureActions() {
         actions = new HorizontalLayout();
         actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
@@ -92,15 +99,16 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
 
-
         grid.addItemDoubleClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
-            SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(editInvoice,
-                    invoiceService, contractorService, companyService, warehouseService);
-            addModalWin.addDetachListener(e -> updateList());
-            addModalWin.open();
+            salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
+            salesEditCreateInvoiceView.setUpdateState(true);
+            salesEditCreateInvoiceView.setType("RECEIPT");
+            salesEditCreateInvoiceView.setLocation("sells");
+            UI.getCurrent().navigate("sells/customer-order-edit");
         });
     }
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.isSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -110,6 +118,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
             return new Span("");
         }
     }
+
     private void configurePaginator() {
         paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -119,33 +128,37 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         return LocalDateTime.parse(date)
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
     }
-    private Button buttonQuestion(){
+
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private Button buttonRefresh(){
+    private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private Button buttonUnit(){
+    private Button buttonUnit() {
         Button buttonUnit = new Button("Отчет комиссионера", new Icon(VaadinIcon.PLUS_CIRCLE));
-//        SalesModalWinCustomersOrders addModalWin = new SalesModalWinCustomersOrders(new InvoiceDto(), invoiceService,
-//                contractorService, companyService);
-//        addModalWin.addDetachListener(event -> updateList());
-//        buttonUnit.addClickListener(event -> addModalWin.open());
+        buttonUnit.addClickListener(event -> {
+            salesEditCreateInvoiceView.resetView();
+            salesEditCreateInvoiceView.setUpdateState(false);
+            salesEditCreateInvoiceView.setType("RECEIPT");
+            salesEditCreateInvoiceView.setLocation("sells");
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+        });
         return buttonUnit;
     }
 
-    private Button buttonFilter(){
+    private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         return buttonFilter;
     }
 
-    private Button buttonSettings(){
+    private Button buttonSettings() {
         Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
         return buttonSettings;
     }
@@ -165,13 +178,13 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         return textField;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Отчеты комиссионера");
         title.setHeight("2.2em");
         return title;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> select = new Select<>();
         select.setItems("Изменить");
         select.setValue("Изменить");
@@ -179,7 +192,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         return select;
     }
 
-    private Select<String> valueStatus(){
+    private Select<String> valueStatus() {
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
@@ -187,7 +200,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         return status;
     }
 
-    private Select<String> valueCreate(){
+    private Select<String> valueCreate() {
         Select<String> create = new Select<>();
         create.setItems("Создать");
         create.setValue("Создать");
@@ -195,7 +208,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         return create;
     }
 
-    private Select<String> valuePrint(){
+    private Select<String> valuePrint() {
         Select<String> print = new Select<>();
         print.setItems("Печать");
         print.setValue("Печать");

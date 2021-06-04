@@ -148,7 +148,7 @@ public class ContractModalWindow extends Dialog {
         return accordion;
     }
 
-    private HorizontalLayout configureContractor(){
+    private HorizontalLayout configureContractor() {
         selectContractor.setItems(contractorService.getAll());
         selectContractor.setItemLabelGenerator(contractorDto -> contractorDto.getName());
         selectContractor.setWidth(FIELD_WIDTH);
@@ -156,7 +156,7 @@ public class ContractModalWindow extends Dialog {
         return getHorizontalLayout("Контрактор", selectContractor);
     }
 
-    private HorizontalLayout configureCompany(){
+    private HorizontalLayout configureCompany() {
         selectCompany.setItems(companyService.getAll());
         selectCompany.setItemLabelGenerator(
                 companyDto -> companyDto.getName() + ", ИНН: " + companyDto.getInn()
@@ -171,14 +171,14 @@ public class ContractModalWindow extends Dialog {
         return getHorizontalLayout("Компания", selectCompany);
     }
 
-    private HorizontalLayout configureBankAccount(){
+    private HorizontalLayout configureBankAccount() {
         selectBankAccount.setWidth(FIELD_WIDTH);
         selectBankAccount.setItemLabelGenerator(
                 bankAccountDto -> bankAccountDto.getBank() + " " + bankAccountDto.getAccount());
         return getHorizontalLayout("Банковский аккаунт", selectBankAccount);
     }
 
-    private HorizontalLayout configureLegalDetails(){
+    private HorizontalLayout configureLegalDetails() {
         selectLegalDetail.setWidth(FIELD_WIDTH);
         selectLegalDetail.setItemLabelGenerator(
                 legalDetailDto -> legalDetailDto.getLastName() + " "
@@ -258,16 +258,16 @@ public class ContractModalWindow extends Dialog {
         });
     }
 
-    public void configure(){
+    public void configure() {
         setHeader("Добавление");
     }
 
-    public void configure(ContractDto contractDto){
+    public void configure(ContractDto contractDto) {
         setHeader("Редактирование");
         setFields(contractDto);
     }
 
-    private void clearAllFields(){
+    private void clearAllFields() {
         dateField.clear();
         amountField.clear();
         archiveField.clear();
@@ -277,7 +277,7 @@ public class ContractModalWindow extends Dialog {
                 .forEach(select -> select.clear());
     }
 
-    private void setHeader(String text){
+    private void setHeader(String text) {
         H2 title = (H2) this.getChildren()
                 .filter(element -> element.getId().isPresent() && element.getId().get().equals("header"))
                 .findFirst().get()

@@ -68,11 +68,8 @@ public class GoodsModalWindow extends Dialog {
     private final ProductGroupService productGroupService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
-
     private final TextField nameTextField = new TextField();
-
     private final TextField descriptionField = new TextField();
-
     private final BigDecimalField weightNumberField = new BigDecimalField();
     private final BigDecimalField volumeNumberField = new BigDecimalField();
     private final BigDecimalField purchasePriceNumberField = new BigDecimalField();
@@ -349,7 +346,7 @@ public class GoodsModalWindow extends Dialog {
     private Button getRemoveButton(ProductDto productDto) {
         Button deleteButton = new Button("Удалить", buttonClickEvent -> {
             productService.deleteById(productDto.getId());
-            productDto.getImageDtos().forEach(el->imageService.deleteById(el.getId()));
+            productDto.getImageDtos().forEach(el -> imageService.deleteById(el.getId()));
             Notification.show(String.format("Товар %s удален", productDto.getName()));
             close();
         });
@@ -372,7 +369,7 @@ public class GoodsModalWindow extends Dialog {
         return new Button("Изменить", event -> {
             updateProductDto(productDto);
             productService.update(productDto);
-            imageDtoListForRemove.forEach(el->imageService.deleteById(el.getId()));
+            imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
 
             Notification.show(String.format("Товар %s изменен", productDto.getName()));
             close();

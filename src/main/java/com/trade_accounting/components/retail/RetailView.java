@@ -40,6 +40,12 @@ public class RetailView extends Div implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
         div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService));
+//        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+//        appView.getChildren().forEach(e -> {
+//            if (e.getClass() == Tabs.class) {
+//                ((Tabs) e).setSelectedIndex(7);
+//            }
+//        });
     }
 
     private Tabs configurationSubMenu() {

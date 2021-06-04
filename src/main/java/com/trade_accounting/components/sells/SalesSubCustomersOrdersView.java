@@ -84,7 +84,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     @Autowired
     public SalesSubCustomersOrdersView(InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
-                                       @Lazy Notifications notifications, EmployeeService employeeService) {
+                                       @Lazy Notifications notifications,
+                                       EmployeeService employeeService) {
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.employeeService = employeeService;
         this.invoiceService = invoiceService;
@@ -303,7 +304,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         String salesTemplate = file.getName();
         List<String> sumList = new ArrayList<>();
         List<InvoiceDto> list1 = invoiceService.getAll(typeOfInvoice);
-        for (InvoiceDto inc: list1) {
+        for (InvoiceDto inc : list1) {
             sumList.add(getTotalPrice(inc));
         }
         PrintSalesXls printSalesXls = new PrintSalesXls(file.getPath(), invoiceService.getAll(typeOfInvoice),
@@ -314,6 +315,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
+
     private void updateList(String text) {
         grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
