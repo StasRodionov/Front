@@ -28,7 +28,7 @@ public class CompanyDto {
 
     private Boolean payerVat;
 
-    private String address;
+   // private String address;
 
     private String commentToAddress;
 
@@ -43,6 +43,9 @@ public class CompanyDto {
     private String chiefAccountantSignature;
 
     private String stamp;
+
+    @EqualsAndHashCode.Exclude
+    private AddressDto addressDto;
 
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;

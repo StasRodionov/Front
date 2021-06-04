@@ -245,8 +245,8 @@ public class ContractorsTabView extends VerticalLayout {
         GridPaginator<ContractorDto> paginatorUpdateList
                 = new GridPaginator<>(grid, contractorService.getAll(), 100);
         GridSortOrder<ContractorDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
-        grid.sort(Arrays.asList(order));
-        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+       // grid.sort(Arrays.asList(order));
+      //  setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
         add(upperLayout(), grid, paginator);
     }
