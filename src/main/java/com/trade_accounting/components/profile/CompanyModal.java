@@ -82,7 +82,7 @@ public class CompanyModal extends Dialog {
         companyId = dto.getId();
         setField(name, dto.getName());
         setField(inn, dto.getInn());
-        setField(address, dto.getAddress());//здесь поправить адрес
+        setField(address, dto.getAddressDto().toString());//здесь поправить адрес
         setField(commentToAddress, dto.getCommentToAddress());
         setField(email, dto.getEmail());
         setField(phone, dto.getPhone());
@@ -153,7 +153,8 @@ public class CompanyModal extends Dialog {
             companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
-            companyDto.setAddress(address.getValue());
+          //  companyDto.setAddress(address.getValue());
+            companyDto.setAddressDto();//сюда addressDto
             companyDto.setCommentToAddress(commentToAddress.getValue());
             companyDto.setEmail(email.getValue());
             companyDto.setPhone(phone.getValue());
