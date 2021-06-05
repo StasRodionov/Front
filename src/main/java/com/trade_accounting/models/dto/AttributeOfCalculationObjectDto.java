@@ -11,10 +11,10 @@ import lombok.ToString;
 public class AttributeOfCalculationObjectDto {
 
     private Long id;
-    
+
     private String name;
-    
+
     private String sortNumber;
-    
+
     private Boolean isService;
 }

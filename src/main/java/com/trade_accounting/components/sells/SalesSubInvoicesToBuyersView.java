@@ -111,19 +111,19 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         filter.onClearClick(e -> paginator.setData(getData()));
     }
 
-    private Button buttonQuestion(){
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private Button buttonRefresh(){
+    private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private Button buttonUnit(){
+    private Button buttonUnit() {
         Button buttonUnit = new Button("Счет", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(event -> {
             salesEditCreateInvoiceView.resetView();
@@ -135,13 +135,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return buttonUnit;
     }
 
-    private Button buttonFilter(){
+    private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
-    private Button buttonSettings(){
+    private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
     }
 
@@ -160,13 +160,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return textField;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Счета покупателям");
         title.setHeight("2.2em");
         return title;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> select = new Select<>();
         select.setItems("Изменить");
         select.setValue("Изменить");
@@ -174,7 +174,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return select;
     }
 
-    private Select<String> valueStatus(){
+    private Select<String> valueStatus() {
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
@@ -182,7 +182,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return status;
     }
 
-    private Select<String> valueCreate(){
+    private Select<String> valueCreate() {
         Select<String> create = new Select<>();
         create.setItems("Создать");
         create.setValue("Создать");
@@ -190,7 +190,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return create;
     }
 
-    private Select<String> valuePrint(){
+    private Select<String> valuePrint() {
         Select<String> print = new Select<>();
         print.setItems("Печать");
         print.setValue("Печать");
@@ -205,8 +205,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private String getTotalPrice(Long id) {
         var totalPrice = invoiceProductService.getByInvoiceId(id).stream()
-                                    .map(ipdto -> ipdto.getPrice().multiply(ipdto.getAmount()))
-                                    .reduce(BigDecimal.valueOf(0.0), BigDecimal::add);
+                .map(ipdto -> ipdto.getPrice().multiply(ipdto.getAmount()))
+                .reduce(BigDecimal.valueOf(0.0), BigDecimal::add);
         return String.format("%.2f", totalPrice);
     }
 

@@ -17,7 +17,7 @@ import com.vaadin.flow.router.Route;
 
 @Route(value = "money", layout = AppView.class)
 @PageTitle("Деньги")
-public class MoneySubMenuView extends Div implements AfterNavigationObserver{
+public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final PaymentService paymentService;
     private final CompanyService companyService;
     private final ContractorService contractorService;
@@ -96,7 +96,6 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver{
         return tabs;
 
     }
-
 
 
 }

@@ -66,7 +66,7 @@ import java.util.WeakHashMap;
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends  VerticalLayout{
+public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -651,12 +651,14 @@ public class SalesEditCreateInvoiceView extends  VerticalLayout{
 
         dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
+
     public void setType(String type) {
         this.type = type;
-    } public void setLocation(String location) {
-        this.location = location;
     }
 
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
 
 }
