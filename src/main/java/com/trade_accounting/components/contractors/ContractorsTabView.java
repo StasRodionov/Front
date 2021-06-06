@@ -238,10 +238,8 @@ public class ContractorsTabView extends VerticalLayout {
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
         List<String> listItems = new ArrayList<>();
-//        listItems.add("Изменить");
         listItems.add("Удалить");
         valueSelect.setItems(listItems);
-//        valueSelect.setValue("Изменить");
         valueSelect.setPlaceholder("Изменить");
         valueSelect.setWidth("130px");
         valueSelect.addValueChangeListener(event -> {
