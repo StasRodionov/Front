@@ -244,7 +244,7 @@ public class ContractorsTabView extends VerticalLayout {
         valueSelect.setWidth("130px");
         valueSelect.addValueChangeListener(event -> {
             if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedInvoices();
+                deleteSelectedContractors();
                 grid.deselectAll();
                 valueSelect.setValue("Изменить");
                 paginator.setData(getData());
@@ -319,7 +319,7 @@ public class ContractorsTabView extends VerticalLayout {
         notification.open();
     }
 
-    private void deleteSelectedInvoices() {
+    private void deleteSelectedContractors() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (ContractorDto contractorDto : grid.getSelectedItems()) {
                 contractorService.deleteById(contractorDto.getId());
