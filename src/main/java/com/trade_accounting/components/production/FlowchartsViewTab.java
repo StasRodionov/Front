@@ -183,6 +183,6 @@ public class FlowchartsViewTab extends VerticalLayout {
                 = new GridPaginator<>(grid, technicalCardService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
-        add(getToolBar(), filter, getLabelFlowchartsAndTable(), paginator); //???????????????????????????????????????????
+        add(getToolBar(), filter, getLabelFlowchartsAndTable(), paginator);
     }
 }
