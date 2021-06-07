@@ -100,7 +100,7 @@ public class RetailStoreModalWindow extends Dialog {
     private Component addOrganization() {
         Label label = new Label("Организация");
         label.setWidth(labelWidth);
-        organization.setItemLabelGenerator(CompanyDto :: getName);
+        organization.setItemLabelGenerator(CompanyDto::getName);
         retailStoreDtoBinder.forField(organization).
                 withValidator(Objects::nonNull, "Поле должно быть заполнено", ErrorLevel.ERROR)
                 .bind("organizationDto");
@@ -191,7 +191,10 @@ public class RetailStoreModalWindow extends Dialog {
     }
 
     private Button getCloseButton() {
-        return new Button("Закрыть", event -> {clearAll(); close();});
+        return new Button("Закрыть", event -> {
+            clearAll();
+            close();
+        });
     }
 
     public void setRetailStoreDataEdit(RetailStoreDto retailStoreDto) {

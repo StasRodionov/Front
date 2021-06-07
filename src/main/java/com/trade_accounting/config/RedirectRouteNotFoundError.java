@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @ParentLayout(AppView.class)
 public class RedirectRouteNotFoundError extends VerticalLayout implements
-        HasErrorParameter <NotFoundException> {
+        HasErrorParameter<NotFoundException> {
 
     @Override
     public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotFoundException> parameter) {

@@ -58,6 +58,7 @@ public class GoodsView extends VerticalLayout {
     private final GridFilter<ProductDto> filter;
     private final LazyPaginator<ProductDto> lazyPaginator;
     private final Grid<ProductDto> grid;
+
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
@@ -73,7 +74,7 @@ public class GoodsView extends VerticalLayout {
         this.filter = new GridFilter<>(grid);
         this.lazyPaginator = new LazyPaginator<>(grid, productService, 50, filter);
         setHorizontalComponentAlignment(Alignment.CENTER, lazyPaginator);
-        add(getUpperLayout(),  filter, getMiddleLayout(grid), lazyPaginator);
+        add(getUpperLayout(), filter, getMiddleLayout(grid), lazyPaginator);
     }
 
     public void updateData() {
@@ -314,8 +315,8 @@ public class GoodsView extends VerticalLayout {
     }
 
     private InputStream buildXlsTable() {
-        return  new NaiveXlsTableBuilder<ProductDto>().header("Товары")
-                .metadata("Создал: " )
+        return new NaiveXlsTableBuilder<ProductDto>().header("Товары")
+                .metadata("Создал: ")
                 .columns("№", "Наименование", "Артикул", "Вес", "Объем", "Закупочная цена")
                 .mappings(
                         (product, cell) -> cell.setCellValue(product.getId()),

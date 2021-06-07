@@ -19,11 +19,14 @@ import com.vaadin.flow.spring.annotation.UIScope;
 public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
     private final GoodsView goodsView;
+    private final PostingTabView postingTabView;
 
     private final Div div = new Div();
 
-    public GoodsSubMenuView(GoodsView goodsView) {
+    public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView) {
         this.goodsView = goodsView;
+        this.postingTabView = postingTabView;
+
         add(configurationSubMenu(), div);
     }
 
@@ -37,7 +40,17 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.add(goodsView);
 
                 }));
-        Tab realisationLayout = new Tab(new Label("Оприходывания"));
+
+        HorizontalLayout postingTab = new HorizontalLayout(new Label("Оприходывания"));
+
+        postingTab.addClickListener(event ->
+                postingTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    postingTabView.updateList();
+                    div.add(postingTabView);
+                }));
+
+
         Tab chargesLayout = new Tab("Списания");
         Tab interventarizationLayout = new Tab("Инвентаризация");
         Tab insideOrdersLayout = new Tab("Внутрение заказы");
@@ -49,7 +62,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
         return new Tabs(
                 new Tab(goodsLayout),
-                realisationLayout,
+                new Tab(postingTab),
                 chargesLayout,
                 interventarizationLayout,
                 insideOrdersLayout,

@@ -1,14 +1,14 @@
 package com.trade_accounting.components.indicators;
 
 
-        import com.trade_accounting.components.AppView;
-        import com.vaadin.flow.component.html.Div;
-        import com.vaadin.flow.component.tabs.Tab;
-        import com.vaadin.flow.component.tabs.Tabs;
-        import com.vaadin.flow.router.AfterNavigationEvent;
-        import com.vaadin.flow.router.AfterNavigationObserver;
-        import com.vaadin.flow.router.PageTitle;
-        import com.vaadin.flow.router.Route;
+import com.trade_accounting.components.AppView;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 
 @Route(value = "indicators", layout = AppView.class)
 @PageTitle("Показатели")

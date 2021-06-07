@@ -76,7 +76,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
+    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/invoices_templates/";
@@ -142,6 +142,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private List<InvoiceDto> getData() {
         return invoiceService.getAll(typeOfInvoice);
     }
+
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
@@ -262,6 +263,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         print.setWidth("110px");
         return print;
     }
+
     private void uploadXlsMenuItem(Select<String> print) {
         Dialog dialog = new Dialog();
         MemoryBuffer buffer = new MemoryBuffer();
@@ -269,8 +271,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         configureUploadFinishedListener(upload, buffer, dialog, print);
         dialog.add(upload);
         print.addValueChangeListener(x -> {
-            if(print.getValue().equals("Добавить шаблон")) {dialog.open();
-                }
+            if (print.getValue().equals("Добавить шаблон")) {
+                dialog.open();
+            }
         });
     }
 
@@ -309,7 +312,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         String templateName = file.getName();
         List<String> sumList = new ArrayList<>();
         List<InvoiceDto> list1 = invoiceService.getAll(typeOfInvoice);
-        for (InvoiceDto inc: list1) {
+        for (InvoiceDto inc : list1) {
             sumList.add(getTotalPrice(inc));
         }
         PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), sumList, employeeService);
@@ -346,11 +349,13 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         return textField;
     }
+
     private String formatDate(String stringDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
         return formatDateTime.format(formatter);
     }
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.isSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -360,9 +365,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             return new Span("");
         }
     }
+
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
+
     protected String getTotalPrice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
@@ -372,6 +379,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         }
         return String.format("%.2f", totalPrice);
     }
+
     private void deleteSelectedInvoices() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
@@ -382,6 +390,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             notifications.errorNotification("Сначала отметьте галочками нужные заказы");
         }
     }
+
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         updateList();
