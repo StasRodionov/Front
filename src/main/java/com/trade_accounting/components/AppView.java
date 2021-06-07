@@ -87,7 +87,7 @@ public class AppView extends AppLayout {
                 profile
         );
 
-        Tabs tabs =  new Tabs();
+        Tabs tabs = new Tabs();
         for (VerticalLayout verticalLayout : verticalLayouts) {
             verticalLayout.getStyle().set("alignItems", "center");
             verticalLayout.setSpacing(false);

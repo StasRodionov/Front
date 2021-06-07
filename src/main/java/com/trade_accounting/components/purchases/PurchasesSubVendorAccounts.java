@@ -57,7 +57,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto .class, false);
+    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
@@ -245,11 +245,13 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         return textField;
     }
+
     private String formatDate(String stringDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
         return formatDateTime.format(formatter);
     }
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.isSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -259,9 +261,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
             return new Span("");
         }
     }
+
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
+
     private String getTotalPrice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
@@ -271,6 +275,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         }
         return String.format("%.2f", totalPrice);
     }
+
     private void deleteSelectedInvoices() {
         if (grid.getSelectedItems().isEmpty()) {
             for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
@@ -281,6 +286,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
             notifications.errorNotification("Сначала отметьте галочками нужные заказы");
         }
     }
+
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         updateList();

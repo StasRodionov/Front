@@ -138,7 +138,7 @@ public class WareHouseView extends VerticalLayout {
         return new Button(new Icon(VaadinIcon.ANGLE_RIGHT));
     }
 
-    private void  grid() {
+    private void grid() {
         grid.setItems(warehouseService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setColumns("id", "name", "sortNumber", "address", "commentToAddress", "comment");

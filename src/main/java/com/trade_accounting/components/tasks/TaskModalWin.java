@@ -42,7 +42,7 @@ public class TaskModalWin extends Dialog {
         return header;
     }
 
-    private Component getContent(){
+    private Component getContent() {
         HorizontalLayout contentField = new HorizontalLayout();
 
         TextArea taskDescriptionArea = new TextArea("Описание задачи");
@@ -70,7 +70,10 @@ public class TaskModalWin extends Dialog {
         Div div = new Div();
         Anchor contactor = new Anchor("/tasks", "контрагентом");
         Anchor document = new Anchor("/tasks", "документом");
-        div.add("Связать с : "); div.add(contactor); div.add(", "); div.add(document);
+        div.add("Связать с : ");
+        div.add(contactor);
+        div.add(", ");
+        div.add(document);
         div.getElement().getStyle().set("font-size", "14px");
 
         verticalComponents.add(statusField);

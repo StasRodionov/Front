@@ -80,11 +80,11 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         grid.getColumnByKey("name").setWidth("150px");
         grid.getColumnByKey("activityStatus").setWidth("150px");
         grid.addItemDoubleClickListener(event -> {
-                RetailStoreDto retailStore = event.getItem();
-                retailStoreModalWindow.setRetailStoreDataEdit(retailStore);
-                retailStoreModalWindow.addDetachListener(e -> updateList());
-                retailStoreModalWindow.open();
-                });
+            RetailStoreDto retailStore = event.getItem();
+            retailStoreModalWindow.setRetailStoreDataEdit(retailStore);
+            retailStoreModalWindow.addDetachListener(e -> updateList());
+            retailStoreModalWindow.open();
+        });
         GridSortOrder<RetailStoreDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);

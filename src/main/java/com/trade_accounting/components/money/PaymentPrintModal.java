@@ -70,12 +70,12 @@ public class PaymentPrintModal extends Dialog {
                 .collect(Collectors.toList());
     }
 
-    private Anchor getLinkToPaymentsXls(File file){
+    private Anchor getLinkToPaymentsXls(File file) {
         String paymentsTemplate = file.getName();
         PrintPaymentsXls printPaymentsXls = new PrintPaymentsXls(
-            file.getPath(), paymentService.getAll());
-            return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport),
-                    "Скачать файл");
+                file.getPath(), paymentService.getAll());
+        return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport),
+                "Скачать файл");
     }
 
     private void downloadXls(ComboBox<String> print) {
@@ -83,7 +83,7 @@ public class PaymentPrintModal extends Dialog {
             if (x.getValue().equals("Скачать в формате Excel")) {
                 getXlsFile().forEach(i -> add(getLinkToPaymentsXls(i)));
             } else {
-              close();
+                close();
             }
         });
     }

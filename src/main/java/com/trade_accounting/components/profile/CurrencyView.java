@@ -43,7 +43,7 @@ public class CurrencyView extends VerticalLayout {
     public CurrencyView(CurrencyService currencyService) {
         this.currencyService = currencyService;
         this.data = currencyService.getAll();
-        paginator = new GridPaginator<>(grid,data, 100 );
+        paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         grid();
         this.selectedNumberField = getSelectedNumberField();
@@ -54,25 +54,25 @@ public class CurrencyView extends VerticalLayout {
 //        updateList();
     }
 
-    private Button buttonQuestion(){
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Валюты");
         title.setHeight("2.2em");
         return title;
     }
 
-    private Button buttonRefresh(){
+    private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private  Button buttonCurrency(){
+    private Button buttonCurrency() {
         Button currencyButton = new Button("Валюта", new Icon(VaadinIcon.PLUS_CIRCLE));
         CurrencyModalWindow addCurrencyModalWindow =
                 new CurrencyModalWindow(new CurrencyDto(), currencyService);
@@ -92,11 +92,11 @@ public class CurrencyView extends VerticalLayout {
         filter.onClearClick(e -> paginator.setData(currencyService.getAll()));
     }
 
-    private Button buttonFilter(){
+    private Button buttonFilter() {
         return new Button("Фильтр");
     }
 
-    private TextField textFieldTop(){
+    private TextField textFieldTop() {
         TextField text = new TextField();
         text.setPlaceholder("Краткое наименование");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
@@ -104,14 +104,14 @@ public class CurrencyView extends VerticalLayout {
         return text;
     }
 
-    private NumberField numberField(){
+    private NumberField numberField() {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
         numberField.setWidth("45px");
         return numberField;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
         valueSelect.setItems("Изменить");
         valueSelect.setValue("Изменить");
@@ -119,7 +119,7 @@ public class CurrencyView extends VerticalLayout {
         return valueSelect;
     }
 
-    private Button buttonSettings(){
+    private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
     }
 
@@ -141,11 +141,12 @@ public class CurrencyView extends VerticalLayout {
         return toolbar;
     }
 
-    private void grid(){
+    private void grid() {
         grid.setItems(currencyService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setColumns("id", "shortName","fullName","digitalCode","letterCode", "sortNumber");
-        grid.getColumnByKey("id").setHeader("ID").setId("ID");;
+        grid.setColumns("id", "shortName", "fullName", "digitalCode", "letterCode", "sortNumber");
+        grid.getColumnByKey("id").setHeader("ID").setId("ID");
+        ;
         grid.getColumnByKey("shortName").setHeader("Краткое наименование").setId("Краткое наименование");
         grid.getColumnByKey("fullName").setHeader("Полное наименование").setId("Полное наименование");
         grid.getColumnByKey("digitalCode").setHeader("Цифровой код").setId("Цифровой код");

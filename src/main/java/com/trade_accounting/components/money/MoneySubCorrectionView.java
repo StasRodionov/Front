@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Корректировки")
 public class MoneySubCorrectionView extends VerticalLayout {
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Корректировки");
         title.setHeight("2.2em");
         return title;
