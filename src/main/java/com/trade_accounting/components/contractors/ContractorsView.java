@@ -1,6 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -29,6 +30,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
 
     private final Div div;
 
+    private final Notifications notifications;
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
     private final TypeOfContractorService typeOfContractorService;
@@ -41,7 +43,8 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     private final ContractsView contractsView;
 
     @Autowired
-    public ContractorsView(ContractorService contractorService,
+    public ContractorsView(Notifications notifications,
+                           ContractorService contractorService,
                            ContractorGroupService contractorGroupService,
                            TypeOfContractorService typeOfContractorService,
                            TypeOfPriceService typeOfPriceService,
@@ -51,6 +54,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                            EmployeeService employeeService,
                            BankAccountService bankAccountService,
                            ContractsView contractsView) {
+        this.notifications = notifications;
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
         this.typeOfContractorService = typeOfContractorService;
@@ -76,7 +80,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
         });
         getUI().ifPresent(ui -> {
             div.removeAll();
-            div.add(new ContractorsTabView(contractorService, contractorGroupService,
+            div.add(new ContractorsTabView(notifications, contractorService, contractorGroupService,
                     typeOfContractorService,
                     typeOfPriceService,
                     legalDetailService,
@@ -98,7 +102,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Контрагенты":
                     div.removeAll();
-                    div.add(new ContractorsTabView(contractorService, contractorGroupService,
+                    div.add(new ContractorsTabView(notifications, contractorService, contractorGroupService,
                             typeOfContractorService, typeOfPriceService, legalDetailService, contractorStatusService,
                             departmentService, employeeService, bankAccountService));
                     break;
