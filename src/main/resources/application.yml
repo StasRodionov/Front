@@ -56,4 +56,8 @@ payment_url: api/payment
 retail_stores_url: api/retail_stores
 
 contractor_status_url: api/contractor_status
+
+technical_card_url: api/technical_card
+
+technical_card_group_url: api/technical_card_group
 #debug: true
