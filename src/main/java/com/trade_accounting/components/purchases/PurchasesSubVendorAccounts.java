@@ -1,13 +1,13 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.models.dto.SupplierAccountsDto;
+import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -48,27 +48,27 @@ import java.util.Map;
 @UIScope
 public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterNavigationObserver {
 
-    private final InvoiceService invoiceService;
-    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    private final SupplierAccountService supplierAccountService;
+    private final SupplierAccountsModalView supplierAccountsModalView;
     private final Notifications notifications;
 
-    private List<InvoiceDto> invoices;
+    private List<SupplierAccountsDto> invoices;
 
     private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
-    private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
-    private GridPaginator<InvoiceDto> paginator;
-    private final GridFilter<InvoiceDto> filter;
+    private final Grid<SupplierAccountsDto> grid = new Grid<>(SupplierAccountsDto.class, false);
+    private GridPaginator<SupplierAccountsDto> paginator;
+    private final GridFilter<SupplierAccountsDto> filter;
 
     @Autowired
-    public PurchasesSubVendorAccounts(InvoiceService invoiceService,
-                                      @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
+    public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
+                                      @Lazy SupplierAccountsModalView supplierAccountsModalView,
                                       @Lazy Notifications notifications) {
-        this.invoiceService = invoiceService;
-        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        this.supplierAccountService = supplierAccountService;
+        this.supplierAccountsModalView = supplierAccountsModalView;
         this.notifications = notifications;
-        loadInvoices();
+        loadSupplierAccounts();
         configureActions();
         configureGrid();
         configurePaginator();
@@ -77,8 +77,8 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         add(actions, filter, grid, paginator);
     }
 
-    private List<InvoiceDto> loadInvoices() {
-        invoices = invoiceService.getAll(typeOfInvoice);
+    private List<SupplierAccountsDto> loadSupplierAccounts() {
+        invoices = supplierAccountService.getAll();
         return invoices;
     }
 
@@ -89,30 +89,27 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
 
-    private Grid<InvoiceDto> configureGrid() {
+    private Grid<SupplierAccountsDto> configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
-        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto")
-                .setId("Контрагент");
         grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
-                .setId("Проведена");
+//        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
+//                .setId("Проведена");
         grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("На склад")
                 .setKey("warehouseDto").setId("На склад");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+//        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
-            InvoiceDto editInvoice = event.getItem();
-            salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
-            salesEditCreateInvoiceView.setUpdateState(true);
-            salesEditCreateInvoiceView.setType("EXPENSE");
-            salesEditCreateInvoiceView.setLocation("purchases");
+            SupplierAccountsDto editSupplierAccounts = event.getItem();
+//            supplierAccountsModalView.setInvoiceDataForEdit(editSupplierAccounts);
+//            supplierAccountsModalView.setUpdateState(true);
+//            supplierAccountsModalView.setLocation("purchases");
             UI.getCurrent().navigate("sells/customer-order-edit");
         });
         return grid;
@@ -130,9 +127,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
             map.put("typeOfInvoice", typeOfInvoice);
-            paginator.setData(invoiceService.search(map));
+//            paginator.setData(invoiceService.search(map));
         });
-        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
+//        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
     private Button buttonQuestion() {
@@ -156,11 +153,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private Button buttonUnit() {
         Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(event -> {
-            salesEditCreateInvoiceView.resetView();
-            salesEditCreateInvoiceView.setUpdateState(false);
-            salesEditCreateInvoiceView.setType("EXPENSE");
-            salesEditCreateInvoiceView.setLocation("purchases");
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+//            supplierAccountsModalView.resetView();
+//            supplierAccountsModalView.setUpdateState(false);
+//            supplierAccountsModalView.setType("EXPENSE");
+//            supplierAccountsModalView.setLocation("purchases");
+//            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
         });
         return buttonUnit;
     }
@@ -183,10 +180,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void updateList(String search) {
-        if (search.isEmpty()) {
-            paginator.setData(invoiceService.getAll(typeOfInvoice));
-        } else paginator.setData(invoiceService
-                .findBySearchAndTypeOfInvoice(search, typeOfInvoice));
+//        if (search.isEmpty()) {
+//            paginator.setData(invoiceService.getAll(typeOfInvoice));
+//        } else paginator.setData(invoiceService
+//                .findBySearchAndTypeOfInvoice(search, typeOfInvoice));
     }
 
     private NumberField numberField() {
@@ -206,7 +203,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                 deleteSelectedInvoices();
                 grid.deselectAll();
                 select.setValue("Изменить");
-                paginator.setData(loadInvoices());
+//                paginator.setData(loadInvoices());
             }
         });
         return select;
@@ -263,28 +260,28 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll(typeOfInvoice));
+        grid.setItems(supplierAccountService.getAll());
     }
 
     private String getTotalPrice(InvoiceDto invoiceDto) {
-        List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
+//        List<InvoiceProductDto> invoiceProductDtoList = supplierAccountsModalView.getListOfInvoiceProductByInvoice(invoiceDto);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
-            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-                    .multiply(invoiceProductDto.getAmount()));
-        }
+//        for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
+//            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
+//                    .multiply(invoiceProductDto.getAmount()));
+//        }
         return String.format("%.2f", totalPrice);
     }
 
     private void deleteSelectedInvoices() {
-        if (grid.getSelectedItems().isEmpty()) {
-            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
-                invoiceService.deleteById(invoiceDto.getId());
-                notifications.infoNotification("Выбранные заказы успешно удалены");
-            }
-        } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
-        }
+//        if (grid.getSelectedItems().isEmpty()) {
+//            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
+//                invoiceService.deleteById(invoiceDto.getId());
+//                notifications.infoNotification("Выбранные заказы успешно удалены");
+//            }
+//        } else {
+//            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+//        }
     }
 
     @Override
