@@ -56,4 +56,8 @@ payment_url: api/payment
 retail_stores_url: api/retail_stores
 
 contractor_status_url: api/contractor_status
+
+task_url: api/tasks
+
+task_comment_url: api/task_comments
 #debug: true
