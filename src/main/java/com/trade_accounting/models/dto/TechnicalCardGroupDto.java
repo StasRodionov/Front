@@ -15,5 +15,7 @@ public class TechnicalCardGroupDto {
 
     private String name;
 
+    private String comment;
+
     private String sortNumber;
 }
