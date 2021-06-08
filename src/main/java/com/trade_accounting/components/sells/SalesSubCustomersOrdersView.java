@@ -15,6 +15,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -30,6 +31,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -313,7 +315,23 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList() {
-        grid.setItems(invoiceService.getAll(typeOfInvoice));
+        /*
+                GridPaginator<ContractorDto> paginatorUpdateList
+                = new GridPaginator<>(grid, contractorService.getAll(), 100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+                GridSortOrder<RetailStoreDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
+        grid.sort(Arrays.asList(order));
+        removeAll();
+        add(upperLayout(), grid, paginator);
+         */
+        GridPaginator<InvoiceDto> paginatorUpdateList = new GridPaginator<>(grid, invoiceService.getAll(),100);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        GridSortOrder<InvoiceDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
+        grid.sort(Arrays.asList(order));
+        removeAll();
+        add(upperLayout(), grid, paginator);
+
+      //  grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
 
     private void updateList(String text) {
