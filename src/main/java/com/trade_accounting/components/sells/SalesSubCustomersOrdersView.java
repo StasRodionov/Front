@@ -322,7 +322,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         grid.sort(Arrays.asList(order));
         removeAll();
         add(upperLayout(), grid, paginator);
-
     }
 
     private void updateList(String text) {
