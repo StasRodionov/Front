@@ -315,15 +315,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList() {
-        /*
-                GridPaginator<ContractorDto> paginatorUpdateList
-                = new GridPaginator<>(grid, contractorService.getAll(), 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
-                GridSortOrder<RetailStoreDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
-        grid.sort(Arrays.asList(order));
-        removeAll();
-        add(upperLayout(), grid, paginator);
-         */
+
         GridPaginator<InvoiceDto> paginatorUpdateList = new GridPaginator<>(grid, invoiceService.getAll(),100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         GridSortOrder<InvoiceDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
@@ -331,7 +323,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         removeAll();
         add(upperLayout(), grid, paginator);
 
-      //  grid.setItems(invoiceService.getAll(typeOfInvoice));
     }
 
     private void updateList(String text) {
