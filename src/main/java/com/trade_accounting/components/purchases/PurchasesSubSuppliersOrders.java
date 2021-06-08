@@ -372,7 +372,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         grid.setItems(invoiceService.getAll(typeOfInvoice));
 
     }
-    
+
     protected String getTotalPrice(InvoiceDto invoiceDto) {
         List<InvoiceProductDto> invoiceProductDtoList = salesEditCreateInvoiceView.getListOfInvoiceProductByInvoice(invoiceDto);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
