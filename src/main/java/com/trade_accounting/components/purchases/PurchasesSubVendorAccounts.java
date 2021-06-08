@@ -1,15 +1,16 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.sells.SalesChooseGoodsModalWin;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.SupplierAccountsDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -39,7 +40,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Route(value = "suppliersInvoices", layout = AppView.class)
@@ -49,10 +49,14 @@ import java.util.Map;
 public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterNavigationObserver {
 
     private final SupplierAccountService supplierAccountService;
-    private final SupplierAccountsModalView supplierAccountsModalView;
+    private final WarehouseService warehouseService;
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
     private final Notifications notifications;
+    private final SupplierAccountsModalView modalView;
+    private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
 
-    private List<SupplierAccountsDto> invoices;
+    private List<SupplierAccountsDto> supplierAccount;
 
     private final String typeOfInvoice = "EXPENSE";
 
@@ -63,11 +67,15 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
-                                      @Lazy SupplierAccountsModalView supplierAccountsModalView,
-                                      @Lazy Notifications notifications) {
+                                      WarehouseService warehouseService, CompanyService companyService,
+                                      ContractorService contractorService, @Lazy Notifications notifications, SupplierAccountsModalView modalView, SalesChooseGoodsModalWin salesChooseGoodsModalWin) {
         this.supplierAccountService = supplierAccountService;
-        this.supplierAccountsModalView = supplierAccountsModalView;
+        this.warehouseService = warehouseService;
+        this.companyService = companyService;
+        this.contractorService = contractorService;
         this.notifications = notifications;
+        this.modalView = modalView;
+        this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -78,8 +86,8 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private List<SupplierAccountsDto> loadSupplierAccounts() {
-        invoices = supplierAccountService.getAll();
-        return invoices;
+        supplierAccount = supplierAccountService.getAll();
+        return supplierAccount;
     }
 
     private void configureActions() {
@@ -93,13 +101,15 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
+        grid.addColumn(SupplierAccountsDto::getContractorDto).setHeader("Контрагент").setKey("contractorDto")
+                .setId("Контрагент"); // нет этого поля в back!
         grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
-//        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
-//                .setId("Проведена");
         grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("На склад")
                 .setKey("warehouseDto").setId("На склад");
-//        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Оплачено")
+                .setId("Оплачено");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
         grid.setHeight("66vh");
@@ -107,28 +117,33 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             SupplierAccountsDto editSupplierAccounts = event.getItem();
-//            supplierAccountsModalView.setInvoiceDataForEdit(editSupplierAccounts);
-//            supplierAccountsModalView.setUpdateState(true);
-//            supplierAccountsModalView.setLocation("purchases");
-            UI.getCurrent().navigate("sells/customer-order-edit");
+            SupplierAccountsModalView supplierAccountsModalView = new SupplierAccountsModalView(
+                    supplierAccountService,
+                    companyService,
+                    warehouseService,
+                    contractorService, salesChooseGoodsModalWin);
+            supplierAccountsModalView.setSupplierAccountsForEdit(editSupplierAccounts);
+            supplierAccountsModalView.open();
+
+
         });
         return grid;
     }
 
     private void configurePaginator() {
-        paginator = new GridPaginator<>(grid, invoices, 100);
+        paginator = new GridPaginator<>(grid, supplierAccount, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
     private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.setFieldToDatePicker("date");
-        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
-        filter.onSearchClick(e -> {
-            Map<String, String> map = filter.getFilterData();
-            map.put("typeOfInvoice", typeOfInvoice);
+//        filter.setFieldToIntegerField("id");
+//        filter.setFieldToDatePicker("date");
+//        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+//        filter.onSearchClick(e -> {
+//            Map<String, String> map = filter.getFilterData();
+//            map.put("typeOfInvoice", typeOfInvoice);
 //            paginator.setData(invoiceService.search(map));
-        });
+//        });
 //        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
 
@@ -152,13 +167,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(event -> {
-//            supplierAccountsModalView.resetView();
-//            supplierAccountsModalView.setUpdateState(false);
-//            supplierAccountsModalView.setType("EXPENSE");
-//            supplierAccountsModalView.setLocation("purchases");
-//            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
-        });
+        buttonUnit.addClickListener(e -> modalView.open());
         return buttonUnit;
     }
 
@@ -249,8 +258,8 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         return formatDateTime.format(formatter);
     }
 
-    private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
-        if (invoiceDto.isSpend()) {
+    private Component getIsCheckedIcon(SupplierAccountsDto supplierAccountsDto) {
+        if (supplierAccountsDto.isSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
@@ -263,17 +272,21 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setItems(supplierAccountService.getAll());
     }
 
-    private String getTotalPrice(InvoiceDto invoiceDto) {
-//        List<InvoiceProductDto> invoiceProductDtoList = supplierAccountsModalView.getListOfInvoiceProductByInvoice(invoiceDto);
+    private String getTotalPrice(SupplierAccountsDto invoice) {
+
+//        InvoiceProductDto invoiceProductDtoList = supplierAccountsModalView
+//                .getListOfInvoiceProductByInvoice(invoice.getInvoiceProductDto());
+//        List<InvoiceProductDto> getTotal = new ArrayList<>();
+//        getTotal.add(invoiceProductDtoList);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-//        for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
+//        for (InvoiceProductDto invoiceProductDto : getTotal) {
 //            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
 //                    .multiply(invoiceProductDto.getAmount()));
 //        }
         return String.format("%.2f", totalPrice);
     }
 
-    private void deleteSelectedInvoices() {
+    public void deleteSelectedInvoices() {
 //        if (grid.getSelectedItems().isEmpty()) {
 //            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
 //                invoiceService.deleteById(invoiceDto.getId());
