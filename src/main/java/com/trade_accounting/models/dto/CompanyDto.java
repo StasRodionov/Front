@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class CompanyDto {
     private String stamp;
 
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private LegalDetailDto legalDetailDto;
 
     @EqualsAndHashCode.Exclude

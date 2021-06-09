@@ -1,5 +1,6 @@
 package com.trade_accounting.models.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -62,12 +63,12 @@ public class LegalDetailDto {
         this.dateOfTheCertificate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         this.typeOfContractorDto = typeOfContractorDto;
     }
-
+    @JsonIgnore
     public LocalDate getDate() {
         return LocalDate.parse(
                 dateOfTheCertificate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
-
+    @JsonIgnore
     public void setDate(String dateOfTheCertificate) {
         this.date = LocalDate.parse(dateOfTheCertificate);
         this.dateOfTheCertificate = dateOfTheCertificate;

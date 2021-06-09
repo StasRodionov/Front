@@ -58,7 +58,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private List<SupplierAccountsDto> supplierAccount;
 
-    private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
     private final Grid<SupplierAccountsDto> grid = new Grid<>(SupplierAccountsDto.class, false);
@@ -68,7 +67,8 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
-                                      ContractorService contractorService, ContractService contractService, @Lazy Notifications notifications,
+                                      ContractorService contractorService, ContractService contractService,
+                                      @Lazy Notifications notifications,
                                       SupplierAccountsModalView modalView) {
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;

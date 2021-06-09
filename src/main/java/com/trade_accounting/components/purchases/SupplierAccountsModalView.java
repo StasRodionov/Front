@@ -95,7 +95,7 @@ public class SupplierAccountsModalView extends Dialog {
     private Button saveButton() {
         return new Button("Сохранить", e -> {
             SupplierAccountsDto saveSupplier = new SupplierAccountsDto();
-//            saveSupplier.setId(Long.getLong(supplierNumber.getValue()));
+            saveSupplier.setId(Long.parseLong(supplierNumber.getValue()));
             saveSupplier.setDate(dateTimePicker.getValue().toString());
             saveSupplier.setCompanyDto(companyDtoComboBox.getValue());
             saveSupplier.setWarehouseDto(warehouseDtoComboBox.getValue());
@@ -105,7 +105,7 @@ public class SupplierAccountsModalView extends Dialog {
             saveSupplier.setComment("");
             Response<SupplierAccountsDto> supplierAccountsDtoResponse = supplierAccountService.create(saveSupplier);
 
-
+            close();
             notifications.infoNotification(String.format("Счет поставщика № %s сохранен", saveSupplier.getId()));
         });
     }
@@ -113,7 +113,7 @@ public class SupplierAccountsModalView extends Dialog {
     private Button closeButton() {
         Button button = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         button.addClickListener(e -> {
-            dialogOnCloseView.close();
+            close();
         });
         return button;
 
