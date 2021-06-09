@@ -51,6 +51,7 @@ public class SupplierAccountsModalView extends Dialog {
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox isSpend = new Checkbox("Проведено");
     private final TextField supplierNumber = new TextField();
+    private final TextField commentConfig = new TextField();
     private final Notifications notifications;
 
 
@@ -100,7 +101,7 @@ public class SupplierAccountsModalView extends Dialog {
             saveSupplier.setContractDto(contractDtoComboBox.getValue());
             saveSupplier.setContractorDto(contractorSelect.getValue());
             saveSupplier.setSpend(isSpend.getValue());
-            saveSupplier.setComment("");
+            saveSupplier.setComment(commentConfig.getValue());
             supplierAccountService.create(saveSupplier);
 
             UI.getCurrent().navigate("suppliersInvoices");
@@ -127,7 +128,7 @@ public class SupplierAccountsModalView extends Dialog {
     private VerticalLayout formToAddSupplerAccount() {
         VerticalLayout form = new VerticalLayout();
         form.add(horizontalLayout1(), horizontalLayout2(),
-                horizontalLayout3(), dataPlaneConfigure(), incomingConfigure());
+                horizontalLayout3(), dataPlaneConfigure(), incomingConfigure(), commentConfigure());
         return form;
     }
 
@@ -237,6 +238,15 @@ public class SupplierAccountsModalView extends Dialog {
         dt1.setWidth("150px");
         horizontal1.add(label,text,label2,dt1);
         return horizontal1;
+    }
+
+    private HorizontalLayout commentConfigure() {
+        HorizontalLayout horizontal3 = new HorizontalLayout();
+        commentConfig.setWidth("500px");
+        commentConfig.setHeight("300px");
+        commentConfig.setPlaceholder("Комментарий");
+        horizontal3.add(commentConfig);
+        return horizontal3;
     }
 
 
