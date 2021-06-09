@@ -19,9 +19,7 @@ public class SupplierAccountsDto {
 
     private ContractDto contractDto;
 
-    private ContractorDto contractorDto;      // этого поля нет в back!
-
-    private InvoiceProductDto invoiceProductDto;   // этого поля нет в back!
+    private ContractorDto contractorDto;
 
     private boolean isSpend;
 

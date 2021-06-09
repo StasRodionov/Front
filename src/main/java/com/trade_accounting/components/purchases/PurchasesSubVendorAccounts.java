@@ -1,12 +1,12 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.sells.SalesChooseGoodsModalWin;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.SupplierAccountsDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -52,9 +52,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final ContractorService contractorService;
+    private final ContractService contractService;
     private final Notifications notifications;
     private final SupplierAccountsModalView modalView;
-    private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
 
     private List<SupplierAccountsDto> supplierAccount;
 
@@ -68,14 +68,15 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
-                                      ContractorService contractorService, @Lazy Notifications notifications, SupplierAccountsModalView modalView, SalesChooseGoodsModalWin salesChooseGoodsModalWin) {
+                                      ContractorService contractorService, ContractService contractService, @Lazy Notifications notifications,
+                                      SupplierAccountsModalView modalView) {
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.contractorService = contractorService;
+        this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
-        this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -121,7 +122,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                     supplierAccountService,
                     companyService,
                     warehouseService,
-                    contractorService, salesChooseGoodsModalWin);
+                    contractorService, contractService, notifications);
             supplierAccountsModalView.setSupplierAccountsForEdit(editSupplierAccounts);
             supplierAccountsModalView.open();
 
@@ -136,15 +137,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void configureFilter() {
-//        filter.setFieldToIntegerField("id");
-//        filter.setFieldToDatePicker("date");
-//        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
-//        filter.onSearchClick(e -> {
-//            Map<String, String> map = filter.getFilterData();
-//            map.put("typeOfInvoice", typeOfInvoice);
-//            paginator.setData(invoiceService.search(map));
-//        });
-//        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
+
     }
 
     private Button buttonQuestion() {
@@ -189,10 +182,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void updateList(String search) {
-//        if (search.isEmpty()) {
-//            paginator.setData(invoiceService.getAll(typeOfInvoice));
-//        } else paginator.setData(invoiceService
-//                .findBySearchAndTypeOfInvoice(search, typeOfInvoice));
+
     }
 
     private NumberField numberField() {
@@ -287,14 +277,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     public void deleteSelectedInvoices() {
-//        if (grid.getSelectedItems().isEmpty()) {
-//            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
-//                invoiceService.deleteById(invoiceDto.getId());
-//                notifications.infoNotification("Выбранные заказы успешно удалены");
-//            }
-//        } else {
-//            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
-//        }
+
     }
 
     @Override
