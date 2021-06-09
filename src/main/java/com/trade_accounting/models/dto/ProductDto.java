@@ -43,4 +43,12 @@ public class ProductDto {
 
     private AttributeOfCalculationObjectDto attributeOfCalculationObjectDto;
 
+    private String countryOrigin;
+
+    private BigDecimal itemNumber;
+
+    private String saleTax;
+
+    private BigDecimal minimumBalance;
+
 }
