@@ -11,6 +11,7 @@ import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -103,8 +104,9 @@ public class SupplierAccountsModalView extends Dialog {
             saveSupplier.setContractorDto(contractorSelect.getValue());
             saveSupplier.setSpend(isSpend.getValue());
             saveSupplier.setComment("");
-            Response<SupplierAccountsDto> supplierAccountsDtoResponse = supplierAccountService.create(saveSupplier);
+            supplierAccountService.create(saveSupplier);
 
+            UI.getCurrent().navigate("suppliersInvoices");
             close();
             notifications.infoNotification(String.format("Счет поставщика № %s сохранен", saveSupplier.getId()));
         });
