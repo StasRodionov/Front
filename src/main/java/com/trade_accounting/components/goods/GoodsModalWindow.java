@@ -70,6 +70,10 @@ public class GoodsModalWindow extends Dialog {
     private final TypeOfPriceService typeOfPriceService;
     private final TextField nameTextField = new TextField();
     private final TextField descriptionField = new TextField();
+    private final TextField countryOriginField = new TextField();
+    private final TextField saleTax = new TextField();
+    private final BigDecimalField itemNumber = new BigDecimalField();
+    private final BigDecimalField minimumBalance = new BigDecimalField();
     private final BigDecimalField weightNumberField = new BigDecimalField();
     private final BigDecimalField volumeNumberField = new BigDecimalField();
     private final BigDecimalField purchasePriceNumberField = new BigDecimalField();
@@ -119,6 +123,15 @@ public class GoodsModalWindow extends Dialog {
         nameTextField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Наименование", nameTextField));
 
+        itemNumber.setPlaceholder("Введите Артикул");
+        productDtoBinder.forField(itemNumber)
+                .withValidator(Objects::nonNull, "Введите артикул")
+                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
+                .bind(ProductDto::getItemNumber, ProductDto::setItemNumber);
+        itemNumber.setValueChangeMode(ValueChangeMode.EAGER);
+        add(getHorizontalLayout("Артикул", itemNumber));
+
+
         weightNumberField.setPlaceholder("Введите вес");
         productDtoBinder.forField(weightNumberField)
                 .withValidator(Objects::nonNull, "Введите вес")
@@ -143,12 +156,20 @@ public class GoodsModalWindow extends Dialog {
         purchasePriceNumberField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Закупочная цена", purchasePriceNumberField));
 
+
         descriptionField.setPlaceholder("Введите описание");
         productDtoBinder.forField(descriptionField)
                 .withValidator(text -> text.length() >= 3, "Не менее трёх символов", ErrorLevel.ERROR)
                 .bind(ProductDto::getName, ProductDto::setName);
         descriptionField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Описание", descriptionField));
+
+        countryOriginField.setPlaceholder("Введите страну происхождения");
+        productDtoBinder.forField(countryOriginField)
+                .withValidator(text-> text.length()>=3,"Не менее 3 Символов", ErrorLevel.ERROR)
+                .bind(ProductDto::getCountryOrigin, ProductDto::setCountryOrigin);
+        countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
+        add(getHorizontalLayout("Страна происхождения", countryOriginField));
 
         productDtoBinder.forField(unitDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
@@ -168,11 +189,26 @@ public class GoodsModalWindow extends Dialog {
         taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
         add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
 
+        saleTax.setPlaceholder("Введите размер НДС");
+        productDtoBinder.forField(saleTax)
+                .withValidator(text -> text.length() >= 2, "Введите число сооствестующее облагаемой ставке НДС", ErrorLevel.ERROR)
+                .bind(ProductDto::getName, ProductDto::setName);
+        saleTax.setValueChangeMode(ValueChangeMode.EAGER);
+        add(getHorizontalLayout("НДС", saleTax));
+
         productDtoBinder.forField(productGroupDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("productGroupDto");
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
+
+        minimumBalance.setPlaceholder("Введите Артикул");
+        productDtoBinder.forField(minimumBalance)
+                .withValidator(Objects::nonNull, "Введите артикул")
+                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
+                .bind(ProductDto::getItemNumber, ProductDto::setItemNumber);
+        minimumBalance.setValueChangeMode(ValueChangeMode.EAGER);
+        add(getHorizontalLayout("Артикул", minimumBalance));
 
         productDtoBinder.forField(attributeOfCalculationObjectComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
@@ -202,7 +238,10 @@ public class GoodsModalWindow extends Dialog {
         weightNumberField.setValue(productDto.getWeight());
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
-
+        countryOriginField.setValue(productDto.getCountryOrigin());
+        minimumBalance.setValue(productDto.getMinimumBalance());
+        saleTax.setValue(productDto.getSaleTax());
+        itemNumber.setValue(productDto.getItemNumber());
         unitDtoComboBox.setValue(productDto.getUnitDto());
         contractorDtoComboBox.setValue(productDto.getContractorDto());
         taxSystemDtoComboBox.setValue(productDto.getTaxSystemDto());
@@ -226,6 +265,10 @@ public class GoodsModalWindow extends Dialog {
         descriptionField.clear();
         weightNumberField.clear();
         volumeNumberField.clear();
+        countryOriginField.clear();
+        itemNumber.clear();
+        minimumBalance.clear();
+        saleTax.clear();
         purchasePriceNumberField.clear();
         footer.removeAll();
         imageHorizontalLayout.removeAll();
@@ -378,14 +421,18 @@ public class GoodsModalWindow extends Dialog {
 
     private void updateProductDto(ProductDto productDto) {
         productDto.setName(nameTextField.getValue());
+        productDto.setSaleTax(saleTax.getValue());
         productDto.setWeight(weightNumberField.getValue());
+        productDto.setItemNumber(itemNumber.getValue());
         productDto.setVolume(volumeNumberField.getValue());
+        productDto.setMinimumBalance(minimumBalance.getValue());
         productDto.setPurchasePrice(purchasePriceNumberField.getValue());
         productDto.setDescription(descriptionField.getValue());
         productDto.setUnitDto(unitDtoComboBox.getValue());
         productDto.setContractorDto(contractorDtoComboBox.getValue());
         productDto.setTaxSystemDto(taxSystemDtoComboBox.getValue());
         productDto.setProductGroupDto(productGroupDtoComboBox.getValue());
+        productDto.setCountryOrigin(countryOriginField.getValue());
         productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
         productDto.setImageDtos(imageDtoList);
 
