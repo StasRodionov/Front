@@ -12,6 +12,7 @@ import com.trade_accounting.models.dto.DepartmentDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.BankAccountService;
@@ -35,6 +36,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -97,7 +99,6 @@ public class ContractorModalWindow extends Dialog {
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
     private final BankAccountService bankAccountService;
-
 
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
@@ -190,7 +191,7 @@ public class ContractorModalWindow extends Dialog {
                 contractorDto.getLegalDetailDto() == null ?
                         null : contractorDto.getLegalDetailDto()::getAddressDto
         );
-        add(new Text("Наименование"), header(), contractorsAccordion());
+        add(header(), new Text("Наименование"), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 
@@ -905,18 +906,23 @@ public class ContractorModalWindow extends Dialog {
         if (nameField.isEmpty()) {
             legalDetailDto = new LegalDetailDto();
             return new Button("Добавить", event -> {
-                saveFieldsCreate(legalDetailDto);
-//                legalDetailService.create(legalDetailDto);
-                saveFields(contractorDto);
-                contractorService.create(contractorDto);
-                if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
-                        .matches("^([0-9]{10}|[0-9]{12})$"))
-                    close();
+                if (!contractorDtoBinder.validate().isOk()) {
+                    contractorDtoBinder.validate().notifyBindingValidationStatusHandlers();
+                } else {
+                    saveFieldsCreate(legalDetailDto);
+                    //legalDetailService.create(legalDetailDto);
+                    saveFields(contractorDto);
+                    contractorService.create(contractorDto);
+                    //Notification.show(String.format("Контрагент %s добавлен", contractorDto.getName()));
+                    if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
+                            .matches("^([0-9]{10}|[0-9]{12})$"))
+                        close();
+                }
             });
         } else {
             contractorDto = contractorService.getById(Long.valueOf(idField.getValue()));
             return new Button("Изменить", event -> {
-                saveFieldsCreate(legalDetailDto);//,contractorDto
+                saveFieldsCreate(legalDetailDto);//contractorDto
                 legalDetailService.create(legalDetailDto);
                 saveFields(contractorDto);
                 contractorService.update(contractorDto);
@@ -1075,7 +1081,6 @@ public class ContractorModalWindow extends Dialog {
             contractorDto.setTypeOfPriceDto(typeOfPriceDtoSelect.getValue());
         }
     }
-
 
     private Button getCancelButton() {
         return new Button("Закрыть", event -> close());
