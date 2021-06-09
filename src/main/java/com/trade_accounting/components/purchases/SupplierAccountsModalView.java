@@ -29,7 +29,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import retrofit2.Response;
 
 import java.util.List;
 
@@ -49,12 +48,10 @@ public class SupplierAccountsModalView extends Dialog {
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     public final  ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
-    private final Binder<SupplierAccountsDto> binder = new Binder<>(SupplierAccountsDto.class);
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox isSpend = new Checkbox("Проведено");
     private final TextField supplierNumber = new TextField();
     private final Notifications notifications;
-    private final Dialog dialogOnCloseView = new Dialog();
 
 
     public SupplierAccountsModalView(SupplierAccountService supplierAccountService,

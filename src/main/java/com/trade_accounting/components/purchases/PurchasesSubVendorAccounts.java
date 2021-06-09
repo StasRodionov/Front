@@ -58,7 +58,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private List<SupplierAccountsDto> supplierAccount;
 
-
     private HorizontalLayout actions;
     private final Grid<SupplierAccountsDto> grid = new Grid<>(SupplierAccountsDto.class, false);
     private GridPaginator<SupplierAccountsDto> paginator;
@@ -99,10 +98,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private Grid<SupplierAccountsDto> configureGrid() {
+        SupplierAccountsDto supplierAccountsDto = new SupplierAccountsDto();
+        grid.setItems(supplierAccountsDto);
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
-        grid.addColumn(SupplierAccountsDto::getContractorDto).setHeader("Контрагент").setKey("contractorDto")
+        grid.addColumn(e -> e.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto")
                 .setId("Контрагент"); // нет этого поля в back!
         grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
