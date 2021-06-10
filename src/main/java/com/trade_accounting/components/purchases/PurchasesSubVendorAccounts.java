@@ -56,6 +56,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final Notifications notifications;
     private final SupplierAccountsModalView modalView;
 
+
     private List<SupplierAccountsDto> supplierAccount;
 
     private HorizontalLayout actions;
@@ -103,11 +104,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
-        grid.addColumn(e -> e.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto")
-                .setId("Контрагент"); // нет этого поля в back!
-        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
+        grid.addColumn(e -> contractorService.getById(e.getNameContractor())).setHeader("Контрагент").setKey("contractorDto")
+                .setId("Контрагент");
+        grid.addColumn(iDto -> companyService.getById(iDto.getNameCompany())).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
-        grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("На склад")
+        grid.addColumn(dto -> warehouseService.getById(dto.getNameWarehouse())).setHeader("На склад")
                 .setKey("warehouseDto").setId("На склад");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Оплачено")

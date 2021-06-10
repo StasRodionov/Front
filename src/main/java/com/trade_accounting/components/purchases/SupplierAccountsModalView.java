@@ -26,7 +26,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -47,7 +46,7 @@ public class SupplierAccountsModalView extends Dialog {
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
-    public final  ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
+    public final  ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox isSpend = new Checkbox("Проведено");
     private final TextField supplierNumber = new TextField();
@@ -73,9 +72,10 @@ public class SupplierAccountsModalView extends Dialog {
 
     public void setSupplierAccountsForEdit(SupplierAccountsDto editSupplierAccounts) {
         this.supplierAccountsDto = editSupplierAccounts;
-        companyDtoComboBox.setValue(supplierAccountsDto.getCompanyDto());
-        warehouseDtoComboBox.setValue(supplierAccountsDto.getWarehouseDto());
-        contractDtoComboBox.setValue(supplierAccountsDto.getContractDto());
+        companyDtoComboBox.setValue(companyService.getById(supplierAccountsDto.getNameCompany()));
+        warehouseDtoComboBox.setValue(warehouseService.getById(supplierAccountsDto.getNameWarehouse()));
+        contractDtoComboBox.setValue(contractService.getById(supplierAccountsDto.getNumberContract()));
+        contractorDtoComboBox.setValue(contractorService.getById(supplierAccountsDto.getNameContractor()));
     }
 
     private HorizontalLayout upperButtonInModalView() {
@@ -96,10 +96,10 @@ public class SupplierAccountsModalView extends Dialog {
             SupplierAccountsDto saveSupplier = new SupplierAccountsDto();
             saveSupplier.setId(Long.parseLong(supplierNumber.getValue()));
             saveSupplier.setDate(dateTimePicker.getValue().toString());
-            saveSupplier.setCompanyDto(companyDtoComboBox.getValue());
-            saveSupplier.setWarehouseDto(warehouseDtoComboBox.getValue());
-            saveSupplier.setContractDto(contractDtoComboBox.getValue());
-            saveSupplier.setContractorDto(contractorSelect.getValue());
+            saveSupplier.setNameCompany(companyDtoComboBox.getValue().getId());
+            saveSupplier.setNameWarehouse(warehouseDtoComboBox.getValue().getId());
+            saveSupplier.setNumberContract(contractDtoComboBox.getValue().getId());
+            saveSupplier.setNameContractor(contractorDtoComboBox.getValue().getId());
             saveSupplier.setSpend(isSpend.getValue());
             saveSupplier.setComment(commentConfig.getValue());
             supplierAccountService.create(saveSupplier);
@@ -165,13 +165,13 @@ public class SupplierAccountsModalView extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         List<ContractorDto> contractorDtos = contractorService.getAll();
         if(contractorDtos != null) {
-            contractorSelect.setItems(contractorDtos);
+            contractorDtoComboBox.setItems(contractorDtos);
         }
-        contractorSelect.setItemLabelGenerator(ContractorDto::getName);
-        contractorSelect.setWidth("350px");
+        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
+        contractorDtoComboBox.setWidth("350px");
         Label label = new Label("Контрагент");
         label.setWidth("100px");
-        horizontalLayout.add(label,contractorSelect);
+        horizontalLayout.add(label, contractorDtoComboBox);
         return horizontalLayout;
     }
 

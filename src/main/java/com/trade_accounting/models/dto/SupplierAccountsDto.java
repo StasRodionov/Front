@@ -13,13 +13,13 @@ public class SupplierAccountsDto {
 
     private String date;
 
-    private CompanyDto companyDto;
+    private Long nameCompany;
 
-    private WarehouseDto warehouseDto;
+    private Long nameWarehouse;
 
-    private ContractDto contractDto;
+    private Long numberContract;
 
-    private ContractorDto contractorDto;
+    private Long nameContractor;
 
     private boolean isSpend;
 
