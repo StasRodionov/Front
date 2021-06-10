@@ -1,8 +1,13 @@
 package com.trade_accounting.components.tasks;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
+import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -18,6 +23,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 
 @SpringComponent
 @UIScope
@@ -26,14 +33,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PageTitle("Задачи")
 public class TasksView extends VerticalLayout {
 
+    private final TaskService taskService;
+    private final List<TaskDto> data;
+    private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
+    private final GridFilter<TaskDto> filter = new GridFilter<>(grid);
+    private final GridPaginator<TaskDto> paginator = new GridPaginator<>(grid, data, 10);
+
+
 
     @Autowired
-    public TasksView() {
-        add(getToolBar());
+    public TasksView(TaskService taskService) {
+        this.taskService = taskService;
+        this.data = getData();
+
+        configureGrid();
+
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(getToolBar(), filter, grid, paginator);
+    }
+
+
+    private void configureGrid() {
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn("description").setHeader("Описание").setId("Описание");
     }
 
     private HorizontalLayout getToolBar() {
-        HorizontalLayout toolbar = new HorizontalLayout();
+        var toolbar = new HorizontalLayout();
         toolbar.add(getButtonQuestion(), getTextTask(), getButtonRefresh(),
                 getButtonCreateTask(), getButtonFilter(), getTextField());
 
@@ -42,7 +68,7 @@ public class TasksView extends VerticalLayout {
     }
 
     private Button getButtonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
+        var buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         String notificationText = "Задачи помогают организовать работу. Их можно" +
@@ -52,7 +78,7 @@ public class TasksView extends VerticalLayout {
                 " покупатель в течение недели не оплачивает счет, можно поставить " +
                 "менеджеру задачу связаться с ним.\n\nЧитать инструкцию: Задачи";
 
-        Notification notification = new Notification(
+        var notification = new Notification(
                 notificationText, 3000, Notification.Position.BOTTOM_START);
 
         buttonQuestion.addClickListener(event -> notification.open());
@@ -61,29 +87,29 @@ public class TasksView extends VerticalLayout {
     }
 
     private H2 getTextTask() {
-        final H2 textTask = new H2("Задачи");
+        final var textTask = new H2("Задачи");
         textTask.setHeight("2.2em");
         return textTask;
     }
 
     private Button getButtonRefresh() {
-        final Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
+        final var buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
 //        buttonRefresh.addClickListener(click -> reloadGrid());
         return buttonRefresh;
     }
 
     private Button getButtonCreateTask() {
-        Button buttonUnit = new Button("Задача", new Icon(VaadinIcon.PLUS_CIRCLE));
+        var buttonUnit = new Button("Задача", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(click -> {
-            TaskModalWin taskModalWin = new TaskModalWin();
+            var taskModalWin = new TaskModalWin();
             taskModalWin.open();
         });
         return buttonUnit;
     }
 
     private Button getButtonFilter() {
-        Button buttonFilter = new Button("Фильтр");
+        var buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> {
         });
 //        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
@@ -91,7 +117,7 @@ public class TasksView extends VerticalLayout {
     }
 
     private TextField getTextField() {
-        TextField textField = new TextField();
+        var textField = new TextField();
         textField.setPlaceholder("Задача, комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
@@ -99,4 +125,7 @@ public class TasksView extends VerticalLayout {
         return textField;
     }
 
+    private List<TaskDto> getData() {
+        return taskService.getAll();
+    }
 }
