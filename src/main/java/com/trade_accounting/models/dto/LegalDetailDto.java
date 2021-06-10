@@ -64,13 +64,14 @@ public class LegalDetailDto {
         this.typeOfContractorDto = typeOfContractorDto;
     }
 
+    //продебажить эти 2 метода
     @JsonIgnore
     public LocalDate getDate() {
         return LocalDate.parse(
                 dateOfTheCertificate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
     @JsonIgnore
-    public void setDate(String dateOfTheCertificate) {
+    public void setDate(String dateOfTheCertificate) {// проблема с датой сертификата
         this.date = LocalDate.parse(dateOfTheCertificate);
         this.dateOfTheCertificate = dateOfTheCertificate;
     }
