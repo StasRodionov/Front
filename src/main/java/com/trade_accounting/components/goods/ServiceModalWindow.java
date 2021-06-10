@@ -243,7 +243,7 @@ public class ServiceModalWindow extends Dialog {
 
     private Component getHeader() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        H2 title = new H2("Добавление товара");
+        H2 title = new H2("Добавление услуги/работы");
         title.setHeight("2.2em");
         title.setWidth("345px");
         horizontalLayout.add(title);
