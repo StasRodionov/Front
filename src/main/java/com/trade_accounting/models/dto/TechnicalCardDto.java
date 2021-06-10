@@ -21,8 +21,6 @@ public class TechnicalCardDto {
 
     private String productionCost;
 
-    private String sortNumber;
-
     private TechnicalCardGroupDto technicalCardGroupDto;
 
     private List<TechnicalCardProductionDto> finalProductionDto;
