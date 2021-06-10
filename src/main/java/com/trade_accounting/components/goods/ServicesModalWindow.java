@@ -58,55 +58,55 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SpringComponent
 @UIScope
 @Slf4j
-public class GoodsModalWindow extends Dialog {
+public class ServicesModalWindow extends Dialog {
 
-    private final UnitService unitService;
-    private final ContractorService contractorService;
+   // private final UnitService unitService;
+    //private final ContractorService contractorService;
     private final TaxSystemService taxSystemService;
     private final ProductService productService;
-    private final ImageService imageService;
+   // private final ImageService imageService;
     private final ProductGroupService productGroupService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
     private final TextField nameTextField = new TextField();
     private final TextField descriptionField = new TextField();
-    private final TextField countryOriginField = new TextField();
+    //private final TextField countryOriginField = new TextField();
     private final TextField saleTax = new TextField();
-    private final BigDecimalField itemNumber = new BigDecimalField();
-    private final BigDecimalField minimumBalance = new BigDecimalField();
-    private final BigDecimalField weightNumberField = new BigDecimalField();
-    private final BigDecimalField volumeNumberField = new BigDecimalField();
+    //private final BigDecimalField itemNumber = new BigDecimalField();
+    //private final BigDecimalField minimumBalance = new BigDecimalField();
+    //private final BigDecimalField weightNumberField = new BigDecimalField();
+    //private final BigDecimalField volumeNumberField = new BigDecimalField();
     private final BigDecimalField purchasePriceNumberField = new BigDecimalField();
-    private final ComboBox<UnitDto> unitDtoComboBox = new ComboBox<>();
-    private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
+    //private final ComboBox<UnitDto> unitDtoComboBox = new ComboBox<>();
+   // private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<TaxSystemDto> taxSystemDtoComboBox = new ComboBox<>();
     private final ComboBox<ProductGroupDto> productGroupDtoComboBox = new ComboBox<>();
     private final ComboBox<AttributeOfCalculationObjectDto> attributeOfCalculationObjectComboBox = new ComboBox<>();
 
     private final HorizontalLayout typeOfPriceLayout = new HorizontalLayout();
     private Map<TypeOfPriceDto, BigDecimalField> bigDecimalFields;
-    private List<ImageDto> imageDtoList;
-    private List<ImageDto> imageDtoListForRemove;
-    private final HorizontalLayout imageHorizontalLayout = new HorizontalLayout();
+//    private List<ImageDto> imageDtoList;
+//    private List<ImageDto> imageDtoListForRemove;
+//    private final HorizontalLayout imageHorizontalLayout = new HorizontalLayout();
 
     private final HorizontalLayout footer = new HorizontalLayout();
     private final Binder<ProductDto> productDtoBinder = new Binder<>(ProductDto.class);
     private final Binder<ProductPriceDto> priceDtoBinder = new Binder<>(ProductPriceDto.class);
 
     @Autowired
-    public GoodsModalWindow(UnitService unitService,
-                            ContractorService contractorService,
-                            TaxSystemService taxSystemService,
-                            ProductService productService,
-                            ImageService imageService,
-                            ProductGroupService productGroupService,
-                            AttributeOfCalculationObjectService attributeOfCalculationObjectService,
-                            TypeOfPriceService typeOfPriceService) {
-        this.unitService = unitService;
-        this.contractorService = contractorService;
+    public ServicesModalWindow(//UnitService unitService,
+                               //ContractorService contractorService,
+                               TaxSystemService taxSystemService,
+                               ProductService productService,
+                               //ImageService imageService,
+                               ProductGroupService productGroupService,
+                               AttributeOfCalculationObjectService attributeOfCalculationObjectService,
+                               TypeOfPriceService typeOfPriceService) {
+      //  this.unitService = unitService;
+       // this.contractorService = contractorService;
         this.taxSystemService = taxSystemService;
         this.productService = productService;
-        this.imageService = imageService;
+      //  this.imageService = imageService;
         this.productGroupService = productGroupService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
@@ -123,31 +123,6 @@ public class GoodsModalWindow extends Dialog {
         nameTextField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Наименование", nameTextField));
 
-        itemNumber.setPlaceholder("Введите Артикул");
-        productDtoBinder.forField(itemNumber)
-                .withValidator(Objects::nonNull, "Введите артикул")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(ProductDto::getItemNumber, ProductDto::setItemNumber);
-        itemNumber.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Артикул", itemNumber));
-
-
-        weightNumberField.setPlaceholder("Введите вес");
-        productDtoBinder.forField(weightNumberField)
-                .withValidator(Objects::nonNull, "Введите вес")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
-                .bind(ProductDto::getWeight, ProductDto::setWeight);
-        weightNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Вес", weightNumberField));
-
-        volumeNumberField.setPlaceholder("Введите объём");
-        productDtoBinder.forField(volumeNumberField)
-                .withValidator(Objects::nonNull, "Введите объём")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
-                .bind(ProductDto::getVolume, ProductDto::setVolume);
-        volumeNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Объем", volumeNumberField));
-
         purchasePriceNumberField.setPlaceholder("Введите закупочную цену");
         productDtoBinder.forField(purchasePriceNumberField)
                 .withValidator(Objects::nonNull, "Введите закупочную цену")
@@ -156,32 +131,12 @@ public class GoodsModalWindow extends Dialog {
         purchasePriceNumberField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Закупочная цена", purchasePriceNumberField));
 
-
         descriptionField.setPlaceholder("Введите описание");
         productDtoBinder.forField(descriptionField)
                 .withValidator(text -> text.length() >= 3, "Не менее трёх символов", ErrorLevel.ERROR)
                 .bind(ProductDto::getName, ProductDto::setName);
         descriptionField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Описание", descriptionField));
-
-        countryOriginField.setPlaceholder("Введите страну происхождения");
-        productDtoBinder.forField(countryOriginField)
-                .withValidator(text-> text.length()>=3,"Не менее 3 Символов", ErrorLevel.ERROR)
-                .bind(ProductDto::getCountryOrigin, ProductDto::setCountryOrigin);
-        countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Страна происхождения", countryOriginField));
-
-        productDtoBinder.forField(unitDtoComboBox)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("unitDto");
-        unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
-        add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
-
-        productDtoBinder.forField(contractorDtoComboBox)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorDto");
-        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
-        add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
 
         productDtoBinder.forField(taxSystemDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
@@ -201,14 +156,6 @@ public class GoodsModalWindow extends Dialog {
                 .bind("productGroupDto");
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
-
-        minimumBalance.setPlaceholder("Минимальный остаток");
-        productDtoBinder.forField(minimumBalance)
-                .withValidator(Objects::nonNull, "Введите минимальный остаток")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(ProductDto::getItemNumber, ProductDto::setItemNumber);
-        minimumBalance.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Минимальный остаток", minimumBalance));
 
         productDtoBinder.forField(attributeOfCalculationObjectComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
@@ -235,25 +182,25 @@ public class GoodsModalWindow extends Dialog {
         productDto = productService.getById(productDto.getId());
         nameTextField.setValue(productDto.getName());
         descriptionField.setValue(productDto.getDescription());
-        weightNumberField.setValue(productDto.getWeight());
-        volumeNumberField.setValue(productDto.getVolume());
+       // weightNumberField.setValue(productDto.getWeight());
+       // volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
-        countryOriginField.setValue(productDto.getCountryOrigin());
-        minimumBalance.setValue(productDto.getMinimumBalance());
+      //  countryOriginField.setValue(productDto.getCountryOrigin());
+      //  minimumBalance.setValue(productDto.getMinimumBalance());
         saleTax.setValue(productDto.getSaleTax());
-        itemNumber.setValue(productDto.getItemNumber());
-        unitDtoComboBox.setValue(productDto.getUnitDto());
-        contractorDtoComboBox.setValue(productDto.getContractorDto());
+       // itemNumber.setValue(productDto.getItemNumber());
+       // unitDtoComboBox.setValue(productDto.getUnitDto());
+      //  contractorDtoComboBox.setValue(productDto.getContractorDto());
         taxSystemDtoComboBox.setValue(productDto.getTaxSystemDto());
         productGroupDtoComboBox.setValue(productDto.getProductGroupDto());
         attributeOfCalculationObjectComboBox.setValue(productDto.getAttributeOfCalculationObjectDto());
-        imageDtoList = productDto.getImageDtos();
-        for (ImageDto imageDto : imageDtoList) {
-            StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
-            Image image = new Image(resource, "image");
-            image.setHeight("100px");
-            imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
-        }
+//        //imageDtoList = productDto.getImageDtos();
+//        for (ImageDto imageDto : imageDtoList) {
+//            StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
+//            Image image = new Image(resource, "image");
+//            image.setHeight("100px");
+//            imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
+//        }
         initTypeOfPriceFrom(productDto.getProductPriceDtos());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
 
@@ -263,21 +210,21 @@ public class GoodsModalWindow extends Dialog {
     private void init() {
         nameTextField.clear();
         descriptionField.clear();
-        weightNumberField.clear();
-        volumeNumberField.clear();
-        countryOriginField.clear();
-        itemNumber.clear();
-        minimumBalance.clear();
+//        weightNumberField.clear();
+//        volumeNumberField.clear();
+//        countryOriginField.clear();
+//        itemNumber.clear();
+//        minimumBalance.clear();
         saleTax.clear();
         purchasePriceNumberField.clear();
         footer.removeAll();
-        imageHorizontalLayout.removeAll();
+ //       imageHorizontalLayout.removeAll();
         typeOfPriceLayout.removeAll();
         bigDecimalFields = new HashMap<>();
-        imageDtoList = new ArrayList<>();
-        imageDtoListForRemove = new ArrayList<>();
-        unitDtoComboBox.setItems(unitService.getAll());
-        contractorDtoComboBox.setItems(contractorService.getAll());//изменил
+//        imageDtoList = new ArrayList<>();
+//        imageDtoListForRemove = new ArrayList<>();
+//        unitDtoComboBox.setItems(unitService.getAll());
+//        contractorDtoComboBox.setItems(contractorService.getAll());//изменил
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
@@ -286,13 +233,13 @@ public class GoodsModalWindow extends Dialog {
 
     private Component getHeader() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        H2 title = new H2("Добавление товара");
+        H2 title = new H2("Добавление услуги");
         title.setHeight("2.2em");
         title.setWidth("345px");
         horizontalLayout.add(title);
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setPadding(false);
-        verticalLayout.add(getImageButton(), imageHorizontalLayout);
+       // verticalLayout.add(getImageButton(), imageHorizontalLayout);
         horizontalLayout.add(title, verticalLayout);
         return horizontalLayout;
     }
@@ -338,38 +285,38 @@ public class GoodsModalWindow extends Dialog {
         });
     }
 
-    private Component getImageButton() {
-        Button imageButton = new Button("Добавить фото");
-        Dialog dialog = new Dialog();
-        MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
-        Upload upload = new Upload(memoryBuffer);
-
-        upload.addFinishedListener(event -> {
-            try {
-                ImageDto imageDto = new ImageDto();
-                final String fileName = event.getFileName();
-                String fileExtension = fileName.substring(fileName.indexOf("."));
-                imageDto.setFileExtension(fileExtension);
-                imageDto.setContent(memoryBuffer.getInputStream(event.getFileName()).readAllBytes());
-                imageDtoList.add(imageDto);
-                StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
-                Image image = new Image(resource, "image");
-                image.setHeight("100px");
-                imageHorizontalLayout.add(image);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            dialog.close();
-        });
-
-        HorizontalLayout layout = new HorizontalLayout();
-        layout.setWidth("500px");
-        layout.getStyle().set("overflow", "auto");
-        dialog.add(upload);
-        imageButton.addClickListener(x -> dialog.open());
-        return imageButton;
-    }
+//    private Component getImageButton() {
+//        Button imageButton = new Button("Добавить фото");
+//        Dialog dialog = new Dialog();
+//        MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
+//        Upload upload = new Upload(memoryBuffer);
+//
+//        upload.addFinishedListener(event -> {
+//            try {
+//                ImageDto imageDto = new ImageDto();
+//                final String fileName = event.getFileName();
+//                String fileExtension = fileName.substring(fileName.indexOf("."));
+//                imageDto.setFileExtension(fileExtension);
+//                imageDto.setContent(memoryBuffer.getInputStream(event.getFileName()).readAllBytes());
+//                imageDtoList.add(imageDto);
+//                StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
+//                Image image = new Image(resource, "image");
+//                image.setHeight("100px");
+//                imageHorizontalLayout.add(image);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            dialog.close();
+//        });
+//
+//        HorizontalLayout layout = new HorizontalLayout();
+//        layout.setWidth("500px");
+//        layout.getStyle().set("overflow", "auto");
+//        dialog.add(upload);
+//        imageButton.addClickListener(x -> dialog.open());
+//        return imageButton;
+//    }
 
     private Button getAddButton() {
         return new Button("Добавить", event -> {
@@ -380,7 +327,7 @@ public class GoodsModalWindow extends Dialog {
             } else {
                 updateProductDto(productDto);
                 productService.create(productDto);
-                Notification.show(String.format("Товар %s добавлен", productDto.getName()));
+                Notification.show(String.format("Услуга %s добавлена", productDto.getName()));
                 close();
             }
         });
@@ -389,52 +336,53 @@ public class GoodsModalWindow extends Dialog {
     private Button getRemoveButton(ProductDto productDto) {
         Button deleteButton = new Button("Удалить", buttonClickEvent -> {
             productService.deleteById(productDto.getId());
-            productDto.getImageDtos().forEach(el -> imageService.deleteById(el.getId()));
-            Notification.show(String.format("Товар %s удален", productDto.getName()));
+           // productDto.getImageDtos().forEach(el -> imageService.deleteById(el.getId()));
+            Notification.show(String.format("Услуга %s удалена", productDto.getName()));
             close();
         });
         deleteButton.setMinWidth("100px");
         return deleteButton;
     }
 
-    private Button getRemoveImageButton(ProductDto productDto, Image image, ImageDto imageDto) {
-        Button deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), buttonClickEvent -> {
-            imageHorizontalLayout.remove(image);
-            productDto.getImageDtos().remove(imageDto);
-            imageDtoListForRemove.add(imageDto);
-        });
-
-        deleteButton.setMinWidth("10px");
-        return deleteButton;
-    }
+//    private Button getRemoveImageButton(ProductDto productDto, Image image, ImageDto imageDto) {
+//        Button deleteButton = new Button(new Icon(VaadinIcon.CLOSE_CIRCLE_O), buttonClickEvent -> {
+//            imageHorizontalLayout.remove(image);
+//            productDto.getImageDtos().remove(imageDto);
+//            imageDtoListForRemove.add(imageDto);
+//        });
+//
+//        deleteButton.setMinWidth("10px");
+//        return deleteButton;
+//    }
 
     private Button getUpdateButton(ProductDto productDto) {
         return new Button("Изменить", event -> {
             updateProductDto(productDto);
             productService.update(productDto);
-            imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
+            //imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
 
-            Notification.show(String.format("Товар %s изменен", productDto.getName()));
+            Notification.show(String.format("Услуга %s изменена", productDto.getName()));
             close();
         });
     }
 
     private void updateProductDto(ProductDto productDto) {
+        productDto.setService(true);
         productDto.setName(nameTextField.getValue());
         productDto.setSaleTax(saleTax.getValue());
-        productDto.setWeight(weightNumberField.getValue());
-        productDto.setItemNumber(itemNumber.getValue());
-        productDto.setVolume(volumeNumberField.getValue());
-        productDto.setMinimumBalance(minimumBalance.getValue());
+//        productDto.setWeight(weightNumberField.getValue());
+//        productDto.setItemNumber(itemNumber.getValue());
+//        productDto.setVolume(volumeNumberField.getValue());
+//        productDto.setMinimumBalance(minimumBalance.getValue());
         productDto.setPurchasePrice(purchasePriceNumberField.getValue());
         productDto.setDescription(descriptionField.getValue());
-        productDto.setUnitDto(unitDtoComboBox.getValue());
-        productDto.setContractorDto(contractorDtoComboBox.getValue());
+//        productDto.setUnitDto(unitDtoComboBox.getValue());
+//        productDto.setContractorDto(contractorDtoComboBox.getValue());
         productDto.setTaxSystemDto(taxSystemDtoComboBox.getValue());
         productDto.setProductGroupDto(productGroupDtoComboBox.getValue());
-        productDto.setCountryOrigin(countryOriginField.getValue());
+   //     productDto.setCountryOrigin(countryOriginField.getValue());
         productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
-        productDto.setImageDtos(imageDtoList);
+     //   productDto.setImageDtos(imageDtoList);
 
         if (productDto.getProductPriceDtos() == null) {
             productDto.setProductPriceDtos(new ArrayList<>());
