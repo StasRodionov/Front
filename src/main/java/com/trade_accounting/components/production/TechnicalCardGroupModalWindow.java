@@ -20,7 +20,7 @@ public class TechnicalCardGroupModalWindow extends Dialog {
     private final TextArea commentField = new TextArea(); //"Комментарий"
     private final TextField sortNumberField = new TextField(); //"Код"
 
-    private final Binder<TechnicalCardGroupDto> technicalCardDtoBinder = new Binder<>(TechnicalCardGroupDto.class);
+    private final Binder<TechnicalCardGroupDto> technicalCardGroupDtoBinder = new Binder<>(TechnicalCardGroupDto.class);
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "400px";
@@ -74,7 +74,7 @@ public class TechnicalCardGroupModalWindow extends Dialog {
     private HorizontalLayout configureNameField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         nameField.setWidth(FIELD_WIDTH);
-        technicalCardDtoBinder.forField(nameField)
+        technicalCardGroupDtoBinder.forField(nameField)
                 .asRequired("Не заполнено!")
                 .bind("name");
         Label label = new Label("Наименование");
@@ -86,7 +86,7 @@ public class TechnicalCardGroupModalWindow extends Dialog {
     private HorizontalLayout configureCommentField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         commentField.setWidth("345px");
-        technicalCardDtoBinder.forField(commentField)
+        technicalCardGroupDtoBinder.forField(commentField)
                 .asRequired("Не заполнено!")
                 .bind("comment");
         Label label = new Label("Комментарий");
@@ -98,7 +98,7 @@ public class TechnicalCardGroupModalWindow extends Dialog {
     private HorizontalLayout configureSortNumberField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         sortNumberField.setWidth(FIELD_WIDTH);
-        technicalCardDtoBinder.forField(sortNumberField)
+        technicalCardGroupDtoBinder.forField(sortNumberField)
                 .asRequired("Не заполнено!")
                 .bind("sortNumber");
         Label label = new Label("Код");
