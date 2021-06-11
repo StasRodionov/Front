@@ -7,19 +7,19 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SupplierAccountsDto {
+public class SupplierAccountDto {
 
     private Long id;
 
     private String date;
 
-    private Long nameCompany;
+    private Long companyId;
 
-    private Long nameWarehouse;
+    private Long warehouseId;
 
-    private Long numberContract;
+    private Long contractId;
 
-    private Long nameContractor;
+    private Long contractorId;
 
     private boolean isSpend;
 

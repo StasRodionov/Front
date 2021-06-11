@@ -4,7 +4,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.SupplierAccountsDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
@@ -34,14 +34,14 @@ import java.util.List;
 
 @SpringComponent
 @UIScope
-public class SupplierAccountsModalView extends Dialog {
+public class SupplierAccountModalView extends Dialog {
 
     private final SupplierAccountService supplierAccountService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
     private final ContractService contractService;
-    private SupplierAccountsDto supplierAccountsDto;
+    private SupplierAccountDto supplierAccountDto;
 
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
@@ -54,10 +54,10 @@ public class SupplierAccountsModalView extends Dialog {
     private final Notifications notifications;
 
 
-    public SupplierAccountsModalView(SupplierAccountService supplierAccountService,
-                                     CompanyService companyService,
-                                     WarehouseService warehouseService,
-                                     ContractorService contractorService, ContractService contractService, Notifications notifications) {
+    public SupplierAccountModalView(SupplierAccountService supplierAccountService,
+                                    CompanyService companyService,
+                                    WarehouseService warehouseService,
+                                    ContractorService contractorService, ContractService contractService, Notifications notifications) {
         this.supplierAccountService = supplierAccountService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
@@ -70,12 +70,12 @@ public class SupplierAccountsModalView extends Dialog {
 
 
 
-    public void setSupplierAccountsForEdit(SupplierAccountsDto editSupplierAccounts) {
-        this.supplierAccountsDto = editSupplierAccounts;
-        companyDtoComboBox.setValue(companyService.getById(supplierAccountsDto.getNameCompany()));
-        warehouseDtoComboBox.setValue(warehouseService.getById(supplierAccountsDto.getNameWarehouse()));
-        contractDtoComboBox.setValue(contractService.getById(supplierAccountsDto.getNumberContract()));
-        contractorDtoComboBox.setValue(contractorService.getById(supplierAccountsDto.getNameContractor()));
+    public void setSupplierAccountsForEdit(SupplierAccountDto editSupplierAccounts) {
+        this.supplierAccountDto = editSupplierAccounts;
+        companyDtoComboBox.setValue(companyService.getById(supplierAccountDto.getCompanyId()));
+        warehouseDtoComboBox.setValue(warehouseService.getById(supplierAccountDto.getWarehouseId()));
+        contractDtoComboBox.setValue(contractService.getById(supplierAccountDto.getContractId()));
+        contractorDtoComboBox.setValue(contractorService.getById(supplierAccountDto.getContractorId()));
     }
 
     private HorizontalLayout upperButtonInModalView() {
@@ -93,13 +93,13 @@ public class SupplierAccountsModalView extends Dialog {
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
-            SupplierAccountsDto saveSupplier = new SupplierAccountsDto();
+            SupplierAccountDto saveSupplier = new SupplierAccountDto();
             saveSupplier.setId(Long.parseLong(supplierNumber.getValue()));
             saveSupplier.setDate(dateTimePicker.getValue().toString());
-            saveSupplier.setNameCompany(companyDtoComboBox.getValue().getId());
-            saveSupplier.setNameWarehouse(warehouseDtoComboBox.getValue().getId());
-            saveSupplier.setNumberContract(contractDtoComboBox.getValue().getId());
-            saveSupplier.setNameContractor(contractorDtoComboBox.getValue().getId());
+            saveSupplier.setCompanyId(companyDtoComboBox.getValue().getId());
+            saveSupplier.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+            saveSupplier.setContractId(contractDtoComboBox.getValue().getId());
+            saveSupplier.setContractorId(contractorDtoComboBox.getValue().getId());
             saveSupplier.setSpend(isSpend.getValue());
             saveSupplier.setComment(commentConfig.getValue());
             supplierAccountService.create(saveSupplier);

@@ -1,8 +1,8 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.SupplierAccountsDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
-import com.trade_accounting.services.interfaces.api.SupplierAccountsApi;
+import com.trade_accounting.services.interfaces.api.SupplierAccountApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,49 +16,49 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class SupplierAccountsServiceImpl implements SupplierAccountService {
+public class SupplierAccountServiceImpl implements SupplierAccountService {
 
-    private final SupplierAccountsApi supplier;
+    private final SupplierAccountApi supplier;
     private final String supplierUrl;
 
 
-    public SupplierAccountsServiceImpl(@Value("${supplier_accounts_url}") String supplierUrl, Retrofit retrofit) {
-        supplier = retrofit.create(SupplierAccountsApi.class);
+    public SupplierAccountServiceImpl(@Value("${supplier_account_url}") String supplierUrl, Retrofit retrofit) {
+        supplier = retrofit.create(SupplierAccountApi.class);
         this.supplierUrl = supplierUrl;
     }
 
     @Override
-    public List<SupplierAccountsDto> getAll() {
-        List<SupplierAccountsDto> getAllSupplierAccounts = new ArrayList<>();
-        Call<List<SupplierAccountsDto>> getAllSupplierAccountsCall = supplier.getAll(supplierUrl);
+    public List<SupplierAccountDto> getAll() {
+        List<SupplierAccountDto> getAllSupplierAccount = new ArrayList<>();
+        Call<List<SupplierAccountDto>> getAllSupplierAccountCall = supplier.getAll(supplierUrl);
 
         try {
-            getAllSupplierAccounts = getAllSupplierAccountsCall.execute().body();
+            getAllSupplierAccount = getAllSupplierAccountCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка SupplierAccountsDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка SupplierAccountsDto - {IOException}", e);
         }
-        return getAllSupplierAccounts;
+        return getAllSupplierAccount;
     }
 
     @Override
-    public SupplierAccountsDto getById(Long id) {
-        Call<SupplierAccountsDto> getSupplierAccountByIdCall = supplier.getById(supplierUrl, id);
-        SupplierAccountsDto supplierAccountsDto = new SupplierAccountsDto();
+    public SupplierAccountDto getById(Long id) {
+        Call<SupplierAccountDto> getSupplierAccountByIdCall = supplier.getById(supplierUrl, id);
+        SupplierAccountDto supplierAccountDto = new SupplierAccountDto();
         try {
-            supplierAccountsDto = getSupplierAccountByIdCall.execute().body();
+            supplierAccountDto = getSupplierAccountByIdCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение счета поставщика supplierAccount по его id {}", id);
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение счета поставщика SupplierAccount" +
                     " по его id {} - {IOException}", id, e);
         }
-        return supplierAccountsDto;
+        return supplierAccountDto;
     }
 
     @Override
-    public Response<SupplierAccountsDto> create(SupplierAccountsDto supplierAccountsDto) {
-        Call<SupplierAccountsDto> createSupplierAccount = supplier.create(supplierUrl, supplierAccountsDto);
-        Response<SupplierAccountsDto> response = Response.success(new SupplierAccountsDto());
+    public Response<SupplierAccountDto> create(SupplierAccountDto supplierAccountDto) {
+        Call<SupplierAccountDto> createSupplierAccount = supplier.create(supplierUrl, supplierAccountDto);
+        Response<SupplierAccountDto> response = Response.success(new SupplierAccountDto());
         try {
             response = createSupplierAccount.execute();
             log.info("Успешно выполнен запрос на создание supplierAccount");
@@ -69,13 +69,13 @@ public class SupplierAccountsServiceImpl implements SupplierAccountService {
     }
 
     @Override
-    public void update(SupplierAccountsDto supplierAccountsDto) {
-        Call<Void> updateSupplierAccount = supplier.update(supplierUrl, supplierAccountsDto);
+    public void update(SupplierAccountDto supplierAccountDto) {
+        Call<Void> updateSupplierAccount = supplier.update(supplierUrl, supplierAccountDto);
         try {
             updateSupplierAccount.execute().body();
-            log.info("Успешно выполнен запрос на обновление счета поставщика {}",supplierAccountsDto );
+            log.info("Успешно выполнен запрос на обновление счета поставщика {}", supplierAccountDto);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на обновление счета поставщика {}", supplierAccountsDto);
+            log.error("Произошла ошибка при выполнении запроса на обновление счета поставщика {}", supplierAccountDto);
         }
     }
 

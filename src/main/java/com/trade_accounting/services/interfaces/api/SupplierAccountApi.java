@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.SupplierAccountsDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -12,23 +12,23 @@ import retrofit2.http.Path;
 
 import java.util.List;
 
-public interface SupplierAccountsApi {
+public interface SupplierAccountApi {
 
     @Headers("Accept: application/json")
     @GET("{url}")
-    Call<List<SupplierAccountsDto>> getAll(@Path(value = "url", encoded = true) String url);
+    Call<List<SupplierAccountDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
-    Call<SupplierAccountsDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<SupplierAccountDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<SupplierAccountsDto> create(@Path(value = "url", encoded = true) String url, @Body SupplierAccountsDto supp);
+    Call<SupplierAccountDto> create(@Path(value = "url", encoded = true) String url, @Body SupplierAccountDto supp);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body SupplierAccountsDto supp);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body SupplierAccountDto supp);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
