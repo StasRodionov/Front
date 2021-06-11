@@ -104,7 +104,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                 .setId("Дата");
         grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName()).setWidth("200px")
                 .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId())).setHeader("Компания").setKey("companyId")
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyId")
                 .setId("Компания");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
                 .setKey("warehouseId").setId("На склад");
