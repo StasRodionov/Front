@@ -3,6 +3,7 @@ package com.trade_accounting.components.contractors;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
@@ -13,7 +14,6 @@ import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -42,17 +42,14 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -64,6 +61,7 @@ import java.util.stream.Collectors;
 public class ContractorsTabView extends VerticalLayout {
 
 
+    private final Notifications notifications;
     private final ContractorService contractorService;
     private final ContractorGroupService contractorGroupService;
     private final TypeOfContractorService typeOfContractorService;
@@ -83,13 +81,15 @@ public class ContractorsTabView extends VerticalLayout {
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
 
 
-    public ContractorsTabView(ContractorService contractorService,
+    public ContractorsTabView(Notifications notifications,
+                              ContractorService contractorService,
                               ContractorGroupService contractorGroupService,
                               TypeOfContractorService typeOfContractorService,
                               TypeOfPriceService typeOfPriceService,
                               LegalDetailService legalDetailService, ContractorStatusService contractorStatusService,
                               DepartmentService departmentService, EmployeeService employeeService,
                               BankAccountService bankAccountService) {
+        this.notifications = notifications;
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
         this.typeOfContractorService = typeOfContractorService;
@@ -232,9 +232,19 @@ public class ContractorsTabView extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
-        valueSelect.setItems("Изменить");
-        valueSelect.setValue("Изменить");
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Удалить");
+        valueSelect.setItems(listItems);
+        valueSelect.setPlaceholder("Изменить");
         valueSelect.setWidth("130px");
+        valueSelect.addValueChangeListener(event -> {
+            if (valueSelect.getValue().equals("Удалить")) {
+                deleteSelectedContractors();
+                grid.deselectAll();
+                valueSelect.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return valueSelect;
     }
 
@@ -302,6 +312,17 @@ public class ContractorsTabView extends VerticalLayout {
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
         notification.open();
+    }
+
+    private void deleteSelectedContractors() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ContractorDto contractorDto : grid.getSelectedItems()) {
+                contractorService.deleteById(contractorDto.getId());
+                notifications.infoNotification("Выбранные контрагенты успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
+        }
     }
 
     private void getErrorNotification(String message) {

@@ -63,6 +63,7 @@ public class LegalDetailDto {
         this.dateOfTheCertificate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         this.typeOfContractorDto = typeOfContractorDto;
     }
+
     @JsonIgnore
     public LocalDate getDate() {
         return LocalDate.parse(

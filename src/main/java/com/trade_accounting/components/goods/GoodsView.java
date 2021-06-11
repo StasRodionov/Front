@@ -54,6 +54,7 @@ public class GoodsView extends VerticalLayout {
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private final GoodsModalWindow goodsModalWindow;
+    private final ServiceModalWindow serviceModalWindow;
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridFilter<ProductDto> filter;
     private final LazyPaginator<ProductDto> lazyPaginator;
@@ -62,10 +63,12 @@ public class GoodsView extends VerticalLayout {
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
-                     GoodsModalWindow goodsModalWindow) {
+                     GoodsModalWindow goodsModalWindow,
+                     ServiceModalWindow serviceModalWindow) {
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
+        this.serviceModalWindow = serviceModalWindow;
 
 
         treeGrid = getTreeGrid();
@@ -231,7 +234,10 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonPlusService() {
-        return new Button("Услуга", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button addServiceButton = new Button("Услуга", new Icon(VaadinIcon.PLUS_CIRCLE));
+        addServiceButton.addClickListener(e -> serviceModalWindow.open());
+        addServiceButton.getStyle().set("cursor", "pointer");
+        return addServiceButton;
     }
 
     private Button buttonPlusSet() {
