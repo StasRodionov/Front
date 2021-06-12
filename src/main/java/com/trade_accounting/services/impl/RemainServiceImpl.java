@@ -67,6 +67,14 @@ public class RemainServiceImpl implements RemainService {
 
     @Override
     public void update(RemainDto remainDto) {
+        Call<Void> remainDtoCall = remainApi.update(remainUrl, remainDto);
+
+        try {
+            remainDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра RemainDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра RemainDto - {}", e);
+        }
 
     }
 
