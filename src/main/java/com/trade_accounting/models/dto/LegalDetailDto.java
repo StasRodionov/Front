@@ -71,7 +71,7 @@ public class LegalDetailDto {
                 dateOfTheCertificate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
     @JsonIgnore
-    public void setDate(String dateOfTheCertificate) {// проблема с датой сертификата
+    public void setDate(String dateOfTheCertificate) {// летит сюда при загрузке страницы (но не при добавлении)
         this.date = LocalDate.parse(dateOfTheCertificate);
         this.dateOfTheCertificate = dateOfTheCertificate;
     }
