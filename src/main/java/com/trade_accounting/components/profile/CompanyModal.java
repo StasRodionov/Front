@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
@@ -29,7 +30,6 @@ public class CompanyModal extends Dialog {
     private Long companyId;
     private final TextField name = new TextField();
     private final TextField inn = new TextField();
-    private final TextArea address = new TextArea();
     private final TextArea commentToAddress = new TextArea();
     private final TextField email = new TextField();
     private final TextField phone = new TextField();
@@ -42,6 +42,16 @@ public class CompanyModal extends Dialog {
     private final Select<String> payerVat = new Select<>();
     private final TextField sortNumber = new TextField();
     private final TextField stamp = new TextField();
+
+    private Long addressId;
+    private final TextField addressIndex = new TextField();
+    private final TextField addressCountry = new TextField();
+    private final TextField addressRegion = new TextField();
+    private final TextField addressCity = new TextField();
+    private final TextField addressStreet = new TextField();
+    private final TextField addressHouse = new TextField();
+    private final TextField addressApartment = new TextField();
+    private final TextField addressAnother = new TextField();
 
     private Long legalDetailId;
     private final TextField legalDetailLastName = new TextField();
@@ -82,7 +92,6 @@ public class CompanyModal extends Dialog {
         companyId = dto.getId();
         setField(name, dto.getName());
         setField(inn, dto.getInn());
-        setField(address, dto.getAddress());
         setField(commentToAddress, dto.getCommentToAddress());
         setField(email, dto.getEmail());
         setField(phone, dto.getPhone());
@@ -95,6 +104,18 @@ public class CompanyModal extends Dialog {
         setField(payerVat, Boolean.TRUE.equals(dto.getPayerVat()) ? "Да" : "Нет");
         setField(sortNumber, dto.getSortNumber());
         setField(stamp, dto.getStamp());
+
+        if (dto.getAddressDto() != null) {
+            addressId = dto.getAddressDto().getId();
+            setField(addressIndex, dto.getAddressDto().getIndex());
+            setField(addressCountry, dto.getAddressDto().getCountry());
+            setField(addressRegion, dto.getAddressDto().getRegion());
+            setField(addressCity, dto.getAddressDto().getCity());
+            setField(addressStreet, dto.getAddressDto().getStreet());
+            setField(addressHouse, dto.getAddressDto().getHouse());
+            setField(addressApartment, dto.getAddressDto().getApartment());
+            setField(addressAnother, dto.getAddressDto().getAnother());
+        }
 
         if (dto.getLegalDetailDto() != null) {
             legalDetailId = dto.getLegalDetailDto().getId();
@@ -134,6 +155,18 @@ public class CompanyModal extends Dialog {
             typeOfContractorDto.setName(typeOfContractorName.getValue());
             typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
 
+            AddressDto addressDto = new AddressDto();
+            addressDto.setId(addressId);
+            addressDto.setIndex(addressIndex.getValue());
+            addressDto.setCountry(addressCountry.getValue());
+            addressDto.setRegion(addressRegion.getValue());
+            addressDto.setCity(addressCity.getValue());
+            addressDto.setStreet(addressStreet.getValue());
+            addressDto.setHouse(addressHouse.getValue());
+            addressDto.setApartment(addressApartment.getValue());
+            addressDto.setAnother(addressAnother.getValue());
+
+
             LegalDetailDto legalDetailDto = new LegalDetailDto();
             legalDetailDto.setId(legalDetailId);
             legalDetailDto.setLastName(legalDetailLastName.getValue());
@@ -153,7 +186,7 @@ public class CompanyModal extends Dialog {
             companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
-            companyDto.setAddress(address.getValue());
+            companyDto.setAddressDto(addressDto);
             companyDto.setCommentToAddress(commentToAddress.getValue());
             companyDto.setEmail(email.getValue());
             companyDto.setPhone(phone.getValue());
@@ -191,7 +224,6 @@ public class CompanyModal extends Dialog {
         layoutInfo.add(
                 configureName(),
                 configureInn(),
-                configureAddress(),
                 configureCommentToAddress(),
                 configureEmail(),
                 configurePhone(),
@@ -199,6 +231,19 @@ public class CompanyModal extends Dialog {
                 configureSortNumber(),
                 configurePayerVat(),
                 configureStamp());
+
+        VerticalLayout address = new VerticalLayout();
+        address.add(
+                configureAddressIndex(),
+                configureAddressCountry(),
+                configureAddressRegion(),
+                configureAddressCity(),
+                configureAddressStreet(),
+                configureAddressHouse(),
+                configureAddressApartment(),
+                configureAddressAnother());
+        accordion.add("Адрес", address).addThemeVariants(DetailsVariant.FILLED);
+
         accordion.add("О юр. лице", layoutInfo).addThemeVariants(DetailsVariant.FILLED);
 
         VerticalLayout layoutPersons = new VerticalLayout();
@@ -239,9 +284,44 @@ public class CompanyModal extends Dialog {
         return getHorizontalLayout("ИНН", inn);
     }
 
-    private HorizontalLayout configureAddress() {
-        address.setWidth(FIELD_WIDTH);
-        return getHorizontalLayout("Адрес", address);
+    private HorizontalLayout configureAddressIndex() {
+        addressIndex.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Индекс", addressIndex);
+    }
+
+    private HorizontalLayout configureAddressCountry() {
+        addressCountry.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Страна", addressCountry);
+    }
+
+    private HorizontalLayout configureAddressRegion() {
+        addressRegion.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Регион", addressRegion);
+    }
+
+    private HorizontalLayout configureAddressCity() {
+        addressCity.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Город", addressCity);
+    }
+
+    private HorizontalLayout configureAddressStreet() {
+        addressStreet.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Улица", addressStreet);
+    }
+
+    private HorizontalLayout configureAddressHouse() {
+        addressHouse.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Номер дома", addressHouse);
+    }
+
+    private HorizontalLayout configureAddressApartment() {
+        addressApartment.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Номер квартиры", addressApartment);
+    }
+
+    private HorizontalLayout configureAddressAnother() {
+        addressAnother.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Примечание", addressAnother);
     }
 
     private HorizontalLayout configureCommentToAddress() {

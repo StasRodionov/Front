@@ -70,7 +70,7 @@ public class CompanyView extends VerticalLayout {
     private void configureGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("id", "name", "inn", "address", "commentToAddress",
+        grid.setColumns("id", "name", "inn", "addressDto", "commentToAddress",
                 "email", "phone", "fax", "leader", "leaderManagerPosition", "leaderSignature",
                 "chiefAccountant", "chiefAccountantSignature", "payerVat",
                 "stamp", "sortNumber", "legalDetailDto");
@@ -78,7 +78,7 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("id").setHeader("ID").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("inn").setHeader("ИНН").setId("ИНН");
-        grid.getColumnByKey("address").setHeader("Адрес").setId("Адрес");
+        grid.getColumnByKey("addressDto").setHeader("Адрес").setId("Адрес");
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу").setId("Комментарий к адресу");
         grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
         grid.getColumnByKey("phone").setHeader("Телефон").setId("Телефон");
