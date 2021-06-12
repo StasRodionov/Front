@@ -64,4 +64,6 @@ task_comment_url: api/task_comments
 technical_card_url: api/technical_card
 
 technical_card_group_url: api/technical_card_group
+
+remain_url: api/remain
 #debug: true
