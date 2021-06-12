@@ -55,7 +55,14 @@ public class RemainServiceImpl implements RemainService {
 
     @Override
     public void create(RemainDto remainDto) {
+        Call<Void> remainDtoCall = remainApi.create(remainUrl, remainDto);
 
+        try {
+            remainDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание экземпляра RemainDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра ReaminDto - {}", e);
+        }
     }
 
     @Override
