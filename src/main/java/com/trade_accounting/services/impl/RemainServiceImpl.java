@@ -75,11 +75,17 @@ public class RemainServiceImpl implements RemainService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на обновление экземпляра RemainDto - {}", e);
         }
-
     }
 
     @Override
     public void deleteById(Long id) {
+        Call<Void> remainDtoCall = remainApi.deleteById(remainUrl, id);
 
+        try {
+            remainDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра RemainDto с id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра RemainDto по id= {} - {}", id, e);
+        }
     }
 }
