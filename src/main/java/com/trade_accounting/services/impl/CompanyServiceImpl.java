@@ -21,6 +21,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyApi companyApi;
     private final String companyUrl;
+    private  CompanyDto companyDto;
 
     public CompanyServiceImpl(@Value("${company_url}") String companyUrl, Retrofit retrofit) {
         this.companyUrl = companyUrl;
@@ -80,7 +81,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyDto getById(Long id) {
         Call<CompanyDto> companyDtoCall = companyApi.getById(companyUrl, id);
-        CompanyDto companyDto = null;
+
 
         try {
             companyDto = companyDtoCall.execute().body();

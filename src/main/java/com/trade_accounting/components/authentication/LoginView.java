@@ -57,7 +57,7 @@ public class LoginView extends VerticalLayout {
         i18n.setHeader(new LoginI18n.Header());
         i18n.getHeader().setTitle("Trade Accounting");
         i18n.getHeader().setDescription("Номер 101 в мире");
-        i18n.getForm().setUsername("Имейл");
+        i18n.getForm().setUsername("E-mail");
         i18n.getForm().setTitle("");
         i18n.getForm().setSubmit("Войти");
         i18n.getForm().setPassword("Пароль");

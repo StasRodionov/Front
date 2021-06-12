@@ -15,5 +15,5 @@ public class TechnicalCardProductionDto {
 
     private Long amount;
 
-    private ProductDto productDto;
+    private Long productId;
 }

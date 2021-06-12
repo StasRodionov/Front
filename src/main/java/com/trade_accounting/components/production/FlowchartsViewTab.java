@@ -6,8 +6,10 @@ import com.trade_accounting.components.contractors.ContractorModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.button.Button;
@@ -45,12 +47,19 @@ public class FlowchartsViewTab extends VerticalLayout {
     private final GridFilter<TechnicalCardDto> filter;
     private final TechnicalCardGroupDto technicalCardGroupDto;
     private final TechnicalCardGroupService technicalCardGroupService;
+    private final TechnicalCardDto technicalCardDto;
+    private final ProductService productService;
+    private final List<ProductDto> productDtoList;
 
     public FlowchartsViewTab(TechnicalCardService technicalCardService,
-                             TechnicalCardGroupService technicalCardGroupService) {
+                             TechnicalCardGroupService technicalCardGroupService,
+                             ProductService productService) {
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
+        this.productService = productService;
         this.technicalCardGroupDto = new TechnicalCardGroupDto();
+        this.technicalCardDto = new TechnicalCardDto();
+        this.productDtoList = productService.getAll();
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -89,6 +98,10 @@ public class FlowchartsViewTab extends VerticalLayout {
 
     private Button buttonPlusFlowcharts() {
         Button addFlowchartsButton = new Button("Тех. карта", new Icon(VaadinIcon.PLUS_CIRCLE));
+        TechnicalCardModalWindow addTechnicalCardModal =
+                new TechnicalCardModalWindow(new TechnicalCardDto(), technicalCardService, technicalCardGroupService, productDtoList);
+        addFlowchartsButton.addClickListener(event -> addTechnicalCardModal.open());
+        addTechnicalCardModal.addDetachListener(event -> updateList());
         addFlowchartsButton.getStyle().set("cursor", "pointer");
         return addFlowchartsButton;
     }
