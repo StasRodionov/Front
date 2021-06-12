@@ -41,7 +41,16 @@ public class RemainServiceImpl implements RemainService {
 
     @Override
     public RemainDto getById(Long id) {
-        return null;
+        RemainDto remainDto = null;
+        Call<RemainDto> remainDtoCall = remainApi.getBuId(remainUrl, id);
+
+        try {
+            remainDto = remainDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение экземпляра RemainDto с id = {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение экземпляра RemainDto по id= {} - {}", id, e);
+        }
+        return remainDto;
     }
 
     @Override
