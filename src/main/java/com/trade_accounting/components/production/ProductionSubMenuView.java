@@ -1,8 +1,9 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.contractors.ContractorsTabView;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -17,11 +18,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ProductionSubMenuView extends Div implements AfterNavigationObserver {
 
     private final Div div;
+    private final TechnicalCardService technicalCardService;
+    private final TechnicalCardGroupService technicalCardGroupService;
+    private final ProductService productService;
 
     @Autowired
-    public ProductionSubMenuView() {
+    public ProductionSubMenuView(TechnicalCardService technicalCardService,
+                                 TechnicalCardGroupService technicalCardGroupService,
+                                 ProductService productService) {
         div = new Div();
         add(configurationSubMenu(), div);
+        this.technicalCardService = technicalCardService;
+        this.technicalCardGroupService = technicalCardGroupService;
+        this.productService = productService;
     }
 
     private Tabs configurationSubMenu() {
@@ -36,7 +45,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
             switch (name) {
                 case "Тех. карты":
                     div.removeAll();
-                    div.add(new FlowchartsViewTab());
+                    div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, productService));
                     break;
                 case "Заказы на производство":
                     div.removeAll();
@@ -54,7 +63,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new FlowchartsViewTab());
+        div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, productService));
 
     }
 }

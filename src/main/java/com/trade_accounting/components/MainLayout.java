@@ -7,7 +7,7 @@ import com.vaadin.flow.router.RouteAlias;
 
 @Route(value = "main", layout = AppView.class)
 @RouteAlias(value = "", layout = AppView.class)
-@PageTitle("Главна | CRM")
+@PageTitle("Главная | CRM")
 public class MainLayout extends VerticalLayout {
 
     public MainLayout() {

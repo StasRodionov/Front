@@ -12,6 +12,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -28,6 +29,19 @@ public class TechnicalCardServiceImpl implements TechnicalCardService {
     public TechnicalCardServiceImpl(@Value("${technical_card_url}") String technicalCardUrl, Retrofit retrofit) {
         this.technicalCardUrl = technicalCardUrl;
         technicalCardApi = retrofit.create(TechnicalCardApi.class);
+    }
+
+    @Override
+    public List<TechnicalCardDto> searchTechnicalCard(Map<String, String> queryTechnicalCard) {
+        List<TechnicalCardDto> technicalCardDtoList = new ArrayList<>();
+        Call<List<TechnicalCardDto>> technicalCardDtoListCall = technicalCardApi.searchContractor(technicalCardUrl, queryTechnicalCard);
+        try {
+            technicalCardDtoList = technicalCardDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка технических карт");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка технических карт: {IOException}", e);
+        }
+        return technicalCardDtoList;
     }
 
     @Override

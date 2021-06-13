@@ -25,7 +25,7 @@ public interface CompanyApi {
     Call<List<CompanyDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
-    @GET("{url}/id/{id}")
+    @GET("{url}/{id}")
     Call<CompanyDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
