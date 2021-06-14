@@ -25,34 +25,25 @@ public class ContractorStatusServiceImpl implements ContractorStatusService {
 
     private ContractorStatusDto statusDto = new ContractorStatusDto();
 
-    public ContractorStatusServiceImpl(@Value("${contractor_status_url}") String statusUrl, Retrofit retrofit) {
+    private final CallExecuteService<ContractorStatusDto> dtoCallExecuteService;
+
+    public ContractorStatusServiceImpl(@Value("${contractor_status_url}") String statusUrl, Retrofit retrofit, CallExecuteService<ContractorStatusDto> dtoCallExecuteService) {
         this.contractorStatusApi = retrofit.create(ContractorStatusApi.class);
         this.statusUrl = statusUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
 
     @Override
     public List<ContractorStatusDto> getAll() {
         Call<List<ContractorStatusDto>> statusGetAllCall = contractorStatusApi.getAll(statusUrl);
-        try {
-            statusDtoList = statusGetAllCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка statusDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка contractorStatusDto");
-        }
-        return statusDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(statusGetAllCall, ContractorStatusDto.class);
     }
 
     @Override
     public ContractorStatusDto getById(Long id) {
         Call<ContractorStatusDto> statusGetCall = contractorStatusApi.getById(statusUrl, id);
-        try {
-            statusDto = statusGetCall.execute().body();
-            log.info("Успешно выполнен запрос на получение statusDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение contractorStatusDto - {}", e);
-        }
-        return statusDto;
+        return dtoCallExecuteService.callExecuteBodyById(statusGetCall, statusDto, ContractorStatusDto.class, id);
     }
 
 }

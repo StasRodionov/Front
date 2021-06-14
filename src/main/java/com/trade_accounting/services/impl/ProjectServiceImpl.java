@@ -1,9 +1,7 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.PaymentDto;
 import com.trade_accounting.models.dto.ProjectDto;
 import com.trade_accounting.services.interfaces.ProjectService;
-import com.trade_accounting.services.interfaces.api.PaymentApi;
 import com.trade_accounting.services.interfaces.api.ProjectApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,25 +18,22 @@ import java.util.List;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectApi projectApi;
+
     private final String projectUrl;
 
-    public ProjectServiceImpl(@Value("${project_url}") String projectUrl, Retrofit retrofit) {
+    private final CallExecuteService<ProjectDto> dtoCallExecuteService;
+
+    public ProjectServiceImpl(@Value("${project_url}") String projectUrl, Retrofit retrofit, CallExecuteService<ProjectDto> dtoCallExecuteService) {
         projectApi = retrofit.create(ProjectApi.class);
         this.projectUrl = projectUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<ProjectDto> getAll() {
         List<ProjectDto> projectDtoList = new ArrayList<>();
         Call<List<ProjectDto>> projectDtoListCall = projectApi.getAll(projectUrl);
-
-        try {
-            projectDtoList.addAll(projectDtoListCall.execute().body());
-            log.info("Успешно выполнен запрос на получение списка ProjectDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка ProjectDto - {}", e);
-        }
-        return projectDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(projectDtoListCall, ProjectDto.class);
     }
 
     @Override

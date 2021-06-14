@@ -188,9 +188,9 @@ public class ContractorsTabView extends VerticalLayout {
 
     public void updateListTextField() {
         if (!(textField.getValue().equals(""))) {
-            grid.setItems(contractorService.getAll(textField.getValue()));
+            grid.setItems(contractorService.searchByTerm(textField.getValue()));
         } else {
-            grid.setItems(contractorService.getAll("null"));
+            grid.setItems(contractorService.searchByTerm("null"));
         }
     }
 

@@ -17,71 +17,48 @@ import java.util.List;
 public class TypeOfContractorServiceImpl implements TypeOfContractorService {
 
     private final TypeOfContractorApi typeOfContractorApi;
+
     private final String typeOfContractorUrl;
+
     private List<TypeOfContractorDto> typeOfContractorDtoList;
+
     private TypeOfContractorDto typeOfContractorDto;
 
-    public TypeOfContractorServiceImpl(@Value("${type_of_contractor_url}") String typeOfContractorUrl, Retrofit retrofit) {
+    private final CallExecuteService<TypeOfContractorDto> dtoCallExecuteService;
+
+    public TypeOfContractorServiceImpl(@Value("${type_of_contractor_url}") String typeOfContractorUrl, Retrofit retrofit, CallExecuteService<TypeOfContractorDto> dtoCallExecuteService) {
         this.typeOfContractorUrl = typeOfContractorUrl;
         typeOfContractorApi = retrofit.create(TypeOfContractorApi.class);
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<TypeOfContractorDto> getAll() {
         Call<List<TypeOfContractorDto>> typeOfContractorDtoListCall = typeOfContractorApi.getAll(typeOfContractorUrl);
-        try {
-            typeOfContractorDtoList = typeOfContractorDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка TypeOfContractorDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка TypeOfContractorDto");
-        }
-        return typeOfContractorDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(typeOfContractorDtoListCall, TypeOfContractorDto.class);
     }
 
     @Override
     public TypeOfContractorDto getById(Long id) {
         Call<TypeOfContractorDto> typeOfContractorDtoCall = typeOfContractorApi.getById(typeOfContractorUrl, id);
-        try {
-            typeOfContractorDto = typeOfContractorDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение TypeOfContractorDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение TypeOfContractorDto - {}", e);
-        }
-        return typeOfContractorDto;
+        return dtoCallExecuteService.callExecuteBodyById(typeOfContractorDtoCall, typeOfContractorDto, TypeOfContractorDto.class, id);
     }
 
     @Override
     public void create(TypeOfContractorDto typeOfContractorDto) {
-
         Call<Void> typeOfContractorDtoCall = typeOfContractorApi.create(typeOfContractorUrl, typeOfContractorDto);
-        try {
-            typeOfContractorDtoCall.execute();
-            log.info("Успешно выполнен запрос создания typeOfContractorDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при создании typeOfContractorDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(typeOfContractorDtoCall, TypeOfContractorDto.class);
     }
 
     @Override
     public void update(TypeOfContractorDto typeOfContractorDto) {
-
         Call<Void> typeOfContractorDtoCall = typeOfContractorApi.update(typeOfContractorUrl, typeOfContractorDto);
-        try {
-            typeOfContractorDtoCall.execute();
-            log.info("Успешно выполнен запрос на изменение typeOfContractorDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при обновлении typeOfContractorDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyUpdate(typeOfContractorDtoCall, TypeOfContractorDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> typeOfContractorDtoCall = typeOfContractorApi.deleteById(typeOfContractorUrl, id);
-        try {
-            typeOfContractorDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление typeOfContractor");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при удалении typeOfContractor - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(typeOfContractorDtoCall, TypeOfContractorDto.class, id);
     }
 }

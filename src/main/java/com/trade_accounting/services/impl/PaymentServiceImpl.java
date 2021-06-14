@@ -20,26 +20,20 @@ import java.util.Objects;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentApi paymentApi;
+
     private final String paymentUrl;
 
-    public PaymentServiceImpl(@Value("${payment_url}") String paymentUrl, Retrofit retrofit) {
+    private final CallExecuteService<PaymentDto> dtoCallExecuteService;
+    public PaymentServiceImpl(@Value("${payment_url}") String paymentUrl, Retrofit retrofit, CallExecuteService<PaymentDto> dtoCallExecuteService) {
         paymentApi = retrofit.create(PaymentApi.class);
         this.paymentUrl = paymentUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<PaymentDto> getAll() {
-        List<PaymentDto> paymentDtoList = new ArrayList<>();
         Call<List<PaymentDto>> paymentDtoListCall = paymentApi.getAll(paymentUrl);
-
-        try {
-            paymentDtoList = paymentDtoListCall.execute().body();
-            Objects.requireNonNull(paymentDtoList).forEach(payment -> payment.setTime(payment.getTime()));
-            log.info("Успешно выполнен запрос на получение списка PaymentDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка PaymentDto - {}", e);
-        }
-        return paymentDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(paymentDtoListCall, PaymentDto.class);
     }
 
     @Override
@@ -65,55 +59,27 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDto getById(Long id) {
-        PaymentDto paymentDto = null;
+        PaymentDto paymentDto = new PaymentDto();
         Call<PaymentDto> paymentDtoCall = paymentApi.getById(paymentUrl, id);
-
-        try {
-            paymentDto = paymentDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экземпляра PaymentDto с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра PaymentDto по id= {} - {}", id, e);
-        }
-        return paymentDto;
+        return dtoCallExecuteService.callExecuteBodyById(paymentDtoCall, paymentDto,PaymentDto.class, id);
     }
 
     @Override
     public void create(PaymentDto paymentDto) {
-
         Call<Void> paymentDtoCall = paymentApi.create(paymentUrl, paymentDto);
-
-        try {
-            paymentDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание экземпляра PaymentDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра PaymentDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(paymentDtoCall, PaymentDto.class);
     }
 
     @Override
     public void update(PaymentDto paymentDto) {
-
         Call<Void> paymentDtoCall = paymentApi.update(paymentUrl, paymentDto);
-
-        try {
-            paymentDtoCall.execute();
-            log.info("Успешно выполнен запрос на обновление экземпляра PaymentDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра PaymentDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyUpdate(paymentDtoCall, PaymentDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
-
         Call<Void> paymentDtoCall = paymentApi.deleteById(paymentUrl, id);
-
-        try {
-            paymentDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра PaymentDto с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PaymentDto по id= {} - {}", id, e);
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(paymentDtoCall, PaymentDto.class, id);
     }
 
     @Override
