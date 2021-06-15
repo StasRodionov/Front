@@ -8,9 +8,9 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -24,7 +24,6 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -52,18 +51,20 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
-    private SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    private CommissionAgentReportModalView commissionAgentReportModalView;
 
     private final String typeOfInvoice = "RECEIPT";
 
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
                                     CompanyService companyService,
-                                    WarehouseService warehouseService) {
+                                    WarehouseService warehouseService,
+                                    CommissionAgentReportModalView commissionAgentReportModalView) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
+        this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.data = getData();
 
         configureActions();
@@ -100,12 +101,12 @@ public class SalesSubAgentReportsView extends VerticalLayout {
 
 
         grid.addItemDoubleClickListener(event -> {
-            InvoiceDto editInvoice = event.getItem();
-            salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
-            salesEditCreateInvoiceView.setUpdateState(true);
-            salesEditCreateInvoiceView.setType("RECEIPT");
-            salesEditCreateInvoiceView.setLocation("sells");
-            UI.getCurrent().navigate("sells/customer-order-edit");
+//            InvoiceDto editInvoice = event.getItem();
+//            salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
+//            salesEditCreateInvoiceView.setUpdateState(true);
+//            salesEditCreateInvoiceView.setType("RECEIPT");
+//            salesEditCreateInvoiceView.setLocation("sells");
+//            UI.getCurrent().navigate("sells/customer-order-edit");
         });
     }
 
@@ -141,16 +142,15 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         return buttonRefresh;
     }
 
-    private Button buttonUnit() {
+    public Button buttonUnit() {
         Button buttonUnit = new Button("Отчет комиссионера", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(event -> {
-            salesEditCreateInvoiceView.resetView();
-            salesEditCreateInvoiceView.setUpdateState(false);
-            salesEditCreateInvoiceView.setType("RECEIPT");
-            salesEditCreateInvoiceView.setLocation("sells");
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+            commissionAgentReportModalView.open();
+
         });
         return buttonUnit;
+
+
     }
 
     private Button buttonFilter() {
