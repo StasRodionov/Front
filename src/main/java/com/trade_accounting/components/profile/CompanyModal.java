@@ -196,7 +196,7 @@ public class CompanyModal extends Dialog {
             companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
-            companyDto.setAddressId(addressId);
+            companyDto.setAddressId(addressDto.getId());
             companyDto.setCommentToAddress(commentToAddress.getValue());
             companyDto.setEmail(email.getValue());
             companyDto.setPhone(phone.getValue());
