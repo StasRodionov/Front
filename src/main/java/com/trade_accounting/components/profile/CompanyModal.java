@@ -176,6 +176,7 @@ public class CompanyModal extends Dialog {
             }
 
 
+
             LegalDetailDto legalDetailDto = new LegalDetailDto();
             legalDetailDto.setId(legalDetailId);
             legalDetailDto.setLastName(legalDetailLastName.getValue());

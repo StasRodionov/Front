@@ -69,4 +69,5 @@ remain_url: api/remain
 
 supplier_account_url: api/supplierAccount
 
+address_url: api/address
 #debug: true
