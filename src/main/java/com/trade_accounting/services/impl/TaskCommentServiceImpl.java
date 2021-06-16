@@ -19,61 +19,39 @@ import java.util.List;
 public class TaskCommentServiceImpl implements TaskCommentService {
 
     private final TaskCommentApi taskCommentApi;
+
     private final String taskCommentUrl;
 
+    private final CallExecuteService<TaskCommentDto> dtoCallExecuteService;
+
     @Autowired
-    public TaskCommentServiceImpl(@Value("${task_comment_url}") String taskCommentUrl, Retrofit retrofit) {
+    public TaskCommentServiceImpl(@Value("${task_comment_url}") String taskCommentUrl, Retrofit retrofit, CallExecuteService<TaskCommentDto> dtoCallExecuteService) {
         taskCommentApi = retrofit.create(TaskCommentApi.class);
         this.taskCommentUrl = taskCommentUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<TaskCommentDto> getAll() {
-        List<TaskCommentDto> taskCommentDtoList = new ArrayList<>();
         Call<List<TaskCommentDto>> taskCommentDtoListCall = taskCommentApi.getAll(taskCommentUrl);
-        try {
-            taskCommentDtoList = taskCommentDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка TaskCommentDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на получение списка TaskCommentDto: {}", e);
-        }
-        return taskCommentDtoList;
-
+        return dtoCallExecuteService.callExecuteBodyList(taskCommentDtoListCall, TaskCommentDto.class);
     }
 
     @Override
     public void create(TaskCommentDto taskCommentDto) {
         Call<Void> taskCommentDtoCall = taskCommentApi.create(taskCommentUrl, taskCommentDto);
-
-        try {
-            taskCommentDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание нового экземпляра {}", taskCommentDto);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}", taskCommentDto, e);
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(taskCommentDtoCall, TaskCommentDto.class);
     }
 
     @Override
     public void update(TaskCommentDto taskCommentDto) {
         Call<Void> taskCommentDtoCall = taskCommentApi.update(taskCommentUrl, taskCommentDto);
-
-        try {
-            taskCommentDtoCall.execute();
-            log.info("Успешно выполнен запрос на изменение экземпляра {}", taskCommentDto);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на изменение экземпляра {}: {}", taskCommentDto, e);
-        }
+        dtoCallExecuteService.callExecuteBodyUpdate(taskCommentDtoCall, TaskCommentDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> taskCommentDtoCall = taskCommentApi.deleteById(taskCommentUrl, id);
-
-        try {
-            taskCommentDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на удаление экземпляра с id {}: {}", id, e);
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(taskCommentDtoCall, TaskCommentDto.class, id);
     }
 }

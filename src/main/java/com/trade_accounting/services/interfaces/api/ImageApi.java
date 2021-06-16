@@ -24,11 +24,11 @@ public interface ImageApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<ImageDto> create(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<ImageDto> update(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ImageDto imageDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")

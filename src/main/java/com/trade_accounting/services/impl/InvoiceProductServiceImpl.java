@@ -18,37 +18,28 @@ import java.util.List;
 public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     private final InvoiceProductApi invoiceProductApi;
+
     private final String invoiceProductUrl;
 
-    public InvoiceProductServiceImpl(@Value("${invoice_product_url}") String invoiceProductUrl, Retrofit retrofit){
+    private final CallExecuteService<InvoiceProductDto> dtoCallExecuteService;
+
+    public InvoiceProductServiceImpl(@Value("${invoice_product_url}") String invoiceProductUrl, Retrofit retrofit, CallExecuteService<InvoiceProductDto> dtoCallExecuteService){
         invoiceProductApi = retrofit.create(InvoiceProductApi.class);
         this.invoiceProductUrl = invoiceProductUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<InvoiceProductDto> getAll() {
-        List<InvoiceProductDto> invoiceProductDtoList = new ArrayList<>();
         Call<List<InvoiceProductDto>> invoiceProductDtoListCall = invoiceProductApi.getAll(invoiceProductUrl);
-        try {
-            invoiceProductDtoList.addAll(invoiceProductDtoListCall.execute().body());
-            log.info("Успешно выполнен запрос на получение списка invoiceProductDto");
-        } catch (IOException e){
-            log.error("Произошла ошибка при выполнении запроса на получение списка invoiceProductDto - {}", e);
-        }
-        return invoiceProductDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(invoiceProductDtoListCall, InvoiceProductDto.class);
     }
 
     @Override
     public InvoiceProductDto getById(Long id) {
-        InvoiceProductDto invoiceProductDto = null;
+        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         Call<InvoiceProductDto> invoiceProductDtoCall = invoiceProductApi.getById(invoiceProductUrl, id);
-        try{
-            invoiceProductDto = invoiceProductDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экземпляра InvoiceProductDto с id = {}", id);
-        } catch (IOException e){
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра InvoiceDto по id= {} - {}", id, e);
-        }
-        return invoiceProductDto;
+        return dtoCallExecuteService.callExecuteBodyById(invoiceProductDtoCall, invoiceProductDto, InvoiceProductDto.class, id);
     }
 
     @Override
@@ -67,35 +58,18 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     @Override
     public void create(InvoiceProductDto invoiceProductDto) {
         Call<Void> invoiceProductDtoCall = invoiceProductApi.create(invoiceProductUrl, invoiceProductDto);
-        try {
-            invoiceProductDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание экземпляра InvoiceProductDto");
-        } catch (IOException e){
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра InvoiceProductDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(invoiceProductDtoCall, InvoiceProductDto.class);
     }
 
     @Override
     public void update(InvoiceProductDto invoiceProductDto) {
         Call<Void> invoiceProductDtoCall = invoiceProductApi.create(invoiceProductUrl, invoiceProductDto);
-        try {
-            invoiceProductDtoCall.execute();
-            log.info("Успешно выполнен запрос на обновление экземпляра InvoiceProductDto");
-        } catch (IOException e){
-            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра InvoiceProductDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyUpdate(invoiceProductDtoCall, InvoiceProductDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> invoiceProductDtoCall = invoiceProductApi.deleteById(invoiceProductUrl, id);
-
-        try {
-            invoiceProductDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра InvoiceProductDto с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InvoiceProductDto по id= {} - {}", id, e);
-        }
-
+        dtoCallExecuteService.callExecuteBodyDelete(invoiceProductDtoCall,InvoiceProductDto.class, id);
     }
 }

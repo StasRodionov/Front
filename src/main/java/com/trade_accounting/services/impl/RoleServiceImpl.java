@@ -25,65 +25,41 @@ public class RoleServiceImpl implements RoleService {
 
     private RoleDto roleDto = new RoleDto();
 
-    public RoleServiceImpl(@Value("${role_url}") String roleUrl, Retrofit retrofit) {
+    private final CallExecuteService<RoleDto> dtoCallExecuteService;
+
+    public RoleServiceImpl(@Value("${role_url}") String roleUrl, Retrofit retrofit, CallExecuteService<RoleDto> dtoCallExecuteService) {
         this.roleUrl = roleUrl;
         roleApi = retrofit.create(RoleApi.class);
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<RoleDto> getAll() {
         Call<List<RoleDto>> roleGetAllCall = roleApi.getAll(roleUrl);
-        try {
-            roleDtoList = roleGetAllCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка RoleDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка RoleDto");
-        }
-        return roleDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(roleGetAllCall, RoleDto.class);
     }
 
     @Override
     public RoleDto getById(Long id) {
         Call<RoleDto> roleGetCall = roleApi.getById(roleUrl, id);
-        try {
-            roleDto = roleGetCall.execute().body();
-            log.info("Успешно выполнен запрос на получение RoleDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение RoleDto - {}", e);
-        }
-        return roleDto;
+        return dtoCallExecuteService.callExecuteBodyById(roleGetCall,roleDto, RoleDto.class, id);
     }
 
     @Override
     public void create(RoleDto roleDto) {
         Call<Void> roleCall = roleApi.create(roleUrl, roleDto);
-        try {
-            roleCall.execute();
-            log.info("Успешно выполнен запрос create RoleDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при создании RoleDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(roleCall, RoleDto.class);
     }
 
     @Override
     public void update(RoleDto roleDto) {
         Call<Void> roleUpdateCall = roleApi.update(roleUrl, roleDto);
-        try {
-            roleUpdateCall.execute();
-            log.info("Успешно выполнен запрос на изменение RoleDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при обновлении RoleDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyUpdate(roleUpdateCall, RoleDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> roleDeleteCall = roleApi.deleteById(roleUrl, id);
-        try {
-            roleDeleteCall.execute();
-            log.info("Успешно выполнен запрос на удаление RoleDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при удалении RoleDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(roleDeleteCall, RoleDto.class, id);
     }
 }

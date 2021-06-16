@@ -7,11 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,168 +21,42 @@ public class UnitServiceImpl implements UnitService {
 
     private final String unitUrl;
 
-    public UnitServiceImpl(@Value("${unit_url}") String unitUrl, Retrofit retrofit) {
+    private final CallExecuteService<UnitDto> dtoCallExecuteService;
+
+    public UnitServiceImpl(@Value("${unit_url}") String unitUrl, Retrofit retrofit, CallExecuteService<UnitDto> dtoCallExecuteService) {
         this.unitUrl = unitUrl;
         unitApi = retrofit.create(UnitApi.class);
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<UnitDto> getAll() {
-
-        List<UnitDto> unitDtoList = new ArrayList<>();
-
         Call<List<UnitDto>> unitDtoListCall = unitApi.getAll(unitUrl);
-
-        try {
-            unitDtoList = unitDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка UnitDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка UnitDto");
-        }
-/*        unitDtoListCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<List<UnitDto>> call, Response<List<UnitDto>> response) {
-                if (response.isSuccessful()) {
-                    unitDtoList = response.body();
-                    log.info("Успешно выполнен запрос на получение списка UnitDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение списка UnitDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<UnitDto>> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос списка UnitDto", throwable);
-            }
-        });
-*/
-        return unitDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(unitDtoListCall, UnitDto.class);
     }
 
     @Override
     public UnitDto getById(Long id) {
-
         UnitDto unitDto = new UnitDto();
-
         Call<UnitDto> unitDtoCall = unitApi.getById(unitUrl, id);
-
-        try {
-            unitDto = unitDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экземпляра UnitDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра UnitDto");
-        }
-/*        unitDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<UnitDto> call, Response<UnitDto> response) {
-                if (response.isSuccessful()) {
-                    unitDto = response.body();
-                    log.info("Успешно выполнен запрос на получение экземпляра UnitDto по id= {}", id);
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра UnitDto по id= {} - {}",
-                            id, response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UnitDto> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос экземпляра UnitDto по id", throwable);
-            }
-        });
-*/
-        return unitDto;
+        return dtoCallExecuteService.callExecuteBodyById(unitDtoCall, unitDto, UnitDto.class, id);
     }
 
     @Override
     public void create(UnitDto unitDto) {
-
         Call<Void> unitDtoCall = unitApi.create(unitUrl, unitDto);
-
-        try {
-            unitDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на создание экземпляра UnitDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра UnitDto");
-        }
-
-/*        unitDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на создание экземпляра UnitDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра UnitDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра UnitDto", throwable);
-            }
-        });
-        */
+        dtoCallExecuteService.callExecuteBodyCreate(unitDtoCall, UnitDto.class);
     }
 
     @Override
     public void update(UnitDto unitDto) {
-
         Call<Void> unitDtoCall = unitApi.update(unitUrl, unitDto);
-
-        try {
-            unitDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на обновление экземпляра UnitDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра UnitDto");
-        }
-/*         unitDtoCall.enqueue(new Callback<>() {
-           @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на обновление экземпляра UnitDto");
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра UnitDto - {}",
-                            response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра UnitDto", throwable);
-            }
-        });
-*/
+        dtoCallExecuteService.callExecuteBodyUpdate(unitDtoCall, UnitDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
-
         Call<Void> unitDtoCall = unitApi.deleteById(unitUrl, id);
-
-        try {
-            unitDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на удаление экземпляра UnitDto с id= {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра UnitDto");
-        }
-
-/*        unitDtoCall.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    log.info("Успешно выполнен запрос на удаление экземпляра UnitDto с id= {}", id);
-                } else {
-                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра UnitDto с id= {} - {}",
-                            id, response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра UnitDto", throwable);
-            }
-        });
- */
+        dtoCallExecuteService.callExecuteBodyDelete(unitDtoCall, UnitDto.class, id);
     }
 }

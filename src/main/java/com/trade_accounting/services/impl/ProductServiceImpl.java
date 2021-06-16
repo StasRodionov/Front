@@ -22,72 +22,47 @@ import java.util.Map;
 public class ProductServiceImpl implements ProductService {
 
     private final String productUrl;
+
     private final ProductApi productApi;
 
+    private final CallExecuteService<ProductDto> dtoCallExecuteService;
 
-    ProductServiceImpl(@Value("${product_url}") String productUrl, Retrofit retrofit) {
+
+    ProductServiceImpl(@Value("${product_url}") String productUrl, Retrofit retrofit, CallExecuteService<ProductDto> dtoCallExecuteService) {
         this.productUrl = productUrl;
         productApi = retrofit.create(ProductApi.class);
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<ProductDto> getAll() {
         Call<List<ProductDto>> productGetAllLiteCall = productApi.getAll(productUrl);
-        List<ProductDto> list = new ArrayList<>();
-        try {
-            list = productGetAllLiteCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка ProductDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при получении списка ProductDto - {}", e.getMessage());
-        }
-        return list;
+        return dtoCallExecuteService.callExecuteBodyList(productGetAllLiteCall, ProductDto.class);
     }
 
     @Override
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
         ProductDto productDto = new ProductDto();
-        try {
-            Response<ProductDto> execute = productGetCall.execute();
-            productDto = execute.body();
-            log.info("Успешно выполнен запрос на получение ProductDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение ProductDto - {}", e.getMessage());
-        }
-        return productDto;
+        return dtoCallExecuteService.callExecuteBodyById(productGetCall, productDto, ProductDto.class, id);
     }
 
     @Override
     public void create(ProductDto productDto) {
         Call<Void> productCall = productApi.create(productUrl, productDto);
-        try {
-            productCall.execute();
-            log.info("Отправлен запрос на добовление продукта {}", productDto.getName());
-        } catch (IOException e) {
-            log.error("Произошла ошибка при создании ProductDto {} - {}", productDto.getName(), e.getMessage());
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(productCall, ProductDto.class);
     }
 
     @Override
     public void update(ProductDto productDto) {
         Call<Void> productUpdateCall = productApi.update(productUrl, productDto);
-        try {
-            productUpdateCall.execute();
-        } catch (IOException e) {
-            log.error("Произошла ошибка при обновлении ProductDto - {}", e.getMessage());
-        }
-
+        dtoCallExecuteService.callExecuteBodyUpdate(productUpdateCall, ProductDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> productDeleteCall = productApi.deleteById(productUrl, id);
-        log.info("Отправлен запрос на удаление Product с id = {}", id);
-        try {
-            productDeleteCall.execute();
-        } catch (IOException e) {
-            log.error("Произошла ошибка при удалении ProductDto - {}", e.getMessage());
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(productDeleteCall, ProductDto.class, id);
     }
 
     @Override
@@ -137,9 +112,9 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             productDtoList = productDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка ProductDto по фильтру");
+            log.info("Успешно выполнен запрос на поиск и получение страницы ProductDto по фильтру");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ProductDto - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение страницы ProductDto - ", e);
         }
         return productDtoList;
     }

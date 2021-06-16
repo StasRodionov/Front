@@ -20,26 +20,23 @@ import java.util.Map;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskApi taskApi;
+
     private final String taskUrl;
 
+    private final CallExecuteService<TaskDto> dtoCallExecuteService;
 
     @Autowired
-    public TaskServiceImpl(@Value("${task_url}") String taskUrl, Retrofit retrofit) {
+    public TaskServiceImpl(@Value("${task_url}") String taskUrl, Retrofit retrofit, CallExecuteService<TaskDto> dtoCallExecuteService) {
         taskApi = retrofit.create(TaskApi.class);
         this.taskUrl = taskUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<TaskDto> getAll() {
         List<TaskDto> taskDtoList = new ArrayList<>();
         Call<List<TaskDto>> taskDtoListCall = taskApi.getAll(taskUrl);
-        try {
-            taskDtoList = taskDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка TaskDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на получение списка TaskDto: {}", e);
-        }
-        return taskDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(taskDtoListCall, TaskDto.class);
     }
 
     @Override
@@ -72,48 +69,24 @@ public class TaskServiceImpl implements TaskService {
     public TaskDto getById(Long id) {
         TaskDto taskDto = new TaskDto();
         Call<TaskDto> taskDtoCall = taskApi.getById(taskUrl, id);
-        try {
-            taskDto = taskDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экземпляра TaskDto с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на получение TaskDto с id = {}: {}", id, e);
-        }
-        return taskDto;
+        return dtoCallExecuteService.callExecuteBodyById(taskDtoCall, taskDto, TaskDto.class, id);
     }
 
     @Override
     public void create(TaskDto taskDto) {
         Call<Void> taskDtoCall = taskApi.create(taskUrl, taskDto);
-
-        try {
-            taskDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание нового экземпляра {}", taskDto);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на создание нового экземпляра {}: {}", taskDto, e);
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(taskDtoCall, TaskDto.class);
     }
 
     @Override
     public void update(TaskDto taskDto) {
         Call<Void> taskDtoCall = taskApi.update(taskUrl, taskDto);
-
-        try {
-            taskDtoCall.execute();
-            log.info("Успешно выполнен запрос на изменение экземпляра {}", taskDto);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на изменение экземпляра {}: {}", taskDto, e);
-        }
+        dtoCallExecuteService.callExecuteBodyUpdate(taskDtoCall, TaskDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> taskDtoCall = taskApi.deleteById(taskUrl, id);
-
-        try {
-            taskDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при отправке запроса на удаление экземпляра с id {}: {}", id, e);
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(taskDtoCall, TaskDto.class, id);
     }
 }
