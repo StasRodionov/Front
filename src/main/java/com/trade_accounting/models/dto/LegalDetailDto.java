@@ -64,15 +64,15 @@ public class LegalDetailDto {
         this.typeOfContractorDto = typeOfContractorDto;
     }
 
-    @JsonIgnore
-    public LocalDate getDate() {
-        if (dateOfTheCertificate != null) {
-            return LocalDate.parse(
-                    dateOfTheCertificate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } else {
-            return null;
-        }
+@JsonIgnore
+public LocalDate getDate() {
+    if (dateOfTheCertificate != null) {
+        return LocalDate.parse(
+                dateOfTheCertificate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    } else {
+        return null;
     }
+}
 
     @JsonIgnore
     public void setDate(String dateOfTheCertificate) {

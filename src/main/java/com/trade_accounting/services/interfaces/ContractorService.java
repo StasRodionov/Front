@@ -14,7 +14,7 @@ public interface ContractorService {
 
     List<ContractorDto> getAllLite();
 
-    List<ContractorDto> getAll(String searchTerm);
+    List<ContractorDto> searchByTerm(String searchTerm);
 
     List<FiasModelDto> getAllAddressByLevel(String searchLevel);
 

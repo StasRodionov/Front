@@ -1,21 +1,19 @@
 package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskCommentDto {
+public class AcceptanceProductionDto {
 
     private Long id;
 
-    private String commentContent;
+    private Long amount;
 
-    private Long publisherId;
-
-    private String publishedDateTime;
-
-    private Long taskId;
+    private Long productId;
 }

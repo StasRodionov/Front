@@ -173,9 +173,9 @@ public class ContractsView extends VerticalLayout {
 
     public void updateTextField() {
         if (!(textField.getValue().equals(""))) {
-            grid.setItems(contractService.getAll(textField.getValue()));
+            grid.setItems(contractService.searchByTerm(textField.getValue()));
         } else {
-            grid.setItems(contractService.getAll("null"));
+            grid.setItems(contractService.searchByTerm("null"));
         }
     }
 
