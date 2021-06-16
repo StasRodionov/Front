@@ -8,7 +8,7 @@ import java.util.Map;
 public interface ContractService  {
     List<ContractDto> getAll();
 
-    List<ContractDto> getAll(String searchContr);
+    List<ContractDto> searchByTerm (String searchContr);
 
     ContractDto getById(Long id);
 

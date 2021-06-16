@@ -11,9 +11,9 @@ public interface ImageService {
 
     ImageDto getById(Long id);
 
-    ImageDto create(ImageDto imageDto);
+    void create(ImageDto imageDto);
 
-    ImageDto update(ImageDto imageDto);
+    void update(ImageDto imageDto);
 
     void deleteById(Long id);
 }

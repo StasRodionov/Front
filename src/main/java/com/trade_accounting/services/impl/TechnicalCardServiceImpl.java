@@ -26,9 +26,12 @@ public class TechnicalCardServiceImpl implements TechnicalCardService {
 
     private TechnicalCardDto technicalCardDto = new TechnicalCardDto();
 
-    public TechnicalCardServiceImpl(@Value("${technical_card_url}") String technicalCardUrl, Retrofit retrofit) {
+    private final CallExecuteService<TechnicalCardDto> dtoCallExecuteService;
+
+    public TechnicalCardServiceImpl(@Value("${technical_card_url}") String technicalCardUrl, Retrofit retrofit, CallExecuteService<TechnicalCardDto> dtoCallExecuteService) {
         this.technicalCardUrl = technicalCardUrl;
         technicalCardApi = retrofit.create(TechnicalCardApi.class);
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
@@ -47,59 +50,31 @@ public class TechnicalCardServiceImpl implements TechnicalCardService {
     @Override
     public List<TechnicalCardDto> getAll() {
         Call<List<TechnicalCardDto>> technicalCardGetAll = technicalCardApi.getAll(technicalCardUrl);
-        try {
-            technicalCardDtoList = technicalCardGetAll.execute().body();
-            log.info("Успешно выполнен запрос на получение списка TechnicalCardDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при получении списка TechnicalCardDto - {}", e.getMessage());
-        }
-        return technicalCardDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(technicalCardGetAll, TechnicalCardDto.class);
     }
 
     @Override
     public TechnicalCardDto getById(Long id) {
         Call<TechnicalCardDto> technicalCardDtoGetCall = technicalCardApi.getById(technicalCardUrl, id);
-        try {
-            technicalCardDto = technicalCardDtoGetCall.execute().body();
-            log.info("Успешно выполнен запрос на получение TechnicalCardDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение TechnicalCardDto - {}", e.getMessage());
-        }
-        return technicalCardDto;
+        return dtoCallExecuteService.callExecuteBodyById(technicalCardDtoGetCall, technicalCardDto, TechnicalCardDto.class, id);
     }
 
     @Override
     public void create(TechnicalCardDto technicalCardDto) {
         Call<Void> technicalCardCreateCall = technicalCardApi.create(technicalCardUrl, technicalCardDto);
-        try {
-            technicalCardCreateCall.execute();
-            log.info("Успешно выполнен запрос create TechnicalCardDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при создании TechnicalCardDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyCreate(technicalCardCreateCall,TechnicalCardDto.class);
     }
 
     @Override
     public void update(TechnicalCardDto technicalCardDto) {
         Call<Void> technicalCardUpdateCall = technicalCardApi.update(technicalCardUrl, technicalCardDto);
-        try {
-            technicalCardUpdateCall.execute();
-            log.info("Успешно выполнен запрос update TechnicalCardDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при обновлении TechnicalCardDto - {}", e.getMessage());
-        }
-
+        dtoCallExecuteService.callExecuteBodyUpdate(technicalCardUpdateCall, TechnicalCardDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> technicalCardDeleteCall = technicalCardApi.deleteById(technicalCardUrl, id);
-        log.info("Отправлен запрос на удаление TechnicalCardDto с id = {}", id);
-        try {
-            technicalCardDeleteCall.execute();
-        } catch (IOException e) {
-            log.error("Произошла ошибка при удалении TechnicalCardDto - {}", e.getMessage());
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(technicalCardDeleteCall, TechnicalCardDto.class, id);
     }
 
     @Override

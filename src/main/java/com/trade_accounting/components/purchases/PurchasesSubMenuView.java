@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Lazy;
 @PageTitle("Закупки")
 @SpringComponent
 @UIScope
-public class PurchasesSubMenuView extends Div implements AfterNavigationObserver {
+public class PurchasesSubMenuView extends Div implements AfterNavigationObserver { //некорректно задаётся id при добавлении
 
     private final Div div;
     private final InvoiceService invoiceService;

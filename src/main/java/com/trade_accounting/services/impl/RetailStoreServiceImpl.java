@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.ProjectDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.trade_accounting.services.interfaces.api.RetailStoreApi;
@@ -18,11 +19,15 @@ import java.util.List;
 public class RetailStoreServiceImpl implements RetailStoreService {
 
     private final RetailStoreApi retailStoreApi;
+
     private final String retailStoreUrl;
 
-    public RetailStoreServiceImpl(Retrofit retrofit, @Value("${retail_stores_url}")String retailStoreUrl) {
+    private final CallExecuteService<RetailStoreDto> dtoCallExecuteService;
+
+    public RetailStoreServiceImpl(Retrofit retrofit, @Value("${retail_stores_url}") String retailStoreUrl, CallExecuteService<RetailStoreDto> dtoCallExecuteService) {
         retailStoreApi = retrofit.create(RetailStoreApi.class);
         this.retailStoreUrl = retailStoreUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
@@ -30,14 +35,7 @@ public class RetailStoreServiceImpl implements RetailStoreService {
 
         List<RetailStoreDto> retailStoreDtoList = new ArrayList<>();
         Call<List<RetailStoreDto>> retailStoreDtoListCall = retailStoreApi.getAll(retailStoreUrl);
-
-        try {
-            retailStoreDtoList.addAll(retailStoreDtoListCall.execute().body());
-            log.info("Успешно выполнен запрос на получение списка RetailStoreDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка RetailStoreDto - {}", e);
-        }
-        return retailStoreDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(retailStoreDtoListCall, RetailStoreDto.class);
     }
 
     @Override
@@ -45,54 +43,24 @@ public class RetailStoreServiceImpl implements RetailStoreService {
 
         RetailStoreDto retailStoreDto = null;
         Call<RetailStoreDto> retailStoreDtoCall = retailStoreApi.getById(retailStoreUrl, id);
-
-        try {
-            retailStoreDto = retailStoreDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экзаепляра RetailStoreDto с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра RetailStoreDto - {}", e);
-        }
-        return retailStoreDto;
+        return dtoCallExecuteService.callExecuteBodyById(retailStoreDtoCall, retailStoreDto, RetailStoreDto.class, id);
     }
 
     @Override
     public void create(RetailStoreDto retailStoreDto) {
-
         Call<Void> retailStoreDtoCall = retailStoreApi.create(retailStoreUrl, retailStoreDto);
-
-        try {
-            retailStoreDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание экземпляра RetailStoreDto");
-        }
-        catch (IOException e){
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра RetailStoreDto - {}", e);
-        }
-
+        dtoCallExecuteService.callExecuteBodyCreate(retailStoreDtoCall, RetailStoreDto.class);
     }
 
     @Override
     public void update(RetailStoreDto retailStoreDto) {
         Call<Void> retailStoreDtoCall = retailStoreApi.update(retailStoreUrl, retailStoreDto);
-
-        try {
-            retailStoreDtoCall.execute();
-            log.info("Успешно выполнен запрос на обновление экземпляра RetailStoreDto");
-        }
-        catch (IOException e){
-            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра RetailStoreDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyUpdate(retailStoreDtoCall, RetailStoreDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> retailStoreDtoCall = retailStoreApi.deleteById(retailStoreUrl, id);
-
-        try {
-            retailStoreDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра RetailStoreDto");
-        }
-        catch (IOException e){
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра RetailStoreDto - {}", e);
-        }
+        dtoCallExecuteService.callExecuteBodyDelete(retailStoreDtoCall, RetailStoreDto.class, id);
     }
 }

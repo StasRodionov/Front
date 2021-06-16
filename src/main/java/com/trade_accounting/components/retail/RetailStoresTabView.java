@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @PageTitle("Точки продаж")
 @SpringComponent
 @UIScope
-public class RetailStoresTabView extends VerticalLayout implements AfterNavigationObserver {
+public class RetailStoresTabView extends VerticalLayout implements AfterNavigationObserver { //в задаче сказано, что проблема ещё и здесь
 
     private final RetailStoreService retailStoreService;
     private final CompanyService companyService;

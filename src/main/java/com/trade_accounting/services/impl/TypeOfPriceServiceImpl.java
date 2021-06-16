@@ -24,157 +24,41 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
 
     private TypeOfPriceDto typeOfPriceDto;
 
-    public TypeOfPriceServiceImpl(@Value("${type_of_price_url}") String typeOfPriceUrl, Retrofit retrofit) {
+    private final CallExecuteService<TypeOfPriceDto> dtoCallExecuteService;
+
+    public TypeOfPriceServiceImpl(@Value("${type_of_price_url}") String typeOfPriceUrl, Retrofit retrofit, CallExecuteService<TypeOfPriceDto> dtoCallExecuteService) {
         this.typeOfPriceUrl = typeOfPriceUrl;
         typeOfPriceApi = retrofit.create(TypeOfPriceApi.class);
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
     public List<TypeOfPriceDto> getAll() {
         Call<List<TypeOfPriceDto>> typeOfPriceDtoListCall = typeOfPriceApi.getAll(typeOfPriceUrl);
-
-        try {
-            typeOfPriceDtoList = typeOfPriceDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка TypeOfPriceDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка TypeOfPriceDto - ", e);
-        }
-
-//       typeOfPriceDtoListCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<List<TypeOfPriceDto>> call, Response<List<TypeOfPriceDto>> response) {
-//                if (response.isSuccessful()) {
-//                    typeOfPriceDtoList = response.body();
-//                    log.info("Успешно выполнен запрос на получение списка TypeOfPriceDto");
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на получение списка TypeOfPriceDto - {}",
-//                            response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<TypeOfPriceDto>> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос списка TypeOfPriceDto", throwable);
-//            }
-//        });
-
-        return typeOfPriceDtoList;
+        return dtoCallExecuteService.callExecuteBodyList(typeOfPriceDtoListCall, TypeOfPriceDto.class);
     }
 
     @Override
     public TypeOfPriceDto getById(Long id) {
         Call<TypeOfPriceDto> typeOfPriceDtoCall = typeOfPriceApi.getById(typeOfPriceUrl, id);
-
-        try {
-            typeOfPriceDto = typeOfPriceDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экземпляра TypeOfPriceDto c id= {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра TypeOfPriceDto c id= {} - {}", id, e);
-        }
-
-//        typeOfPriceDtoCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<TypeOfPriceDto> call, Response<TypeOfPriceDto> response) {
-//                if (response.isSuccessful()) {
-//                    typeOfPriceDto = response.body();
-//                    log.info("Успешно выполнен запрос на получение экземпляра TypeOfPriceDto по id= {}", id);
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на получение экземпляра TypeOfPriceDto по id= {} - {}",
-//                            id, response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<TypeOfPriceDto> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос экземпляра TypeOfPriceDto по id", throwable);
-//            }
-//        });
-
-        return typeOfPriceDto;
+       return dtoCallExecuteService.callExecuteBodyById(typeOfPriceDtoCall, typeOfPriceDto, TypeOfPriceDto.class, id);
     }
 
     @Override
     public void create(TypeOfPriceDto typeOfPriceDto) {
         Call<Void> typeOfPriceDtoCall = typeOfPriceApi.create(typeOfPriceUrl, typeOfPriceDto);
-
-        try {
-            typeOfPriceDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание экземпляра TypeOfPriceDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра TypeOfPriceDto - ", e);
-        }
-//        typeOfPriceDtoCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<Void> call, Response<Void> response) {
-//                if (response.isSuccessful()) {
-//                    log.info("Успешно выполнен запрос на создание экземпляра TypeOfPriceDto");
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на создание экземпляра TypeOfPriceDto - {}",
-//                            response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Void> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос создания экземпляра TypeOfPriceDto", throwable);
-//            }
-//        });
+        dtoCallExecuteService.callExecuteBodyCreate(typeOfPriceDtoCall, TypeOfPriceDto.class);
     }
 
     @Override
     public void update(TypeOfPriceDto typeOfPriceDto) {
         Call<Void> typeOfPriceDtoCall = typeOfPriceApi.update(typeOfPriceUrl, typeOfPriceDto);
-
-        try {
-            typeOfPriceDtoCall.execute();
-            log.info("Успешно выполнен запрос на обновление экземпляра TypeOfPriceDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра TypeOfPriceDto - ", e);
-        }
-//        typeOfPriceDtoCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<Void> call, Response<Void> response) {
-//                if (response.isSuccessful()) {
-//                    log.info("Успешно выполнен запрос на обновление экземпляра TypeOfPriceDto");
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на обновление экземпляра TypeOfPriceDto - {}",
-//                            response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Void> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос обновления экземпляра TypeOfPriceDto", throwable);
-//            }
-//        });
+        dtoCallExecuteService.callExecuteBodyUpdate(typeOfPriceDtoCall, TypeOfPriceDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
         Call<Void> typeOfPriceDtoCall = typeOfPriceApi.deleteById(typeOfPriceUrl, id);
-
-        try {
-            typeOfPriceDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра TypeOfPriceDto c id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра TypeOfPriceDto c id = {} - {}", id, e);
-        }
-//        typ
-//        typeOfPriceDtoCall.enqueue(new Callback<>() {
-//            @Override
-//            public void onResponse(Call<Void> call, Response<Void> response) {
-//                if (response.isSuccessful()) {
-//                    log.info("Успешно выполнен запрос на удаление экземпляра TypeOfPriceDto с id= {}", id);
-//                } else {
-//                    log.error("Произошла ошибка при выполнении запроса на удаление экземпляра TypeOfPriceDto с id= {} - {}",
-//                            id, response.errorBody());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Void> call, Throwable throwable) {
-//                log.error("Произошла ошибка при получении ответа на запрос удаления экземпляра TypeOfPriceDto", throwable);
-//            }
-//        });
+        dtoCallExecuteService.callExecuteBodyDelete(typeOfPriceDtoCall, TypeOfPriceDto.class, id);
     }
 }
