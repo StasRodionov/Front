@@ -66,4 +66,6 @@ technical_card_url: api/technical_card
 technical_card_group_url: api/technical_card_group
 
 supplier_account_url: api/supplierAccount
+
+address_url: api/address
 #debug: true

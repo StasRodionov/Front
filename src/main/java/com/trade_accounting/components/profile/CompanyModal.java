@@ -4,6 +4,7 @@ import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
+import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
@@ -70,14 +71,17 @@ public class CompanyModal extends Dialog {
     private final TextField typeOfContractorSortNumber = new TextField();
 
     private final CompanyService companyService;
+    private final AddressService addressService;
 
-    public CompanyModal(CompanyService companyService) {
+    public CompanyModal(CompanyService companyService, AddressService addressService) {
         this.companyService = companyService;
+        this.addressService = addressService;
         configureModal("Добавление");
     }
 
-    public CompanyModal(CompanyDto companyDto, CompanyService companyService) {
+    public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService) {
         this.companyService = companyService;
+        this.addressService = addressService;
         configureModal("Редактирование");
         setFields(companyDto);
     }
@@ -105,16 +109,17 @@ public class CompanyModal extends Dialog {
         setField(sortNumber, dto.getSortNumber());
         setField(stamp, dto.getStamp());
 
-        if (dto.getAddressDto() != null) {
-            addressId = dto.getAddressDto().getId();
-            setField(addressIndex, dto.getAddressDto().getIndex());
-            setField(addressCountry, dto.getAddressDto().getCountry());
-            setField(addressRegion, dto.getAddressDto().getRegion());
-            setField(addressCity, dto.getAddressDto().getCity());
-            setField(addressStreet, dto.getAddressDto().getStreet());
-            setField(addressHouse, dto.getAddressDto().getHouse());
-            setField(addressApartment, dto.getAddressDto().getApartment());
-            setField(addressAnother, dto.getAddressDto().getAnother());
+        if (dto.getAddressId() != null) {
+            addressId = dto.getAddressId();
+            AddressDto addressDto = addressService.getById(addressId);
+            setField(addressIndex, addressDto.getIndex());
+            setField(addressCountry, addressDto.getCountry());
+            setField(addressRegion, addressDto.getRegion());
+            setField(addressCity, addressDto.getCity());
+            setField(addressStreet, addressDto.getStreet());
+            setField(addressHouse, addressDto.getHouse());
+            setField(addressApartment, addressDto.getApartment());
+            setField(addressAnother, addressDto.getAnother());
         }
 
         if (dto.getLegalDetailDto() != null) {
@@ -156,7 +161,6 @@ public class CompanyModal extends Dialog {
             typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
 
             AddressDto addressDto = new AddressDto();
-            addressDto.setId(addressId);
             addressDto.setIndex(addressIndex.getValue());
             addressDto.setCountry(addressCountry.getValue());
             addressDto.setRegion(addressRegion.getValue());
@@ -165,6 +169,11 @@ public class CompanyModal extends Dialog {
             addressDto.setHouse(addressHouse.getValue());
             addressDto.setApartment(addressApartment.getValue());
             addressDto.setAnother(addressAnother.getValue());
+            if (addressId!=null) {
+                addressDto.setId(addressId);
+            } else {
+                addressDto.setId(addressService.create(addressDto).getId());
+            }
 
 
             LegalDetailDto legalDetailDto = new LegalDetailDto();
@@ -186,7 +195,7 @@ public class CompanyModal extends Dialog {
             companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
-            companyDto.setAddressDto(addressDto);
+            companyDto.setAddressId(addressId);
             companyDto.setCommentToAddress(commentToAddress.getValue());
             companyDto.setEmail(email.getValue());
             companyDto.setPhone(phone.getValue());
