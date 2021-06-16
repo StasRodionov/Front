@@ -355,11 +355,6 @@ public class SalesEditShipmentView extends VerticalLayout{
         );
     }
 
-    public void setUpdateState(boolean isUpdate) {
-        title.setText(isUpdate ? "Редактирование отгрузки" : "Добавление отгрузки");
-        buttonDelete.setVisible(isUpdate);
-    }
-
     public void resetView() {
         invoiceIdField.clear();
         dateField.clear();

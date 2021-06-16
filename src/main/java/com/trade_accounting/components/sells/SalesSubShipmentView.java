@@ -128,7 +128,6 @@ public class SalesSubShipmentView extends VerticalLayout {
         Button buttonUnit = new Button("Отгрузка", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(event -> {
             salesEditShipmentView.resetView();
-            salesEditShipmentView.setUpdateState(true);
             salesEditShipmentView.setType("RECEIPT");
             salesEditShipmentView.setLocation("sells");
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/shipment-edit"));
