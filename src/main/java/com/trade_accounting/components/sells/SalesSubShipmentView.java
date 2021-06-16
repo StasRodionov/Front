@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -21,7 +22,6 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -29,6 +29,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -44,8 +45,9 @@ public class SalesSubShipmentView extends VerticalLayout {
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
+    private final SalesEditShipmentView salesEditShipmentView;
     private final List<InvoiceDto> data;
-
+    private final InvoiceProductService invoiceProductService;
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
     private GridPaginator<InvoiceDto> paginator;
@@ -55,10 +57,12 @@ public class SalesSubShipmentView extends VerticalLayout {
     @Autowired
     public SalesSubShipmentView(InvoiceService invoiceService,
                                 ContractorService contractorService,
-                                CompanyService companyService) {
+                                CompanyService companyService, SalesEditShipmentView salesEditShipmentView, InvoiceProductService invoiceProductService) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
+        this.salesEditShipmentView = salesEditShipmentView;
+        this.invoiceProductService = invoiceProductService;
         this.data = getData();
 
         configureActions();
@@ -80,14 +84,13 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Счет-фактура")
-                .setKey("typeOfInvoiceDTO").setId("Счет-фактура");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания")
-                .setKey("companyDto").setId("Компания");
+        grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада")
+                .setKey("typeOfInvoiceDTO").setId("Склад");
         grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент")
                 .setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
-                .setId("Проведена");
+        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Организация")
+                .setKey("companyDto").setId("Компания");
+        grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -103,7 +106,6 @@ public class SalesSubShipmentView extends VerticalLayout {
             return new Span("");
         }
     }
-
 
     private void configurePaginator() {
         paginator = new GridPaginator<>(grid, data, 100);
@@ -124,6 +126,12 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Отгрузка", new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonUnit.addClickListener(event -> {
+            salesEditShipmentView.resetView();
+            salesEditShipmentView.setType("RECEIPT");
+            salesEditShipmentView.setLocation("sells");
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/shipment-edit"));
+        });
         return buttonUnit;
     }
 
@@ -195,6 +203,13 @@ public class SalesSubShipmentView extends VerticalLayout {
         return print;
     }
 
+    private String getTotalPrice(Long id) {
+        var totalPrice = invoiceProductService.getByInvoiceId(id).stream()
+                .map(ipdto -> ipdto.getPrice().multiply(ipdto.getAmount()))
+                .reduce(BigDecimal.valueOf(0.0), BigDecimal::add);
+        return String.format("%.2f", totalPrice);
+    }
+
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
         System.out.println("Обновлен");
@@ -203,5 +218,4 @@ public class SalesSubShipmentView extends VerticalLayout {
     private List<InvoiceDto> getData() {
         return invoiceService.getAll(typeOfInvoice);
     }
-
 }
