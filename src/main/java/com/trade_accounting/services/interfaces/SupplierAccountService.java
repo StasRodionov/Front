@@ -4,6 +4,7 @@ import com.trade_accounting.models.dto.SupplierAccountDto;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SupplierAccountService {
 
@@ -11,11 +12,13 @@ public interface SupplierAccountService {
 
     SupplierAccountDto getById(Long id);
 
-    List<SupplierAccountDto> searchByFilter(String nameFilter);
+    List<SupplierAccountDto> searchByString(String nameFilter);
 
     Response<SupplierAccountDto> create(SupplierAccountDto supplierAccountDto);
 
     void update(SupplierAccountDto supplierAccountDto);
 
     void deleteById(Long id);
+
+    List<SupplierAccountDto> searchByFilter(Map<String,String> querySupplier);
 }

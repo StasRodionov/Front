@@ -138,7 +138,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void configureFilter() {
-
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
     }
 
     private Button buttonQuestion() {
@@ -184,9 +186,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     public void updateList(String nameFilter) {
         if(!(textField.getValue().equals(""))) {
-            grid.setItems(supplierAccountService.searchByFilter(nameFilter));
+            grid.setItems(supplierAccountService.searchByString(nameFilter));
         } else {
-            grid.setItems(supplierAccountService.searchByFilter("null"));
+            grid.setItems(supplierAccountService.searchByString("null"));
         }
     }
 
