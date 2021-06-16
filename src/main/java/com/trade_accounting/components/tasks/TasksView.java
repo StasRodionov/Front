@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -23,6 +24,9 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 
 
@@ -34,18 +38,19 @@ import java.util.List;
 public class TasksView extends VerticalLayout {
 
     private final TaskService taskService;
-    private final List<TaskDto> data;
     private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
     private final GridFilter<TaskDto> filter = new GridFilter<>(grid);
-    private final GridPaginator<TaskDto> paginator = new GridPaginator<>(grid, data, 10);
+    private final GridPaginator<TaskDto> paginator;
+    private final EmployeeService employeeService;
 
 
 
     @Autowired
-    public TasksView(TaskService taskService) {
+    public TasksView(TaskService taskService, EmployeeService employeeService) {
         this.taskService = taskService;
-        this.data = getData();
+        this.employeeService = employeeService;
 
+        paginator = new GridPaginator<>(grid, taskService.getAll(), 10);
         configureGrid();
 
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -56,6 +61,11 @@ public class TasksView extends VerticalLayout {
     private void configureGrid() {
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
+        grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName()).setHeader("Ответственный").setId("Ответственный");
+        grid.addColumn(d -> formatDate(d.getDeadlineDateTime().toString())).setHeader("Срок")
+                .setKey("deadLineDateTime").setId("Срок");
+        grid.addColumn(d -> formatDate(d.getCreationDateTime().toString())).setHeader("Создано")
+                .setKey("creationDateTime").setId("Создано");
     }
 
     private HorizontalLayout getToolBar() {
@@ -95,7 +105,6 @@ public class TasksView extends VerticalLayout {
     private Button getButtonRefresh() {
         final var buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
-//        buttonRefresh.addClickListener(click -> reloadGrid());
         return buttonRefresh;
     }
 
@@ -112,7 +121,6 @@ public class TasksView extends VerticalLayout {
         var buttonFilter = new Button("Фильтр");
         buttonFilter.addClickListener(e -> {
         });
-//        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
@@ -123,6 +131,11 @@ public class TasksView extends VerticalLayout {
         textField.setWidth("300px");
 
         return textField;
+    }
+
+    private static String formatDate(String date) {
+        return LocalDateTime.parse(date).format(DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.SHORT));
     }
 
     private List<TaskDto> getData() {

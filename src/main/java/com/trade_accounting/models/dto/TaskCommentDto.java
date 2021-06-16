@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,7 +15,7 @@ public class TaskCommentDto {
 
     private Long publisherId;
 
-    private LocalDateTime publishedDateTime;
+    private String publishedDateTime;
 
     private Long taskId;
 }
