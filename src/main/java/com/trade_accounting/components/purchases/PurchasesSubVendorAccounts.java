@@ -55,6 +55,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final ContractService contractService;
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
+    private final TextField textField = new TextField();
 
 
     private List<SupplierAccountDto> supplierAccount;
@@ -171,7 +172,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private TextField filterTextField() {
-        final TextField textField = new TextField();
+
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -181,8 +182,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         return textField;
     }
 
-    private void updateList(String search) {
-
+    public void updateList(String nameFilter) {
+        if(!(textField.getValue().equals(""))) {
+            grid.setItems(supplierAccountService.searchByFilter(nameFilter));
+        } else {
+            grid.setItems(supplierAccountService.searchByFilter("null"));
+        }
     }
 
     private NumberField numberField() {

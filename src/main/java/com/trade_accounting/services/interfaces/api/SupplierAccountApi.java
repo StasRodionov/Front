@@ -34,5 +34,10 @@ public interface SupplierAccountApi {
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
+    @Headers("Accept: application/json")
+    @GET("{url}/search/{nameFilter}")
+    Call<List<SupplierAccountDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                                  @Path(value = "nameFilter", encoded = true) String nameFilter);
+
 
 }

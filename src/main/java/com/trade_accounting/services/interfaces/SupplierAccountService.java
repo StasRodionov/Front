@@ -11,6 +11,8 @@ public interface SupplierAccountService {
 
     SupplierAccountDto getById(Long id);
 
+    List<SupplierAccountDto> searchByFilter(String nameFilter);
+
     Response<SupplierAccountDto> create(SupplierAccountDto supplierAccountDto);
 
     void update(SupplierAccountDto supplierAccountDto);

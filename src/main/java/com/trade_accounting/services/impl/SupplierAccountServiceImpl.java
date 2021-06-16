@@ -56,6 +56,19 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
     }
 
     @Override
+    public List<SupplierAccountDto> searchByFilter(String nameFilter) {
+        Call<List<SupplierAccountDto>> getSupplierAccountByNameFilter = supplier.searchByFilter(supplierUrl, nameFilter);
+        List<SupplierAccountDto> supplierAccountDto = new ArrayList<>();
+        try {
+            supplierAccountDto = getSupplierAccountByNameFilter.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение счета поставщика  по фильтру {}", nameFilter);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск иполучение счета поставщика {IOException}", e);
+        }
+        return supplierAccountDto;
+    }
+
+    @Override
     public Response<SupplierAccountDto> create(SupplierAccountDto supplierAccountDto) {
         Call<SupplierAccountDto> createSupplierAccount = supplier.create(supplierUrl, supplierAccountDto);
         Response<SupplierAccountDto> response = Response.success(new SupplierAccountDto());
