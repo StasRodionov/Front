@@ -39,6 +39,7 @@ import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -194,7 +195,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Изменить");
+        stringList.add("Удалить");
+        select.setItems(stringList);
         select.setValue("Изменить");
         select.setWidth("130px");
         select.addValueChangeListener(event -> {
@@ -202,7 +206,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                 deleteSelectedInvoices();
                 grid.deselectAll();
                 select.setValue("Изменить");
-//                paginator.setData(loadInvoices());
+                paginator.setData(loadSupplierAccounts());
             }
         });
         return select;
@@ -277,7 +281,14 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     public void deleteSelectedInvoices() {
-
+        if(!grid.getSelectedItems().isEmpty()) {
+            for(SupplierAccountDto supp : grid.getSelectedItems()) {
+                supplierAccountService.deleteById(supp.getId());
+                notifications.infoNotification("Выбранные счета поставщиков успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
+        }
     }
 
     @Override
