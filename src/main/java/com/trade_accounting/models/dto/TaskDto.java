@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,13 +13,13 @@ public class TaskDto {
 
     private String description;
 
-    private Long employeeId;
+    private Long employeeId; //EmployeeDto
 
-    private Long taskAuthorId;
+    private Long taskAuthorId; //EmployeeDto
 
-    private LocalDateTime creationDateTime;
+    private String creationDateTime;
 
-    private LocalDateTime deadlineDateTime;
+    private String deadlineDateTime;
 
     private boolean completed;
 

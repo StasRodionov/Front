@@ -64,16 +64,22 @@ public class LegalDetailDto {
         this.typeOfContractorDto = typeOfContractorDto;
     }
 
-    //продебажить эти 2 метода
-    @JsonIgnore
-    public LocalDate getDate() {
+@JsonIgnore
+public LocalDate getDate() {
+    if (dateOfTheCertificate != null) {
         return LocalDate.parse(
                 dateOfTheCertificate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    } else {
+        return null;
     }
+}
+
     @JsonIgnore
-    public void setDate(String dateOfTheCertificate) {// летит сюда при загрузке страницы (но не при добавлении)
-        this.date = LocalDate.parse(dateOfTheCertificate);
-        this.dateOfTheCertificate = dateOfTheCertificate;
+    public void setDate(String dateOfTheCertificate) {
+        if (dateOfTheCertificate != null) {
+            this.date = LocalDate.parse(dateOfTheCertificate);
+            this.dateOfTheCertificate = dateOfTheCertificate;
+        }
     }
 }
 
