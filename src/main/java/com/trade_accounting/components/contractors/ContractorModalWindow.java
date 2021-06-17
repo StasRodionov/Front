@@ -910,10 +910,10 @@ public class ContractorModalWindow extends Dialog {
                     contractorDtoBinder.validate().notifyBindingValidationStatusHandlers();
                 } else {
                     saveFieldsCreate(legalDetailDto);
-                    //legalDetailService.create(legalDetailDto);
+                    legalDetailService.create(legalDetailDto);
                     saveFields(contractorDto);
                     contractorService.create(contractorDto);
-                    //Notification.show(String.format("Контрагент %s добавлен", contractorDto.getName()));
+                    Notification.show(String.format("Контрагент %s добавлен", contractorDto.getName()));
                     if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
                             .matches("^([0-9]{10}|[0-9]{12})$"))
                         close();
