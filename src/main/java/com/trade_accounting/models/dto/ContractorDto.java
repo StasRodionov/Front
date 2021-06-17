@@ -32,6 +32,10 @@ public class ContractorDto {
     @EqualsAndHashCode.Exclude
     private TypeOfPriceDto typeOfPriceDto;
     @EqualsAndHashCode.Exclude
+    private EmployeeDto employeeDto;
+    @EqualsAndHashCode.Exclude
+    private DepartmentDto departmentDto;
+    @EqualsAndHashCode.Exclude
     private List<BankAccountDto> bankAccountDto;
     @EqualsAndHashCode.Exclude
     private LegalDetailDto legalDetailDto;

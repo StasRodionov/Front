@@ -288,6 +288,7 @@ public class ContractorModalWindow extends Dialog {
         componentAccesses.addContent(employeeSelect());
         componentAccesses.addContent(departmentSelect());
         componentAccesses.addContent(generalAccessCheckbox());
+        componentAccesses.setOpened(true);
         add(componentAccesses);
 
         componentAll.addContent(componentFormContractDto, componentContactFaces,
@@ -702,6 +703,9 @@ public class ContractorModalWindow extends Dialog {
         }
         departmentDtoSelect.setItemLabelGenerator(DepartmentDto::getName);
         departmentDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(departmentDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("departmentDto");
         Label label = new Label("Отдел");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, departmentDtoSelect);
@@ -719,6 +723,9 @@ public class ContractorModalWindow extends Dialog {
         }
         employeeDtoSelect.setItemLabelGenerator(EmployeeDto::getFirstName);
         employeeDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(employeeDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("employeeDto");
         Label label = new Label("Сотрудник");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, employeeDtoSelect);
