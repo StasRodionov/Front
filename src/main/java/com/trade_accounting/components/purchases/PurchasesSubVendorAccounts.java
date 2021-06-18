@@ -56,6 +56,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final ContractService contractService;
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
+    private final TextField textField = new TextField();
 
 
     private List<SupplierAccountDto> supplierAccount;
@@ -138,7 +139,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void configureFilter() {
-
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
     }
 
     private Button buttonQuestion() {
@@ -172,7 +175,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private TextField filterTextField() {
-        final TextField textField = new TextField();
+
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -182,8 +185,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         return textField;
     }
 
-    private void updateList(String search) {
-
+    public void updateList(String nameFilter) {
+        if(!(textField.getValue().equals(""))) {
+            grid.setItems(supplierAccountService.searchByString(nameFilter));
+        } else {
+            grid.setItems(supplierAccountService.searchByString("null"));
+        }
     }
 
     private NumberField numberField() {
