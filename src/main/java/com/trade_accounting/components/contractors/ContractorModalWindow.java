@@ -324,7 +324,7 @@ public class ContractorModalWindow extends Dialog {
         TextField contactComment = new TextField();
 
         contactForm.add("Контактное лицо");
-        contactForm.addFormItem(contactFullName, "ФИО*");
+        contactForm.addFormItem(contactFullName, "ФИО");
         contactDtoBinder.forField(contactFullName).asRequired("Обязательное поле").bind(ContactDto::getFullName, ContactDto::setFullName);
 
         contactForm.addFormItem(contactPosition, "Должность");
@@ -399,19 +399,19 @@ public class ContractorModalWindow extends Dialog {
         TextField bankAccountCorrespondentAccount = new TextField();
         TextField bankAccountAccount = new TextField();
 
-        bankAccountForm.addFormItem(bankAccountBIK, "БИК*");
+        bankAccountForm.addFormItem(bankAccountBIK, "БИК");
         bankAccountDtoBinder.forField(bankAccountBIK).asRequired("Обязательное поле").bind(BankAccountDto::getRcbic, BankAccountDto::setRcbic);
 
-        bankAccountForm.addFormItem(bankAccountBank, "Банк*");
+        bankAccountForm.addFormItem(bankAccountBank, "Банк");
         bankAccountDtoBinder.forField(bankAccountBank).asRequired("Обязательное поле").bind(BankAccountDto::getBank, BankAccountDto::setBank);
 
-        bankAccountForm.addFormItem(bankAccountAddress, "Адрес*");
+        bankAccountForm.addFormItem(bankAccountAddress, "Адрес");
         bankAccountDtoBinder.forField(bankAccountAddress).asRequired("Обязательное поле").bind(BankAccountDto::getAddress, BankAccountDto::setAddress);
 
-        bankAccountForm.addFormItem(bankAccountCorrespondentAccount, "Корр. счет*");
+        bankAccountForm.addFormItem(bankAccountCorrespondentAccount, "Корр. счет");
         bankAccountDtoBinder.forField(bankAccountCorrespondentAccount).asRequired("Обязательное поле").bind(BankAccountDto::getCorrespondentAccount, BankAccountDto::setCorrespondentAccount);
 
-        bankAccountForm.addFormItem(bankAccountAccount, "Рассчётный счет*");
+        bankAccountForm.addFormItem(bankAccountAccount, "Рассчётный счет");
         bankAccountDtoBinder.forField(bankAccountAccount).asRequired("Обязательное поле").bind(BankAccountDto::getAccount, BankAccountDto::setAccount);
 
         bankAccountBIK.setPlaceholder("БИК");
@@ -465,11 +465,11 @@ public class ContractorModalWindow extends Dialog {
         //Получение select-ора "Тип контрагента"
         HorizontalLayout typeOfContractor = typeOfContractorSelect();
 
-        HorizontalLayout inn = getNumberField(legalDetailDtoBinder, innLegalDetailField, "inn", "ИНН*");
+        HorizontalLayout inn = getNumberField(legalDetailDtoBinder, innLegalDetailField, "inn", "ИНН");
         HorizontalLayout lastName = getField(legalDetailDtoBinder, lastNameLegalDetailField, "lastName", "Фамилия");
         HorizontalLayout firstName = getField(legalDetailDtoBinder, firstNameLegalDetailField, "firstName", "Имя");
         HorizontalLayout middleName = getField(legalDetailDtoBinder, middleNameLegalDetailField, "middleName", "Отчество");
-        HorizontalLayout name = getArea(contractorDtoBinder, nameField, "name", "Полное наименование*");
+        HorizontalLayout name = getArea(contractorDtoBinder, nameField, "name", "Полное наименование");
         HorizontalLayout commentToAddress = getArea(legalDetailDtoBinder, commentToAddressLegalDetailField, "commentToAddress", "Комментарий к адресу");
         HorizontalLayout kpp = getNumberField(legalDetailDtoBinder, kppLegalDetailField, "kpp", "КПП");
         HorizontalLayout okpo = getNumberField(legalDetailDtoBinder, okpoLegalDetailField, "okpo", "ОКПО");
@@ -477,7 +477,7 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout numberOfTheCertificate = getNumberField(legalDetailDtoBinder,
                 numberOfTheCertificateLegalDetailField, "numberOfTheCertificate", "Номер сертефиката");
         HorizontalLayout dateOfTheCertificate = getDateField(legalDetailDtoBinder, dateOfTheCertificateLegalDetailField,
-                "date", "Дата сертефиката*");
+                "date", "Дата сертефиката");
 
         FormLayout accountForm = new FormLayout();
         AtomicBoolean legalEntity = new AtomicBoolean(false);
@@ -573,7 +573,7 @@ public class ContractorModalWindow extends Dialog {
         return horizontalLayout;
     }
 
-    //Получение вложеного универсального поля
+   /* //Получение вложеного универсального поля
     private HorizontalLayout getSmallField(TextArea textArea, String label) {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         textArea.setWidth(FIELD_WIDTH);
@@ -586,7 +586,7 @@ public class ContractorModalWindow extends Dialog {
         horizontalLayout.setSpacing(false);
         horizontalLayout.setMargin(false);
         return horizontalLayout;
-    }
+    }*/
 
     //Получение универсальной textArea
     private HorizontalLayout getArea(Binder<?> binder, TextArea textArea, String bind, String labelFrom) {
@@ -665,7 +665,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDtoBinder.forField(contractorGroupDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("contractorGroupDto");
-        Label label = new Label("Группы*");
+        Label label = new Label("Группы");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorGroupDtoSelect);
         return horizontalLayout;
@@ -686,7 +686,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDtoBinder.forField(statusDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("contractorStatusDto");
-        Label label = new Label("Статус*");
+        Label label = new Label("Статус");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, statusDtoSelect);
         return horizontalLayout;
@@ -706,7 +706,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDtoBinder.forField(departmentDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("departmentDto");
-        Label label = new Label("Отдел*");
+        Label label = new Label("Отдел");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, departmentDtoSelect);
         return horizontalLayout;
@@ -726,7 +726,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDtoBinder.forField(employeeDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("employeeDto");
-        Label label = new Label("Сотрудник*");
+        Label label = new Label("Сотрудник");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, employeeDtoSelect);
         return horizontalLayout;
@@ -762,7 +762,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDtoBinder.forField(typeOfPriceDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("typeOfPriceDto");
-        Label label = new Label("Цены*");
+        Label label = new Label("Цены");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, typeOfPriceDtoSelect);
         return horizontalLayout;
@@ -792,7 +792,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDtoBinder.forField(phoneField)
                 .asRequired("Не заполнено!")
                 .bind("phone");
-        Label label = new Label("Телефон*");
+        Label label = new Label("Телефон");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, phoneField);
         return horizontalLayout;
@@ -800,7 +800,7 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout configureFaxField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Факс*");
+        Label label = new Label("Факс");
         label.setWidth(LABEL_WIDTH);
         faxField.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(faxField)
@@ -812,7 +812,7 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout configureEmailField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Емейл*");
+        Label label = new Label("Емейл");
         label.setWidth(LABEL_WIDTH);
         contractorDtoBinder.forField(emailField)
                 .asRequired("Не заполнено!")
@@ -852,7 +852,7 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout configureCommentToAddressField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Комментарий к адресу*");
+        Label label = new Label("Комментарий к адресу");
         label.setWidth(LABEL_WIDTH);
         commentToAddressField.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(commentToAddressField)
@@ -865,7 +865,7 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout configureCommentField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Комментарий*");
+        Label label = new Label("Комментарий");
         label.setWidth(LABEL_WIDTH);
         commentField.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(commentField)
@@ -878,7 +878,7 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout configureSortNumberField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Код*");
+        Label label = new Label("Код");
         label.setWidth(LABEL_WIDTH);
         contractorDtoBinder.forField(sortNumberField)
                 .asRequired("Не заполнено!")
@@ -898,7 +898,7 @@ public class ContractorModalWindow extends Dialog {
 
     private HorizontalLayout configureDiscountCardField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Номер диск. карты*");
+        Label label = new Label("Номер диск. карты");
         label.setWidth(LABEL_WIDTH);
         discountCardField.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(discountCardField)
