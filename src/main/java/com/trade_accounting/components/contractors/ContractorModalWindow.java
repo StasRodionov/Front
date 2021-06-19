@@ -15,6 +15,7 @@ import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
+import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -99,7 +100,9 @@ public class ContractorModalWindow extends Dialog {
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
     private final BankAccountService bankAccountService;
+    private final AddressService addressService;
 
+    private AddressDto addressDto;
     private ContractorDto contractorDto;
     private LegalDetailDto legalDetailDto;
     private final Binder<ContactDto> contactDtoBinder = new Binder<>(ContactDto.class);
@@ -159,8 +162,10 @@ public class ContractorModalWindow extends Dialog {
                                  ContractorStatusService contractorStatusService,
                                  DepartmentService departmentService,
                                  EmployeeService employeeService,
-                                 BankAccountService bankAccountService) {
+                                 BankAccountService bankAccountService,
+                                 AddressService addressService) {
         this.contractorService = contractorService;
+        this.addressService = addressService;
         this.contractorGroupService = contractorGroupService;
         this.typeOfContractorService = typeOfContractorService;
         this.typeOfPriceService = typeOfPriceService;
@@ -189,8 +194,9 @@ public class ContractorModalWindow extends Dialog {
         physicalAddressBlock = new AddressBlock(contractorDto::getAddressDto);
         legalAddressBlock = new AddressBlock(
                 contractorDto.getLegalDetailDto() == null ?
-                        null : contractorDto.getLegalDetailDto()::getAddressDto
-        );
+                        null
+                        : (Supplier<AddressDto>) addressService.getById(
+                        contractorDto.getLegalDetailDto().getAddressDtoId()));
         add(header(), new Text("Наименование"), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
@@ -210,7 +216,7 @@ public class ContractorModalWindow extends Dialog {
 
     private String getAddressFromLegalDetail(LegalDetailDto legalDetailDto) {
         if (legalDetailDto.getId() != null) {
-            return legalDetailService.getById(legalDetailDto.getId()).getAddressDto().getAnother();
+            return addressService.getById(legalDetailDto.getAddressDtoId()).getAnother();
         } else {
             return "";
         }
@@ -939,21 +945,22 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDto.setLastName(lastNameLegalDetailField.getValue());
         legalDetailDto.setFirstName(firstNameLegalDetailField.getValue());
         legalDetailDto.setMiddleName(middleNameLegalDetailField.getValue());
-        if (legalDetailDto.getId() != null && legalDetailDto.getAddressDto().getId() != null) {
-            Long addressId = contractorDto.getLegalDetailDto().getAddressDto().getId();
-            legalDetailDto.setAddressDto(AddressDto.builder()
-                    .id(addressId)
-                    .build());
+        Long addressId = null;
+        if (legalDetailDto.getId() != null && legalDetailDto.getAddressDtoId() != null) {
+            addressId = contractorDto.getLegalDetailDto().getAddressDtoId();
         }
-        legalDetailDto.setAddressDto(AddressDto.builder()
-                .index(legalAddressBlock.getIndex())
-                .country(legalAddressBlock.getCountry())
-                .region(legalAddressBlock.getRegion())
-                .city(legalAddressBlock.getCity())
-                .street(legalAddressBlock.getStreet())
-                .house(legalAddressBlock.getHouse())
-                .apartment(legalAddressBlock.getApartment())
-                .build());
+        legalDetailDto.setAddressDtoId(addressId);
+        AddressDto addressDto = new AddressDto(
+                addressId,
+                legalAddressBlock.getIndex(),
+                legalAddressBlock.getCountry(),
+                legalAddressBlock.getRegion(),
+                legalAddressBlock.getCity(),
+                legalAddressBlock.getStreet(),
+                legalAddressBlock.getHouse(),
+                legalAddressBlock.getApartment(),
+                ""
+        );
         legalDetailDto.setCommentToAddress(commentToAddressLegalDetailField.getValue());
         legalDetailDto.setInn(innLegalDetailField.getValue());
         legalDetailDto.setKpp(kppLegalDetailField.getValue());

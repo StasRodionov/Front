@@ -23,7 +23,7 @@ public class LegalDetailDto {
     private String middleName;
 
     @EqualsAndHashCode.Exclude
-    private AddressDto addressDto;
+    private Long addressDtoId;
 
     private String commentToAddress;
 
@@ -45,14 +45,14 @@ public class LegalDetailDto {
     private TypeOfContractorDto typeOfContractorDto;
 
     public LegalDetailDto(Long id, String lastName, String firstName, String middleName,
-                          AddressDto addressDto, String commentToAddress, String inn,
+                          Long addressDtoId, String commentToAddress, String inn,
                           String kpp, String okpo, String ogrn, String numberOfTheCertificate,
                           LocalDate date, TypeOfContractorDto typeOfContractorDto) {
         this.id = id;
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
-        this.addressDto = addressDto;
+        this.addressDtoId = addressDtoId;
         this.commentToAddress = commentToAddress;
         this.inn = inn;
         this.kpp = kpp;

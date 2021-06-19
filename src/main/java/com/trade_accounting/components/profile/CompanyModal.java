@@ -127,7 +127,7 @@ public class CompanyModal extends Dialog {
             setField(legalDetailLastName, dto.getLegalDetailDto().getLastName());
             setField(legalDetailFirstName, dto.getLegalDetailDto().getFirstName());
             setField(legalDetailMiddleName, dto.getLegalDetailDto().getMiddleName());
-            setField(legalDetailAddress, dto.getLegalDetailDto().getAddressDto().getAnother());
+            //setField(legalDetailAddress, dto.getLegalDetailDto().getAddressDto().getAnother());
             setField(legalDetailCommentToAddress, dto.getLegalDetailDto().getCommentToAddress());
             setField(legalDetailInn, dto.getLegalDetailDto().getInn());
             setField(legalDetailOkpo, dto.getLegalDetailDto().getOkpo());
