@@ -39,6 +39,7 @@ import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -55,6 +56,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final ContractService contractService;
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
+    private final TextField textField = new TextField();
 
 
     private List<SupplierAccountDto> supplierAccount;
@@ -137,7 +139,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void configureFilter() {
-
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
     }
 
     private Button buttonQuestion() {
@@ -171,7 +175,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private TextField filterTextField() {
-        final TextField textField = new TextField();
+
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -181,8 +185,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         return textField;
     }
 
-    private void updateList(String search) {
-
+    public void updateList(String nameFilter) {
+        if(!(textField.getValue().equals(""))) {
+            grid.setItems(supplierAccountService.searchByString(nameFilter));
+        } else {
+            grid.setItems(supplierAccountService.searchByString("null"));
+        }
     }
 
     private NumberField numberField() {
@@ -194,7 +202,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Изменить");
+        stringList.add("Удалить");
+        select.setItems(stringList);
         select.setValue("Изменить");
         select.setWidth("130px");
         select.addValueChangeListener(event -> {
@@ -202,7 +213,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                 deleteSelectedInvoices();
                 grid.deselectAll();
                 select.setValue("Изменить");
-//                paginator.setData(loadInvoices());
+                paginator.setData(loadSupplierAccounts());
             }
         });
         return select;
@@ -277,7 +288,14 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     public void deleteSelectedInvoices() {
-
+        if(!grid.getSelectedItems().isEmpty()) {
+            for(SupplierAccountDto supp : grid.getSelectedItems()) {
+                supplierAccountService.deleteById(supp.getId());
+                notifications.infoNotification("Выбранные счета поставщиков успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
+        }
     }
 
     @Override
