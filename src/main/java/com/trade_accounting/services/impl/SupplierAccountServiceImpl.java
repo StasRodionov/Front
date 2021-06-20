@@ -13,6 +13,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -56,6 +57,19 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
     }
 
     @Override
+    public List<SupplierAccountDto> searchByString(String nameFilter) {
+        Call<List<SupplierAccountDto>> getSupplierAccountByNameFilter = supplier.searchByString(supplierUrl, nameFilter);
+        List<SupplierAccountDto> supplierAccountDto = new ArrayList<>();
+        try {
+            supplierAccountDto = getSupplierAccountByNameFilter.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение счета поставщика  по фильтру {}", nameFilter);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск иполучение счета поставщика {IOException}", e);
+        }
+        return supplierAccountDto;
+    }
+
+    @Override
     public Response<SupplierAccountDto> create(SupplierAccountDto supplierAccountDto) {
         Call<SupplierAccountDto> createSupplierAccount = supplier.create(supplierUrl, supplierAccountDto);
         Response<SupplierAccountDto> response = Response.success(new SupplierAccountDto());
@@ -89,5 +103,18 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
             log.error("Произошла ошибка при отправке запроса на удаление SupplierAccount {} - {}",id, e);
         }
 
+    }
+
+    @Override
+    public List<SupplierAccountDto> searchByFilter(Map<String, String> querySupplier) {
+        List<SupplierAccountDto> supplierAccountDtoList = new ArrayList<>();
+        Call<List<SupplierAccountDto>> callSupplier = supplier.searchByFilter(supplierUrl,querySupplier);
+        try {
+            supplierAccountDtoList = callSupplier.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение счета поставщика  по фильтру {}",querySupplier);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск иполучение счета поставщика {IOException}", e);
+        }
+        return supplierAccountDtoList;
     }
 }
