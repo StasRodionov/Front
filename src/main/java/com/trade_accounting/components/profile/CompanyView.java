@@ -6,6 +6,8 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -42,17 +44,21 @@ public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
     private final AddressService addressService;
+    private final LegalDetailService legalDetailService;
     private final List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
     private final GridPaginator<CompanyDto> paginator;
     private final GridFilter<CompanyDto> filter;
 
     private final NumberField selectedNumberField;
+    private final TypeOfContractorService typeOfContractorService;
 
-    public CompanyView(CompanyService companyService, AddressService addressService) {
+    public CompanyView(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService) {
         this.companyService = companyService;
         this.data = companyService.getAll();
         this.addressService = addressService;
+        this.legalDetailService = legalDetailService;
+        this.typeOfContractorService = typeOfContractorService;
 
         this.grid = new Grid<>(CompanyDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
@@ -75,11 +81,12 @@ public class CompanyView extends VerticalLayout {
         grid.setColumns("id", "name", "inn", "addressId", "commentToAddress",
                 "email", "phone", "fax", "leader", "leaderManagerPosition", "leaderSignature",
                 "chiefAccountant", "chiefAccountantSignature", "payerVat",
-                "stamp", "sortNumber", "legalDetailDto");
+                "stamp", "sortNumber", "legalDetailDtoId");
 
         grid.getColumnByKey("id").setHeader("ID").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("inn").setHeader("ИНН").setId("ИНН");
+       //TODO Вывод адреса в таблицу
         grid.getColumnByKey("addressId").setHeader("Адрес").setId("Адрес");
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу").setId("Комментарий к адресу");
         grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
@@ -93,14 +100,14 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("payerVat").setHeader("Плательщик НДС").setId("Плательщик НДС");
         grid.getColumnByKey("sortNumber").setHeader("Нумерация").setId("Нумерация");
         grid.getColumnByKey("stamp").setHeader("Печать").setId("Печать");
-        grid.getColumnByKey("legalDetailDto").setHeader("Юридические детали").setId("Юридические детали");
+        grid.getColumnByKey("legalDetailDtoId").setHeader("Юридические детали").setId("Юридические детали");
         getGridContextMenu();
 
         grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
-            CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService);
+            CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService, legalDetailService, typeOfContractorService);
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
@@ -173,7 +180,7 @@ public class CompanyView extends VerticalLayout {
     private Button getNewCompanyButton() {
         final Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        CompanyModal companyModal = new CompanyModal(companyService, addressService);
+        CompanyModal companyModal = new CompanyModal(companyService, addressService, legalDetailService, typeOfContractorService);
         companyModal.addDetachListener(e -> reloadGrid());
         button.addClickListener(e -> companyModal.open());
         return button;

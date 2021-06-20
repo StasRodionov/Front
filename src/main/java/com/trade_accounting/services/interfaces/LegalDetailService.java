@@ -10,7 +10,7 @@ public interface LegalDetailService {
 
     LegalDetailDto getById(Long id);
 
-    void create(LegalDetailDto legalDetailDto);
+    LegalDetailDto create(LegalDetailDto legalDetailDto);
 
     void update(LegalDetailDto legalDetailDto);
 

@@ -163,8 +163,8 @@ public class ContractModalWindow extends Dialog {
         );
         selectCompany.addValueChangeListener(event -> {
             if (selectCompany.getValue() != null) {
-                selectBankAccount.setItems(selectCompany.getValue().getBankAccountDto());
-                selectLegalDetail.setItems(selectCompany.getValue().getLegalDetailDto());
+//       TODO         selectBankAccount.setItems(selectCompany.getValue().getBankAccountDto());
+//                selectLegalDetail.setItems(selectCompany.getValue().getLegalDetailDto());
             }
         });
         selectCompany.setWidth(FIELD_WIDTH);

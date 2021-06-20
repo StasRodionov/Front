@@ -234,7 +234,7 @@ public class ContractorModalWindow extends Dialog {
         }
 
         if (contractorDto.getLegalDetailDto().getInn() != null) {
-            typeOfContractorDtoSelect.setValue(legalDetailDto.getTypeOfContractorDto());
+            typeOfContractorDtoSelect.setValue(typeOfContractorService.getById(legalDetailDto.getTypeOfContractorDtoId()));
             lastNameLegalDetailField.setValue(legalDetailDto.getLastName());
             firstNameLegalDetailField.setValue(legalDetailDto.getFirstName());
             middleNameLegalDetailField.setValue(legalDetailDto.getMiddleName());
@@ -969,7 +969,7 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDto.setNumberOfTheCertificate(numberOfTheCertificateLegalDetailField.getValue());
         legalDetailDto.setDateOfTheCertificate(dateOfTheCertificateLegalDetailField.getValue().toString());
 
-        legalDetailDto.setTypeOfContractorDto(typeOfContractorDtoSelect.getValue());
+        legalDetailDto.setTypeOfContractorDtoId(typeOfContractorDtoSelect.getValue().getId());
 
         return legalDetailDto;
     }

@@ -24,7 +24,7 @@ public interface LegalDetailApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body LegalDetailDto legalDetailDto);
+    Call<LegalDetailDto> create(@Path(value = "url", encoded = true) String url, @Body LegalDetailDto legalDetailDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")

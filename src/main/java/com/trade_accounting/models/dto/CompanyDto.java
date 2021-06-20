@@ -45,10 +45,7 @@ public class CompanyDto {
 
     private String stamp;
 
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private LegalDetailDto legalDetailDto;
+    private Long legalDetailDtoId;
 
-    @EqualsAndHashCode.Exclude
-    private List<BankAccountDto> bankAccountDto;
+    private List<Long> bankAccountDtoIds;
 }
