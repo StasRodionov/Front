@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -22,6 +23,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
 
     private final UnitService unitService;
     private final CompanyService companyService;
+    private final AddressService addressService;
     private final EmployeeService employeeService;
     private final WarehouseService warehouseService;
     private final CurrencyService currencyService;
@@ -31,10 +33,11 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final Div divMenu;
 
     public ProfileView(UnitService unitService, CompanyService companyService,
-                       EmployeeService employeeService, WarehouseService warehouseService,
+                       AddressService addressService, EmployeeService employeeService, WarehouseService warehouseService,
                        CurrencyService currencyService, RoleService roleService, ImageService imageService) {
         this.unitService = unitService;
         this.companyService = companyService;
+        this.addressService = addressService;
         this.employeeService = employeeService;
         this.warehouseService = warehouseService;
         this.currencyService = currencyService;
@@ -57,7 +60,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             divMenu.removeAll();
             divMenu.add(configurationSubMenu());
             div.removeAll();
-            div.add(new CompanyView(companyService));
+            div.add(new CompanyView(companyService, addressService));
         });
     }
 
@@ -74,7 +77,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Юр. лица":
                     div.removeAll();
-                    div.add(new CompanyView(companyService));
+                    div.add(new CompanyView(companyService, addressService));
                     break;
                 case "Сотрудники":
                     div.removeAll();

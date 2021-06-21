@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -13,7 +14,6 @@ import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;
+    private final AddressService addressService;
     private final List<CompanyDto> data;
     private final Grid<CompanyDto> grid;
     private final GridPaginator<CompanyDto> paginator;
@@ -48,9 +49,10 @@ public class CompanyView extends VerticalLayout {
 
     private final NumberField selectedNumberField;
 
-    public CompanyView(CompanyService companyService) {
+    public CompanyView(CompanyService companyService, AddressService addressService) {
         this.companyService = companyService;
         this.data = companyService.getAll();
+        this.addressService = addressService;
 
         this.grid = new Grid<>(CompanyDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
@@ -70,7 +72,7 @@ public class CompanyView extends VerticalLayout {
     private void configureGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("id", "name", "inn", "address", "commentToAddress",
+        grid.setColumns("id", "name", "inn", "addressId", "commentToAddress",
                 "email", "phone", "fax", "leader", "leaderManagerPosition", "leaderSignature",
                 "chiefAccountant", "chiefAccountantSignature", "payerVat",
                 "stamp", "sortNumber", "legalDetailDto");
@@ -78,7 +80,7 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("id").setHeader("ID").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("inn").setHeader("ИНН").setId("ИНН");
-        grid.getColumnByKey("address").setHeader("Адрес").setId("Адрес");
+        grid.getColumnByKey("addressId").setHeader("Адрес").setId("Адрес");
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу").setId("Комментарий к адресу");
         grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
         grid.getColumnByKey("phone").setHeader("Телефон").setId("Телефон");
@@ -98,7 +100,7 @@ public class CompanyView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
-            CompanyModal companyModal = new CompanyModal(companyDto, companyService);
+            CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService);
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
@@ -171,7 +173,7 @@ public class CompanyView extends VerticalLayout {
     private Button getNewCompanyButton() {
         final Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        CompanyModal companyModal = new CompanyModal(companyService);
+        CompanyModal companyModal = new CompanyModal(companyService, addressService);
         companyModal.addDetachListener(e -> reloadGrid());
         button.addClickListener(e -> companyModal.open());
         return button;

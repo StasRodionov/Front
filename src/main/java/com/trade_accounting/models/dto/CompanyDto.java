@@ -29,7 +29,7 @@ public class CompanyDto {
 
     private Boolean payerVat;
 
-    private String address;
+    private Long addressId;
 
     private String commentToAddress;
 
