@@ -23,7 +23,7 @@ public class LegalDetailDto {
     private String middleName;
 
     @EqualsAndHashCode.Exclude
-    private AddressDto addressDto;
+    private Long addressDtoId;
 
     private String commentToAddress;
 
@@ -41,18 +41,17 @@ public class LegalDetailDto {
 
     private LocalDate date;
 
-    @EqualsAndHashCode.Exclude
-    private TypeOfContractorDto typeOfContractorDto;
+    private Long typeOfContractorDtoId;
 
     public LegalDetailDto(Long id, String lastName, String firstName, String middleName,
-                          AddressDto addressDto, String commentToAddress, String inn,
+                          Long addressDtoId, String commentToAddress, String inn,
                           String kpp, String okpo, String ogrn, String numberOfTheCertificate,
-                          LocalDate date, TypeOfContractorDto typeOfContractorDto) {
+                          LocalDate date, Long typeOfContractorDtoId) {
         this.id = id;
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
-        this.addressDto = addressDto;
+        this.addressDtoId = addressDtoId;
         this.commentToAddress = commentToAddress;
         this.inn = inn;
         this.kpp = kpp;
@@ -61,7 +60,7 @@ public class LegalDetailDto {
         this.numberOfTheCertificate = numberOfTheCertificate;
         this.date = date;
         this.dateOfTheCertificate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        this.typeOfContractorDto = typeOfContractorDto;
+        this.typeOfContractorDtoId = typeOfContractorDtoId;
     }
 
 @JsonIgnore

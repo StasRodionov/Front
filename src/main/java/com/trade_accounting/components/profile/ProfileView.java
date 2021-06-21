@@ -6,7 +6,9 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.RoleService;
+import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
@@ -24,6 +26,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final UnitService unitService;
     private final CompanyService companyService;
     private final AddressService addressService;
+    private final LegalDetailService legalDetailService;
     private final EmployeeService employeeService;
     private final WarehouseService warehouseService;
     private final CurrencyService currencyService;
@@ -31,18 +34,21 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final ImageService imageService;
     private final Div div;
     private final Div divMenu;
+    private final TypeOfContractorService typeOfContractorService;
 
     public ProfileView(UnitService unitService, CompanyService companyService,
-                       AddressService addressService, EmployeeService employeeService, WarehouseService warehouseService,
-                       CurrencyService currencyService, RoleService roleService, ImageService imageService) {
+                       AddressService addressService, LegalDetailService legalDetailService, EmployeeService employeeService, WarehouseService warehouseService,
+                       CurrencyService currencyService, RoleService roleService, ImageService imageService, TypeOfContractorService typeOfContractorService) {
         this.unitService = unitService;
         this.companyService = companyService;
         this.addressService = addressService;
+        this.legalDetailService = legalDetailService;
         this.employeeService = employeeService;
         this.warehouseService = warehouseService;
         this.currencyService = currencyService;
         this.roleService = roleService;
         this.imageService = imageService;
+        this.typeOfContractorService = typeOfContractorService;
         div = new Div();
         divMenu = new Div();
         add(divMenu, div);
@@ -60,7 +66,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             divMenu.removeAll();
             divMenu.add(configurationSubMenu());
             div.removeAll();
-            div.add(new CompanyView(companyService, addressService));
+            div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService));
         });
     }
 
@@ -77,7 +83,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Юр. лица":
                     div.removeAll();
-                    div.add(new CompanyView(companyService, addressService));
+                    div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService));
                     break;
                 case "Сотрудники":
                     div.removeAll();

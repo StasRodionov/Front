@@ -6,6 +6,8 @@ import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
@@ -23,6 +25,10 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CompanyModal extends Dialog {
 
@@ -72,16 +78,22 @@ public class CompanyModal extends Dialog {
 
     private final CompanyService companyService;
     private final AddressService addressService;
+    private final LegalDetailService legalDetailService;
+    private final TypeOfContractorService typeOfContractorService;
 
-    public CompanyModal(CompanyService companyService, AddressService addressService) {
+    public CompanyModal(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService) {
         this.companyService = companyService;
         this.addressService = addressService;
+        this.legalDetailService = legalDetailService;
+        this.typeOfContractorService = typeOfContractorService;
         configureModal("Добавление");
     }
 
-    public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService) {
+    public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService) {
         this.companyService = companyService;
         this.addressService = addressService;
+        this.legalDetailService = legalDetailService;
+        this.typeOfContractorService = typeOfContractorService;
         configureModal("Редактирование");
         setFields(companyDto);
     }
@@ -122,23 +134,25 @@ public class CompanyModal extends Dialog {
             setField(addressAnother, addressDto.getAnother());
         }
 
-        if (dto.getLegalDetailDto() != null) {
-            legalDetailId = dto.getLegalDetailDto().getId();
-            setField(legalDetailLastName, dto.getLegalDetailDto().getLastName());
-            setField(legalDetailFirstName, dto.getLegalDetailDto().getFirstName());
-            setField(legalDetailMiddleName, dto.getLegalDetailDto().getMiddleName());
-            setField(legalDetailAddress, dto.getLegalDetailDto().getAddressDto().getAnother());
-            setField(legalDetailCommentToAddress, dto.getLegalDetailDto().getCommentToAddress());
-            setField(legalDetailInn, dto.getLegalDetailDto().getInn());
-            setField(legalDetailOkpo, dto.getLegalDetailDto().getOkpo());
-            setField(legalDetailOgrnip, dto.getLegalDetailDto().getOgrn());
-            setField(legalDetailNumberOfTheCertificate, dto.getLegalDetailDto().getNumberOfTheCertificate());
-            setDate(legalDetailDateOfTheCertificate, dto.getLegalDetailDto().getDate());
+        LegalDetailDto legalDetailDto = legalDetailService.getById(dto.getLegalDetailDtoId());
+        if (legalDetailDto != null) {
+            legalDetailId = legalDetailDto.getId();
+            setField(legalDetailLastName, legalDetailDto.getLastName());
+            setField(legalDetailFirstName, legalDetailDto.getFirstName());
+            setField(legalDetailMiddleName, legalDetailDto.getMiddleName());
+            //setField(legalDetailAddress, dto.getLegalDetailDto().getAddressDto().getAnother());
+            setField(legalDetailCommentToAddress, legalDetailDto.getCommentToAddress());
+            setField(legalDetailInn, legalDetailDto.getInn());
+            setField(legalDetailOkpo, legalDetailDto.getOkpo());
+            setField(legalDetailOgrnip, legalDetailDto.getOgrn());
+            setField(legalDetailNumberOfTheCertificate, legalDetailDto.getNumberOfTheCertificate());
+            setDate(legalDetailDateOfTheCertificate, legalDetailDto.getDate());
 
-            if (dto.getLegalDetailDto().getTypeOfContractorDto() != null) {
-                typeOfContractorId = dto.getLegalDetailDto().getTypeOfContractorDto().getId();
-                setField(typeOfContractorName, dto.getLegalDetailDto().getTypeOfContractorDto().getName());
-                setField(typeOfContractorSortNumber, dto.getLegalDetailDto().getTypeOfContractorDto().getSortNumber());
+            typeOfContractorId = legalDetailDto.getTypeOfContractorDtoId();
+            if (typeOfContractorId != null) {
+                TypeOfContractorDto typeOfContractorDto = typeOfContractorService.getById(typeOfContractorId);
+                setField(typeOfContractorName, typeOfContractorDto.getName());
+                setField(typeOfContractorSortNumber, typeOfContractorDto.getSortNumber());
             }
         }
     }
@@ -159,6 +173,12 @@ public class CompanyModal extends Dialog {
             typeOfContractorDto.setId(typeOfContractorId);
             typeOfContractorDto.setName(typeOfContractorName.getValue());
             typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
+            if (typeOfContractorId == null) {
+                // TODO выпадающий список
+                //  typeOfContractorId = typeOfContractorService.create(typeOfContractorDto).getId();
+            } else {
+                typeOfContractorService.update(typeOfContractorDto);
+            }
 
             AddressDto addressDto = new AddressDto();
             addressDto.setIndex(addressIndex.getValue());
@@ -169,12 +189,11 @@ public class CompanyModal extends Dialog {
             addressDto.setHouse(addressHouse.getValue());
             addressDto.setApartment(addressApartment.getValue());
             addressDto.setAnother(addressAnother.getValue());
-            if (addressId!=null) {
-                addressDto.setId(addressId);
+            if (addressId == null) {
+                addressId = addressService.create(addressDto).getId();
             } else {
-                addressDto.setId(addressService.create(addressDto).getId());
+                addressService.update(addressDto);
             }
-
 
 
             LegalDetailDto legalDetailDto = new LegalDetailDto();
@@ -182,7 +201,8 @@ public class CompanyModal extends Dialog {
             legalDetailDto.setLastName(legalDetailLastName.getValue());
             legalDetailDto.setFirstName(legalDetailFirstName.getValue());
             legalDetailDto.setMiddleName(legalDetailMiddleName.getValue());
-          //  legalDetailDto.setAddressDto(legalDetailAddress.getValue());
+            //TODO сейчас адрес тот же что и у компании, реализовать галочку адрес совпадает, либо ввод нового
+            legalDetailDto.setAddressDtoId(addressId);
             legalDetailDto.setCommentToAddress(legalDetailCommentToAddress.getValue());
             legalDetailDto.setInn(legalDetailInn.getValue());
             legalDetailDto.setOkpo(legalDetailOkpo.getValue());
@@ -190,13 +210,19 @@ public class CompanyModal extends Dialog {
             legalDetailDto.setNumberOfTheCertificate(legalDetailNumberOfTheCertificate.getValue());
             legalDetailDto.setDate(legalDetailDateOfTheCertificate.getValue() != null
                     ? legalDetailDateOfTheCertificate.getValue().toString() : null);
-            legalDetailDto.setTypeOfContractorDto(typeOfContractorDto);
+          //TODO реализовать выбор typeOfContractor, передать в legalDetail
+            legalDetailDto.setTypeOfContractorDtoId(1L);
+            if (legalDetailId == null) {
+                legalDetailId = legalDetailService.create(legalDetailDto).getId();
+            } else {
+                legalDetailService.update(legalDetailDto);
+            }
 
             CompanyDto companyDto = new CompanyDto();
             companyDto.setId(companyId);
             companyDto.setName(name.getValue());
             companyDto.setInn(inn.getValue());
-            companyDto.setAddressId(addressDto.getId());
+            companyDto.setAddressId(addressId);
             companyDto.setCommentToAddress(commentToAddress.getValue());
             companyDto.setEmail(email.getValue());
             companyDto.setPhone(phone.getValue());
@@ -211,8 +237,9 @@ public class CompanyModal extends Dialog {
             companyDto.setLeaderSignature(leaderSignature.getValue());
             companyDto.setChiefAccountant(chiefAccountant.getValue());
             companyDto.setChiefAccountantSignature(chiefAccountantSignature.getValue());
-            companyDto.setLegalDetailDto(legalDetailDto);
-
+            companyDto.setLegalDetailDtoId(legalDetailId);
+            companyDto.setBankAccountDtoIds(Stream.of(1L).collect(Collectors.toList()));
+            System.out.println(companyDto);
             if (companyId == null) {
                 companyService.create(companyDto);
             } else {

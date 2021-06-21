@@ -44,9 +44,15 @@ public class LegalDetailServiceImpl implements LegalDetailService {
     }
 
     @Override
-    public void create(LegalDetailDto legalDetailDto) {
-        Call<Void> legalDetailDtoCall = legalDetailApi.create(legalDetailUrl, legalDetailDto);
-        dtoCallExecuteService.callExecuteBodyCreate(legalDetailDtoCall, LegalDetailDto.class);
+    public LegalDetailDto create(LegalDetailDto legalDetailDto) {
+        Call<LegalDetailDto> legalDetailDtoCall = legalDetailApi.create(legalDetailUrl, legalDetailDto);
+        try {
+            this.legalDetailDto = legalDetailDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание экземпляра LegalDetailDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра LegalDetailDto - {}", e);
+        }
+        return this.legalDetailDto;
     }
 
 
