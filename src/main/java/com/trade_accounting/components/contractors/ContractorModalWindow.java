@@ -288,6 +288,7 @@ public class ContractorModalWindow extends Dialog {
         componentAccesses.addContent(employeeSelect());
         componentAccesses.addContent(departmentSelect());
         componentAccesses.addContent(generalAccessCheckbox());
+        componentAccesses.setOpened(true);
         add(componentAccesses);
 
         componentAll.addContent(componentFormContractDto, componentContactFaces,
@@ -572,7 +573,7 @@ public class ContractorModalWindow extends Dialog {
         return horizontalLayout;
     }
 
-    //Получение вложеного универсального поля
+   /* //Получение вложеного универсального поля
     private HorizontalLayout getSmallField(TextArea textArea, String label) {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         textArea.setWidth(FIELD_WIDTH);
@@ -585,7 +586,7 @@ public class ContractorModalWindow extends Dialog {
         horizontalLayout.setSpacing(false);
         horizontalLayout.setMargin(false);
         return horizontalLayout;
-    }
+    }*/
 
     //Получение универсальной textArea
     private HorizontalLayout getArea(Binder<?> binder, TextArea textArea, String bind, String labelFrom) {
@@ -702,13 +703,16 @@ public class ContractorModalWindow extends Dialog {
         }
         departmentDtoSelect.setItemLabelGenerator(DepartmentDto::getName);
         departmentDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(departmentDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("departmentDto");
         Label label = new Label("Отдел");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, departmentDtoSelect);
         return horizontalLayout;
     }
 
-    //Получени select-ора "Сотрудник" в поле "Доступ"
+    //Получение select-ора "Сотрудник" в поле "Доступ"
     private HorizontalLayout employeeSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
@@ -719,6 +723,9 @@ public class ContractorModalWindow extends Dialog {
         }
         employeeDtoSelect.setItemLabelGenerator(EmployeeDto::getFirstName);
         employeeDtoSelect.setWidth(FIELD_WIDTH);
+        contractorDtoBinder.forField(employeeDtoSelect)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("employeeDto");
         Label label = new Label("Сотрудник");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, employeeDtoSelect);
@@ -741,7 +748,6 @@ public class ContractorModalWindow extends Dialog {
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorGroupDtoSelect);
         return horizontalLayout;
-
     }
 
     private HorizontalLayout typeOfPriceSelect() {
@@ -910,13 +916,14 @@ public class ContractorModalWindow extends Dialog {
                     contractorDtoBinder.validate().notifyBindingValidationStatusHandlers();
                 } else {
                     saveFieldsCreate(legalDetailDto);
-                    //legalDetailService.create(legalDetailDto);
+                    legalDetailService.create(legalDetailDto);
                     saveFields(contractorDto);
                     contractorService.create(contractorDto);
-                    //Notification.show(String.format("Контрагент %s добавлен", contractorDto.getName()));
                     if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
-                            .matches("^([0-9]{10}|[0-9]{12})$"))
+                            .matches("^([0-9]{10}|[0-9]{12})$")) {
                         close();
+                        Notification.show(String.format("Контрагент %s добавлен", contractorDto.getName()));
+                    }
                 }
             });
         } else {
@@ -967,13 +974,13 @@ public class ContractorModalWindow extends Dialog {
         return legalDetailDto;
     }
 
-    private void saveFields(ContractorDto contractorDto) {// продебажить здесь поля region, sity, street
+    private void saveFields(ContractorDto contractorDto) {
         contractorDto.setName(nameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-        contractorDto.setAddressDto(AddressDto.builder().another(addressField.getValue()).build());// слетает после выполнения этой части кода. AddressDto, передаваемое в качестве аргумента, вначале в порядке
-        contractorDto.setCommentToAddress(commentToAddressField.getValue());//здесь интересующие поля уже null. все данные перемещаются в поле another
+        contractorDto.setAddressDto(AddressDto.builder().another(addressField.getValue()).build());
+        contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
         contractorDto.setDiscountCardNumber(discountCardField.getValue());
