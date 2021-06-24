@@ -20,6 +20,6 @@ public interface ReturnToSupplierService {
 
     void deleteById(Long id);
 
-    List<ReturnToSupplierDto> searchByFilter(Map<String, String> querySupplier);
+    List<ReturnToSupplierDto> searchByFilter(Map<String, String> queryReturnToSupplier);
 
 }
