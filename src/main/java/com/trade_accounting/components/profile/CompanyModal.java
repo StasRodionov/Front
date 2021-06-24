@@ -239,8 +239,8 @@ public class CompanyModal extends Dialog {
             companyDto.setChiefAccountant(chiefAccountant.getValue());
             companyDto.setChiefAccountantSignature(chiefAccountantSignature.getValue());
             companyDto.setLegalDetailDtoId(legalDetailId);
+            //это заглушка
             companyDto.setBankAccountDtoIds(Stream.of(1L).collect(Collectors.toList()));
-            System.out.println(companyDto);
             if (companyId == null) {
                 companyService.create(companyDto);
             } else {
