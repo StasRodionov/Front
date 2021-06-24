@@ -134,9 +134,9 @@ public class CompanyModal extends Dialog {
             setField(addressAnother, addressDto.getAnother());
         }
 
-        LegalDetailDto legalDetailDto = legalDetailService.getById(dto.getLegalDetailDtoId());
-        if (legalDetailDto != null) {
-            legalDetailId = legalDetailDto.getId();
+        if (dto.getLegalDetailDtoId() != null) {
+            legalDetailId = dto.getLegalDetailDtoId();
+            LegalDetailDto legalDetailDto = legalDetailService.getById(legalDetailId);
             setField(legalDetailLastName, legalDetailDto.getLastName());
             setField(legalDetailFirstName, legalDetailDto.getFirstName());
             setField(legalDetailMiddleName, legalDetailDto.getMiddleName());
@@ -181,6 +181,7 @@ public class CompanyModal extends Dialog {
             }
 
             AddressDto addressDto = new AddressDto();
+            addressDto.setId(addressId);
             addressDto.setIndex(addressIndex.getValue());
             addressDto.setCountry(addressCountry.getValue());
             addressDto.setRegion(addressRegion.getValue());
