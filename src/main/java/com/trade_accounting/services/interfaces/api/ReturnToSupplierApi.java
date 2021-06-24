@@ -26,11 +26,11 @@ public interface ReturnToSupplierApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<ReturnToSupplierDto> create(@Path(value = "url", encoded = true) String url, @Body ReturnToSupplierDto supp);
+    Call<ReturnToSupplierDto> create(@Path(value = "url", encoded = true) String url, @Body ReturnToSupplierDto modelDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
-    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ReturnToSupplierDto supp);
+    Call<Void> update(@Path(value = "url", encoded = true) String url, @Body ReturnToSupplierDto modelDto);
 
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
