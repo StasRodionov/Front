@@ -134,9 +134,9 @@ public class CompanyModal extends Dialog {
             setField(addressAnother, addressDto.getAnother());
         }
 
-        LegalDetailDto legalDetailDto = legalDetailService.getById(dto.getLegalDetailDtoId());
-        if (legalDetailDto != null) {
-            legalDetailId = legalDetailDto.getId();
+        if (dto.getLegalDetailDtoId() != null) {
+            legalDetailId = dto.getLegalDetailDtoId();
+            LegalDetailDto legalDetailDto = legalDetailService.getById(legalDetailId);
             setField(legalDetailLastName, legalDetailDto.getLastName());
             setField(legalDetailFirstName, legalDetailDto.getFirstName());
             setField(legalDetailMiddleName, legalDetailDto.getMiddleName());
@@ -181,6 +181,7 @@ public class CompanyModal extends Dialog {
             }
 
             AddressDto addressDto = new AddressDto();
+            addressDto.setId(addressId);
             addressDto.setIndex(addressIndex.getValue());
             addressDto.setCountry(addressCountry.getValue());
             addressDto.setRegion(addressRegion.getValue());
@@ -238,8 +239,8 @@ public class CompanyModal extends Dialog {
             companyDto.setChiefAccountant(chiefAccountant.getValue());
             companyDto.setChiefAccountantSignature(chiefAccountantSignature.getValue());
             companyDto.setLegalDetailDtoId(legalDetailId);
+            //это заглушка
             companyDto.setBankAccountDtoIds(Stream.of(1L).collect(Collectors.toList()));
-            System.out.println(companyDto);
             if (companyId == null) {
                 companyService.create(companyDto);
             } else {
