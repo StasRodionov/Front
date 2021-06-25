@@ -86,7 +86,6 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("id").setHeader("ID").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("inn").setHeader("ИНН").setId("ИНН");
-       //TODO Вывод адреса в таблицу
         grid.getColumnByKey("addressId").setHeader("Адрес").setId("Адрес");
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу").setId("Комментарий к адресу");
         grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
