@@ -69,12 +69,6 @@ public class PostingTabView extends VerticalLayout {
         add(configureActions(), grid, paginator);
     }
 
-//    public PostingTabView() {
-//        add(getTollBar());
-//        configureGrid();
-//        setSizeFull();
-//    }
-
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(CorrectionDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
