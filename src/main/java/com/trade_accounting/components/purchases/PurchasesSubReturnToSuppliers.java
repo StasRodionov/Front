@@ -18,6 +18,11 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -28,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -49,6 +54,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final Grid<ReturnToSupplierDto> grid = new Grid<>(ReturnToSupplierDto.class, false);
     private GridPaginator<ReturnToSupplierDto> paginator;
     private final GridFilter<ReturnToSupplierDto> filter;
+    private final TextField textField = new TextField();
 
     @Autowired
     public PurchasesSubReturnToSuppliers(ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
@@ -66,17 +72,17 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         add(horizontalLayout);
     }
 
-    private void configureActions(){
+    private void configureActions() {
         horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(buttonQuestion(), title());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
 
-    private List<ReturnToSupplierDto> loadReturnToSuppliers(){
+    private List<ReturnToSupplierDto> loadReturnToSuppliers() {
         return returnToSupplierService.getAll();
     }
 
-    private H2 title(){
+    private H2 title() {
         H2 title = new H2("Возвраты поставщикам");
         title.setHeight("2.2em");
         return title;
@@ -88,8 +94,78 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         return buttonQuestion;
     }
 
+    private Button buttonRefresh() {
+        Button button = new Button(new Icon(VaadinIcon.REFRESH));
+        button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        //Перезагрузить страницу (данные таблицы)
+        return button;
+    }
+
+    private Button buttonAdd() {
+        Button button = new Button("Возврат", new Icon(VaadinIcon.PLUS_CIRCLE));
+        //Открыть модальное окно "Добавить возврат поставщику"
+        return button;
+    }
+
+    private Button buttonFilter() {
+        Button button = new Button("Фильтр");
+        button.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return button;
+    }
+
+    private TextField filterTextField() {
+        textField.setPlaceholder("Номер или комментарий");
+        textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.setClearButtonVisible(true);
+        textField.addValueChangeListener(e -> updateList(textField.getValue()));
+        textField.setWidth("300px");
+        return textField;
+    }
+
+    private NumberField numberField(){
+        NumberField numberField = new NumberField();
+        numberField.setPlaceholder("0");
+        numberField.setWidth("45px");
+        return numberField;
+    }
+
+    private Select<String> valueSelect(){
+        Select<String> select = new Select<>();
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Изменить");
+        stringList.add("Массовое редактирование");
+        stringList.add("Провести");
+        stringList.add("Снять проведение");
+        stringList.add("Удалить");
+        select.setItems(stringList);
+        select.setValue("Изменить");
+        select.setWidth("130px");
+        return select;
+    }
+
+    private Select<String> valueStatus() {
+        Select<String> status = new Select<>();
+        status.setItems("Статус");
+        status.setValue("Статус");
+        status.setWidth("130px");
+        return status;
+    }
+
+    private void updateList() {
+        grid.setItems(returnToSupplierService.getAll());
+    }
+
+    public void updateList(String nameFilter) {
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(returnToSupplierService.searchByString(nameFilter));
+        } else {
+            grid.setItems(returnToSupplierService.searchByString("null"));
+        }
+    }
+
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-
+        updateList();
     }
 }
