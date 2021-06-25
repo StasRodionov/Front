@@ -41,7 +41,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
                 }));
 
-        HorizontalLayout postingTab = new HorizontalLayout(new Label("Оприходывания"));
+        HorizontalLayout postingTab = new HorizontalLayout(new Label("Оприходования"));
 
         postingTab.addClickListener(event ->
                 postingTab.getUI().ifPresent(ui -> {

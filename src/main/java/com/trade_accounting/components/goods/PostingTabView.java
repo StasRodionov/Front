@@ -4,6 +4,8 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CorrectionDto;
+import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CorrectionService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -30,6 +32,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,12 +79,13 @@ public class PostingTabView extends VerticalLayout {
                 .getName()).setKey("warehouse").setHeader("Склад").setId("Склад");
         grid.addColumn(correctionDto -> companyService.getById(correctionDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Компания").setId("Компания");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("summ").setHeader("Сумма")
+                .setId("Сумма"); //изменить реализацию, когда будет готова модель CorrectionProductDto
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
@@ -128,6 +132,11 @@ public class PostingTabView extends VerticalLayout {
                 valuePrint(), buttonSettings(), selectXlsTemplateButton);
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
+    }
+
+    protected String getTotalPrice() {
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        return String.format("%.2f", totalPrice);
     }
 
     private H2 getTextOrder() {
