@@ -33,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +80,13 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+    }
+
+    private Grid<ReturnToSupplierDto> configureGrid(){
+        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада").setKey("warehouseId").setId("Со склада");
+        return grid;
     }
 
     private List<ReturnToSupplierDto> loadReturnToSuppliers() {
@@ -164,6 +173,12 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
+    }
+
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
     }
 
     private void updateList() {

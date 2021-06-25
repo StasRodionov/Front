@@ -13,13 +13,13 @@ public class ReturnToSupplierDto {
 
     private String date;
 
-    private Long warehouse;
+    private Long warehouseId;
 
-    private Long company;
+    private Long companyId;
 
-    private Long contractor;
+    private Long contractorId;
 
-    private Long contract;
+    private Long contractId;
 
     private Boolean isSend;
 
