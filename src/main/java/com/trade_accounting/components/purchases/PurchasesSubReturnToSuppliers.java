@@ -74,7 +74,9 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private void configureActions() {
         horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(buttonQuestion(), title());
+        horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonAdd(),
+                buttonFilter(), filterTextField(), numberField(), valueSelect(),
+                valueStatus(), valuePrint(), buttonSettings());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
 
@@ -123,14 +125,14 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         return textField;
     }
 
-    private NumberField numberField(){
+    private NumberField numberField() {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
         numberField.setWidth("45px");
         return numberField;
     }
 
-    private Select<String> valueSelect(){
+    private Select<String> valueSelect() {
         Select<String> select = new Select<>();
         List<String> stringList = new ArrayList<>();
         stringList.add("Изменить");
@@ -150,6 +152,18 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         status.setValue("Статус");
         status.setWidth("130px");
         return status;
+    }
+
+    private Select<String> valuePrint() {
+        Select<String> print = new Select<>();
+        print.setItems("Печать");
+        print.setValue("Печать");
+        print.setWidth("130px");
+        return print;
+    }
+
+    private Button buttonSettings() {
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private void updateList() {
