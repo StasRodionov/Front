@@ -10,10 +10,12 @@ import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ReturnToSupplierService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,6 +24,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -33,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -50,42 +54,62 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final CompanyService companyService;
     private final ContractorService contractorService;
     private final ContractService contractService;
+
     private final Notifications notifications;
-    private final List<ReturnToSupplierDto> returnToSupplierDtoList;
-    private HorizontalLayout horizontalLayout;
+
+    private final List<ReturnToSupplierDto> data;
+
     private final Grid<ReturnToSupplierDto> grid = new Grid<>(ReturnToSupplierDto.class, false);
     private GridPaginator<ReturnToSupplierDto> paginator;
     private final GridFilter<ReturnToSupplierDto> filter;
+
     private final TextField textField = new TextField();
 
     @Autowired
     public PurchasesSubReturnToSuppliers(ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
                                          CompanyService companyService, ContractorService contractorService, ContractService contractService,
-                                         @Lazy Notifications notifications, List<ReturnToSupplierDto> returnToSupplierDtoList) {
+                                         @Lazy Notifications notifications) {
         this.returnToSupplierService = returnToSupplierService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.notifications = notifications;
-        this.returnToSupplierDtoList = returnToSupplierDtoList;
+        this.data = loadReturnToSuppliers();
+        paginator = new GridPaginator<>(grid, data, 50);
+        configureGrid();
         this.filter = new GridFilter<>(grid);
-        configureActions();
-        add(horizontalLayout);
+        add(configureActions(), grid, paginator);
     }
 
-    private void configureActions() {
-        horizontalLayout = new HorizontalLayout();
+    private HorizontalLayout configureActions() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonAdd(),
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        return horizontalLayout;
     }
 
-    private Grid<ReturnToSupplierDto> configureGrid(){
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
+    private Grid<ReturnToSupplierDto> configureGrid() {
+        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада").setKey("warehouseId").setId("Со склада");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
+                .setKey("warehouseId").setId("Со склада");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
+                .setKey("companyId").setId("Организация");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorId").setId("Контрагент");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSend").setHeader("Отправлено")
+                .setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isPrint").setHeader("Напечатано")
+                .setId("Напечатано");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        //По клику по полю открывать модальное окно
         return grid;
     }
 
@@ -190,6 +214,21 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
             grid.setItems(returnToSupplierService.searchByString(nameFilter));
         } else {
             grid.setItems(returnToSupplierService.searchByString("null"));
+        }
+    }
+
+    private String getTotalPrice(ReturnToSupplierDto dto) {
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        return String.format("%.2f", totalPrice);
+    }
+
+    private Component getIsCheckedIcon(ReturnToSupplierDto dto) {
+        if (dto.getIsSend()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
         }
     }
 
