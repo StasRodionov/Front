@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CorrectionService;
 import com.trade_accounting.services.interfaces.api.CorrectionApi;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +43,7 @@ public class CorrectionServiceImpl implements CorrectionService {
     }
 
     @Override
-    public void update(InvoiceDto invoiceDto) {
+    public void update(CorrectionDto correctionDto) {
 
     }
 

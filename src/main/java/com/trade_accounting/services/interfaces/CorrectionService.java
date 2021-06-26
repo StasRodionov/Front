@@ -1,7 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.InvoiceDto;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ public interface CorrectionService {
 
     CorrectionDto create(CorrectionDto correctionDto);
 
-    void update(InvoiceDto invoiceDto);
+    void update(CorrectionDto correctionDto);
 
     void deleteById(Long id);
 }

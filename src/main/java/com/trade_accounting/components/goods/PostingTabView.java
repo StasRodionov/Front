@@ -4,9 +4,9 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.CorrectionProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.CorrectionProductService;
 import com.trade_accounting.services.interfaces.CorrectionService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -45,6 +45,7 @@ public class PostingTabView extends VerticalLayout {
     private final CorrectionService correctionService;
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
+    private final CorrectionProductService correctionProductService;
     private Notifications notifications;
 
     private final List<CorrectionDto> data;
@@ -59,10 +60,12 @@ public class PostingTabView extends VerticalLayout {
     public PostingTabView(CorrectionService correctionService,
                           WarehouseService warehouseService,
                           CompanyService companyService,
+                          CorrectionProductService correctionProductService,
                           Notifications notifications) {
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
+        this.correctionProductService = correctionProductService;
         this.notifications = notifications;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -79,11 +82,10 @@ public class PostingTabView extends VerticalLayout {
                 .getName()).setKey("warehouse").setHeader("Склад").setId("Склад");
         grid.addColumn(correctionDto -> companyService.getById(correctionDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Компания").setId("Компания");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("summ").setHeader("Сумма")
-                .setId("Сумма"); //изменить реализацию, когда будет готова модель CorrectionProductDto
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("sent").setHeader("Отправлено")
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
@@ -115,8 +117,18 @@ public class PostingTabView extends VerticalLayout {
         return upper;
     }
 
-    private Component getIsCheckedIcon(CorrectionDto correctionDto) {
-        if (correctionDto.getIsSent() || correctionDto.getIsPrint()) {
+    private Component getIsSentIcon(CorrectionDto correctionDto) {
+        if (correctionDto.getIsSent()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
+    }
+
+    private Component getIsPrintIcon(CorrectionDto correctionDto) {
+        if (correctionDto.getIsPrint()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
@@ -134,8 +146,13 @@ public class PostingTabView extends VerticalLayout {
         return horizontalLayout;
     }
 
-    protected String getTotalPrice() {
+    protected String getTotalPrice(CorrectionDto correctionDto) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (Long id : correctionDto.getCorrectionProductIds()) {
+            CorrectionProductDto correctionProductDto = correctionProductService.getById(id);
+            totalPrice = totalPrice.add(correctionProductDto.getAmount()
+                    .multiply(correctionProductDto.getPrice()));
+        }
         return String.format("%.2f", totalPrice);
     }
 
