@@ -75,8 +75,6 @@ public class CompanyModal extends Dialog {
 
     private Long typeOfContractorId;
     private final Select<TypeOfContractorDto> typeOfContractorDtoSelect = new Select<>();
-//    private final TextField typeOfContractorName = new TextField();
-//    private final TextField typeOfContractorSortNumber = new TextField();
 
     private final CompanyService companyService;
     private final AddressService addressService;
@@ -154,8 +152,6 @@ public class CompanyModal extends Dialog {
             if (typeOfContractorId != null) {
                 TypeOfContractorDto typeOfContractorDto = typeOfContractorService.getById(typeOfContractorId);
                 typeOfContractorDtoSelect.setValue(typeOfContractorDto);
-//                setField(typeOfContractorName, typeOfContractorDto.getName());
-//                setField(typeOfContractorSortNumber, typeOfContractorDto.getSortNumber());
             }
         }
     }
@@ -172,17 +168,6 @@ public class CompanyModal extends Dialog {
 
     private Button buttonSave() {
         return new Button("Сохранить", event -> {
-//            TypeOfContractorDto typeOfContractorDto = new TypeOfContractorDto();
-//            typeOfContractorDto.setId(typeOfContractorId);
-//            typeOfContractorDto.setName(typeOfContractorName.getValue());
-//            typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
-//            if (typeOfContractorId == null) {
-//                // TODO выпадающий список
-//                //  typeOfContractorId = typeOfContractorService.create(typeOfContractorDto).getId();
-//            } else {
-//                typeOfContractorService.update(typeOfContractorDto);
-//            }
-
             AddressDto addressDto = new AddressDto();
             addressDto.setId(addressId);
             addressDto.setIndex(addressIndex.getValue());
@@ -199,7 +184,6 @@ public class CompanyModal extends Dialog {
                 addressService.update(addressDto);
             }
 
-
             LegalDetailDto legalDetailDto = new LegalDetailDto();
             legalDetailDto.setId(legalDetailId);
             legalDetailDto.setLastName(legalDetailLastName.getValue());
@@ -214,8 +198,7 @@ public class CompanyModal extends Dialog {
             legalDetailDto.setNumberOfTheCertificate(legalDetailNumberOfTheCertificate.getValue());
             legalDetailDto.setDate(legalDetailDateOfTheCertificate.getValue() != null
                     ? legalDetailDateOfTheCertificate.getValue().toString() : null);
-          //TODO реализовать выбор typeOfContractor, передать в legalDetail
-            legalDetailDto.setTypeOfContractorDtoId(1L);
+            legalDetailDto.setTypeOfContractorDtoId(typeOfContractorDtoSelect.getValue().getId());
             if (legalDetailId == null) {
                 legalDetailId = legalDetailService.create(legalDetailDto).getId();
             } else {
@@ -309,7 +292,6 @@ public class CompanyModal extends Dialog {
                 configureLegalDetailNumberOfTheCertificate(),
                 configureLegalDetailDateOfTheCertificate(),
                 configureTypeOfContractor());
-                //configureTypeOfContractorSortNumber());
         accordion.add("Юридические детали", layoutDetails).addThemeVariants(DetailsVariant.FILLED);
 
         return accordion;
@@ -484,11 +466,6 @@ public class CompanyModal extends Dialog {
         add(typeOfContractorDtoSelect);
         return getHorizontalLayout("Тип компании", typeOfContractorDtoSelect);
     }
-
-//    private HorizontalLayout configureTypeOfContractorSortNumber() {
-//        typeOfContractorSortNumber.setWidth(FIELD_WIDTH);
-//        return getHorizontalLayout("Номер поставщика", typeOfContractorSortNumber);
-//    }
 
     private HorizontalLayout getHorizontalLayout(String title, Component field) {
         Label label = new Label(title);
