@@ -27,6 +27,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,8 +74,9 @@ public class CompanyModal extends Dialog {
     private final DatePicker legalDetailDateOfTheCertificate = new DatePicker();
 
     private Long typeOfContractorId;
-    private final TextField typeOfContractorName = new TextField();
-    private final TextField typeOfContractorSortNumber = new TextField();
+    private final Select<TypeOfContractorDto> typeOfContractorDtoSelect = new Select<>();
+//    private final TextField typeOfContractorName = new TextField();
+//    private final TextField typeOfContractorSortNumber = new TextField();
 
     private final CompanyService companyService;
     private final AddressService addressService;
@@ -151,8 +153,9 @@ public class CompanyModal extends Dialog {
             typeOfContractorId = legalDetailDto.getTypeOfContractorDtoId();
             if (typeOfContractorId != null) {
                 TypeOfContractorDto typeOfContractorDto = typeOfContractorService.getById(typeOfContractorId);
-                setField(typeOfContractorName, typeOfContractorDto.getName());
-                setField(typeOfContractorSortNumber, typeOfContractorDto.getSortNumber());
+                typeOfContractorDtoSelect.setValue(typeOfContractorDto);
+//                setField(typeOfContractorName, typeOfContractorDto.getName());
+//                setField(typeOfContractorSortNumber, typeOfContractorDto.getSortNumber());
             }
         }
     }
@@ -169,16 +172,16 @@ public class CompanyModal extends Dialog {
 
     private Button buttonSave() {
         return new Button("Сохранить", event -> {
-            TypeOfContractorDto typeOfContractorDto = new TypeOfContractorDto();
-            typeOfContractorDto.setId(typeOfContractorId);
-            typeOfContractorDto.setName(typeOfContractorName.getValue());
-            typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
-            if (typeOfContractorId == null) {
-                // TODO выпадающий список
-                //  typeOfContractorId = typeOfContractorService.create(typeOfContractorDto).getId();
-            } else {
-                typeOfContractorService.update(typeOfContractorDto);
-            }
+//            TypeOfContractorDto typeOfContractorDto = new TypeOfContractorDto();
+//            typeOfContractorDto.setId(typeOfContractorId);
+//            typeOfContractorDto.setName(typeOfContractorName.getValue());
+//            typeOfContractorDto.setSortNumber(typeOfContractorSortNumber.getValue());
+//            if (typeOfContractorId == null) {
+//                // TODO выпадающий список
+//                //  typeOfContractorId = typeOfContractorService.create(typeOfContractorDto).getId();
+//            } else {
+//                typeOfContractorService.update(typeOfContractorDto);
+//            }
 
             AddressDto addressDto = new AddressDto();
             addressDto.setId(addressId);
@@ -305,8 +308,8 @@ public class CompanyModal extends Dialog {
                 configureLegalDetailOgrnip(),
                 configureLegalDetailNumberOfTheCertificate(),
                 configureLegalDetailDateOfTheCertificate(),
-                configureTypeOfContractorName(),
-                configureTypeOfContractorSortNumber());
+                configureTypeOfContractor());
+                //configureTypeOfContractorSortNumber());
         accordion.add("Юридические детали", layoutDetails).addThemeVariants(DetailsVariant.FILLED);
 
         return accordion;
@@ -473,15 +476,19 @@ public class CompanyModal extends Dialog {
         return getHorizontalLayout("Дата сертификата", legalDetailDateOfTheCertificate);
     }
 
-    private HorizontalLayout configureTypeOfContractorName() {
-        typeOfContractorName.setWidth(FIELD_WIDTH);
-        return getHorizontalLayout("Имя поставщика", typeOfContractorName);
+    private HorizontalLayout configureTypeOfContractor() {
+        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
+        List<TypeOfContractorDto> typeOfContractorDto = typeOfContractorService.getAll();
+        typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
+        typeOfContractorDtoSelect.setItems(typeOfContractorDto);
+        add(typeOfContractorDtoSelect);
+        return getHorizontalLayout("Тип компании", typeOfContractorDtoSelect);
     }
 
-    private HorizontalLayout configureTypeOfContractorSortNumber() {
-        typeOfContractorSortNumber.setWidth(FIELD_WIDTH);
-        return getHorizontalLayout("Номер поставщика", typeOfContractorSortNumber);
-    }
+//    private HorizontalLayout configureTypeOfContractorSortNumber() {
+//        typeOfContractorSortNumber.setWidth(FIELD_WIDTH);
+//        return getHorizontalLayout("Номер поставщика", typeOfContractorSortNumber);
+//    }
 
     private HorizontalLayout getHorizontalLayout(String title, Component field) {
         Label label = new Label(title);
