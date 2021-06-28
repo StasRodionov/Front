@@ -73,6 +73,16 @@ public class CompanyModal extends Dialog {
     private final TextField legalDetailNumberOfTheCertificate = new TextField();
     private final DatePicker legalDetailDateOfTheCertificate = new DatePicker();
 
+    private Long legalDetailAddressId;
+    private final TextField legalDetailAddressIndex = new TextField();
+    private final TextField legalDetailAddressCountry = new TextField();
+    private final TextField legalDetailAddressRegion = new TextField();
+    private final TextField legalDetailAddressCity = new TextField();
+    private final TextField legalDetailAddressStreet = new TextField();
+    private final TextField legalDetailAddressHouse = new TextField();
+    private final TextField legalDetailAddressApartment = new TextField();
+    private final TextField legalDetailAddressAnother = new TextField();
+
     private Long typeOfContractorId;
     private final Select<TypeOfContractorDto> typeOfContractorDtoSelect = new Select<>();
 
@@ -148,6 +158,19 @@ public class CompanyModal extends Dialog {
             setField(legalDetailNumberOfTheCertificate, legalDetailDto.getNumberOfTheCertificate());
             setDate(legalDetailDateOfTheCertificate, legalDetailDto.getDate());
 
+            if (legalDetailDto.getAddressDtoId() != null) {
+                legalDetailAddressId = legalDetailDto.getAddressDtoId();
+                AddressDto legalDetailAddressDto = addressService.getById(legalDetailAddressId);
+                setField(legalDetailAddressIndex, legalDetailAddressDto.getIndex());
+                setField(legalDetailAddressCountry, legalDetailAddressDto.getCountry());
+                setField(legalDetailAddressRegion, legalDetailAddressDto.getRegion());
+                setField(legalDetailAddressCity, legalDetailAddressDto.getCity());
+                setField(legalDetailAddressStreet, legalDetailAddressDto.getStreet());
+                setField(legalDetailAddressHouse, legalDetailAddressDto.getHouse());
+                setField(legalDetailAddressApartment, legalDetailAddressDto.getApartment());
+                setField(legalDetailAddressAnother, legalDetailAddressDto.getAnother());
+            }
+
             typeOfContractorId = legalDetailDto.getTypeOfContractorDtoId();
             if (typeOfContractorId != null) {
                 TypeOfContractorDto typeOfContractorDto = typeOfContractorService.getById(typeOfContractorId);
@@ -184,13 +207,29 @@ public class CompanyModal extends Dialog {
                 addressService.update(addressDto);
             }
 
+            AddressDto legalDetailAddressDto = new AddressDto();
+            legalDetailAddressDto.setId(legalDetailAddressId);
+            legalDetailAddressDto.setIndex(legalDetailAddressIndex.getValue());
+            legalDetailAddressDto.setCountry(legalDetailAddressCountry.getValue());
+            legalDetailAddressDto.setRegion(legalDetailAddressRegion.getValue());
+            legalDetailAddressDto.setCity(legalDetailAddressCity.getValue());
+            legalDetailAddressDto.setStreet(legalDetailAddressStreet.getValue());
+            legalDetailAddressDto.setHouse(legalDetailAddressHouse.getValue());
+            legalDetailAddressDto.setApartment(legalDetailAddressApartment.getValue());
+            legalDetailAddressDto.setAnother(legalDetailAddressAnother.getValue());
+            if (legalDetailAddressId == null) {
+                legalDetailAddressId = addressService.create(legalDetailAddressDto).getId();
+            } else {
+                addressService.update(legalDetailAddressDto);
+            }
+
             LegalDetailDto legalDetailDto = new LegalDetailDto();
             legalDetailDto.setId(legalDetailId);
             legalDetailDto.setLastName(legalDetailLastName.getValue());
             legalDetailDto.setFirstName(legalDetailFirstName.getValue());
             legalDetailDto.setMiddleName(legalDetailMiddleName.getValue());
-            //TODO сейчас адрес тот же что и у компании, реализовать галочку адрес совпадает, либо ввод нового
-            legalDetailDto.setAddressDtoId(addressId);
+            //TODO реализовать галочку адрес совпадает, либо ввод нового
+            legalDetailDto.setAddressDtoId(legalDetailAddressId);
             legalDetailDto.setCommentToAddress(legalDetailCommentToAddress.getValue());
             legalDetailDto.setInn(legalDetailInn.getValue());
             legalDetailDto.setOkpo(legalDetailOkpo.getValue());
@@ -266,7 +305,7 @@ public class CompanyModal extends Dialog {
                 configureAddressHouse(),
                 configureAddressApartment(),
                 configureAddressAnother());
-        accordion.add("Адрес", address).addThemeVariants(DetailsVariant.FILLED);
+        accordion.add("Фактический адрес", address).addThemeVariants(DetailsVariant.FILLED);
 
         accordion.add("О юр. лице", layoutInfo).addThemeVariants(DetailsVariant.FILLED);
 
@@ -279,12 +318,23 @@ public class CompanyModal extends Dialog {
                 configureChiefAccountantSignature());
         accordion.add("Главные лица", layoutPersons).addThemeVariants(DetailsVariant.FILLED);
 
+        VerticalLayout legalDetailAddress = new VerticalLayout();
+        legalDetailAddress.add(
+                configureLegalDetailAddressIndex(),
+                configureLegalDetailAddressCountry(),
+                configureLegalDetailAddressRegion(),
+                configureLegalDetailAddressCity(),
+                configureLegalDetailAddressStreet(),
+                configureLegalDetailAddressHouse(),
+                configureLegalDetailAddressApartment(),
+                configureLegalDetailAddressAnother());
+        accordion.add("Юридический адрес", legalDetailAddress).addThemeVariants(DetailsVariant.FILLED);
+
         VerticalLayout layoutDetails = new VerticalLayout();
         layoutDetails.add(
                 configureLegalDetailLastName(),
                 configureLegalDetailFirstName(),
                 configureLegalDetailMiddleName(),
-                configureLegalDetailAddress(),
                 configureLegalDetailCommentToAddress(),
                 configureLegalDetailInn(),
                 configureLegalDetailOkpo(),
@@ -423,11 +473,6 @@ public class CompanyModal extends Dialog {
         return getHorizontalLayout("Отчество", legalDetailMiddleName);
     }
 
-    private HorizontalLayout configureLegalDetailAddress() {
-        legalDetailAddress.setWidth(FIELD_WIDTH);
-        return getHorizontalLayout("Адрес", legalDetailAddress);
-    }
-
     private HorizontalLayout configureLegalDetailCommentToAddress() {
         legalDetailCommentToAddress.setWidth(FIELD_WIDTH);
         return getHorizontalLayout("Комментарий к адресу", legalDetailCommentToAddress);
@@ -471,6 +516,46 @@ public class CompanyModal extends Dialog {
         Label label = new Label(title);
         label.setWidth("100px");
         return new HorizontalLayout(label, field);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressIndex() {
+        legalDetailAddressIndex.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Индекс", legalDetailAddressIndex);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressCountry() {
+        legalDetailAddressCountry.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Страна", legalDetailAddressCountry);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressRegion() {
+        legalDetailAddressRegion.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Регион", legalDetailAddressRegion);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressCity() {
+        legalDetailAddressCity.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Город", legalDetailAddressCity);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressStreet() {
+        legalDetailAddressStreet.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Улица", legalDetailAddressStreet);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressHouse() {
+        legalDetailAddressHouse.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Номер дома", legalDetailAddressHouse);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressApartment() {
+        legalDetailAddressApartment.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Номер квартиры", legalDetailAddressApartment);
+    }
+
+    private HorizontalLayout configureLegalDetailAddressAnother() {
+        legalDetailAddressAnother.setWidth(FIELD_WIDTH);
+        return getHorizontalLayout("Примечание", legalDetailAddressAnother);
     }
 
     private void setField(AbstractField field, String value) {
