@@ -72,4 +72,8 @@ supplier_account_url: api/supplierAccount
 address_url: api/address
 
 return_supplier_url: api/returnToSupplier
+
+correction_url: api/correction
+
+correction_product_url: api/correction/product
 #debug: true

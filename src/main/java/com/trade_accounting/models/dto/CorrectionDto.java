@@ -4,27 +4,32 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReturnToSupplierDto {
+public class CorrectionDto {
 
     private Long id;
 
+    @NotNull
     private String date;
 
+    @NotNull
     private Long warehouseId;
 
+    @NotNull
     private Long companyId;
 
-    private Long contractorId;
+    private Boolean isSent = false;
 
-    private Long contractId;
+    private Boolean isPrint = false;
 
-    private Boolean isSend;
-
-    private Boolean isPrint;
+    private Boolean writeOffProduct = false;
 
     private String comment;
 
+    private List<Long> correctionProductIds;
 }
