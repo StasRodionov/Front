@@ -3,7 +3,9 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
@@ -17,7 +19,9 @@ import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -27,7 +31,11 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
@@ -78,16 +86,14 @@ public class CompanyView extends VerticalLayout {
     private void configureGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("id", "name", "inn", "addressId", "commentToAddress",
+        grid.setColumns("id", "name", "inn",
                 "email", "phone", "fax", "leader", "leaderManagerPosition", "leaderSignature",
                 "chiefAccountant", "chiefAccountantSignature", "payerVat",
-                "stamp", "sortNumber", "legalDetailDtoId");
+                "stamp", "sortNumber", "commentToAddress");
 
         grid.getColumnByKey("id").setHeader("ID").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("inn").setHeader("ИНН").setId("ИНН");
-       //TODO Вывод адреса в таблицу
-        grid.getColumnByKey("addressId").setHeader("Адрес").setId("Адрес");
         grid.getColumnByKey("commentToAddress").setHeader("Комментарий к адресу").setId("Комментарий к адресу");
         grid.getColumnByKey("email").setHeader("E-mail").setId("E-mail");
         grid.getColumnByKey("phone").setHeader("Телефон").setId("Телефон");
@@ -100,11 +106,9 @@ public class CompanyView extends VerticalLayout {
         grid.getColumnByKey("payerVat").setHeader("Плательщик НДС").setId("Плательщик НДС");
         grid.getColumnByKey("sortNumber").setHeader("Нумерация").setId("Нумерация");
         grid.getColumnByKey("stamp").setHeader("Печать").setId("Печать");
-        grid.getColumnByKey("legalDetailDtoId").setHeader("Юридические детали").setId("Юридические детали");
         getGridContextMenu();
 
         grid.setHeight("64vh");
-        grid.setColumnReorderingAllowed(true);
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
             CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService, legalDetailService, typeOfContractorService);
@@ -113,6 +117,37 @@ public class CompanyView extends VerticalLayout {
         });
 
         grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
+
+        SerializableBiConsumer<Div, CompanyDto> consumerAddress =
+                (div, companyDto) -> div.setText(addressService.getById(companyDto.getAddressId()).getAnother());
+        grid.addColumn(new ComponentRenderer<>(Div::new, consumerAddress)).setHeader("Адрес");
+
+        SerializableBiConsumer<VerticalLayout, CompanyDto> consumerLegalDetail =
+                (verticalLayout, companyDto) -> {
+                    LegalDetailDto legalDetailDto = legalDetailService.getById(companyDto.getLegalDetailDtoId());
+                    StringBuilder builderPerson = new StringBuilder();
+                    verticalLayout.add(new Label("Юридические детали:"));
+                    builderPerson.append(" ФИО: ").append(legalDetailDto.getFirstName())
+                            .append(" ").append(legalDetailDto.getMiddleName())
+                            .append(" ").append(legalDetailDto.getLastName());
+                    verticalLayout.add(new Label(builderPerson.toString()));
+
+                    verticalLayout.add(new Label("Реквизиты:"));
+                    StringBuilder builderDetail = new StringBuilder();
+                    builderDetail.append(" ИНН: ").append(legalDetailDto.getInn())
+                            .append(" КПП: ").append(legalDetailDto.getKpp())
+                            .append(" ОКПО: ").append(legalDetailDto.getOkpo())
+                            .append(" ОГРН: ").append(legalDetailDto.getOgrn());
+                    verticalLayout.add(new Label(builderDetail.toString()));
+
+                    AddressDto addressDto = addressService.getById(legalDetailDto.getAddressDtoId());
+                    verticalLayout.add(new Label("Юридический адрес: "));
+                    verticalLayout.add(addressDto.getAnother());
+                };
+        grid.setItemDetailsRenderer(new ComponentRenderer<>(
+                VerticalLayout::new, consumerLegalDetail));
+
+        grid.setColumnReorderingAllowed(true);
     }
 
     private void reloadGrid() {
