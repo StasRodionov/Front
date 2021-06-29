@@ -56,6 +56,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final ContractService contractService;
 
     private final Notifications notifications;
+    private final ReturnToSupplierModalView modalView;
 
     private final List<ReturnToSupplierDto> data;
 
@@ -68,13 +69,14 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     @Autowired
     public PurchasesSubReturnToSuppliers(ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
                                          CompanyService companyService, ContractorService contractorService, ContractService contractService,
-                                         @Lazy Notifications notifications) {
+                                         @Lazy Notifications notifications, ReturnToSupplierModalView modalView) {
         this.returnToSupplierService = returnToSupplierService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.notifications = notifications;
+        this.modalView = modalView;
         this.data = loadReturnToSuppliers();
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
@@ -138,7 +140,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private Button buttonAdd() {
         Button button = new Button("Возврат", new Icon(VaadinIcon.PLUS_CIRCLE));
-        //Открыть модальное окно "Добавить возврат поставщику"
+        button.addClickListener(e -> modalView.open());
         return button;
     }
 

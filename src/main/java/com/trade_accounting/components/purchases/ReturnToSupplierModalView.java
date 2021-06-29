@@ -67,7 +67,7 @@ public class ReturnToSupplierModalView extends Dialog {
         add(headerLayout(), formLayout());
     }
 
-    public void setReturnToSupplierForEdit(ReturnToSupplierDto editDto) {
+    /*public void setReturnToSupplierForEdit(ReturnToSupplierDto editDto) {
         this.dto = editDto;
         returnNumber.setValue(editDto.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
@@ -76,7 +76,7 @@ public class ReturnToSupplierModalView extends Dialog {
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractDtoComboBox.setValue(contractService.getById(editDto.getContractId()));
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
-    }
+    }*/
 
     private HorizontalLayout headerLayout() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
