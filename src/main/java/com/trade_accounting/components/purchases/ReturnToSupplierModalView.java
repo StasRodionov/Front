@@ -12,7 +12,6 @@ import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ReturnToSupplierService;
 import com.trade_accounting.services.interfaces.WarehouseService;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -30,7 +29,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @UIScope
@@ -226,7 +224,7 @@ public class ReturnToSupplierModalView extends Dialog {
     private HorizontalLayout contractConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         List<ContractDto> list = contractService.getAll();
-        if(list != null){
+        if (list != null) {
             contractDtoComboBox.setItems(list);
         }
         contractDtoComboBox.setItemLabelGenerator(ContractDto::getNumber);
@@ -237,7 +235,7 @@ public class ReturnToSupplierModalView extends Dialog {
         return horizontalLayout;
     }
 
-    private HorizontalLayout commentConfig(){
+    private HorizontalLayout commentConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Комментарий");
         label.setWidth("100px");

@@ -103,9 +103,9 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSend").setHeader("Отправлено")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("isSend").setHeader("Отправлено")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isPrint").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("isPrint").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
@@ -225,8 +225,18 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         return String.format("%.2f", totalPrice);
     }
 
-    private Component getIsCheckedIcon(ReturnToSupplierDto dto) {
+    private Component getIsCheckedSend(ReturnToSupplierDto dto) {
         if (dto.getIsSend()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
+    }
+
+    private Component getIsCheckedPrint(ReturnToSupplierDto dto) {
+        if (dto.getIsPrint()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
