@@ -136,6 +136,7 @@ public class ReturnToSupplierModalView extends Dialog {
 
             UI.getCurrent().navigate("returnsToSuppliers");
             close();
+            clearAllFieldsModalView();
             notifications.infoNotification(String.format("Возврат поставщику № %s сохранен", dto.getId()));
         });
     }
@@ -144,6 +145,7 @@ public class ReturnToSupplierModalView extends Dialog {
         Button button = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         button.addClickListener(e -> {
             close();
+            clearAllFieldsModalView();
         });
         return button;
     }
@@ -243,6 +245,18 @@ public class ReturnToSupplierModalView extends Dialog {
         horizontalLayout.setHeight("100px");
         horizontalLayout.add(label, textArea);
         return horizontalLayout;
+    }
+
+    private void clearAllFieldsModalView(){
+        companyDtoComboBox.setValue(null);
+        contractDtoComboBox.setValue(null);
+        contractorDtoComboBox.setValue(null);
+        warehouseDtoComboBox.setValue(null);
+        dateTimePicker.setValue(null);
+        textArea.setValue("");
+        returnNumber.setValue("");
+        checkboxIsPrint.setValue(false);
+        checkboxIsSpend.setValue(false);
     }
 
 }
