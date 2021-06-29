@@ -25,6 +25,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -51,7 +52,7 @@ public class ReturnToSupplierModalView extends Dialog {
     private final Checkbox checkboxIsSpend = new Checkbox("Проведено");
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
     private final TextField returnNumber = new TextField();
-    private final TextField commentConfig = new TextField();
+    private final TextArea textArea = new TextArea();
 
     private final Notifications notifications;
 
@@ -87,7 +88,7 @@ public class ReturnToSupplierModalView extends Dialog {
 
     private VerticalLayout formLayout() {
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(formLayout1(), formLayout2(), formLayout3());
+        verticalLayout.add(formLayout1(), formLayout2(), formLayout3(), formLayout4());
         return verticalLayout;
     }
 
@@ -110,6 +111,11 @@ public class ReturnToSupplierModalView extends Dialog {
         return horizontalLayout;
     }
 
+    private HorizontalLayout formLayout4() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(commentConfig());
+        return horizontalLayout;
+    }
 
     private H2 title() {
         H2 title = new H2("Добавление возврата");
@@ -127,6 +133,7 @@ public class ReturnToSupplierModalView extends Dialog {
             dto.setDate(dateTimePicker.getValue().toString());
             dto.setIsSend(checkboxIsSpend.getValue());
             dto.setIsPrint(checkboxIsPrint.getValue());
+            dto.setComment(textArea.getValue());
             returnToSupplierService.create(dto);
 
             UI.getCurrent().navigate("returnsToSuppliers");
@@ -227,6 +234,16 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Договор");
         label.setWidth("100px");
         horizontalLayout.add(label, contractDtoComboBox);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout commentConfig(){
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Комментарий");
+        label.setWidth("100px");
+        horizontalLayout.setWidth("750px");
+        horizontalLayout.setHeight("100px");
+        horizontalLayout.add(label, textArea);
         return horizontalLayout;
     }
 

@@ -125,8 +125,8 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         return title;
     }
 
-    private com.vaadin.flow.component.button.Button buttonQuestion() {
-        com.vaadin.flow.component.button.Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
+    private Button buttonQuestion() {
+        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
@@ -141,6 +141,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private Button buttonAdd() {
         Button button = new Button("Возврат", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(e -> modalView.open());
+        updateList();
         return button;
     }
 
