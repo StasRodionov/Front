@@ -12,9 +12,9 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.DetailsVariant;
-
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
@@ -25,8 +25,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -74,6 +72,7 @@ public class CompanyModal extends Dialog {
     private final DatePicker legalDetailDateOfTheCertificate = new DatePicker();
 
     private Long legalDetailAddressId;
+    private final Checkbox checkboxAddress = new Checkbox();
     private final TextField legalDetailAddressIndex = new TextField();
     private final TextField legalDetailAddressCountry = new TextField();
     private final TextField legalDetailAddressRegion = new TextField();
@@ -150,7 +149,6 @@ public class CompanyModal extends Dialog {
             setField(legalDetailLastName, legalDetailDto.getLastName());
             setField(legalDetailFirstName, legalDetailDto.getFirstName());
             setField(legalDetailMiddleName, legalDetailDto.getMiddleName());
-            //setField(legalDetailAddress, dto.getLegalDetailDto().getAddressDto().getAnother());
             setField(legalDetailCommentToAddress, legalDetailDto.getCommentToAddress());
             setField(legalDetailInn, legalDetailDto.getInn());
             setField(legalDetailOkpo, legalDetailDto.getOkpo());
@@ -169,6 +167,11 @@ public class CompanyModal extends Dialog {
                 setField(legalDetailAddressHouse, legalDetailAddressDto.getHouse());
                 setField(legalDetailAddressApartment, legalDetailAddressDto.getApartment());
                 setField(legalDetailAddressAnother, legalDetailAddressDto.getAnother());
+                if (legalDetailAddressId==addressId) {
+                    checkboxAddress.setValue(true);
+                } else {
+                    checkboxAddress.setValue(false);
+                }
             }
 
             typeOfContractorId = legalDetailDto.getTypeOfContractorDtoId();
@@ -207,29 +210,34 @@ public class CompanyModal extends Dialog {
                 addressService.update(addressDto);
             }
 
-            AddressDto legalDetailAddressDto = new AddressDto();
-            legalDetailAddressDto.setId(legalDetailAddressId);
-            legalDetailAddressDto.setIndex(legalDetailAddressIndex.getValue());
-            legalDetailAddressDto.setCountry(legalDetailAddressCountry.getValue());
-            legalDetailAddressDto.setRegion(legalDetailAddressRegion.getValue());
-            legalDetailAddressDto.setCity(legalDetailAddressCity.getValue());
-            legalDetailAddressDto.setStreet(legalDetailAddressStreet.getValue());
-            legalDetailAddressDto.setHouse(legalDetailAddressHouse.getValue());
-            legalDetailAddressDto.setApartment(legalDetailAddressApartment.getValue());
-            legalDetailAddressDto.setAnother(legalDetailAddressAnother.getValue());
-            if (legalDetailAddressId == null) {
-                legalDetailAddressId = addressService.create(legalDetailAddressDto).getId();
-            } else {
-                addressService.update(legalDetailAddressDto);
-            }
-
             LegalDetailDto legalDetailDto = new LegalDetailDto();
             legalDetailDto.setId(legalDetailId);
             legalDetailDto.setLastName(legalDetailLastName.getValue());
             legalDetailDto.setFirstName(legalDetailFirstName.getValue());
             legalDetailDto.setMiddleName(legalDetailMiddleName.getValue());
-            //TODO реализовать галочку адрес совпадает, либо ввод нового
-            legalDetailDto.setAddressDtoId(legalDetailAddressId);
+            if (checkboxAddress.getValue()) {
+                legalDetailDto.setAddressDtoId(addressId);
+                if (legalDetailAddressId != null && legalDetailAddressId != addressId) {
+                    addressService.deleteById(legalDetailAddressId);
+                }
+            } else {
+                AddressDto legalDetailAddressDto = new AddressDto();
+                legalDetailAddressDto.setId(legalDetailAddressId);
+                legalDetailAddressDto.setIndex(legalDetailAddressIndex.getValue());
+                legalDetailAddressDto.setCountry(legalDetailAddressCountry.getValue());
+                legalDetailAddressDto.setRegion(legalDetailAddressRegion.getValue());
+                legalDetailAddressDto.setCity(legalDetailAddressCity.getValue());
+                legalDetailAddressDto.setStreet(legalDetailAddressStreet.getValue());
+                legalDetailAddressDto.setHouse(legalDetailAddressHouse.getValue());
+                legalDetailAddressDto.setApartment(legalDetailAddressApartment.getValue());
+                legalDetailAddressDto.setAnother(legalDetailAddressAnother.getValue());
+                if (legalDetailAddressId == null) {
+                    legalDetailAddressId = addressService.create(legalDetailAddressDto).getId();
+                } else {
+                    addressService.update(legalDetailAddressDto);
+                }
+                legalDetailDto.setAddressDtoId(legalDetailAddressId);
+            }
             legalDetailDto.setCommentToAddress(legalDetailCommentToAddress.getValue());
             legalDetailDto.setInn(legalDetailInn.getValue());
             legalDetailDto.setOkpo(legalDetailOkpo.getValue());
@@ -320,6 +328,7 @@ public class CompanyModal extends Dialog {
 
         VerticalLayout legalDetailAddress = new VerticalLayout();
         legalDetailAddress.add(
+                configureCheckboxAddress(),
                 configureLegalDetailAddressIndex(),
                 configureLegalDetailAddressCountry(),
                 configureLegalDetailAddressRegion(),
@@ -516,6 +525,13 @@ public class CompanyModal extends Dialog {
         Label label = new Label(title);
         label.setWidth("100px");
         return new HorizontalLayout(label, field);
+    }
+
+    private HorizontalLayout configureCheckboxAddress() {
+        checkboxAddress.setLabel("Совпадает с фактическим?");
+        checkboxAddress.setValue(false);
+        add(checkboxAddress);
+        return getHorizontalLayout(" ", checkboxAddress);
     }
 
     private HorizontalLayout configureLegalDetailAddressIndex() {
