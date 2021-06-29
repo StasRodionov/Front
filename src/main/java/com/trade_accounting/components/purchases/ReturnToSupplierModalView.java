@@ -12,6 +12,7 @@ import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ReturnToSupplierService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -105,7 +106,7 @@ public class ReturnToSupplierModalView extends Dialog {
 
     private HorizontalLayout formLayout3() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(contractorConfigure());
+        horizontalLayout.add(contractorConfigure(), contractConfigure());
         return horizontalLayout;
     }
 
@@ -212,6 +213,20 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Контрагент");
         label.setWidth("100px");
         horizontalLayout.add(label, contractorDtoComboBox);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout contractConfigure() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<ContractDto> list = contractService.getAll();
+        if(list != null){
+            contractDtoComboBox.setItems(list);
+        }
+        contractDtoComboBox.setItemLabelGenerator(ContractDto::getNumber);
+        contractDtoComboBox.setWidth("350px");
+        Label label = new Label("Договор");
+        label.setWidth("100px");
+        horizontalLayout.add(label, contractDtoComboBox);
         return horizontalLayout;
     }
 
