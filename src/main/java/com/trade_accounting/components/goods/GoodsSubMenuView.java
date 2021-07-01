@@ -20,12 +20,15 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
     private final GoodsView goodsView;
     private final PostingTabView postingTabView;
+    private final GoodsSubInventory goodsSubInventory;
 
     private final Div div = new Div();
 
-    public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView) {
+    public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
+                            GoodsSubInventory goodsSubInventory) {
         this.goodsView = goodsView;
         this.postingTabView = postingTabView;
+        this.goodsSubInventory = goodsSubInventory;
 
         add(configurationSubMenu(), div);
     }
@@ -38,7 +41,6 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.removeAll();
                     goodsView.updateData();
                     div.add(goodsView);
-
                 }));
 
         HorizontalLayout postingTab = new HorizontalLayout(new Label("Оприходования"));
@@ -50,9 +52,18 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.add(postingTabView);
                 }));
 
+        HorizontalLayout inventoryTab = new HorizontalLayout(new Label("Инвентаризации"));
+
+        inventoryTab.addClickListener(event ->
+                inventoryTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    goodsSubInventory.updateList();
+                    div.add(goodsSubInventory);
+                }));
+
 
         Tab chargesLayout = new Tab("Списания");
-        Tab interventarizationLayout = new Tab("Инвентаризация");
+        Tab interventarizationLayout = new Tab("Инвентаризации");
         Tab insideOrdersLayout = new Tab("Внутрение заказы");
         Tab transferLayout = new Tab("Перемещения");
         Tab priceLayout = new Tab("Прайс-лист");
@@ -63,8 +74,8 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         return new Tabs(
                 new Tab(goodsLayout),
                 new Tab(postingTab),
+                new Tab(inventoryTab),
                 chargesLayout,
-                interventarizationLayout,
                 insideOrdersLayout,
                 transferLayout,
                 priceLayout,
