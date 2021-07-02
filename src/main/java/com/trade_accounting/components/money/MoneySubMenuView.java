@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.MoneySubCashFlowService;
 import com.trade_accounting.services.interfaces.PaymentService;
 import com.trade_accounting.services.interfaces.ProjectService;
 import com.vaadin.flow.component.html.Div;
@@ -26,6 +27,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final Notifications notifications;
     private final Div div;
     private final PaymentModalWin paymentModalWin;
+    private final MoneySubCashFlowService moneySubCashFlowService;
 
     public MoneySubMenuView(PaymentService paymentService,
                             CompanyService companyService,
@@ -33,7 +35,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                             ProjectService projectService,
                             ContractService contractService,
                             Notifications notifications,
-                            PaymentModalWin paymentModalWin) {
+                            PaymentModalWin paymentModalWin, MoneySubCashFlowService moneySubCashFlowService) {
         this.paymentService = paymentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -41,6 +43,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         this.contractService = contractService;
         this.notifications = notifications;
         this.paymentModalWin = paymentModalWin;
+        this.moneySubCashFlowService = moneySubCashFlowService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -77,7 +80,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
-                    div.add(new MoneySubCashFlowView());
+                    div.add(new MoneySubCashFlowView(moneySubCashFlowService, companyService, contractorService, projectService, contractService, notifications, paymentModalWin));
                     break;
                 case "Прибыли и убытки":
                     div.removeAll();
