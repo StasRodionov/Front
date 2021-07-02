@@ -1,8 +1,13 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -56,8 +61,25 @@ public class GoodsSubInventory extends VerticalLayout {
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog dialog = new Dialog();
+        Button cancelButton = new Button("Закрыть", event -> {
+            dialog.close();
+        });
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        buttonsLayout.addComponentAsFirst(cancelButton);
+        dialog.add(new Text("Инвентаризация позволяет выявить несоответствие фактических " +
+                "и учетных остатков. Проводится по каждому складу отдельно. Для изменения " +
+                "расчетных остатков вам необходимо создать документ оприходования или списания."));
+        dialog.setWidth("400px");
+        dialog.setHeight("250px");
+        buttonQuestion.addClickListener(event -> dialog.open());
+        Shortcuts.addShortcutListener(dialog, () -> {
+            dialog.close();
+        }, Key.ESCAPE);
+        dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
+
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
