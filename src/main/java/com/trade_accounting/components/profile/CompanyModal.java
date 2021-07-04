@@ -95,6 +95,7 @@ public class CompanyModal extends Dialog {
 
     private List<BankAccountDto> bankAccountDtos = new ArrayList<>();
     Set<Long> bankAccountDtoId = new HashSet<>();
+    Set<Long> bankAccountDtoForDeleteId = new HashSet<>();
     private final TextField bankAccountBic = new TextField();
     private final TextField bankAccountBank = new TextField();
     private final TextField bankAccountAddress = new TextField();
@@ -118,7 +119,7 @@ public class CompanyModal extends Dialog {
         this.legalDetailService = legalDetailService;
         this.typeOfContractorService = typeOfContractorService;
         this.bankAccountService = bankAccountService;
-        configureModal("Добавление");
+        configureModal("Добавление", null);
     }
 
     public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
@@ -127,14 +128,15 @@ public class CompanyModal extends Dialog {
         this.legalDetailService = legalDetailService;
         this.typeOfContractorService = typeOfContractorService;
         this.bankAccountService = bankAccountService;
-        configureModal("Редактирование");
+        configureModal("Редактирование", companyDto);
         setFields(companyDto);
     }
 
-    private void configureModal(String title) {
+    private void configureModal(String title, CompanyDto dto) {
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
         accordionInfoAboutCompany = accordionCompany();
+        accordionInfoAboutCompany.add("Банковские реквизиты", configureBankAccount(dto)).addThemeVariants(DetailsVariant.FILLED);
         add(header(title), accordionInfoAboutCompany);
     }
 
@@ -204,38 +206,6 @@ public class CompanyModal extends Dialog {
                 TypeOfContractorDto typeOfContractorDto = typeOfContractorService.getById(typeOfContractorId);
                 typeOfContractorDtoSelect.setValue(typeOfContractorDto);
             }
-
-            VerticalLayout layoutBankAccounts = new VerticalLayout();
-            for (Long id : dto.getBankAccountDtoIds()) {
-                layoutBankAccounts.add(getBankAccount(id));
-            }
-
-            VerticalLayout newBankAccount = new VerticalLayout();
-            bankAccountMainAccount.setLabel("Основной счет");
-            newBankAccount.add(bankAccountMainAccount);
-            bankAccountBic.setLabel("БИК");
-            newBankAccount.add(bankAccountBic);
-            bankAccountBank.setLabel("Банк");
-            newBankAccount.add(bankAccountBank);
-            bankAccountAddress.setLabel("Адрес");
-            newBankAccount.add(bankAccountAddress);
-            bankAccountKorAccount.setLabel("Кор. счет");
-            newBankAccount.add(bankAccountKorAccount);
-            bankAccountAccount.setLabel("Счет");
-            newBankAccount.add(bankAccountAccount);
-            bankAccountSortNumber.setLabel("Текущий остаток");
-            newBankAccount.add(bankAccountSortNumber);
-
-            newBankAccount.add(new Button(new Icon(VaadinIcon.PLUS), event -> {
-                bankAccountDtos.add(new BankAccountDto(null, bankAccountBic.getValue(),
-                        bankAccountBank.getValue(), bankAccountAddress.getValue(),
-                        bankAccountKorAccount.getValue(), bankAccountAccount.getValue(),
-                        bankAccountMainAccount.getValue(), bankAccountSortNumber.getValue()));
-            }));
-            layoutBankAccounts.add(new Details("Новый счет", newBankAccount));
-
-            accordionInfoAboutCompany.add("Банковские реквизиты", layoutBankAccounts).addThemeVariants(DetailsVariant.FILLED);
-
         }
     }
 
@@ -329,12 +299,15 @@ public class CompanyModal extends Dialog {
             companyDto.setChiefAccountant(chiefAccountant.getValue());
             companyDto.setChiefAccountantSignature(chiefAccountantSignature.getValue());
             companyDto.setLegalDetailDtoId(legalDetailId);
-            if (bankAccountDtos.size()>0) {
-                for (BankAccountDto bankAccountDto : bankAccountDtos) {
-                    bankAccountDtoId.add(bankAccountService.create(bankAccountDto).getId());
-                }
+            for (BankAccountDto bankAccountDto : bankAccountDtos) {
+                bankAccountDtoId.add(bankAccountService.create(bankAccountDto).getId());
             }
-                companyDto.setBankAccountDtoIds(bankAccountDtoId.stream().collect(Collectors.toList()));
+
+            for (Long id : bankAccountDtoForDeleteId) {
+                bankAccountService.deleteById(id);
+                bankAccountDtoId.remove(id);
+            }
+            companyDto.setBankAccountDtoIds(bankAccountDtoId.stream().collect(Collectors.toList()));
             if (companyId == null) {
                 companyService.create(companyDto);
             } else {
@@ -422,8 +395,8 @@ public class CompanyModal extends Dialog {
         bankAccountDtoId.add(id);
         VerticalLayout layoutBankAccount = new VerticalLayout();
         layoutBankAccount.add(new Button(new Icon(VaadinIcon.CLOSE_BIG), event -> {
-            bankAccountService.deleteById(id);
-            bankAccountDtoId.remove(id);
+            bankAccountDtoForDeleteId.add(id);
+            layoutBankAccount.setEnabled(false);
         }));
         Checkbox checkbox = new Checkbox();
         checkbox.setLabel("Основной счет?");
@@ -440,6 +413,60 @@ public class CompanyModal extends Dialog {
         layoutBankAccount.add(new Label("Р/с: " + bankAccountDto.getAccount()));
         layoutBankAccount.add(new Label("Текущий остаток: " + bankAccountDto.getSortNumber()));
         return new Details(bankAccountDto.getBank(), layoutBankAccount);
+    }
+
+    private VerticalLayout configureBankAccount(CompanyDto dto) {
+        VerticalLayout layoutBankAccounts = new VerticalLayout();
+
+        VerticalLayout newBankAccount = new VerticalLayout();
+        bankAccountMainAccount.setLabel("Основной счет");
+        newBankAccount.add(bankAccountMainAccount);
+        bankAccountBic.setLabel("БИК");
+        newBankAccount.add(bankAccountBic);
+        bankAccountBank.setLabel("Банк");
+        newBankAccount.add(bankAccountBank);
+        bankAccountAddress.setLabel("Адрес");
+        newBankAccount.add(bankAccountAddress);
+        bankAccountKorAccount.setLabel("Кор. счет");
+        newBankAccount.add(bankAccountKorAccount);
+        bankAccountAccount.setLabel("Счет");
+        newBankAccount.add(bankAccountAccount);
+        bankAccountSortNumber.setLabel("Текущий остаток");
+        newBankAccount.add(bankAccountSortNumber);
+
+        newBankAccount.add(new Button(new Icon(VaadinIcon.PLUS), event -> {
+            bankAccountDtos.add(new BankAccountDto(null, bankAccountBic.getValue(),
+                    bankAccountBank.getValue(), bankAccountAddress.getValue(),
+                    bankAccountKorAccount.getValue(), bankAccountAccount.getValue(),
+                    bankAccountMainAccount.getValue(), bankAccountSortNumber.getValue()));
+            VerticalLayout tempNewBankAccount = new VerticalLayout();
+            Checkbox checkbox = new Checkbox();
+            checkbox.setLabel("Основной счет?");
+            checkbox.setReadOnly(true);
+            checkbox.setValue(bankAccountMainAccount.getValue());
+            tempNewBankAccount.add(checkbox);
+            tempNewBankAccount.add(new Label("БИК: " + bankAccountBic.getValue()));
+            tempNewBankAccount.add(new Label("Адрес: " + bankAccountAddress.getValue()));
+            tempNewBankAccount.add(new Label("К/с: " + bankAccountKorAccount.getValue()));
+            tempNewBankAccount.add(new Label("Р/с: " + bankAccountAccount.getValue()));
+            tempNewBankAccount.add(new Label("Текущий остаток: " + bankAccountSortNumber.getValue()));
+            layoutBankAccounts.add(new Details(bankAccountBank.getValue(), tempNewBankAccount));
+            bankAccountBic.clear();
+            bankAccountBank.clear();
+            bankAccountAddress.clear();
+            bankAccountKorAccount.clear();
+            bankAccountAccount.clear();
+            bankAccountMainAccount.clear();
+            bankAccountSortNumber.clear();
+        }));
+
+        layoutBankAccounts.add(new Details("Новый счет", newBankAccount));
+        if (dto != null)
+            for (Long id : dto.getBankAccountDtoIds()) {
+                layoutBankAccounts.add(getBankAccount(id));
+                bankAccountDtoId.add(id);
+            }
+        return layoutBankAccounts;
     }
 
     private HorizontalLayout configureName() {
