@@ -56,6 +56,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final ContractService contractService;
 
     private final Notifications notifications;
+    private final ReturnToSupplierModalView modalView;
 
     private final List<ReturnToSupplierDto> data;
 
@@ -68,13 +69,14 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     @Autowired
     public PurchasesSubReturnToSuppliers(ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
                                          CompanyService companyService, ContractorService contractorService, ContractService contractService,
-                                         @Lazy Notifications notifications) {
+                                         @Lazy Notifications notifications, ReturnToSupplierModalView modalView) {
         this.returnToSupplierService = returnToSupplierService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.notifications = notifications;
+        this.modalView = modalView;
         this.data = loadReturnToSuppliers();
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
@@ -101,9 +103,9 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSend").setHeader("Отправлено")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("isSend").setHeader("Отправлено")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isPrint").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("isPrint").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
@@ -123,8 +125,8 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         return title;
     }
 
-    private com.vaadin.flow.component.button.Button buttonQuestion() {
-        com.vaadin.flow.component.button.Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
+    private Button buttonQuestion() {
+        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
@@ -138,7 +140,8 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private Button buttonAdd() {
         Button button = new Button("Возврат", new Icon(VaadinIcon.PLUS_CIRCLE));
-        //Открыть модальное окно "Добавить возврат поставщику"
+        button.addClickListener(e -> modalView.open());
+        updateList();
         return button;
     }
 
@@ -222,8 +225,18 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         return String.format("%.2f", totalPrice);
     }
 
-    private Component getIsCheckedIcon(ReturnToSupplierDto dto) {
+    private Component getIsCheckedSend(ReturnToSupplierDto dto) {
         if (dto.getIsSend()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
+    }
+
+    private Component getIsCheckedPrint(ReturnToSupplierDto dto) {
+        if (dto.getIsPrint()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;

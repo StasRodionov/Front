@@ -3,6 +3,7 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
@@ -29,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +47,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private final List<InvoiceDto> data;
 
+    private final Notifications notifications;
 
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
@@ -54,11 +57,12 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private static final String TYPE_OF_INVOICE = "RECEIPT";
 
     public SalesSubInvoicesToBuyersView(InvoiceService invoiceService, InvoiceProductService invoiceProductService,
+                                        @Lazy Notifications notifications,
                                         @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
-
+        this.notifications = notifications;
         this.data = getData();
 
         configureActions();
@@ -110,6 +114,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         });
         filter.onClearClick(e -> paginator.setData(getData()));
     }
+
 
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
@@ -166,11 +171,33 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return title;
     }
 
+    private void deleteSelectedInvoices() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
+                invoiceService.deleteById(invoiceDto.getId());
+                notifications.infoNotification("Выбранные счета успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные счета");
+        }
+    }
+
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedInvoices();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
     }
 

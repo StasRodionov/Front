@@ -10,9 +10,14 @@ import com.trade_accounting.services.interfaces.CorrectionProductService;
 import com.trade_accounting.services.interfaces.CorrectionService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -165,6 +170,23 @@ public class PostingTabView extends VerticalLayout {
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog dialog = new Dialog();
+        Button cancelButton = new Button("Закрыть", event -> {
+            dialog.close();
+        });
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        buttonsLayout.addComponentAsFirst(cancelButton);
+        dialog.add(new Text("Оприходование позволяет учитывать на складе излишки товаров, обнаруженные при " +
+                "инвентаризации, и пересортицу, а также вносить на склад начальные остатки. " +
+                "Для каждого склада создается отдельный документ оприходования.\n" +
+                "Оприходование можно создать вручную или из документа инвентаризации."));
+        dialog.setWidth("450px");
+        dialog.setHeight("250px");
+        buttonQuestion.addClickListener(event -> dialog.open());
+        Shortcuts.addShortcutListener(dialog, () -> {
+            dialog.close();
+        }, Key.ESCAPE);
+        dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
 
