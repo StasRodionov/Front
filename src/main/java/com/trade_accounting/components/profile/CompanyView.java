@@ -7,6 +7,7 @@ import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.AddressService;
+import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
@@ -32,8 +33,6 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.Renderer;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.router.PageTitle;
@@ -60,13 +59,15 @@ public class CompanyView extends VerticalLayout {
 
     private final NumberField selectedNumberField;
     private final TypeOfContractorService typeOfContractorService;
+    private final BankAccountService bankAccountService;
 
-    public CompanyView(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService) {
+    public CompanyView(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
         this.companyService = companyService;
         this.data = companyService.getAll();
         this.addressService = addressService;
         this.legalDetailService = legalDetailService;
         this.typeOfContractorService = typeOfContractorService;
+        this.bankAccountService = bankAccountService;
 
         this.grid = new Grid<>(CompanyDto.class);
         this.paginator = new GridPaginator<>(grid, data, 100);
@@ -111,7 +112,7 @@ public class CompanyView extends VerticalLayout {
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
-            CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService, legalDetailService, typeOfContractorService);
+            CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService);
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
@@ -215,7 +216,7 @@ public class CompanyView extends VerticalLayout {
     private Button getNewCompanyButton() {
         final Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        CompanyModal companyModal = new CompanyModal(companyService, addressService, legalDetailService, typeOfContractorService);
+        CompanyModal companyModal = new CompanyModal(companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService);
         companyModal.addDetachListener(e -> reloadGrid());
         button.addClickListener(e -> companyModal.open());
         return button;

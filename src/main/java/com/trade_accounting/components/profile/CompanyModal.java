@@ -1,10 +1,12 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.models.dto.AddressDto;
+import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.services.interfaces.AddressService;
+import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
@@ -14,10 +16,13 @@ import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -25,7 +30,10 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -85,24 +93,40 @@ public class CompanyModal extends Dialog {
     private Long typeOfContractorId;
     private final Select<TypeOfContractorDto> typeOfContractorDtoSelect = new Select<>();
 
+    private List<BankAccountDto> bankAccountDtos = new ArrayList<>();
+    Set<Long> bankAccountDtoId = new HashSet<>();
+    private final TextField bankAccountBic = new TextField();
+    private final TextField bankAccountBank = new TextField();
+    private final TextField bankAccountAddress = new TextField();
+    private final TextField bankAccountAccount = new TextField();
+    private final TextField bankAccountKorAccount = new TextField();
+    private final TextField bankAccountSortNumber = new TextField();
+    private final Checkbox bankAccountMainAccount = new Checkbox();
+
+
+    private Accordion accordionInfoAboutCompany = new Accordion();
+
     private final CompanyService companyService;
     private final AddressService addressService;
     private final LegalDetailService legalDetailService;
     private final TypeOfContractorService typeOfContractorService;
+    private final BankAccountService bankAccountService;
 
-    public CompanyModal(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService) {
+    public CompanyModal(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
         this.companyService = companyService;
         this.addressService = addressService;
         this.legalDetailService = legalDetailService;
         this.typeOfContractorService = typeOfContractorService;
+        this.bankAccountService = bankAccountService;
         configureModal("Добавление");
     }
 
-    public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService) {
+    public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
         this.companyService = companyService;
         this.addressService = addressService;
         this.legalDetailService = legalDetailService;
         this.typeOfContractorService = typeOfContractorService;
+        this.bankAccountService = bankAccountService;
         configureModal("Редактирование");
         setFields(companyDto);
     }
@@ -110,7 +134,8 @@ public class CompanyModal extends Dialog {
     private void configureModal(String title) {
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
-        add(header(title), accordionCompany());
+        accordionInfoAboutCompany = accordionCompany();
+        add(header(title), accordionInfoAboutCompany);
     }
 
     private void setFields(CompanyDto dto) {
@@ -167,7 +192,7 @@ public class CompanyModal extends Dialog {
                 setField(legalDetailAddressHouse, legalDetailAddressDto.getHouse());
                 setField(legalDetailAddressApartment, legalDetailAddressDto.getApartment());
                 setField(legalDetailAddressAnother, legalDetailAddressDto.getAnother());
-                if (legalDetailAddressId==addressId) {
+                if (legalDetailAddressId == addressId) {
                     checkboxAddress.setValue(true);
                 } else {
                     checkboxAddress.setValue(false);
@@ -179,6 +204,38 @@ public class CompanyModal extends Dialog {
                 TypeOfContractorDto typeOfContractorDto = typeOfContractorService.getById(typeOfContractorId);
                 typeOfContractorDtoSelect.setValue(typeOfContractorDto);
             }
+
+            VerticalLayout layoutBankAccounts = new VerticalLayout();
+            for (Long id : dto.getBankAccountDtoIds()) {
+                layoutBankAccounts.add(getBankAccount(id));
+            }
+
+            VerticalLayout newBankAccount = new VerticalLayout();
+            bankAccountMainAccount.setLabel("Основной счет");
+            newBankAccount.add(bankAccountMainAccount);
+            bankAccountBic.setLabel("БИК");
+            newBankAccount.add(bankAccountBic);
+            bankAccountBank.setLabel("Банк");
+            newBankAccount.add(bankAccountBank);
+            bankAccountAddress.setLabel("Адрес");
+            newBankAccount.add(bankAccountAddress);
+            bankAccountKorAccount.setLabel("Кор. счет");
+            newBankAccount.add(bankAccountKorAccount);
+            bankAccountAccount.setLabel("Счет");
+            newBankAccount.add(bankAccountAccount);
+            bankAccountSortNumber.setLabel("Текущий остаток");
+            newBankAccount.add(bankAccountSortNumber);
+
+            newBankAccount.add(new Button(new Icon(VaadinIcon.PLUS), event -> {
+                bankAccountDtos.add(new BankAccountDto(null, bankAccountBic.getValue(),
+                        bankAccountBank.getValue(), bankAccountAddress.getValue(),
+                        bankAccountKorAccount.getValue(), bankAccountAccount.getValue(),
+                        bankAccountMainAccount.getValue(), bankAccountSortNumber.getValue()));
+            }));
+            layoutBankAccounts.add(new Details("Новый счет", newBankAccount));
+
+            accordionInfoAboutCompany.add("Банковские реквизиты", layoutBankAccounts).addThemeVariants(DetailsVariant.FILLED);
+
         }
     }
 
@@ -272,8 +329,12 @@ public class CompanyModal extends Dialog {
             companyDto.setChiefAccountant(chiefAccountant.getValue());
             companyDto.setChiefAccountantSignature(chiefAccountantSignature.getValue());
             companyDto.setLegalDetailDtoId(legalDetailId);
-            //это заглушка
-            companyDto.setBankAccountDtoIds(Stream.of(1L).collect(Collectors.toList()));
+            if (bankAccountDtos.size()>0) {
+                for (BankAccountDto bankAccountDto : bankAccountDtos) {
+                    bankAccountDtoId.add(bankAccountService.create(bankAccountDto).getId());
+                }
+            }
+                companyDto.setBankAccountDtoIds(bankAccountDtoId.stream().collect(Collectors.toList()));
             if (companyId == null) {
                 companyService.create(companyDto);
             } else {
@@ -354,6 +415,31 @@ public class CompanyModal extends Dialog {
         accordion.add("Юридические детали", layoutDetails).addThemeVariants(DetailsVariant.FILLED);
 
         return accordion;
+    }
+
+    private Details getBankAccount(Long id) {
+        BankAccountDto bankAccountDto = bankAccountService.getById(id);
+        bankAccountDtoId.add(id);
+        VerticalLayout layoutBankAccount = new VerticalLayout();
+        layoutBankAccount.add(new Button(new Icon(VaadinIcon.CLOSE_BIG), event -> {
+            bankAccountService.deleteById(id);
+            bankAccountDtoId.remove(id);
+        }));
+        Checkbox checkbox = new Checkbox();
+        checkbox.setLabel("Основной счет?");
+        checkbox.setReadOnly(true);
+        if (bankAccountDto.getMainAccount()) {
+            checkbox.setValue(true);
+        } else {
+            checkbox.setValue(false);
+        }
+        layoutBankAccount.add(checkbox);
+        layoutBankAccount.add(new Label("БИК: " + bankAccountDto.getRcbic()));
+        layoutBankAccount.add(new Label("Адрес: " + bankAccountDto.getAddress()));
+        layoutBankAccount.add(new Label("К/с: " + bankAccountDto.getCorrespondentAccount()));
+        layoutBankAccount.add(new Label("Р/с: " + bankAccountDto.getAccount()));
+        layoutBankAccount.add(new Label("Текущий остаток: " + bankAccountDto.getSortNumber()));
+        return new Details(bankAccountDto.getBank(), layoutBankAccount);
     }
 
     private HorizontalLayout configureName() {

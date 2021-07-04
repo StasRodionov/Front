@@ -25,5 +25,5 @@ public class BankAccountDto {
 
     private Boolean mainAccount;
 
-    private String sortNumber;
+    private String sortNumber; //текущий остаток
 }
