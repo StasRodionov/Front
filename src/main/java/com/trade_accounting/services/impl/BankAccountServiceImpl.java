@@ -42,10 +42,17 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 
     @Override
-    public void create(BankAccountDto bankAccountDto) {
-
-        Call<Void> bankAccountDtoCall = bankAccountApi.create(bankAccountUrl, bankAccountDto);
-        dto.callExecuteBodyCreate(bankAccountDtoCall, BankAccountDto.class);
+    public BankAccountDto create(BankAccountDto bankAccountDto) {
+        Call<BankAccountDto> bankAccountDtoCall = bankAccountApi.create(bankAccountUrl, bankAccountDto);
+        BankAccountDto result=null;
+        try {
+            result = bankAccountDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание экземпляра BankAccountDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра BankAccountDto - {}", e);
+        }
+        return result;
+        //  return dto.callExecuteBodyCreate(bankAccountDtoCall, BankAccountDto.class);
     }
 
     @Override

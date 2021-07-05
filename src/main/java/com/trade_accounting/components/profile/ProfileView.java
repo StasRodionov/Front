@@ -2,6 +2,7 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.AddressService;
+import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -35,10 +36,11 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final Div div;
     private final Div divMenu;
     private final TypeOfContractorService typeOfContractorService;
+    private final BankAccountService bankAccountService;
 
     public ProfileView(UnitService unitService, CompanyService companyService,
                        AddressService addressService, LegalDetailService legalDetailService, EmployeeService employeeService, WarehouseService warehouseService,
-                       CurrencyService currencyService, RoleService roleService, ImageService imageService, TypeOfContractorService typeOfContractorService) {
+                       CurrencyService currencyService, RoleService roleService, ImageService imageService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
         this.unitService = unitService;
         this.companyService = companyService;
         this.addressService = addressService;
@@ -49,6 +51,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
         this.roleService = roleService;
         this.imageService = imageService;
         this.typeOfContractorService = typeOfContractorService;
+        this.bankAccountService = bankAccountService;
         div = new Div();
         divMenu = new Div();
         add(divMenu, div);
@@ -66,7 +69,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             divMenu.removeAll();
             divMenu.add(configurationSubMenu());
             div.removeAll();
-            div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService));
+            div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
         });
     }
 
@@ -83,7 +86,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Юр. лица":
                     div.removeAll();
-                    div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService));
+                    div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
                     break;
                 case "Сотрудники":
                     div.removeAll();
