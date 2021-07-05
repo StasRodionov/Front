@@ -152,7 +152,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private Button buttonRefresh() {
         Button button = new Button(new Icon(VaadinIcon.REFRESH));
         button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
-        //Перезагрузить страницу (данные таблицы)
+        button.addClickListener(e -> updateList());
         return button;
     }
 
