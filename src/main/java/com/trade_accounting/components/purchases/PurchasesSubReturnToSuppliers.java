@@ -197,6 +197,14 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         select.setItems(stringList);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(e -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectReturnToSuppliers();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(loadReturnToSuppliers());
+            }
+        });
         return select;
     }
 
@@ -260,6 +268,17 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
             return icon;
         } else {
             return new Span("");
+        }
+    }
+
+    private void deleteSelectReturnToSuppliers() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ReturnToSupplierDto item : grid.getSelectedItems()) {
+                returnToSupplierService.deleteById(item.getId());
+                notifications.infoNotification("Выбранные возвраты успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные возвраты");
         }
     }
 
