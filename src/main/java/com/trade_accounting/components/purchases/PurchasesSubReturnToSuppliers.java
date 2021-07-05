@@ -11,9 +11,15 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ReturnToSupplierService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -128,6 +134,15 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog modal = new Dialog();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Html content = new Html("<div><p>Возврат поставщику можно создать на основе <a href=\"#\" target=\"_blank\">приемки</a></p>" +
+                "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Возврат поставщику</a></p></div>");
+        horizontalLayout.add(content);
+        modal.add(horizontalLayout);
+        modal.setWidth("500px");
+        modal.setHeight("250px");
+        buttonQuestion.addClickListener(e -> modal.open());
         return buttonQuestion;
     }
 
