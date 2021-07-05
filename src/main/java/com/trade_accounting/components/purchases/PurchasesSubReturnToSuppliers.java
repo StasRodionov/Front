@@ -14,7 +14,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -138,11 +137,15 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Html content = new Html("<div><p>Возврат поставщику можно создать на основе <a href=\"#\" target=\"_blank\">приемки</a></p>" +
                 "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Возврат поставщику</a></p></div>");
-        horizontalLayout.add(content);
+        Button close = new Button(new Icon(VaadinIcon.CLOSE));
+        close.setWidth("30px");
+        close.addClickListener(e -> modal.close());
+        horizontalLayout.add(content, new Div(close));
         modal.add(horizontalLayout);
         modal.setWidth("500px");
-        modal.setHeight("250px");
+        modal.setHeight("150px");
         buttonQuestion.addClickListener(e -> modal.open());
+        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
         return buttonQuestion;
     }
 
