@@ -3,6 +3,7 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ReturnToSupplierDto;
@@ -26,6 +27,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -51,6 +54,8 @@ public class ReturnToSupplierModalView extends Dialog {
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
+
+    private final Binder<ReturnToSupplierDto> binder = new Binder<>(ReturnToSupplierDto.class);
 
     private final Notifications notifications;
 
@@ -164,6 +169,7 @@ public class ReturnToSupplierModalView extends Dialog {
         label.setWidth("150px");
         returnNumber.setWidth("50px");
         horizontalLayout.add(label, returnNumber);
+        binder.forField(returnNumber).asRequired("Обязательное поле").bind("id");
         return horizontalLayout;
     }
 
