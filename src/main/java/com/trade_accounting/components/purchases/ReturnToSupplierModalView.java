@@ -173,7 +173,7 @@ public class ReturnToSupplierModalView extends Dialog {
         label.setWidth("150px");
         returnNumber.setWidth("50px");
         horizontalLayout.add(label, returnNumber);
-        returnToSupplierDtoBinder.forField(returnNumber).asRequired(TEXT_FOR_REQUEST_FIELD).bind("id");
+        //returnToSupplierDtoBinder.forField(returnNumber).asRequired(TEXT_FOR_REQUEST_FIELD).bind("id");
         return horizontalLayout;
     }
 
@@ -182,7 +182,7 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
         horizontalLayout.add(label, dateTimePicker);
-        returnToSupplierDtoBinder.forField(dateTimePicker).asRequired(TEXT_FOR_REQUEST_FIELD).bind("date");
+        //returnToSupplierDtoBinder.forField(dateTimePicker).asRequired(TEXT_FOR_REQUEST_FIELD).bind("date");
         return horizontalLayout;
     }
 
@@ -220,6 +220,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Склад");
         label.setWidth("100px");
         horizontalLayout.add(label, warehouseDtoComboBox);
+        returnToSupplierDtoBinder.forField(warehouseDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getWarehouseDto, ReturnToSupplierDto::setWarehouseDto);
         return horizontalLayout;
     }
 
@@ -234,6 +237,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Контрагент");
         label.setWidth("100px");
         horizontalLayout.add(label, contractorDtoComboBox);
+        returnToSupplierDtoBinder.forField(contractorDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getContractorDto, ReturnToSupplierDto::setContractorDto);
         return horizontalLayout;
     }
 
@@ -248,6 +254,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Договор");
         label.setWidth("100px");
         horizontalLayout.add(label, contractDtoComboBox);
+        returnToSupplierDtoBinder.forField(contractDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getContractDto, ReturnToSupplierDto::setContractDto);
         return horizontalLayout;
     }
 
