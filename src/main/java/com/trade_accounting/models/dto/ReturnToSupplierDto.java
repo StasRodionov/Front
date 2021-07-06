@@ -27,4 +27,12 @@ public class ReturnToSupplierDto {
 
     private String comment;
 
+    private CompanyDto companyDto;
+
+    private WarehouseDto warehouseDto;
+
+    private ContractorDto contractorDto;
+
+    private ContractDto contractDto;
+
 }
