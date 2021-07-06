@@ -53,7 +53,8 @@ public class ReturnToSupplierModalView extends Dialog {
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
 
-    private final Binder<ReturnToSupplierDto> binder = new Binder<>(ReturnToSupplierDto.class);
+    private final Binder<ReturnToSupplierDto> returnToSupplierDtoBinder = new Binder<>(ReturnToSupplierDto.class);
+    private final Binder<WarehouseDto> warehouseDtoBinder = new Binder<>(WarehouseDto.class);
 
     private final Notifications notifications;
 
@@ -125,8 +126,8 @@ public class ReturnToSupplierModalView extends Dialog {
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
-            if (!binder.validate().isOk()) {
-                binder.validate().notifyBindingValidationStatusHandlers();
+            if (!returnToSupplierDtoBinder.validate().isOk()) {
+                returnToSupplierDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
                 ReturnToSupplierDto dto = new ReturnToSupplierDto();
                 dto.setId(Long.parseLong(returnNumber.getValue()));
@@ -171,7 +172,7 @@ public class ReturnToSupplierModalView extends Dialog {
         label.setWidth("150px");
         returnNumber.setWidth("50px");
         horizontalLayout.add(label, returnNumber);
-        binder.forField(returnNumber).asRequired("Обязательное поле").bind("id");
+        returnToSupplierDtoBinder.forField(returnNumber).asRequired("Обязательное поле").bind("id");
         return horizontalLayout;
     }
 
@@ -180,6 +181,7 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
         horizontalLayout.add(label, dateTimePicker);
+        returnToSupplierDtoBinder.forField(dateTimePicker).asRequired("Обязательное поле").bind("date");
         return horizontalLayout;
     }
 
@@ -214,6 +216,7 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Склад");
         label.setWidth("100px");
         horizontalLayout.add(label, warehouseDtoComboBox);
+        warehouseDtoBinder.forField(warehouseDtoComboBox).asRequired("Обязательное поле").bind("name");
         return horizontalLayout;
     }
 
