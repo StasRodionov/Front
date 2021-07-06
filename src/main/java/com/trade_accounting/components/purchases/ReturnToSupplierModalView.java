@@ -3,7 +3,6 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ReturnToSupplierDto;
@@ -27,7 +26,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -127,22 +125,26 @@ public class ReturnToSupplierModalView extends Dialog {
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
-            ReturnToSupplierDto dto = new ReturnToSupplierDto();
-            dto.setId(Long.parseLong(returnNumber.getValue()));
-            dto.setCompanyId(companyDtoComboBox.getValue().getId());
-            dto.setContractId(contractDtoComboBox.getValue().getId());
-            dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-            dto.setContractorId(contractorDtoComboBox.getValue().getId());
-            dto.setDate(dateTimePicker.getValue().toString());
-            dto.setIsSend(checkboxIsSpend.getValue());
-            dto.setIsPrint(checkboxIsPrint.getValue());
-            dto.setComment(textArea.getValue());
-            returnToSupplierService.create(dto);
+            if (!binder.validate().isOk()) {
+                binder.validate().notifyBindingValidationStatusHandlers();
+            } else {
+                ReturnToSupplierDto dto = new ReturnToSupplierDto();
+                dto.setId(Long.parseLong(returnNumber.getValue()));
+                dto.setCompanyId(companyDtoComboBox.getValue().getId());
+                dto.setContractId(contractDtoComboBox.getValue().getId());
+                dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+                dto.setContractorId(contractorDtoComboBox.getValue().getId());
+                dto.setDate(dateTimePicker.getValue().toString());
+                dto.setIsSend(checkboxIsSpend.getValue());
+                dto.setIsPrint(checkboxIsPrint.getValue());
+                dto.setComment(textArea.getValue());
+                returnToSupplierService.create(dto);
 
-            UI.getCurrent().navigate("returnsToSuppliers");
-            close();
-            clearAllFieldsModalView();
-            notifications.infoNotification(String.format("Возврат поставщику № %s сохранен", dto.getId()));
+                UI.getCurrent().navigate("returnsToSuppliers");
+                close();
+                clearAllFieldsModalView();
+                notifications.infoNotification(String.format("Возврат поставщику № %s сохранен", dto.getId()));
+            }
         });
     }
 
@@ -253,7 +255,7 @@ public class ReturnToSupplierModalView extends Dialog {
         return horizontalLayout;
     }
 
-    private void clearAllFieldsModalView(){
+    private void clearAllFieldsModalView() {
         companyDtoComboBox.setValue(null);
         contractDtoComboBox.setValue(null);
         contractorDtoComboBox.setValue(null);
