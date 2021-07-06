@@ -2,12 +2,14 @@ package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReturnToSupplierDto {
+public class ReturnToSupplierDto extends ReturnToSupplierDtoWithModels{
 
     private Long id;
 
@@ -26,13 +28,5 @@ public class ReturnToSupplierDto {
     private Boolean isPrint;
 
     private String comment;
-
-    private CompanyDto companyDto;
-
-    private WarehouseDto warehouseDto;
-
-    private ContractorDto contractorDto;
-
-    private ContractDto contractDto;
 
 }

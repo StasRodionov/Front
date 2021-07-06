@@ -203,7 +203,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Организация");
         label.setWidth("100px");
         horizontalLayout.add(label, companyDtoComboBox);
-        returnToSupplierDtoBinder.forField(companyDtoComboBox).asRequired(TEXT_FOR_REQUEST_FIELD).bind(ReturnToSupplierDto::getCompanyDto, ReturnToSupplierDto::setCompanyDto);
+        returnToSupplierDtoBinder.forField(companyDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getCompanyDto, ReturnToSupplierDto::setCompanyDto);
         return horizontalLayout;
     }
 
