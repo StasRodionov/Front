@@ -76,4 +76,8 @@ return_supplier_url: api/returnToSupplier
 correction_url: api/correction
 
 correction_product_url: api/correction/product
+
+price_list_url: api/priceList
+
+moneySubCashFlowUrl_url: api/money
 #debug: true
