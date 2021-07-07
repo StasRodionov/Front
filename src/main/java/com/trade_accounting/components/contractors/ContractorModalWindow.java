@@ -922,7 +922,6 @@ public class ContractorModalWindow extends Dialog {
                     contractorDtoBinder.validate().notifyBindingValidationStatusHandlers();
                 } else {
                     saveFieldsCreate(legalDetailDto);
-                    legalDetailService.create(legalDetailDto);
                     saveFields(contractorDto);
                     contractorService.create(contractorDto);
                     if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
@@ -953,10 +952,6 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDto.setFirstName(firstNameLegalDetailField.getValue());
         legalDetailDto.setMiddleName(middleNameLegalDetailField.getValue());
         Long addressId = null;
-        if (legalDetailDto.getId() != null && legalDetailDto.getAddressDtoId() != null) {
-            addressId = contractorDto.getLegalDetailDto().getAddressDtoId();
-        }
-        legalDetailDto.setAddressDtoId(addressId);
         AddressDto addressDto = new AddressDto(
                 addressId,
                 legalAddressBlock.getIndex(),
@@ -968,6 +963,12 @@ public class ContractorModalWindow extends Dialog {
                 legalAddressBlock.getApartment(),
                 ""
         );
+        if (legalDetailDto.getId() != null && legalDetailDto.getAddressDtoId() != null) {
+            addressId = contractorDto.getLegalDetailDto().getAddressDtoId();
+        } else {
+            addressId = addressService.create(addressDto).getId();
+        }
+        legalDetailDto.setAddressDtoId(addressId);
         legalDetailDto.setCommentToAddress(commentToAddressLegalDetailField.getValue());
         legalDetailDto.setInn(innLegalDetailField.getValue());
         legalDetailDto.setKpp(kppLegalDetailField.getValue());
