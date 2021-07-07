@@ -642,7 +642,7 @@ public class ContractorModalWindow extends Dialog {
         typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
         legalDetailDtoBinder.forField(typeOfContractorDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("typeOfContractorDto");
+                .bind("typeOfContractorDtoId");
         Label label = new Label("Тип контрагента");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, typeOfContractorDtoSelect);
