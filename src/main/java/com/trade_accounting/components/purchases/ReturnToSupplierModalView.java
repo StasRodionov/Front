@@ -173,7 +173,9 @@ public class ReturnToSupplierModalView extends Dialog {
         label.setWidth("150px");
         returnNumber.setWidth("50px");
         horizontalLayout.add(label, returnNumber);
-        //returnToSupplierDtoBinder.forField(returnNumber).asRequired(TEXT_FOR_REQUEST_FIELD).bind("id");
+        returnToSupplierDtoBinder.forField(returnNumber)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getIdValid, ReturnToSupplierDto::setIdValid);
         return horizontalLayout;
     }
 
@@ -182,7 +184,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
         horizontalLayout.add(label, dateTimePicker);
-        //returnToSupplierDtoBinder.forField(dateTimePicker).asRequired(TEXT_FOR_REQUEST_FIELD).bind("date");
+        returnToSupplierDtoBinder.forField(dateTimePicker)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getDateValid, ReturnToSupplierDto::setDateValid);
         return horizontalLayout;
     }
 
@@ -205,7 +209,7 @@ public class ReturnToSupplierModalView extends Dialog {
         horizontalLayout.add(label, companyDtoComboBox);
         returnToSupplierDtoBinder.forField(companyDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(ReturnToSupplierDto::getCompanyDto, ReturnToSupplierDto::setCompanyDto);
+                .bind(ReturnToSupplierDto::getCompanyDtoValid, ReturnToSupplierDto::setCompanyDtoValid);
         return horizontalLayout;
     }
 
@@ -222,7 +226,7 @@ public class ReturnToSupplierModalView extends Dialog {
         horizontalLayout.add(label, warehouseDtoComboBox);
         returnToSupplierDtoBinder.forField(warehouseDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(ReturnToSupplierDto::getWarehouseDto, ReturnToSupplierDto::setWarehouseDto);
+                .bind(ReturnToSupplierDto::getWarehouseDtoValid, ReturnToSupplierDto::setWarehouseDtoValid);
         return horizontalLayout;
     }
 
@@ -239,7 +243,7 @@ public class ReturnToSupplierModalView extends Dialog {
         horizontalLayout.add(label, contractorDtoComboBox);
         returnToSupplierDtoBinder.forField(contractorDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(ReturnToSupplierDto::getContractorDto, ReturnToSupplierDto::setContractorDto);
+                .bind(ReturnToSupplierDto::getContractorDtoValid, ReturnToSupplierDto::setContractorDtoValid);
         return horizontalLayout;
     }
 
@@ -256,7 +260,7 @@ public class ReturnToSupplierModalView extends Dialog {
         horizontalLayout.add(label, contractDtoComboBox);
         returnToSupplierDtoBinder.forField(contractDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(ReturnToSupplierDto::getContractDto, ReturnToSupplierDto::setContractDto);
+                .bind(ReturnToSupplierDto::getContractDtoValid, ReturnToSupplierDto::setContractDtoValid);
         return horizontalLayout;
     }
 

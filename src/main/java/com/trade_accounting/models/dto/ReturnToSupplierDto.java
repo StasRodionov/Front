@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReturnToSupplierDto extends ReturnToSupplierDtoWithModels{
+public class ReturnToSupplierDto extends ReturnToSupplierDtoForValidation {
 
     private Long id;
 
