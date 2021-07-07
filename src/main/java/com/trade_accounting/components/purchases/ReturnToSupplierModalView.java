@@ -26,6 +26,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -52,6 +53,10 @@ public class ReturnToSupplierModalView extends Dialog {
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
+
+    private final Binder<ReturnToSupplierDto> returnToSupplierDtoBinder = new Binder<>(ReturnToSupplierDto.class);
+
+    private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
 
     private final Notifications notifications;
 
@@ -123,22 +128,26 @@ public class ReturnToSupplierModalView extends Dialog {
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
-            ReturnToSupplierDto dto = new ReturnToSupplierDto();
-            dto.setId(Long.parseLong(returnNumber.getValue()));
-            dto.setCompanyId(companyDtoComboBox.getValue().getId());
-            dto.setContractId(contractDtoComboBox.getValue().getId());
-            dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-            dto.setContractorId(contractorDtoComboBox.getValue().getId());
-            dto.setDate(dateTimePicker.getValue().toString());
-            dto.setIsSend(checkboxIsSpend.getValue());
-            dto.setIsPrint(checkboxIsPrint.getValue());
-            dto.setComment(textArea.getValue());
-            returnToSupplierService.create(dto);
+            if (!returnToSupplierDtoBinder.validate().isOk()) {
+                returnToSupplierDtoBinder.validate().notifyBindingValidationStatusHandlers();
+            } else {
+                ReturnToSupplierDto dto = new ReturnToSupplierDto();
+                dto.setId(Long.parseLong(returnNumber.getValue()));
+                dto.setCompanyId(companyDtoComboBox.getValue().getId());
+                dto.setContractId(contractDtoComboBox.getValue().getId());
+                dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+                dto.setContractorId(contractorDtoComboBox.getValue().getId());
+                dto.setDate(dateTimePicker.getValue().toString());
+                dto.setIsSend(checkboxIsSpend.getValue());
+                dto.setIsPrint(checkboxIsPrint.getValue());
+                dto.setComment(textArea.getValue());
+                returnToSupplierService.create(dto);
 
-            UI.getCurrent().navigate("returnsToSuppliers");
-            close();
-            clearAllFieldsModalView();
-            notifications.infoNotification(String.format("Возврат поставщику № %s сохранен", dto.getId()));
+                UI.getCurrent().navigate("returnsToSuppliers");
+                close();
+                clearAllFieldsModalView();
+                notifications.infoNotification(String.format("Возврат поставщику № %s сохранен", dto.getId()));
+            }
         });
     }
 
@@ -165,6 +174,9 @@ public class ReturnToSupplierModalView extends Dialog {
         label.setWidth("150px");
         returnNumber.setWidth("50px");
         horizontalLayout.add(label, returnNumber);
+        returnToSupplierDtoBinder.forField(returnNumber)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getIdValid, ReturnToSupplierDto::setIdValid);
         return horizontalLayout;
     }
 
@@ -173,6 +185,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
         horizontalLayout.add(label, dateTimePicker);
+        returnToSupplierDtoBinder.forField(dateTimePicker)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getDateValid, ReturnToSupplierDto::setDateValid);
         return horizontalLayout;
     }
 
@@ -193,6 +208,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Организация");
         label.setWidth("100px");
         horizontalLayout.add(label, companyDtoComboBox);
+        returnToSupplierDtoBinder.forField(companyDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getCompanyDtoValid, ReturnToSupplierDto::setCompanyDtoValid);
         return horizontalLayout;
     }
 
@@ -207,6 +225,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Склад");
         label.setWidth("100px");
         horizontalLayout.add(label, warehouseDtoComboBox);
+        returnToSupplierDtoBinder.forField(warehouseDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getWarehouseDtoValid, ReturnToSupplierDto::setWarehouseDtoValid);
         return horizontalLayout;
     }
 
@@ -221,6 +242,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Контрагент");
         label.setWidth("100px");
         horizontalLayout.add(label, contractorDtoComboBox);
+        returnToSupplierDtoBinder.forField(contractorDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getContractorDtoValid, ReturnToSupplierDto::setContractorDtoValid);
         return horizontalLayout;
     }
 
@@ -235,6 +259,9 @@ public class ReturnToSupplierModalView extends Dialog {
         Label label = new Label("Договор");
         label.setWidth("100px");
         horizontalLayout.add(label, contractDtoComboBox);
+        returnToSupplierDtoBinder.forField(contractDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(ReturnToSupplierDto::getContractDtoValid, ReturnToSupplierDto::setContractDtoValid);
         return horizontalLayout;
     }
 
@@ -248,7 +275,7 @@ public class ReturnToSupplierModalView extends Dialog {
         return horizontalLayout;
     }
 
-    private void clearAllFieldsModalView(){
+    private void clearAllFieldsModalView() {
         companyDtoComboBox.setValue(null);
         contractDtoComboBox.setValue(null);
         contractorDtoComboBox.setValue(null);
