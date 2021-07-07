@@ -29,6 +29,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @UIScope
@@ -67,16 +68,16 @@ public class ReturnToSupplierModalView extends Dialog {
         add(headerLayout(), formLayout());
     }
 
-    /*public void setReturnToSupplierForEdit(ReturnToSupplierDto editDto) {
+    public void setReturnToSupplierForEdit(ReturnToSupplierDto editDto) {
         this.dto = editDto;
         returnNumber.setValue(editDto.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
-        commentConfig.setValue(editDto.getComment());
+        textArea.setValue(editDto.getComment());
         companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractDtoComboBox.setValue(contractService.getById(editDto.getContractId()));
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
-    }*/
+    }
 
     private HorizontalLayout headerLayout() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
