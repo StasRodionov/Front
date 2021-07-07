@@ -23,7 +23,7 @@ public class MoneySubCashFlowServiceImpl implements MoneySubCashFlowService {
     private final String moneySubCashFlowUrl;
 
     private final CallExecuteService<MoneySubCashFlowDto> dtoCallExecuteService;
-    public MoneySubCashFlowServiceImpl(@Value("${payment_url}") String moneySubCashFlowUrl, Retrofit retrofit, CallExecuteService<MoneySubCashFlowDto> dtoCallExecuteService) {
+    public MoneySubCashFlowServiceImpl(@Value("${moneySubCashFlowUrl_url}") String moneySubCashFlowUrl, Retrofit retrofit, CallExecuteService<MoneySubCashFlowDto> dtoCallExecuteService) {
         moneySubCashFlowApi = retrofit.create(MoneySubCashFlowApi.class);
         this.moneySubCashFlowUrl = moneySubCashFlowUrl;
         this.dtoCallExecuteService = dtoCallExecuteService;
