@@ -80,4 +80,6 @@ correction_product_url: api/correction/product
 price_list_url: api/priceList
 
 moneySubCashFlowUrl_url: api/money
+
+balance_adjustment_url: api/balanceAdjustment
 #debug: true
