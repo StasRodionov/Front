@@ -46,6 +46,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.dom.Style;
+import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,6 +84,7 @@ public class ContractorModalWindow extends Dialog {
     private final Binder<ContractorDto> contractorDtoBinder = new Binder<>(ContractorDto.class);
     private final Binder<LegalDetailDto> legalDetailDtoBinder = new Binder<>(LegalDetailDto.class);
     private final Binder<BankAccountDto> bankAccountDtoBinder = new Binder<>(BankAccountDto.class);
+    private final Binder<TypeOfContractorDto> typeOfContractorDtoBinder = new Binder<>(TypeOfContractorDto.class);
     private final ComboBox<ContractorStatusDto> statusDtoSelect = new ComboBox<>();
     private final ComboBox<DepartmentDto> departmentDtoSelect = new ComboBox<>();
     private final ComboBox<EmployeeDto> employeeDtoSelect = new ComboBox<>();
@@ -192,11 +194,18 @@ public class ContractorModalWindow extends Dialog {
         commentToAddressField.setValue(getFieldValueNotNull(contractorDto.getCommentToAddress()));
         commentField.setValue(getFieldValueNotNull(contractorDto.getComment()));
         physicalAddressBlock = new AddressBlock(contractorDto::getAddressDto);
-        legalAddressBlock = new AddressBlock(
-                contractorDto.getLegalDetailDto() == null ?
-                        null
-                        : (Supplier<AddressDto>) addressService.getById(
-                        contractorDto.getLegalDetailDto().getAddressDtoId()));
+        if (contractorDto.getLegalDetailDto() == null) {
+            legalAddressBlock = new AddressBlock(null);
+        } else {
+            Supplier<AddressDto> supplierAddressDto = () -> addressService.getById(
+                        contractorDto.getLegalDetailDto().getAddressDtoId());
+            legalAddressBlock = new AddressBlock(supplierAddressDto);
+        }
+//        legalAddressBlock = new AddressBlock(
+//                contractorDto.getLegalDetailDto() == null ?
+//                        null
+//                        : Supplier<AddressDto> addressService.getById(
+//                        contractorDto.getLegalDetailDto().getAddressDtoId()));
         add(header(), new Text("Наименование"), contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
@@ -639,7 +648,7 @@ public class ContractorModalWindow extends Dialog {
             typeOfContractorDtoSelect.setItems(list);
         }
         typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
-        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
+        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);!
         legalDetailDtoBinder.forField(typeOfContractorDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("typeOfContractorDtoId");
