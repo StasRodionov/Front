@@ -2,6 +2,7 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -28,6 +29,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final Div div;
     private final PaymentModalWin paymentModalWin;
     private final MoneySubCashFlowService moneySubCashFlowService;
+    private final BalanceAdjustmentService balanceAdjustmentService;
 
     public MoneySubMenuView(PaymentService paymentService,
                             CompanyService companyService,
@@ -35,7 +37,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                             ProjectService projectService,
                             ContractService contractService,
                             Notifications notifications,
-                            PaymentModalWin paymentModalWin, MoneySubCashFlowService moneySubCashFlowService) {
+                            PaymentModalWin paymentModalWin, MoneySubCashFlowService moneySubCashFlowService,
+                            BalanceAdjustmentService balanceAdjustmentService) {
         this.paymentService = paymentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -44,6 +47,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         this.notifications = notifications;
         this.paymentModalWin = paymentModalWin;
         this.moneySubCashFlowService = moneySubCashFlowService;
+        this.balanceAdjustmentService = balanceAdjustmentService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -92,7 +96,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Корректировки":
                     div.removeAll();
-                    div.add(new MoneySubCorrectionView());
+                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService,companyService,contractorService, notifications));
                     break;
             }
         });
