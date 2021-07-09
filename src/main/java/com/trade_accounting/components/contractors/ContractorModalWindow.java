@@ -44,8 +44,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.function.ValueProvider;
 import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 
 import java.util.ArrayList;
@@ -648,10 +650,21 @@ public class ContractorModalWindow extends Dialog {
             typeOfContractorDtoSelect.setItems(list);
         }
         typeOfContractorDtoSelect.setItemLabelGenerator(TypeOfContractorDto::getName);
-        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);!
+        typeOfContractorDtoSelect.setWidth(FIELD_WIDTH);
         legalDetailDtoBinder.forField(typeOfContractorDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("typeOfContractorDtoId");
+                .bind(new ValueProvider<LegalDetailDto, TypeOfContractorDto>() {
+                    @Override
+                    public TypeOfContractorDto apply(LegalDetailDto legalDetailDto) {
+                        return typeOfContractorService.getById(legalDetailDto.getTypeOfContractorDtoId());
+                    }
+                }, new Setter<LegalDetailDto, TypeOfContractorDto>() {
+                    @Override
+                    public void accept(LegalDetailDto legalDetailDto, TypeOfContractorDto typeOfContractorDto) {
+                        legalDetailDto.setTypeOfContractorDtoId(typeOfContractorDto.getId());
+                    }
+                });
+               // .bind("typeOfContractorDtoId");
         Label label = new Label("Тип контрагента");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, typeOfContractorDtoSelect);
