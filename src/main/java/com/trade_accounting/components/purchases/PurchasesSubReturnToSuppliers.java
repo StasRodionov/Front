@@ -86,7 +86,8 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);
-        add(configureActions(), grid, paginator);
+        configureFilter();
+        add(configureActions(), filter, grid, paginator);
     }
 
     private HorizontalLayout configureActions() {
@@ -116,8 +117,24 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        //По клику по полю открывать модальное окно
+        grid.addItemDoubleClickListener(e -> {
+            ReturnToSupplierDto dto = e.getItem();
+            ReturnToSupplierModalView modalView = new ReturnToSupplierModalView(returnToSupplierService,
+                    companyService,
+                    warehouseService,
+                    contractorService,
+                    contractService,
+                    notifications);
+            modalView.setReturnToSupplierForEdit(dto);
+            modalView.open();
+        });
         return grid;
+    }
+
+    private void configureFilter() {
+        filter.onSearchClick(e -> paginator
+                .setData(returnToSupplierService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(returnToSupplierService.getAll()));
     }
 
     private List<ReturnToSupplierDto> loadReturnToSuppliers() {
