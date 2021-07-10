@@ -68,7 +68,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.search(invoiceUrl, query);
         try {
             invoiceDtoList = invoiceDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice {}", query);
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
         }
