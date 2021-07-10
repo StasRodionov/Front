@@ -86,7 +86,8 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);
-        add(configureActions(), grid, paginator);
+        configureFilter();
+        add(configureActions(), filter, grid, paginator);
     }
 
     private HorizontalLayout configureActions() {
@@ -102,21 +103,21 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
-                .setKey("warehouseId").setId("Со склада");
+                .setKey("warehouseDto").setId("Со склада");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
-                .setKey("companyId").setId("Организация");
+                .setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
-                .setKey("contractorId").setId("Контрагент");
+                .setKey("contractorDto").setId("Контрагент");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("isSend").setHeader("Отправлено")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("isPrint").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(e ->{
+        grid.addItemDoubleClickListener(e -> {
             ReturnToSupplierDto dto = e.getItem();
             ReturnToSupplierModalView modalView = new ReturnToSupplierModalView(returnToSupplierService,
                     companyService,
@@ -128,6 +129,16 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
             modalView.open();
         });
         return grid;
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("send", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
+        filter.onSearchClick(e -> paginator
+                .setData(returnToSupplierService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(returnToSupplierService.getAll()));
     }
 
     private List<ReturnToSupplierDto> loadReturnToSuppliers() {
