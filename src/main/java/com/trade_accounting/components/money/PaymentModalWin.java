@@ -43,6 +43,7 @@ public class PaymentModalWin extends Dialog {
 
     private final DateTimePicker dateField = new DateTimePicker();
     private final ComboBox<String> typeofPaymentBox = new ComboBox<>();
+    private final ComboBox<String> paymentMethods = new ComboBox<>();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
@@ -63,6 +64,7 @@ public class PaymentModalWin extends Dialog {
         this.paymentService = paymentService;
         this.notifications = notifications;
         typeofPaymentBox.setItems("Входящий", "Исходящий");
+        paymentMethods.setItems("Наличные", "Безнал");
         companyDtoComboBox.setItems(companyService.getAll());
         companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
         contractDtoComboBox.setItems(contractService.getAll());
@@ -82,6 +84,7 @@ public class PaymentModalWin extends Dialog {
         add(getHorizontalLayout("Компания", companyDtoComboBox));
         add(getHorizontalLayout("Номер платежа", payNumber));
         add(getHorizontalLayout("Тип платежа", typeofPaymentBox));
+        add(getHorizontalLayout("Способ оплаты", paymentMethods));
         add(getHorizontalLayout("Контрагент", contractorDtoComboBox));
         add(getHorizontalLayout("Договор", contractDtoComboBox));
         add(getHorizontalLayout("Проект", projectDtoComboBox));
@@ -126,8 +129,11 @@ public class PaymentModalWin extends Dialog {
         } else {
             paymentDto.setTypeOfPayment("OUTGOING");
         }
-        System.out.println(typeofPaymentBox.getValue());
-        System.out.println(paymentDto.getTypeOfPayment());
+        if (paymentMethods.getValue().equals("Наличные")) {
+            paymentDto.setPaymentMethods("CASH");
+        } else {
+            paymentDto.setPaymentMethods("BANK");
+        }
         return paymentDto;
     }
 
@@ -139,6 +145,7 @@ public class PaymentModalWin extends Dialog {
         projectDtoComboBox.clear();
         payNumber.clear();
         typeofPaymentBox.clear();
+        paymentMethods.clear();
         sum.clear();
     }
 
@@ -188,6 +195,7 @@ public class PaymentModalWin extends Dialog {
         this.paymentDto = editPaymentDto;
         companyDtoComboBox.setValue(paymentDto.getCompanyDto());
         typeofPaymentBox.setValue(paymentDto.getTypeOfPayment());
+        paymentMethods.setValue(paymentDto.getPaymentMethods());
         contractDtoComboBox.setValue(paymentDto.getContractDto());
         contractorDtoComboBox.setValue(paymentDto.getContractorDto());
         projectDtoComboBox.setValue(paymentDto.getProjectDto());

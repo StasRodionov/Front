@@ -91,12 +91,13 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.addColumn("time").setFlexGrow(10).setHeader("Дата").setId("Дата");
         grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
                 .setKey("companyDto").setHeader("Компания").setId("Компания");
-        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
+        grid.addColumn("sum").setFlexGrow(4).setHeader("Сумма").setId("Сумма");
         grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж").setId("Номер платежа");
         grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
+        grid.addColumn("paymentMethods").setFlexGrow(4).setHeader("Способ Оплаты").setId("Способ оплаты");
         grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
                 .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn(pDto -> pDto.getContractDto().getNumber()).setFlexGrow(7).setSortable(true)
+        grid.addColumn(pDto -> pDto.getContractDto().getNumber()).setFlexGrow(3).setSortable(true)
                 .setKey("contractDto").setHeader("Договор").setId("Договор");
         grid.addColumn(pDto -> pDto.getProjectDto().getName()).setFlexGrow(7).setSortable(true)
                 .setKey("projectDto").setHeader("Проект").setId("Проект");
