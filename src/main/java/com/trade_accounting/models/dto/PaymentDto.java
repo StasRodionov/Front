@@ -16,6 +16,8 @@ public class PaymentDto {
 
     private String typeOfPayment;
 
+    private String paymentMethods;
+
     private String number;
 
     private String time;
