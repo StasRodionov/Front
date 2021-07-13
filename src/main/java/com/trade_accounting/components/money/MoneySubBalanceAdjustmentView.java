@@ -49,6 +49,7 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private final ContractorService contractorService;
 
     private final Notifications notifications;
+    private final BalanceAdjustmentModalView modalView;
 
     private final List<BalanceAdjustmentDto> data;
 
@@ -60,11 +61,13 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
 
     @Autowired
     public MoneySubBalanceAdjustmentView(BalanceAdjustmentService balanceAdjustmentService, CompanyService companyService,
-                                         ContractorService contractorService, @Lazy Notifications notifications) {
+                                         ContractorService contractorService, @Lazy Notifications notifications,
+                                         BalanceAdjustmentModalView modalView) {
         this.balanceAdjustmentService = balanceAdjustmentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.notifications = notifications;
+        this.modalView = modalView;
         this.data = loadBalanceAdjustments();
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
@@ -124,6 +127,8 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
 
     private Button buttonAdd() {
         Button button = new Button("Корректировка", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> modalView.open());
+        updateList();
         return button;
     }
 
