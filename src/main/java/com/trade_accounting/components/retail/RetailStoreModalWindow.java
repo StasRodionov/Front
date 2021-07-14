@@ -147,7 +147,7 @@ public class RetailStoreModalWindow extends Dialog {
     private Button getSaveButton() {
         Button saveButton = new Button("Сохранить", event -> {
             if (retailStoreDtoToEdit.getId() != null) {
-                retailStoreDtoToEdit.setActive(isActive.getValue());
+                retailStoreDtoToEdit.setIsActive(isActive.getValue());
                 retailStoreDtoToEdit.setName(name.getValue());
                 retailStoreDtoToEdit.setActivityStatus("Онлайн");
                 retailStoreDtoToEdit.setRevenue(new BigDecimal(0_00));
@@ -168,7 +168,7 @@ public class RetailStoreModalWindow extends Dialog {
                 }
             } else {
                 RetailStoreDto retailStoreDto = new RetailStoreDto();
-                retailStoreDto.setActive(isActive.getValue());
+                retailStoreDto.setIsActive(isActive.getValue());
                 retailStoreDto.setName(name.getValue());
                 retailStoreDto.setActivityStatus("Онлайн");
                 retailStoreDto.setRevenue(new BigDecimal(0_00));
@@ -199,7 +199,7 @@ public class RetailStoreModalWindow extends Dialog {
 
     public void setRetailStoreDataEdit(RetailStoreDto retailStoreDto) {
         retailStoreDtoToEdit = retailStoreDto;
-        if (retailStoreDtoToEdit.isActive()) {
+        if (retailStoreDtoToEdit.getIsActive()) {
             isActive.setValue(true);
         }
         if (retailStoreDtoToEdit.getName() != null) {
