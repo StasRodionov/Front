@@ -30,6 +30,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final PaymentModalWin paymentModalWin;
     private final MoneySubCashFlowService moneySubCashFlowService;
     private final BalanceAdjustmentService balanceAdjustmentService;
+    private final BalanceAdjustmentModalView modalView;
 
     public MoneySubMenuView(PaymentService paymentService,
                             CompanyService companyService,
@@ -38,7 +39,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                             ContractService contractService,
                             Notifications notifications,
                             PaymentModalWin paymentModalWin, MoneySubCashFlowService moneySubCashFlowService,
-                            BalanceAdjustmentService balanceAdjustmentService) {
+                            BalanceAdjustmentService balanceAdjustmentService,
+                            BalanceAdjustmentModalView modalView) {
         this.paymentService = paymentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -48,6 +50,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         this.paymentModalWin = paymentModalWin;
         this.moneySubCashFlowService = moneySubCashFlowService;
         this.balanceAdjustmentService = balanceAdjustmentService;
+        this.modalView = modalView;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -96,7 +99,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Корректировки":
                     div.removeAll();
-                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService,companyService,contractorService, notifications));
+                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService,companyService,contractorService, notifications, modalView));
                     break;
             }
         });
