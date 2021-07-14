@@ -91,7 +91,7 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     }
 
     private Component isActiveCheckedIcon(RetailStoreDto retailStoreDto) {
-        if (retailStoreDto.isActive()) {
+        if (retailStoreDto.getIsActive()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;

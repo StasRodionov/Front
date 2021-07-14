@@ -14,7 +14,7 @@ public class RetailStoreDto {
 
     private Long id;
     private String name;
-    private boolean isActive;
+    private Boolean isActive;
     private String activityStatus;
     private BigDecimal revenue;
     private CompanyDto organizationDto;
