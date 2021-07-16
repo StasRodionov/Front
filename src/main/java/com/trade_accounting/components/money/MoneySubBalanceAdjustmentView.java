@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BalanceAdjustmentDto;
+import com.trade_accounting.models.dto.ReturnToSupplierDto;
 import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -122,6 +123,7 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private Button buttonRefresh() {
         Button button = new Button(new Icon(VaadinIcon.REFRESH));
         button.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        button.addClickListener(e -> updateList());
         return button;
     }
 
@@ -164,6 +166,14 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         select.setItems(stringList);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(e -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectBalanceAdjustments();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(loadBalanceAdjustments());
+            }
+        });
         return select;
     }
 
@@ -200,6 +210,17 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private String getTotalPrice(BalanceAdjustmentDto dto) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         return String.format("%.2f", totalPrice);
+    }
+
+    private void deleteSelectBalanceAdjustments() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (BalanceAdjustmentDto item : grid.getSelectedItems()) {
+                balanceAdjustmentService.deleteById(item.getId());
+                notifications.infoNotification("Выбранные корректировки успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные корректировки");
+        }
     }
 
     @Override
