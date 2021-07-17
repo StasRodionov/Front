@@ -4,6 +4,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BalanceAdjustmentDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ReturnToSupplierDto;
 import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -24,6 +25,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @UIScope
@@ -55,6 +57,18 @@ public class BalanceAdjustmentModalView extends Dialog {
         this.notifications = notifications;
         setSizeFull();
         add(headerLayout(), formLayout());
+    }
+
+    public void setBalanceAdjustmentForEdit(BalanceAdjustmentDto editDto) {
+        this.dto = editDto;
+        returnNumber.setValue(editDto.getId().toString());
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
+        textArea.setValue(editDto.getComment());
+        companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
+        contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
+        account.setValue(editDto.getAccount());
+        cashOffice.setValue(editDto.getCashOffice());
+        whoChanged.setValue(editDto.getWhoChanged());
     }
 
     private HorizontalLayout headerLayout() {
