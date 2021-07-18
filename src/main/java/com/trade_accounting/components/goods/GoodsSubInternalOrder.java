@@ -81,9 +81,9 @@ public class GoodsSubInternalOrder extends VerticalLayout {
 
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(InternalOrderDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
+        grid.addColumn(InternalOrderDto::getDate).setKey("date").setHeader("Время").setSortable(true);
         grid.addColumn(internalOrderDto -> companyService.getById(internalOrderDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Компания").setId("Компания");
+                .getName()).setKey("company").setHeader("Организация").setId("Организация");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
