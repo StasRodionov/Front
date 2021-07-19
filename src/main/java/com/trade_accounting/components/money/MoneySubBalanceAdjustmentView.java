@@ -1,6 +1,7 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.ReturnToSupplierModalView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -101,6 +102,15 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addItemDoubleClickListener(e -> {
+            BalanceAdjustmentDto dto = e.getItem();
+            BalanceAdjustmentModalView modalView = new BalanceAdjustmentModalView(balanceAdjustmentService,
+                    companyService,
+                    contractorService,
+                    notifications);
+            modalView.setBalanceAdjustmentForEdit(dto);
+            modalView.open();
+        });
         return grid;
     }
 
