@@ -87,4 +87,8 @@ inventarization_url: api/inventarization
 
 inventarization_product_url: api/inventarization/product
 
+internal_order_url: api/internalorder
+
+internal_order_product_url:  api/internalorder/product
+
 #debug: true
