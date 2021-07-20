@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 public class InternalOrderDtoForValidation {
 
-    private LocalDateTime date;
+    private LocalDateTime dateValid;
 
     private CompanyDto companyDtoValid;
 

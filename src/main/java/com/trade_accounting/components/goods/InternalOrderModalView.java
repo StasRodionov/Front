@@ -3,9 +3,7 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
-import com.trade_accounting.models.dto.ReturnToSupplierDto;
 import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.impl.WarehouseServiceImpl;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InternalOrderService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -26,14 +24,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @UIScope
 @SpringComponent
-@RequiredArgsConstructor
 public class InternalOrderModalView extends Dialog {
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
@@ -53,10 +50,20 @@ public class InternalOrderModalView extends Dialog {
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Notifications notifications;
 
+    public InternalOrderModalView(CompanyService companyService, WarehouseService warehouseService, InternalOrderService internalOrderService, Notifications notifications) {
+        this.companyService = companyService;
+        this.warehouseService = warehouseService;
+        this.internalOrderService = internalOrderService;
+        this.notifications = notifications;
+        setSizeFull();
+        add(headerLayout(), formLayout());
+    }
+
     public void setInternalOrderForEdit(InternalOrderDto editDto) {
         this.internalOrderDto = editDto;
         returnNumber.setValue(editDto.getId().toString());
-        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
+        //dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         textArea.setValue(editDto.getComment());
         companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
@@ -110,12 +117,13 @@ public class InternalOrderModalView extends Dialog {
                 dto.setIsSent(checkboxIsSpend.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
                 dto.setComment(textArea.getValue());
+                dto.setInternalOrderProductsIds(internalOrderDto.getInternalOrderProductsIds());
                 internalOrderService.create(dto);
 
                 UI.getCurrent().navigate("internalorder");
                 close();
                 clearAllFieldsModalView();
-                notifications.infoNotification(String.format("Внутренние заказ № %s сохранен", dto.getId()));
+                notifications.infoNotification(String.format("Внутренние заказ c ID=%s сохранен", dto.getId()));
             }
         });
     }
