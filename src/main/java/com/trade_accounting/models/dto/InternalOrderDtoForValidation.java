@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -17,22 +18,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class InternalOrderDto {
-    private Long id;
+public class InternalOrderDtoForValidation {
 
-    private List<Long> internalOrderProductsIds;
+    private LocalDateTime date;
 
-    @NotNull
-    private String date;
+    private CompanyDto companyDtoValid;
 
-    @NotNull
-    private Long companyId;
+    private WarehouseDto warehouseDtoValid;
 
-    private Long warehouseId;
-
-    private Boolean isSent = null;
-
-    private Boolean isPrint = null;
-
-    private String comment;
+    private String idValid;
 }
