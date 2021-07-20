@@ -30,6 +30,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -45,7 +47,7 @@ import java.util.List;
 @PageTitle("Внутренние заказы")
 @SpringComponent
 @UIScope
-public class GoodsSubInternalOrder extends VerticalLayout {
+public class GoodsSubInternalOrder extends VerticalLayout implements AfterNavigationObserver {
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final CompanyService companyService;
@@ -262,5 +264,10 @@ public class GoodsSubInternalOrder extends VerticalLayout {
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные заказы");
         }
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }
