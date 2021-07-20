@@ -27,17 +27,20 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
     private final PurchasesSubVendorAccounts purchasesSubVendorAccounts;
     private final PurchasesSubReturnToSuppliers purchasesSubReturnToSuppliers;
     private final PurchasesSubMenuInvoicesReceived purchasesSubMenuInvoicesReceived;
+    private final PurchasesSubAcceptances purchasesSubAcceptances;
 
     @Autowired
     public PurchasesSubMenuView(InvoiceService invoiceService,
                                 @Lazy PurchasesSubSuppliersOrders purchasesSubSuppliersOrders,
                                 @Lazy PurchasesSubVendorAccounts purchasesSubVendorAccounts, PurchasesSubReturnToSuppliers purchasesSubReturnToSuppliers,
-                                PurchasesSubMenuInvoicesReceived purchasesSubMenuInvoicesReceived) {
+                                PurchasesSubMenuInvoicesReceived purchasesSubMenuInvoicesReceived,
+                                PurchasesSubAcceptances purchasesSubAcceptances) {
         this.invoiceService = invoiceService;
         this.purchasesSubSuppliersOrders = purchasesSubSuppliersOrders;
         this.purchasesSubVendorAccounts = purchasesSubVendorAccounts;
         this.purchasesSubReturnToSuppliers = purchasesSubReturnToSuppliers;
         this.purchasesSubMenuInvoicesReceived = purchasesSubMenuInvoicesReceived;
+        this.purchasesSubAcceptances = purchasesSubAcceptances;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -87,6 +90,9 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
             } else if (invoicesReceivedLayout.equals(tab)){
                 div.removeAll();
                 div.add(purchasesSubMenuInvoicesReceived);
+            } else if (admissionsLayout.equals(tab)){
+                div.removeAll();
+                div.add(purchasesSubAcceptances);
             }
         });
         return tabs;

@@ -91,4 +91,8 @@ internal_order_url: api/internalorder
 
 internal_order_product_url:  api/internalorder/product
 
+acceptance_url: api/acceptance
+
+acceptance_product_url: api/acceptance/product
+
 #debug: true

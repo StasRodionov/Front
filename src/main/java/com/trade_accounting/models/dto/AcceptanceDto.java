@@ -3,13 +3,15 @@ package com.trade_accounting.models.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AcceptanceDto {
@@ -18,15 +20,19 @@ public class AcceptanceDto {
 
     private String incomingNumber;
 
-    private LocalDate incomingNumberDate;
+    private String incomingNumberDate;
 
     private Long contractorId;
-
-    private Long projectId;
 
     private Long warehouseId;
 
     private Long contractId;
+
+    private String comment;
+
+    private Boolean isSent = null;
+
+    private Boolean isPrint = null;
 
     private List<AcceptanceProductionDto> acceptanceProduction;
 }

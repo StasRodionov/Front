@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,7 +15,7 @@ public class AcceptanceProductionDto {
 
     private Long id;
 
-    private Long amount;
+    private BigDecimal amount;
 
     private Long productId;
 }
