@@ -74,7 +74,8 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);
-        add(configureActions(), grid, paginator);
+        configureFilter();
+        add(configureActions(), filter, grid, paginator);
     }
 
     private HorizontalLayout configureActions() {
@@ -90,9 +91,9 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
-                .setKey("companyId").setId("Организация");
+                .setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
-                .setKey("contractorId").setId("Контрагент");
+                .setKey("contractorDto").setId("Контрагент");
         grid.addColumn("account").setHeader("Счет").setId("Счет");
         grid.addColumn("cashOffice").setHeader("Касса").setId("Касса");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
@@ -112,6 +113,14 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
             modalView.open();
         });
         return grid;
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.onSearchClick(e -> paginator
+                .setData(balanceAdjustmentService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(balanceAdjustmentService.getAll()));
     }
 
     private List<BalanceAdjustmentDto> loadBalanceAdjustments() {
