@@ -46,6 +46,7 @@ public class BalanceAdjustmentModalView extends Dialog {
     private final TextField whoChanged = new TextField();
 
     private final Binder<BalanceAdjustmentDto> balanceAdjustmentDtoBinder = new Binder<>(BalanceAdjustmentDto.class);
+    private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
 
     private final Notifications notifications;
 
@@ -160,6 +161,9 @@ public class BalanceAdjustmentModalView extends Dialog {
         label.setWidth("150px");
         returnNumber.setWidth("50px");
         horizontalLayout.add(label, returnNumber);
+        balanceAdjustmentDtoBinder.forField(returnNumber)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(BalanceAdjustmentDto::getIdValid, BalanceAdjustmentDto::setIdValid);
         return horizontalLayout;
     }
 
@@ -168,6 +172,9 @@ public class BalanceAdjustmentModalView extends Dialog {
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
         horizontalLayout.add(label, dateTimePicker);
+        balanceAdjustmentDtoBinder.forField(dateTimePicker)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(BalanceAdjustmentDto::getDateValid, BalanceAdjustmentDto::setDateValid);
         return horizontalLayout;
     }
 
@@ -182,6 +189,9 @@ public class BalanceAdjustmentModalView extends Dialog {
         Label label = new Label("Организация");
         label.setWidth("100px");
         horizontalLayout.add(label, companyDtoComboBox);
+        balanceAdjustmentDtoBinder.forField(companyDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(BalanceAdjustmentDto::getCompanyDtoValid, BalanceAdjustmentDto::setCompanyDtoValid);
         return horizontalLayout;
     }
 
@@ -196,6 +206,9 @@ public class BalanceAdjustmentModalView extends Dialog {
         Label label = new Label("Контрагент");
         label.setWidth("100px");
         horizontalLayout.add(label, contractorDtoComboBox);
+        balanceAdjustmentDtoBinder.forField(contractorDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(BalanceAdjustmentDto::getContractorDtoValid, BalanceAdjustmentDto::setContractorDtoValid);
         return horizontalLayout;
     }
 

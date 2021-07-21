@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class InternalOrderDto {
+public class InternalOrderDto extends InternalOrderDtoForValidation {
     private Long id;
 
     private List<Long> internalOrderProductsIds;
@@ -27,6 +27,8 @@ public class InternalOrderDto {
 
     @NotNull
     private Long companyId;
+
+    private Long warehouseId;
 
     private Boolean isSent = null;
 

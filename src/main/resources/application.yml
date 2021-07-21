@@ -93,4 +93,8 @@ internal_order_product_url:  api/internalorder/product
 
 payout_url:  api/payout
 
+acceptance_url: api/acceptance
+
+acceptance_product_url: api/acceptance/product
+
 #debug: true
