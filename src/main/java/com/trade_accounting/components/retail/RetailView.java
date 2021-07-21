@@ -1,8 +1,10 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -25,27 +27,30 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final RetailStoreService retailStoreService;
     private final CompanyService companyService;
     private final EmployeeService employeeService;
+    private final PayoutService payoutService;
+    private final Notifications notifications;
 
     @Autowired
     public RetailView(RetailStoreService retailStoreService,
-                      CompanyService companyService, EmployeeService employeeService) {
+                      CompanyService companyService, EmployeeService employeeService,
+                      PayoutService payoutService, Notifications notifications) {
         this.retailStoreService = retailStoreService;
         this.companyService = companyService;
         this.employeeService = employeeService;
+        this.payoutService = payoutService;
+        this.notifications = notifications;
         div = new Div();
         add(configurationSubMenu(), div);
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        div.removeAll();
-        div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService));
-//        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
-//        appView.getChildren().forEach(e -> {
-//            if (e.getClass() == Tabs.class) {
-//                ((Tabs) e).setSelectedIndex(7);
-//            }
-//        });
+        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+        appView.getChildren().forEach(e -> {
+            if (e.getClass() == Tabs.class) {
+                ((Tabs) e).setSelectedIndex(7);
+            }
+        });
     }
 
     private Tabs configurationSubMenu() {
@@ -81,6 +86,10 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Внесения":
                     div.removeAll();
+                    break;
+                case "Выплаты":
+                    div.removeAll();
+                    div.add(new PayoutTabView(payoutService, retailStoreService, companyService, employeeService, notifications));
                     break;
                 case "Операции с баллами":
                     div.removeAll();

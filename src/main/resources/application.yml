@@ -91,4 +91,6 @@ internal_order_url: api/internalorder
 
 internal_order_product_url:  api/internalorder/product
 
+payout_url:  api/payout
+
 #debug: true
