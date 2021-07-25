@@ -1,11 +1,8 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.sells.PrintSalesXls;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.PayoutDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -82,6 +79,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
 
     private final List<PayoutDto> data;
 
+    private final TextField textFieldUpdateTextField = new TextField();
     private final String typeOfInvoice = "RECEIPT";
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/payouts_templates/";
 
@@ -193,13 +191,13 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     }
 
     private TextField textField() {
-        final TextField textField = new TextField();
-        textField.setPlaceholder("Номер или комментарий");
-        textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
-        textField.setWidth("300px");
-        textField.setValueChangeMode(ValueChangeMode.EAGER);
-       // textField.addValueChangeListener(event -> updateList(textField.getValue()));
-        return textField;
+        textFieldUpdateTextField.setPlaceholder("Кому или комментарий");
+        textFieldUpdateTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textFieldUpdateTextField.setWidth("300px");
+        textFieldUpdateTextField.setValueChangeMode(ValueChangeMode.EAGER);
+        textFieldUpdateTextField.addValueChangeListener(e ->
+                updateListTextField());
+        return textFieldUpdateTextField;
     }
 
     private NumberField numberField() {
@@ -271,6 +269,14 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
         add(upperLayout(), grid, paginatorUpdateList);
+    }
+
+    public void updateListTextField() {
+        if (!(textFieldUpdateTextField.getValue().equals(""))) {
+            grid.setItems(payoutService.getAllByParameters(textFieldUpdateTextField.getValue()));
+        } else {
+            grid.setItems(payoutService.getAllByParameters("null"));
+        }
     }
 
     //Поправить метод(после добавления select на бэке)

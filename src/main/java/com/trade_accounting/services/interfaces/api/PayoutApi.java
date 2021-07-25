@@ -1,7 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.PayoutDto;
-import com.trade_accounting.models.dto.ProjectDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -18,6 +17,11 @@ public interface PayoutApi {
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<PayoutDto>> getAll(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search/{searchTerm}")
+    Call<List<PayoutDto>> getAllByParameters(@Path(value = "url", encoded = true) String url,
+                                             @Path("searchTerm") String searchTerm);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
