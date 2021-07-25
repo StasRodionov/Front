@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcceptanceDto {
+public class AcceptanceDto extends AcceptanceDtoForValidation {
 
     private Long id;
 
