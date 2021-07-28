@@ -8,6 +8,8 @@ public interface PayoutService {
 
     List<PayoutDto> getAll();
 
+    List<PayoutDto> getAllByParameters(String searchTerm);
+
     PayoutDto getById(Long id);
 
     void create(PayoutDto payoutDto);

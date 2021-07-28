@@ -1,12 +1,8 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CorrectionProductDto;
 import com.trade_accounting.models.dto.PayoutDto;
-import com.trade_accounting.models.dto.ProjectDto;
 import com.trade_accounting.services.interfaces.PayoutService;
-import com.trade_accounting.services.interfaces.ProjectService;
 import com.trade_accounting.services.interfaces.api.PayoutApi;
-import com.trade_accounting.services.interfaces.api.ProjectApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,6 +36,19 @@ public class PayoutServiceImpl implements PayoutService {
     public List<PayoutDto> getAll() {
         Call<List<PayoutDto>> payoutDtoListCall = payoutApi.getAll(payoutURL);
         return dtoCallExecuteService.callExecuteBodyList(payoutDtoListCall, PayoutDto.class);
+    }
+
+    @Override
+    public List<PayoutDto> getAllByParameters(String searchTerm) {
+        List<PayoutDto> payoutDtoList = new ArrayList<>();
+        Call<List<PayoutDto>> payoutDtoListCall = payoutApi.getAllByParameters(payoutURL, searchTerm);
+        try {
+            payoutDtoList = payoutDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка по запросу {}", searchTerm);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка по запросу {}", searchTerm);
+        }
+        return payoutDtoList;
     }
 
     @Override
