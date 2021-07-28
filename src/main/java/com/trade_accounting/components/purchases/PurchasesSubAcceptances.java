@@ -8,7 +8,6 @@ import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.ProjectService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -51,12 +50,13 @@ import java.util.List;
 @PageTitle("Приемки")
 @SpringComponent
 @UIScope
-public class PurchasesSubAcceptances extends VerticalLayout {
+public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavigationObserver {
     private final AcceptanceService acceptanceService;
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
     private final ContractService contractService;
     private final Notifications notifications;
+    private final AcceptanceModalView modalView;
     private final List<AcceptanceDto> data;
     private final Grid<AcceptanceDto> grid = new Grid<>(AcceptanceDto.class, false);
     private GridPaginator<AcceptanceDto> paginator;
@@ -68,12 +68,14 @@ public class PurchasesSubAcceptances extends VerticalLayout {
                                    WarehouseService warehouseService,
                                    ContractorService contractorService,
                                    ContractService contractService,
-                                   Notifications notifications) {
+                                   Notifications notifications,
+                                   AcceptanceModalView modalView) {
         this.acceptanceService = acceptanceService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.notifications = notifications;
+        this.modalView = modalView;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         this.filter = new GridFilter<>(grid);
@@ -150,6 +152,7 @@ public class PurchasesSubAcceptances extends VerticalLayout {
 
     private Button buttonAdd() {
         Button button = new Button("Приемка", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> modalView.open());
         return button;
     }
 
@@ -215,7 +218,7 @@ public class PurchasesSubAcceptances extends VerticalLayout {
     }
 
     private void updateList() {
-
+        grid.setItems(acceptanceService.getAll());
     }
 
     public void updateList(String nameFilter) {
@@ -261,5 +264,10 @@ public class PurchasesSubAcceptances extends VerticalLayout {
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные приемки");
         }
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }
