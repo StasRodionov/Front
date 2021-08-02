@@ -22,9 +22,12 @@ public class RetailStoreServiceImpl implements RetailStoreService {
 
     private final String retailStoreUrl;
 
+    private RetailStoreDto retailStoreDto;
+
     private final CallExecuteService<RetailStoreDto> dtoCallExecuteService;
 
-    public RetailStoreServiceImpl(Retrofit retrofit, @Value("${retail_stores_url}") String retailStoreUrl, CallExecuteService<RetailStoreDto> dtoCallExecuteService) {
+    public RetailStoreServiceImpl(Retrofit retrofit, @Value("${retail_stores_url}") String retailStoreUrl,
+                                  CallExecuteService<RetailStoreDto> dtoCallExecuteService) {
         retailStoreApi = retrofit.create(RetailStoreApi.class);
         this.retailStoreUrl = retailStoreUrl;
         this.dtoCallExecuteService = dtoCallExecuteService;
@@ -40,8 +43,6 @@ public class RetailStoreServiceImpl implements RetailStoreService {
 
     @Override
     public RetailStoreDto getById(Long id) {
-
-        RetailStoreDto retailStoreDto = null;
         Call<RetailStoreDto> retailStoreDtoCall = retailStoreApi.getById(retailStoreUrl, id);
         return dtoCallExecuteService.callExecuteBodyById(retailStoreDtoCall, retailStoreDto, RetailStoreDto.class, id);
     }

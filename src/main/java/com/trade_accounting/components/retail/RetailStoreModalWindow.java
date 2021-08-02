@@ -103,7 +103,7 @@ public class RetailStoreModalWindow extends Dialog {
         organization.setItemLabelGenerator(CompanyDto::getName);
         retailStoreDtoBinder.forField(organization).
                 withValidator(Objects::nonNull, "Поле должно быть заполнено", ErrorLevel.ERROR)
-                .bind("organizationDto");
+                .bind("companyDto");
         organization.setWidth(fieldWidth);
         return new HorizontalLayout(label, organization);
     }
@@ -151,7 +151,7 @@ public class RetailStoreModalWindow extends Dialog {
                 retailStoreDtoToEdit.setName(name.getValue());
                 retailStoreDtoToEdit.setActivityStatus("Онлайн");
                 retailStoreDtoToEdit.setRevenue(new BigDecimal(0_00));
-                retailStoreDtoToEdit.setOrganizationDto(organization.getValue());
+                retailStoreDtoToEdit.setCompanyDto(organization.getValue());
                 retailStoreDtoToEdit.setSalesInvoicePrefix(salesInvoicePrefix.getValue());
                 retailStoreDtoToEdit.setDefaultTaxationSystem(defaultTaxationSystem.getValue());
                 retailStoreDtoToEdit.setOrderTaxationSystem(orderTaxationSystem.getValue());
@@ -172,7 +172,7 @@ public class RetailStoreModalWindow extends Dialog {
                 retailStoreDto.setName(name.getValue());
                 retailStoreDto.setActivityStatus("Онлайн");
                 retailStoreDto.setRevenue(new BigDecimal(0_00));
-                retailStoreDto.setOrganizationDto(organization.getValue());
+                retailStoreDto.setCompanyDto(organization.getValue());
                 retailStoreDto.setSalesInvoicePrefix(salesInvoicePrefix.getValue());
                 retailStoreDto.setDefaultTaxationSystem(defaultTaxationSystem.getValue());
                 retailStoreDto.setOrderTaxationSystem(orderTaxationSystem.getValue());
@@ -205,8 +205,8 @@ public class RetailStoreModalWindow extends Dialog {
         if (retailStoreDtoToEdit.getName() != null) {
             name.setValue(retailStoreDto.getName());
         }
-        if (retailStoreDtoToEdit.getOrganizationDto() != null) {
-            organization.setValue(retailStoreDto.getOrganizationDto());
+        if (retailStoreDtoToEdit.getCompanyDto() != null) {
+            organization.setValue(retailStoreDto.getCompanyDto());
         }
         if (retailStoreDtoToEdit.getSalesInvoicePrefix() != null) {
             salesInvoicePrefix.setValue(retailStoreDto.getSalesInvoicePrefix());

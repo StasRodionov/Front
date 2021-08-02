@@ -27,8 +27,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Route(value = "RetailStoresTabView", layout = AppView.class)
@@ -70,8 +72,7 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         grid.addColumn(unused -> "0").setHeader("Чеки").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Средний чек").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Денег в кассе").setWidth("20px");
-        grid.addColumn(item -> item.getCashiersDto().stream().map(EmployeeDto::toString).collect(Collectors.joining(", ")))
-                .setWidth("100px").setHeader("Кассиры").setId("Кассиры");
+        grid.addColumn(unused -> getCashiers()).setWidth("100px").setHeader("Кассиры").setId("Кассиры");
         grid.addColumn(unused -> "-").setHeader("Синхронизация");
         grid.addColumn(unused -> "Нет").setHeader("ФН").setWidth("20px");
         grid.setHeight("66vh");
@@ -155,5 +156,15 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         updateList();
+    }
+
+    private String getCashiers() {
+        List<EmployeeDto> list = employeeService.getAll();
+        long size = list.size();
+        Long random = 1 + (long) (Math.random() * size);
+
+        EmployeeDto employeeDto = employeeService.getById(random);
+
+        return employeeDto.toString();
     }
 }

@@ -13,13 +13,26 @@ import java.util.List;
 public class RetailStoreDto {
 
     private Long id;
+
     private String name;
+
     private Boolean isActive;
+
     private String activityStatus;
+
     private BigDecimal revenue;
-    private CompanyDto organizationDto;
+
+    private Long companyId;
+
+    private CompanyDto companyDto;
+
     private String salesInvoicePrefix;
+
     private String defaultTaxationSystem;
+
     private String orderTaxationSystem;
+
     private List<EmployeeDto> cashiersDto;
+
+    private List<Long> cashiersIds;
 }
