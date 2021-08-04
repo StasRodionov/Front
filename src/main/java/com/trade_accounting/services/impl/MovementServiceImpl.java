@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.services.interfaces.MovementService;
 import com.trade_accounting.services.interfaces.api.MovementApi;
@@ -18,6 +19,7 @@ public class MovementServiceImpl implements MovementService {
     private final MovementApi movementApi;
     private final String movementUrl;
     private final CallExecuteService<MovementDto> callExecuteService;
+    private MovementDto movementDto;
 
     public MovementServiceImpl(Retrofit retrofit, @Value("${movement_url}") String movementUrl, CallExecuteService<MovementDto> callExecuteService) {
         movementApi = retrofit.create(MovementApi.class);
@@ -34,7 +36,8 @@ public class MovementServiceImpl implements MovementService {
 
     @Override
     public MovementDto getById(Long id) {
-        return null;
+        Call<MovementDto> invoiceDtoCall = movementApi.getById(movementUrl, id);
+        return callExecuteService.callExecuteBodyById(invoiceDtoCall, movementDto, MovementDto.class, id);
     }
 
     @Override

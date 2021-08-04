@@ -27,12 +27,12 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     private final Div div = new Div();
 
     public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
-                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder, MovementView movementView) {
+                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder,MovementView movementView) {
         this.goodsView = goodsView;
         this.postingTabView = postingTabView;
         this.goodsSubInventory = goodsSubInventory;
         this.goodsSubInternalOrder = goodsSubInternalOrder;
-        this.movementView =movementView;
+        this.movementView = movementView;
 
         add(configurationSubMenu(), div);
     }
@@ -73,9 +73,9 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.add(goodsSubInternalOrder);
                 }));
 
-        HorizontalLayout movementTab = new HorizontalLayout(new Label("Оприходования"));
+        HorizontalLayout movementTab = new HorizontalLayout(new Label("Перемещения"));
 
-        movementTab.addClickListener(event ->
+        postingTab.addClickListener(event ->
                 movementTab.getUI().ifPresent(ui -> {
                     div.removeAll();
                     movementView.updateList();
@@ -85,7 +85,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         Tab chargesLayout = new Tab("Списания");
         Tab interventarizationLayout = new Tab("Инвентаризации");
         Tab internalOrdersLayout = new Tab("Внутрение заказы");
-        Tab movementLayout = new Tab("Перемещения");
+//        Tab transferLayout = new Tab("Перемещения");
         Tab priceLayout = new Tab("Прайс-лист");
         Tab balanceLayout = new Tab("Остататки");
         Tab revenueLayout = new Tab("Обороты");
@@ -96,7 +96,8 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 new Tab(inventoryTab),
                 new Tab(internalOrderTab),
                 chargesLayout,
-                new Tab(movementLayout),
+//                transferLayout,
+                new Tab(movementTab),
                 priceLayout,
                 balanceLayout,
                 revenueLayout
