@@ -1,15 +1,17 @@
 package com.trade_accounting.services.interfaces;
 
+import com.trade_accounting.models.dto.MovementProductDto;
+
 import java.util.List;
 
 public interface MovementProductService {
-    List<MovementProductService> getAll();
+    List<MovementProductDto> getAll();
 
-    MovementProductService getById(Long id);
+    MovementProductDto getById(Long id);
 
-    MovementProductService create(MovementProductService movementProductService);
+    MovementProductDto create(MovementProductDto movementProductDto);
 
-    void update(MovementProductService movementProductService);
+    void update(MovementProductDto movementProductDto);
 
     void deleteById(Long id);
 }
