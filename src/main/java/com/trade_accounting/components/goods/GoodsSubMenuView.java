@@ -85,7 +85,6 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         Tab chargesLayout = new Tab("Списания");
         Tab interventarizationLayout = new Tab("Инвентаризации");
         Tab internalOrdersLayout = new Tab("Внутрение заказы");
-//        Tab transferLayout = new Tab("Перемещения");
         Tab priceLayout = new Tab("Прайс-лист");
         Tab balanceLayout = new Tab("Остататки");
         Tab revenueLayout = new Tab("Обороты");
@@ -96,7 +95,6 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 new Tab(inventoryTab),
                 new Tab(internalOrderTab),
                 chargesLayout,
-//                transferLayout,
                 new Tab(movementTab),
                 priceLayout,
                 balanceLayout,

@@ -83,11 +83,12 @@ public class MovementView extends VerticalLayout {
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(MovementDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
-//        grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseId())
         grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseFromId())
-                .getName()).setKey("warehouse").setHeader("Склад").setId("Склад");
+                .getName()).setKey("warehouseFrom").setHeader("Со Склада").setId("Со Склада");
+        grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseToId())
+                .getName()).setKey("warehouseTo").setHeader("На Склад").setId("На Склад");
         grid.addColumn(movementDto -> companyService.getById(movementDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Компания").setId("Компания");
+                .getName()).setKey("company").setHeader("Организация").setId("Организация");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
