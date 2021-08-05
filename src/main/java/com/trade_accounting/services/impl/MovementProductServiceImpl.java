@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.MovementProductDto;
 import com.trade_accounting.models.dto.MovementProductDto;
 import com.trade_accounting.services.interfaces.MovementProductService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.List;
 @Slf4j
 @Service
@@ -29,7 +31,8 @@ public class MovementProductServiceImpl implements MovementProductService {
 
     @Override
     public List<MovementProductDto> getAll() {
-        return null;
+        Call<List<MovementProductDto>> movementProductDtoListCall = movementProductApi.getAll(movementProductUrl);
+        return callExecuteService.callExecuteBodyList(movementProductDtoListCall, MovementProductDto.class);
     }
 
     @Override
@@ -40,16 +43,38 @@ public class MovementProductServiceImpl implements MovementProductService {
 
     @Override
     public MovementProductDto create(MovementProductDto movementProductDto) {
-        return null;
+        Call<MovementProductDto> internalDtoCall = movementProductApi.create(movementProductUrl, movementProductDto);
+
+        try {
+            movementProductDto = internalDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание InternalOrder");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение MovementProductDto - {}", e);
+        }
+
+        return movementProductDto;
     }
 
     @Override
     public void update(MovementProductDto movementProductDto) {
-
+        Call<Void> movementProductDtoCall = movementProductApi.update(movementProductUrl, movementProductDto);
+        try {
+            movementProductDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра InternalOrder");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра InternalOrderDto - {}", e);
+        }
     }
 
     @Override
     public void deleteById(Long id) {
+        Call<Void> movementProductDtoCall = movementProductApi.deleteById(movementProductUrl, id);
 
+        try {
+            movementProductDtoCall.execute();
+            log.info("Успешно выполнен запрос на удаление экземпляра InternalOrderDto с id= {}", id);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InternalOrderDto с id= {} - {}", e);
+        }
     }
 }
