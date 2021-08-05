@@ -75,7 +75,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
         HorizontalLayout movementTab = new HorizontalLayout(new Label("Перемещения"));
 
-        postingTab.addClickListener(event ->
+        movementTab.addClickListener(event ->
                 movementTab.getUI().ifPresent(ui -> {
                     div.removeAll();
                     movementView.updateList();
