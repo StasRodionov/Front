@@ -43,10 +43,10 @@ public class MovementProductServiceImpl implements MovementProductService {
 
     @Override
     public MovementProductDto create(MovementProductDto movementProductDto) {
-        Call<MovementProductDto> internalDtoCall = movementProductApi.create(movementProductUrl, movementProductDto);
+        Call<MovementProductDto> movementDtoCall = movementProductApi.create(movementProductUrl, movementProductDto);
 
         try {
-            movementProductDto = internalDtoCall.execute().body();
+            movementProductDto = movementDtoCall.execute().body();
             log.info("Успешно выполнен запрос на создание InternalOrder");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение MovementProductDto - {}", e);
