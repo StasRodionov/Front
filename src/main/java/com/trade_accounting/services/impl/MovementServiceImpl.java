@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.services.interfaces.MovementService;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -30,24 +32,39 @@ public class MovementServiceImpl implements MovementService {
 
     @Override
     public List<MovementDto> getAll() {
-        Call<List<MovementDto>> invoiceDtoListCall = movementApi.getAll(movementUrl);
-        return callExecuteService.callExecuteBodyList(invoiceDtoListCall, MovementDto.class);
+        Call<List<MovementDto>> movementDtoListCall = movementApi.getAll(movementUrl);
+        return callExecuteService.callExecuteBodyList(movementDtoListCall, MovementDto.class);
     }
 
     @Override
     public MovementDto getById(Long id) {
-        Call<MovementDto> invoiceDtoCall = movementApi.getById(movementUrl, id);
-        return callExecuteService.callExecuteBodyById(invoiceDtoCall, movementDto, MovementDto.class, id);
+        Call<MovementDto> movementDtoCall = movementApi.getById(movementUrl, id);
+        return callExecuteService.callExecuteBodyById(movementDtoCall, movementDto, MovementDto.class, id);
     }
 
     @Override
     public MovementDto create(MovementDto movementDto) {
-        return null;
+        Call<MovementDto> movementDtoCall = movementApi.create(movementUrl, movementDto);
+
+        try {
+            movementDto = movementDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание InternalOrder");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение MovementDto - {}", e);
+        }
+
+        return movementDto;
     }
 
     @Override
     public void update(MovementDto movementDto) {
-
+        Call<Void> movementDtoCall = movementApi.update(movementUrl, movementDto);
+        try {
+            movementDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра Movement");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра MovementDto - {}", e);
+        }
     }
 
     @Override
