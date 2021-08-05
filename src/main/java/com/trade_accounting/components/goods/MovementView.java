@@ -96,9 +96,10 @@ public class MovementView extends VerticalLayout {
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
+        grid.setMaxWidth("100%");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.getColumns().forEach(column -> column.setAutoWidth(true));
     }
 
     private List<MovementDto> getData() {
