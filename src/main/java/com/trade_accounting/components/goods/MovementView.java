@@ -137,14 +137,11 @@ public class MovementView extends VerticalLayout {
     }
 
     private HorizontalLayout configureActions() {
-//        HorizontalLayout upper = new HorizontalLayout();
-//        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(),
-//                numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
-//        upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
-                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
+        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(),
+                numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+
         return upper;
     }
 
