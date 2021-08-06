@@ -1,8 +1,10 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.models.dto.MovementProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -40,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @SpringComponent
 @PageTitle("Перемещения")
@@ -57,6 +60,8 @@ public class MovementView extends VerticalLayout {
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
     private GridPaginator<MovementDto> paginator;
+    private final GridFilter<MovementDto> filter;
+    private final String typeOfMovement = "RECEIPT";
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
@@ -76,8 +81,10 @@ public class MovementView extends VerticalLayout {
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(configureActions(), grid, paginator);
+        add(configureActions(), filter, grid, paginator);
     }
 
     private void configureGrid() {
@@ -102,6 +109,18 @@ public class MovementView extends VerticalLayout {
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
     }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfMovement", typeOfMovement);
+            paginator.setData(movementService.search(map));
+        });
+        filter.onClearClick(e -> paginator.setData(movementService.getAll(typeOfMovement)));
+    }
+
     private List<MovementDto> getData() {
         return movementService.getAll();
     }
@@ -118,9 +137,13 @@ public class MovementView extends VerticalLayout {
     }
 
     private HorizontalLayout configureActions() {
+//        HorizontalLayout upper = new HorizontalLayout();
+//        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(),
+//                numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
+//        upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(),
-                numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
     }

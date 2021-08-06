@@ -12,7 +12,10 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -34,6 +37,21 @@ public class MovementServiceImpl implements MovementService {
     public List<MovementDto> getAll() {
         Call<List<MovementDto>> movementDtoListCall = movementApi.getAll(movementUrl);
         return callExecuteService.callExecuteBodyList(movementDtoListCall, MovementDto.class);
+    }
+
+    @Override
+    public List<MovementDto> getAll(String typeOfMovement) {
+        List<MovementDto> movementDtoList = new ArrayList<>();
+        Call<List<MovementDto>> movementDtoListCall = movementApi.getAll(movementUrl, typeOfMovement);
+
+        try {
+            movementDtoList.addAll(Objects.requireNonNull(movementDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка InvoiceDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {IOException}", e);
+        }
+        return movementDtoList;
     }
 
     @Override
@@ -71,5 +89,18 @@ public class MovementServiceImpl implements MovementService {
     public void deleteById(Long id) {
         Call<Void> movementDtoCall = movementApi.deleteById(movementUrl, id);
         callExecuteService.callExecuteBodyDelete(movementDtoCall, MovementDto.class, id);
+    }
+
+    @Override
+    public List<MovementDto> search(Map<String, String> query) {
+        List<MovementDto> movementDtoList = new ArrayList<>();
+        Call<List<MovementDto>> movementDtoListCall = movementApi.search(movementUrl, query);
+        try {
+            movementDtoList = movementDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice {}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return movementDtoList;
     }
 }
