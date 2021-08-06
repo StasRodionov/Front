@@ -22,15 +22,17 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     private final PostingTabView postingTabView;
     private final GoodsSubInventory goodsSubInventory;
     private final GoodsSubInternalOrder goodsSubInternalOrder;
+    private final MovementView movementView;
 
     private final Div div = new Div();
 
     public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
-                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder) {
+                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder,MovementView movementView) {
         this.goodsView = goodsView;
         this.postingTabView = postingTabView;
         this.goodsSubInventory = goodsSubInventory;
         this.goodsSubInternalOrder = goodsSubInternalOrder;
+        this.movementView = movementView;
 
         add(configurationSubMenu(), div);
     }
@@ -71,10 +73,18 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.add(goodsSubInternalOrder);
                 }));
 
+        HorizontalLayout movementTab = new HorizontalLayout(new Label("Перемещения"));
+
+        movementTab.addClickListener(event ->
+                movementTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    movementView.updateList();
+                    div.add(movementView);
+                }));
+
         Tab chargesLayout = new Tab("Списания");
         Tab interventarizationLayout = new Tab("Инвентаризации");
         Tab internalOrdersLayout = new Tab("Внутрение заказы");
-        Tab transferLayout = new Tab("Перемещения");
         Tab priceLayout = new Tab("Прайс-лист");
         Tab balanceLayout = new Tab("Остататки");
         Tab revenueLayout = new Tab("Обороты");
@@ -85,7 +95,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 new Tab(inventoryTab),
                 new Tab(internalOrderTab),
                 chargesLayout,
-                transferLayout,
+                new Tab(movementTab),
                 priceLayout,
                 balanceLayout,
                 revenueLayout

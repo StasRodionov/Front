@@ -97,4 +97,8 @@ acceptance_url: api/acceptance
 
 acceptance_product_url: api/acceptance/product
 
+movement_url:  /api/movement
+
+movement_product_url:  /api/movement/product
+
 #debug: true
