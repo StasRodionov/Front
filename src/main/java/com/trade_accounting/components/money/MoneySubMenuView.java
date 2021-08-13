@@ -7,6 +7,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.MoneySubCashFlowService;
+import com.trade_accounting.services.interfaces.MoneySubProfitLossService;
 import com.trade_accounting.services.interfaces.PaymentService;
 import com.trade_accounting.services.interfaces.ProjectService;
 import com.vaadin.flow.component.html.Div;
@@ -32,6 +33,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final BalanceAdjustmentService balanceAdjustmentService;
     private final BalanceAdjustmentModalView modalView;
 
+    private final MoneySubProfitLossService moneySubProfitLossService;
+
     public MoneySubMenuView(PaymentService paymentService,
                             CompanyService companyService,
                             ContractorService contractorService,
@@ -40,7 +43,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                             Notifications notifications,
                             PaymentModalWin paymentModalWin, MoneySubCashFlowService moneySubCashFlowService,
                             BalanceAdjustmentService balanceAdjustmentService,
-                            BalanceAdjustmentModalView modalView) {
+                            BalanceAdjustmentModalView modalView, MoneySubProfitLossService moneySubProfitLossService) {
         this.paymentService = paymentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -51,6 +54,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         this.moneySubCashFlowService = moneySubCashFlowService;
         this.balanceAdjustmentService = balanceAdjustmentService;
         this.modalView = modalView;
+        this.moneySubProfitLossService = moneySubProfitLossService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -91,7 +95,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Прибыли и убытки":
                     div.removeAll();
-                    div.add(new MoneySubProfitLossView());
+                    div.add(new MoneySubProfitLossView(moneySubProfitLossService, paymentModalWin));
                     break;
                 case "Взаиморасчеты":
                     div.removeAll();
@@ -99,7 +103,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Корректировки":
                     div.removeAll();
-                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService,companyService,contractorService, notifications, modalView));
+                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService, companyService, contractorService, notifications, modalView));
                     break;
             }
         });
