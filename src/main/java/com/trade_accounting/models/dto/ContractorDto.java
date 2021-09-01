@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContractorDto {
+
     private Long id;
     private String name;
     private String sortNumber;
@@ -18,12 +19,33 @@ public class ContractorDto {
     private String fax;
     private String email;
 
-    @EqualsAndHashCode.Exclude
-    private AddressDto addressDto;
+    private Long addressId;
 
     private String commentToAddress;
     private String comment;
     private String discountCardNumber;
+
+    private List<Long> contactIds;
+    private Long contractorGroupId;
+    private Long typeOfPriceId;
+    private List<Long> bankAccountIds;
+    private Long legalDetailId;
+    private Long contractorStatusId;
+    private Long accessParametersId;
+
+//    private Long id;
+//    private String name;
+//    private String sortNumber;
+//    private String phone;
+//    private String fax;
+//    private String email;
+
+//    @EqualsAndHashCode.Exclude
+//    private AddressDto addressDto;
+
+//    private String commentToAddress;
+//    private String comment;
+//    private String discountCardNumber;
 
     @EqualsAndHashCode.Exclude
     private List<ContactDto> contactDto;
