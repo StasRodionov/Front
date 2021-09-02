@@ -12,17 +12,16 @@ import com.trade_accounting.models.dto.DepartmentDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
-import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.vaadin.flow.component.Text;
@@ -48,7 +47,6 @@ import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.function.ValueProvider;
-import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -179,7 +177,6 @@ public class ContractorModalWindow extends Dialog {
         this.departmentService = departmentService;
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
-     //   legalDetailDto = legalDetailService.getById(contractorDto.getLegalDetailId())
         legalDetailDto = null;
 
         setCloseOnOutsideClick(true);
@@ -196,7 +193,6 @@ public class ContractorModalWindow extends Dialog {
         ));
         commentToAddressField.setValue(getFieldValueNotNull(contractorDto.getCommentToAddress()));
         commentField.setValue(getFieldValueNotNull(contractorDto.getComment()));
-        //physicalAddressBlock = new AddressBlock(contractorDto::getAddressDto);
         physicalAddressBlock = new AddressBlock(() -> addressService.getById(contractorDto.getAddressId()));
         if (legalDetailDto == null) {
             legalAddressBlock = new AddressBlock(null);
@@ -221,7 +217,6 @@ public class ContractorModalWindow extends Dialog {
 
     private String getAddress(ContractorDto contractorDto) {
         if (contractorDto.getId() != null) {
-            //return contractorService.getById(contractorDto.getId()).getAddressDto().getAnother();
             return addressService.getById(contractorDto.getAddressId()).getAnother();
         } else {
             return "";
@@ -237,7 +232,6 @@ public class ContractorModalWindow extends Dialog {
     }
 
     public void setContractorDataForEdit(ContractorDto contractorDto) {
-       //if (contractorDto.getContractorGroupDto().getName() != null) {
         if (contractorGroupService.getById(contractorDto.getContractorGroupId()).getName() != null) {
                 contractorGroupDtoSelect.setValue(contractorGroupService.getById(contractorDto.getContractorGroupId()));
         }
@@ -398,12 +392,6 @@ public class ContractorModalWindow extends Dialog {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.add(getAddBankAccountButton(verticalLayout));
         if (contractorDto.getId() != null) {
-//            List<BankAccountDto> bankAccountDtos = contractorService
-//                    .getById(contractorDto.getId()).getBankAccountDto();
-//            if (bankAccountDtos != null) {
-//                bankAccountDtos.forEach(bankAccountDto -> showBankAccount(bankAccountDto, verticalLayout));
-//            }
-
             List<Long> bankAccountDtosId =
                     contractorDto.getBankAccountIds();
             if (bankAccountDtosId != null) {
@@ -700,7 +688,7 @@ public class ContractorModalWindow extends Dialog {
         contractorGroupDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(contractorGroupDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorGroupDto");
+                .bind("contractorGroupId");
         Label label = new Label("Группы");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorGroupDtoSelect);
@@ -721,7 +709,7 @@ public class ContractorModalWindow extends Dialog {
         statusDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(statusDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorStatusDto");
+                .bind("contractorStatusId");
         Label label = new Label("Статус");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, statusDtoSelect);
@@ -779,7 +767,7 @@ public class ContractorModalWindow extends Dialog {
         contractorGroupDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(contractorGroupDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorGroupDto");
+                .bind("contractorGroupId");
         Label label = new Label("Группы");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorGroupDtoSelect);
@@ -797,7 +785,7 @@ public class ContractorModalWindow extends Dialog {
         typeOfPriceDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(typeOfPriceDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("typeOfPriceDto");
+                .bind("typeOfPriceId");
         Label label = new Label("Цены");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, typeOfPriceDtoSelect);
@@ -1017,7 +1005,6 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-       //contractorDto.setAddressDto(AddressDto.builder().another(addressField.getValue()).build());
         contractorDto.setAddressId(AddressDto.builder().another(addressField.getValue()).build().getId());
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
@@ -1027,10 +1014,6 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setAccessParametersId(AccessParametersDto.builder()
                 .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
                 .employeeId(employeeDtoSelect.getValue().getId()).build().getId());
-//        contractorDto.setContractorStatusDto(statusDtoSelect.getValue());
-//        contractorDto.setAccessParametersDto(AccessParametersDto.builder()
-//                .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
-//                .employeeId(employeeDtoSelect.getValue().getId()).build());
 
         List<ContactDto> newContactDtoList = new ArrayList<>();
         List<Long> newBankAccountIdsList = new ArrayList<>();
@@ -1046,21 +1029,9 @@ public class ContractorModalWindow extends Dialog {
                     .house(physicalAddressBlock.getHouse())
                     .apartment(physicalAddressBlock.getApartment())
                     .build().getId());
-//            contractorDto.setAddressDto(AddressDto.builder()
-//                    .id(addressId)
-//                    .index(physicalAddressBlock.getIndex())
-//                    .country(physicalAddressBlock.getCountry())
-//                    .region(physicalAddressBlock.getRegion())
-//                    .city(physicalAddressBlock.getCity())
-//                    .street(physicalAddressBlock.getStreet())
-//                    .house(physicalAddressBlock.getHouse())
-//                    .apartment(physicalAddressBlock.getApartment())
-//                    .build());
-            //contractorDto.getLegalDetailId();
             contractorDto.setLegalDetailId(legalDetailDtoSelect.getValue().getId());
 
             contractorDto.getContactIds().forEach(contactId -> {
-                //Long contactId = contact.getId();
 
                 newContactDtoList.add(ContactDto.builder().id(contactId)
                         .fullName(existContactTextFields.get(contactId).get(0).getValue())
@@ -1079,10 +1050,7 @@ public class ContractorModalWindow extends Dialog {
                         .comment(contact.get(4).getValue())
                         .build());
             });
-            //contractorDto.setContactDto(newContactDtoList);
-
             contractorDto.getBankAccountIds().forEach(bankAccountId -> {
-                //Long bankAccountId = bankAccount.getId();
 
                 newBankAccountIdsList.add(BankAccountDto.builder().id(bankAccountId)
                         .rcbic(existBankAccountTextFields.get(bankAccountId).get(0).getValue())
@@ -1101,7 +1069,6 @@ public class ContractorModalWindow extends Dialog {
                         .account(bankAccount.get(4).getValue())
                         .build().getId());
             });
-            //contractorDto.setBankAccountDto(newBankAccountDtoList);
             contractorDto.setBankAccountIds(newBankAccountIdsList);
 
             contractorDto.setContractorGroupId(contractorGroupDtoSelect.getValue().getId());
@@ -1116,15 +1083,6 @@ public class ContractorModalWindow extends Dialog {
                     .house(physicalAddressBlock.getHouse())
                     .apartment(physicalAddressBlock.getApartment())
                     .build().getId());
-//            contractorDto.setAddressDto(AddressDto.builder()
-//                    .index(physicalAddressBlock.getIndex())
-//                    .country(physicalAddressBlock.getCountry())
-//                    .region(physicalAddressBlock.getRegion())
-//                    .city(physicalAddressBlock.getCity())
-//                    .street(physicalAddressBlock.getStreet())
-//                    .house(physicalAddressBlock.getHouse())
-//                    .apartment(physicalAddressBlock.getApartment())
-//                    .build());
 
             newContactTextFields.forEach(contact -> {
                 newContactDtoList.add(ContactDto.builder().fullName(contact.get(0).getValue())
@@ -1134,7 +1092,6 @@ public class ContractorModalWindow extends Dialog {
                         .comment(contact.get(4).getValue())
                         .build());
             });
-            //contractorDto.setContactDto(newContactDtoList);
 
             newBankAccountTextFields.forEach(bankAccount -> {
                 newBankAccountIdsList.add(BankAccountDto.builder()
@@ -1146,13 +1103,9 @@ public class ContractorModalWindow extends Dialog {
                         .build().getId());
             });
             contractorDto.setBankAccountIds(newBankAccountIdsList);
-            //contractorDto.setBankAccountIds(newBankAccountDtoList);
             contractorDto.setLegalDetailId(legalDetailDto.getId());
-         //   contractorDto.setLegalDetailDto(legalDetailDto);
             contractorDto.setContractorGroupId(contractorGroupDtoSelect.getValue().getId());
-          //  contractorDto.setContractorGroupDto(contractorGroupDtoSelect.getValue());
             contractorDto.setTypeOfPriceId(typeOfPriceDtoSelect.getValue().getId());
-            //contractorDto.setTypeOfPriceDto(typeOfPriceDtoSelect.getValue());
         }
     }
 

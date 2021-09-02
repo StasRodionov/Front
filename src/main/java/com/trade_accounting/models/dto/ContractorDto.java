@@ -47,22 +47,22 @@ public class ContractorDto {
 //    private String comment;
 //    private String discountCardNumber;
 
-    @EqualsAndHashCode.Exclude
-    private List<ContactDto> contactDto;
-    @EqualsAndHashCode.Exclude
-    private ContractorGroupDto contractorGroupDto;
-    @EqualsAndHashCode.Exclude
-    private TypeOfPriceDto typeOfPriceDto;
+//    @EqualsAndHashCode.Exclude
+//    private List<ContactDto> contactDto;
+//    @EqualsAndHashCode.Exclude
+//    private ContractorGroupDto contractorGroupDto;
+//    @EqualsAndHashCode.Exclude
+//    private TypeOfPriceDto typeOfPriceDto;
     @EqualsAndHashCode.Exclude
     private EmployeeDto employeeDto;
     @EqualsAndHashCode.Exclude
     private DepartmentDto departmentDto;
-    @EqualsAndHashCode.Exclude
-    private List<BankAccountDto> bankAccountDto;
-    @EqualsAndHashCode.Exclude
-    private LegalDetailDto legalDetailDto;
-    @EqualsAndHashCode.Exclude
-    private ContractorStatusDto contractorStatusDto;
-    @EqualsAndHashCode.Exclude
-    private AccessParametersDto accessParametersDto;
+//    @EqualsAndHashCode.Exclude
+//    private List<BankAccountDto> bankAccountDto;
+//    @EqualsAndHashCode.Exclude
+//    private LegalDetailDto legalDetailDto;
+//    @EqualsAndHashCode.Exclude
+//    private ContractorStatusDto contractorStatusDto;
+//    @EqualsAndHashCode.Exclude
+//    private AccessParametersDto accessParametersDto;
 }
