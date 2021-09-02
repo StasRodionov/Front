@@ -127,7 +127,7 @@ public class GoodsModalWindow extends Dialog {
         productDtoBinder.forField(itemNumber)
                 .withValidator(Objects::nonNull, "Введите артикул")
                 .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(ProductDto::getItemNumber, ProductDto::setItemNumber);
+                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), ProductDto::setItemNumber);
         itemNumber.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Артикул", itemNumber));
 
@@ -206,7 +206,7 @@ public class GoodsModalWindow extends Dialog {
         productDtoBinder.forField(minimumBalance)
                 .withValidator(Objects::nonNull, "Введите артикул")
                 .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(ProductDto::getItemNumber, ProductDto::setItemNumber);
+                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), ProductDto::setItemNumber);
         minimumBalance.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Артикул", minimumBalance));
 
@@ -239,14 +239,15 @@ public class GoodsModalWindow extends Dialog {
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
         countryOriginField.setValue(productDto.getCountryOrigin());
-        minimumBalance.setValue(productDto.getMinimumBalance());
+        minimumBalance.setValue(BigDecimal.valueOf(productDto.getMinimumBalance()));
         saleTax.setValue(productDto.getSaleTax());
-        itemNumber.setValue(productDto.getItemNumber());
-        unitDtoComboBox.setValue(productDto.getUnitDto());
-        contractorDtoComboBox.setValue(productDto.getContractorDto());
-        taxSystemDtoComboBox.setValue(productDto.getTaxSystemDto());
-        productGroupDtoComboBox.setValue(productDto.getProductGroupDto());
-        attributeOfCalculationObjectComboBox.setValue(productDto.getAttributeOfCalculationObjectDto());
+        itemNumber.setValue(BigDecimal.valueOf(productDto.getItemNumber()));
+        unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
+        contractorDtoComboBox.setValue(contractorService.getById(productDto.getContractorId()));
+        taxSystemDtoComboBox.setValue(taxSystemService.getById(productDto.getTaxSystemId()));
+        productGroupDtoComboBox.setValue(productGroupService.getById(productDto.getProductGroupId()));
+        attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
+                .getById(productDto.getAttributeOfCalculationObjectId()));
         imageDtoList = productDto.getImageDtos();
         for (ImageDto imageDto : imageDtoList) {
             StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
@@ -423,17 +424,17 @@ public class GoodsModalWindow extends Dialog {
         productDto.setName(nameTextField.getValue());
         productDto.setSaleTax(saleTax.getValue());
         productDto.setWeight(weightNumberField.getValue());
-        productDto.setItemNumber(itemNumber.getValue());
+        productDto.setItemNumber(itemNumber.getValue().intValue());
         productDto.setVolume(volumeNumberField.getValue());
-        productDto.setMinimumBalance(minimumBalance.getValue());
+        productDto.setMinimumBalance(minimumBalance.getValue().intValue());
         productDto.setPurchasePrice(purchasePriceNumberField.getValue());
         productDto.setDescription(descriptionField.getValue());
-        productDto.setUnitDto(unitDtoComboBox.getValue());
-        productDto.setContractorDto(contractorDtoComboBox.getValue());
-        productDto.setTaxSystemDto(taxSystemDtoComboBox.getValue());
-        productDto.setProductGroupDto(productGroupDtoComboBox.getValue());
+        productDto.setUnitId(unitDtoComboBox.getValue().getId());
+        productDto.setContractorId(contractorDtoComboBox.getValue().getId());
+        productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
+        productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
         productDto.setCountryOrigin(countryOriginField.getValue());
-        productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
+        productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         productDto.setImageDtos(imageDtoList);
 
         if (productDto.getProductPriceDtos() == null) {

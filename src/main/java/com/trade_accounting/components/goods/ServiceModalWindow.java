@@ -33,8 +33,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
@@ -46,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -203,11 +200,12 @@ public class ServiceModalWindow extends Dialog {
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
 
-        unitDtoComboBox.setValue(productDto.getUnitDto());
-        contractorDtoComboBox.setValue(productDto.getContractorDto());
-        taxSystemDtoComboBox.setValue(productDto.getTaxSystemDto());
-        productGroupDtoComboBox.setValue(productDto.getProductGroupDto());
-        attributeOfCalculationObjectComboBox.setValue(productDto.getAttributeOfCalculationObjectDto());
+        unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
+        contractorDtoComboBox.setValue(contractorService.getById(productDto.getContractorId()));
+        taxSystemDtoComboBox.setValue(taxSystemService.getById(productDto.getTaxSystemId()));
+        productGroupDtoComboBox.setValue(productGroupService.getById(productDto.getProductGroupId()));
+        attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
+                .getById(productDto.getAttributeOfCalculationObjectId()));
         imageDtoList = productDto.getImageDtos();
         for (ImageDto imageDto : imageDtoList) {
             StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
@@ -382,11 +380,11 @@ public class ServiceModalWindow extends Dialog {
         productDto.setVolume(volumeNumberField.getValue());
         productDto.setPurchasePrice(purchasePriceNumberField.getValue());
         productDto.setDescription(descriptionField.getValue());
-        productDto.setUnitDto(unitDtoComboBox.getValue());
-        productDto.setContractorDto(contractorDtoComboBox.getValue());
-        productDto.setTaxSystemDto(taxSystemDtoComboBox.getValue());
-        productDto.setProductGroupDto(productGroupDtoComboBox.getValue());
-        productDto.setAttributeOfCalculationObjectDto((attributeOfCalculationObjectComboBox.getValue()));
+        productDto.setUnitId(unitDtoComboBox.getValue().getId());
+        productDto.setContractorId(contractorDtoComboBox.getValue().getId());
+        productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
+        productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
+        productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         productDto.setImageDtos(imageDtoList);
 
         if (productDto.getProductPriceDtos() == null) {
