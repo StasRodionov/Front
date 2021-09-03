@@ -1,10 +1,8 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.MoneySubCashFlowDto;
-import com.trade_accounting.models.dto.PaymentDto;
 import com.trade_accounting.services.interfaces.MoneySubCashFlowService;
 import com.trade_accounting.services.interfaces.api.MoneySubCashFlowApi;
-import com.trade_accounting.services.interfaces.api.PaymentApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

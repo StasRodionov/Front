@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.PositionDto;
 import retrofit2.Call;
 import retrofit2.http.Body;

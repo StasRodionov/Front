@@ -1,11 +1,8 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.AddressDto;
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.services.interfaces.AddressService;
-import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.api.AddressApi;
-import com.trade_accounting.services.interfaces.api.CompanyApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,10 +10,6 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @Slf4j
 @Service

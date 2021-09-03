@@ -1,7 +1,6 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.PayoutDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import org.apache.poi.ss.usermodel.Cell;

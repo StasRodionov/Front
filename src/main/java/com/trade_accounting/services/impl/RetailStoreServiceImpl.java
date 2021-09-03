@@ -1,6 +1,5 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.ProjectDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.trade_accounting.services.interfaces.api.RetailStoreApi;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -22,8 +22,8 @@ import java.util.Map;
  */
 public class LazyPaginator<T> extends HorizontalLayout {
     private final int itemsPerPage;
-    private int numberOfPages;
-    private int currentPage = 1;
+    private int numberOfPages = 2;
+    private int currentPage;
 
     private final Grid<T> grid;
     private PageDto<T> pageData;
@@ -160,14 +160,11 @@ public class LazyPaginator<T> extends HorizontalLayout {
      * @param saveCurrentPage save current page flag
      */
     public void updateData(boolean saveCurrentPage){
-        if (saveCurrentPage && this.numberOfPages >= currentPage) {
-            this.updatePageData();
-            setCurrentPage(currentPage);
-        } else {
+        if (!saveCurrentPage || this.numberOfPages < currentPage) {
             currentPage = 1;
-            this.updatePageData();
-            setCurrentPage(currentPage);
         }
+        this.updatePageData();
+        setCurrentPage(currentPage);
         reloadGrid();
     }
 

@@ -223,9 +223,7 @@ public class GoodsView extends VerticalLayout {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> {
-            dialog.close();
-        });
+        Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
         dialog.add(new Text("В разделе представлены все ваши товары, услуги и комплекты.\n" +
@@ -237,9 +235,7 @@ public class GoodsView extends VerticalLayout {
         dialog.setWidth("500px");
         dialog.setHeight("300px");
         buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, () -> {
-            dialog.close();
-        }, Key.ESCAPE);
+        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
         dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }

@@ -149,7 +149,7 @@ public class ServiceModalWindow extends Dialog {
 
         productDtoBinder.forField(unitDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("unitDto");
+                .bind("unitId");
         unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
         add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
 
@@ -161,19 +161,19 @@ public class ServiceModalWindow extends Dialog {
 
         productDtoBinder.forField(taxSystemDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("taxSystemDto");
+                .bind("taxSystemId");
         taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
         add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
 
         productDtoBinder.forField(productGroupDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("productGroupDto");
+                .bind("productGroupId");
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
 
         productDtoBinder.forField(attributeOfCalculationObjectComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("attributeOfCalculationObjectDto");
+                .bind("attributeOfCalculationObjectId");
         attributeOfCalculationObjectComboBox.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
         add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
 
@@ -288,9 +288,11 @@ public class ServiceModalWindow extends Dialog {
     }
 
     private void initTypeOfPriceFrom(List<ProductPriceDto> list) {
-        list.forEach(productPriceDto -> {
-            bigDecimalFields.get(productPriceDto.getTypeOfPriceDto()).setValue(productPriceDto.getValue());
-        });
+        list.forEach(productPriceDto ->
+                bigDecimalFields.get(productPriceDto
+                        .getTypeOfPriceDto())
+                        .setValue(productPriceDto
+                                .getValue()));
     }
 
 //    private Component getImageButton() {

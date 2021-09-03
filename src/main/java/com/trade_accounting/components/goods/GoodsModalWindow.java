@@ -127,7 +127,7 @@ public class GoodsModalWindow extends Dialog {
         productDtoBinder.forField(itemNumber)
                 .withValidator(Objects::nonNull, "Введите артикул")
                 .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), ProductDto::setItemNumber);
+                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), (productDto1, itemNumber1) -> productDto1.setItemNumber(itemNumber1.intValue()));
         itemNumber.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Артикул", itemNumber));
 
@@ -173,19 +173,19 @@ public class GoodsModalWindow extends Dialog {
 
         productDtoBinder.forField(unitDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("unitDto");
+                .bind("unitId");
         unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
         add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
 
         productDtoBinder.forField(contractorDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorDto");
+                .bind("contractorId");
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
         add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
 
         productDtoBinder.forField(taxSystemDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("taxSystemDto");
+                .bind("taxSystemId");
         taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
         add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
 
@@ -198,7 +198,7 @@ public class GoodsModalWindow extends Dialog {
 
         productDtoBinder.forField(productGroupDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("productGroupDto");
+                .bind("productGroupId");
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
 
@@ -206,13 +206,13 @@ public class GoodsModalWindow extends Dialog {
         productDtoBinder.forField(minimumBalance)
                 .withValidator(Objects::nonNull, "Введите артикул")
                 .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), ProductDto::setItemNumber);
+                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), (productDto1, itemNumber1) -> productDto1.setItemNumber(itemNumber1.intValue()));
         minimumBalance.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Артикул", minimumBalance));
 
         productDtoBinder.forField(attributeOfCalculationObjectComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("attributeOfCalculationObjectDto");
+                .bind("attributeOfCalculationObjectId");
         attributeOfCalculationObjectComboBox.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
         add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
 
@@ -334,9 +334,11 @@ public class GoodsModalWindow extends Dialog {
     }
 
     private void initTypeOfPriceFrom(List<ProductPriceDto> list) {
-        list.forEach(productPriceDto -> {
-            bigDecimalFields.get(productPriceDto.getTypeOfPriceDto()).setValue(productPriceDto.getValue());
-        });
+        list.forEach(productPriceDto ->
+                bigDecimalFields.get(productPriceDto
+                        .getTypeOfPriceDto())
+                        .setValue(productPriceDto
+                                .getValue()));
     }
 
     private Component getImageButton() {

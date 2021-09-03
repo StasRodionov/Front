@@ -10,8 +10,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 
-import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
 import static com.trade_accounting.config.SecurityConstants.EXPIRATION_TIME;
+import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
 
 @Route(value = "login", layout = AppView.class)
 public class LoginView extends VerticalLayout {
