@@ -213,7 +213,7 @@ public class ServiceModalWindow extends Dialog {
             image.setHeight("100px");
             imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
         }
-        initTypeOfPriceFrom(productDto.getProductPriceDtos());
+//        initTypeOfPriceFrom(productDto.getProductPriceIds());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
 
         super.open();
@@ -287,13 +287,13 @@ public class ServiceModalWindow extends Dialog {
         return verticalLayout;
     }
 
-    private void initTypeOfPriceFrom(List<ProductPriceDto> list) {
-        list.forEach(productPriceDto ->
-                bigDecimalFields.get(productPriceDto
-                        .getTypeOfPriceDto())
-                        .setValue(productPriceDto
-                                .getValue()));
-    }
+//    private void initTypeOfPriceFrom(List<Long> list) {
+//        list.forEach(productPriceId ->
+//                bigDecimalFields.get(productPriceId
+//                        .getTypeOfPrice())
+//                        .setValue(productPriceId
+//                                .getValue()));
+//    }
 
 //    private Component getImageButton() {
 //        Button imageButton = new Button("Добавить фото");
@@ -389,25 +389,25 @@ public class ServiceModalWindow extends Dialog {
         productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         productDto.setImageDtos(imageDtoList);
 
-        if (productDto.getProductPriceDtos() == null) {
-            productDto.setProductPriceDtos(new ArrayList<>());
+        if (productDto.getProductPriceIds() == null) {
+            productDto.setProductPriceIds(new ArrayList<>());
         }
 
         bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
             AtomicBoolean b = new AtomicBoolean(true);
-            productDto.getProductPriceDtos().forEach(productPriceDto -> {
-                if (productPriceDto.getTypeOfPriceDto().equals(typeOfPriceDto)) {
+            productDto.getProductPriceIds().forEach(productPriceId -> {
+                if (productPriceId.equals(typeOfPriceDto.getId())) {
 
-                    productPriceDto.setValue(bigDecimalField.getValue());
+//                    productPriceDto.setValue(bigDecimalField.getValue());
 
                     b.set(false);
                 }
             });
             if (b.get()) {
                 ProductPriceDto productPriceDto = new ProductPriceDto();
-                productPriceDto.setTypeOfPriceDto(typeOfPriceDto);
+                productPriceDto.setTypeOfPriceId(typeOfPriceDto.getId());
                 productPriceDto.setValue(bigDecimalField.getValue());
-                productDto.getProductPriceDtos().add(productPriceDto);
+                productDto.getProductPriceIds().add(productPriceDto.getId());
             }
         });
 

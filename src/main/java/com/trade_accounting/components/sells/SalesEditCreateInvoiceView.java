@@ -437,11 +437,11 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductDto(productDto);
         invoiceProductDto.setAmount(BigDecimal.ONE);
-        invoiceProductDto.setPrice(
-                getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceDtos(),
-                        contractorSelect.getValue().getTypeOfPriceDto().getId()
-                )
-        );
+//        invoiceProductDto.setPrice(
+//                getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds(),
+//                        contractorSelect.getValue().getTypeOfPriceDto().getId()
+//                )
+//        );
         if (!isProductInList(productDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
@@ -449,17 +449,17 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
     }
 
-    private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
-        Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
-                productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
-
-        //TODO
-        // Когда переделают инициализвцию продуктов (у которых есть список ProductPrice) на бэке
-        // использовать return который закоментирован
-        // return productPrice.get().getValue();
-
-        return productPrice.isPresent() ? productPrice.get().getValue() : BigDecimal.ZERO;
-    }
+//    private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
+//        Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
+//                productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
+//
+//        //TODO
+//        // Когда переделают инициализвцию продуктов (у которых есть список ProductPrice) на бэке
+//        // использовать return который закоментирован
+//        // return productPrice.get().getValue();
+//
+//        return productPrice.isPresent() ? productPrice.get().getValue() : BigDecimal.ZERO;
+//    }
 
     private void deleteProduct(Long id) {
         InvoiceProductDto found = new InvoiceProductDto();
@@ -602,12 +602,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private void recalculateProductPrices() {
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            invoiceProductDto.setPrice(
-                    getPriceFromProductPriceByTypeOfPriceId(
-                            invoiceProductDto.getProductDto().getProductPriceDtos(),
-                            contractorSelect.getValue().getTypeOfPriceDto().getId()
-                    )
-            );
+//            invoiceProductDto.setPrice(
+//                    getPriceFromProductPriceByTypeOfPriceId(
+//                            invoiceProductDto.getProductDto().getProductPriceDtos(),
+//                            contractorSelect.getValue().getTypeOfPriceDto().getId()
+//                    )
+//            );
             grid.setItems(tempInvoiceProductDtoList);
             setTotalPrice();
         }

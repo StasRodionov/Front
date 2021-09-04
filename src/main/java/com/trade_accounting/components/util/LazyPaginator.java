@@ -52,7 +52,7 @@ public class LazyPaginator<T> extends HorizontalLayout {
         this.pageableService = pageableService;
         this.itemsPerPage = itemsPerPage;
         this.filterData.put("search", "");
-        this.updatePageData();
+//        this.updatePageData();
         grid.setPageSize(itemsPerPage);
         grid.addSortListener(this::sort);
         configureButton();
@@ -103,7 +103,7 @@ public class LazyPaginator<T> extends HorizontalLayout {
 
     private void updatePageData() {
         this.pageData = pageableService.getPage(this.filterData, this.sortParams, currentPage, itemsPerPage);
-        this.numberOfPages = pageData.getTotalPages();
+        this.numberOfPages = 10;
         this.rowCount = pageData.getTotalElements();
     }
 

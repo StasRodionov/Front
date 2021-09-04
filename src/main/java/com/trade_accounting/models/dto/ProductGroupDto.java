@@ -15,7 +15,7 @@ public class ProductGroupDto {
 
     private String sortNumber;
 
-    private Boolean serviceGroup;
+    private Boolean serviceGroup = false;
 
     private Long parentId;
 }

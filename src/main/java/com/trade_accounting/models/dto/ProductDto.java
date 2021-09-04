@@ -33,7 +33,7 @@ public class ProductDto {
 
     private Long contractorId;
 
-    private List<ProductPriceDto> productPriceDtos;
+    private List<Long> productPriceIds;
 
     private Long taxSystemId;
 

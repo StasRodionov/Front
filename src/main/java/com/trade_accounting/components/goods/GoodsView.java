@@ -62,7 +62,7 @@ public class GoodsView extends VerticalLayout {
     private final ServiceModalWindow serviceModalWindow;
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridFilter<ProductDto> filter;
-    private final LazyPaginator<ProductDto> lazyPaginator;
+//    private final LazyPaginator<ProductDto> lazyPaginator;
     private final Grid<ProductDto> grid;
 
     @Autowired
@@ -80,13 +80,13 @@ public class GoodsView extends VerticalLayout {
         this.grid = getGrid();
 
         this.filter = new GridFilter<>(grid);
-        this.lazyPaginator = new LazyPaginator<>(grid, productService, 50, filter);
-        setHorizontalComponentAlignment(Alignment.CENTER, lazyPaginator);
-        add(getUpperLayout(), filter, getMiddleLayout(grid), lazyPaginator);
+//        this.lazyPaginator = new LazyPaginator<>(grid, productService, 50, filter);
+        setHorizontalComponentAlignment(Alignment.CENTER);
+        add(getUpperLayout(), filter, getMiddleLayout(grid));
     }
 
     public void updateData() {
-        lazyPaginator.updateData(false);
+//        lazyPaginator.updateData(false);
         updateTreeGrid(productGroupService.getAll());
     }
 
@@ -176,7 +176,7 @@ public class GoodsView extends VerticalLayout {
         closeButton.addClickListener(event -> {
             closeButton.setVisible(false);
             label.setText("");
-            lazyPaginator.updateData(false);
+//            lazyPaginator.updateData(false);
             treeGridLocal.deselectAll();
         });
         cell.setComponent(horizontalLayout);
@@ -184,7 +184,7 @@ public class GoodsView extends VerticalLayout {
         treeGridLocal.addSelectionListener(event -> {
             Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
-                lazyPaginator.updateData(false);
+//                lazyPaginator.updateData(false);
                 label.setText(optional.get().getName());
                 closeButton.setVisible(true);
             }
@@ -290,7 +290,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     private void updateList(TextField text) {
-        lazyPaginator.updateData(false);
+//        lazyPaginator.updateData(false);
     }
 
     private H2 title() {
