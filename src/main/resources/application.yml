@@ -102,4 +102,6 @@ movement_url:  /api/movement
 movement_product_url:  /api/movement/product
 
 moneySubProfitLoss_url: /api/moneysubprofitloss
+
+productprice_url: /api/productprice
 #debug: true

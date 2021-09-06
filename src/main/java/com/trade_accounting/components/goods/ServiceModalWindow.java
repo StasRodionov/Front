@@ -116,21 +116,21 @@ public class ServiceModalWindow extends Dialog {
         nameTextField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Наименование", nameTextField));
 
-//        weightNumberField.setPlaceholder("Введите вес");
-//        productDtoBinder.forField(weightNumberField)
-//                .withValidator(Objects::nonNull, "Введите вес")
-//                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
-//                .bind(ProductDto::getWeight, ProductDto::setWeight);
-//        weightNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-//        add(getHorizontalLayout("Вес", weightNumberField));
+        weightNumberField.setPlaceholder("Введите вес");
+        productDtoBinder.forField(weightNumberField)
+                .withValidator(Objects::nonNull, "Введите вес")
+                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
+                .bind(ProductDto::getWeight, ProductDto::setWeight);
+        weightNumberField.setValueChangeMode(ValueChangeMode.EAGER);
+        add(getHorizontalLayout("Вес", weightNumberField));
 
-//        volumeNumberField.setPlaceholder("Введите объём");
-//        productDtoBinder.forField(volumeNumberField)
-//                .withValidator(Objects::nonNull, "Введите объём")
-//                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
-//                .bind(ProductDto::getVolume, ProductDto::setVolume);
-//        volumeNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-//        add(getHorizontalLayout("Объем", volumeNumberField));
+        volumeNumberField.setPlaceholder("Введите объём");
+        productDtoBinder.forField(volumeNumberField)
+                .withValidator(Objects::nonNull, "Введите объём")
+                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
+                .bind(ProductDto::getVolume, ProductDto::setVolume);
+        volumeNumberField.setValueChangeMode(ValueChangeMode.EAGER);
+        add(getHorizontalLayout("Объем", volumeNumberField));
 
         purchasePriceNumberField.setPlaceholder("Введите закупочную цену");
         productDtoBinder.forField(purchasePriceNumberField)

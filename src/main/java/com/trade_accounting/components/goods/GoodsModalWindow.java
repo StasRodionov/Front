@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectServ
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.ProductGroupService;
+import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TaxSystemService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
@@ -60,6 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class GoodsModalWindow extends Dialog {
 
+    private final ProductPriceService productPriceService;
     private final UnitService unitService;
     private final ContractorService contractorService;
     private final TaxSystemService taxSystemService;
@@ -94,7 +96,7 @@ public class GoodsModalWindow extends Dialog {
     private final Binder<ProductPriceDto> priceDtoBinder = new Binder<>(ProductPriceDto.class);
 
     @Autowired
-    public GoodsModalWindow(UnitService unitService,
+    public GoodsModalWindow(ProductPriceService productPriceService, UnitService unitService,
                             ContractorService contractorService,
                             TaxSystemService taxSystemService,
                             ProductService productService,
@@ -102,6 +104,7 @@ public class GoodsModalWindow extends Dialog {
                             ProductGroupService productGroupService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService) {
+        this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
         this.taxSystemService = taxSystemService;
@@ -333,13 +336,13 @@ public class GoodsModalWindow extends Dialog {
         return verticalLayout;
     }
 
-//    private void initTypeOfPriceFrom(List<ProductPriceDto> list) {
-//        list.forEach(productPriceDto ->
-//                bigDecimalFields.get(productPriceDto
-//                        .getTypeOfPriceDto())
-//                        .setValue(productPriceDto
-//                                .getValue()));
-//    }
+    private void initTypeOfPriceFrom(List<ProductPriceDto> list) {
+        list.forEach(productPriceDto ->
+                bigDecimalFields.get(productPriceDto
+                        .getTypeOfPriceId())
+                        .setValue(productPriceDto
+                                .getValue()));
+    }
 
     private Component getImageButton() {
         Button imageButton = new Button("Добавить фото");
