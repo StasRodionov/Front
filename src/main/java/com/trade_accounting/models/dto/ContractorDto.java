@@ -49,10 +49,10 @@ public class ContractorDto {
 
 //    @EqualsAndHashCode.Exclude
 //    private List<ContactDto> contactDto;
-//    @EqualsAndHashCode.Exclude
-//    private ContractorGroupDto contractorGroupDto;
-//    @EqualsAndHashCode.Exclude
-//    private TypeOfPriceDto typeOfPriceDto;
+    @EqualsAndHashCode.Exclude
+    private ContractorGroupDto contractorGroupDto;
+    @EqualsAndHashCode.Exclude
+    private TypeOfPriceDto typeOfPriceDto;
     @EqualsAndHashCode.Exclude
     private EmployeeDto employeeDto;
     @EqualsAndHashCode.Exclude
@@ -61,8 +61,8 @@ public class ContractorDto {
 //    private List<BankAccountDto> bankAccountDto;
 //    @EqualsAndHashCode.Exclude
 //    private LegalDetailDto legalDetailDto;
-//    @EqualsAndHashCode.Exclude
-//    private ContractorStatusDto contractorStatusDto;
+    @EqualsAndHashCode.Exclude
+    private ContractorStatusDto contractorStatusDto;
 //    @EqualsAndHashCode.Exclude
 //    private AccessParametersDto accessParametersDto;
 }

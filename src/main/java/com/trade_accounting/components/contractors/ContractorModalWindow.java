@@ -16,6 +16,7 @@ import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
+import com.trade_accounting.services.interfaces.ContactService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ContractorStatusService;
@@ -103,6 +104,7 @@ public class ContractorModalWindow extends Dialog {
     private final EmployeeService employeeService;
     private final BankAccountService bankAccountService;
     private final AddressService addressService;
+    private final ContactService contactService;
 
     private AddressDto addressDto;
     private ContractorDto contractorDto;
@@ -165,7 +167,8 @@ public class ContractorModalWindow extends Dialog {
                                  DepartmentService departmentService,
                                  EmployeeService employeeService,
                                  BankAccountService bankAccountService,
-                                 AddressService addressService) {
+                                 AddressService addressService,
+                                 ContactService contactService) {
         this.contractorService = contractorService;
         this.addressService = addressService;
         this.contractorGroupService = contractorGroupService;
@@ -177,6 +180,7 @@ public class ContractorModalWindow extends Dialog {
         this.departmentService = departmentService;
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
+        this.contactService = contactService;
         legalDetailDto = null;
 
         setCloseOnOutsideClick(true);
@@ -688,7 +692,7 @@ public class ContractorModalWindow extends Dialog {
         contractorGroupDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(contractorGroupDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorGroupId");
+                .bind("contractorGroupDto");
         Label label = new Label("Группы");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorGroupDtoSelect);
@@ -709,7 +713,7 @@ public class ContractorModalWindow extends Dialog {
         statusDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(statusDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorStatusId");
+                .bind("contractorStatusDto");
         Label label = new Label("Статус");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, statusDtoSelect);
@@ -767,7 +771,7 @@ public class ContractorModalWindow extends Dialog {
         contractorGroupDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(contractorGroupDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorGroupId");
+                .bind("contractorGroupDto");
         Label label = new Label("Группы");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorGroupDtoSelect);
@@ -785,7 +789,7 @@ public class ContractorModalWindow extends Dialog {
         typeOfPriceDtoSelect.setWidth(FIELD_WIDTH);
         contractorDtoBinder.forField(typeOfPriceDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("typeOfPriceId");
+                .bind("typeOfPriceDto");
         Label label = new Label("Цены");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, typeOfPriceDtoSelect);
@@ -1011,11 +1015,15 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setSortNumber(sortNumberField.getValue());
         contractorDto.setDiscountCardNumber(discountCardField.getValue());
         contractorDto.setContractorStatusId(statusDtoSelect.getValue().getId());
-        contractorDto.setAccessParametersId(AccessParametersDto.builder()
-                .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
-                .employeeId(employeeDtoSelect.getValue().getId()).build().getId());
+//        contractorDto.setAccessParametersId(AccessParametersDto.builder()
+//                .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
+//                .employeeId(employeeDtoSelect.getValue().getId()).build().getId());
+        //для теста... требуется сделать апи и сервис для AccessParameters
+        contractorDto.setAccessParametersId(1L);
 
+        List<Long> newContactDtoListIds = new ArrayList<>();
         List<ContactDto> newContactDtoList = new ArrayList<>();
+
         List<Long> newBankAccountIdsList = new ArrayList<>();
         if (contractorDto.getId() != null) {
             Long addressId = addressService.getById(contractorDto.getAddressId()).getId();
@@ -1074,7 +1082,7 @@ public class ContractorModalWindow extends Dialog {
             contractorDto.setContractorGroupId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.setTypeOfPriceId(typeOfPriceDtoSelect.getValue().getId());
         } else {
-            contractorDto.setAddressId(AddressDto.builder()
+            contractorDto.setAddressId(addressService.create(AddressDto.builder()
                     .index(physicalAddressBlock.getIndex())
                     .country(physicalAddressBlock.getCountry())
                     .region(physicalAddressBlock.getRegion())
@@ -1082,28 +1090,32 @@ public class ContractorModalWindow extends Dialog {
                     .street(physicalAddressBlock.getStreet())
                     .house(physicalAddressBlock.getHouse())
                     .apartment(physicalAddressBlock.getApartment())
-                    .build().getId());
+                    .build()).getId());
+
 
             newContactTextFields.forEach(contact -> {
-                newContactDtoList.add(ContactDto.builder().fullName(contact.get(0).getValue())
+                newContactDtoListIds.add(contactService.create(ContactDto.builder()
+                        .fullName(contact.get(0).getValue())
                         .position(contact.get(1).getValue())
                         .phone(contact.get(2).getValue())
                         .email(contact.get(3).getValue())
                         .comment(contact.get(4).getValue())
-                        .build());
-            });
+                        .build()).getId());
+                      });
+
 
             newBankAccountTextFields.forEach(bankAccount -> {
-                newBankAccountIdsList.add(BankAccountDto.builder()
+                newBankAccountIdsList.add(bankAccountService.create(BankAccountDto.builder()
                         .rcbic(bankAccount.get(0).getValue())
                         .bank(bankAccount.get(1).getValue())
                         .address(bankAccount.get(2).getValue())
                         .correspondentAccount(bankAccount.get(3).getValue())
                         .account(bankAccount.get(4).getValue())
-                        .build().getId());
+                        .build()).getId());
             });
             contractorDto.setBankAccountIds(newBankAccountIdsList);
-            contractorDto.setLegalDetailId(legalDetailDto.getId());
+            contractorDto.setContactIds(newContactDtoListIds);
+            contractorDto.setLegalDetailId(legalDetailService.create(legalDetailDto).getId());
             contractorDto.setContractorGroupId(contractorGroupDtoSelect.getValue().getId());
             contractorDto.setTypeOfPriceId(typeOfPriceDtoSelect.getValue().getId());
         }

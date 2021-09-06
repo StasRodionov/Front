@@ -7,6 +7,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
+import com.trade_accounting.services.interfaces.ContactService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.DepartmentService;
@@ -81,6 +82,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
+    private final ContactService contactService;
 
 
     public ContractorsTabView(Notifications notifications,
@@ -90,7 +92,8 @@ public class ContractorsTabView extends VerticalLayout {
                               TypeOfPriceService typeOfPriceService,
                               LegalDetailService legalDetailService, ContractorStatusService contractorStatusService,
                               DepartmentService departmentService, EmployeeService employeeService,
-                              BankAccountService bankAccountService, AddressService addressService) {
+                              BankAccountService bankAccountService, AddressService addressService,
+                              ContactService contactService) {
         this.notifications = notifications;
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
@@ -102,6 +105,7 @@ public class ContractorsTabView extends VerticalLayout {
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
         this.addressService = addressService;
+        this.contactService = contactService;
         print = selectXlsTemplateButton.addItem("печать");
 
         this.data = getData();
@@ -139,7 +143,8 @@ public class ContractorsTabView extends VerticalLayout {
             ContractorModalWindow addContractorModalWindowUpdate =
                     new ContractorModalWindow(editContractorDto,
                             contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
-                            legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService, addressService);
+                            legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService, addressService,
+                            contactService);
             addContractorModalWindowUpdate.addDetachListener(e -> updateList());
             addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
             addContractorModalWindowUpdate.open();
@@ -151,7 +156,8 @@ public class ContractorsTabView extends VerticalLayout {
         ContractorModalWindow addContractorModalWindowCreate =
                 new ContractorModalWindow(new ContractorDto(),
                         contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
-                        legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService, addressService);
+                        legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService, addressService,
+                        contactService);
         buttonUnit.addClickListener(event -> addContractorModalWindowCreate.open());
         addContractorModalWindowCreate.addDetachListener(event -> updateList());
         return buttonUnit;
@@ -248,6 +254,7 @@ public class ContractorsTabView extends VerticalLayout {
                 paginator.setData(getData());
             }
         });
+
         return valueSelect;
     }
 
