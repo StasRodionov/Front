@@ -5,6 +5,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.InvoiceToBuyerListProductsDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
@@ -55,7 +56,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private final ComboBox<ContractorDto> contractorSelectField;
     private final ComboBox<ContractDto> contractSelectField;
     private final DatePicker plannedDatePaymentField;
-    private final Grid<InvoiceProductDto> grid;
+    private final Grid<InvoiceToBuyerListProductsDto> grid;
     private final TextField commentTextField;
     private final H4 totalPriceField;
     private final H4 ndsPriceField;
@@ -88,7 +89,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         contractSelectField = new ComboBox<>();
         configureContractSelectField();
         plannedDatePaymentField = new DatePicker();
-        grid = new Grid<>(InvoiceProductDto.class, false);
+        grid = new Grid<>(InvoiceToBuyerListProductsDto.class, false);
         configureGrid();
         commentTextField = new TextField();
         configureCommentTextField();
@@ -302,7 +303,13 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addColumn("").setHeader("Наименование").setKey("productName").setId("Наименование");
+        grid.addColumn(InvoiceToBuyerListProductsDto::getProductDto).setHeader("Наименование").setSortable(true).setKey("productName").setId("Наименование");
+        grid.addColumn(InvoiceToBuyerListProductsDto::getAmount).setHeader("Количество").setSortable(true).setKey("productAmount").setId("Количество");
+        grid.addColumn(InvoiceToBuyerListProductsDto::getPrice).setHeader("Цена").setSortable(true).setKey("productPrice").setId("Цена");
+        grid.addColumn(InvoiceToBuyerListProductsDto::getSum).setHeader("Сумма").setSortable(true).setKey("productSum").setId("Сумма");
+        grid.addColumn(InvoiceToBuyerListProductsDto::getPercentNds).setHeader("% НДС").setSortable(true).setKey("productPercentNds").setId("% НДС");
+        grid.addColumn(InvoiceToBuyerListProductsDto::getNds).setHeader("НДС").setSortable(true).setKey("productNds").setId("НДС");
+        grid.addColumn(InvoiceToBuyerListProductsDto::getTotal).setHeader("Всего").setSortable(true).setKey("productTotal").setId("Всего");
     }
 
     private void configureCommentTextField() {
