@@ -1,6 +1,5 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.ContactDto;
 import com.trade_accounting.services.interfaces.ContactService;
 import com.trade_accounting.services.interfaces.api.ContactApi;
@@ -48,23 +47,23 @@ public class ContactServiceImpl implements ContactService {
 
         try {
             this.contactDto=contactDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на создание экземпляра AddressDto");
+            log.info("Успешно выполнен запрос на создание экземпляра ContactDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра AddressDto - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра ContactDto - {}", e);
         }
         return this.contactDto;
     }
 
     @Override
     public void update(ContactDto contactDto) {
-        Call<Void> imageDtoCall = contactApi.update(contactUrl, contactDto);
-        dtoCallExecuteService.callExecuteBodyUpdate(imageDtoCall, ContactDto.class);
+        Call<Void> contactDtoCall = contactApi.update(contactUrl, contactDto);
+        dtoCallExecuteService.callExecuteBodyUpdate(contactDtoCall, ContactDto.class);
     }
 
     @Override
     public void deleteById(Long id) {
-        Call<Void> imageDtoCall = contactApi.deleteById(contactUrl, id);
-        dtoCallExecuteService.callExecuteBodyDelete(imageDtoCall, ContactDto.class, id);
+        Call<Void> contactDtoCall = contactApi.deleteById(contactUrl, id);
+        dtoCallExecuteService.callExecuteBodyDelete(contactDtoCall, ContactDto.class, id);
     }
 
 
