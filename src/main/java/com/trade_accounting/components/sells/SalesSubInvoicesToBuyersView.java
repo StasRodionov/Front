@@ -135,7 +135,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
             salesEditCreateInvoiceView.setUpdateState(false);
             salesEditCreateInvoiceView.setType("RECEIPT");
             salesEditCreateInvoiceView.setLocation("sells");
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/add-new-invoices-to-buyers"));
         });
         return buttonUnit;
     }
