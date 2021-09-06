@@ -4,7 +4,6 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.InvoiceToBuyerListProductsDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -25,8 +24,6 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -102,16 +99,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         add(upperMenu(),
                 formLayout(),
                 grid,
-                horizontalLayoutComment());
-    }
-
-
-
-    //Заголовок
-    private H2 title() {
-        H2 title = new H2("Добавление счета");
-        title.setHeight("2.0em");
-        return title;
+                horizontalLayoutCommentAndTotalPrice());
     }
 
     //Кнопка "Сохранить"
@@ -162,10 +150,12 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         return button;
     }
 
-    //Верхнее меню (title, buttonSave, buttonClose, buttonAddFromDirectory)
+    //Верхнее меню (buttonSave, buttonClose, buttonAddFromDirectory)
     private HorizontalLayout upperMenu() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(title(), buttonSave(), buttonClose(), buttonAddFromDirectory());
+        H2 title = new H2("Добавление счета");
+        title.setHeight("2.0em");
+        horizontalLayout.add(title, buttonSave(), buttonClose(), buttonAddFromDirectory());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
     }
@@ -224,7 +214,8 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         return horizontalLayout;
     }
 
-    private HorizontalLayout horizontalLayoutComment() {
+    //Поля формы (commentTextField, totalPriceField, ndsPriceField)
+    private HorizontalLayout horizontalLayoutCommentAndTotalPrice() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         H4 totalPriceTitle = new H4("Итого:");
         H4 ndsPriceTitle = new H4("НДС:");

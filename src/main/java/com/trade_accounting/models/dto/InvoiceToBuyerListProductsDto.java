@@ -1,3 +1,6 @@
+/*
+Счет покупателю, список товаров
+ */
 package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
