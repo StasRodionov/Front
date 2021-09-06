@@ -15,7 +15,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.UnitService;
+import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -75,7 +75,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
     private final Notifications notifications;
-    private final UnitService unitService;
+    private final TypeOfPriceService typeOfPriceService;
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
@@ -117,7 +117,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService,
                                       Notifications notifications,
-                                      UnitService unitService, SalesChooseGoodsModalWin salesChooseGoodsModalWin
+                                      SalesChooseGoodsModalWin salesChooseGoodsModalWin,
+                                      TypeOfPriceService typeOfPriceService
     ) {
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -125,8 +126,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.notifications = notifications;
-        this.unitService = unitService;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
+        this.typeOfPriceService = typeOfPriceService;
 
         configureRecalculateDialog();
         configureCloseViewDialog();
@@ -166,7 +167,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         grid.addColumn(inPrDto -> inPrDto.getProductDto().getDescription()).setHeader("Описание")
                 .setKey("productDtoDescr").setId("Описание");
         Grid.Column<InvoiceProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
-        grid.addColumn(inPrDto -> unitService.getById(inPrDto.getProductDto().getUnitId()).getFullName()).setHeader("Единицы")
+        grid.addColumn(inPrDto -> inPrDto.getProductDto().getUnitDto().getFullName()).setHeader("Единицы")
                 .setKey("productDtoUnit").setId("Единицы");
         grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
         grid.setHeight("36vh");
@@ -437,11 +438,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductDto(productDto);
         invoiceProductDto.setAmount(BigDecimal.ONE);
-//        invoiceProductDto.setPrice(
-//                getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds(),
-//                        contractorSelect.getValue().getTypeOfPriceDto().getId()
-//                )
-//        );
+        invoiceProductDto.setPrice(
+                getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceDtos(),
+                        typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
+                        //contractorSelect.getValue().getTypeOfPriceDto().getId()
+                )
+        );
         if (!isProductInList(productDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
@@ -449,17 +451,17 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
     }
 
-//    private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
-//        Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
-//                productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
-//
-//        //TODO
-//        // Когда переделают инициализвцию продуктов (у которых есть список ProductPrice) на бэке
-//        // использовать return который закоментирован
-//        // return productPrice.get().getValue();
-//
-//        return productPrice.isPresent() ? productPrice.get().getValue() : BigDecimal.ZERO;
-//    }
+    private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
+        Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
+                productPriceDto.getTypeOfPriceDto().getId().equals(id)).findFirst();
+
+        //TODO
+        // Когда переделают инициализвцию продуктов (у которых есть список ProductPrice) на бэке
+        // использовать return который закоментирован
+        // return productPrice.get().getValue();
+
+        return productPrice.isPresent() ? productPrice.get().getValue() : BigDecimal.ZERO;
+    }
 
     private void deleteProduct(Long id) {
         InvoiceProductDto found = new InvoiceProductDto();
@@ -602,12 +604,13 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private void recalculateProductPrices() {
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-//            invoiceProductDto.setPrice(
-//                    getPriceFromProductPriceByTypeOfPriceId(
-//                            invoiceProductDto.getProductDto().getProductPriceDtos(),
-//                            contractorSelect.getValue().getTypeOfPriceDto().getId()
-//                    )
-//            );
+            invoiceProductDto.setPrice(
+                    getPriceFromProductPriceByTypeOfPriceId(
+                            invoiceProductDto.getProductDto().getProductPriceDtos(),
+                            typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
+                            //contractorSelect.getValue().getTypeOfPriceDto().getId()
+                    )
+            );
             grid.setItems(tempInvoiceProductDtoList);
             setTotalPrice();
         }

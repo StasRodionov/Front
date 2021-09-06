@@ -124,12 +124,12 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
         grid.addColumn("email").setHeader("email").setId("email");
-        grid.addColumn(iDto -> iDto.getAddressDto().toString()).setHeader("Адрес").setId("Адрес");
+        grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setId("Адрес");
         grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setId("комментарий к адресу");
         grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setId("комментарий");
-        grid.addColumn(iDto -> iDto.getContractorGroupDto().getName()).setHeader("Группы").setId("Группы");
-        grid.addColumn(iDto -> iDto.getTypeOfPriceDto().getName()).setHeader("Скидки и цены").setId("Скидки и цены");
-        grid.addColumn(iDto -> iDto.getLegalDetailDto().getInn()).setHeader("Реквизиты").setId("Реквизиты");
+        grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы").setId("Группы");
+        grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setId("Скидки и цены");
+        grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setId("Реквизиты");
         grid.setHeight("64vh");
 
         grid.setColumnReorderingAllowed(true);
@@ -308,7 +308,7 @@ public class ContractorsTabView extends VerticalLayout {
 
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
-        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll());
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), templateName);
     }
 
