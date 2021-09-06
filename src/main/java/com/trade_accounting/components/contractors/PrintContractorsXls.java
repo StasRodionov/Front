@@ -2,15 +2,28 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.services.interfaces.AddressService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import org.apache.poi.ss.usermodel.Cell;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 public class PrintContractorsXls extends PrintExcelDocument<ContractorDto> {
 
-    protected PrintContractorsXls(String pathToXlsTemplate, List<ContractorDto> list) {
+    private final LegalDetailService legalDetailService;
+    private final AddressService addressService;
+
+    @Autowired
+    public PrintContractorsXls(String pathToXlsTemplate, List<ContractorDto> list, LegalDetailService legalDetailService, AddressService addressService) {
         super(pathToXlsTemplate, list);
+        this.legalDetailService = legalDetailService;
+        this.addressService = addressService;
     }
+
+//    protected PrintContractorsXls(String pathToXlsTemplate, List<ContractorDto> list) {
+//        super(pathToXlsTemplate, list);
+//    }
 
     @Override
     protected void selectValue(Cell editCell) {
@@ -27,12 +40,13 @@ public class PrintContractorsXls extends PrintExcelDocument<ContractorDto> {
 
     @Override
     protected void tableSelectValue(String value, ContractorDto model, Cell editCell) {
+
         switch (value) {
             case ("<name>"):
                 editCell.setCellValue(model.getName());
                 break;
             case ("<inn>"):
-                editCell.setCellValue(model.getLegalDetailDto().getInn());
+                editCell.setCellValue(legalDetailService.getById(model.getLegalDetailId()).getInn());
                 break;
             case ("<sortNumber>"):
                 editCell.setCellValue(model.getSortNumber());
@@ -47,7 +61,7 @@ public class PrintContractorsXls extends PrintExcelDocument<ContractorDto> {
                 editCell.setCellValue(model.getEmail());
                 break;
             case ("<address>"):
-                editCell.setCellValue(model.getAddressDto().toString());
+                editCell.setCellValue(addressService.getById(model.getAddressId()).toString());
                 break;
             case ("<commentToAddress>"):
                 editCell.setCellValue(model.getCommentToAddress());
