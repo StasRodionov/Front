@@ -15,6 +15,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -74,6 +75,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
     private final Notifications notifications;
+    private final TypeOfPriceService typeOfPriceService;
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
@@ -115,7 +117,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService,
                                       Notifications notifications,
-                                      SalesChooseGoodsModalWin salesChooseGoodsModalWin
+                                      SalesChooseGoodsModalWin salesChooseGoodsModalWin,
+                                      TypeOfPriceService typeOfPriceService
     ) {
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -124,6 +127,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.invoiceProductService = invoiceProductService;
         this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
+        this.typeOfPriceService = typeOfPriceService;
 
         configureRecalculateDialog();
         configureCloseViewDialog();
@@ -436,7 +440,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         invoiceProductDto.setAmount(BigDecimal.ONE);
         invoiceProductDto.setPrice(
                 getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceDtos(),
-                        contractorSelect.getValue().getTypeOfPriceDto().getId()
+                        typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
+                        //contractorSelect.getValue().getTypeOfPriceDto().getId()
                 )
         );
         if (!isProductInList(productDto)) {
@@ -602,7 +607,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             invoiceProductDto.setPrice(
                     getPriceFromProductPriceByTypeOfPriceId(
                             invoiceProductDto.getProductDto().getProductPriceDtos(),
-                            contractorSelect.getValue().getTypeOfPriceDto().getId()
+                            typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
+                            //contractorSelect.getValue().getTypeOfPriceDto().getId()
                     )
             );
             grid.setItems(tempInvoiceProductDtoList);
