@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class LazyPaginator<T> extends HorizontalLayout {
     private final int itemsPerPage;
-    private int numberOfPages = 2;
+    private int numberOfPages;
     private int currentPage;
 
     private final Grid<T> grid;
