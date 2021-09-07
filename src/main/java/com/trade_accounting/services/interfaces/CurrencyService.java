@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.CurrencyDto;
 
 import java.util.List;

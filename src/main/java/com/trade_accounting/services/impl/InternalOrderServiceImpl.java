@@ -1,16 +1,12 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InternalOrderService;
-import com.trade_accounting.services.interfaces.api.CorrectionApi;
 import com.trade_accounting.services.interfaces.api.InternalOrderApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;

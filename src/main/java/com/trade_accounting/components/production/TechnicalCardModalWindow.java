@@ -4,7 +4,6 @@ import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
 import com.trade_accounting.models.dto.TechnicalCardProductionDto;
-import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.Text;

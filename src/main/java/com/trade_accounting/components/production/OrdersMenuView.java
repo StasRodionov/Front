@@ -1,12 +1,8 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,10 +18,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @SpringComponent
 @UIScope

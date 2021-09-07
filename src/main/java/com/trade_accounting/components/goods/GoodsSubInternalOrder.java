@@ -4,7 +4,6 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InternalOrderDto;
-import com.trade_accounting.models.dto.ReturnToSupplierDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InternalOrderService;
 import com.trade_accounting.services.interfaces.WarehouseService;
