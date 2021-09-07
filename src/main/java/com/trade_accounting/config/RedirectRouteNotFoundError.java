@@ -1,10 +1,13 @@
 package com.trade_accounting.config;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.authentication.LoginView;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.ErrorParameter;
+import com.vaadin.flow.router.HasErrorParameter;
+import com.vaadin.flow.router.NotFoundException;
+import com.vaadin.flow.router.ParentLayout;
 
 import javax.servlet.http.HttpServletResponse;
 

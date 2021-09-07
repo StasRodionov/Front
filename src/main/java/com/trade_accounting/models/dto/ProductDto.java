@@ -25,30 +25,30 @@ public class ProductDto {
 
     private String description;
 
-    private UnitDto unitDto;
+    private Long unitId;
 
     private Boolean archive = false;
 
     private Boolean service = false;
 
-    private ContractorDto contractorDto;
+    private Long contractorId;
 
-    private List<ProductPriceDto> productPriceDtos;
+    private List<Long> productPriceIds;
 
-    private TaxSystemDto taxSystemDto;
+    private Long taxSystemId;
 
     private List<ImageDto> imageDtos;
 
-    private ProductGroupDto productGroupDto;
+    private Long productGroupId;
 
-    private AttributeOfCalculationObjectDto attributeOfCalculationObjectDto;
+    private Long attributeOfCalculationObjectId;
 
     private String countryOrigin;
 
-    private BigDecimal itemNumber;
+    private int itemNumber;
 
     private String saleTax;
 
-    private BigDecimal minimumBalance;
+    private int minimumBalance;
 
 }

@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProjectService;
+import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -68,6 +69,7 @@ public class SalesEditShipmentView extends VerticalLayout{
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
     private final Notifications notifications;
+    private final UnitService unitService;
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
@@ -104,8 +106,8 @@ public class SalesEditShipmentView extends VerticalLayout{
                                  ProjectService projectService, WarehouseService warehouseService,
                                  InvoiceService invoiceService,
                                  InvoiceProductService invoiceProductService,
-                                 Notifications notifications
-    ) {
+                                 Notifications notifications,
+                                 UnitService unitService) {
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.projectService = projectService;
@@ -113,6 +115,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.notifications = notifications;
+        this.unitService = unitService;
 
         configureCloseViewDialog();
 
@@ -143,7 +146,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         grid.addColumn(inPrDto -> inPrDto.getProductDto().getDescription()).setHeader("Описание")
                 .setKey("productDtoDescr").setId("Описание");
         Grid.Column<InvoiceProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
-        grid.addColumn(inPrDto -> inPrDto.getProductDto().getUnitDto().getFullName()).setHeader("Единицы")
+        grid.addColumn(inPrDto -> unitService.getById(inPrDto.getProductDto().getUnitId()).getFullName()).setHeader("Единицы")
                 .setKey("productDtoUnit").setId("Единицы");
         grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
         grid.setHeight("36vh");

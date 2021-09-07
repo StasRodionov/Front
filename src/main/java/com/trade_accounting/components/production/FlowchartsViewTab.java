@@ -2,10 +2,8 @@ package com.trade_accounting.components.production;
 
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.contractors.ContractorModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
