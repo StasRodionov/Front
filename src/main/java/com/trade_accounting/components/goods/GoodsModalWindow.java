@@ -18,6 +18,7 @@ import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TaxSystemService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.UnitService;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
@@ -258,7 +259,7 @@ public class GoodsModalWindow extends Dialog {
             image.setHeight("100px");
             imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
         }
-//        initTypeOfPriceFrom(productDto.getProductPriceIds());
+        initTypeOfPriceFrom(productDto.getProductPriceIds());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
 
         super.open();
@@ -336,11 +337,12 @@ public class GoodsModalWindow extends Dialog {
         return verticalLayout;
     }
 
-    private void initTypeOfPriceFrom(List<ProductPriceDto> list) {
-        list.forEach(productPriceDto ->
-                bigDecimalFields.get(productPriceDto
-                        .getTypeOfPriceId())
-                        .setValue(productPriceDto
+    private void initTypeOfPriceFrom(List<Long> list) {
+        list.forEach(productPriceId ->
+                bigDecimalFields.get(typeOfPriceService
+                                .getById(productPriceService.getById(productPriceId)
+                                        .getTypeOfPriceId()))
+                        .setValue(productPriceService.getById(productPriceId)
                                 .getValue()));
     }
 
@@ -448,10 +450,12 @@ public class GoodsModalWindow extends Dialog {
 
         bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
             AtomicBoolean b = new AtomicBoolean(true);
-            productDto.getProductPriceIds().forEach(productPriceDto -> {
-                if (productPriceDto.equals(typeOfPriceDto.getId())) {
+            productDto.getProductPriceIds().forEach(productPriceId -> {
+                if (productPriceId.equals(typeOfPriceDto.getId())) {
 
-//                    productPriceDto.(bigDecimalField.getValue());
+                    productPriceService
+                            .getById(productPriceId)
+                            .setValue(bigDecimalField.getValue());
 
                     b.set(false);
                 }

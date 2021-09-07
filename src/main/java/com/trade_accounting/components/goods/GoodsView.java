@@ -63,8 +63,6 @@ public class GoodsView extends VerticalLayout {
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridFilter<ProductDto> filter;
 //    private final LazyPaginator<ProductDto> lazyPaginator;
-    private final Grid<ProductDto> grid;
-
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
@@ -77,7 +75,8 @@ public class GoodsView extends VerticalLayout {
 
 
         treeGrid = getTreeGrid();
-        this.grid = getGrid();
+
+        Grid<ProductDto> grid = getGrid();
 
         this.filter = new GridFilter<>(grid);
 //        this.lazyPaginator = new LazyPaginator<>(grid, productService, 50, filter);

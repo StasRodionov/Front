@@ -49,11 +49,10 @@ public class GoodsSubInventory extends VerticalLayout {
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
-    private final List<InventarizationDto> data;
     private final InventarizationService inventarizationService;
     private final Grid<InventarizationDto> grid = new Grid<>(InventarizationDto.class, false);
-    private GridPaginator<InventarizationDto> paginator;
-    private Notifications notifications;
+    private final GridPaginator<InventarizationDto> paginator;
+    private final Notifications notifications;
 
     @Autowired
     public GoodsSubInventory(WarehouseService warehouseService,
@@ -63,7 +62,7 @@ public class GoodsSubInventory extends VerticalLayout {
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.inventarizationService = inventarizationService;
-        this.data = getData();
+        List<InventarizationDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         this.notifications = notifications;
         add(configureActions(), grid, paginator);
@@ -88,9 +87,7 @@ public class GoodsSubInventory extends VerticalLayout {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> {
-            dialog.close();
-        });
+        Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
         dialog.add(new Text("Инвентаризация позволяет выявить несоответствие фактических " +
@@ -99,9 +96,7 @@ public class GoodsSubInventory extends VerticalLayout {
         dialog.setWidth("400px");
         dialog.setHeight("250px");
         buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, () -> {
-            dialog.close();
-        }, Key.ESCAPE);
+        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
         dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
@@ -119,13 +114,11 @@ public class GoodsSubInventory extends VerticalLayout {
     }
 
     private Button buttonUnit() {
-        Button buttonUnit = new Button("Инвентаризация", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return buttonUnit;
+        return new Button("Инвентаризация", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр");
     }
 
     private TextField text() {
