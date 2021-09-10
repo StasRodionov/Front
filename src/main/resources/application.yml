@@ -53,6 +53,8 @@ project_url: api/project
 
 payment_url: api/payment
 
+retail_sales_url: api/retail_sales
+
 retail_stores_url: api/retail_stores
 
 contractor_status_url: api/contractor_status
@@ -104,4 +106,6 @@ movement_product_url:  /api/movement/product
 moneySubProfitLoss_url: /api/moneysubprofitloss
 
 productprice_url: /api/productprice
+
+contact_url: /api/contact
 #debug: true
