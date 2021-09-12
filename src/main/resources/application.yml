@@ -107,5 +107,6 @@ moneySubProfitLoss_url: /api/moneysubprofitloss
 
 productprice_url: /api/productprice
 
-contact_url: /api/contact
+contact_url: api/contact
+
 #debug: true
