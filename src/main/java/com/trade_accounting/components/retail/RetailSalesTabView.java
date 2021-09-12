@@ -2,14 +2,8 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RetailSalesDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
-import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,19 +18,17 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.apache.poi.ss.formula.functions.T;
+
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
+
 
 @Route(value = "RetailSalesTabView", layout = AppView.class)
 @PageTitle("Продажи")
