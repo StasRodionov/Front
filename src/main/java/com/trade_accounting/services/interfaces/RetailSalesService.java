@@ -1,5 +1,7 @@
 package com.trade_accounting.services.interfaces;
 
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.RetailSalesDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 
@@ -16,5 +18,4 @@ public interface RetailSalesService {
     void update(RetailSalesDto retailSalesDto);
 
     void deleteById(Long id);
-
 }

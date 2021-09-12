@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RetailSalesDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
@@ -23,15 +24,19 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 @Route(value = "RetailSalesTabView", layout = AppView.class)
 @PageTitle("Продажи")
@@ -55,38 +60,22 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
     }
 
     private void configureGrid() {
-        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
         grid.addColumn("time").setHeader("Время").setId("time");
         grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("retailStoreId");
         grid.addColumn("contractorId").setHeader("Контрагент").setId("contractorId");
         grid.addColumn("companyId").setHeader("Организация").setId("companyId");
-        grid.addColumn("sumCash").setHeader("Организация").setId("sumCash");
-        grid.addColumn("sumNonСash").setHeader("Организация").setId("sumNonСash");
-        grid.addColumn("prepayment").setHeader("Организация").setId("prepayment");
-        grid.addColumn("sumDiscount").setHeader("Организация").setId("sumDiscount");
-        grid.addColumn("sum").setHeader("Организация").setId("sum");
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setKey("sent").setHeader("Отправлена")
-                .setId("Отправлена");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setKey("printed").setHeader("Напечатана")
-                .setId("Напечатана");
+        grid.addColumn("sumCash").setHeader("Сума нал.").setId("sumCash");
+        grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setId("sumNonСash");
+        grid.addColumn("prepayment").setHeader("Сумма предопл.").setId("prepayment");
+        grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("sumDiscount");
+        grid.addColumn("sum").setHeader("Итого").setId("sum");
+        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setWidth("35px").setKey("sent")
+                .setHeader("Отправлена").setId("Отправлена");
+        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setWidth("35px").setKey("printed")
+                .setHeader("Напечатана").setId("Напечатана");
         grid.addColumn("comment").setHeader("Комментарий").setId("comment");
 
-        /*grid.addColumn("name").setHeader("Наименование").setId("Наименование");
-        grid.addColumn("activityStatus").setHeader("Активность").setId("Активность");
-        grid.addColumn(unused -> "Мой склад").setHeader("Тип");
-        grid.addColumn("revenue").setHeader("Выручка").setId("Выручка");
-        grid.addColumn(unused -> "0").setHeader("Чеки").setWidth("20px");
-        grid.addColumn(unused -> "0,00").setHeader("Средний чек").setWidth("20px");
-        grid.addColumn(unused -> "0,00").setHeader("Денег в кассе").setWidth("20px");
-        grid.addColumn(unused -> getCashiers()).setWidth("100px").setHeader("Кассиры").setId("Кассиры");
-        grid.addColumn(unused -> "-").setHeader("Синхронизация");
-        grid.addColumn(unused -> "Нет").setHeader("ФН").setWidth("20px");
-        grid.setHeight("66vh");
-        grid.getColumnByKey("id").setWidth("15px");
-        grid.getColumnByKey("isActive").setWidth("30px");
-        grid.getColumnByKey("name").setWidth("150px");
-        grid.getColumnByKey("activityStatus").setWidth("150px");
-*/
         GridSortOrder<RetailSalesDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
@@ -169,13 +158,4 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
         updateList();
     }
 
-    /*private String getCashiers() {
-        List<EmployeeDto> list = employeeService.getAll();
-        long size = list.size();
-        Long random = 1 + (long) (Math.random() * size);
-
-        EmployeeDto employeeDto = employeeService.getById(random);
-
-        return employeeDto.toString();
-    }*/
 }
