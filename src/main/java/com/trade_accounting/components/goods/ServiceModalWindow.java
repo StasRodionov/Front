@@ -159,11 +159,11 @@ public class ServiceModalWindow extends Dialog {
         unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
         add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
 
-//        productDtoBinder.forField(contractorDtoComboBox)
-//                .withValidator(Objects::nonNull, "Не заполнено!")
-//                .bind("contractorDto");
-//        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
-//        add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
+        productDtoBinder.forField(contractorDtoComboBox)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorId");
+        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
+        add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
 
         productDtoBinder.forField(taxSystemDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
