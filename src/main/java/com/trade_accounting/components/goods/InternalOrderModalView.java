@@ -100,8 +100,7 @@ public class InternalOrderModalView extends Dialog {
     }
 
     private H2 title() {
-        H2 title = new H2("Добавление внутреннего заказа");
-        return title;
+        return new H2("Добавление внутреннего заказа");
     }
 
     private Button saveButton() {

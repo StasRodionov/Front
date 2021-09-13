@@ -51,11 +51,10 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
-    private final List<InternalOrderDto> data;
     private final InternalOrderService internalOrderService;
     private final Grid<InternalOrderDto> grid = new Grid<>(InternalOrderDto.class, false);
-    private GridPaginator<InternalOrderDto> paginator;
-    private Notifications notifications;
+    private final GridPaginator<InternalOrderDto> paginator;
+    private final Notifications notifications;
     private final InternalOrderModalView modalView;
 
     public GoodsSubInternalOrder(CompanyService companyService,
@@ -66,7 +65,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         this.warehouseService = warehouseService;
         this.internalOrderService = internalOrderService;
         this.modalView = modalView;
-        this.data = getData();
+        List<InternalOrderDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         this.notifications = notifications;
         add(configureActions(), grid, paginator);
@@ -124,9 +123,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> {
-            dialog.close();
-        });
+        Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
         dialog.add(new Text("Внутренние заказы позволяют планировать закупки " +
@@ -136,9 +133,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         dialog.setWidth("400px");
         dialog.setHeight("250px");
         buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, () -> {
-            dialog.close();
-        }, Key.ESCAPE);
+        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
         dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
@@ -162,13 +157,11 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private Button buttonUnit() {
-        Button buttonUnit = new Button("Внутренний заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return buttonUnit;
+        return new Button("Внутренний заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр");
     }
 
     private TextField text() {

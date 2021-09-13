@@ -51,12 +51,10 @@ public class MovementView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final MovementProductService movementProductService;
-    private Notifications notifications;
-
-    private final List<MovementDto> data;
+    private final Notifications notifications;
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
-    private GridPaginator<MovementDto> paginator;
+    private final GridPaginator<MovementDto> paginator;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
@@ -72,7 +70,7 @@ public class MovementView extends VerticalLayout {
         this.companyService = companyService;
         this.movementProductService = movementProductService;
         this.notifications = notifications;
-        this.data = getData();
+        List<MovementDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
@@ -175,18 +173,14 @@ public class MovementView extends VerticalLayout {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> {
-            dialog.close();
-        });
+        Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
         dialog.add(new Text("Перемещение  - добавить текст"));
         dialog.setWidth("450px");
         dialog.setHeight("250px");
         buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, () -> {
-            dialog.close();
-        }, Key.ESCAPE);
+        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
         dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
@@ -202,13 +196,11 @@ public class MovementView extends VerticalLayout {
     }
 
     private Button buttonUnit() {
-        Button buttonUnit = new Button("Перемещение", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return buttonUnit;
+        return new Button("Перемещение", new Icon(VaadinIcon.PLUS_CIRCLE));
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр");
     }
 
     private TextField text() {

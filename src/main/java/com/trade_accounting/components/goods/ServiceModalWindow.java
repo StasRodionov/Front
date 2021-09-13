@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectServ
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.ProductGroupService;
+import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TaxSystemService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
@@ -33,6 +34,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
@@ -44,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class ServiceModalWindow extends Dialog {
 
+    private final ProductPriceService productPriceService;
     private final UnitService unitService;
     private final ContractorService contractorService;
     private final TaxSystemService taxSystemService;
@@ -87,7 +92,7 @@ public class ServiceModalWindow extends Dialog {
     private final Binder<ProductPriceDto> priceDtoBinder = new Binder<>(ProductPriceDto.class);
 
     @Autowired
-    public ServiceModalWindow(UnitService unitService,
+    public ServiceModalWindow(ProductPriceService productPriceService, UnitService unitService,
                               ContractorService contractorService,
                               TaxSystemService taxSystemService,
                               ProductService productService,
@@ -95,6 +100,7 @@ public class ServiceModalWindow extends Dialog {
                               ProductGroupService productGroupService,
                               AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                               TypeOfPriceService typeOfPriceService) {
+        this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
         this.taxSystemService = taxSystemService;
@@ -153,11 +159,11 @@ public class ServiceModalWindow extends Dialog {
         unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
         add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
 
-//        productDtoBinder.forField(contractorDtoComboBox)
-//                .withValidator(Objects::nonNull, "Не заполнено!")
-//                .bind("contractorDto");
-//        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
-//        add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
+        productDtoBinder.forField(contractorDtoComboBox)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorId");
+        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
+        add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
 
         productDtoBinder.forField(taxSystemDtoComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
@@ -213,7 +219,7 @@ public class ServiceModalWindow extends Dialog {
             image.setHeight("100px");
             imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
         }
-//        initTypeOfPriceFrom(productDto.getProductPriceIds());
+        initTypeOfPriceFrom(productDto.getProductPriceIds());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
 
         super.open();
@@ -247,7 +253,7 @@ public class ServiceModalWindow extends Dialog {
         horizontalLayout.add(title);
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setPadding(false);
-//        verticalLayout.add(getImageButton(), imageHorizontalLayout);
+        verticalLayout.add(getImageButton(), imageHorizontalLayout);
         horizontalLayout.add(title, verticalLayout);
         return horizontalLayout;
     }
@@ -287,46 +293,47 @@ public class ServiceModalWindow extends Dialog {
         return verticalLayout;
     }
 
-//    private void initTypeOfPriceFrom(List<Long> list) {
-//        list.forEach(productPriceId ->
-//                bigDecimalFields.get(productPriceId
-//                        .getTypeOfPrice())
-//                        .setValue(productPriceId
-//                                .getValue()));
-//    }
+    private void initTypeOfPriceFrom(List<Long> list) {
+        list.forEach(productPriceId ->
+                bigDecimalFields.get(typeOfPriceService
+                                .getById(productPriceService.getById(productPriceId)
+                        .getTypeOfPriceId()))
+                        .setValue(productPriceService.getById(productPriceId)
+                                .getValue()));
+    }
 
-//    private Component getImageButton() {
-//        Button imageButton = new Button("Добавить фото");
-//        Dialog dialog = new Dialog();
-//        MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
-//        Upload upload = new Upload(memoryBuffer);
-//
-//        upload.addFinishedListener(event -> {
-//            try {
-//                ImageDto imageDto = new ImageDto();
-//                final String fileName = event.getFileName();
-//                String fileExtension = fileName.substring(fileName.indexOf("."));
-//                imageDto.setFileExtension(fileExtension);
-//                imageDto.setContent(memoryBuffer.getInputStream(event.getFileName()).readAllBytes());
-//                imageDtoList.add(imageDto);
-//                StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
-//                Image image = new Image(resource, "image");
-//                image.setHeight("100px");
-//                imageHorizontalLayout.add(image);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            dialog.close();
-//        });
-//
-//        HorizontalLayout layout = new HorizontalLayout();
-//        layout.setWidth("500px");
-//        layout.getStyle().set("overflow", "auto");
-//        dialog.add(upload);
-//        imageButton.addClickListener(x -> dialog.open());
-//        return imageButton;
-//    }
+    private Component getImageButton() {
+        Button imageButton = new Button("Добавить фото");
+        Dialog dialog = new Dialog();
+        MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
+        Upload upload = new Upload(memoryBuffer);
+
+        upload.addFinishedListener(event -> {
+            try {
+                ImageDto imageDto = new ImageDto();
+                final String fileName = event.getFileName();
+                String fileExtension = fileName.substring(fileName.indexOf("."));
+                imageDto.setFileExtension(fileExtension);
+                imageDto.setContent(memoryBuffer.getInputStream(event.getFileName()).readAllBytes());
+                imageDtoList.add(imageDto);
+                StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
+                Image image = new Image(resource, "image");
+                image.setHeight("100px");
+                imageHorizontalLayout.add(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            dialog.close();
+        });
+
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("500px");
+        layout.getStyle().set("overflow", "auto");
+        dialog.add(upload);
+        imageButton.addClickListener(x -> dialog.open());
+        return imageButton;
+    }
 
     private Button getAddButton() {
         return new Button("Добавить", event -> {
@@ -398,7 +405,9 @@ public class ServiceModalWindow extends Dialog {
             productDto.getProductPriceIds().forEach(productPriceId -> {
                 if (productPriceId.equals(typeOfPriceDto.getId())) {
 
-//                    productPriceDto.setValue(bigDecimalField.getValue());
+                    productPriceService
+                            .getById(productPriceId)
+                            .setValue(bigDecimalField.getValue());
 
                     b.set(false);
                 }
