@@ -181,8 +181,9 @@ public class ContractorModalWindow extends Dialog {
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
         this.contactService = contactService;
-        legalDetailDto = null;
-
+        if (contractorDto.getLegalDetailId() != null) {
+            legalDetailDto = legalDetailService.getById(contractorDto.getLegalDetailId());
+        }
         setCloseOnOutsideClick(true);
         setCloseOnEsc(true);
 
@@ -986,7 +987,7 @@ public class ContractorModalWindow extends Dialog {
                 ""
         );
         if (legalDetailDto.getId() != null && legalDetailDto.getAddressDtoId() != null) {
-            addressId = addressService.getById(contractorDto.getAddressId()).getId();
+            addressId = addressService.getById(legalDetailService.getById(contractorDto.getLegalDetailId()).getAddressDtoId()).getId();
         } else {
             addressId = addressService.create(addressDto).getId();
         }
@@ -996,9 +997,10 @@ public class ContractorModalWindow extends Dialog {
         legalDetailDto.setKpp(kppLegalDetailField.getValue());
         legalDetailDto.setOkpo(okpoLegalDetailField.getValue());
         legalDetailDto.setOgrn(ogrnLegalDetailField.getValue());
+        if (dateOfTheCertificateLegalDetailField.getValue() != null) {
+            legalDetailDto.setDateOfTheCertificate(dateOfTheCertificateLegalDetailField.getValue().toString());
+        }
         legalDetailDto.setNumberOfTheCertificate(numberOfTheCertificateLegalDetailField.getValue());
-        legalDetailDto.setDateOfTheCertificate(dateOfTheCertificateLegalDetailField.getValue().toString());
-
         legalDetailDto.setTypeOfContractorDtoId(typeOfContractorDtoSelect.getValue().getId());
 
         return legalDetailDto;
@@ -1009,7 +1011,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-        contractorDto.setAddressId(AddressDto.builder().another(addressField.getValue()).build().getId());
+        contractorDto.setAddressId(contractorService.getById(contractorDto.getId()).getAddressId());
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
