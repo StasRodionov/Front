@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
+import com.trade_accounting.services.interfaces.RetailSalesService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -25,16 +26,18 @@ public class RetailView extends Div implements AfterNavigationObserver {
 
     private final Div div;
     private final RetailStoreService retailStoreService;
+    private final RetailSalesService retailSalesService;
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final PayoutService payoutService;
     private final Notifications notifications;
 
     @Autowired
-    public RetailView(RetailStoreService retailStoreService,
+    public RetailView(RetailStoreService retailStoreService,RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications) {
         this.retailStoreService = retailStoreService;
+        this.retailSalesService = retailSalesService;
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.payoutService = payoutService;
@@ -80,6 +83,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Продажи":
                     div.removeAll();
+                    div.add(new RetailSalesTabView(retailSalesService));
                     break;
                 case "Возвраты":
                     div.removeAll();
