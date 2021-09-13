@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,5 +25,6 @@ public class TaskDto {
 
     private boolean completed;
 
-    private int commentCount;
+    //private int commentCount;
+    private List<Long> taskCommentsIds;
 }
