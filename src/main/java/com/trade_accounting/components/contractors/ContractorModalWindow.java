@@ -241,6 +241,10 @@ public class ContractorModalWindow extends Dialog {
                 contractorGroupDtoSelect.setValue(contractorGroupService.getById(contractorDto.getContractorGroupId()));
         }
 
+        if (contractorStatusService.getById(contractorDto.getContractorStatusId()).getName() != null) {
+            statusDtoSelect.setValue(contractorStatusService.getById(contractorDto.getContractorStatusId()));
+        }
+
         if (typeOfPriceService.getById(contractorDto.getTypeOfPriceId()).getName() != null) {
             typeOfPriceDtoSelect.setValue(typeOfPriceService.getById(contractorDto.getTypeOfPriceId()));
         }
@@ -259,6 +263,8 @@ public class ContractorModalWindow extends Dialog {
             numberOfTheCertificateLegalDetailField.setValue(legalDetailDto.getNumberOfTheCertificate());
             dateOfTheCertificateLegalDetailField.setValue(legalDetailDto.getDate());
         }
+
+        discountCardField.setValue(contractorDto.getDiscountCardNumber());
     }
 
     private Details contractorsAccordion() {
