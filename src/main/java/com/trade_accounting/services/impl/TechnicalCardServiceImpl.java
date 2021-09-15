@@ -4,6 +4,7 @@ import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.trade_accounting.services.interfaces.api.TechnicalCardApi;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -27,6 +28,7 @@ public class TechnicalCardServiceImpl implements TechnicalCardService {
     private TechnicalCardDto technicalCardDto = new TechnicalCardDto();
 
     private final CallExecuteService<TechnicalCardDto> dtoCallExecuteService;
+
 
     public TechnicalCardServiceImpl(@Value("${technical_card_url}") String technicalCardUrl, Retrofit retrofit, CallExecuteService<TechnicalCardDto> dtoCallExecuteService) {
         this.technicalCardUrl = technicalCardUrl;

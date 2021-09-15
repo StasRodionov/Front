@@ -55,7 +55,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final InternalOrderService internalOrderService;
     private final Grid<InternalOrderDto> grid = new Grid<>(InternalOrderDto.class, false);
     private GridPaginator<InternalOrderDto> paginator;
-    private Notifications notifications;
+    private final Notifications notifications;
     private final InternalOrderModalView modalView;
 
     public GoodsSubInternalOrder(CompanyService companyService,

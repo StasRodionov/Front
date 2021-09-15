@@ -999,7 +999,7 @@ public class ContractorModalWindow extends Dialog {
 
         return legalDetailDto;
     }
-
+//=========================================================//======================
     private void saveFields(ContractorDto contractorDto) {
         contractorDto.setName(nameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
@@ -1108,7 +1108,7 @@ public class ContractorModalWindow extends Dialog {
             contractorDto.setTypeOfPriceId(typeOfPriceDtoSelect.getValue().getId());
         }
     }
-
+//=========================================================//======================
     private Button getCancelButton() {
         return new Button("Закрыть", event -> close());
     }

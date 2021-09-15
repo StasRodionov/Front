@@ -21,6 +21,8 @@ attribute_calculation_object_url: api/attribute/calculation/object
 
 contract_url: api/contract
 
+contact_url: /api/contact
+
 department_url: api/department
 
 employee_url: api/employee
@@ -64,6 +66,8 @@ task_comment_url: api/task_comments
 technical_card_url: api/technical_card
 
 technical_card_group_url: api/technical_card_group
+
+technical_card_production_url: api/technical_card_production #добавил
 
 remain_url: api/remain
 

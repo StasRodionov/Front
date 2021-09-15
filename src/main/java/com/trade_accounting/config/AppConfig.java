@@ -38,7 +38,7 @@ public class AppConfig {
                                     .build();
                             return chain.proceed(newRequest);
                         } else {
-                            UI.getCurrent().navigate(LoginView.class);//доб.
+                            //      UI.getCurrent().navigate(LoginView.class);//доб.
                             return chain.proceed(originalRequest);
                         }
                     }
@@ -49,23 +49,25 @@ public class AppConfig {
                     public Response intercept(Chain chain) throws IOException {
                         Response originalResponse = chain.proceed(chain.request());
 
-                        WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();//перенос.
-                        if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//доб.
-                            UI.getCurrent().navigate(LoginView.class);//доб.
-                        }
+                        //  WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();//перенос.
+                        //  if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//доб.
+                        //      UI.getCurrent().navigate(LoginView.class);//доб.
+                        //  }
 
                         if (originalResponse.code() == 401) {
-                            if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//испр !=.
+                            WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
+                            //    if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) == null) {//испр !=.
+                            if (wrappedSession.getAttribute(TOKEN_ATTRIBUTE_NAME) != null)
                                 wrappedSession.removeAttribute(TOKEN_ATTRIBUTE_NAME);
-                                UI.getCurrent().navigate(LoginView.class);//доб.
-                            }
-                            try (Response newResponse = originalResponse
-                                    .newBuilder()
-                                    .request((new Request.Builder()).url("http://localhost:4444/login")
-                                            .build()).build()) {
-                                originalResponse = newResponse;
-                            }
+                            //    UI.getCurrent().navigate(LoginView.class);//доб.
                         }
+                        //      try (Response newResponse = originalResponse
+                        //             .newBuilder()
+                        //            .request((new Request.Builder()).url("http://localhost:4444/login")
+                        //                    .build()).build()) {
+                        //        originalResponse = newResponse;
+                        //    }
+                        //  }
                         return originalResponse;
 
                     }
@@ -78,7 +80,7 @@ public class AppConfig {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(JacksonConverterFactory.create())
-                .client(authorizationInterceptor())
+                //   .client(authorizationInterceptor())
                 .build();
     }
 }

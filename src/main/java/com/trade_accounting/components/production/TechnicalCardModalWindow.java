@@ -1,10 +1,13 @@
 package com.trade_accounting.components.production;
 
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
 import com.trade_accounting.models.dto.TechnicalCardProductionDto;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -22,8 +25,10 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.Style;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,12 +40,17 @@ public class TechnicalCardModalWindow extends Dialog {
     private final TextArea commentField = new TextArea();
     private final ComboBox<TechnicalCardGroupDto> technicalCardGroupDtoSelect = new ComboBox<>();
 
+    private final TextField lastNameField = new TextField();
+    private final TextField prodCostField = new TextField();
+    private final TextArea comField = new TextArea();
+
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "400px";
     private static final String MODAL_WINDOW_WIDTH = "650px";
 
     private final TechnicalCardService technicalCardService;
     private final TechnicalCardGroupService technicalCardGroupService;
+    private final TechnicalCardProductionService technicalCardProductionService;
 
     private List<TechnicalCardGroupDto> technicalCardGroupDtoList;
     private List<ProductDto> productDtoList;
@@ -50,14 +60,16 @@ public class TechnicalCardModalWindow extends Dialog {
     private List<ComboBox<ProductDto>> finalProductionProductComboBoxList = new ArrayList<>();
     private List<TextField> materialsAmountList = new ArrayList<>();
     private List<TextField> finalProductionAmountList = new ArrayList<>();
+  //  private final List<TechnicalCardProductionDto> technicalCardProductionDto = new ArrayList<>();
 
 
     public TechnicalCardModalWindow(TechnicalCardDto technicalCardDto, TechnicalCardService technicalCardService,
-                                    TechnicalCardGroupService technicalCardGroupService, List<ProductDto> productDtoList
-                                    ) {
+                                    TechnicalCardGroupService technicalCardGroupService, TechnicalCardProductionService technicalCardProductionService, List<ProductDto> productDtoList
+    ) {
         this.technicalCardDto = technicalCardDto;
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
+        this.technicalCardProductionService = technicalCardProductionService;
         this.productDtoList = productDtoList;
 
         setCloseOnOutsideClick(true);
@@ -117,9 +129,9 @@ public class TechnicalCardModalWindow extends Dialog {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.add(getAddTechnicalCardProductionButton(verticalLayout, material));
         if (technicalCardDto.getId() != null) {
-            List<TechnicalCardProductionDto> technicalCardProductionDtoList = technicalCardDto.getMaterialsDto();
+            List<Long> technicalCardProductionDtoList = technicalCardDto.getMaterialsId();
             if (technicalCardProductionDtoList != null) {
-                technicalCardProductionDtoList.forEach(tcp -> showTechnicalCardProduction(tcp, verticalLayout, material));
+                technicalCardProductionDtoList.forEach(tcp -> showTechnicalCardProduction(technicalCardProductionService.getById(tcp), verticalLayout, material));
             }
         }
         return verticalLayout;
@@ -252,27 +264,63 @@ public class TechnicalCardModalWindow extends Dialog {
             });
         }
     }
-
-    private void saveFields(TechnicalCardDto technicalCardDto) {
-        technicalCardDto.setName(nameField.getValue());
+//========================================================//================
+//    private void saveFields(TechnicalCardDto technicalCardDto) {
+//        technicalCardDto.setName(nameField.getValue());
+//        technicalCardDto.setComment(commentField.getValue());
+//        technicalCardDto.setProductionCost(productionCostField.getValue());
+//        technicalCardDto.setTechnicalCardGroupId(technicalCardDto.getTechnicalCardGroupId());
+//        List<Long> materialsList = new ArrayList<>();
+//        List<Long> finalProductionList = new ArrayList<>();
+//        for (int i = 0; i < materialProductComboBoxList.size(); i++) {
+//            materialsList.add(Long.valueOf(materialsAmountList.get(i).getValue()));
+//            materialsList.add(Long.valueOf(materialProductComboBoxList.get(i).getValue().getId()));
+//        }
+//        technicalCardDto.setMaterialsId(materialsList);
+//        for (int i = 0; i < finalProductionProductComboBoxList.size(); i++) {
+//            finalProductionList.add(Long.valueOf(finalProductionAmountList.get(i).getValue()));
+//            finalProductionList.add(Long.valueOf(finalProductionProductComboBoxList.get(i).getValue().getId()));
+////                    .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
+////                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
+//        }
+//        technicalCardDto.setFinalProductionId(finalProductionList);
+//    }
+//========================================================//================
+private void saveFields(TechnicalCardDto technicalCardDto) {
+    technicalCardDto.setName(nameField.getValue());
         technicalCardDto.setComment(commentField.getValue());
         technicalCardDto.setProductionCost(productionCostField.getValue());
-        technicalCardDto.setTechnicalCardGroupDto(technicalCardGroupDtoSelect.getValue());
+        technicalCardDto.setTechnicalCardGroupId(technicalCardGroupDtoSelect.getValue().getId());
         List<TechnicalCardProductionDto> materialsList = new ArrayList<>();
         List<TechnicalCardProductionDto> finalProductionList = new ArrayList<>();
         for (int i = 0; i < materialProductComboBoxList.size(); i++) {
             materialsList.add(TechnicalCardProductionDto.builder()
-                    .amount(Long.valueOf(materialsAmountList.get(i).getValue()))
-                    .productId(materialProductComboBoxList.get(i).getValue().getId()).build());
+                    .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
+                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
         }
-        technicalCardDto.setMaterialsDto(materialsList);
+    technicalCardDto.setMaterialsId(Collections.singletonList(Long.valueOf(String.valueOf(materialsList))));
         for (int i = 0; i < finalProductionProductComboBoxList.size(); i++) {
             finalProductionList.add(TechnicalCardProductionDto.builder()
                     .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
                     .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
         }
-        technicalCardDto.setFinalProductionDto(finalProductionList);
-    }
+        technicalCardDto.setFinalProductionId(Collections.singletonList(Long.valueOf(String.valueOf(finalProductionList))));
+
+}
+//=============================================================//===========================
+
+//    private void saveFields(TechnicalCardDto technicalCardDto) {
+//        technicalCardDto.setName(nameField.getValue());
+//        technicalCardDto.setComment(commentField.getValue());
+//        technicalCardDto.setProductionCost(productionCostField.getValue());
+//        technicalCardDto.setTechnicalCardGroupId(technicalCardDto.getTechnicalCardGroupId());
+//        List<TechnicalCardDto> materialsList = new ArrayList<>();
+//        List<Long> finalProductionList = new ArrayList<>();
+//
+//        if (technicalCardDto.getId() != null) {
+//
+//        }
+//    }
 
     private Button getCancelButton() {
         return new Button("Закрыть", event -> close());
@@ -281,4 +329,40 @@ public class TechnicalCardModalWindow extends Dialog {
     private String getFieldValueNotNull(String value) {
         return value == null ? "" : value;
     }
+
+    public void setTechnicalCarDataForEdit(TechnicalCardDto technicalCardDto) {
+        if(technicalCardGroupService.getById(technicalCardDto.getTechnicalCardGroupId()).getName() !=null){
+            technicalCardGroupDtoSelect.setValue(technicalCardGroupService.getById(technicalCardDto.getTechnicalCardGroupId()));
+            lastNameField.setValue(technicalCardDto.getName());
+            prodCostField.setValue(technicalCardDto.getProductionCost());
+            comField.setValue(technicalCardDto.getComment());
+        }
+
+    }
+
+
+//    public void setContractorDataForEdit(ContractorDto contractorDto) {
+//        if (contractorGroupService.getById(contractorDto.getContractorGroupId()).getName() != null) {
+//            contractorGroupDtoSelect.setValue(contractorGroupService.getById(contractorDto.getContractorGroupId()));
+//        }
+//
+//        if (typeOfPriceService.getById(contractorDto.getTypeOfPriceId()).getName() != null) {
+//            typeOfPriceDtoSelect.setValue(typeOfPriceService.getById(contractorDto.getTypeOfPriceId()));
+//        }
+//
+//        if (legalDetailService.getById(contractorDto.getLegalDetailId()).getInn() != null) {
+//            typeOfContractorDtoSelect.setValue(typeOfContractorService.getById(legalDetailDto.getTypeOfContractorDtoId()));
+//            lastNameLegalDetailField.setValue(legalDetailDto.getLastName());
+//            firstNameLegalDetailField.setValue(legalDetailDto.getFirstName());
+//            middleNameLegalDetailField.setValue(legalDetailDto.getMiddleName());
+//            addressLegalDetailField.setValue(getFieldValueNotNull(getAddressFromLegalDetail(legalDetailDto)));
+//            commentToAddressLegalDetailField.setValue(legalDetailDto.getCommentToAddress());
+//            innLegalDetailField.setValue(legalDetailDto.getInn());
+//            kppLegalDetailField.setValue(legalDetailDto.getKpp());
+//            okpoLegalDetailField.setValue(legalDetailDto.getOkpo());
+//            ogrnLegalDetailField.setValue(legalDetailDto.getOgrn());
+//            numberOfTheCertificateLegalDetailField.setValue(legalDetailDto.getNumberOfTheCertificate());
+//            dateOfTheCertificateLegalDetailField.setValue(legalDetailDto.getDate());
+//        }
+//    }
 }

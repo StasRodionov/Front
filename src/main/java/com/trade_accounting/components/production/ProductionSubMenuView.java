@@ -1,8 +1,10 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -20,12 +22,16 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     private final Div div;
     private final TechnicalCardService technicalCardService;
     private final TechnicalCardGroupService technicalCardGroupService;
+    private final TechnicalCardProductionService technicalCardProductionService;
     private final ProductService productService;
+    private final Notifications notifications;
 
     @Autowired
     public ProductionSubMenuView(TechnicalCardService technicalCardService,
                                  TechnicalCardGroupService technicalCardGroupService,
-                                 ProductService productService) {
+                                 TechnicalCardProductionService technicalCardProductionService, ProductService productService, Notifications notifications) {
+        this.technicalCardProductionService = technicalCardProductionService;
+        this.notifications = notifications;
         div = new Div();
         add(configurationSubMenu(), div);
         this.technicalCardService = technicalCardService;
@@ -45,7 +51,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
             switch (name) {
                 case "Тех. карты":
                     div.removeAll();
-                    div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, productService));
+                    div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, technicalCardProductionService, productService, notifications));
                     break;
                 case "Заказы на производство":
                     div.removeAll();
@@ -63,7 +69,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, productService));
+        div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, technicalCardProductionService, productService, notifications));
 
     }
 }

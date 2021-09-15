@@ -2,13 +2,17 @@ package com.trade_accounting.components.production;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.contractors.ContractorModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -29,7 +33,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 @SpringComponent
 @UIScope
@@ -45,16 +51,20 @@ public class FlowchartsViewTab extends VerticalLayout {
     private final GridFilter<TechnicalCardDto> filter;
     private final TechnicalCardGroupDto technicalCardGroupDto;
     private final TechnicalCardGroupService technicalCardGroupService;
+    private final TechnicalCardProductionService technicalCardProductionService;
     private final TechnicalCardDto technicalCardDto;
     private final ProductService productService;
     private final List<ProductDto> productDtoList;
+    private final Notifications notifications;
 
     public FlowchartsViewTab(TechnicalCardService technicalCardService,
                              TechnicalCardGroupService technicalCardGroupService,
-                             ProductService productService) {
+                             TechnicalCardProductionService technicalCardProductionService, ProductService productService, Notifications notifications) {
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
+        this.technicalCardProductionService = technicalCardProductionService;
         this.productService = productService;
+        this.notifications=notifications;
         this.technicalCardGroupDto = new TechnicalCardGroupDto();
         this.technicalCardDto = new TechnicalCardDto();
         this.productDtoList = productService.getAll();
@@ -97,7 +107,7 @@ public class FlowchartsViewTab extends VerticalLayout {
     private Button buttonPlusFlowcharts() {
         Button addFlowchartsButton = new Button("Тех. карта", new Icon(VaadinIcon.PLUS_CIRCLE));
         TechnicalCardModalWindow addTechnicalCardModal =
-                new TechnicalCardModalWindow(new TechnicalCardDto(), technicalCardService, technicalCardGroupService, productDtoList);
+                new TechnicalCardModalWindow(new TechnicalCardDto(), technicalCardService, technicalCardGroupService, technicalCardProductionService, productDtoList);
         addFlowchartsButton.addClickListener(event -> addTechnicalCardModal.open());
         addTechnicalCardModal.addDetachListener(event -> updateList());
         addFlowchartsButton.getStyle().set("cursor", "pointer");
@@ -147,10 +157,32 @@ public class FlowchartsViewTab extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
-        valueSelect.setWidth("120px");
-        valueSelect.setItems("Изменить");
+        List<String> list = new ArrayList<>();
+        list.add("Изменить");
+        list.add("Удалить");
+        valueSelect.setItems(list);
         valueSelect.setValue("Изменить");
+        valueSelect.setWidth("120px");
+        valueSelect.addValueChangeListener(event -> {
+            if (valueSelect.getValue().equals("Удалить")) {
+                deleteSelectedInternalOrders();
+                grid.deselectAll();
+                valueSelect.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return valueSelect;
+    }
+
+    private void deleteSelectedInternalOrders() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (TechnicalCardDto technicalCardDto : grid.getSelectedItems()) {
+                technicalCardService.deleteById(technicalCardDto.getId());
+                notifications.infoNotification("Выбранные заказы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
     }
 
     private HorizontalLayout getLabelFlowchartsAndTable() {
@@ -165,16 +197,27 @@ public class FlowchartsViewTab extends VerticalLayout {
     }
 
     private void configureGrid() {
+        //grid.setItems(data);
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn("productionCost").setHeader("Затраты на производство").setId("Затраты на производство");
-        grid.addColumn(iDto -> iDto.getTechnicalCardGroupDto().getName()).setHeader("Группа").setId("Группа");
+        grid.addColumn(iDto -> technicalCardGroupService.getById(iDto.getId()).getName()).setHeader("Группа").setId("Группа");
         grid.setHeight("64vh");
         grid.setWidth("150vh");
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+       // return grid;
+        grid.addItemDoubleClickListener(event -> {
+            TechnicalCardDto technicalCardDto = event.getItem();
+            TechnicalCardModalWindow addTechnicalCardModalWindow =
+                    new TechnicalCardModalWindow(technicalCardDto,
+                            technicalCardService, technicalCardGroupService, technicalCardProductionService, productDtoList);
+            addTechnicalCardModalWindow.addDetachListener(e -> updateList());
+            addTechnicalCardModalWindow.setTechnicalCarDataForEdit(technicalCardDto);
+            addTechnicalCardModalWindow.open();
+        });
     }
 
     private List<TechnicalCardDto> getData() {

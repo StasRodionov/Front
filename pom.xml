@@ -28,6 +28,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
+            <version>21.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin.componentfactory</groupId>
@@ -107,6 +108,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
         </dependency>
 
     </dependencies>
