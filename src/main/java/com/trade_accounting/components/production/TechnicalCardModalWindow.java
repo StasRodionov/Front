@@ -286,41 +286,41 @@ public class TechnicalCardModalWindow extends Dialog {
 //        technicalCardDto.setFinalProductionId(finalProductionList);
 //    }
 //========================================================//================
-private void saveFields(TechnicalCardDto technicalCardDto) {
-    technicalCardDto.setName(nameField.getValue());
+//private void saveFields(TechnicalCardDto technicalCardDto) {
+//    technicalCardDto.setName(nameField.getValue());
+//        technicalCardDto.setComment(commentField.getValue());
+//        technicalCardDto.setProductionCost(productionCostField.getValue());
+//        technicalCardDto.setTechnicalCardGroupId(technicalCardGroupDtoSelect.getValue().getId());
+//        List<TechnicalCardProductionDto> materialsList = new ArrayList<>();
+//        List<TechnicalCardProductionDto> finalProductionList = new ArrayList<>();
+//        for (int i = 0; i < materialProductComboBoxList.size(); i++) {
+//            materialsList.add(TechnicalCardProductionDto.builder()
+//                    .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
+//                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
+//        }
+//    technicalCardDto.setMaterialsId(Collections.singletonList(Long.valueOf(String.valueOf(materialsList))));
+//        for (int i = 0; i < finalProductionProductComboBoxList.size(); i++) {
+//            finalProductionList.add(TechnicalCardProductionDto.builder()
+//                    .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
+//                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
+//        }
+//        technicalCardDto.setFinalProductionId(Collections.singletonList(Long.valueOf(String.valueOf(finalProductionList))));
+//
+//}
+//=============================================================//===========================
+
+    private void saveFields(TechnicalCardDto technicalCardDto) {
+        technicalCardDto.setName(nameField.getValue());
         technicalCardDto.setComment(commentField.getValue());
         technicalCardDto.setProductionCost(productionCostField.getValue());
         technicalCardDto.setTechnicalCardGroupId(technicalCardGroupDtoSelect.getValue().getId());
-        List<TechnicalCardProductionDto> materialsList = new ArrayList<>();
-        List<TechnicalCardProductionDto> finalProductionList = new ArrayList<>();
-        for (int i = 0; i < materialProductComboBoxList.size(); i++) {
-            materialsList.add(TechnicalCardProductionDto.builder()
-                    .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
-                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
-        }
-    technicalCardDto.setMaterialsId(Collections.singletonList(Long.valueOf(String.valueOf(materialsList))));
-        for (int i = 0; i < finalProductionProductComboBoxList.size(); i++) {
-            finalProductionList.add(TechnicalCardProductionDto.builder()
-                    .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
-                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
-        }
-        technicalCardDto.setFinalProductionId(Collections.singletonList(Long.valueOf(String.valueOf(finalProductionList))));
+        List<TechnicalCardDto> materialsList = new ArrayList<>();
+        List<Long> finalProductionList = new ArrayList<>();
 
-}
-//=============================================================//===========================
+        if (technicalCardDto.getId() != null) {
 
-//    private void saveFields(TechnicalCardDto technicalCardDto) {
-//        technicalCardDto.setName(nameField.getValue());
-//        technicalCardDto.setComment(commentField.getValue());
-//        technicalCardDto.setProductionCost(productionCostField.getValue());
-//        technicalCardDto.setTechnicalCardGroupId(technicalCardDto.getTechnicalCardGroupId());
-//        List<TechnicalCardDto> materialsList = new ArrayList<>();
-//        List<Long> finalProductionList = new ArrayList<>();
-//
-//        if (technicalCardDto.getId() != null) {
-//
-//        }
-//    }
+        }
+    }
 
     private Button getCancelButton() {
         return new Button("Закрыть", event -> close());
