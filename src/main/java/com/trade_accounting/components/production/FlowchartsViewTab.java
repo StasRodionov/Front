@@ -9,6 +9,7 @@ import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -48,10 +49,11 @@ public class FlowchartsViewTab extends VerticalLayout {
     private final TechnicalCardDto technicalCardDto;
     private final ProductService productService;
     private final List<ProductDto> productDtoList;
+    private final TechnicalCardProductionService technicalCardProductionService;
 
     public FlowchartsViewTab(TechnicalCardService technicalCardService,
                              TechnicalCardGroupService technicalCardGroupService,
-                             ProductService productService) {
+                             ProductService productService, TechnicalCardProductionService technicalCardProductionService) {
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
         this.productService = productService;
@@ -63,6 +65,7 @@ public class FlowchartsViewTab extends VerticalLayout {
         configureFilter();
         setSizeFull();
         this.data = getData();
+        this.technicalCardProductionService = technicalCardProductionService;
         paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getToolBar(), filter, getLabelFlowchartsAndTable(), paginator);
@@ -97,7 +100,8 @@ public class FlowchartsViewTab extends VerticalLayout {
     private Button buttonPlusFlowcharts() {
         Button addFlowchartsButton = new Button("Тех. карта", new Icon(VaadinIcon.PLUS_CIRCLE));
         TechnicalCardModalWindow addTechnicalCardModal =
-                new TechnicalCardModalWindow(new TechnicalCardDto(), technicalCardService, technicalCardGroupService, productDtoList);
+                new TechnicalCardModalWindow(new TechnicalCardDto(), technicalCardService, technicalCardGroupService, productDtoList,
+                        technicalCardProductionService);
         addFlowchartsButton.addClickListener(event -> addTechnicalCardModal.open());
         addTechnicalCardModal.addDetachListener(event -> updateList());
         addFlowchartsButton.getStyle().set("cursor", "pointer");
@@ -169,7 +173,8 @@ public class FlowchartsViewTab extends VerticalLayout {
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn("productionCost").setHeader("Затраты на производство").setId("Затраты на производство");
-        grid.addColumn(iDto -> iDto.getTechnicalCardGroupDto().getName()).setHeader("Группа").setId("Группа");
+//        grid.addColumn(iDto -> iDto.getTechnicalCardGroupDto().getName()).setHeader("Группа").setId("Группа");
+        grid.addColumn(iDto -> technicalCardGroupService.getById(iDto.getTechnicalCardGroupId()).getName()).setHeader("Группа").setId("Группа");
         grid.setHeight("64vh");
         grid.setWidth("150vh");
 

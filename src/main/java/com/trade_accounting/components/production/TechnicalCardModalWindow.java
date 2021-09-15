@@ -5,6 +5,7 @@ import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
 import com.trade_accounting.models.dto.TechnicalCardProductionDto;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -41,6 +42,7 @@ public class TechnicalCardModalWindow extends Dialog {
 
     private final TechnicalCardService technicalCardService;
     private final TechnicalCardGroupService technicalCardGroupService;
+    private final TechnicalCardProductionService technicalCardProductionService;
 
     private List<TechnicalCardGroupDto> technicalCardGroupDtoList;
     private List<ProductDto> productDtoList;
@@ -53,12 +55,14 @@ public class TechnicalCardModalWindow extends Dialog {
 
 
     public TechnicalCardModalWindow(TechnicalCardDto technicalCardDto, TechnicalCardService technicalCardService,
-                                    TechnicalCardGroupService technicalCardGroupService, List<ProductDto> productDtoList
+                                    TechnicalCardGroupService technicalCardGroupService, List<ProductDto> productDtoList,
+                                    TechnicalCardProductionService technicalCardProductionService
                                     ) {
         this.technicalCardDto = technicalCardDto;
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
         this.productDtoList = productDtoList;
+        this.technicalCardProductionService = technicalCardProductionService;
 
         setCloseOnOutsideClick(true);
         setCloseOnEsc(true);
@@ -117,9 +121,9 @@ public class TechnicalCardModalWindow extends Dialog {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.add(getAddTechnicalCardProductionButton(verticalLayout, material));
         if (technicalCardDto.getId() != null) {
-            List<TechnicalCardProductionDto> technicalCardProductionDtoList = technicalCardDto.getMaterialsDto();
+            List<Long> technicalCardProductionDtoList = technicalCardDto.getMaterialsId();
             if (technicalCardProductionDtoList != null) {
-                technicalCardProductionDtoList.forEach(tcp -> showTechnicalCardProduction(tcp, verticalLayout, material));
+                technicalCardProductionDtoList.forEach(tcp -> showTechnicalCardProduction(technicalCardProductionService.getById(tcp), verticalLayout, material));
             }
         }
         return verticalLayout;
@@ -230,7 +234,7 @@ public class TechnicalCardModalWindow extends Dialog {
         technicalCardGroupDtoSelect.setWidth(FIELD_WIDTH);
         technicalCardDtoBinder.forField(technicalCardGroupDtoSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("technicalCardGroupDto");
+                .bind("technicalCardGroupId");
         Label label = new Label("Группа");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, technicalCardGroupDtoSelect);
@@ -257,21 +261,21 @@ public class TechnicalCardModalWindow extends Dialog {
         technicalCardDto.setName(nameField.getValue());
         technicalCardDto.setComment(commentField.getValue());
         technicalCardDto.setProductionCost(productionCostField.getValue());
-        technicalCardDto.setTechnicalCardGroupDto(technicalCardGroupDtoSelect.getValue());
-        List<TechnicalCardProductionDto> materialsList = new ArrayList<>();
-        List<TechnicalCardProductionDto> finalProductionList = new ArrayList<>();
+        technicalCardDto.setTechnicalCardGroupId(technicalCardGroupDtoSelect.getValue().getId());
+        List<Long> materialsListIds = new ArrayList<>();
+        List<Long> finalProductionListIds = new ArrayList<>();
         for (int i = 0; i < materialProductComboBoxList.size(); i++) {
-            materialsList.add(TechnicalCardProductionDto.builder()
+            materialsListIds.add(TechnicalCardProductionDto.builder()
                     .amount(Long.valueOf(materialsAmountList.get(i).getValue()))
-                    .productId(materialProductComboBoxList.get(i).getValue().getId()).build());
+                    .productId(materialProductComboBoxList.get(i).getValue().getId()).build().getId());
         }
-        technicalCardDto.setMaterialsDto(materialsList);
+        technicalCardDto.setMaterialsId(materialsListIds);
         for (int i = 0; i < finalProductionProductComboBoxList.size(); i++) {
-            finalProductionList.add(TechnicalCardProductionDto.builder()
+            finalProductionListIds.add(TechnicalCardProductionDto.builder()
                     .amount(Long.valueOf(finalProductionAmountList.get(i).getValue()))
-                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build());
+                    .productId(finalProductionProductComboBoxList.get(i).getValue().getId()).build().getId());
         }
-        technicalCardDto.setFinalProductionDto(finalProductionList);
+        technicalCardDto.setFinalProductionId(finalProductionListIds);
     }
 
     private Button getCancelButton() {

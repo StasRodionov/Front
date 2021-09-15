@@ -1,6 +1,8 @@
 server:
   port: 4445
 
+technical_card_production_url: api/technical/card/production
+
 base_url: http://localhost:4444
 
 tax_system_url: api/taxsystem
