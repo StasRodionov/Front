@@ -1,6 +1,8 @@
 server:
   port: 4445
 
+contact_url: /api/contact
+
 base_url: http://localhost:4444
 
 tax_system_url: api/taxsystem
@@ -82,6 +84,8 @@ correction_product_url: api/correction/product
 price_list_url: api/priceList
 
 moneySubCashFlowUrl_url: api/money
+
+moneySubMutualSettlementsUrl_url: api/mutualSettlements
 
 balance_adjustment_url: api/balanceAdjustment
 
