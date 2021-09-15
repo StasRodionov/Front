@@ -62,9 +62,9 @@ public class TasksView extends VerticalLayout {
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName()).setHeader("Ответственный").setId("Ответственный");
-        grid.addColumn(d -> formatDate(d.getDeadlineDateTime().toString())).setHeader("Срок")
+        grid.addColumn(TaskDto::getDeadlineDateTime).setHeader("Срок")
                 .setKey("deadLineDateTime").setId("Срок");
-        grid.addColumn(d -> formatDate(d.getCreationDateTime().toString())).setHeader("Создано")
+        grid.addColumn(TaskDto::getCreationDateTime).setHeader("Создано")
                 .setKey("creationDateTime").setId("Создано");
     }
 
