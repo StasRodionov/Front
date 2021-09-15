@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -24,6 +25,7 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Профиль")
 public class ProfileView extends Div implements AfterNavigationObserver {
 
+    private final Notifications notifications;
     private final UnitService unitService;
     private final CompanyService companyService;
     private final AddressService addressService;
@@ -38,9 +40,10 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final TypeOfContractorService typeOfContractorService;
     private final BankAccountService bankAccountService;
 
-    public ProfileView(UnitService unitService, CompanyService companyService,
+    public ProfileView(Notifications notifications, UnitService unitService, CompanyService companyService,
                        AddressService addressService, LegalDetailService legalDetailService, EmployeeService employeeService, WarehouseService warehouseService,
                        CurrencyService currencyService, RoleService roleService, ImageService imageService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
+        this.notifications = notifications;
         this.unitService = unitService;
         this.companyService = companyService;
         this.addressService = addressService;
@@ -69,7 +72,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             divMenu.removeAll();
             divMenu.add(configurationSubMenu());
             div.removeAll();
-            div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
+            div.add(new CompanyView(notifications, companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
         });
     }
 
@@ -86,7 +89,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Юр. лица":
                     div.removeAll();
-                    div.add(new CompanyView(companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
+                    div.add(new CompanyView(notifications, companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
                     break;
                 case "Сотрудники":
                     div.removeAll();

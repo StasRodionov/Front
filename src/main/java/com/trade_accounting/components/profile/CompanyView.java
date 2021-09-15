@@ -3,8 +3,10 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
@@ -39,6 +41,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +63,10 @@ public class CompanyView extends VerticalLayout {
     private final NumberField selectedNumberField;
     private final TypeOfContractorService typeOfContractorService;
     private final BankAccountService bankAccountService;
+    private final Notifications notifications;
 
-    public CompanyView(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
+    public CompanyView(Notifications notifications, CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
+        this.notifications = notifications;
         this.companyService = companyService;
         this.data = companyService.getAll();
         this.addressService = addressService;
@@ -149,6 +154,7 @@ public class CompanyView extends VerticalLayout {
                 VerticalLayout::new, consumerLegalDetail));
 
         grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private void reloadGrid() {
@@ -246,11 +252,42 @@ public class CompanyView extends VerticalLayout {
     }
 
     private Select<String> getSelect() {
-        final Select<String> selector = new Select<>();
-        selector.setItems("Изменить");
-        selector.setValue("Изменить");
-        selector.setWidth("130px");
-        return selector;
+//        final Select<String> selector = new Select<>();
+//        selector.setItems("Изменить");
+//        selector.setValue("Изменить");
+//        selector.setWidth("130px");
+//        return selector;
+        Select<String> valueSelect = new Select<>();
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Удалить");
+        valueSelect.setItems(listItems);
+        valueSelect.setPlaceholder("Изменить");
+        valueSelect.setWidth("130px");
+        valueSelect.addValueChangeListener(event -> {
+            if (valueSelect.getValue().equals("Удалить")) {
+                deleteSelectedCompanies();
+                grid.deselectAll();
+                valueSelect.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
+
+        return valueSelect;
+    }
+
+    private void deleteSelectedCompanies() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (CompanyDto companyDto : grid.getSelectedItems()) {
+                companyService.deleteById(companyDto.getId());
+                notifications.infoNotification("Выбранные компании успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные компании");
+        }
+    }
+
+    private List<CompanyDto> getData() {
+        return companyService.getAll();
     }
 
     private ContextMenu getGridContextMenu() {
@@ -280,4 +317,5 @@ public class CompanyView extends VerticalLayout {
 
         return contextMenu;
     }
+
 }
