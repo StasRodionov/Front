@@ -1,7 +1,6 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.ValidTextField;
-import com.trade_accounting.models.dto.AccessParametersDto;
 import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.models.dto.ContactDto;
@@ -196,9 +195,19 @@ public class ContractorModalWindow extends Dialog {
         addressField.setValue(getFieldValueNotNull(
                 getAddress(contractorDto)
         ));
+
         commentToAddressField.setValue(getFieldValueNotNull(contractorDto.getCommentToAddress()));
         commentField.setValue(getFieldValueNotNull(contractorDto.getComment()));
         physicalAddressBlock = new AddressBlock(() -> addressService.getById(contractorDto.getAddressId()));
+        if (contractorDto.getId() != null) {
+            physicalAddressBlock.addressIndex.setValue(addressService.getById(contractorDto.getAddressId()).getIndex());
+            physicalAddressBlock.addressCountry.setValue(addressService.getById(contractorDto.getAddressId()).getCountry());
+            physicalAddressBlock.addressRegion.setValue(addressService.getById(contractorDto.getAddressId()).getRegion());
+            physicalAddressBlock.addressCity.setValue(addressService.getById(contractorDto.getAddressId()).getCity());
+            physicalAddressBlock.addressStreet.setValue(addressService.getById(contractorDto.getAddressId()).getStreet());
+            physicalAddressBlock.addressHouse.setValue(addressService.getById(contractorDto.getAddressId()).getHouse());
+            physicalAddressBlock.addressApartment.setValue(addressService.getById(contractorDto.getAddressId()).getApartment());
+        }
         if (legalDetailDto == null) {
             legalAddressBlock = new AddressBlock(null);
         } else {
@@ -1035,7 +1044,7 @@ public class ContractorModalWindow extends Dialog {
         List<Long> newBankAccountIdsList = new ArrayList<>();
         if (contractorDto.getId() != null) {
             Long addressId = addressService.getById(contractorDto.getAddressId()).getId();
-            contractorDto.setAddressId(AddressDto.builder()
+            addressService.create(AddressDto.builder()
                     .id(addressId)
                     .index(physicalAddressBlock.getIndex())
                     .country(physicalAddressBlock.getCountry())
@@ -1044,19 +1053,29 @@ public class ContractorModalWindow extends Dialog {
                     .street(physicalAddressBlock.getStreet())
                     .house(physicalAddressBlock.getHouse())
                     .apartment(physicalAddressBlock.getApartment())
-                    .build().getId());
+                    .build());
+//            contractorDto.setAddressId(AddressDto.builder()
+//                    .id(addressId)
+//                    .index(physicalAddressBlock.getIndex())
+//                    .country(physicalAddressBlock.getCountry())
+//                    .region(physicalAddressBlock.getRegion())
+//                    .city(physicalAddressBlock.getCity())
+//                    .street(physicalAddressBlock.getStreet())
+//                    .house(physicalAddressBlock.getHouse())
+//                    .apartment(physicalAddressBlock.getApartment())
+//                    .build().getId());
             contractorDto.setLegalDetailId(legalDetailDtoSelect.getValue().getId());
 
-            contractorDto.getContactIds().forEach(contactId -> {
-
-                newContactDtoList.add(ContactDto.builder().id(contactId)
-                        .fullName(existContactTextFields.get(contactId).get(0).getValue())
-                        .position(existContactTextFields.get(contactId).get(1).getValue())
-                        .phone(existContactTextFields.get(contactId).get(2).getValue())
-                        .email(existContactTextFields.get(contactId).get(3).getValue())
-                        .comment(existContactTextFields.get(contactId).get(4).getValue())
-                        .build());
-            });
+//            contractorDto.getContactIds().forEach(contactId -> {
+//
+//                newContactDtoList.add(ContactDto.builder().id(contactId)
+//                        .fullName(existContactTextFields.get(contactId).get(0).getValue())
+//                        .position(existContactTextFields.get(contactId).get(1).getValue())
+//                        .phone(existContactTextFields.get(contactId).get(2).getValue())
+//                        .email(existContactTextFields.get(contactId).get(3).getValue())
+//                        .comment(existContactTextFields.get(contactId).get(4).getValue())
+//                        .build());
+//            });
             newContactTextFields.forEach(contact -> {
                 newContactDtoList.add(ContactDto.builder()
                         .fullName(contact.get(0).getValue())
