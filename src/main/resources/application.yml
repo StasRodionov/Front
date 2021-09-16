@@ -1,8 +1,6 @@
 server:
   port: 4445
 
-contact_url: /api/contact
-
 base_url: http://localhost:4444
 
 tax_system_url: api/taxsystem
