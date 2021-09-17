@@ -2,8 +2,11 @@ package com.trade_accounting.components.production;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.contractors.ContractorModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
@@ -30,6 +33,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringComponent
@@ -50,13 +54,15 @@ public class FlowchartsViewTab extends VerticalLayout {
     private final ProductService productService;
     private final List<ProductDto> productDtoList;
     private final TechnicalCardProductionService technicalCardProductionService;
+    private final Notifications notifications;
 
     public FlowchartsViewTab(TechnicalCardService technicalCardService,
                              TechnicalCardGroupService technicalCardGroupService,
-                             ProductService productService, TechnicalCardProductionService technicalCardProductionService) {
+                             ProductService productService, TechnicalCardProductionService technicalCardProductionService, Notifications notifications) {
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
         this.productService = productService;
+        this.notifications = notifications;
         this.technicalCardGroupDto = new TechnicalCardGroupDto();
         this.technicalCardDto = new TechnicalCardDto();
         this.productDtoList = productService.getAll();
@@ -69,6 +75,31 @@ public class FlowchartsViewTab extends VerticalLayout {
         paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getToolBar(), filter, getLabelFlowchartsAndTable(), paginator);
+    }
+
+    private void configureGrid() {
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn("name").setHeader("Наименование").setId("Наименование");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn("productionCost").setHeader("Затраты на производство").setId("Затраты на производство");
+//        grid.addColumn(iDto -> iDto.getTechnicalCardGroupDto().getName()).setHeader("Группа").setId("Группа");
+        grid.addColumn(iDto -> technicalCardGroupService.getById(iDto.getTechnicalCardGroupId()).getName()).setHeader("Группа").setId("Группа");
+        grid.setHeight("64vh");
+        grid.setWidth("150vh");
+
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemDoubleClickListener(event -> {
+            TechnicalCardDto technicalCardDto = event.getItem();
+            TechnicalCardModalWindow addTechnicalCardModalWindow =
+                    new TechnicalCardModalWindow(technicalCardDto,
+                            technicalCardService, technicalCardGroupService, productDtoList, technicalCardProductionService);
+            addTechnicalCardModalWindow.addDetachListener(e -> updateList());
+            addTechnicalCardModalWindow.getSaveButton();
+            addTechnicalCardModalWindow.open();
+        });
+
     }
 
     private HorizontalLayout getToolBar() {
@@ -151,11 +182,36 @@ public class FlowchartsViewTab extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
-        valueSelect.setWidth("120px");
-        valueSelect.setItems("Изменить");
+        List<String> list = new ArrayList<>();
+        list.add("Изменить");
+        list.add("Удалить");
+        valueSelect.setItems(list);
         valueSelect.setValue("Изменить");
+        valueSelect.setWidth("120px");
+        valueSelect.addValueChangeListener(event -> {
+            if (valueSelect.getValue().equals("Удалить")) {
+                deleteSelectedInternalOrders();
+                grid.deselectAll();
+                valueSelect.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return valueSelect;
     }
+
+
+
+    private void deleteSelectedInternalOrders() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (TechnicalCardDto technicalCardDto : grid.getSelectedItems()) {
+                technicalCardService.deleteById(technicalCardDto.getId());
+                notifications.infoNotification("Выбранные заказы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
+    }
+
 
     private HorizontalLayout getLabelFlowchartsAndTable() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -168,19 +224,6 @@ public class FlowchartsViewTab extends VerticalLayout {
         return horizontalLayout;
     }
 
-    private void configureGrid() {
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn("name").setHeader("Наименование").setId("Наименование");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn("productionCost").setHeader("Затраты на производство").setId("Затраты на производство");
-//        grid.addColumn(iDto -> iDto.getTechnicalCardGroupDto().getName()).setHeader("Группа").setId("Группа");
-        grid.addColumn(iDto -> technicalCardGroupService.getById(iDto.getTechnicalCardGroupId()).getName()).setHeader("Группа").setId("Группа");
-        grid.setHeight("64vh");
-        grid.setWidth("150vh");
-
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-    }
 
     private List<TechnicalCardDto> getData() {
         return technicalCardService.getAll();
