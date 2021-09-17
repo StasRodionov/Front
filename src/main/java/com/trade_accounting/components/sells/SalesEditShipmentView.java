@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.ProjectService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -62,6 +63,7 @@ import java.util.Objects;
 @SpringComponent
 @UIScope
 public class SalesEditShipmentView extends VerticalLayout{
+    private final ProductService productService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final ProjectService projectService;
@@ -101,13 +103,14 @@ public class SalesEditShipmentView extends VerticalLayout{
     private String location = null;
 
     @Autowired
-    public SalesEditShipmentView(ContractorService contractorService,
+    public SalesEditShipmentView(ProductService productService, ContractorService contractorService,
                                  CompanyService companyService,
                                  ProjectService projectService, WarehouseService warehouseService,
                                  InvoiceService invoiceService,
                                  InvoiceProductService invoiceProductService,
                                  Notifications notifications,
                                  UnitService unitService) {
+        this.productService = productService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.projectService = projectService;
@@ -141,12 +144,12 @@ public class SalesEditShipmentView extends VerticalLayout{
 
     private void configureGrid() {
         grid.setItems(tempInvoiceProductDtoList);
-        grid.addColumn(inPrDto -> inPrDto.getProductDto().getName()).setHeader("Название")
+        grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название")
                 .setKey("productDtoName").setId("Название");
-        grid.addColumn(inPrDto -> inPrDto.getProductDto().getDescription()).setHeader("Описание")
+        grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание")
                 .setKey("productDtoDescr").setId("Описание");
         Grid.Column<InvoiceProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
-        grid.addColumn(inPrDto -> unitService.getById(inPrDto.getProductDto().getUnitId()).getFullName()).setHeader("Единицы")
+        grid.addColumn(inPrDto -> unitService.getById(productService.getById(inPrDto.getProductId()).getUnitId()).getFullName()).setHeader("Единицы")
                 .setKey("productDtoUnit").setId("Единицы");
         grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
         grid.setHeight("36vh");
@@ -228,7 +231,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         companySelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(companySelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("companyDto");
+                .bind("companyId");
         Label label = new Label("Организация");
         label.setWidth(LABEL_WIDTH);
         companyLayout.add(label, companySelect);
@@ -245,7 +248,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         contractorSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorDto");
+                .bind("contractorId");
         Label label = new Label("Контрагент");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorSelect);
@@ -286,7 +289,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         warehouseSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(warehouseSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("warehouseDto");
+                .bind("warehouseId");
         Label label = new Label("Склад");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseSelect);
@@ -380,15 +383,14 @@ public class SalesEditShipmentView extends VerticalLayout{
             invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
         }
         invoiceDto.setDate(dateField.getValue().toString());
-        invoiceDto.setCompanyDto(companySelect.getValue());
-        invoiceDto.setContractorDto(contractorSelect.getValue());
-        invoiceDto.setWarehouseDto(warehouseSelect.getValue());
+        invoiceDto.setCompanyId(companySelect.getValue().getId());
+        invoiceDto.setContractorId(contractorSelect.getValue().getId());
+        invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
         invoiceDto.setTypeOfInvoice(type);
-        invoiceDto.setSpend(isSpend.getValue());
+        invoiceDto.setIsSpend(isSpend.getValue());
         invoiceDto.setComment("");
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
-        InvoiceDto invoiceDtoForProducts = invoiceDtoResponse.body();
-        return invoiceDtoForProducts;
+        return invoiceDtoResponse.body();
     }
 
     public void deleteInvoiceById(Long invoiceDtoId) {

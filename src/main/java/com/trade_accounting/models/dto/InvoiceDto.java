@@ -15,13 +15,13 @@ public class InvoiceDto {
 
     private String typeOfInvoice;
 
-    private CompanyDto companyDto;
+    private Long companyId;
 
-    private ContractorDto contractorDto;
+    private Long contractorId;
 
-    private WarehouseDto warehouseDto;
+    private Long warehouseId;
 
-    private boolean spend;
+    private Boolean isSpend;
 
     private String comment;
 }

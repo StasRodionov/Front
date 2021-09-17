@@ -5,8 +5,11 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -41,6 +44,9 @@ import java.util.Map;
 @UIScope
 public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
+    private final CompanyService companyService;
+    private  final WarehouseService warehouseService;
+    private final ContractorService contractorService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
@@ -56,9 +62,12 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private static final String TYPE_OF_INVOICE = "RECEIPT";
 
-    public SalesSubInvoicesToBuyersView(InvoiceService invoiceService, InvoiceProductService invoiceProductService,
+    public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService, ContractorService contractorService, InvoiceService invoiceService, InvoiceProductService invoiceProductService,
                                         @Lazy Notifications notifications,
                                         @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
+        this.companyService = companyService;
+        this.warehouseService = warehouseService;
+        this.contractorService = contractorService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
@@ -87,12 +96,12 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания")
-                .setKey("companyDto").setId("Компания");
-        grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент")
-                .setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада")
-                .setKey("warehouseDto").setId("Со склада");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Компания")
+                .setKey("companyId").setId("Компания");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorId").setId("Контрагент");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
+                .setKey("warehouseId").setId("Со склада");
         grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);

@@ -7,6 +7,8 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;
@@ -66,6 +68,8 @@ import java.util.stream.Collectors;
 @UIScope
 public class PurchasesSubSuppliersOrders extends VerticalLayout implements AfterNavigationObserver {
 
+    private final ContractorService contractorService;
+    private final CompanyService companyService;
     private final InvoiceService invoiceService;
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
     private final Notifications notifications;
@@ -83,9 +87,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
 
     @Autowired
-    public PurchasesSubSuppliersOrders(InvoiceService invoiceService,
+    public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService, InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                        @Lazy Notifications notifications, EmployeeService employeeService) {
+        this.contractorService = contractorService;
+        this.companyService = companyService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.employeeService = employeeService;
         this.invoiceService = invoiceService;
@@ -112,13 +118,13 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
                 .setId("Дата");
-        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto")
+        grid.addColumn(iDto -> contractorService.getById(iDto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorId")
                 .setId("Контрагент");
 //        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
 //        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
-        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyId")
                 .setId("Компания");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Проведена")
                 .setId("Проведена");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
 //        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
@@ -146,7 +152,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
-        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("isSpend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
             map.put("typeOfInvoice", typeOfInvoice);
@@ -281,7 +287,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
                                                  Select<String> print) {
         upload.addFinishedListener(event -> {
             if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
-                getErrorNotification("Файл с таки именем уже существует");
+                getErrorNotification("Файл с таким именем уже существует");
             } else {
                 File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
                 try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
@@ -315,7 +321,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         for (InvoiceDto inc : list1) {
             sumList.add(getTotalPrice(inc));
         }
-        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), sumList, employeeService);
+        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), contractorService, companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
     }
 
@@ -357,7 +363,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     }
 
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
-        if (invoiceDto.isSpend()) {
+        if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
