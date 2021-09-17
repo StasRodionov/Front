@@ -34,14 +34,14 @@ import java.util.List;
 @Route(value = "MoneySubPaymentsView", layout = AppView.class)
 @PageTitle("Платежи")
 public class MoneySubPaymentsView extends VerticalLayout {
-    private final PaymentService paymentService;
-    private final CompanyService companyService;
-    private final ContractorService contractorService;
-    private final ProjectService projectService;
-    private final ContractService contractService;
-    private final Notifications notifications;
+    private final transient PaymentService paymentService;
+    private final transient CompanyService companyService;
+    private final transient ContractorService contractorService;
+    private final transient ProjectService projectService;
+    private final transient ContractService contractService;
+    private final transient Notifications notifications;
 
-    private final List<PaymentDto> data;
+    private final transient List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
     private final GridFilter<PaymentDto> filter;
@@ -86,17 +86,17 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.setItems(data);
         grid.addColumn("id").setHeader("ID").setId("№");
         grid.addColumn("time").setFlexGrow(10).setHeader("Дата").setId("Дата");
-        grid.addColumn(pDto -> pDto.getCompanyDto().getName()).setFlexGrow(10).setSortable(true)
+        grid.addColumn(pDto -> companyService.getById(pDto.getCompanyId()).getName()).setFlexGrow(10).setSortable(true)
                 .setKey("companyDto").setHeader("Компания").setId("Компания");
         grid.addColumn("sum").setFlexGrow(4).setHeader("Сумма").setId("Сумма");
         grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж").setId("Номер платежа");
         grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
         grid.addColumn("paymentMethods").setFlexGrow(4).setHeader("Способ Оплаты").setId("Способ оплаты");
-        grid.addColumn(pDto -> pDto.getContractorDto().getName()).setFlexGrow(10).setSortable(true)
+        grid.addColumn(pDto -> contractorService.getById(pDto.getContractorId()).getName()).setFlexGrow(10).setSortable(true)
                 .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn(pDto -> pDto.getContractDto().getNumber()).setFlexGrow(3).setSortable(true)
+        grid.addColumn(pDto -> contractService.getById(pDto.getContractId()).getNumber()).setFlexGrow(3).setSortable(true)
                 .setKey("contractDto").setHeader("Договор").setId("Договор");
-        grid.addColumn(pDto -> pDto.getProjectDto().getName()).setFlexGrow(7).setSortable(true)
+        grid.addColumn(pDto -> projectService.getById(pDto.getProjectId()).getName()).setFlexGrow(7).setSortable(true)
                 .setKey("projectDto").setHeader("Проект").setId("Проект");
         grid.setHeight("66vh");
         grid.addItemDoubleClickListener(event -> {
@@ -206,7 +206,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private Select<String> getPrint() {
-        Select getPrint = new Select();
+        Select<String> getPrint = new Select<>();
         getPrint.setWidth("130px");
         getPrint.setItems("Печать", "Список всех платежей");
         getPrint.setValue("Печать");
@@ -215,7 +215,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private void uploadListAllPays(Select<String> print) {
-        PaymentPrintModal paymentPrintModal = new PaymentPrintModal(paymentService);
+        PaymentPrintModal paymentPrintModal = new PaymentPrintModal(companyService, contractService, contractorService, projectService, paymentService);
         print.addValueChangeListener(x -> {
             if (x.getValue().equals("Список всех платежей")) {
                 paymentPrintModal.open();
