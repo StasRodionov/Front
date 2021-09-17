@@ -124,7 +124,7 @@ public class SalesEditShipmentView extends VerticalLayout{
 
         binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorDto");
+                .bind("contractorId");
         binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
             if (
                     valueChangeEvent.isFromClient()
