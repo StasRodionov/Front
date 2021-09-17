@@ -38,8 +38,12 @@ import java.time.LocalDateTime;
 @UIScope
 @Slf4j
 public class PaymentModalWin extends Dialog {
-    private final PaymentService paymentService;
-    private final Notifications notifications;
+    private final transient CompanyService companyService;
+    private final transient ContractService contractService;
+    private final transient ContractorService contractorService;
+    private final transient ProjectService projectService;
+    private final transient PaymentService paymentService;
+    private final transient Notifications notifications;
 
     private final DateTimePicker dateField = new DateTimePicker();
     private final ComboBox<String> typeofPaymentBox = new ComboBox<>();
@@ -50,7 +54,7 @@ public class PaymentModalWin extends Dialog {
     private final ComboBox<ProjectDto> projectDtoComboBox = new ComboBox<>();
     private final TextField payNumber = new TextField();
     private final BigDecimalField sum = new BigDecimalField();
-    private PaymentDto paymentDto;
+    private transient PaymentDto paymentDto;
 
     //    @Autowired
     public PaymentModalWin(
@@ -63,6 +67,10 @@ public class PaymentModalWin extends Dialog {
     ) {
         this.paymentService = paymentService;
         this.notifications = notifications;
+        this.companyService = companyService;
+        this.contractorService = contractorService;
+        this.contractService = contractService;
+        this.projectService = projectService;
         typeofPaymentBox.setItems("Входящий", "Исходящий");
         paymentMethods.setItems("Наличные", "Безнал");
         companyDtoComboBox.setItems(companyService.getAll());
@@ -113,28 +121,28 @@ public class PaymentModalWin extends Dialog {
     }
 
     private PaymentDto updatePaymentDto() {
-        PaymentDto paymentDto = new PaymentDto();
-        paymentDto.setTime(dateField.getValue().toString());
-        paymentDto.setCompanyDto(companyDtoComboBox.getValue());
-        paymentDto.setContractorDto(contractorDtoComboBox.getValue());
-        paymentDto.setContractDto(contractDtoComboBox.getValue());
-        paymentDto.setProjectDto(projectDtoComboBox.getValue());
-        paymentDto.setNumber(payNumber.getValue());
-        paymentDto.setSum(sum.getValue());
+        PaymentDto payment = new PaymentDto();
+        payment.setTime(dateField.getValue().toString());
+        payment.setCompanyId(companyDtoComboBox.getValue().getId());
+        payment.setContractorId(contractorDtoComboBox.getValue().getId());
+        payment.setContractId(contractDtoComboBox.getValue().getId());
+        payment.setProjectId(projectDtoComboBox.getValue().getId());
+        payment.setNumber(payNumber.getValue());
+        payment.setSum(sum.getValue());
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
-            paymentDto.setId(this.paymentDto.getId());
+            payment.setId(this.paymentDto.getId());
         }
         if (typeofPaymentBox.getValue().equals("Входящий")) {
-            paymentDto.setTypeOfPayment("INCOMING");
+            payment.setTypeOfPayment("INCOMING");
         } else {
-            paymentDto.setTypeOfPayment("OUTGOING");
+            payment.setTypeOfPayment("OUTGOING");
         }
         if (paymentMethods.getValue().equals("Наличные")) {
-            paymentDto.setPaymentMethods("CASH");
+            payment.setPaymentMethods("CASH");
         } else {
-            paymentDto.setPaymentMethods("BANK");
+            payment.setPaymentMethods("BANK");
         }
-        return paymentDto;
+        return payment;
     }
 
     private void reset() {
@@ -152,11 +160,11 @@ public class PaymentModalWin extends Dialog {
     private Button getSaveButton() {
         return new Button("Сохранить", new Icon(VaadinIcon.PLUS_CIRCLE), event -> {
             if (sum.getValue().compareTo(BigDecimal.valueOf(9999999999999999L)) < 0) {
-                PaymentDto paymentDto = updatePaymentDto();
-                if (paymentDto.getId() == null) {
-                    paymentService.create(paymentDto);
+                PaymentDto payment = updatePaymentDto();
+                if (payment.getId() == null) {
+                    paymentService.create(payment);
                 } else {
-                    paymentService.update(paymentDto);
+                    paymentService.update(payment);
                 }
                 reset();
                 UI.getCurrent().navigate("money");
@@ -193,12 +201,12 @@ public class PaymentModalWin extends Dialog {
 
     public void setPaymentDataForEdit(PaymentDto editPaymentDto) {
         this.paymentDto = editPaymentDto;
-        companyDtoComboBox.setValue(paymentDto.getCompanyDto());
+        companyDtoComboBox.setValue(companyService.getById(paymentDto.getCompanyId()));
         typeofPaymentBox.setValue(paymentDto.getTypeOfPayment());
         paymentMethods.setValue(paymentDto.getPaymentMethods());
-        contractDtoComboBox.setValue(paymentDto.getContractDto());
-        contractorDtoComboBox.setValue(paymentDto.getContractorDto());
-        projectDtoComboBox.setValue(paymentDto.getProjectDto());
+        contractDtoComboBox.setValue(contractService.getById(paymentDto.getContractId()));
+        contractorDtoComboBox.setValue(contractorService.getById(paymentDto.getContractorId()));
+        projectDtoComboBox.setValue(projectService.getById(paymentDto.getProjectId()));
         payNumber.setValue(paymentDto.getNumber());
         sum.setValue(paymentDto.getSum());
         dateField.setValue(LocalDateTime.now());

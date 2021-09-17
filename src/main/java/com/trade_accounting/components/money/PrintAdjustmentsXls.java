@@ -11,13 +11,13 @@ import org.apache.poi.ss.usermodel.Cell;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class PrintPaymentsXls extends PrintExcelDocument<PaymentDto> {
+public class PrintAdjustmentsXls extends PrintExcelDocument<PaymentDto> {
     private final CompanyService companyService;
     private final ContractService contractService;
     private final ContractorService contractorService;
     private final ProjectService projectService;
 
-    protected PrintPaymentsXls(String pathToXlsTemplate, List<PaymentDto> list, CompanyService companyService,
+    protected PrintAdjustmentsXls(String pathToXlsTemplate, List<PaymentDto> list, CompanyService companyService,
                                ContractorService contractorService, ContractService contractService, ProjectService projectService) {
         super(pathToXlsTemplate, list);
         this.companyService = companyService;
@@ -46,32 +46,23 @@ public class PrintPaymentsXls extends PrintExcelDocument<PaymentDto> {
             case ("<id>"):
                 editCell.setCellValue(model.getId());
                 break;
-            case ("<time>"):
+            case ("<data>"):
                 editCell.setCellValue(model.getTime());
                 break;
             case ("<company>"):
                 editCell.setCellValue(companyService.getById(model.getCompanyId()).getName());
                 break;
-            case ("<sum>"):
-                editCell.setCellValue(String.valueOf(model.getSum()));
-                break;
-            case ("<number>"):
-                editCell.setCellValue(model.getNumber());
-                break;
-            case ("<typeOfPayment>"):
-                editCell.setCellValue(model.getTypeOfPayment());
-                break;
             case ("<contractor>"):
                 editCell.setCellValue(contractorService.getById(model.getContractorId()).getName());
                 break;
-            case ("<contract>"):
-                editCell.setCellValue(contractService.getById(model.getContractId()).getNumber());
+            case ("<account>"):
+                editCell.setCellValue(model.getId());
                 break;
-            case ("<project>"):
-                editCell.setCellValue(projectService.getById(model.getProjectId()).getName());
+            case ("<sum>"):
+                editCell.setCellValue(String.valueOf(model.getSum()));
                 break;
+
             default:
         }
     }
 }
-

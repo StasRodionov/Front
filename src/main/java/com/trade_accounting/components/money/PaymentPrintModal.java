@@ -1,6 +1,10 @@
 package com.trade_accounting.components.money;
 
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.PaymentService;
+import com.trade_accounting.services.interfaces.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -24,13 +28,21 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class PaymentPrintModal extends Dialog {
+    private final transient CompanyService companyService;
+    private final transient ContractService contractService;
+    private final transient ContractorService contractorService;
+    private final transient ProjectService projectService;
     private static final String LABEL_WIDTH = "500px";
-    private final PaymentService paymentService;
+    private final transient PaymentService paymentService;
 
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/payments_templates/";
 
     @Autowired
-    public PaymentPrintModal(PaymentService paymentService) {
+    public PaymentPrintModal(CompanyService companyService, ContractService contractService, ContractorService contractorService, ProjectService projectService, PaymentService paymentService) {
+        this.companyService = companyService;
+        this.contractService = contractService;
+        this.contractorService = contractorService;
+        this.projectService = projectService;
         this.paymentService = paymentService;
         add(header(), configurePrintSelect(), valueSelectPrint(), footer());
     }
@@ -73,7 +85,7 @@ public class PaymentPrintModal extends Dialog {
     private Anchor getLinkToPaymentsXls(File file) {
         String paymentsTemplate = file.getName();
         PrintPaymentsXls printPaymentsXls = new PrintPaymentsXls(
-                file.getPath(), paymentService.getAll());
+                file.getPath(), paymentService.getAll(), companyService, contractorService, contractService, projectService);
         return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport),
                 "Скачать файл");
     }
