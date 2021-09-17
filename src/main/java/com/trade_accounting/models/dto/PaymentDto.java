@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Data
@@ -17,17 +18,20 @@ public class PaymentDto {
 
     private String paymentMethods;
 
+    @NotNull
     private String number;
 
     private String time;
 
-    private CompanyDto companyDto;
+    @NotNull
+    private Long companyId;
 
-    private ContractorDto contractorDto;
+    @NotNull
+    private Long contractorId;
 
-    private ContractDto contractDto;
+    private Long contractId;
 
-    private ProjectDto projectDto;
+    private Long projectId;
 
     private BigDecimal sum;
 }
