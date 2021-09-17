@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class ContractDto {
 
     private Long id;
@@ -22,11 +21,11 @@ public class ContractDto {
 
     private LocalDate date;
 
-    private CompanyDto companyDto;
+    private Long companyId;
 
-    private BankAccountDto bankAccountDto;
+    private Long bankAccountId;
 
-    private ContractorDto contractorDto;
+    private Long contractorId;
 
     private BigDecimal amount;
 
@@ -34,21 +33,7 @@ public class ContractDto {
 
     private String comment;
 
-    private LegalDetailDto legalDetailDto;
-
-    public ContractDto(Long id, String number, LocalDate date, CompanyDto companyDto, BankAccountDto bankAccountDto, ContractorDto contractorDto, BigDecimal amount, Boolean archive, String comment, LegalDetailDto legalDetailDto) {
-        this.id = id;
-        this.number = number;
-        this.date = date;
-        this.contractDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        this.companyDto = companyDto;
-        this.bankAccountDto = bankAccountDto;
-        this.contractorDto = contractorDto;
-        this.amount = amount;
-        this.archive = archive;
-        this.comment = comment;
-        this.legalDetailDto = legalDetailDto;
-    }
+    private Long legalDetailId;
 
     public void setDate(String contractDate) {
         this.date = LocalDate.parse(contractDate);
