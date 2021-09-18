@@ -22,8 +22,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -151,14 +149,14 @@ public class RetailStoreModalWindow extends Dialog {
                 retailStoreDtoToEdit.setName(name.getValue());
                 retailStoreDtoToEdit.setActivityStatus("Онлайн");
                 retailStoreDtoToEdit.setRevenue(new BigDecimal(0_00));
-                retailStoreDtoToEdit.setCompanyDto(organization.getValue());
+                retailStoreDtoToEdit.setCompanyId(organization.getValue().getId());
                 retailStoreDtoToEdit.setSalesInvoicePrefix(salesInvoicePrefix.getValue());
                 retailStoreDtoToEdit.setDefaultTaxationSystem(defaultTaxationSystem.getValue());
                 retailStoreDtoToEdit.setOrderTaxationSystem(orderTaxationSystem.getValue());
                 if (cashiers.isEmpty()) {
-                    cashiers.setValue(new HashSet<>(retailStoreDtoToEdit.getCashiersDto()));
+                    cashiers.setValue(retailStoreDtoToEdit.getCashiersIds().stream().map(employeeService::getById).collect(Collectors.toSet()));
                 }
-                retailStoreDtoToEdit.setCashiersDto(new ArrayList<>(cashiers.getValue()));
+                retailStoreDtoToEdit.setCashiersIds(cashiers.getValue().stream().map(EmployeeDto::getId).collect(Collectors.toList()));
                 if (retailStoreDtoBinder.validate().isOk()) {
                     retailStoreService.update(retailStoreDtoToEdit);
                     clearAll();
@@ -172,11 +170,11 @@ public class RetailStoreModalWindow extends Dialog {
                 retailStoreDto.setName(name.getValue());
                 retailStoreDto.setActivityStatus("Онлайн");
                 retailStoreDto.setRevenue(new BigDecimal(0_00));
-                retailStoreDto.setCompanyDto(organization.getValue());
+                retailStoreDto.setCompanyId(organization.getValue().getId());
                 retailStoreDto.setSalesInvoicePrefix(salesInvoicePrefix.getValue());
                 retailStoreDto.setDefaultTaxationSystem(defaultTaxationSystem.getValue());
                 retailStoreDto.setOrderTaxationSystem(orderTaxationSystem.getValue());
-                retailStoreDto.setCashiersDto(new ArrayList<>(cashiers.getSelectedItems()));
+                retailStoreDto.setCashiersIds(cashiers.getValue().stream().map(EmployeeDto::getId).collect(Collectors.toList()));
                 if (retailStoreDtoBinder.validate().isOk()) {
                     retailStoreService.create(retailStoreDto);
                     clearAll();
@@ -205,8 +203,8 @@ public class RetailStoreModalWindow extends Dialog {
         if (retailStoreDtoToEdit.getName() != null) {
             name.setValue(retailStoreDto.getName());
         }
-        if (retailStoreDtoToEdit.getCompanyDto() != null) {
-            organization.setValue(retailStoreDto.getCompanyDto());
+        if (retailStoreDtoToEdit.getCompanyId() != null) {
+            organization.setValue(companyService.getById(retailStoreDto.getCompanyId()));
         }
         if (retailStoreDtoToEdit.getSalesInvoicePrefix() != null) {
             salesInvoicePrefix.setValue(retailStoreDto.getSalesInvoicePrefix());
@@ -218,8 +216,8 @@ public class RetailStoreModalWindow extends Dialog {
             orderTaxationSystem.setValue(retailStoreDto.getOrderTaxationSystem());
         }
 
-        if (retailStoreDtoToEdit.getCashiersDto() != null) {
-            cashiers.setValue(new HashSet<>(retailStoreDto.getCashiersDto()));
+        if (retailStoreDtoToEdit.getCashiersIds() != null) {
+            cashiers.setValue(retailStoreDto.getCashiersIds().stream().map(employeeService::getById).collect(Collectors.toSet()));
         }
     }
 
