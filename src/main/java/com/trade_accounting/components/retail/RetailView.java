@@ -3,6 +3,7 @@ package com.trade_accounting.components.retail;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
@@ -28,17 +29,19 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final RetailStoreService retailStoreService;
     private final RetailSalesService retailSalesService;
     private final CompanyService companyService;
+    private final ContractorService contractorService;
     private final EmployeeService employeeService;
     private final PayoutService payoutService;
     private final Notifications notifications;
 
     @Autowired
-    public RetailView(RetailStoreService retailStoreService,RetailSalesService retailSalesService,
-                      CompanyService companyService, EmployeeService employeeService,
+    public RetailView(RetailStoreService retailStoreService, RetailSalesService retailSalesService,
+                      CompanyService companyService, ContractorService contractorService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications) {
         this.retailStoreService = retailStoreService;
         this.retailSalesService = retailSalesService;
         this.companyService = companyService;
+        this.contractorService = contractorService;
         this.employeeService = employeeService;
         this.payoutService = payoutService;
         this.notifications = notifications;
@@ -83,7 +86,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Продажи":
                     div.removeAll();
-                    div.add(new RetailSalesTabView(retailSalesService));
+                    div.add(new RetailSalesTabView(retailSalesService, retailStoreService, companyService, contractorService));
                     break;
                 case "Возвраты":
                     div.removeAll();
