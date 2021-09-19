@@ -3,7 +3,6 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.LazyPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
