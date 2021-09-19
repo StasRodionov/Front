@@ -30,16 +30,17 @@ public class RemainServiceImpl implements RemainService {
 
     @Override
     public List<RemainDto> getAll() {
-        List<RemainDto> remainDtoList = new ArrayList<>();
+//        List<RemainDto> remainDtoList = new ArrayList<>();
         Call<List<RemainDto>> remainDtoListCall = remainApi.getAll(remainUrl);
-
-        try {
-            remainDtoList.addAll(Objects.requireNonNull(remainDtoListCall.clone().execute().body()));
-            log.info("Успешно выполнен запрос на получение списка RemainDto");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение списка RemainDto - {}", e);
-        }
-        return remainDtoList;
+        System.out.println(remainDtoListCall);
+        return dtoCallExecuteService.callExecuteBodyList(remainDtoListCall, RemainDto.class);
+//        try {
+//            remainDtoList.addAll(Objects.requireNonNull(remainDtoListCall.execute().body()));
+//            log.info("Успешно выполнен запрос на получение списка RemainDto");
+//        } catch (IOException e) {
+//            log.error("Произошла ошибка при выполнении запроса на получение списка RemainDto - {}", e);
+//        }
+//        return remainDtoList;
     }
 
     @Override

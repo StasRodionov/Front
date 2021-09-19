@@ -33,6 +33,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringComponent
 @PageTitle("Остатки")
@@ -40,8 +41,7 @@ import java.util.List;
 @UIScope
 public class RemainView extends VerticalLayout {
 
-    RemainDto remainDto1 = new RemainDto(1L, "name1", "vendorCode1", 23134, 39535, 93078, 28034, 46973, 38L, 11, 45773, 66039, 56196, 64115 );
-    RemainDto remainDto2 = new RemainDto(2L, "name2", "vendorCode2", 23134, 39535, 93078, 28034, 46973, 38L, 11, 45773, 66039, 56196, 64115 );
+
 
     private final RemainService remainService;
     private final UnitService unitService;
@@ -49,7 +49,7 @@ public class RemainView extends VerticalLayout {
 
     private final Grid<RemainDto> grid = new Grid<>(RemainDto.class, false);
     private final GridPaginator<RemainDto> paginator;
-
+    private List<RemainDto> data;
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
@@ -57,9 +57,7 @@ public class RemainView extends VerticalLayout {
         this.remainService = remainService;
         this.unitService = unitService;
         this.notifications = notifications;
-        List<RemainDto> data = new ArrayList<>();
-        data.add(remainDto1);
-        data.add(remainDto2);
+        data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
@@ -89,9 +87,15 @@ public class RemainView extends VerticalLayout {
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
     }
 
-//    private List<RemainDto> getData() {
-//        return remainService.getAll();
-//    }
+    private List<RemainDto> getData() {
+        List<RemainDto> list = new ArrayList<>();
+        RemainDto remainDto1 = new RemainDto(4L, "name1", "vendorCode1", 23134, 39535, 93078, 28034, 46973, 38L, 11, 45773, 66039, 56196, 64115 );
+        RemainDto remainDto2 = new RemainDto(5L, "name2", "vendorCode2", 23134, 39535, 93078, 28034, 46973, 38L, 11, 45773, 66039, 56196, 64115 );
+        list.add(remainDto1);
+        list.add(remainDto2);
+        return list;
+//        return new ArrayList<>(remainService.getAll());  //надо разобраться с RemainServiceImpl
+    }
 
     private void deleteSelectedRemains() {
         if (!grid.getSelectedItems().isEmpty()) {
@@ -150,6 +154,7 @@ public class RemainView extends VerticalLayout {
     }
 
     public void updateList() {
+        paginator.setData(data, false);
     }
 
     private Button buttonUnit() {
@@ -190,7 +195,7 @@ public class RemainView extends VerticalLayout {
                 deleteSelectedRemains();
                 grid.deselectAll();
                 select.setValue("Изменить");
-//                paginator.setData(getData());
+                paginator.setData(getData());
             }
         });
         return select;
