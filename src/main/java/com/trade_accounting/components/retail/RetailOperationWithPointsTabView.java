@@ -4,7 +4,10 @@ package com.trade_accounting.components.retail;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.RetailOperationWithPointsDto;
+import com.trade_accounting.services.interfaces.BonusProgramService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;
+import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -32,17 +35,20 @@ import java.util.List;
 public class RetailOperationWithPointsTabView extends VerticalLayout implements AfterNavigationObserver {
 
     private final RetailOperationWithPointsService retailOperationWithPointsService;
-    /*private final B retailOperationWithPointsService;
-    private final RetailOperationWithPointsService retailOperationWithPointsService;
-    private final RetailOperationWithPointsService retailOperationWithPointsService;*/
+    private final BonusProgramService bonusProgramService;
+    private final ContractorService contractorService;
+    private final TaskService taskService;
     private List<RetailOperationWithPointsDto> data;
 
     private final Grid<RetailOperationWithPointsDto> grid = new Grid<>(RetailOperationWithPointsDto.class, false);
     private final GridPaginator<RetailOperationWithPointsDto> paginator;
 
-    public RetailOperationWithPointsTabView(RetailOperationWithPointsService retailOperationWithPointsService) {
+    public RetailOperationWithPointsTabView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, ContractorService contractorService, TaskService taskService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.data = retailOperationWithPointsService.getAll();
+        this.bonusProgramService = bonusProgramService;
+        this.contractorService = contractorService;
+        this.taskService = taskService;
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -50,14 +56,16 @@ public class RetailOperationWithPointsTabView extends VerticalLayout implements 
     }
 
     private void configureGrid() {
-        grid.addColumn("id").setWidth("20px").setHeader("№").setId("№");
-        grid.addColumn("number").setHeader("Номер").setId("number");
+        grid.addColumn("id").setWidth("1px").setHeader("№").setId("№");
+        //grid.addColumn("number").setHeader("№").setId("number");
         grid.addColumn("currentTime").setHeader("Время").setId("currentTime");
         grid.addColumn("typeOperation").setHeader("Тип операции").setId("typeOperation");
         grid.addColumn("numberOfPoints").setHeader("Колличество баллов").setId("numberOfPoints");
         grid.addColumn("accrualDate").setHeader("Дата начисления").setId("accrualDate");
-        //grid.addColumn("time").setHeader("Время").setId("time");
-
+        grid.addColumn(retailOperationWithPointsDto -> bonusProgramService.getById(retailOperationWithPointsDto.getBonusProgramId())
+                .getName()).setHeader("Бонусная программа").setId("bonusProgram");
+        grid.addColumn(retailOperationWithPointsDto -> contractorService.getById(retailOperationWithPointsDto.getContractorId())
+                .getName()).setHeader("Контрагент").setId("contractor");
 
         GridSortOrder<RetailOperationWithPointsDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
