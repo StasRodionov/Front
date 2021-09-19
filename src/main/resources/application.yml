@@ -13,6 +13,8 @@ currency_url: api/currency
 
 bank_account_url: api/bank/account
 
+bonus_program_url: api/bonusprogram
+
 contractor_group_url: api/contractor/group
 
 contractor_url: api/contractor

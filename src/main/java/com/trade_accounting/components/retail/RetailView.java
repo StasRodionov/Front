@@ -32,19 +32,17 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final EmployeeService employeeService;
     private final PayoutService payoutService;
     private final Notifications notifications;
-    private final RetailOperationWithPointsService retailOperationWithPointsService;
 
     @Autowired
-    public RetailView(RetailStoreService retailStoreService, RetailSalesService retailSalesService,
+    public RetailView(RetailStoreService retailStoreService,RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
-                      PayoutService payoutService, Notifications notifications, RetailOperationWithPointsService retailOperationWithPointsService) {
+                      PayoutService payoutService, Notifications notifications) {
         this.retailStoreService = retailStoreService;
         this.retailSalesService = retailSalesService;
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.payoutService = payoutService;
         this.notifications = notifications;
-        this.retailOperationWithPointsService = retailOperationWithPointsService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -100,7 +98,6 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Операции с баллами":
                     div.removeAll();
-                    div.add(new RetailOperationWithPointsTabView(retailOperationWithPointsService));
                     break;
                 case "Предоплаты":
                     div.removeAll();
