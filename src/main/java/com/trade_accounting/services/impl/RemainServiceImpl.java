@@ -12,6 +12,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -19,10 +20,12 @@ public class RemainServiceImpl implements RemainService {
 
     private final RemainApi remainApi;
     private final String remainUrl;
+    private final CallExecuteService<RemainDto> dtoCallExecuteService;
 
-    public RemainServiceImpl(@Value("@{remain_url}") String remainUrl, Retrofit retrofit) {
+    public RemainServiceImpl(@Value("@{remain_url}") String remainUrl, Retrofit retrofit, CallExecuteService<RemainDto> dtoCallExecuteService) {
         remainApi = retrofit.create(RemainApi.class);
         this.remainUrl = remainUrl;
+        this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
     @Override
@@ -31,7 +34,7 @@ public class RemainServiceImpl implements RemainService {
         Call<List<RemainDto>> remainDtoListCall = remainApi.getAll(remainUrl);
 
         try {
-            remainDtoList.addAll(remainDtoListCall.execute().body());
+            remainDtoList.addAll(Objects.requireNonNull(remainDtoListCall.clone().execute().body()));
             log.info("Успешно выполнен запрос на получение списка RemainDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение списка RemainDto - {}", e);
@@ -42,7 +45,7 @@ public class RemainServiceImpl implements RemainService {
     @Override
     public RemainDto getById(Long id) {
         RemainDto remainDto = null;
-        Call<RemainDto> remainDtoCall = remainApi.getBuId(remainUrl, id);
+        Call<RemainDto> remainDtoCall = remainApi.getById(remainUrl, id);
 
         try {
             remainDto = remainDtoCall.execute().body();
