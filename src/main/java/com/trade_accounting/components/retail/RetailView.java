@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
+import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.html.Div;
@@ -31,17 +32,19 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final EmployeeService employeeService;
     private final PayoutService payoutService;
     private final Notifications notifications;
+    private final RetailOperationWithPointsService retailOperationWithPointsService;
 
     @Autowired
-    public RetailView(RetailStoreService retailStoreService,RetailSalesService retailSalesService,
+    public RetailView(RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
-                      PayoutService payoutService, Notifications notifications) {
+                      PayoutService payoutService, Notifications notifications, RetailOperationWithPointsService retailOperationWithPointsService) {
         this.retailStoreService = retailStoreService;
         this.retailSalesService = retailSalesService;
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.payoutService = payoutService;
         this.notifications = notifications;
+        this.retailOperationWithPointsService = retailOperationWithPointsService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -97,6 +100,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Операции с баллами":
                     div.removeAll();
+                    div.add(new RetailOperationWithPointsTabView(retailOperationWithPointsService));
                     break;
                 case "Предоплаты":
                     div.removeAll();
