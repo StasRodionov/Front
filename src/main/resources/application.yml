@@ -113,4 +113,6 @@ productprice_url: /api/productprice
 
 contact_url: api/contact
 
+returns_url: api/returns
+
 #debug: true
