@@ -6,6 +6,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -49,6 +50,7 @@ import java.util.List;
 @SpringComponent
 @UIScope
 public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavigationObserver {
+    private final CompanyService companyService;
     private final AcceptanceService acceptanceService;
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
@@ -62,12 +64,13 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-    public PurchasesSubAcceptances(AcceptanceService acceptanceService,
+    public PurchasesSubAcceptances(CompanyService companyService, AcceptanceService acceptanceService,
                                    WarehouseService warehouseService,
                                    ContractorService contractorService,
                                    ContractService contractService,
                                    Notifications notifications,
                                    AcceptanceModalView modalView) {
+        this.companyService = companyService;
         this.acceptanceService = acceptanceService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
@@ -101,7 +104,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                 .setKey("warehouseDto").setId("На склад");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")
                 .setId("Контрагент");
-        grid.addColumn(dto -> contractService.getById(dto.getContractId()).getCompanyDto().getName()).setHeader("Организация")
+        grid.addColumn(dto -> companyService.getById(contractService.getById(dto.getContractId()).getCompanyId()).getName()).setHeader("Организация")
                 .setKey("companyDto").setId("Организация");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")

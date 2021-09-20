@@ -7,6 +7,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -42,6 +43,7 @@ import java.util.List;
 @UIScope
 public class SalesSubShipmentView extends VerticalLayout {
 
+    private final WarehouseService warehouseService;
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -55,9 +57,10 @@ public class SalesSubShipmentView extends VerticalLayout {
     private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
-    public SalesSubShipmentView(InvoiceService invoiceService,
+    public SalesSubShipmentView(WarehouseService warehouseService, InvoiceService invoiceService,
                                 ContractorService contractorService,
                                 CompanyService companyService, SalesEditShipmentView salesEditShipmentView, InvoiceProductService invoiceProductService) {
+        this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -84,12 +87,12 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn(dto -> dto.getWarehouseDto().getName()).setHeader("Со склада")
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
                 .setKey("typeOfInvoiceDTO").setId("Склад");
-        grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент")
-                .setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Организация")
-                .setKey("companyDto").setId("Компания");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorId").setId("Контрагент");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
+                .setKey("companyId").setId("Компания");
         grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма");
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
@@ -98,7 +101,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     }
 
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
-        if (invoiceDto.isSpend()) {
+        if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
