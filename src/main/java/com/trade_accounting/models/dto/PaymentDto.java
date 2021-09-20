@@ -18,6 +18,8 @@ public class PaymentDto {
 
     private String paymentMethods;
 
+    private String expenseItem;
+
     @NotNull
     private String number;
 

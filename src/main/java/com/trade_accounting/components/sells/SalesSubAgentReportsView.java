@@ -85,12 +85,12 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         grid.addColumn("id").setHeader("id").setId("id");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Счет-фактура")
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Счет-фактура")
                 .setKey("typeOfInvoiceDTO").setId("Счет-фактура");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setHeader("Компания")
-                .setKey("companyDto").setId("Компания");
-        grid.addColumn(dto -> dto.getContractorDto().getName()).setHeader("Контрагент")
-                .setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Компания")
+                .setKey("companyId").setId("Компания");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorId").setId("Контрагент");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
         grid.setHeight("66vh");
@@ -110,7 +110,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     }
 
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
-        if (invoiceDto.isSpend()) {
+        if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;

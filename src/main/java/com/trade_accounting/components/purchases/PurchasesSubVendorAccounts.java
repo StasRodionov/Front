@@ -111,7 +111,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
                 .setKey("warehouseId").setId("На склад");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Оплачено")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Оплачено")
                 .setId("Оплачено");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
@@ -260,7 +260,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private Component getIsCheckedIcon(SupplierAccountDto supplierAccountDto) {
-        if (supplierAccountDto.isSpend()) {
+        if (supplierAccountDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;

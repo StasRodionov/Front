@@ -1,9 +1,12 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.TaskDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalCardGroupDto;
 import com.trade_accounting.models.dto.TechnicalCardProductionDto;
+import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.TaskService;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
@@ -75,6 +78,7 @@ public class TechnicalCardModalWindow extends Dialog {
         add(new Text("Техническая карта"), header(), technicalCardAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
+
 
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
@@ -241,19 +245,21 @@ public class TechnicalCardModalWindow extends Dialog {
         return horizontalLayout;
     }
 
-    private Button getSaveButton() {
-        if (nameField.isEmpty()) {
+    public Button getSaveButton() {
+        if (nameField.isEmpty()){
             return new Button("Добавить", event -> {
                 saveFields(technicalCardDto);
                 technicalCardService.create(technicalCardDto);
                 close();
             });
         } else {
+
             return new Button("Изменить", event -> {
                 saveFields(technicalCardDto);
                 technicalCardService.update(technicalCardDto);
                 close();
             });
+
         }
     }
 
