@@ -2,7 +2,7 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.LazyPaginator;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -32,6 +32,7 @@ import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 
 @Slf4j
 @Route(value = "employee", layout = AppView.class)
@@ -43,30 +44,32 @@ public class EmployeeView extends VerticalLayout {
     private final RoleService roleService;
     private final ImageService imageService;
     private final GridFilter<EmployeeDto> filter;
-    private final LazyPaginator<EmployeeDto> lazyPaginator;
+    private final GridPaginator<EmployeeDto> paginator;
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         this.imageService = imageService;
         this.grid = new Grid<>(EmployeeDto.class);
-
+        List<EmployeeDto> data = getData();
         configureGrid();
         this.filter = new GridFilter<>(grid);
-        this.lazyPaginator = new LazyPaginator<>(grid, employeeService, 2, filter);
+        this.paginator = new GridPaginator<>(grid, data, 50);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(upperLayout(), filter, grid, paginator);
+    }
 
-        setHorizontalComponentAlignment(Alignment.CENTER, lazyPaginator);
-        add(upperLayout(), filter, grid, lazyPaginator);
+    private List<EmployeeDto> getData() {
+        return employeeService.getAll();
     }
 
     private void updateGrid() {
-        lazyPaginator.updateData(false);
+        paginator.setData(getData(), false);
         log.info("Таблица обновилась");
     }
 
     private void configureGrid() {
         grid.removeAllColumns();
-
         grid.addColumn("lastName").setHeader("Фамилия").setId("Фамилия");
         Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
             @Override
@@ -118,6 +121,7 @@ public class EmployeeView extends VerticalLayout {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         buttonRefresh.addClickListener(ev -> updateGrid());
+        paginator.reloadGrid();
         return buttonRefresh;
     }
 
@@ -156,12 +160,7 @@ public class EmployeeView extends VerticalLayout {
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
         text.setValueChangeMode(ValueChangeMode.EAGER);
-        text.addValueChangeListener(e -> fillList(text.getValue()));
         return text;
-    }
-
-    private void fillList(String text) {
-        lazyPaginator.setSearchText(text);
     }
 
     private H2 title() {
