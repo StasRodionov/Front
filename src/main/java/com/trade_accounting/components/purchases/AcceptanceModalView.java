@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -34,6 +35,8 @@ import java.util.List;
 @UIScope
 @SpringComponent
 public class AcceptanceModalView extends Dialog {
+
+    private final CompanyService companyService;
     private final AcceptanceService acceptanceService;
     private final ContractService contractService;
     private final WarehouseService warehouseService;
@@ -54,11 +57,12 @@ public class AcceptanceModalView extends Dialog {
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Notifications notifications;
 
-    public AcceptanceModalView(AcceptanceService acceptanceService,
+    public AcceptanceModalView(CompanyService companyService, AcceptanceService acceptanceService,
                                ContractService contractService,
                                WarehouseService warehouseService,
                                ContractorService contractorService,
                                Notifications notifications) {
+        this.companyService = companyService;
         this.acceptanceService = acceptanceService;
         this.contractService = contractService;
         this.warehouseService = warehouseService;
@@ -224,7 +228,7 @@ public class AcceptanceModalView extends Dialog {
         if (list != null) {
             contractDtoComboBox.setItems(list);
         }
-        contractDtoComboBox.setItemLabelGenerator(dto -> contractService.getById(dto.getId()).getCompanyDto().getName());
+        contractDtoComboBox.setItemLabelGenerator(dto -> companyService.getById(contractService.getById(dto.getId()).getCompanyId()).getName());
         contractDtoComboBox.setWidth("350px");
         Label label = new Label("Организация");
         label.setWidth("100px");

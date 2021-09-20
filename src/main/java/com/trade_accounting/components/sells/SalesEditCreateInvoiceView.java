@@ -16,6 +16,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductPriceService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -72,6 +73,8 @@ import java.util.stream.Collectors;
 @UIScope
 public class SalesEditCreateInvoiceView extends VerticalLayout {
 
+
+    private final ProductService productService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
@@ -116,7 +119,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private String location = null;
 
     @Autowired
-    public SalesEditCreateInvoiceView(ContractorService contractorService,
+    public SalesEditCreateInvoiceView(ProductService productService, ContractorService contractorService,
                                       CompanyService companyService,
                                       WarehouseService warehouseService,
                                       InvoiceService invoiceService,
@@ -125,6 +128,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                                       SalesChooseGoodsModalWin salesChooseGoodsModalWin,
                                       TypeOfPriceService typeOfPriceService,
                                       UnitService unitService, ProductPriceService productPriceService) {
+        this.productService = productService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
@@ -147,7 +151,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
         binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorDto");
+                .bind("contractorId");
         binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
             if (
                     valueChangeEvent.isFromClient()
@@ -169,12 +173,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setItems(tempInvoiceProductDtoList);
-        grid.addColumn(inPrDto -> inPrDto.getProductDto().getName()).setHeader("Название")
+        grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название")
                 .setKey("productDtoName").setId("Название");
-        grid.addColumn(inPrDto -> inPrDto.getProductDto().getDescription()).setHeader("Описание")
+        grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание")
                 .setKey("productDtoDescr").setId("Описание");
         Grid.Column<InvoiceProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
-        grid.addColumn(inPrDto -> unitService.getById(inPrDto.getProductDto().getUnitId()).getFullName()).setHeader("Единицы")
+        grid.addColumn(inPrDto -> unitService.getById(productService.getById(inPrDto.getProductId()).getUnitId()).getFullName()).setHeader("Единицы")
                 .setKey("productDtoUnit").setId("Единицы");
         grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
         grid.setHeight("36vh");
@@ -212,7 +216,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         grid.addComponentColumn(column -> {
             Button edit = new Button(new Icon(VaadinIcon.TRASH));
             edit.addClassName("delete");
-            edit.addClickListener(e -> deleteProduct(column.getProductDto().getId()));
+            edit.addClickListener(e -> deleteProduct(column.getProductId()));
             edit.setEnabled(!editor.isOpen());
             editButtons.add(edit);
             return edit;
@@ -315,7 +319,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         companySelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(companySelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("companyDto");
+                .bind("companyId");
         Label label = new Label("Компания");
         label.setWidth(LABEL_WIDTH);
         companyLayout.add(label, companySelect);
@@ -332,7 +336,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         contractorSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorDto");
+                .bind("contractorId");
         Label label = new Label("Контрагент");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorSelect);
@@ -349,7 +353,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         warehouseSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(warehouseSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("warehouseDto");
+                .bind("warehouseId");
         Label label = new Label("Склад");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseSelect);
@@ -443,7 +447,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     public void addProduct(ProductDto productDto) {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-        invoiceProductDto.setProductDto(productDto);
+        invoiceProductDto.setProductId(productDto.getId());
         invoiceProductDto.setAmount(BigDecimal.ONE);
         invoiceProductDto.setPrice(
                 getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds().stream()
@@ -475,7 +479,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private void deleteProduct(Long id) {
         InvoiceProductDto found = new InvoiceProductDto();
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            if (invoiceProductDto.getProductDto().getId().equals(id)) {
+            if (invoiceProductDto.getProductId().equals(id)) {
                 found = invoiceProductDto;
                 break;
             }
@@ -502,18 +506,18 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             typeOfInvoiceField.setValue("");
         }
 
-        if (invoiceDto.getCompanyDto() != null) {
-            companySelect.setValue(invoiceDto.getCompanyDto());
+        if (invoiceDto.getCompanyId() != null) {
+            companySelect.setValue(companyService.getById(invoiceDto.getCompanyId()));
         }
 
-        if (invoiceDto.getContractorDto() != null) {
-            contractorSelect.setValue(invoiceDto.getContractorDto());
+        if (invoiceDto.getContractorId() != null) {
+            contractorSelect.setValue(contractorService.getById(invoiceDto.getContractorId()));
         }
 
-        isSpend.setValue(invoiceDto.isSpend());
+        isSpend.setValue(invoiceDto.getIsSpend());
 
-        if (invoiceDto.getWarehouseDto() != null) {
-            warehouseSelect.setValue(invoiceDto.getWarehouseDto());
+        if (invoiceDto.getWarehouseId() != null) {
+            warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
         }
 
     }
@@ -521,7 +525,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private boolean isProductInList(ProductDto productDto) {
         boolean isExists = false;
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            if (invoiceProductDto.getProductDto().getId().equals(productDto.getId())) {
+            if (invoiceProductDto.getProductId().equals(productDto.getId())) {
                 isExists = true;
             }
         }
@@ -569,11 +573,11 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
         }
         invoiceDto.setDate(dateField.getValue().toString());
-        invoiceDto.setCompanyDto(companySelect.getValue());
-        invoiceDto.setContractorDto(contractorSelect.getValue());
-        invoiceDto.setWarehouseDto(warehouseSelect.getValue());
+        invoiceDto.setCompanyId(companySelect.getValue().getId());
+        invoiceDto.setContractorId(contractorSelect.getValue().getId());
+        invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
         invoiceDto.setTypeOfInvoice(type);
-        invoiceDto.setSpend(isSpend.getValue());
+        invoiceDto.setIsSpend(isSpend.getValue());
         invoiceDto.setComment("");
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
         return invoiceDtoResponse.body();
@@ -581,8 +585,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private void addInvoiceProductToInvoicedDto(InvoiceDto invoiceDto) {
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            invoiceProductDto.setInvoiceDto(invoiceDto);
-            invoiceProductDto.setProductDto(invoiceProductDto.getProductDto());
+            invoiceProductDto.setInvoiceId(invoiceDto.getId());
+            invoiceProductDto.setProductId(invoiceProductDto.getProductId());
             invoiceProductDto.setPrice(invoiceProductDto.getPrice());
             invoiceProductDto.setAmount(invoiceProductDto.getAmount());
             invoiceProductService.create(invoiceProductDto);
@@ -614,7 +618,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
             invoiceProductDto.setPrice(
                     getPriceFromProductPriceByTypeOfPriceId(
-                            invoiceProductDto.getProductDto().getProductPriceIds()
+                            productService.getById(invoiceProductDto.getProductId()).getProductPriceIds()
                                     .stream().map(productPriceService::getById)
                                     .collect(Collectors.toList()),
                             typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()

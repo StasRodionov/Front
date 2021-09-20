@@ -2,6 +2,8 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import org.apache.poi.ss.usermodel.Cell;
 
@@ -9,14 +11,19 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class PrintInvoicesXls extends PrintExcelDocument<InvoiceDto> {
+
+    private final ContractorService contractorService;
+    private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final List<String> sumList;
     private int lengthOfsumList = 0;
 
 
     protected PrintInvoicesXls(String pathToXlsTemplate, List<InvoiceDto> list,
-                               List<String> sumList, EmployeeService employeeService) {
+                               ContractorService contractorService, CompanyService companyService, List<String> sumList, EmployeeService employeeService) {
         super(pathToXlsTemplate, list);
+        this.contractorService = contractorService;
+        this.companyService = companyService;
         this.employeeService = employeeService;
         this.sumList = sumList;
     }
@@ -44,13 +51,13 @@ public class PrintInvoicesXls extends PrintExcelDocument<InvoiceDto> {
                 editCell.setCellValue(model.getDate());
                 break;
             case ("<contractor>"):
-                editCell.setCellValue(model.getContractorDto().getName());
+                editCell.setCellValue(contractorService.getById(model.getContractorId()).getName());
                 break;
             case ("<company>"):
-                editCell.setCellValue(model.getCompanyDto().getName());
+                editCell.setCellValue(companyService.getById(model.getCompanyId()).getName());
                 break;
             case ("<isSpend>"):
-                editCell.setCellValue(String.valueOf(model.isSpend()));
+                editCell.setCellValue(String.valueOf(model.getIsSpend()));
                 break;
             case ("<sum>"):
                 editCell.setCellValue(sumList.get(lengthOfsumList++));

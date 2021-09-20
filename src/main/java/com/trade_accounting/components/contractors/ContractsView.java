@@ -4,8 +4,11 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.services.interfaces.BankAccountService;
+import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -35,6 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PageTitle("Договоры")
 public class ContractsView extends VerticalLayout {
 
+    private final LegalDetailService legalDetailService;
+    private final BankAccountService bankAccountService;
+    private final CompanyService companyService;
     private final ContractService contractService;
     private final ContractorService contractorService;
     private final ContractModalWindow contractModalWindow;
@@ -45,9 +51,12 @@ public class ContractsView extends VerticalLayout {
 
 
     @Autowired
-    ContractsView(ContractService contractService,
+    ContractsView(LegalDetailService legalDetailService, BankAccountService bankAccountService, CompanyService companyService, ContractService contractService,
                   ContractorService contractorService,
                   ContractModalWindow contractModalWindow) {
+        this.legalDetailService = legalDetailService;
+        this.bankAccountService = bankAccountService;
+        this.companyService = companyService;
         this.contractService = contractService;
         this.contractorService = contractorService;
         this.contractModalWindow = contractModalWindow;
@@ -77,12 +86,12 @@ public class ContractsView extends VerticalLayout {
         grid.getColumnByKey("number").setHeader("Сортировочный номер").setId("Сортировочный номер");
 
 
-        grid.addColumn(contractDto -> contractDto.getCompanyDto().getName())
+        grid.addColumn(contractDto -> companyService.getById(contractDto.getCompanyId()).getName())
                 .setHeader("Компания").setKey("company").setId("Компания");
-        grid.addColumn(contractDto -> contractDto.getContractorDto().getName())
+        grid.addColumn(contractDto -> contractorService.getById(contractDto.getContractorId()).getName())
                 .setHeader("Контрагент").setKey("contractor").setId("Контрактор");
-        grid.addColumn(contractDto -> contractDto.getBankAccountDto().getBank() + " " +
-                contractDto.getBankAccountDto().getAccount())
+        grid.addColumn(contractDto -> bankAccountService.getById(contractDto.getBankAccountId()).getBank() + " " +
+                bankAccountService.getById(contractDto.getBankAccountId()).getAccount())
                 .setHeader("Банковский аккаунт").setKey("bankAccount").setId("Банковский аккаунт");
         grid.addColumn(new ComponentRenderer<>(contractDto -> {
             if (contractDto.getArchive()) {
@@ -94,9 +103,9 @@ public class ContractsView extends VerticalLayout {
             }
         })).setHeader("Архив").setKey("archive").setId("Архив");
 
-        grid.addColumn(contractDto -> contractDto.getLegalDetailDto().getLastName() + " " +
-                contractDto.getLegalDetailDto().getFirstName() + " " +
-                contractDto.getLegalDetailDto().getMiddleName())
+        grid.addColumn(contractDto -> legalDetailService.getById(contractDto.getLegalDetailId()).getLastName() + " " +
+                        legalDetailService.getById(contractDto.getLegalDetailId()).getFirstName() + " " +
+                        legalDetailService.getById(contractDto.getLegalDetailId()).getMiddleName())
                 .setHeader("Юридические детали").setKey("legalDetails").setId("Юридические детали");
 
         grid.setColumnOrder(

@@ -6,6 +6,8 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;
@@ -67,6 +69,8 @@ import java.util.stream.Collectors;
 @UIScope
 public class SalesSubCustomersOrdersView extends VerticalLayout implements AfterNavigationObserver {
 
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
     private final InvoiceService invoiceService;
     private final EmployeeService employeeService;
 
@@ -83,10 +87,12 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/sales_templates/";
 
     @Autowired
-    public SalesSubCustomersOrdersView(InvoiceService invoiceService,
+    public SalesSubCustomersOrdersView(CompanyService companyService, ContractorService contractorService, InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                        @Lazy Notifications notifications,
                                        EmployeeService employeeService) {
+        this.companyService = companyService;
+        this.contractorService = contractorService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.employeeService = employeeService;
         this.invoiceService = invoiceService;
@@ -104,9 +110,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
                 .setId("Дата");
-        grid.addColumn(iDto -> iDto.getContractorDto().getName()).setHeader("Контрагент").setKey("contractorDto")
+        grid.addColumn(iDto -> contractorService.getById(iDto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")
                 .setId("Контрагент");
-        grid.addColumn(iDto -> iDto.getCompanyDto().getName()).setHeader("Компания").setKey("companyDto")
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
@@ -140,7 +146,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
-        if (invoiceDto.isSpend()) {
+        if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
@@ -309,7 +315,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             sumList.add(getTotalPrice(inc));
         }
         PrintSalesXls printSalesXls = new PrintSalesXls(file.getPath(), invoiceService.getAll(typeOfInvoice),
-                sumList, employeeService);
+                sumList, employeeService, companyService, contractorService);
         return new Anchor(new StreamResource(salesTemplate, printSalesXls::createReport), salesTemplate);
     }
 

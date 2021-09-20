@@ -78,16 +78,16 @@ public class ContractModalWindow extends Dialog {
             setField(commentField, dto.getComment());
             setField(numberField, dto.getNumber());
         }
-        selectContractor.setValue(dto.getContractorDto());
-        if (dto.getCompanyDto() != null) {
-            selectCompany.setValue(dto.getCompanyDto());
+        selectContractor.setValue(contractorService.getById(dto.getContractorId()));
+        if (dto.getContractorId() != null) {
+            selectCompany.setValue(companyService.getById(dto.getCompanyId()));
         }
 
-        if (dto.getLegalDetailDto() != null) {
-            setField(selectLegalDetail, dto.getLegalDetailDto());
+        if (dto.getLegalDetailId() != null) {
+            setField(selectLegalDetail, dto.getLegalDetailId());
         }
 
-        setField(selectBankAccount, dto.getBankAccountDto());
+        setField(selectBankAccount, dto.getBankAccountId());
 
     }
 
@@ -227,10 +227,10 @@ public class ContractModalWindow extends Dialog {
             contractDto.setArchive(archiveField.getValue());
             contractDto.setComment(commentField.getValue());
             contractDto.setNumber(numberField.getValue());
-            contractDto.setContractorDto(selectContractor.getValue());
-            contractDto.setCompanyDto(selectCompany.getValue());
-            contractDto.setBankAccountDto(selectBankAccount.getValue());
-            contractDto.setLegalDetailDto(selectLegalDetail.getValue());
+            contractDto.setContractorId(selectContractor.getValue().getId());
+            contractDto.setCompanyId(selectCompany.getValue().getId());
+            contractDto.setBankAccountId(selectBankAccount.getValue().getId());
+            contractDto.setLegalDetailId(selectLegalDetail.getValue().getId());
             contractDto.setId(contractId);
 
             if (contractId == null) {

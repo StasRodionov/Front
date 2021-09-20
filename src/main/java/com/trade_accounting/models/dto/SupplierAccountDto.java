@@ -21,7 +21,7 @@ public class SupplierAccountDto {
 
     private Long contractorId;
 
-    private boolean isSpend;
+    private Boolean isSpend;
 
     private String comment;
 }

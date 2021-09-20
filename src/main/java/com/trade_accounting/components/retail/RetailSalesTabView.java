@@ -4,7 +4,10 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.RetailSalesDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
+import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -42,13 +45,17 @@ import java.util.List;
 public class RetailSalesTabView extends VerticalLayout implements AfterNavigationObserver {
 
     private final RetailSalesService retailSalesService;
+    private final RetailStoreService retailStoreService;
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
     private List<RetailSalesDto> data;
 
     private final Grid<RetailSalesDto> grid = new Grid<>(RetailSalesDto.class, false);
     private final GridPaginator<RetailSalesDto> paginator;
     private final GridFilter<RetailSalesDto> filter;
 
-    public RetailSalesTabView(RetailSalesService retailSalesService) {
+    public RetailSalesTabView(RetailSalesService retailSalesService, RetailStoreService retailStoreService,
+                              CompanyService companyService, ContractorService contractorService) {
         this.retailSalesService = retailSalesService;
         this.data = retailSalesService.getAll();
         grid.removeAllColumns();
