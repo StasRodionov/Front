@@ -13,9 +13,9 @@ public class InvoiceProductDto {
 
     private Long id;
 
-    private InvoiceDto invoiceDto;
+    private Long invoiceId;
 
-    private ProductDto productDto;
+    private Long productId;
 
     private BigDecimal amount;
 

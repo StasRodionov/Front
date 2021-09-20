@@ -2,12 +2,15 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.services.interfaces.BonusProgramService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
+import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
+import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -29,22 +32,28 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final RetailStoreService retailStoreService;
     private final RetailSalesService retailSalesService;
     private final CompanyService companyService;
-    private final ContractorService contractorService;
     private final EmployeeService employeeService;
     private final PayoutService payoutService;
     private final Notifications notifications;
+    private final BonusProgramService bonusProgramService;
+    private final RetailOperationWithPointsService retailOperationWithPointsService;
+    private final ContractorService contractorService;
+    private final TaskService taskService;
 
     @Autowired
     public RetailView(RetailStoreService retailStoreService, RetailSalesService retailSalesService,
-                      CompanyService companyService, ContractorService contractorService, EmployeeService employeeService,
-                      PayoutService payoutService, Notifications notifications) {
+                      CompanyService companyService, EmployeeService employeeService,
+                      PayoutService payoutService, Notifications notifications, BonusProgramService bonusProgramService, RetailOperationWithPointsService retailOperationWithPointsService, ContractorService contractorService, TaskService taskService) {
         this.retailStoreService = retailStoreService;
         this.retailSalesService = retailSalesService;
         this.companyService = companyService;
-        this.contractorService = contractorService;
         this.employeeService = employeeService;
         this.payoutService = payoutService;
         this.notifications = notifications;
+        this.bonusProgramService = bonusProgramService;
+        this.retailOperationWithPointsService = retailOperationWithPointsService;
+        this.contractorService = contractorService;
+        this.taskService = taskService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -71,7 +80,8 @@ public class RetailView extends Div implements AfterNavigationObserver {
                 new Tab("Операции с баллами"),
                 new Tab("Предоплаты"),
                 new Tab("Возвраты предоплат"),
-                new Tab("Очередь облачных чеков")
+                new Tab("Очередь облачных чеков"),
+                new Tab("Бонусные программы")
         );
 
         tabs.addSelectedChangeListener(event -> {
@@ -86,7 +96,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Продажи":
                     div.removeAll();
-                    div.add(new RetailSalesTabView(retailSalesService, retailStoreService, companyService, contractorService));
+                    div.add(new RetailSalesTabView(retailSalesService));
                     break;
                 case "Возвраты":
                     div.removeAll();
@@ -100,6 +110,8 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Операции с баллами":
                     div.removeAll();
+                    div.add(new RetailOperationWithPointsTabView(retailOperationWithPointsService, bonusProgramService, contractorService, taskService));
+
                     break;
                 case "Предоплаты":
                     div.removeAll();
@@ -109,6 +121,10 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Очередь облачных чеков":
                     div.removeAll();
+                    break;
+                case "Бонусные программы":
+                    div.removeAll();
+                    div.add(new BonusProgramTabView(bonusProgramService));
                     break;
             }
         });

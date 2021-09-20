@@ -15,4 +15,8 @@ public class RoleDto {
 
     private String sortNumber;
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

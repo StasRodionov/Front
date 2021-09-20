@@ -104,7 +104,7 @@ public class SupplierAccountModalView extends Dialog {
             saveSupplier.setWarehouseId(warehouseDtoComboBox.getValue().getId());
             saveSupplier.setContractId(contractDtoComboBox.getValue().getId());
             saveSupplier.setContractorId(contractorDtoComboBox.getValue().getId());
-            saveSupplier.setSpend(isSpend.getValue());
+            saveSupplier.setIsSpend(isSpend.getValue());
             saveSupplier.setComment(commentConfig.getValue());
             supplierAccountService.create(saveSupplier);
 

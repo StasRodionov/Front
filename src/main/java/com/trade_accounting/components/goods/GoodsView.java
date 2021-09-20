@@ -4,7 +4,6 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.LazyPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
@@ -62,7 +61,7 @@ public class GoodsView extends VerticalLayout {
     private final ServiceModalWindow serviceModalWindow;
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridFilter<ProductDto> filter;
-//    private final LazyPaginator<ProductDto> lazyPaginator;
+    private final GridPaginator<ProductDto> paginator;
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
@@ -77,15 +76,17 @@ public class GoodsView extends VerticalLayout {
         treeGrid = getTreeGrid();
 
         Grid<ProductDto> grid = getGrid();
-
+        List<ProductDto> data = getData();
         this.filter = new GridFilter<>(grid);
-//        this.lazyPaginator = new LazyPaginator<>(grid, productService, 50, filter);
+        this.paginator = new GridPaginator<>(grid, data, 50);
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(getUpperLayout(), filter, getMiddleLayout(grid));
     }
 
+    private List<ProductDto> getData() {
+        return productService.getAll();
+    }
     public void updateData() {
-//        lazyPaginator.updateData(false);
         updateTreeGrid(productGroupService.getAll());
     }
 
@@ -117,11 +118,11 @@ public class GoodsView extends VerticalLayout {
         return middleLayout;
     }
 
-    private GridPaginator<ProductDto> getPaginator(Grid<ProductDto> grid) {
-        GridPaginator<ProductDto> gridPaginator = new GridPaginator<>(grid, new ArrayList<>(), 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, gridPaginator);
-        return gridPaginator;
-    }
+//    private GridPaginator<ProductDto> getPaginator(Grid<ProductDto> grid) {
+//        GridPaginator<ProductDto> gridPaginator = new GridPaginator<>(grid, new ArrayList<>(), 100);
+//        setHorizontalComponentAlignment(Alignment.CENTER, gridPaginator);
+//        return gridPaginator;
+//    }
 
     private Grid<ProductDto> getGrid() {
         Grid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
