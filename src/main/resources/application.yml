@@ -1,7 +1,11 @@
 server:
   port: 4445
 
+technical_operations_url: api/technical/operations
+
 technical_card_production_url: api/technical/card/production
+
+contact_url: api/contact
 
 base_url: http://localhost:4444
 
@@ -111,6 +115,5 @@ moneySubProfitLoss_url: /api/moneysubprofitloss
 
 productprice_url: /api/productprice
 
-contact_url: api/contact
 
 #debug: true
