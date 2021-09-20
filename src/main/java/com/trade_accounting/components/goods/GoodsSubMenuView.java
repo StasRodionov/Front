@@ -26,16 +26,18 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     private final GoodsSubInventory goodsSubInventory;
     private final GoodsSubInternalOrder goodsSubInternalOrder;
     private final MovementView movementView;
+    private final RemainView remainView;
 
     private final Div div = new Div();
 
     public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
-                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder,MovementView movementView) {
+                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder, MovementView movementView, RemainView remainView) {
         this.goodsView = goodsView;
         this.postingTabView = postingTabView;
         this.goodsSubInventory = goodsSubInventory;
         this.goodsSubInternalOrder = goodsSubInternalOrder;
         this.movementView = movementView;
+        this.remainView = remainView;
 
         add(configurationSubMenu(), div);
     }
@@ -89,7 +91,15 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         Tab interventarizationLayout = new Tab("Инвентаризации");
         Tab internalOrdersLayout = new Tab("Внутрение заказы");
         Tab priceLayout = new Tab("Прайс-лист");
-        Tab balanceLayout = new Tab("Остататки");
+//        Tab balanceLayout = new Tab("Остатки");
+        HorizontalLayout remainTab = new HorizontalLayout(new Label("Остатки"));
+
+        remainTab.addClickListener(event ->
+                remainTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    remainView.updateList();
+                    div.add(remainView);
+                }));
         Tab revenueLayout = new Tab("Обороты");
 
         return new Tabs(
@@ -100,7 +110,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 chargesLayout,
                 new Tab(movementTab),
                 priceLayout,
-                balanceLayout,
+                new Tab(remainTab),
                 revenueLayout
         );
 

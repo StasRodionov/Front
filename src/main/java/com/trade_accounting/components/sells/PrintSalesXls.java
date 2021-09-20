@@ -2,6 +2,8 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import org.apache.poi.ss.usermodel.Cell;
 
@@ -13,12 +15,16 @@ public class PrintSalesXls extends PrintExcelDocument<InvoiceDto> {
     protected List<String> sum;
     private int lengthOfSumList = 0;
     private final EmployeeService employeeService;
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
 
     protected PrintSalesXls(String pathToXlsTemplate, List<InvoiceDto> list,
-                            List<String> sum, EmployeeService employeeService) {
+                            List<String> sum, EmployeeService employeeService, CompanyService companyService, ContractorService contractorService) {
         super(pathToXlsTemplate, list);
         this.sum = sum;
         this.employeeService = employeeService;
+        this.companyService = companyService;
+        this.contractorService = contractorService;
     }
 
     @Override
@@ -44,10 +50,10 @@ public class PrintSalesXls extends PrintExcelDocument<InvoiceDto> {
                 editCell.setCellValue(model.getDate());
                 break;
             case ("<contractor>"):
-                editCell.setCellValue(model.getContractorDto().getName());
+                editCell.setCellValue(contractorService.getById(model.getContractorId()).getName());
                 break;
             case ("<company>"):
-                editCell.setCellValue(model.getCompanyDto().getName());
+                editCell.setCellValue(companyService.getById(model.getCompanyId()).getName());
                 break;
             case ("<sum>"):
                 editCell.setCellValue(sum.get(lengthOfSumList++));

@@ -24,7 +24,7 @@ public class RetailStoreDto {
 
     private Long companyId;
 
-    private CompanyDto companyDto;
+//    private CompanyDto companyDto;
 
     private String salesInvoicePrefix;
 
@@ -32,7 +32,7 @@ public class RetailStoreDto {
 
     private String orderTaxationSystem;
 
-    private List<EmployeeDto> cashiersDto;
+//    private List<EmployeeDto> cashiersDto;
 
     private List<Long> cashiersIds;
 }

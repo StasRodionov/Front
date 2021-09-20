@@ -54,19 +54,19 @@ public class SalesModalWinCustomersOrders extends Dialog {
 
         typeOfInvoiceField.setValue(getFieldValueNotNull(invoiceDto.getTypeOfInvoice()));
 
-        if (invoiceDto.getCompanyDto() != null) {
-            companySelect.setPlaceholder(invoiceDto.getCompanyDto().getName());
-            companySelect.setValue(invoiceDto.getCompanyDto());
+        if (invoiceDto.getCompanyId() != null) {
+            companySelect.setPlaceholder(companyService.getById(invoiceDto.getCompanyId()).getName());
+            companySelect.setValue(companyService.getById(invoiceDto.getCompanyId()));
         }
 
-        if (invoiceDto.getContractorDto() != null) {
-            contractorSelect.setValue(invoiceDto.getContractorDto());
-            contractorSelect.setPlaceholder(invoiceDto.getContractorDto().getName());
+        if (invoiceDto.getContractorId() != null) {
+            contractorSelect.setValue(contractorService.getById(invoiceDto.getContractorId()));
+            contractorSelect.setPlaceholder(contractorService.getById(invoiceDto.getContractorId()).getName());
         }
 
-        if (invoiceDto.getWarehouseDto() != null) {
-            warehouseSelect.setPlaceholder(invoiceDto.getWarehouseDto().getName());
-            warehouseSelect.setValue(invoiceDto.getWarehouseDto());
+        if (invoiceDto.getWarehouseId() != null) {
+            warehouseSelect.setPlaceholder(warehouseService.getById(invoiceDto.getWarehouseId()).getName());
+            warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
         }
 
     }
