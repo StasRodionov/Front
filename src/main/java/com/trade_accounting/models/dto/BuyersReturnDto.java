@@ -7,19 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InvoiceDto {
+public class BuyersReturnDto {
 
     private Long id;
 
     private String date;
-
-    private String typeOfInvoice;
-
-    private String companyId;
-
-    private String contractorId;
-
-    private String warehouseId;
 
     private CompanyDto companyDto;
 
@@ -27,9 +19,11 @@ public class InvoiceDto {
 
     private WarehouseDto warehouseDto;
 
-    private boolean spend;
+    private Long sum;
 
-    private boolean isSpend;
+    private Boolean isSent;
+
+    private Boolean isPrint;
 
     private String comment;
 }

@@ -47,6 +47,8 @@ warehouse_url: api/warehouse
 
 invoice_url: api/invoice
 
+buyersReturn_url: api/buyersreturn
+
 invoice_product_url: api/invoice/product
 
 authentication_url: login
