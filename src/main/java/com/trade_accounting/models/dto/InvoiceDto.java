@@ -23,11 +23,11 @@ public class InvoiceDto {
 
     private CompanyDto companyDto;
 
-    private ContractorDto contractorDto;
+    private Long contractorId;
 
-    private WarehouseDto warehouseDto;
+    private Long warehouseId;
 
-    private boolean spend;
+    private Boolean isSpend;
 
     private boolean isSpend;
 

@@ -3,7 +3,10 @@ package com.trade_accounting.components.retail;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.RetailSalesDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
+import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -37,14 +40,21 @@ import java.util.List;
 public class RetailSalesTabView extends VerticalLayout implements AfterNavigationObserver {
 
     private final RetailSalesService retailSalesService;
+    private final RetailStoreService retailStoreService;
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
     private List<RetailSalesDto> data;
 
     private final Grid<RetailSalesDto> grid = new Grid<>(RetailSalesDto.class, false);
     private final GridPaginator<RetailSalesDto> paginator;
 
-    public RetailSalesTabView(RetailSalesService retailSalesService) {
+    public RetailSalesTabView(RetailSalesService retailSalesService, RetailStoreService retailStoreService,
+                              CompanyService companyService, ContractorService contractorService) {
         this.retailSalesService = retailSalesService;
         this.data = retailSalesService.getAll();
+        this.retailStoreService = retailStoreService;
+        this.companyService = companyService;
+        this.contractorService = contractorService;
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
@@ -54,9 +64,12 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
     private void configureGrid() {
         grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
         grid.addColumn("time").setHeader("Время").setId("time");
-        grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("retailStoreId");
-        grid.addColumn("contractorId").setHeader("Контрагент").setId("contractorId");
-        grid.addColumn("companyId").setHeader("Организация").setId("companyId");
+        grid.addColumn(retailSalesDto -> retailStoreService.getById(retailSalesDto.getRetailStoreId()).getName())
+                .setHeader("Точка продаж").setId("retailStoreId");
+        grid.addColumn(retailSalesDto -> contractorService.getById(retailSalesDto.getContractorId()).getName())
+                .setHeader("Контрагент").setId("contractorId");
+        grid.addColumn(retailSalesDto -> companyService.getById(retailSalesDto.getCompanyId()).getName())
+                .setHeader("Организация").setId("companyId");
         grid.addColumn("sumCash").setHeader("Сума нал.").setId("sumCash");
         grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setId("sumNonСash");
         grid.addColumn("prepayment").setHeader("Сумма предопл.").setId("prepayment");
@@ -101,7 +114,7 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
     }
 
     private H2 title() {
-        H2 title = new H2("Точки продаж");
+        H2 title = new H2("Продажи");
         title.setHeight("2.2em");
         return title;
     }

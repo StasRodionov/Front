@@ -1,17 +1,14 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.RetailSalesDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.RetailSalesService;
 import com.trade_accounting.services.interfaces.api.RetailSalesApi;
-import com.trade_accounting.services.interfaces.api.RetailStoreApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j

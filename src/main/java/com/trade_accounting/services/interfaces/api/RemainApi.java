@@ -13,13 +13,13 @@ import retrofit2.http.Path;
 import java.util.List;
 
 public interface RemainApi {
-    @Headers("Accept: application/json")
-    @GET
+     @Headers("Accept: application/json")
+     @GET("{url}")
     Call<List<RemainDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
-    Call<RemainDto> getBuId(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
+    Call<RemainDto> getById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 
     @Headers("Accept: application/json")
     @POST("{url}")
