@@ -6,6 +6,7 @@ import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
+import com.trade_accounting.services.interfaces.TechnicalOperationsService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -26,14 +27,16 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     private final ProductService productService;
     private final TechnicalCardProductionService technicalCardProductionService;
     private final Notifications notifications;
-
+    private final TechnicalOperationsService technicalOperationsService;
+    private final WarehouseService warehouseService;
 
     @Autowired
     public ProductionSubMenuView(TechnicalCardService technicalCardService,
                                  TechnicalCardGroupService technicalCardGroupService,
-                                 ProductService productService, TechnicalCardProductionService technicalCardProductionService, Notifications notifications) {
+                                 ProductService productService, TechnicalCardProductionService technicalCardProductionService, Notifications notifications, TechnicalOperationsService technicalOperationsService, WarehouseService warehouseService) {
         this.notifications = notifications;
-
+        this.technicalOperationsService = technicalOperationsService;
+        this.warehouseService = warehouseService;
         div = new Div();
         add(configurationSubMenu(), div);
         this.technicalCardService = technicalCardService;
@@ -63,6 +66,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                     break;
                 case "Тех. операции":
                     div.removeAll();
+                    div.add(new TechnologicalOperationsViewTab(technicalCardService, technicalOperationsService, notifications, warehouseService));
                     break;
             }
         });
