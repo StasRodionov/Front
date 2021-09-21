@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
@@ -30,11 +31,13 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final InvoiceProductService invoiceProductService;
+    private final BuyersReturnService buyersReturnService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
     private final SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView;
     private final CommissionAgentReportModalView commissionAgentReportModalView;
+    private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
 
 
     @Autowired
@@ -42,19 +45,23 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             ContractorService contractorService,
                             CompanyService companyService,
                             WarehouseService warehouseService,
+                            BuyersReturnService buyersReturnService,
                             InvoiceProductService invoiceProductService, @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
-                            CommissionAgentReportModalView commissionAgentReportModalView) {
+                            CommissionAgentReportModalView commissionAgentReportModalView,
+                            ReturnBuyersReturnModalView returnBuyersReturnModalView) {
         this.invoiceProductService = invoiceProductService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
+        this.buyersReturnService = buyersReturnService;
         this.salesSubShipmentView = salesSubShipmentView;
         this.salesSubInvoicesToBuyersView = salesSubInvoicesToBuyersView;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
+        this.returnBuyersReturnModalView = returnBuyersReturnModalView;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -113,7 +120,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add("SalesSubBuyersReturnsView");
+                    div.add(new SalesSubBuyersReturnsView(buyersReturnService, contractorService, companyService,returnBuyersReturnModalView, warehouseService));
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
