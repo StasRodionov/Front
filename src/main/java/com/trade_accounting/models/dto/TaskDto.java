@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TaskDto {
 
-    private long id;
+    private Long id;
 
     private String description;
 

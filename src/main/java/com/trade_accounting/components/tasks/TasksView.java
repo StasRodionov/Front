@@ -43,12 +43,13 @@ public class TasksView extends VerticalLayout {
     private final GridPaginator<TaskDto> paginator;
     private final EmployeeService employeeService;
 
-
+    private final TaskDto taskDto;
 
     @Autowired
     public TasksView(TaskService taskService, EmployeeService employeeService) {
         this.taskService = taskService;
         this.employeeService = employeeService;
+        this.taskDto = new TaskDto();
 
         paginator = new GridPaginator<>(grid, taskService.getAll(), 10);
         configureGrid();
@@ -111,7 +112,7 @@ public class TasksView extends VerticalLayout {
     private Button getButtonCreateTask() {
         var buttonUnit = new Button("Задача", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(click -> {
-            var taskModalWin = new TaskModalWin();
+            TaskModalWin taskModalWin = new TaskModalWin(taskService, taskDto, employeeService);
             taskModalWin.open();
         });
         return buttonUnit;
