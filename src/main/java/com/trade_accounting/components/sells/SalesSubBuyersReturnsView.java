@@ -63,11 +63,11 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn("warehouseDto").setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
-        grid.addColumn(dto -> dto.getContractorDto().getName()).setFlexGrow(7).setHeader("Контрагент")
-                .setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setFlexGrow(7).setHeader("Компания")
-                .setKey("companyDto").setId("Компания");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setFlexGrow(7).setHeader("Контрагент")
+                .setKey("contractorId").setId("Контрагент");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7).setHeader("Компания")
+                .setKey("companyId").setId("Компания");
         grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
@@ -85,11 +85,11 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn("warehouseDto").setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
-        grid.addColumn(dto -> dto.getContractorDto().getName()).setFlexGrow(7).setHeader("Контрагент")
-                .setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(dto -> dto.getCompanyDto().getName()).setFlexGrow(7).setHeader("Компания")
-                .setKey("companyDto").setId("Компания");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setFlexGrow(7).setHeader("Контрагент")
+                .setKey("contractorId").setId("Контрагент");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7).setHeader("Компания")
+                .setKey("companyId").setId("Компания");
         grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
