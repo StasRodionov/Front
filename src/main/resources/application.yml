@@ -122,4 +122,6 @@ moneySubProfitLoss_url: /api/moneysubprofitloss
 productprice_url: /api/productprice
 
 
+returns_url: api/returns
+
 #debug: true
