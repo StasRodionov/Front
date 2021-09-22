@@ -1,5 +1,6 @@
 package com.trade_accounting.components.purchases;
 
+
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.GridFilter;
@@ -48,6 +49,7 @@ import org.springframework.context.annotation.Lazy;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -85,7 +87,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final GridFilter<InvoiceDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/invoices_templates/";
 
-
     @Autowired
     public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService, InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
@@ -104,7 +105,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(configureActions(), filter, grid, paginator);
     }
-
 
     private HorizontalLayout configureActions() {
         HorizontalLayout upper = new HorizontalLayout();
@@ -259,7 +259,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         return create;
     }
 
-
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
         print.setItems("Печать", "Добавить шаблон");
@@ -306,7 +305,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             }
         });
     }
-
 
     private List<File> getXlsFiles() {
         File dir = new File(pathForSaveXlsTemplate);

@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Map;
 
 
 @SpringComponent
@@ -39,9 +40,9 @@ public class TasksView extends VerticalLayout {
 
     private final TaskService taskService;
     private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
-    private final GridFilter<TaskDto> filter = new GridFilter<>(grid);
-    private final GridPaginator<TaskDto> paginator;
+    private final GridFilter<TaskDto> filter;
     private final EmployeeService employeeService;
+    private final GridPaginator<TaskDto> paginator;
 
     private final TaskDto taskDto;
 
@@ -50,16 +51,17 @@ public class TasksView extends VerticalLayout {
         this.taskService = taskService;
         this.employeeService = employeeService;
         this.taskDto = new TaskDto();
-
         paginator = new GridPaginator<>(grid, taskService.getAll(), 10);
-        configureGrid();
-
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureFilter();
+        this.filter = new GridFilter<>(grid);
         add(getToolBar(), filter, grid, paginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureGrid();
     }
 
 
     private void configureGrid() {
+        grid.removeAllColumns();
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName()).setHeader("Ответственный").setId("Ответственный");
@@ -97,6 +99,15 @@ public class TasksView extends VerticalLayout {
         return buttonQuestion;
     }
 
+    private void configureFilter() {
+        grid.removeAllColumns();
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn("description").setHeader("Описание").setId("Описание");
+        grid.addColumn("employeeId").setHeader("Ответственный").setId("Ответственный");
+        grid.addColumn("deadlineDateTime").setHeader("Срок").setId("Срок");
+        grid.addColumn("creationDateTime").setHeader("Создано").setId("Создано");
+    }
+
     private H2 getTextTask() {
         final var textTask = new H2("Задачи");
         textTask.setHeight("2.2em");
@@ -119,10 +130,9 @@ public class TasksView extends VerticalLayout {
     }
 
     private Button getButtonFilter() {
-        var buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> {
-        });
-        return buttonFilter;
+        Button filterButton = new Button("Фильтр");
+        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return filterButton;
     }
 
     private TextField getTextField() {

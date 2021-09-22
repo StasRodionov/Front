@@ -30,7 +30,7 @@ public class MoneySubProfitLossView extends VerticalLayout {
     private final List<MoneySubProfitLossDto> data;
     private final Grid<MoneySubProfitLossDto> grid = new Grid<>(MoneySubProfitLossDto.class, false);
     private final GridFilter<MoneySubProfitLossDto> filter;
-    private final PaymentModalWin paymentModalWin;
+    private final CreditOrderModal creditOrderModal;
 
     private H2 title() {
         H2 title = new H2("Прибыли и убытки");
@@ -39,10 +39,10 @@ public class MoneySubProfitLossView extends VerticalLayout {
     }
 
     public MoneySubProfitLossView(MoneySubProfitLossService moneySubProfitLossService,
-                                  PaymentModalWin paymentModalWin) {
+                                  CreditOrderModal creditOrderModal) {
         this.moneySubProfitLossService = moneySubProfitLossService;
         this.data = moneySubProfitLossService.getAll();
-        this.paymentModalWin = paymentModalWin;
+        this.creditOrderModal = creditOrderModal;
         getGrid();
         this.filter = new GridFilter<>(grid);
 //        configureFilter();
