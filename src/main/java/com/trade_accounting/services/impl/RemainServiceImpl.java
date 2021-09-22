@@ -10,9 +10,7 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -20,62 +18,48 @@ public class RemainServiceImpl implements RemainService {
 
     private final RemainApi remainApi;
     private final String remainUrl;
-    private final CallExecuteService<RemainDto> dtoCallExecuteService;
+    private final CallExecuteService<RemainDto> callExecuteService;
+    private RemainDto remainDto;
 
-    public RemainServiceImpl(@Value("@{remain_url}") String remainUrl, Retrofit retrofit, CallExecuteService<RemainDto> dtoCallExecuteService) {
+    public RemainServiceImpl(Retrofit retrofit, @Value("${remain_url}") String remainUrl, CallExecuteService<RemainDto> callExecuteService) {
         remainApi = retrofit.create(RemainApi.class);
         this.remainUrl = remainUrl;
-        this.dtoCallExecuteService = dtoCallExecuteService;
+        this.callExecuteService = callExecuteService;
     }
+
 
     @Override
     public List<RemainDto> getAll() {
-//        List<RemainDto> remainDtoList = new ArrayList<>();
         Call<List<RemainDto>> remainDtoListCall = remainApi.getAll(remainUrl);
-        System.out.println(remainDtoListCall);
-        return dtoCallExecuteService.callExecuteBodyList(remainDtoListCall, RemainDto.class);
-//        try {
-//            remainDtoList.addAll(Objects.requireNonNull(remainDtoListCall.execute().body()));
-//            log.info("Успешно выполнен запрос на получение списка RemainDto");
-//        } catch (IOException e) {
-//            log.error("Произошла ошибка при выполнении запроса на получение списка RemainDto - {}", e);
-//        }
-//        return remainDtoList;
+        return callExecuteService.callExecuteBodyList(remainDtoListCall, RemainDto.class);
     }
 
     @Override
     public RemainDto getById(Long id) {
-        RemainDto remainDto = null;
         Call<RemainDto> remainDtoCall = remainApi.getById(remainUrl, id);
-
-        try {
-            remainDto = remainDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на получение экземпляра RemainDto с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение экземпляра RemainDto по id= {} - {}", id, e);
-        }
-        return remainDto;
+        return callExecuteService.callExecuteBodyById(remainDtoCall, remainDto, RemainDto.class, id);
     }
 
     @Override
-    public void create(RemainDto remainDto) {
-        Call<Void> remainDtoCall = remainApi.create(remainUrl, remainDto);
+    public RemainDto create(RemainDto remainDto) {
+        Call<RemainDto> remainDtoCall = remainApi.create(remainUrl, remainDto);
 
         try {
-            remainDtoCall.execute();
-            log.info("Успешно выполнен запрос на создание экземпляра RemainDto");
+            remainDto = remainDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание RemainDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра ReaminDto - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение RemainDto - {}", e);
         }
+
+        return remainDto;
     }
 
     @Override
     public void update(RemainDto remainDto) {
         Call<Void> remainDtoCall = remainApi.update(remainUrl, remainDto);
-
         try {
             remainDtoCall.execute();
-            log.info("Успешно выполнен запрос на обновление экземпляра RemainDto");
+            log.info("Успешно выполнен запрос на обновление экземпляра Remain");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на обновление экземпляра RemainDto - {}", e);
         }
@@ -84,12 +68,6 @@ public class RemainServiceImpl implements RemainService {
     @Override
     public void deleteById(Long id) {
         Call<Void> remainDtoCall = remainApi.deleteById(remainUrl, id);
-
-        try {
-            remainDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра RemainDto с id = {}", id);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра RemainDto по id= {} - {}", id, e);
-        }
+        callExecuteService.callExecuteBodyDelete(remainDtoCall, RemainDto.class, id);
     }
 }

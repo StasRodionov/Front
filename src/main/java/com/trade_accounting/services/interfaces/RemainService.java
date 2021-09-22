@@ -10,7 +10,7 @@ public interface RemainService {
 
     RemainDto getById(Long id);
 
-    void create(RemainDto remainDto);
+    RemainDto create(RemainDto remainDto);
 
     void update(RemainDto remainDto);
 

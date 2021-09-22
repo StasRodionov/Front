@@ -41,8 +41,6 @@ import java.util.stream.Collectors;
 @UIScope
 public class RemainView extends VerticalLayout {
 
-
-
     private final RemainService remainService;
     private final UnitService unitService;
     private final Notifications notifications;
@@ -88,13 +86,7 @@ public class RemainView extends VerticalLayout {
     }
 
     private List<RemainDto> getData() {
-        List<RemainDto> list = new ArrayList<>();
-        RemainDto remainDto1 = new RemainDto(4L, "name1", "vendorCode1", 23134, 39535, 93078, 28034, 46973, 38L, 11, 45773, 66039, 56196, 64115 );
-        RemainDto remainDto2 = new RemainDto(5L, "name2", "vendorCode2", 23134, 39535, 93078, 28034, 46973, 38L, 11, 45773, 66039, 56196, 64115 );
-        list.add(remainDto1);
-        list.add(remainDto2);
-        return list;
-//        return new ArrayList<>(remainService.getAll());  //надо разобраться с RemainServiceImpl
+        return new ArrayList<>(remainService.getAll());
     }
 
     private void deleteSelectedRemains() {
