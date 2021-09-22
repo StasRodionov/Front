@@ -71,15 +71,8 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         this.retailPointsModalWindow = new RetailPointsModalWindow(retailPointsService);
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
-        grid.removeAllColumns();
         grid.setItems(data);
-        grid.addColumn("number").setFlexGrow(1).setHeader("Номер").setId("Номер");
-        grid.addColumn("currentTime").setFlexGrow(10).setHeader("Дата создания").setId("Дата создания");
-        grid.addColumn("typeOperation").setFlexGrow(7).setHeader("Тип операции").setId("Тип операции");
-        grid.addColumn("numberOfPoints").setFlexGrow(7).setHeader("Бонусные баллы").setId("Бонусные баллы");
-        grid.addColumn("accrualDate").setFlexGrow(10).setHeader("Дата начисления").setId("Дата начисления");
-        grid.addColumn("bonusProgramId").setFlexGrow(1).setHeader("Бонусная программа").setId("Бонусная программа");
-        grid.addColumn("contractorId").setFlexGrow(1).setHeader("Контрагент").setId("Контрагент");
+        configureFilter();
         this.filter = new GridFilter<>(grid);
         add(upperLayout(), filter);
         add(grid, paginator);
@@ -117,6 +110,17 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         upper.add(buttonQuestion(), title(), buttonRefresh(), buttonCreate(), getButtonFilter(), textField(), numberField(), valueSelect());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
+    }
+
+    private void configureFilter() {
+        grid.removeAllColumns();
+        grid.addColumn("number").setFlexGrow(1).setHeader("Номер").setId("Номер");
+        grid.addColumn("currentTime").setFlexGrow(10).setHeader("Дата создания").setId("Дата создания");
+        grid.addColumn("typeOperation").setFlexGrow(7).setHeader("Тип операции").setId("Тип операции");
+        grid.addColumn("numberOfPoints").setFlexGrow(7).setHeader("Бонусные баллы").setId("Бонусные баллы");
+        grid.addColumn("accrualDate").setFlexGrow(10).setHeader("Дата начисления").setId("Дата начисления");
+        grid.addColumn("bonusProgramId").setFlexGrow(1).setHeader("Бонусная программа").setId("Бонусная программа");
+        grid.addColumn("contractorId").setFlexGrow(1).setHeader("Контрагент").setId("Контрагент");
     }
 
     private H2 title() {
@@ -187,7 +191,7 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         grid.sort(Arrays.asList(order));
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginatorUpdateList);
         removeAll();
-        add(upperLayout(), grid, paginatorUpdateList);
+        add(upperLayout(), filter, grid, paginatorUpdateList);
     }
 
     @Override
