@@ -91,12 +91,10 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         grid.setItems(data);
         grid.addColumn("id").setFlexGrow(1).setHeader("№").setId("№");
         grid.addColumn("number").setFlexGrow(1).setHeader("Номер").setId("Номер");
-        grid.addColumn(iDto -> formatDate(iDto.getCurrentTime())).setKey("currentTime").setFlexGrow(12).setHeader("Дата создания").setSortable(true)
-                .setId("Дата создания");
+        grid.addColumn("currentTime").setHeader("Время").setId("currentTime");
         grid.addColumn("typeOperation").setFlexGrow(7).setHeader("Тип операции").setId("Тип операции");
         grid.addColumn("numberOfPoints").setHeader("Бонусные баллы").setId("Бонусные баллы");
-        grid.addColumn(iDto -> formatDate(iDto.getCurrentTime())).setKey("accrualDate").setFlexGrow(12).setHeader("Дата начисления").setSortable(true)
-                .setId("Дата начисления");
+        grid.addColumn("accrualDate").setHeader("Дата начисления").setId("Дата начисления");
         grid.addColumn(retailPointsDto -> bonusProgramService.getById(retailPointsDto.getBonusProgramId())
                 .getName()).setFlexGrow(7).setHeader("Бонусная программа").setId("bonusProgram");
         grid.addColumn(retailPointsDto -> contractorService.getById(retailPointsDto.getContractorId())
@@ -113,15 +111,6 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         grid.setColumnReorderingAllowed(true);
     }
 
-//    private Component isActiveCheckedIcon(RetailPointsDto retailPointsDto) {
-////        if (retailPointsDto.get()) {
-////            Icon icon = new Icon(VaadinIcon.CHECK);
-////            icon.setColor("green");
-////            return icon;
-////        } else {
-////            return new Span("");
-////        }
-//    }
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
@@ -135,12 +124,6 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         title.setHeight("2.2em");
         return title;
     }
-
-    private static String formatDate(String date) {
-        return LocalDateTime.parse(date)
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
-    }
-
 
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
