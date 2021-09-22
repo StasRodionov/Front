@@ -39,7 +39,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.klaudeta.PaginatedGrid;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -55,6 +54,7 @@ public class GoodsView extends VerticalLayout {
 
     private static final String VALUE_SELECT_WIDTH = "120px";
 
+    private final Grid<ProductDto> grid;
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private final GoodsModalWindow goodsModalWindow;
@@ -67,25 +67,24 @@ public class GoodsView extends VerticalLayout {
                      ProductGroupService productGroupService,
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow) {
+        this.grid = new Grid<>(ProductDto.class);
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
         this.serviceModalWindow = serviceModalWindow;
-
-
         treeGrid = getTreeGrid();
-
-        Grid<ProductDto> grid = getGrid();
         List<ProductDto> data = getData();
-        this.filter = new GridFilter<>(grid);
-        this.paginator = new GridPaginator<>(grid,data, (data.size() + 1));
+        configureGrid();
+        this.filter = new GridFilter<>(this.grid);
+        this.paginator = new GridPaginator<>(this.grid, data,50);
         setHorizontalComponentAlignment(Alignment.CENTER);
-        add(getUpperLayout(), filter, getMiddleLayout(grid));
+        add(getUpperLayout(), filter, getMiddleLayout(this.grid), paginator);
     }
 
     private List<ProductDto> getData() {
         return productService.getAll();
     }
+
     public void updateData() {
         paginator.setData(getData(), false);
         updateTreeGrid(productGroupService.getAll());
@@ -119,8 +118,8 @@ public class GoodsView extends VerticalLayout {
         return middleLayout;
     }
 
-    private Grid<ProductDto> getGrid() {
-        Grid<ProductDto> grid = new PaginatedGrid<>(ProductDto.class);
+    private void configureGrid() {
+        grid.removeAllColumns();
         grid.setWidth("75%");
         grid.setHeight("100%");
         grid.setColumnReorderingAllowed(true);
@@ -139,7 +138,6 @@ public class GoodsView extends VerticalLayout {
             goodsModalWindow.open(productDto);
         });
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
-        return grid;
     }
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
