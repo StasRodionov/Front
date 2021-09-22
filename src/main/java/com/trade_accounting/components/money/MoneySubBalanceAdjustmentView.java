@@ -7,10 +7,14 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BalanceAdjustmentDto;
 import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.PaymentService;
+import com.trade_accounting.services.interfaces.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -25,17 +29,22 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "balanceAdjustment", layout = AppView.class)
@@ -57,17 +66,26 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private GridPaginator<BalanceAdjustmentDto> paginator;
     private final GridFilter<BalanceAdjustmentDto> filter;
 
+
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/adjustments_templates/";
+    private final transient ProjectService projectService;
+    private final transient ContractService contractService;
+    private final transient PaymentService paymentService;
+
     private final TextField textField = new TextField();
 
     @Autowired
     public MoneySubBalanceAdjustmentView(BalanceAdjustmentService balanceAdjustmentService, CompanyService companyService,
                                          ContractorService contractorService, @Lazy Notifications notifications,
-                                         BalanceAdjustmentModalView modalView) {
+                                         BalanceAdjustmentModalView modalView, ProjectService projectService, ContractService contractService, PaymentService paymentService) {
         this.balanceAdjustmentService = balanceAdjustmentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.notifications = notifications;
         this.modalView = modalView;
+        this.projectService = projectService;
+        this.contractService = contractService;
+        this.paymentService = paymentService;
         this.data = loadBalanceAdjustments();
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
@@ -182,7 +200,7 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         stringList.add("Массовое редактирование");
         select.setItems(stringList);
         select.setValue("Изменить");
-        select.setWidth("130px");
+        select.setWidth("150px");
         select.addValueChangeListener(e -> {
             if (select.getValue().equals("Удалить")) {
                 deleteSelectBalanceAdjustments();
@@ -198,7 +216,8 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         Select<String> print = new Select<>();
         print.setItems("Печать");
         print.setValue("Печать");
-        print.setWidth("130px");
+        getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+        print.setWidth("150px");
         return print;
     }
 
@@ -239,6 +258,23 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
             notifications.errorNotification("Сначала отметьте галочками нужные корректировки");
         }
     }
+
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+    private Anchor getLinkToXlsTemplate(File file) {
+
+        String paymentsTemplate = file.getName();
+        PrintPaymentsXls printPaymentsXls = new PrintPaymentsXls(
+                file.getPath(), paymentService.getAll(), companyService, contractorService, contractService, projectService);
+        return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport),
+                "Печать xls файла");
+    }
+
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {

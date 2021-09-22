@@ -107,7 +107,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Корректировки":
                     div.removeAll();
-                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService, companyService, contractorService, notifications, modalView));
+                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService, companyService, contractorService, notifications, modalView, projectService, contractService, paymentService));
                     break;
             }
         });
