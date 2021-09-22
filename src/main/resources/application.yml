@@ -67,7 +67,7 @@ retail_sales_url: api/retail_sales
 
 retail_stores_url: api/retail_stores
 
-retail_operation_with_points_url: api/operation_with_points
+retail_operation_with_points_url: api/operation_with
 
 contractor_status_url: api/contractor_status
 
@@ -123,5 +123,7 @@ productprice_url: /api/productprice
 
 
 returns_url: api/returns
+
+retail_points_url: api/operation_with_points
 
 #debug: true
