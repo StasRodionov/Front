@@ -1,6 +1,10 @@
 server:
   port: 4445
 
+loss_product_url: api/lossproduct
+
+loss_url: api/loss
+
 technical_operations_url: api/technical/operations
 
 technical_card_production_url: api/technical/card/production
