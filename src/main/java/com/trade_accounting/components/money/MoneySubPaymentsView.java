@@ -12,10 +12,13 @@ import com.trade_accounting.services.interfaces.PaymentService;
 import com.trade_accounting.services.interfaces.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -45,7 +48,8 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
     private final GridPaginator<PaymentDto> paginator;
     private final GridFilter<PaymentDto> filter;
-    private final PaymentModalWin paymentModalWin;
+    private final CreditOrderModal creditOrderModal;
+    private final IncomingPaymentModal incomingPaymentModal;
 
     MoneySubPaymentsView(PaymentService paymentService,
                          CompanyService companyService,
@@ -53,7 +57,8 @@ public class MoneySubPaymentsView extends VerticalLayout {
                          ProjectService projectService,
                          ContractService contractService,
                          Notifications notifications,
-                         PaymentModalWin paymentModalWin) {
+                         CreditOrderModal creditOrderModal,
+                         IncomingPaymentModal incomingPaymentModal) {
         this.paymentService = paymentService;
         this.data = paymentService.getAll();
         this.companyService = companyService;
@@ -61,7 +66,8 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.projectService = projectService;
         this.contractService = contractService;
         this.notifications = notifications;
-        this.paymentModalWin = paymentModalWin;
+        this.creditOrderModal = creditOrderModal;
+        this.incomingPaymentModal = incomingPaymentModal;
 
         getGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
@@ -92,6 +98,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж").setId("Номер платежа");
         grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
         grid.addColumn("paymentMethods").setFlexGrow(4).setHeader("Способ Оплаты").setId("Способ оплаты");
+        grid.addColumn("expenseItem").setFlexGrow(4).setHeader("Статья расходов").setId("Статья расходов");
         grid.addColumn(pDto -> contractorService.getById(pDto.getContractorId()).getName()).setFlexGrow(10).setSortable(true)
                 .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(pDto -> contractService.getById(pDto.getContractId()).getNumber()).setFlexGrow(3).setSortable(true)
@@ -101,16 +108,16 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.setHeight("66vh");
         grid.addItemDoubleClickListener(event -> {
             PaymentDto editPaymentDto = event.getItem();
-            PaymentModalWin addPaymentModalWin = new PaymentModalWin(
+            CreditOrderModal addCreditOrderModal = new CreditOrderModal(
                     paymentService,
                     companyService,
                     contractorService,
                     projectService,
                     contractService,
                     notifications);
-            addPaymentModalWin.addDetachListener(e -> updateList());
-            addPaymentModalWin.setPaymentDataForEdit(editPaymentDto);
-            addPaymentModalWin.open();
+            addCreditOrderModal.addDetachListener(e -> updateList());
+            addCreditOrderModal.setPaymentDataForEdit(editPaymentDto);
+            addCreditOrderModal.open();
         });
         return grid;
     }
@@ -125,7 +132,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getButton(),
+        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getMenuBar(),
                 getButtonFilter(), getTextField(), getNumberField(), getSelect(), getPrint(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -167,11 +174,13 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return filterButton;
     }
 
-    private Button getButton() {
-        final Button button = new Button("Платеж");
-        button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(event -> paymentModalWin.open());
-        return button;
+    private MenuBar getMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        MenuItem menuPayment = menuBar.addItem("Платеж");
+        SubMenu subMenu = menuPayment.getSubMenu();
+        subMenu.addItem("Приходный ордер", menuItemClickEvent -> creditOrderModal.open());
+        subMenu.addItem("Входящий платеж", menuItemClickEvent -> incomingPaymentModal.open());
+        return menuBar;
     }
 
     private Button getButtonRefresh() {

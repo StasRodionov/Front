@@ -40,7 +40,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
     private final Grid<MoneySubCashFlowDto> grid = new Grid<>(MoneySubCashFlowDto.class, false);
     private final GridPaginator<MoneySubCashFlowDto> paginator;
     private final GridFilter<MoneySubCashFlowDto> filter;
-    private final PaymentModalWin paymentModalWin;
+    private final CreditOrderModal creditOrderModal;
 
     private H2 title() {
         H2 title = new H2("Движение денежных средств");
@@ -54,7 +54,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
                                 ProjectService projectService,
                                 ContractService contractService,
                                 Notifications notifications,
-                                PaymentModalWin paymentModalWin) {
+                                CreditOrderModal creditOrderModal) {
         this.moneySubCashFlowService = moneySubCashFlowService;
         this.companyService = companyService;
         this.data = moneySubCashFlowService.getAll();
@@ -62,7 +62,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
         this.projectService = projectService;
         this.contractService = contractService;
         this.notifications = notifications;
-        this.paymentModalWin = paymentModalWin;
+        this.creditOrderModal = creditOrderModal;
         getGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         this.filter = new GridFilter<>(grid);

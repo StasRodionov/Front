@@ -29,7 +29,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final ContractService contractService;
     private final Notifications notifications;
     private final Div div;
-    private final PaymentModalWin paymentModalWin;
+    private final CreditOrderModal creditOrderModal;
+    private final IncomingPaymentModal incomingPaymentModal;
     private final MoneySubCashFlowService moneySubCashFlowService;
     private final MoneySubMutualSettlementsService moneySubMutualSettlementsService;
     private final BalanceAdjustmentService balanceAdjustmentService;
@@ -43,7 +44,9 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                             ProjectService projectService,
                             ContractService contractService,
                             Notifications notifications,
-                            PaymentModalWin paymentModalWin, MoneySubCashFlowService moneySubCashFlowService,
+                            CreditOrderModal creditOrderModal,
+                            IncomingPaymentModal incomingPaymentModal,
+                            MoneySubCashFlowService moneySubCashFlowService,
                             MoneySubMutualSettlementsService moneySubMutualSettlementsService,
                             BalanceAdjustmentService balanceAdjustmentService,
                             BalanceAdjustmentModalView modalView, MoneySubProfitLossService moneySubProfitLossService) {
@@ -53,7 +56,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         this.projectService = projectService;
         this.contractService = contractService;
         this.notifications = notifications;
-        this.paymentModalWin = paymentModalWin;
+        this.creditOrderModal = creditOrderModal;
+        this.incomingPaymentModal = incomingPaymentModal;
         this.moneySubCashFlowService = moneySubCashFlowService;
         this.moneySubMutualSettlementsService = moneySubMutualSettlementsService;
         this.balanceAdjustmentService = balanceAdjustmentService;
@@ -67,7 +71,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
         div.add(new MoneySubPaymentsView(paymentService, companyService,
-                contractorService, projectService, contractService, notifications, paymentModalWin));
+                contractorService, projectService, contractService, notifications, creditOrderModal, incomingPaymentModal));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -91,15 +95,15 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Платежи":
                     div.removeAll();
-                    div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService, contractService, notifications, paymentModalWin));
+                    div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal, incomingPaymentModal));
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
-                    div.add(new MoneySubCashFlowView(moneySubCashFlowService, companyService, contractorService, projectService, contractService, notifications, paymentModalWin));
+                    div.add(new MoneySubCashFlowView(moneySubCashFlowService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal));
                     break;
                 case "Прибыли и убытки":
                     div.removeAll();
-                    div.add(new MoneySubProfitLossView(moneySubProfitLossService, paymentModalWin));
+                    div.add(new MoneySubProfitLossView(moneySubProfitLossService, creditOrderModal));
                     break;
                 case "Взаиморасчеты":
                     div.removeAll();
