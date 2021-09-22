@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -14,15 +15,25 @@ public class MovementDto {
 
     private String date;
 
+    private String whenChangedDate;
+
     private Long warehouseFromId;
+
+    private BigDecimal sum;
 
     private Long warehouseToId;
 
     private Long companyId;
 
+    private Long employeeChangedId;
+
+    private Long projectId;
+
     private Boolean isSent = false;
 
     private Boolean isPrint = false;
+
+    private Boolean isSpend = false;
 
     private String comment;
 
