@@ -1,6 +1,8 @@
 server:
   port: 4445
 
+orders_of_production_url: api/orders_of_production
+
 technical_operations_url: api/technical/operations
 
 technical_card_production_url: api/technical/card/production
