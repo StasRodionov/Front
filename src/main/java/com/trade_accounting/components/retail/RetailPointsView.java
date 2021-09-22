@@ -91,7 +91,7 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         grid.setItems(data);
         grid.addColumn("id").setFlexGrow(1).setHeader("№").setId("№");
         grid.addColumn("number").setFlexGrow(1).setHeader("Номер").setId("Номер");
-        grid.addColumn("currentTime").setHeader("Время").setId("currentTime");
+        grid.addColumn("currentTime").setHeader("Дата создания").setId("Дата создания");
         grid.addColumn("typeOperation").setFlexGrow(7).setHeader("Тип операции").setId("Тип операции");
         grid.addColumn("numberOfPoints").setHeader("Бонусные баллы").setId("Бонусные баллы");
         grid.addColumn("accrualDate").setHeader("Дата начисления").setId("Дата начисления");
