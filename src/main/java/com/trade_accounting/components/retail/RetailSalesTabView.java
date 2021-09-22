@@ -58,6 +58,9 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
                               CompanyService companyService, ContractorService contractorService) {
         this.retailSalesService = retailSalesService;
         this.data = retailSalesService.getAll();
+        this.retailStoreService = retailStoreService;
+        this.companyService = companyService;
+        this.contractorService = contractorService;
         grid.removeAllColumns();
         grid.addColumn("time").setHeader("Время").setId("Время");
         grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("Точка продаж");
@@ -68,6 +71,7 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
         grid.addColumn("prepayment").setHeader("Сумма предопл.").setId("Предоплата");
         grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("Скидка");
         grid.addColumn("sum").setHeader("Итого").setId("Итого");
+
         this.filter = new GridFilter<>(grid);
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
