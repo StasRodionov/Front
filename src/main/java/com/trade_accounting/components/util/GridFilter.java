@@ -11,7 +11,7 @@ import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
-import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -96,11 +96,11 @@ public class GridFilter<T> extends HorizontalLayout {
      * @param columnKey columnKey
      */
     public void setFieldToDatePicker(String columnKey) {
-        DatePicker datePicker = getFilterDatePicker(columnKey);
+        DateTimePicker dateTimePicker = getFilterDatePicker(columnKey);
 
         this.getChildren().forEach(e -> {
             if (e.getId().orElse("").equals(columnKey)) {
-                this.replace(e, datePicker);
+                this.replace(e, dateTimePicker);
             }
         });
     }
@@ -297,8 +297,8 @@ public class GridFilter<T> extends HorizontalLayout {
         return filter;
     }
 
-    private DatePicker getFilterDatePicker(String columnKey) {
-        DatePicker filter = new DatePicker();
+    private DateTimePicker getFilterDatePicker(String columnKey) {
+        DateTimePicker filter = new DateTimePicker();
         filter.setId(columnKey);
 
         filter.setLocale(Locale.GERMAN);
