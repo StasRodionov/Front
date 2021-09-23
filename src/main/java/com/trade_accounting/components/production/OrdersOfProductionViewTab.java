@@ -1,12 +1,13 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
+import com.trade_accounting.models.dto.OrdersOfProductionDto;
+import com.trade_accounting.models.dto.TechnicalCardDto;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
-import com.trade_accounting.services.interfaces.TechnicalOperationsService;
-import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -29,50 +30,51 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
-import java.util.ArrayList;
 import java.util.List;
-
 
 @SpringComponent
 @UIScope
-@PageTitle("Тех. операции")
-@Route(value = "technological", layout = AppView.class)
-public class TechnologicalOperationsViewTab extends VerticalLayout {
+@PageTitle("Заказы на производство")
+@Route(value = "ordersOfProductionViewTab", layout = AppView.class)
+public class OrdersOfProductionViewTab extends VerticalLayout {
 
-    private final TextField textField = new TextField();
-    private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-    private final List<TechnicalOperationsDto> data;
+        private final TextField textField = new TextField();
+        private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-    private final GridPaginator<TechnicalOperationsDto> paginator;
-    private final Grid<TechnicalOperationsDto> grid = new Grid<>(TechnicalOperationsDto.class, false);
-
+    private final GridPaginator<OrdersOfProductionDto> paginator;
+    private final Grid<OrdersOfProductionDto> grid = new Grid<>(OrdersOfProductionDto.class, false);
+    private final OrdersOfProductionService ordersOfProductionService;
+    private final CompanyService companyService;
     private final TechnicalCardService technicalCardService;
-    private final TechnicalOperationsService technicalOperationsService;
-    private final Notifications notifications;
-    private final WarehouseService warehouseService;
+    private final List<OrdersOfProductionDto> data;
+    private GridFilter<OrdersOfProductionDto> filter;
 
-    TechnologicalOperationsViewTab(TechnicalCardService technicalCardService, TechnicalOperationsService technicalOperationsService, Notifications notifications, WarehouseService warehouseService) {
-        this.technicalOperationsService = technicalOperationsService;
-        this.notifications = notifications;
-        this.warehouseService = warehouseService;
 
-        paginator = new GridPaginator<>(grid, this.technicalOperationsService.getAll(), 100);
+
+    OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnicalCardService technicalCardService) {
+            this.ordersOfProductionService = ordersOfProductionService;
+            this.companyService = companyService;
         this.technicalCardService = technicalCardService;
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        paginator = new GridPaginator<>(grid, this.ordersOfProductionService.getAll(), 100);
         add(getTollBar(), grid, paginator);
         configureGrid();
         setSizeFull();
+        //configureFilter();
         this.data = getData();
-
+        this.filter = new GridFilter<>(grid);
     }
 
-    private void configureGrid() {
+    private void configureGrid () {
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(TechnicalOperationsDto::getDate).setKey("date").setHeader("время").setSortable(true);
-        grid.addColumn(e -> warehouseService.getById(e.getWarehouse()).getName()).setHeader("организация").setId("организация");
-        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCard()).getName()).setHeader("Технологическая карта").setId("Технологическая карта");
+        grid.addColumn(OrdersOfProductionDto::getDate).setKey("date").setHeader("время").setSortable(true);
+        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setId("организация");
+        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCardId()).getName()).setHeader("Технологическая карта")
+                .setId("Технологическая карта");
         grid.addColumn("volume").setHeader("Объем производства").setId("Объем производства");
+        grid.addColumn("produce").setHeader("Произведено").setId("Произведено");
+        grid.addColumn(OrdersOfProductionDto::getPlannedProductionDate).setKey("PlannedProductionDate")
+                .setHeader("План. дата производства").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
@@ -81,10 +83,11 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
     }
 
-    private Component getIsSentIcon(TechnicalOperationsDto technicalOperationsDto) {
-        if (technicalOperationsDto.getIsSent()) {
+    private Component getIsSentIcon(OrdersOfProductionDto ordersOfProductionDto) {
+        if (ordersOfProductionDto.getIsSent()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
@@ -93,8 +96,8 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
         }
     }
 
-    private Component getIsPrintIcon(TechnicalOperationsDto technicalOperationsDto) {
-        if (technicalOperationsDto.getIsPrint()) {
+    private Component getIsPrintIcon(OrdersOfProductionDto ordersOfProductionDto) {
+        if (ordersOfProductionDto.getIsPrint()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
@@ -103,7 +106,11 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
         }
     }
 
-    private HorizontalLayout getTollBar() {
+    private List<OrdersOfProductionDto> getData() {
+        return ordersOfProductionService.getAll();
+    }
+
+        private HorizontalLayout getTollBar () {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(),
                 buttonFilter(), text(), numberField(), valueSelect(), valueStatus(),
@@ -112,34 +119,43 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
         return horizontalLayout;
     }
 
-    private Button buttonQuestion() {
+        private Button buttonQuestion () {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
 
-    private Button buttonRefresh() {
+        private Button buttonRefresh () {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addClickListener(ev -> updateList());
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
-    private void updateList() {
+        private void updateList () {
 
     }
 
-    private Button buttonUnit() {
-        Button buttonUnit = new Button("Операция", new Icon(VaadinIcon.PLUS_CIRCLE));
+        private Button buttonUnit () {
+        Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
         return buttonUnit;
     }
 
-    private Button buttonFilter() {
+        private Button buttonFilter () {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
-    private TextField text() {
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e ->
+                paginator.setData(ordersOfProductionService.searchOrdersOfProduction(filter.getFilterData())));
+        filter.onClearClick(e ->
+                paginator.setData(ordersOfProductionService.getAll()));
+    }
+
+        private TextField text () {
         textField.setWidth("300px");
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
@@ -149,52 +165,26 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
         return textField;
     }
 
-    private NumberField numberField() {
+        private NumberField numberField () {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
         numberField.setWidth("45px");
         return numberField;
     }
 
-    private Select<String> valueSelect() {
+        private Select<String> valueSelect () {
         Select<String> valueSelect = new Select<>();
-        List<String> list = new ArrayList<>();
-        list.add("Изменить");
-        list.add("Удалить");
-        valueSelect.setItems(list);
+        valueSelect.setItems("Изменить");
         valueSelect.setValue("Изменить");
-        valueSelect.setWidth("120px");
-        valueSelect.addValueChangeListener(event -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedInternalOrders();
-                grid.deselectAll();
-                valueSelect.setValue("Изменить");
-                paginator.setData(getData());
-            }
-        });
+        valueSelect.setWidth("130px");
         return valueSelect;
     }
 
-    private void deleteSelectedInternalOrders() {
-        if (!grid.getSelectedItems().isEmpty()) {
-            for (TechnicalOperationsDto technicalOperationsDto : grid.getSelectedItems()) {
-                technicalOperationsService.deleteById(technicalOperationsDto.getId());
-                notifications.infoNotification("Выбранные заказы успешно удалены");
-            }
-        } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
-        }
-    }
-
-    private List<TechnicalOperationsDto> getData() {
-        return technicalOperationsService.getAll();
-    }
-
-    private Button buttonSettings() {
+        private Button buttonSettings () {
         return new Button(new Icon(VaadinIcon.COG_O));
     }
 
-    private Select<String> valueStatus() {
+        private Select<String> valueStatus () {
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
@@ -202,7 +192,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
         return status;
     }
 
-    private Select<String> valuePrint() {
+        private Select<String> valuePrint () {
         Select<String> print = new Select<>();
         print.setItems("Печать", "Добавить шаблон");
         print.setValue("Печать");
@@ -210,11 +200,10 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
         return print;
     }
 
-    private H2 getTextOrder() {
-        final H2 textOrder = new H2("Тех. операции");
+        private H2 getTextOrder () {
+        final H2 textOrder = new H2("Заказы на производство");
         textOrder.setHeight("2.2em");
         return textOrder;
     }
-
 
 }
