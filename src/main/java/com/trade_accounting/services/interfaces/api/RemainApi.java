@@ -23,7 +23,7 @@ public interface RemainApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body RemainDto remainDto);
+    Call<RemainDto> create(@Path(value = "url", encoded = true) String url, @Body RemainDto remainDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
