@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.goods.GoodsModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -62,6 +63,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private final Notifications notifications;
     private final ReturnToSupplierModalView modalView;
+    private final GoodsModalWindow goodsModalWindow;
 
     private final List<ReturnToSupplierDto> data;
 
@@ -74,7 +76,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     @Autowired
     public PurchasesSubReturnToSuppliers(ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
                                          CompanyService companyService, ContractorService contractorService, ContractService contractService,
-                                         @Lazy Notifications notifications, ReturnToSupplierModalView modalView) {
+                                         @Lazy Notifications notifications, ReturnToSupplierModalView modalView, GoodsModalWindow goodsModalWindow) {
         this.returnToSupplierService = returnToSupplierService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -82,6 +84,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
+        this.goodsModalWindow = goodsModalWindow;
         this.data = loadReturnToSuppliers();
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
@@ -124,7 +127,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
                     warehouseService,
                     contractorService,
                     contractService,
-                    notifications);
+                    goodsModalWindow, notifications);
             modalView.setReturnToSupplierForEdit(dto);
             modalView.open();
         });
