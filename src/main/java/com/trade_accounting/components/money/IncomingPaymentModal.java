@@ -130,11 +130,7 @@ public class IncomingPaymentModal extends Dialog {
         payment.setTime(dateField.getValue().toString());
         payment.setCompanyId(companyDtoComboBox.getValue().getId());
         payment.setContractorId(contractorDtoComboBox.getValue().getId());
-        if (contractDtoComboBox.getValue() == null) {
-            payment.setContractId(1L);
-        } else {
-            payment.setContractId(contractDtoComboBox.getValue().getId());
-        }
+        payment.setContractId(contractDtoComboBox.getValue().getId());
         payment.setExpenseItem(expenseItem.getValue());
         payment.setProjectId(projectDtoComboBox.getValue().getId());
         payment.setNumber(payNumber.getValue());
@@ -168,7 +164,6 @@ public class IncomingPaymentModal extends Dialog {
         button.addClickListener(event -> {
             if (sum.getValue().compareTo(BigDecimal.ZERO) > 0) {
                 PaymentDto payment = updatePaymentDto();
-                log.info("{}", payment);
                 if (payment.getId() == null) {
                     paymentService.create(payment);
                 } else {
@@ -219,6 +214,7 @@ public class IncomingPaymentModal extends Dialog {
         projectDtoComboBox.setValue(projectService.getById(paymentDto.getProjectId()));
         payNumber.setValue(paymentDto.getNumber());
         sum.setValue(paymentDto.getSum());
+        expenseItem.setValue(paymentDto.getExpenseItem());
         dateField.setValue(LocalDateTime.now());
     }
 }
