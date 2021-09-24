@@ -32,6 +32,7 @@ public class TaskModalWin extends Dialog {
 
     private final TextArea description = new TextArea("Описание задачи");
     private final Checkbox completed = new Checkbox("Выполнена");
+    private final TextArea idField = new TextArea();
     private final DateTimePicker creationDataTime = new DateTimePicker();
     private final DateTimePicker deadlineDateTime = new DateTimePicker();
     private final ComboBox<EmployeeDto> employeeDtoSelect = new ComboBox<>();
@@ -53,6 +54,7 @@ public class TaskModalWin extends Dialog {
         add(getHeader());
         add(getContent());
 
+        idField.setValue(getFieldValueNotNull(String.valueOf(taskDto.getId())));
         description.setValue(getFieldValueNotNull(taskDto.getDescription()));
         completed.setValue(taskDto.isCompleted());
         employeeDtoSelect.setValue(employeeService.getById(getLongIdNotNull(taskDto.getEmployeeId())));
@@ -135,14 +137,13 @@ public class TaskModalWin extends Dialog {
     }
 
     public Button getSaveButton() {
-        if (description.isEmpty()){
+        if (getFieldValueNotNull(taskDto.getDescription()).isEmpty()){
             return new Button("Добавить", event -> {
                 saveFields(taskDto);
                 taskService.create(taskDto);
                 close();
             });
         } else {
-
             return new Button("Изменить", event -> {
                 saveFields(taskDto);
                 taskService.update(taskDto);
