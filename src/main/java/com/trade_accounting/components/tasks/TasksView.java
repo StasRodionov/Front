@@ -1,9 +1,11 @@
 package com.trade_accounting.components.tasks;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.production.TechnicalCardModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.button.Button;
@@ -28,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Map;
 
 
 @SpringComponent
@@ -39,9 +42,9 @@ public class TasksView extends VerticalLayout {
 
     private final TaskService taskService;
     private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
-    private final GridFilter<TaskDto> filter = new GridFilter<>(grid);
-    private final GridPaginator<TaskDto> paginator;
+    private final GridFilter<TaskDto> filter;
     private final EmployeeService employeeService;
+    private final GridPaginator<TaskDto> paginator;
 
     private final TaskDto taskDto;
 
@@ -50,16 +53,17 @@ public class TasksView extends VerticalLayout {
         this.taskService = taskService;
         this.employeeService = employeeService;
         this.taskDto = new TaskDto();
-
-        paginator = new GridPaginator<>(grid, taskService.getAll(), 10);
-        configureGrid();
-
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        paginator = new GridPaginator<>(grid, taskService.getAll(), 15);
+        configureFilter();
+        this.filter = new GridFilter<>(grid);
         add(getToolBar(), filter, grid, paginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureGrid();
     }
 
 
     private void configureGrid() {
+        grid.removeAllColumns();
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName()).setHeader("Ответственный").setId("Ответственный");
@@ -67,6 +71,18 @@ public class TasksView extends VerticalLayout {
                 .setKey("deadLineDateTime").setId("Срок");
         grid.addColumn(TaskDto::getCreationDateTime).setHeader("Создано")
                 .setKey("creationDateTime").setId("Создано");
+
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemDoubleClickListener(event -> {
+            TaskDto taskDto = event.getItem();
+            TaskModalWin addTaskModalWin =
+                    new TaskModalWin(taskService, taskDto, employeeService);
+            addTaskModalWin.addDetachListener(e -> updateList());
+            addTaskModalWin.getSaveButton();
+            addTaskModalWin.open();
+        });
     }
 
     private HorizontalLayout getToolBar() {
@@ -97,6 +113,15 @@ public class TasksView extends VerticalLayout {
         return buttonQuestion;
     }
 
+    private void configureFilter() {
+        grid.removeAllColumns();
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn("description").setHeader("Описание").setId("Описание");
+        grid.addColumn("employeeId").setHeader("Ответственный").setId("Ответственный");
+        grid.addColumn("deadlineDateTime").setHeader("Срок").setId("Срок");
+        grid.addColumn("creationDateTime").setHeader("Создано").setId("Создано");
+    }
+
     private H2 getTextTask() {
         final var textTask = new H2("Задачи");
         textTask.setHeight("2.2em");
@@ -119,10 +144,9 @@ public class TasksView extends VerticalLayout {
     }
 
     private Button getButtonFilter() {
-        var buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> {
-        });
-        return buttonFilter;
+        Button filterButton = new Button("Фильтр");
+        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return filterButton;
     }
 
     private TextField getTextField() {
@@ -132,6 +156,14 @@ public class TasksView extends VerticalLayout {
         textField.setWidth("300px");
 
         return textField;
+    }
+
+    private void updateList() {
+        GridPaginator<TaskDto> paginatorUpdateList
+                = new GridPaginator<>(grid, taskService.getAll(), 15);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        removeAll();
+        add(getToolBar(), filter, grid, paginator);
     }
 
     private static String formatDate(String date) {

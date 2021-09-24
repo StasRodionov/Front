@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.models.dto.CompanyDto;
@@ -28,6 +29,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import org.springframework.context.annotation.Lazy;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -111,22 +113,25 @@ public class CompanyModal extends Dialog {
     private final LegalDetailService legalDetailService;
     private final TypeOfContractorService typeOfContractorService;
     private final BankAccountService bankAccountService;
+    private final Notifications notifications;
 
-    public CompanyModal(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
+    public CompanyModal(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService, @Lazy Notifications notifications) {
         this.companyService = companyService;
         this.addressService = addressService;
         this.legalDetailService = legalDetailService;
         this.typeOfContractorService = typeOfContractorService;
         this.bankAccountService = bankAccountService;
+        this.notifications = notifications;
         configureModal("Добавление", null);
     }
 
-    public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
+    public CompanyModal(CompanyDto companyDto, CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService, @Lazy Notifications notifications) {
         this.companyService = companyService;
         this.addressService = addressService;
         this.legalDetailService = legalDetailService;
         this.typeOfContractorService = typeOfContractorService;
         this.bankAccountService = bankAccountService;
+        this.notifications = notifications;
         configureModal("Редактирование", companyDto);
         setFields(companyDto);
     }
@@ -312,7 +317,9 @@ public class CompanyModal extends Dialog {
             } else {
                 companyService.update(companyDto);
             }
+            notifications.infoNotification("Компания успешно добавлена");
             close();
+
         });
     }
 

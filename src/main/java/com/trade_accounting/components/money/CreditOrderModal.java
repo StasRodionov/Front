@@ -37,7 +37,7 @@ import java.time.LocalDateTime;
 @SpringComponent
 @UIScope
 @Slf4j
-public class PaymentModalWin extends Dialog {
+public class CreditOrderModal extends Dialog {
     private final transient CompanyService companyService;
     private final transient ContractService contractService;
     private final transient ContractorService contractorService;
@@ -46,18 +46,17 @@ public class PaymentModalWin extends Dialog {
     private final transient Notifications notifications;
 
     private final DateTimePicker dateField = new DateTimePicker();
-    private final ComboBox<String> typeofPaymentBox = new ComboBox<>();
     private final ComboBox<String> paymentMethods = new ComboBox<>();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     private final ComboBox<ProjectDto> projectDtoComboBox = new ComboBox<>();
     private final TextField payNumber = new TextField();
+    private final ComboBox<String> expenseItem = new ComboBox<>();
     private final BigDecimalField sum = new BigDecimalField();
     private transient PaymentDto paymentDto;
 
-    //    @Autowired
-    public PaymentModalWin(
+    public CreditOrderModal(
             PaymentService paymentService,
             CompanyService companyService,
             ContractorService contractorService,
@@ -71,8 +70,14 @@ public class PaymentModalWin extends Dialog {
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.projectService = projectService;
-        typeofPaymentBox.setItems("Входящий", "Исходящий");
         paymentMethods.setItems("Наличные", "Безнал");
+        expenseItem.setItems("RETURN",
+                "PURCHACE",
+                "TAXESANDFEES",
+                "MOVEMENT",
+                "RENTAL",
+                "SALARY",
+                "MARKETING");
         companyDtoComboBox.setItems(companyService.getAll());
         companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
         contractDtoComboBox.setItems(contractService.getAll());
@@ -91,8 +96,8 @@ public class PaymentModalWin extends Dialog {
         add(getHorizontalLayout("Дата", dateField));
         add(getHorizontalLayout("Компания", companyDtoComboBox));
         add(getHorizontalLayout("Номер платежа", payNumber));
-        add(getHorizontalLayout("Тип платежа", typeofPaymentBox));
         add(getHorizontalLayout("Способ оплаты", paymentMethods));
+        add(getHorizontalLayout("Статья расходов", expenseItem));
         add(getHorizontalLayout("Контрагент", contractorDtoComboBox));
         add(getHorizontalLayout("Договор", contractDtoComboBox));
         add(getHorizontalLayout("Проект", projectDtoComboBox));
@@ -102,7 +107,7 @@ public class PaymentModalWin extends Dialog {
 
     private Component getHeader() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        H2 title = new H2("Добавление платежа");
+        H2 title = new H2("Приходный ордер");
         title.setHeight("1.5em");
         title.setWidth("345px");
         horizontalLayout.add(title);
@@ -128,14 +133,11 @@ public class PaymentModalWin extends Dialog {
         payment.setContractId(contractDtoComboBox.getValue().getId());
         payment.setProjectId(projectDtoComboBox.getValue().getId());
         payment.setNumber(payNumber.getValue());
+        payment.setExpenseItem(expenseItem.getValue());
         payment.setSum(sum.getValue());
+        payment.setTypeOfPayment("OUTGOING");
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
             payment.setId(this.paymentDto.getId());
-        }
-        if (typeofPaymentBox.getValue().equals("Входящий")) {
-            payment.setTypeOfPayment("INCOMING");
-        } else {
-            payment.setTypeOfPayment("OUTGOING");
         }
         if (paymentMethods.getValue().equals("Наличные")) {
             payment.setPaymentMethods("CASH");
@@ -151,15 +153,16 @@ public class PaymentModalWin extends Dialog {
         contractorDtoComboBox.clear();
         contractDtoComboBox.clear();
         projectDtoComboBox.clear();
+        expenseItem.clear();
         payNumber.clear();
-        typeofPaymentBox.clear();
         paymentMethods.clear();
         sum.clear();
     }
 
     private Button getSaveButton() {
-        return new Button("Сохранить", new Icon(VaadinIcon.PLUS_CIRCLE), event -> {
-            if (sum.getValue().compareTo(BigDecimal.valueOf(9999999999999999L)) < 0) {
+        Button button = new Button("Сохранить", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(event -> {
+            if (sum.getValue().compareTo(BigDecimal.ZERO) > 0) {
                 PaymentDto payment = updatePaymentDto();
                 if (payment.getId() == null) {
                     paymentService.create(payment);
@@ -174,26 +177,29 @@ public class PaymentModalWin extends Dialog {
                 notifications.errorNotification("Ошибка сохранения. Число в поле \"Сумма\" превышает допустимый диапазон");
             }
         });
+        return button;
     }
 
     private Button getCancelButton() {
-        return new Button("Отмена", new Icon(VaadinIcon.CLOSE), event -> {
+        Button button = new Button("Отмена", new Icon(VaadinIcon.CLOSE));
+        button.addClickListener(event -> {
             reset();
             close();
         });
+        return button;
     }
 
     private Component getFooter() {
         HorizontalLayout footer = new HorizontalLayout();
-        VerticalLayout saveverticalLayout = new VerticalLayout();
-        VerticalLayout cancelverticalLayout = new VerticalLayout();
-        saveverticalLayout.add(getSaveButton());
-        saveverticalLayout.setWidth("550px");
-        saveverticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.END);
-        cancelverticalLayout.add(getCancelButton());
-        cancelverticalLayout.setWidth("100px");
-        cancelverticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.END);
-        footer.add(saveverticalLayout, cancelverticalLayout);
+        VerticalLayout saveVerticalLayout = new VerticalLayout();
+        VerticalLayout cancelVerticalLayout = new VerticalLayout();
+        saveVerticalLayout.add(getSaveButton());
+        saveVerticalLayout.setWidth("550px");
+        saveVerticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.END);
+        cancelVerticalLayout.add(getCancelButton());
+        cancelVerticalLayout.setWidth("100px");
+        cancelVerticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.END);
+        footer.add(saveVerticalLayout, cancelVerticalLayout);
         footer.setHeight("100px");
         footer.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.END);
         return footer;
@@ -202,13 +208,13 @@ public class PaymentModalWin extends Dialog {
     public void setPaymentDataForEdit(PaymentDto editPaymentDto) {
         this.paymentDto = editPaymentDto;
         companyDtoComboBox.setValue(companyService.getById(paymentDto.getCompanyId()));
-        typeofPaymentBox.setValue(paymentDto.getTypeOfPayment());
         paymentMethods.setValue(paymentDto.getPaymentMethods());
         contractDtoComboBox.setValue(contractService.getById(paymentDto.getContractId()));
         contractorDtoComboBox.setValue(contractorService.getById(paymentDto.getContractorId()));
         projectDtoComboBox.setValue(projectService.getById(paymentDto.getProjectId()));
         payNumber.setValue(paymentDto.getNumber());
         sum.setValue(paymentDto.getSum());
+        expenseItem.setValue(paymentDto.getExpenseItem());
         dateField.setValue(LocalDateTime.now());
     }
 }

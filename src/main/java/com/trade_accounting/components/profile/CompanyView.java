@@ -117,7 +117,7 @@ public class CompanyView extends VerticalLayout {
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             CompanyDto companyDto = event.getItem();
-            CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService);
+            CompanyModal companyModal = new CompanyModal(companyDto, companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService, notifications);
             companyModal.addDetachListener(e -> reloadGrid());
             companyModal.open();
         });
@@ -222,7 +222,7 @@ public class CompanyView extends VerticalLayout {
     private Button getNewCompanyButton() {
         final Button button = new Button("Юр. лицо");
         button.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE));
-        CompanyModal companyModal = new CompanyModal(companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService);
+        CompanyModal companyModal = new CompanyModal(companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService, notifications);
         companyModal.addDetachListener(e -> reloadGrid());
         button.addClickListener(e -> companyModal.open());
         return button;
@@ -259,16 +259,21 @@ public class CompanyView extends VerticalLayout {
 //        return selector;
         Select<String> valueSelect = new Select<>();
         List<String> listItems = new ArrayList<>();
+        listItems.add("");
         listItems.add("Удалить");
+        listItems.add("Изменить");
         valueSelect.setItems(listItems);
-        valueSelect.setPlaceholder("Изменить");
+        valueSelect.setPlaceholder("");
         valueSelect.setWidth("130px");
         valueSelect.addValueChangeListener(event -> {
             if (valueSelect.getValue().equals("Удалить")) {
                 deleteSelectedCompanies();
                 grid.deselectAll();
-                valueSelect.setValue("Изменить");
+                valueSelect.setValue("");
                 paginator.setData(getData());
+            }
+            if (valueSelect.getValue().equals("Изменить")) {
+                notifications.infoNotification("Выбранная компания успешно изменена");
             }
         });
 

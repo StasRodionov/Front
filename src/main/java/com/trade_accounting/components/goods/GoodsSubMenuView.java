@@ -27,17 +27,19 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     private final GoodsSubInternalOrder goodsSubInternalOrder;
     private final MovementView movementView;
     private final RemainView remainView;
+    private final LossView lossView;
 
     private final Div div = new Div();
 
     public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
-                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder, MovementView movementView, RemainView remainView) {
+                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder, MovementView movementView, RemainView remainView, LossView lossView) {
         this.goodsView = goodsView;
         this.postingTabView = postingTabView;
         this.goodsSubInventory = goodsSubInventory;
         this.goodsSubInternalOrder = goodsSubInternalOrder;
         this.movementView = movementView;
         this.remainView = remainView;
+        this.lossView = lossView;
 
         add(configurationSubMenu(), div);
     }
@@ -78,6 +80,15 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.add(goodsSubInternalOrder);
                 }));
 
+        HorizontalLayout lossTab = new HorizontalLayout(new Label("Списания"));
+
+        lossTab.addClickListener(event ->
+                lossTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    lossView.updateList();
+                    div.add(lossView);
+                }));
+
         HorizontalLayout movementTab = new HorizontalLayout(new Label("Перемещения"));
 
         movementTab.addClickListener(event ->
@@ -87,7 +98,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.add(movementView);
                 }));
 
-        Tab chargesLayout = new Tab("Списания");
+
         Tab interventarizationLayout = new Tab("Инвентаризации");
         Tab internalOrdersLayout = new Tab("Внутрение заказы");
         Tab priceLayout = new Tab("Прайс-лист");
@@ -107,7 +118,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 new Tab(postingTab),
                 new Tab(inventoryTab),
                 new Tab(internalOrderTab),
-                chargesLayout,
+                new Tab(lossTab),
                 new Tab(movementTab),
                 priceLayout,
                 new Tab(remainTab),

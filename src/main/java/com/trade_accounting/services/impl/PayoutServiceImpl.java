@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.PayoutDto;
 import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.api.PayoutApi;
@@ -12,6 +13,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -94,5 +96,33 @@ public class PayoutServiceImpl implements PayoutService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PayoutDto по id= {} - {}", id, e);
         }
+    }
+
+    @Override
+    public List<PayoutDto> findBySearchAndTypeOfPayout(String search, String typeOfPayout) {
+        List<PayoutDto> payoutDtoList = new ArrayList<>();
+        Call<List<PayoutDto>> payoutDtoListCall = payoutApi
+                .search(payoutURL, search.toLowerCase(), typeOfPayout);
+
+        try {
+            payoutDtoList = payoutDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов payout");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка PayoutDto - ", e);
+        }
+        return payoutDtoList;
+    }
+
+    @Override
+    public List<PayoutDto> search(Map<String, String> query) {
+        List<PayoutDto> payoutDtoList = new ArrayList<>();
+        Call<List<PayoutDto>> payoutDtoListCall = payoutApi.search(payoutURL,query);
+        try {
+            payoutDtoList = payoutDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов payout {}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка PayoutDto - ", e);
+        }
+        return payoutDtoList;
     }
 }
