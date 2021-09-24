@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -93,7 +94,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                     break;
                 case "Сотрудники":
                     div.removeAll();
-                    div.add(new EmployeeView(employeeService, roleService, imageService));
+                    div.add(new EmployeeView(employeeService, roleService, imageService, notifications));
                     break;
                 case "Склады":
                     div.removeAll();

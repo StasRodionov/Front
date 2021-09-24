@@ -1,5 +1,6 @@
 package com.trade_accounting.components.profile;
 
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.ValidTextField;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
@@ -68,6 +69,8 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private final ImageService imageService;
 
+    private final Notifications notifications;
+
     private EmployeeDto employeeDto;
 
     private ImageDto imageDto;
@@ -82,10 +85,11 @@ public class AddEmployeeModalWindowView extends Dialog {
                                       EmployeeService employeeService,
                                       RoleService roleService,
                                       ImageService imageService,
-                                      ImageDto imageDto) {
+                                      ImageDto imageDto, Notifications notifications) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         this.imageService = imageService;
+        this.notifications = notifications;
         div = new Div();
         if (employeeDto != null) {
             this.employeeDto = employeeDto;
@@ -274,6 +278,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         buttonSave.addClickListener(click -> {
             if (id == null) {
                 log.info("Вы нажали кнопку для сохранения нового сотрудника!");
+                notifications.infoNotification("Вы добавили нового сотрудника");
 
                 if (!lastNameAdd.isRequiredVerify() || !firstNameAdd.isRequiredVerify() || !emailAdd.isRequiredVerify()
                         || !phoneAdd.isRequiredVerify() || !innAdd.isRequiredVerify()) {
@@ -282,6 +287,7 @@ public class AddEmployeeModalWindowView extends Dialog {
 
                 if (emailAdd.isInvalid() || innAdd.isInvalid() || phoneAdd.isInvalid() || lastNameAdd.isInvalid() || firstNameAdd.isInvalid()) {
                     log.info("ошибка в введенных данных на форме!");
+                    notifications.errorNotification("Ошибка в введенных данных на форме");
                 } else {
                     EmployeeDto newEmployeeDto = setEmployeeDto(null);
                     employeeService.create(newEmployeeDto);
@@ -290,6 +296,7 @@ public class AddEmployeeModalWindowView extends Dialog {
                 }
             } else {
                 log.info("Вы нажали кнопку для обновления сотрудника!");
+                notifications.infoNotification("Вы добавили нового сотрудника");
                 EmployeeDto updateEmployeeDto = setEmployeeDto(id);
                 employeeService.update(updateEmployeeDto);
                 div.removeAll();
@@ -330,6 +337,7 @@ public class AddEmployeeModalWindowView extends Dialog {
     private Component getDeleteButton() {
         return new Button("Удалить", event -> {
             employeeService.deleteById(id);
+            notifications.errorNotification("Вы удалили выбранного сотрудника");
             close();
         });
     }
