@@ -1,6 +1,8 @@
 server:
   port: 4445
 
+retail_making_url: api/making
+
 loss_product_url: api/lossproduct
 
 loss_url: api/loss
