@@ -1,12 +1,15 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.PayoutDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
@@ -58,6 +61,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -80,8 +84,12 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     private final List<PayoutDto> data;
 
     private final TextField textFieldUpdateTextField = new TextField();
-    private final String typeOfInvoice = "RECEIPT";
+    private final String typeOfPayout = "RECEIPT";
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/payouts_templates/";
+
+    private final GridFilter<PayoutDto> filter;
+
+    private final TextField textField = new TextField();
 
     public PayoutTabView(PayoutService payoutService, RetailStoreService retailStoreService,
                          CompanyService companyService, EmployeeService employeeService, Notifications notifications) {
@@ -91,10 +99,11 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         this.data = payoutService.getAll();
         this.employeeService = employeeService;
         this.notifications = notifications;
+        this.filter = new GridFilter<>(grid);
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(), grid, paginator);
+        add(upperLayout(),filter, grid, paginator);
     }
 
     private void configureGrid() {
@@ -147,7 +156,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), textField(),
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), filterTextField(), textField(),
                 numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
@@ -187,7 +196,37 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
+    }
+
+    private TextField filterTextField() {
+        textField.setPlaceholder("Номер или комментарий");
+        textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.setClearButtonVisible(true);
+        textField.addValueChangeListener(e -> updateList(textField.getValue()));
+        textField.setWidth("300px");
+        return textField;
+    }
+
+    private void updateList(String search) {
+        if (search.isEmpty()) {
+            paginator.setData(payoutService.getAll());
+        } else paginator.setData(payoutService
+                .findBySearchAndTypeOfPayout(search, typeOfPayout));
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfInvoice", typeOfPayout);
+            paginator.setData(payoutService.search(map));
+        });
+        filter.onClearClick(e -> paginator.setData(payoutService.getAll()));
     }
 
     private TextField textField() {
