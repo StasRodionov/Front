@@ -42,12 +42,11 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final PayoutService payoutService;
     private final Notifications notifications;
     private final RetailReturnsService retailReturnsService;
-    private final RetailMakingService retailMakingService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
-                      PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, RetailMakingService retailMakingService) {
+                      PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -59,7 +58,6 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.payoutService = payoutService;
         this.notifications = notifications;
         this.retailReturnsService = retailReturnsService;
-        this.retailMakingService = retailMakingService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -110,7 +108,6 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Внесения":
                     div.removeAll();
-                    div.add(new RetailMakingView(retailMakingService));
                     break;
                 case "Выплаты":
                     div.removeAll();
