@@ -8,9 +8,14 @@ import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -51,11 +56,14 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
     private final TechnicalOperationsService technicalOperationsService;
     private final Notifications notifications;
     private final WarehouseService warehouseService;
+    private final TechnologicalOperationsModalView view;
 
-    TechnologicalOperationsViewTab(TechnicalCardService technicalCardService, TechnicalOperationsService technicalOperationsService, Notifications notifications, WarehouseService warehouseService) {
+    TechnologicalOperationsViewTab(TechnicalCardService technicalCardService, TechnicalOperationsService technicalOperationsService,
+                                   Notifications notifications, WarehouseService warehouseService, TechnologicalOperationsModalView view) {
         this.technicalOperationsService = technicalOperationsService;
         this.notifications = notifications;
         this.warehouseService = warehouseService;
+       this.view = view;
 
         paginator = new GridPaginator<>(grid, this.technicalOperationsService.getAll(), 100);
         this.technicalCardService = technicalCardService;
@@ -79,9 +87,22 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
+
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addItemDoubleClickListener(e -> {
+            TechnicalOperationsDto dto = e.getItem();
+            TechnologicalOperationsModalView view = new TechnologicalOperationsModalView(
+                    technicalCardService,
+                    technicalOperationsService,
+                    warehouseService,
+                    notifications
+            );
+            view.setTechnicalOperationsEdit(dto);
+            view.open();
+        });
     }
+
 
     private Component getIsSentIcon(TechnicalOperationsDto technicalOperationsDto) {
         if (technicalOperationsDto.getIsSent()) {
@@ -105,9 +126,9 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
 
     private HorizontalLayout getTollBar() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(),
+        horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(),
                 buttonFilter(), text(), numberField(), valueSelect(), valueStatus(),
-                valuePrint(), buttonSettings(), selectXlsTemplateButton);
+                valuePrint(), buttonSettings(),buttonPlusTechnologicalOperations(), selectXlsTemplateButton);
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
     }
@@ -115,6 +136,19 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog dialog = new Dialog();
+        Button cancelButton = new Button("Закрыть", event -> dialog.close());
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        buttonsLayout.addComponentAsFirst(cancelButton);
+        dialog.add(new Text("Тех. операции позволяют планировать закупки " +
+                "у поставщиков и перемещения товаров по складам " +
+                "внутри организации. С их помощью можно пополнять " +
+                "резервы при достижении неснижаемого остатка."));
+        dialog.setWidth("400px");
+        dialog.setHeight("250px");
+        buttonQuestion.addClickListener(event -> dialog.open());
+        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
+        dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
 
@@ -126,12 +160,29 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
     }
 
     private void updateList() {
+//        GridPaginator<TechnicalOperationsDto> paginatorUpdateList
+//                = new GridPaginator<>(grid, technicalOperationsService.getAll(), 100);
+//        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+//        removeAll();
+//        add(getTollBar(), buttonPlusTechnologicalOperations(), paginator);
+        grid.setItems(technicalOperationsService.getAll());
 
     }
 
-    private Button buttonUnit() {
-        Button buttonUnit = new Button("Операция", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return buttonUnit;
+    private Button buttonPlusTechnologicalOperations() {
+
+        Button addTechnologicalOperationsButton = new Button("операция", new Icon(VaadinIcon.PLUS_CIRCLE));
+        addTechnologicalOperationsButton.addClickListener(e -> view.open());
+        updateList();
+//        TechnicalOperationModalWindow addTechnologicalOperationsModal =
+//                new TechnicalOperationModalWindow(technicalCardService,
+//                        technicalOperationsService,
+//                        warehouseService,
+//                        notifications);
+//        addTechnologicalOperationsButton.addClickListener(event -> addTechnologicalOperationsModal.open());
+//        addTechnologicalOperationsModal.addDetachListener(event -> updateList());
+//        addTechnologicalOperationsButton.getStyle().set("cursor", "pointer");
+        return addTechnologicalOperationsButton;
     }
 
     private Button buttonFilter() {
@@ -215,6 +266,5 @@ public class TechnologicalOperationsViewTab extends VerticalLayout {
         textOrder.setHeight("2.2em");
         return textOrder;
     }
-
 
 }

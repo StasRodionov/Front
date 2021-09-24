@@ -47,6 +47,7 @@ public class TechnicalCardModalWindow extends Dialog {
     private final TechnicalCardGroupService technicalCardGroupService;
     private final TechnicalCardProductionService technicalCardProductionService;
 
+
     private List<TechnicalCardGroupDto> technicalCardGroupDtoList;
     private List<ProductDto> productDtoList;
     private TechnicalCardDto technicalCardDto;

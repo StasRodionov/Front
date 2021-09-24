@@ -90,15 +90,15 @@ public class FlowchartsViewTab extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.addItemDoubleClickListener(event -> {
-            TechnicalCardDto technicalCardDto = event.getItem();
-            TechnicalCardModalWindow addTechnicalCardModalWindow =
-                    new TechnicalCardModalWindow(technicalCardDto,
-                            technicalCardService, technicalCardGroupService, productDtoList, technicalCardProductionService);
-            addTechnicalCardModalWindow.addDetachListener(e -> updateList());
-            addTechnicalCardModalWindow.getSaveButton();
-            addTechnicalCardModalWindow.open();
-        });
+//        grid.addItemDoubleClickListener(event -> {
+//            TechnicalCardDto technicalCardDto = event.getItem();
+//            TechnicalCardModalWindow addTechnicalCardModalWindow =
+//                    new TechnicalCardModalWindow(technicalCardDto,
+//                            technicalCardService, technicalCardGroupService, productDtoList, technicalCardProductionService);
+//            addTechnicalCardModalWindow.addDetachListener(e -> updateList());
+//            addTechnicalCardModalWindow.getSaveButton();
+//            addTechnicalCardModalWindow.open();
+  //      });
 
     }
 
