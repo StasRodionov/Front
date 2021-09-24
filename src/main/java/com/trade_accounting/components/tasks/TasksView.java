@@ -1,9 +1,11 @@
 package com.trade_accounting.components.tasks;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.production.TechnicalCardModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.button.Button;
@@ -51,7 +53,7 @@ public class TasksView extends VerticalLayout {
         this.taskService = taskService;
         this.employeeService = employeeService;
         this.taskDto = new TaskDto();
-        paginator = new GridPaginator<>(grid, taskService.getAll(), 10);
+        paginator = new GridPaginator<>(grid, taskService.getAll(), 15);
         configureFilter();
         this.filter = new GridFilter<>(grid);
         add(getToolBar(), filter, grid, paginator);
@@ -69,6 +71,18 @@ public class TasksView extends VerticalLayout {
                 .setKey("deadLineDateTime").setId("Срок");
         grid.addColumn(TaskDto::getCreationDateTime).setHeader("Создано")
                 .setKey("creationDateTime").setId("Создано");
+
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemDoubleClickListener(event -> {
+            TaskDto taskDto = event.getItem();
+            TaskModalWin addTaskModalWin =
+                    new TaskModalWin(taskService, taskDto, employeeService);
+            addTaskModalWin.addDetachListener(e -> updateList());
+            addTaskModalWin.getSaveButton();
+            addTaskModalWin.open();
+        });
     }
 
     private HorizontalLayout getToolBar() {
@@ -142,6 +156,14 @@ public class TasksView extends VerticalLayout {
         textField.setWidth("300px");
 
         return textField;
+    }
+
+    private void updateList() {
+        GridPaginator<TaskDto> paginatorUpdateList
+                = new GridPaginator<>(grid, taskService.getAll(), 15);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        removeAll();
+        add(getToolBar(), filter, grid, paginator);
     }
 
     private static String formatDate(String date) {
