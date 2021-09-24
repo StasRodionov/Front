@@ -7,7 +7,6 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
-import com.trade_accounting.services.interfaces.RetailMakingService;
 import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;
 import com.trade_accounting.services.interfaces.RetailReturnsService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
