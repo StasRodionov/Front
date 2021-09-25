@@ -3,6 +3,7 @@ package com.trade_accounting.components.profile;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -45,11 +46,13 @@ public class EmployeeView extends VerticalLayout {
     private final ImageService imageService;
     private final GridFilter<EmployeeDto> filter;
     private final GridPaginator<EmployeeDto> paginator;
+    private final Notifications notifications;
 
-    public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService) {
+    public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService, Notifications notifications) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         this.imageService = imageService;
+        this.notifications = notifications;
         this.grid = new Grid<>(EmployeeDto.class);
         List<EmployeeDto> data = getData();
         configureGrid();
@@ -102,7 +105,8 @@ public class EmployeeView extends VerticalLayout {
                             employeeService,
                             roleService,
                             imageService,
-                            imageDto);
+                            imageDto,
+                            notifications);
             addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
             addEmployeeModalWindowView.open();
         });
@@ -136,7 +140,8 @@ public class EmployeeView extends VerticalLayout {
                             employeeService,
                             roleService,
                             imageService,
-                            new ImageDto());
+                            new ImageDto(),
+                            notifications);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
@@ -178,8 +183,17 @@ public class EmployeeView extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
-        valueSelect.setItems("Изменить");
-        valueSelect.setValue("Изменить");
+        valueSelect.setItems("","Изменить", "Удалить");
+        valueSelect.setValue("");
+        if (valueSelect.getValue().equals("Изменить")) {
+            notifications.infoNotification("Сотрудник успешно изменен");
+            valueSelect.setPlaceholder("");
+        }
+        if (valueSelect.getValue().equals("Удалить")) {
+            notifications.infoNotification("Сотрудник успешно удален");
+            valueSelect.setPlaceholder("");
+        }
+
         valueSelect.setWidth("130px");
         return valueSelect;
     }

@@ -32,6 +32,7 @@ import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "MoneySubPaymentsView", layout = AppView.class)
@@ -60,7 +61,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
                          CreditOrderModal creditOrderModal,
                          IncomingPaymentModal incomingPaymentModal) {
         this.paymentService = paymentService;
-        this.data = paymentService.getAll();
+        this.data = paymentService.getAll().stream().sorted((o1, o2) -> o1.getId().compareTo(o2.getId())).collect(Collectors.toList());
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.projectService = projectService;
@@ -82,7 +83,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         filter.setFieldToDatePicker("time");
         filter.setFieldToIntegerField("sum");
         filter.setFieldToIntegerField("number");
-        filter.setFieldToComboBox("typeOfPayment", "Входящий", "Исходящий");
+        filter.setFieldToComboBox("typeOfPayment", "Входящий платеж", "Приходный ордер");
         filter.setFieldToIntegerField("contractDto");
         filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(paymentService.getAll()));
@@ -108,16 +109,30 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.setHeight("66vh");
         grid.addItemDoubleClickListener(event -> {
             PaymentDto editPaymentDto = event.getItem();
-            CreditOrderModal addCreditOrderModal = new CreditOrderModal(
-                    paymentService,
-                    companyService,
-                    contractorService,
-                    projectService,
-                    contractService,
-                    notifications);
-            addCreditOrderModal.addDetachListener(e -> updateList());
-            addCreditOrderModal.setPaymentDataForEdit(editPaymentDto);
-            addCreditOrderModal.open();
+            if (editPaymentDto.getTypeOfPayment().equals("INCOMING")) {
+                IncomingPaymentModal incomingPaymentModal = new IncomingPaymentModal(
+                        paymentService,
+                        companyService,
+                        contractorService,
+                        projectService,
+                        contractService,
+                        notifications);
+                incomingPaymentModal.addDetachListener(e -> updateList());
+                incomingPaymentModal.setPaymentDataForEdit(editPaymentDto);
+                incomingPaymentModal.open();
+            } else {
+                CreditOrderModal addCreditOrderModal = new CreditOrderModal(
+                        paymentService,
+                        companyService,
+                        contractorService,
+                        projectService,
+                        contractService,
+                        notifications);
+                addCreditOrderModal.addDetachListener(e -> updateList());
+                addCreditOrderModal.setPaymentDataForEdit(editPaymentDto);
+                addCreditOrderModal.open();
+            }
+
         });
         return grid;
     }

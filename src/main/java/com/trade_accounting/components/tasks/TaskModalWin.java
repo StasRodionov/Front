@@ -20,6 +20,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
 
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class TaskModalWin extends Dialog {
 
     private final TextArea description = new TextArea("Описание задачи");
     private final Checkbox completed = new Checkbox("Выполнена");
+    private final TextArea idField = new TextArea();
     private final DateTimePicker creationDataTime = new DateTimePicker();
     private final DateTimePicker deadlineDateTime = new DateTimePicker();
     private final ComboBox<EmployeeDto> employeeDtoSelect = new ComboBox<>();
@@ -52,25 +54,26 @@ public class TaskModalWin extends Dialog {
         add(getHeader());
         add(getContent());
 
+        idField.setValue(getFieldValueNotNull(String.valueOf(taskDto.getId())));
         description.setValue(getFieldValueNotNull(taskDto.getDescription()));
+        completed.setValue(taskDto.isCompleted());
+        employeeDtoSelect.setValue(employeeService.getById(getLongIdNotNull(taskDto.getEmployeeId())));
+        creationDataTime.setValue(LocalDateTime.parse(getFieldValueNotNull
+                (taskDto.getCreationDataTimeNotNull().replaceAll(" ", "T"))));
+        deadlineDateTime.setValue(LocalDateTime.parse(getFieldValueNotNull
+                (taskDto.getDeadLineDataTimeNotNullPlus60min().replaceAll(" ", "T"))));
     }
 
     private String getFieldValueNotNull(String value) {
         return value == null ? "" : value;
     }
+    private Long getLongIdNotNull(Long value) {
+        return value == null ? employeeService.getPrincipal().getId() : value;
+    }
 
     private Component getHeader() {
         HorizontalLayout header = new HorizontalLayout();
-        Button saveButton = new Button("Сохранить", event -> {
-            saveFields(taskDto);
-            taskService.create(taskDto);
-            close();
-        });
-        Button closeButton = new Button("Закрыть", e -> {
-            close();
-        });
-        header.add(saveButton, closeButton);
-
+        header.add(getSaveButton(), getCancelButton());
         return header;
     }
 
@@ -133,11 +136,31 @@ public class TaskModalWin extends Dialog {
         return horizontalLayout;
     }
 
+    public Button getSaveButton() {
+        if (getFieldValueNotNull(taskDto.getDescription()).isEmpty()){
+            return new Button("Добавить", event -> {
+                saveFields(taskDto);
+                taskService.create(taskDto);
+                close();
+            });
+        } else {
+            return new Button("Изменить", event -> {
+                saveFields(taskDto);
+                taskService.update(taskDto);
+                close();
+            });
+        }
+    }
+
+    private Button getCancelButton() {
+        return new Button("Закрыть", event -> close());
+    }
+
     private void saveFields(TaskDto taskDto){
         taskDto.setCompleted(completed.getValue());
         taskDto.setDescription(description.getValue());
-        taskDto.setCreationDateTime(creationDataTime.getValue().format(DateTimeFormatter.ofPattern("2021-06-06 09:03:49")));
-        taskDto.setDeadlineDateTime(deadlineDateTime.getValue().format(DateTimeFormatter.ofPattern("2021-06-06 09:03:49")));
+        taskDto.setCreationDateTime(creationDataTime.getValue().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss")));
+        taskDto.setDeadlineDateTime(deadlineDateTime.getValue().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss")));
         taskDto.setEmployeeId(employeeDtoSelect.getValue().getId());
         taskDto.setTaskAuthorId(employeeService.getPrincipal().getId());
         taskDto.setTaskCommentsIds(List.of());
