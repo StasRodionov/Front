@@ -128,8 +128,5 @@ returns_url: api/returns
 
 retail_points_url: api/operation_with_points
 
-loss_product_url: api/lossproduct
-
-loss_url: api/loss
 
 #debug: true
