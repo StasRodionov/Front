@@ -40,13 +40,13 @@ public class TechnicalOperationsServiceImpl implements TechnicalOperationsServic
 
     @Override
     public void create(TechnicalOperationsDto dto) {
-        Call<Void> technicalOperationsCreateCall = technicalOperationsApi.create(technicalOperationsUrl, technicalOperationsDto);
+        Call<Void> technicalOperationsCreateCall = technicalOperationsApi.create(technicalOperationsUrl, dto);
         dtoCallExecuteService.callExecuteBodyCreate(technicalOperationsCreateCall, TechnicalOperationsDto.class);
     }
 
     @Override
     public void update(TechnicalOperationsDto dto) {
-        Call<Void> technicalOperationsUpdateCall = technicalOperationsApi.update(technicalOperationsUrl, technicalOperationsDto);
+        Call<Void> technicalOperationsUpdateCall = technicalOperationsApi.update(technicalOperationsUrl, dto);
         dtoCallExecuteService.callExecuteBodyUpdate(technicalOperationsUpdateCall, TechnicalOperationsDto.class);
     }
 
