@@ -92,7 +92,17 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
+        grid.addItemDoubleClickListener(e -> {
+            TechnicalOperationsDto dto = e.getItem();
+            TechnologicalOperationsModalView view = new TechnologicalOperationsModalView(
+                    technicalCardService,
+                    technicalOperationsService,
+                    warehouseService,
+                    notifications
+            );
+            view.setTechnicalOperationsEdit(dto);
+            view.open();
+        });
     }
 
 
@@ -194,7 +204,14 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         valueSelect.setItems(list);
         valueSelect.setValue("Изменить");
         valueSelect.setWidth("120px");
-
+        valueSelect.addValueChangeListener(event -> {
+            if (valueSelect.getValue().equals("Удалить")) {
+                deleteSelectedInternalOrders();
+                grid.deselectAll();
+                valueSelect.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return valueSelect;
     }
 
