@@ -10,7 +10,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -75,5 +77,18 @@ public class InternalOrderServiceImpl implements InternalOrderService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InternalOrderDto с id= {} - {}", e);
         }
+    }
+
+    @Override
+    public List<InternalOrderDto> searchByFilter(Map<String, String> query) {
+        List<InternalOrderDto> internalOrderDtoList = new ArrayList<>();
+        Call<List<InternalOrderDto>> internalOrderDtoListCall = internalOrderApi.searchByFilter(internalOrderUrl, query);
+        try {
+            internalOrderDtoList = internalOrderDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка InternalOrderDto по ФИЛЬТРУ -{}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка InternalOrderDto - ", e);
+        }
+        return internalOrderDtoList;
     }
 }

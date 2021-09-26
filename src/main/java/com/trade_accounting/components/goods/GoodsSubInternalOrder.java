@@ -1,6 +1,7 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InternalOrderDto;
@@ -54,6 +55,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final InternalOrderService internalOrderService;
     private final Grid<InternalOrderDto> grid = new Grid<>(InternalOrderDto.class, false);
     private final GridPaginator<InternalOrderDto> paginator;
+    private final GridFilter<InternalOrderDto> filter;
     private final Notifications notifications;
     private final InternalOrderModalView modalView;
 
@@ -65,12 +67,24 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         this.warehouseService = warehouseService;
         this.internalOrderService = internalOrderService;
         this.modalView = modalView;
+        this.notifications = notifications;
         List<InternalOrderDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
-        this.notifications = notifications;
-        add(configureActions(), grid, paginator);
         configureGrid();
+        this.filter = new GridFilter<>(this.grid);
+        configureFilter();
+        add(configureActions(),filter, grid, paginator);
         setSizeFull();
+    }
+
+    private void configureFilter() {
+        filter.setFieldToDatePicker("date");
+
+        filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
+
+        filter.onSearchClick(e -> paginator.setData(internalOrderService.searchByFilter(filter.getFilterData2())));
+        filter.onClearClick(e -> paginator.setData(internalOrderService.getAll()));
     }
 
     private List<InternalOrderDto> getData() {
@@ -91,12 +105,14 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         grid.addColumn(InternalOrderDto::getDate).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
         grid.addColumn(internalOrderDto -> companyService.getById(internalOrderDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Организация").setId("Организация");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(internalOrderDto -> warehouseService.getById(internalOrderDto.getWarehouseId())
+                .getName()).setKey("warehouse").setHeader("На склад").setId("На склад");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
@@ -161,7 +177,9 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        Button button = new Button("Фильтр");
+        button.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return button;
     }
 
     private TextField text() {
