@@ -1,7 +1,12 @@
 server:
   port: 4445
+retail_making_url: api/making
 
 orders_of_production_url: api/orders_of_production
+
+loss_product_url: api/lossproduct
+
+loss_url: api/loss
 
 technical_operations_url: api/technical/operations
 
@@ -69,7 +74,7 @@ retail_sales_url: api/retail_sales
 
 retail_stores_url: api/retail_stores
 
-retail_operation_with_points_url: api/operation_with
+retail_operation_with_points_url: api/operation_with_points
 
 contractor_status_url: api/contractor_status
 
