@@ -220,7 +220,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         if (search.isEmpty()) {
             paginator.setData(payoutService.getAll());
         } else paginator.setData(payoutService
-                .findBySearchAndTypeOfPayout(search, typeOfPayout));
+                .findBySearchAndTypeOfPayout(search, typeOfInvoice));
     }
 
     private void configureFilter() {
@@ -229,7 +229,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
-            map.put("typeOfInvoice", typeOfPayout);
+            map.put("typeOfInvoice", typeOfInvoice);
             paginator.setData(payoutService.search(map));
         });
         filter.onClearClick(e -> paginator.setData(payoutService.getAll()));
