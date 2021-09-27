@@ -5,6 +5,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.BonusProgramDto;
 import com.trade_accounting.services.interfaces.BonusProgramService;
+import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -35,14 +36,16 @@ import java.util.List;
 @UIScope
 public class BonusProgramTabView  extends VerticalLayout implements AfterNavigationObserver  {
     private final BonusProgramService bonusProgramService;
+    private final ContractorGroupService contractorGroupService;
     private List<BonusProgramDto> data;
 
     private final Grid<BonusProgramDto> grid = new Grid<>(BonusProgramDto.class, false);
     private final GridPaginator<BonusProgramDto> paginator;
 
-    public BonusProgramTabView(BonusProgramService bonusProgramService) {
+    public BonusProgramTabView(BonusProgramService bonusProgramService, ContractorGroupService contractorGroupService) {
         this.bonusProgramService = bonusProgramService;
         this.data = bonusProgramService.getAll();
+        this.contractorGroupService = contractorGroupService;
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
@@ -165,12 +168,12 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
 
     private Button buttonCreate() {
         Button createRetailStoreButton = new Button("Бонусная программа", new Icon(VaadinIcon.PLUS_CIRCLE));
-        /*RetailStoreModalWindow retailStoreModalWindow =
-                new RetailStoreModalWindow(retailStoreService, companyService, employeeService);
+        BonusProgramModalWindow bonusProgramModalWindow =
+                new BonusProgramModalWindow(bonusProgramService, contractorGroupService);
         createRetailStoreButton.addClickListener(e -> {
-            retailStoreModalWindow.addDetachListener(event -> updateList());
-            retailStoreModalWindow.open();
-        });*/
+            bonusProgramModalWindow.addDetachListener(event -> updateList());
+            bonusProgramModalWindow.open();
+        });
         createRetailStoreButton.getStyle().set("cursor", "pointer");
         return createRetailStoreButton;
     }

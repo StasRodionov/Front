@@ -16,6 +16,8 @@ public class PaymentDto {
 
     private String typeOfPayment;
 
+    private String typeOfDocument;
+
     private String paymentMethods;
 
     private String expenseItem;
@@ -36,4 +38,6 @@ public class PaymentDto {
     private Long projectId;
 
     private BigDecimal sum;
+
+    private Boolean isConducted;
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TechnicalOperationsDto {
+public class TechnicalOperationsDto extends TechnicalOperationsDtoForValidation{
 
     private Long id;
 

@@ -220,7 +220,11 @@ public class ContractorModalWindow extends Dialog {
 //                        null
 //                        : Supplier<AddressDto> addressService.getById(
 //                        contractorDto.getLegalDetailDto().getAddressDtoId()));
-        add(header(), new Text("Наименование"), contractorsAccordion());
+        TextField labelField = new TextField();
+        labelField.setPlaceholder("Наименование");
+        labelField.setWidth("585px");
+        labelField.setRequired(true);
+        add(header(), new Text(""), labelField, contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 

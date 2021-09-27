@@ -44,13 +44,13 @@ public class OrdersOfProductionServiceImpl implements OrdersOfProductionService 
 
     @Override
     public void create(OrdersOfProductionDto dto) {
-        Call<Void> ordersOfProductionCreateCall = ordersOfProductionApi.create(ordersOfProductionUrl, ordersOfProductionDto);
+        Call<Void> ordersOfProductionCreateCall = ordersOfProductionApi.create(ordersOfProductionUrl, dto);
         dtoCallExecuteService.callExecuteBodyCreate(ordersOfProductionCreateCall, OrdersOfProductionDto.class);
     }
 
     @Override
     public void update(OrdersOfProductionDto dto) {
-        Call<Void> ordersOfProductionUpdateCall = ordersOfProductionApi.update(ordersOfProductionUrl, ordersOfProductionDto);
+        Call<Void> ordersOfProductionUpdateCall = ordersOfProductionApi.update(ordersOfProductionUrl, dto);
         dtoCallExecuteService.callExecuteBodyUpdate(ordersOfProductionUpdateCall, OrdersOfProductionDto.class);
     }
 

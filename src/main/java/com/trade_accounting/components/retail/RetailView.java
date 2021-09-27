@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.BonusProgramService;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
@@ -11,6 +12,7 @@ import com.trade_accounting.services.interfaces.RetailOperationWithPointsService
 import com.trade_accounting.services.interfaces.RetailPointsService;
 import com.trade_accounting.services.interfaces.RetailReturnsService;
 import com.trade_accounting.services.interfaces.RetailSalesService;
+import com.trade_accounting.services.interfaces.RetailShiftService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.html.Div;
@@ -43,12 +45,14 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final PayoutService payoutService;
     private final Notifications notifications;
     private final RetailReturnsService retailReturnsService;
+    private final ContractorGroupService contractorGroupService;
+    private final RetailShiftService retailShiftService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
-                      PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService,
-                      RetailPointsService retailPointsService) {
+                      PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
+                      RetailPointsService retailPointsService, RetailShiftService retailShiftService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -61,6 +65,8 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.payoutService = payoutService;
         this.notifications = notifications;
         this.retailReturnsService = retailReturnsService;
+        this.contractorGroupService = contractorGroupService;
+        this.retailShiftService = retailShiftService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -100,6 +106,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Смены":
                     div.removeAll();
+                    div.add(new RetailShiftView(retailShiftService));
                     break;
                 case "Продажи":
                     div.removeAll();
@@ -132,7 +139,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Бонусные программы":
                     div.removeAll();
-                    div.add(new BonusProgramTabView(bonusProgramService));
+                    div.add(new BonusProgramTabView(bonusProgramService, contractorGroupService));
                     break;
             }
         });

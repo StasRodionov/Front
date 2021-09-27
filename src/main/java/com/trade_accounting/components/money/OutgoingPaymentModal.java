@@ -38,7 +38,7 @@ import java.time.LocalDateTime;
 @SpringComponent
 @UIScope
 @Slf4j
-public class IncomingPaymentModal extends Dialog {
+public class OutgoingPaymentModal extends Dialog {
     private final transient CompanyService companyService;
     private final transient ContractService contractService;
     private final transient ContractorService contractorService;
@@ -58,7 +58,7 @@ public class IncomingPaymentModal extends Dialog {
     private final Checkbox isConducted = new Checkbox();
     private transient PaymentDto paymentDto;
 
-    public IncomingPaymentModal(
+    public OutgoingPaymentModal(
             PaymentService paymentService,
             CompanyService companyService,
             ContractorService contractorService,
@@ -110,7 +110,7 @@ public class IncomingPaymentModal extends Dialog {
 
     private Component getHeader() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        H2 title = new H2("Входящий платеж");
+        H2 title = new H2("Исходящий платеж");
         title.setHeight("1.5em");
         title.setWidth("345px");
         horizontalLayout.add(title);
@@ -134,12 +134,12 @@ public class IncomingPaymentModal extends Dialog {
         payment.setCompanyId(companyDtoComboBox.getValue().getId());
         payment.setContractorId(contractorDtoComboBox.getValue().getId());
         payment.setContractId(contractDtoComboBox.getValue().getId());
-        payment.setExpenseItem(expenseItem.getValue());
         payment.setProjectId(projectDtoComboBox.getValue().getId());
         payment.setNumber(payNumber.getValue());
+        payment.setExpenseItem(expenseItem.getValue());
         payment.setSum(sum.getValue());
-        payment.setTypeOfPayment("INCOMING");
-        payment.setTypeOfDocument("Входящий платеж");
+        payment.setTypeOfPayment("OUTGOING");
+        payment.setTypeOfDocument("Исходящий платеж");
         payment.setIsConducted(isConducted.getValue());
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
             payment.setId(this.paymentDto.getId());
