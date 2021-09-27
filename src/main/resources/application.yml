@@ -1,6 +1,8 @@
 server:
   port: 4445
 
+retail_shift_url: api/retailshift
+
 loss_url: api/loss
 
 loss_product_url: api/lossproduct
