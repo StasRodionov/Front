@@ -10,7 +10,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -20,6 +22,7 @@ public class RemainServiceImpl implements RemainService {
     private final String remainUrl;
     private final CallExecuteService<RemainDto> callExecuteService;
     private RemainDto remainDto;
+
 
     public RemainServiceImpl(Retrofit retrofit, @Value("${remain_url}") String remainUrl, CallExecuteService<RemainDto> callExecuteService) {
         remainApi = retrofit.create(RemainApi.class);
@@ -70,4 +73,36 @@ public class RemainServiceImpl implements RemainService {
         Call<Void> remainDtoCall = remainApi.deleteById(remainUrl, id);
         callExecuteService.callExecuteBodyDelete(remainDtoCall, RemainDto.class, id);
     }
+
+    @Override
+    public List<RemainDto> getAll(String typeOfRemain) {
+        List<RemainDto> remainDtoList = new ArrayList<>();
+        Call<List<RemainDto>> remainDtoListCall = remainApi.getAll(remainUrl, typeOfRemain);
+
+        try {
+            remainDtoList.addAll(Objects.requireNonNull(remainDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка RemainDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /goods  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка RemainDto - {IOException}", e);
+        }
+        return remainDtoList;
+    }
+
+    @Override
+    public List<RemainDto> findBySearchAndTypeOfRemain(String search, String typeOfRemain) {
+        List<RemainDto> remainDtoList = new ArrayList<>();
+        Call<List<RemainDto>> remainDtoListCall = remainApi
+                .search(remainUrl, search.toLowerCase(), typeOfRemain);
+
+        try {
+            remainDtoList = remainDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов remain");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка RemainDto - ", e);
+        }
+        return remainDtoList;
+    }
+
+
 }

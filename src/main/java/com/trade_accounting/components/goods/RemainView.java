@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.RemainDto;
@@ -50,6 +51,8 @@ public class RemainView extends VerticalLayout {
     private List<RemainDto> data;
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final GridFilter<RemainDto> filter;
+    private final String typeOfRemain = "EXPENSE";
 
     public RemainView(RemainService remainService, UnitService unitService, Notifications notifications) {
         this.remainService = remainService;
@@ -59,8 +62,9 @@ public class RemainView extends VerticalLayout {
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        this.filter = new GridFilter<>(grid);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(configureActions(), grid, paginator);
+        add(configureActions(), filter, grid, paginator);
     }
 
     private void configureGrid() {
@@ -154,7 +158,28 @@ public class RemainView extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
+    }
+
+    private TextField filterTextField() {
+        final TextField textField = new TextField();
+        textField.setPlaceholder("Номер или комментарий");
+        textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.setClearButtonVisible(true);
+        textField.addValueChangeListener(e -> updateList(textField.getValue()));
+        textField.setWidth("300px");
+        textField.setWidth("220px");
+        return textField;
+    }
+
+    private void updateList(String search) {
+        if (search.isEmpty()) {
+            paginator.setData(remainService.getAll(typeOfRemain));
+        } else paginator.setData(remainService
+                .findBySearchAndTypeOfRemain(search, typeOfRemain));
     }
 
     private TextField text() {

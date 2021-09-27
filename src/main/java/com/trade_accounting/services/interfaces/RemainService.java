@@ -16,4 +16,8 @@ public interface RemainService {
 
     void deleteById(Long id);
 
+    List<RemainDto> getAll(String typeOfRemain);
+
+    List<RemainDto> findBySearchAndTypeOfRemain(String search, String typeOfRemain);
+
 }
