@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.OrdersOfProductionDto;
+import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
@@ -32,6 +33,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringComponent
@@ -87,6 +89,18 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemDoubleClickListener(e -> {
+            OrdersOfProductionDto dto = e.getItem();
+            OrdersOfProductionModalWindow modalWindow = new OrdersOfProductionModalWindow(
+            technicalCardService,
+            companyService,
+            ordersOfProductionService,
+            notifications
+            );
+           modalWindow.setOrdersOfProductionEdit(dto);
+           modalWindow.open();
+        });
 
 
 
@@ -181,11 +195,33 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     }
 
         private Select<String> valueSelect () {
-        Select<String> valueSelect = new Select<>();
-        valueSelect.setItems("Изменить");
-        valueSelect.setValue("Изменить");
-        valueSelect.setWidth("130px");
-        return valueSelect;
+            Select<String> valueSelect = new Select<>();
+            List<String> list = new ArrayList<>();
+            list.add("Изменить");
+            list.add("Удалить");
+            valueSelect.setItems(list);
+            valueSelect.setValue("Изменить");
+            valueSelect.setWidth("120px");
+            valueSelect.addValueChangeListener(event -> {
+                if (valueSelect.getValue().equals("Удалить")) {
+                    deleteSelectedOrdersOfProduction();
+                    grid.deselectAll();
+                    valueSelect.setValue("Изменить");
+                    paginator.setData(getData());
+                }
+            });
+            return valueSelect;
+    }
+
+    private void deleteSelectedOrdersOfProduction() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (OrdersOfProductionDto ordersOfProductionDto : grid.getSelectedItems()) {
+                ordersOfProductionService.deleteById(ordersOfProductionDto.getId());
+                notifications.infoNotification("Выбранные заказы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
     }
 
         private Button buttonSettings () {

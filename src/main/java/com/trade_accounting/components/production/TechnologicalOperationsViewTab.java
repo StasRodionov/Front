@@ -206,7 +206,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         valueSelect.setWidth("120px");
         valueSelect.addValueChangeListener(event -> {
             if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedInternalOrders();
+                deleteSelectedTechnicalOperations();
                 grid.deselectAll();
                 valueSelect.setValue("Изменить");
                 paginator.setData(getData());
@@ -215,7 +215,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         return valueSelect;
     }
 
-    private void deleteSelectedInternalOrders() {
+    private void deleteSelectedTechnicalOperations() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (TechnicalOperationsDto technicalOperationsDto : grid.getSelectedItems()) {
                 technicalOperationsService.deleteById(technicalOperationsDto.getId());
