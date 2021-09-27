@@ -31,6 +31,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final Div div;
     private final CreditOrderModal creditOrderModal;
     private final IncomingPaymentModal incomingPaymentModal;
+    private final OutgoingPaymentModal outgoingPaymentModal;
+    private final ExpenseOrderModal expenseOrderModal;
     private final MoneySubCashFlowService moneySubCashFlowService;
     private final MoneySubMutualSettlementsService moneySubMutualSettlementsService;
     private final BalanceAdjustmentService balanceAdjustmentService;
@@ -49,7 +51,10 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                             MoneySubCashFlowService moneySubCashFlowService,
                             MoneySubMutualSettlementsService moneySubMutualSettlementsService,
                             BalanceAdjustmentService balanceAdjustmentService,
-                            BalanceAdjustmentModalView modalView, MoneySubProfitLossService moneySubProfitLossService) {
+                            BalanceAdjustmentModalView modalView,
+                            MoneySubProfitLossService moneySubProfitLossService,
+                            ExpenseOrderModal expenseOrderModal,
+                            OutgoingPaymentModal outgoingPaymentModal) {
         this.paymentService = paymentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -63,6 +68,9 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         this.balanceAdjustmentService = balanceAdjustmentService;
         this.modalView = modalView;
         this.moneySubProfitLossService = moneySubProfitLossService;
+        this.expenseOrderModal = expenseOrderModal;
+        this.outgoingPaymentModal = outgoingPaymentModal;
+
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -71,7 +79,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
         div.add(new MoneySubPaymentsView(paymentService, companyService,
-                contractorService, projectService, contractService, notifications, creditOrderModal, incomingPaymentModal));
+                contractorService, projectService, contractService, notifications, creditOrderModal,
+                incomingPaymentModal, expenseOrderModal, outgoingPaymentModal));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -95,7 +104,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Платежи":
                     div.removeAll();
-                    div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal, incomingPaymentModal));
+                    div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal, incomingPaymentModal, expenseOrderModal, outgoingPaymentModal));
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
