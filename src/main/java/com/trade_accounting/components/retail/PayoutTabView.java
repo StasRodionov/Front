@@ -84,7 +84,8 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     private final List<PayoutDto> data;
 
     private final TextField textFieldUpdateTextField = new TextField();
-    private final String typeOfPayout = "RECEIPT";
+    private final PayoutModalWindow payoutModalWindow;
+    private final String typeOfInvoice = "RECEIPT";
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/payouts_templates/";
 
     private final GridFilter<PayoutDto> filter;
@@ -96,6 +97,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         this.payoutService = payoutService;
         this.retailStoreService = retailStoreService;
         this.companyService = companyService;
+        this.payoutModalWindow = new PayoutModalWindow(payoutService);
         this.data = payoutService.getAll();
         this.employeeService = employeeService;
         this.notifications = notifications;
@@ -123,6 +125,10 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.getColumnByKey("id").setWidth("15px");
+        grid.addItemDoubleClickListener(event -> {
+            payoutModalWindow.addDetachListener(e -> updateList());
+            payoutModalWindow.open();
+        });
         GridSortOrder<PayoutDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
@@ -156,7 +162,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), filterTextField(), textField(),
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonCreate(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
@@ -284,11 +290,22 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         return status;
     }
 
+    private Button buttonCreate() {
+        Button createRetailStoreButton = new Button("Выплата", new Icon(VaadinIcon.PLUS_CIRCLE));
+        PayoutModalWindow payoutModalWindow =
+                new PayoutModalWindow(payoutService);
+        createRetailStoreButton.addClickListener(e -> {
+            payoutModalWindow.addDetachListener(event -> updateList());
+            payoutModalWindow.open();
+        });
+        createRetailStoreButton.getStyle().set("cursor", "pointer");
+        return createRetailStoreButton;
+    }
+
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
         print.setItems("Печать", "Добавить шаблон");
         print.setValue("Печать");
-        getXlsFile().forEach(x -> print.add(getLinkToSalesXls(x)));
         uploadXlsTemplates(print);
         print.setWidth("130px");
         return print;
@@ -318,17 +335,10 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         }
     }
 
-    //Поправить метод(после добавления select на бэке)
     private List<PayoutDto> getData() {
         return payoutService.getAll();
     }
 
-    private List<File> getXlsFile() {
-        File dir = new File(pathForSaveSalesXlsTemplate);
-        return Arrays.stream(Objects.requireNonNull(dir.listFiles()))
-                .filter(File::isFile).filter(x -> x.getName().contains(".xls"))
-                .collect(Collectors.toList());
-    }
 
     private Anchor getLinkToSalesXls(File file) {
         String salesTemplate = file.getName();
@@ -367,22 +377,6 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
 
     private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog, Select<String> print) {
         upload.addFinishedListener(event -> {
-            if (getXlsFile().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
-                getErrorNotification("Файл с таки именем уже существует");
-            } else {
-                File exelTemplate = new File(pathForSaveSalesXlsTemplate + event.getFileName());
-                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
-                    fos.write(buffer.getInputStream().readAllBytes());
-                    print.removeAll();
-                    getXlsFile().forEach(x -> print.add(getLinkToSalesXls(x)));
-                    log.info("xls шаблон успешно загружен");
-                    getInfoNotification("Файл успешно загружен");
-                } catch (IOException e) {
-                    getErrorNotification("При загрузке шаблона произошла ошибка");
-                    log.error("при загрузке xls шаблона произошла ошибка");
-                }
-                dialog.close();
-            }
         });
     }
 
