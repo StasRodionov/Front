@@ -3,8 +3,8 @@ package com.trade_accounting.components.production;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.OrdersOfProductionDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
@@ -25,6 +25,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -36,7 +38,7 @@ import java.util.List;
 @UIScope
 @PageTitle("Заказы на производство")
 @Route(value = "ordersOfProductionViewTab", layout = AppView.class)
-public class OrdersOfProductionViewTab extends VerticalLayout {
+public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNavigationObserver {
 
 
         private final TextField textField = new TextField();
@@ -49,13 +51,15 @@ public class OrdersOfProductionViewTab extends VerticalLayout {
     private final TechnicalCardService technicalCardService;
     private final List<OrdersOfProductionDto> data;
     private GridFilter<OrdersOfProductionDto> filter;
+    private final Notifications notifications;
+    private final OrdersOfProductionModalWindow modalWindow;
 
-
-
-    OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnicalCardService technicalCardService) {
+    OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnicalCardService technicalCardService, Notifications notifications, OrdersOfProductionModalWindow modalWindow) {
             this.ordersOfProductionService = ordersOfProductionService;
             this.companyService = companyService;
         this.technicalCardService = technicalCardService;
+        this.notifications = notifications;
+        this.modalWindow = modalWindow;
         paginator = new GridPaginator<>(grid, this.ordersOfProductionService.getAll(), 100);
         add(getTollBar(), grid, paginator);
         configureGrid();
@@ -83,6 +87,8 @@ public class OrdersOfProductionViewTab extends VerticalLayout {
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+
 
     }
 
@@ -133,11 +139,13 @@ public class OrdersOfProductionViewTab extends VerticalLayout {
     }
 
         private void updateList () {
-
+            grid.setItems(ordersOfProductionService.getAll());
     }
 
         private Button buttonUnit () {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
+            buttonUnit.addClickListener(e -> modalWindow.open());
+            updateList();
         return buttonUnit;
     }
 
@@ -206,4 +214,8 @@ public class OrdersOfProductionViewTab extends VerticalLayout {
         return textOrder;
     }
 
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
+    }
 }
