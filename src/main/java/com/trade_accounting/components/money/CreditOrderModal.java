@@ -15,6 +15,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -54,6 +55,7 @@ public class CreditOrderModal extends Dialog {
     private final TextField payNumber = new TextField();
     private final ComboBox<String> expenseItem = new ComboBox<>();
     private final BigDecimalField sum = new BigDecimalField();
+    private final Checkbox isConducted = new Checkbox();
     private transient PaymentDto paymentDto;
 
     public CreditOrderModal(
@@ -102,6 +104,7 @@ public class CreditOrderModal extends Dialog {
         add(getHorizontalLayout("Договор", contractDtoComboBox));
         add(getHorizontalLayout("Проект", projectDtoComboBox));
         add(getHorizontalLayout("Сумма", sum));
+        add(getHorizontalLayout("Проведен", isConducted));
         add(getFooter());
     }
 
@@ -135,7 +138,9 @@ public class CreditOrderModal extends Dialog {
         payment.setNumber(payNumber.getValue());
         payment.setExpenseItem(expenseItem.getValue());
         payment.setSum(sum.getValue());
-        payment.setTypeOfPayment("OUTGOING");
+        payment.setTypeOfPayment("INCOMING");
+        payment.setTypeOfDocument("Приходный ордер");
+        payment.setIsConducted(isConducted.getValue());
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
             payment.setId(this.paymentDto.getId());
         }
@@ -157,6 +162,7 @@ public class CreditOrderModal extends Dialog {
         payNumber.clear();
         paymentMethods.clear();
         sum.clear();
+        isConducted.setValue(false);
     }
 
     private Button getSaveButton() {
@@ -216,5 +222,6 @@ public class CreditOrderModal extends Dialog {
         sum.setValue(paymentDto.getSum());
         expenseItem.setValue(paymentDto.getExpenseItem());
         dateField.setValue(LocalDateTime.now());
+        isConducted.setValue(paymentDto.getIsConducted());
     }
 }

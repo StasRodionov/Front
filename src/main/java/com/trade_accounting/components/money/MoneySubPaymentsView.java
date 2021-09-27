@@ -21,8 +21,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
@@ -51,6 +51,9 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private final GridFilter<PaymentDto> filter;
     private final CreditOrderModal creditOrderModal;
     private final IncomingPaymentModal incomingPaymentModal;
+    private final OutgoingPaymentModal outgoingPaymentModal;
+    private final ExpenseOrderModal expenseOrderModal;
+    private final Scroller scroller = new Scroller();
 
     MoneySubPaymentsView(PaymentService paymentService,
                          CompanyService companyService,
@@ -59,9 +62,11 @@ public class MoneySubPaymentsView extends VerticalLayout {
                          ContractService contractService,
                          Notifications notifications,
                          CreditOrderModal creditOrderModal,
-                         IncomingPaymentModal incomingPaymentModal) {
+                         IncomingPaymentModal incomingPaymentModal,
+                         ExpenseOrderModal expenseOrderModal,
+                         OutgoingPaymentModal outgoingPaymentModal) {
         this.paymentService = paymentService;
-        this.data = paymentService.getAll().stream().sorted((o1, o2) -> o1.getId().compareTo(o2.getId())).collect(Collectors.toList());
+        this.data = getDate();
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.projectService = projectService;
@@ -69,17 +74,27 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.notifications = notifications;
         this.creditOrderModal = creditOrderModal;
         this.incomingPaymentModal = incomingPaymentModal;
+        this.expenseOrderModal = expenseOrderModal;
+        this.outgoingPaymentModal = outgoingPaymentModal;
+
 
         getGrid();
-        this.paginator = new GridPaginator<>(grid, data, 100);
+        configureScroller();
+        this.paginator = new GridPaginator<>(grid, data, 10);
         this.filter = new GridFilter<>(grid);
+        configureScroller();
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getToolbar(), filter, grid, paginator);
     }
 
+    private void configureScroller() {
+        scroller.setScrollDirection(Scroller.ScrollDirection.HORIZONTAL);
+        scroller.setContent(grid);
+        add(scroller);
+    }
+
     private void configureFilter() {
-        filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("time");
         filter.setFieldToIntegerField("sum");
         filter.setFieldToIntegerField("number");
@@ -91,25 +106,26 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private Grid getGrid() {
         grid.setItems(data);
-        grid.addColumn("id").setHeader("ID").setId("№");
-        grid.addColumn("time").setFlexGrow(10).setHeader("Дата").setId("Дата");
-        grid.addColumn(pDto -> companyService.getById(pDto.getCompanyId()).getName()).setFlexGrow(10).setSortable(true)
+        grid.addColumn("typeOfDocument").setWidth("11em").setFlexGrow(0).setHeader("Тип документа").setId("Тип документа");
+        grid.addColumn("number").setWidth("6em").setFlexGrow(0).setHeader("№").setId("Номер платежа");
+        grid.addColumn("time").setWidth("12em").setFlexGrow(0).setHeader("Дата").setId("Дата");
+        grid.addColumn(pDto -> companyService.getById(pDto.getCompanyId()).getName()).setWidth("14em").setFlexGrow(0).setSortable(true)
                 .setKey("companyDto").setHeader("Компания").setId("Компания");
+        grid.addColumn(pDto -> contractorService.getById(pDto.getContractorId()).getName()).setWidth("19em").setFlexGrow(0).setSortable(true)
+                .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn("sum").setFlexGrow(4).setHeader("Сумма").setId("Сумма");
-        grid.addColumn("number").setFlexGrow(4).setHeader("Номер платеж").setId("Номер платежа");
-        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
         grid.addColumn("paymentMethods").setFlexGrow(4).setHeader("Способ Оплаты").setId("Способ оплаты");
         grid.addColumn("expenseItem").setFlexGrow(4).setHeader("Статья расходов").setId("Статья расходов");
-        grid.addColumn(pDto -> contractorService.getById(pDto.getContractorId()).getName()).setFlexGrow(10).setSortable(true)
-                .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(pDto -> contractService.getById(pDto.getContractId()).getNumber()).setFlexGrow(3).setSortable(true)
                 .setKey("contractDto").setHeader("Договор").setId("Договор");
         grid.addColumn(pDto -> projectService.getById(pDto.getProjectId()).getName()).setFlexGrow(7).setSortable(true)
                 .setKey("projectDto").setHeader("Проект").setId("Проект");
-        grid.setHeight("66vh");
+        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
+        grid.setHeight("73vh");
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             PaymentDto editPaymentDto = event.getItem();
-            if (editPaymentDto.getTypeOfPayment().equals("INCOMING")) {
+            if (editPaymentDto.getTypeOfDocument().equals("входящий платеж")) {
                 IncomingPaymentModal incomingPaymentModal = new IncomingPaymentModal(
                         paymentService,
                         companyService,
@@ -139,7 +155,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private void updateList() {
         GridPaginator<PaymentDto> paginatorUpdateList
-                = new GridPaginator<>(grid, paymentService.getAll(), 100);
+                = new GridPaginator<>(grid, paymentService.getAll(), 10);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
         add(getToolbar(), grid, paginator);
@@ -147,7 +163,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getMenuBar(),
+        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getComingMenuBar(), getConsumptionMenuBar(),
                 getButtonFilter(), getTextField(), getNumberField(), getSelect(), getPrint(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -189,12 +205,21 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return filterButton;
     }
 
-    private MenuBar getMenuBar() {
+    private MenuBar getComingMenuBar() {
         MenuBar menuBar = new MenuBar();
-        MenuItem menuPayment = menuBar.addItem("Платеж");
+        MenuItem menuPayment = menuBar.addItem("Приход");
         SubMenu subMenu = menuPayment.getSubMenu();
         subMenu.addItem("Приходный ордер", menuItemClickEvent -> creditOrderModal.open());
         subMenu.addItem("Входящий платеж", menuItemClickEvent -> incomingPaymentModal.open());
+        return menuBar;
+    }
+
+    private MenuBar getConsumptionMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        MenuItem menuPayment = menuBar.addItem("Расход");
+        SubMenu subMenu = menuPayment.getSubMenu();
+        subMenu.addItem("Расходный ордер", menuItemClickEvent -> expenseOrderModal.open());
+        subMenu.addItem("Исходящий платеж", menuItemClickEvent -> outgoingPaymentModal.open());
         return menuBar;
     }
 
@@ -221,29 +246,41 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return buttonQuestion;
     }
 
-    private Select<String> getSelect() {
-        final Select<String> selector = new Select<>();
-        selector.setItems("Изменить");
-        selector.setValue("Изменить");
-        selector.setWidth("130px");
-        return selector;
-    }
-
-    private Select<String> getPrint() {
-        Select<String> getPrint = new Select<>();
-        getPrint.setWidth("130px");
-        getPrint.setItems("Печать", "Список всех платежей");
-        getPrint.setValue("Печать");
-        uploadListAllPays(getPrint);
-        return getPrint;
-    }
-
-    private void uploadListAllPays(Select<String> print) {
-        PaymentPrintModal paymentPrintModal = new PaymentPrintModal(companyService, contractService, contractorService, projectService, paymentService);
-        print.addValueChangeListener(x -> {
-            if (x.getValue().equals("Список всех платежей")) {
-                paymentPrintModal.open();
-            }
+    private MenuBar getSelect() {
+        MenuBar menuBar = new MenuBar();
+        MenuItem menuPayment = menuBar.addItem("Изменить");
+        SubMenu subMenu = menuPayment.getSubMenu();
+        subMenu.addItem("Удалить", menuItemClickEvent -> {
+            deleteSelectedContractors();
+            grid.deselectAll();
+            paginator.setData(getDate());
         });
+        return menuBar;
+    }
+
+    private void deleteSelectedContractors() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (PaymentDto paymentDto: grid.getSelectedItems()) {
+                paymentService.deleteById(paymentDto.getId());
+                notifications.infoNotification("Выбранные контрагенты успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
+        }
+    }
+
+    private MenuBar getPrint() {
+        MenuBar menuBar = new MenuBar();
+        MenuItem menuPayment = menuBar.addItem("Печать");
+        SubMenu subMenu = menuPayment.getSubMenu();
+        subMenu.addItem("Список всех платежей", menuItemClickEvent -> {
+            PaymentPrintModal paymentPrintModal = new PaymentPrintModal(companyService, contractService, contractorService, projectService, paymentService);
+            paymentPrintModal.open();
+        });
+        return menuBar;
+    }
+
+    private List<PaymentDto> getDate() {
+        return paymentService.getAll().stream().sorted((o1, o2) -> o1.getId().compareTo(o2.getId())).collect(Collectors.toList());
     }
 }
