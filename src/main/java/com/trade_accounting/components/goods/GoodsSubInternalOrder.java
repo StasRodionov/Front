@@ -36,6 +36,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -57,14 +58,20 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final Notifications notifications;
     private final InternalOrderModalView modalView;
 
+    private final GoodsModalWindow goodsModalWindow;
+    private final InternalOrderDtoModalWindow internalOrderDtoModalWindow;
+
+    @Autowired
     public GoodsSubInternalOrder(CompanyService companyService,
                                  WarehouseService warehouseService,
                                  InternalOrderService internalOrderService,
-                                 Notifications notifications, InternalOrderModalView modalView) {
+                                 Notifications notifications, InternalOrderModalView modalView, GoodsModalWindow goodsModalWindow, InternalOrderDtoModalWindow internalOrderDtoModalWindow) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.internalOrderService = internalOrderService;
         this.modalView = modalView;
+        this.goodsModalWindow = goodsModalWindow;
+        this.internalOrderDtoModalWindow = internalOrderDtoModalWindow;
         List<InternalOrderDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         this.notifications = notifications;
@@ -157,7 +164,9 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private Button buttonUnit() {
-        return new Button("Внутренний заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button buttonUnit = new Button("Внутренний заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonUnit.addClickListener(e -> internalOrderDtoModalWindow.open());
+        return buttonUnit;
     }
 
     private Button buttonFilter() {
