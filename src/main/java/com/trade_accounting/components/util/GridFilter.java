@@ -21,6 +21,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -184,6 +185,25 @@ public class GridFilter<T> extends HorizontalLayout {
         return filterData;
     }
 
+    /**
+     * Gets filter data from all fields.
+     *
+     * @return filter data
+     *
+     * Conversion to format LocalDateTime.
+     */
+    public Map<String, String> getFilterData2() {
+        String datetime = filterData.get("date");
+        if(datetime != null) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+                filterData.put("date", LocalDateTime.parse(datetime).format(formatter));
+            } catch (Exception ignored) {}
+        }
+
+        return filterData;
+    }
+
     private void configureButton() {
         clearButton.addClickListener(e -> this.getChildren().forEach(component -> {
             if (component instanceof AbstractField) {
@@ -300,10 +320,8 @@ public class GridFilter<T> extends HorizontalLayout {
     private DateTimePicker getFilterDatePicker(String columnKey) {
         DateTimePicker filter = new DateTimePicker();
         filter.setId(columnKey);
-
         filter.setLocale(Locale.GERMAN);
         filter.addValueChangeListener(e -> onFilterChange(filter));
-
         filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
 
         return filter;
