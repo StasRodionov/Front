@@ -75,7 +75,8 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
         grid.addColumn("cheskStatus").setFlexGrow(5).setHeader("Статус чека").setId("cheskStatus");
         grid.addColumn("total").setFlexGrow(5).setHeader("Итого").setId("total");
 
-        grid.addColumn("currencyId").setFlexGrow(5).setHeader("Валюта").setId("currencyId");
+        grid.addColumn(retailCloudCheckDto -> currencyService.getById(retailCloudCheckDto.getCurrencyId())
+                .getLetterCode()).setHeader("Валюта").setId("currency");
 
         grid.addColumn(retailCloudCheckDto -> employeeService.getById(retailCloudCheckDto.getCashierId())
                 .getFirstName()).setHeader("Кассир").setId("cashier");
