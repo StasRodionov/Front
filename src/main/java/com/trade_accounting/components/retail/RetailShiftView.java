@@ -37,7 +37,7 @@ import java.util.List;
 
 @Slf4j
 @Route(value = "RetailShiftView", layout = AppView.class)
-@PageTitle("Внесения")
+@PageTitle("Смены")
 @SpringComponent
 @UIScope
 public class RetailShiftView extends VerticalLayout implements AfterNavigationObserver {
@@ -122,7 +122,7 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
     }
 
     private H2 title() {
-        H2 title = new H2("Внесения");
+        H2 title = new H2("Смены");
         title.setHeight("2.2em");
         return title;
     }

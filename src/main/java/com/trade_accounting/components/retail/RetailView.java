@@ -6,8 +6,10 @@ import com.trade_accounting.services.interfaces.BonusProgramService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
+import com.trade_accounting.services.interfaces.RetailCloudCheckService;
 import com.trade_accounting.services.interfaces.RetailMakingService;
 import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;
 import com.trade_accounting.services.interfaces.RetailPointsService;
@@ -49,12 +51,14 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final ContractorGroupService contractorGroupService;
     private final RetailShiftService retailShiftService;
     private final RetailMakingService retailMakingService;
+    private final RetailCloudCheckService retailCloudCheckService;
+    private final CurrencyService currencyService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
-                      RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService) {
+                      RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService, RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -70,6 +74,8 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.contractorGroupService = contractorGroupService;
         this.retailShiftService = retailShiftService;
         this.retailMakingService = retailMakingService;
+        this.retailCloudCheckService = retailCloudCheckService;
+        this.currencyService = currencyService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -140,6 +146,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Очередь облачных чеков":
                     div.removeAll();
+                    div.add(new RetailCloudCheckView(retailCloudCheckService,currencyService,retailStoreService,employeeService));
                     break;
                 case "Бонусные программы":
                     div.removeAll();
