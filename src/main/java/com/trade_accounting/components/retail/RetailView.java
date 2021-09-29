@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.RetailCloudCheckService;
+import com.trade_accounting.services.interfaces.RetailMakingService;
 import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;
 import com.trade_accounting.services.interfaces.RetailPointsService;
 import com.trade_accounting.services.interfaces.RetailReturnsService;
@@ -51,12 +52,13 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final RetailShiftService retailShiftService;
     private final RetailCloudCheckService retailCloudCheckService;
     private final CurrencyService currencyService;
+    private final RetailMakingService retailMakingService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
-                      RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService) {
+                      RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailMakingService retailMakingService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -73,6 +75,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.retailShiftService = retailShiftService;
         this.retailCloudCheckService = retailCloudCheckService;
         this.currencyService = currencyService;
+        this.retailMakingService = retailMakingService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -123,6 +126,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     div.add(new RetailReturnsView(retailReturnsService));
                     break;
                 case "Внесения":
+                    div.add(new RetailMakingView(retailMakingService));
                     div.removeAll();
                     break;
                 case "Выплаты":
