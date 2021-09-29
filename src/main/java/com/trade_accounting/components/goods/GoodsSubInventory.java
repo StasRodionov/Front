@@ -205,7 +205,17 @@ public class GoodsSubInventory extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-
+        grid.addItemDoubleClickListener(e -> {
+            InventarizationDto dto = e.getItem();
+            GoodsSubInventoryModalWindow modalWindow = new GoodsSubInventoryModalWindow(
+                    inventarizationService,
+                    warehouseService,
+                    companyService,
+                    notifications
+            );
+            modalWindow.setInventarizationEdit(dto);
+            modalWindow.open();
+        });
     }
 
     private Component getIsSentIcon(InventarizationDto inventarizationDto) {
