@@ -88,7 +88,7 @@ public class PrepayoutModalWindow extends Dialog {
         Label label = new Label("Контрагент");
         label.setWidth(labelWidth);
         retailStoreId.setItemLabelGenerator(RetailStoreDto::getName);
-        prepayoutDtoBinder.forField(contractorId).
+        prepayoutDtoBinder.forField(retailStoreId).
                 withValidator(Objects::nonNull, "Поле должно быть заполнено", ErrorLevel.ERROR)
                 .bind("retailStoreId");
         retailStoreId.setWidth(fieldWidth);
@@ -110,7 +110,7 @@ public class PrepayoutModalWindow extends Dialog {
         Label label = new Label("Организация");
         label.setWidth(labelWidth);
         companyId.setItemLabelGenerator(CompanyDto::getName);
-        prepayoutDtoBinder.forField(contractorId).
+        prepayoutDtoBinder.forField(companyId).
                 withValidator(Objects::nonNull, "Поле должно быть заполнено", ErrorLevel.ERROR)
                 .bind("companyId");
         companyId.setWidth(fieldWidth);
