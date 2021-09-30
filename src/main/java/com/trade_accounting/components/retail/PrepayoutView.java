@@ -30,6 +30,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -101,6 +102,18 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
         }
     }
 
+    private Button buttonCreate() {
+        Button createRetailStoreButton = new Button("Предоплата", new Icon(VaadinIcon.PLUS_CIRCLE));
+        PrepayoutModalWindow prepayoutModalWindow =
+                new PrepayoutModalWindow(prepayoutService);
+        createRetailStoreButton.addClickListener(e -> {
+            prepayoutModalWindow.addDetachListener(event -> updateList());
+            prepayoutModalWindow.open();
+        });
+        createRetailStoreButton.getStyle().set("cursor", "pointer");
+        return createRetailStoreButton;
+    }
+
     private Component isPrintedCheckedIcon(PrepayoutDto retailReturnsDto) {
         if (retailReturnsDto.getIsPrint()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -113,7 +126,7 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonCreate(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -183,10 +196,29 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
 
     private Select<String> getSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить", "Удалить", "Массовое редактирование", "Провести", "Снять проведение");
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedInvoices();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(prepayoutService.getAll());
+            }
+        });
         return select;
+    }
+
+    private void deleteSelectedInvoices() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (PrepayoutDto prepayoutDto : grid.getSelectedItems()) {
+                prepayoutService.deleteById(prepayoutDto.getId());
+            }
+        }
     }
 
     private Select<String> getStatus() {
