@@ -23,7 +23,7 @@ public interface InventarizationApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<InventarizationDto> create(@Path(value = "url", encoded = true) String url, @Body InventarizationDto inventarizationDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body InventarizationDto inventarizationDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
