@@ -27,6 +27,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     private final GoodsSubInternalOrder goodsSubInternalOrder;
     private final MovementView movementView;
     private final RemainView remainView;
+    private final RevenueView revenueView;
     private final LossView lossView;
     private final GoodsPriceLayout priceLayoutView;
 
@@ -35,8 +36,9 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
                             GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder,
                             MovementView movementView, RemainView remainView, LossView lossView,
-                            GoodsPriceLayout priceLayoutView) {
+                            GoodsPriceLayout priceLayoutView, RevenueView revenueView) {
         this.goodsView = goodsView;
+        this.revenueView = revenueView;
         this.postingTabView = postingTabView;
         this.goodsSubInventory = goodsSubInventory;
         this.goodsSubInternalOrder = goodsSubInternalOrder;
@@ -115,7 +117,17 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     remainView.updateList();
                     div.add(remainView);
                 }));
-        Tab revenueLayout = new Tab("Обороты");
+
+        HorizontalLayout revenueTab = new HorizontalLayout(new Label("Обороты"));
+
+        revenueTab.addClickListener(event ->
+                revenueTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+              //      revenueView.updateList();
+                    div.add(revenueView);
+                }));
+
+
 
         HorizontalLayout priceLayoutTab = new HorizontalLayout(new Label("Прайс-лист"));
 
@@ -135,7 +147,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 new Tab(movementTab),
                 new Tab(priceLayoutTab),
                 new Tab(remainTab),
-                revenueLayout
+                new Tab(revenueTab)
         );
 
     }
