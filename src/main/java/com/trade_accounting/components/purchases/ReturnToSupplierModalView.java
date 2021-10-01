@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 
+import com.trade_accounting.components.goods.GoodsModalWindow;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
@@ -43,6 +44,7 @@ public class ReturnToSupplierModalView extends Dialog {
     private final ContractorService contractorService;
     private final ContractService contractService;
     private ReturnToSupplierDto dto;
+    private final GoodsModalWindow goodsModalWindow;
 
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
@@ -62,12 +64,13 @@ public class ReturnToSupplierModalView extends Dialog {
 
     public ReturnToSupplierModalView(ReturnToSupplierService returnToSupplierService, CompanyService companyService,
                                      WarehouseService warehouseService, ContractorService contractorService,
-                                     ContractService contractService, Notifications notifications) {
+                                     ContractService contractService, GoodsModalWindow goodsModalWindow, Notifications notifications) {
         this.returnToSupplierService = returnToSupplierService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.contractService = contractService;
+        this.goodsModalWindow = goodsModalWindow;
         this.notifications = notifications;
         setSizeFull();
         add(headerLayout(), formLayout());
@@ -161,10 +164,9 @@ public class ReturnToSupplierModalView extends Dialog {
     }
 
     private Button addGoodButton() {
-        Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS));
-        button.addClickListener(e -> {
-            // Добавить продукт в таблицу
-        });
+        Button button = new Button("Добавить товар", new Icon(VaadinIcon.PLUS));
+        button.addClickListener(e -> goodsModalWindow.open());
+        button.getStyle().set("cursor", "pointer");
         return button;
     }
 

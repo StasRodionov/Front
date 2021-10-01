@@ -53,15 +53,17 @@ public class GoodsSubInventory extends VerticalLayout {
     private final Grid<InventarizationDto> grid = new Grid<>(InventarizationDto.class, false);
     private final GridPaginator<InventarizationDto> paginator;
     private final Notifications notifications;
+    private final GoodsSubInventoryModalWindow modalWindow;
 
     @Autowired
     public GoodsSubInventory(WarehouseService warehouseService,
                              CompanyService companyService,
                              InventarizationService inventarizationService,
-                             Notifications notifications) {
+                             Notifications notifications, GoodsSubInventoryModalWindow modalWindow) {
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.inventarizationService = inventarizationService;
+        this.modalWindow = modalWindow;
         List<InventarizationDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         this.notifications = notifications;
@@ -110,11 +112,15 @@ public class GoodsSubInventory extends VerticalLayout {
     }
 
     public void updateList() {
-
+        grid.setItems(inventarizationService.getAll());
     }
 
     private Button buttonUnit() {
-        return new Button("Инвентаризация", new Icon(VaadinIcon.PLUS_CIRCLE));
+
+        Button button = new Button("Инвентаризация", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> modalWindow.open());
+        updateList();
+        return button;
     }
 
     private Button buttonFilter() {
@@ -198,6 +204,18 @@ public class GoodsSubInventory extends VerticalLayout {
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemDoubleClickListener(e -> {
+            InventarizationDto dto = e.getItem();
+            GoodsSubInventoryModalWindow modalWindow = new GoodsSubInventoryModalWindow(
+                    inventarizationService,
+                    warehouseService,
+                    companyService,
+                    notifications
+            );
+            modalWindow.setInventarizationEdit(dto);
+            modalWindow.open();
+        });
     }
 
     private Component getIsSentIcon(InventarizationDto inventarizationDto) {

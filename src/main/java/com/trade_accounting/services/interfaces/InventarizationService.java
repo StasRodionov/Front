@@ -10,7 +10,7 @@ public interface InventarizationService {
 
     InventarizationDto getById(Long id);
 
-    InventarizationDto create(InventarizationDto dto);
+    void create(InventarizationDto dto);
 
     void update(InventarizationDto dto);
 

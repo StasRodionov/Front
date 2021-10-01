@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.InventarizationDto;
+import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.InventarizationService;
 import com.trade_accounting.services.interfaces.api.InventarizationApi;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ public class InventarizationServiceImpl implements InventarizationService {
     private final InventarizationApi inventarizationApi;
     private final String inventarizationUrl;
     private final CallExecuteService<InventarizationDto> callExecuteService;
+    private InventarizationDto inventarizationDto;
 
     public InventarizationServiceImpl(Retrofit retrofit, @Value("${inventarization_url}") String inventarizationUrl, CallExecuteService<InventarizationDto> callExecuteService) {
         inventarizationApi = retrofit.create(InventarizationApi.class);
@@ -34,17 +36,20 @@ public class InventarizationServiceImpl implements InventarizationService {
 
     @Override
     public InventarizationDto getById(Long id) {
-        return null;
+        Call<InventarizationDto> inventarizationDtoGetCall = inventarizationApi.getById(inventarizationUrl, id);
+        return callExecuteService.callExecuteBodyById(inventarizationDtoGetCall, inventarizationDto, InventarizationDto.class, id);
     }
 
     @Override
-    public InventarizationDto create(InventarizationDto inventarizationDto) {
-        return null;
+    public void create(InventarizationDto dto) {
+        Call<Void> inventarizationCreateCall = inventarizationApi.create(inventarizationUrl, dto);
+        callExecuteService.callExecuteBodyCreate(inventarizationCreateCall, InventarizationDto.class);
     }
 
     @Override
-    public void update(InventarizationDto inventarizationDto) {
-
+    public void update(InventarizationDto dto) {
+        Call<Void> inventarizationUpdateCall = inventarizationApi.update(inventarizationUrl, dto);
+        callExecuteService.callExecuteBodyUpdate(inventarizationUpdateCall, InventarizationDto.class);
     }
 
     @Override

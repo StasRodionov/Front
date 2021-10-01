@@ -29,6 +29,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     private final RemainView remainView;
     private final RevenueView revenueView;
     private final LossView lossView;
+    private final GoodsPriceLayout priceLayoutView;
 
     private final Div div = new Div();
 
@@ -43,7 +44,9 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         this.goodsSubInternalOrder = goodsSubInternalOrder;
         this.movementView = movementView;
         this.remainView = remainView;
+        this.priceLayoutView = priceLayoutView;
         this.lossView = lossView;
+
 
         add(configurationSubMenu(), div);
     }
@@ -105,8 +108,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
         Tab interventarizationLayout = new Tab("Инвентаризации");
         Tab internalOrdersLayout = new Tab("Внутрение заказы");
-        Tab priceLayout = new Tab("Прайс-лист");
-//        Tab balanceLayout = new Tab("Остатки");
+
         HorizontalLayout remainTab = new HorizontalLayout(new Label("Остатки"));
 
         remainTab.addClickListener(event ->
@@ -127,6 +129,15 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
 
 
+        HorizontalLayout priceLayoutTab = new HorizontalLayout(new Label("Прайс-лист"));
+
+        priceLayoutTab.addClickListener(event ->
+                priceLayoutTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    priceLayoutView.updateList();
+                    div.add(priceLayoutView);
+                }));
+
         return new Tabs(
                 new Tab(goodsLayout),
                 new Tab(postingTab),
@@ -134,7 +145,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 new Tab(internalOrderTab),
                 new Tab(lossTab),
                 new Tab(movementTab),
-                priceLayout,
+                new Tab(priceLayoutTab),
                 new Tab(remainTab),
                 new Tab(revenueTab)
         );
