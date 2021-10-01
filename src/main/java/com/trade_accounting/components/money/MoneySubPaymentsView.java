@@ -14,7 +14,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -31,12 +33,15 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "MoneySubPaymentsView", layout = AppView.class)
 @PageTitle("Платежи")
+@CssImport(value = "styles/conducted_grid_style.css", themeFor = "vaadin-grid")
 public class MoneySubPaymentsView extends VerticalLayout {
     private final transient PaymentService paymentService;
     private final transient CompanyService companyService;
@@ -85,7 +90,10 @@ public class MoneySubPaymentsView extends VerticalLayout {
         configureScroller();
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), filter, grid, paginator);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<Div> list = getCreditAndExpense();
+        horizontalLayout.add(paginator, list.get(0), list.get(1));
+        add(getToolbar(), filter, grid, horizontalLayout);
     }
 
     private void configureScroller() {
@@ -95,13 +103,20 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private void configureFilter() {
-        filter.setFieldToDatePicker("time");
-        filter.setFieldToIntegerField("sum");
+        filter.setFieldToComboBox("typeOfDocument", "Входящий платеж", "Приходный ордер", "Исходящий платеж", "Расходный ордер");
         filter.setFieldToIntegerField("number");
-        filter.setFieldToComboBox("typeOfPayment", "Входящий платеж", "Приходный ордер");
+        filter.setFieldToDatePicker("time");
+        filter.setFieldToComboBox("paymentMethods", "CASH", "BANK");
+        filter.setFieldToComboBox("expenseItem", "RETURN",
+                "PURCHACE",
+                "TAXESANDFEES",
+                "MOVEMENT",
+                "RENTAL",
+                "SALARY",
+                "MARKETING");
         filter.setFieldToIntegerField("contractDto");
         filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(paymentService.getAll()));
+        filter.onClearClick(e -> paginator.setData(getDate()));
     }
 
     private Grid getGrid() {
@@ -113,19 +128,37 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 .setKey("companyDto").setHeader("Компания").setId("Компания");
         grid.addColumn(pDto -> contractorService.getById(pDto.getContractorId()).getName()).setWidth("19em").setFlexGrow(0).setSortable(true)
                 .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn("sum").setFlexGrow(4).setHeader("Сумма").setId("Сумма");
+        grid.addColumn(paymentDto -> {
+            if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
+                return paymentDto.getSum();
+            } else {
+                return "";
+            }
+        }).setKey("sum").setSortable(true).setFlexGrow(4).setHeader("Приход").setId("Сумма");
+        grid.addColumn(paymentDto -> {
+            if (paymentDto.getTypeOfPayment().equals("OUTGOING")) {
+                return paymentDto.getSum();
+            } else {
+                return "";
+            }
+        }).setKey("sumOut").setSortable(true).setFlexGrow(4).setHeader("Расход").setId("Расход");
         grid.addColumn("paymentMethods").setFlexGrow(4).setHeader("Способ Оплаты").setId("Способ оплаты");
         grid.addColumn("expenseItem").setFlexGrow(4).setHeader("Статья расходов").setId("Статья расходов");
         grid.addColumn(pDto -> contractService.getById(pDto.getContractId()).getNumber()).setFlexGrow(3).setSortable(true)
                 .setKey("contractDto").setHeader("Договор").setId("Договор");
         grid.addColumn(pDto -> projectService.getById(pDto.getProjectId()).getName()).setFlexGrow(7).setSortable(true)
                 .setKey("projectDto").setHeader("Проект").setId("Проект");
-        grid.addColumn("typeOfPayment").setFlexGrow(4).setHeader("Тип платежа").setId("Тип платежа");
         grid.setHeight("73vh");
+        grid.setClassNameGenerator(paymentDto -> {
+            if(paymentDto.getIsConducted() == false) {
+                return "not-conducted";
+            }
+            return "";
+        });
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             PaymentDto editPaymentDto = event.getItem();
-            if (editPaymentDto.getTypeOfDocument().equals("входящий платеж")) {
+            if (editPaymentDto.getTypeOfDocument().equals("Входящий платеж")) {
                 IncomingPaymentModal incomingPaymentModal = new IncomingPaymentModal(
                         paymentService,
                         companyService,
@@ -136,7 +169,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 incomingPaymentModal.addDetachListener(e -> updateList());
                 incomingPaymentModal.setPaymentDataForEdit(editPaymentDto);
                 incomingPaymentModal.open();
-            } else {
+            } else if (editPaymentDto.getTypeOfDocument().equals("Приходный ордер")) {
                 CreditOrderModal addCreditOrderModal = new CreditOrderModal(
                         paymentService,
                         companyService,
@@ -147,6 +180,28 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 addCreditOrderModal.addDetachListener(e -> updateList());
                 addCreditOrderModal.setPaymentDataForEdit(editPaymentDto);
                 addCreditOrderModal.open();
+            } else if (editPaymentDto.getTypeOfDocument().equals("Исходящий платеж")) {
+                OutgoingPaymentModal outgoingPaymentModal = new OutgoingPaymentModal(
+                        paymentService,
+                        companyService,
+                        contractorService,
+                        projectService,
+                        contractService,
+                        notifications);
+                outgoingPaymentModal.addDetachListener(e -> updateList());
+                outgoingPaymentModal.setPaymentDataForEdit(editPaymentDto);
+                outgoingPaymentModal.open();
+            } else {
+                ExpenseOrderModal expenseOrderModal = new ExpenseOrderModal(
+                        paymentService,
+                        companyService,
+                        contractorService,
+                        projectService,
+                        contractService,
+                        notifications);
+                expenseOrderModal.addDetachListener(e -> updateList());
+                expenseOrderModal.setPaymentDataForEdit(editPaymentDto);
+                expenseOrderModal.open();
             }
 
         });
@@ -163,7 +218,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getComingMenuBar(), getConsumptionMenuBar(),
+        toolbar.add(getButtonQuestion(), getTextPayments(), getButtonRefresh(), getComingMenuBar(), getConsumptionMenuBar(),
                 getButtonFilter(), getTextField(), getNumberField(), getSelect(), getPrint(), getButtonCog());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -199,12 +254,14 @@ public class MoneySubPaymentsView extends VerticalLayout {
         } else paginator.setData(paymentService.search(search));
     }
 
+    /*Кнопка Фильтр*/
     private Button getButtonFilter() {
         Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return filterButton;
     }
 
+    /*Меню Приход*/
     private MenuBar getComingMenuBar() {
         MenuBar menuBar = new MenuBar();
         MenuItem menuPayment = menuBar.addItem("Приход");
@@ -214,6 +271,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return menuBar;
     }
 
+    /*Меню Расход*/
     private MenuBar getConsumptionMenuBar() {
         MenuBar menuBar = new MenuBar();
         MenuItem menuPayment = menuBar.addItem("Расход");
@@ -223,6 +281,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return menuBar;
     }
 
+    /*Кнопка Обновления*/
     private Button getButtonRefresh() {
         final Button buttonRefresh;
         Icon circle = new Icon(VaadinIcon.REFRESH);
@@ -232,12 +291,14 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return buttonRefresh;
     }
 
-    private H2 getTextContract() {
+    /*Заголовок*/
+    private H2 getTextPayments() {
         final H2 textCompany = new H2("Платежи");
         textCompany.setHeight("2.2em");
         return textCompany;
     }
 
+    /*Кнопка Вопрос*/
     private Button getButtonQuestion() {
         final Button buttonQuestion = new Button();
         Icon question = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
@@ -246,29 +307,32 @@ public class MoneySubPaymentsView extends VerticalLayout {
         return buttonQuestion;
     }
 
+    /*Меню Изменить*/
     private MenuBar getSelect() {
         MenuBar menuBar = new MenuBar();
         MenuItem menuPayment = menuBar.addItem("Изменить");
         SubMenu subMenu = menuPayment.getSubMenu();
         subMenu.addItem("Удалить", menuItemClickEvent -> {
-            deleteSelectedContractors();
+            deleteSelectedPayments();
             grid.deselectAll();
             paginator.setData(getDate());
         });
         return menuBar;
     }
 
-    private void deleteSelectedContractors() {
+    /*Удаление выбранных платежей*/
+    private void deleteSelectedPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (PaymentDto paymentDto: grid.getSelectedItems()) {
                 paymentService.deleteById(paymentDto.getId());
-                notifications.infoNotification("Выбранные контрагенты успешно удалены");
+                notifications.infoNotification("Выбранные платежи успешно удалены");
             }
         } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
+            notifications.errorNotification("Сначала отметьте галочками нужные платежы");
         }
     }
 
+    /*Меню Печать*/
     private MenuBar getPrint() {
         MenuBar menuBar = new MenuBar();
         MenuItem menuPayment = menuBar.addItem("Печать");
@@ -282,5 +346,28 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private List<PaymentDto> getDate() {
         return paymentService.getAll().stream().sorted((o1, o2) -> o1.getId().compareTo(o2.getId())).collect(Collectors.toList());
+    }
+
+    private List<Div> getCreditAndExpense() {
+        BigDecimal credit = BigDecimal.ZERO;
+        BigDecimal expense = BigDecimal.ZERO;
+        for (PaymentDto paymentDto: data) {
+            if (paymentDto.getIsConducted()) {
+                if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
+                    credit = credit.add(paymentDto.getSum());
+                } else {
+                    expense = expense.add(paymentDto.getSum());
+                }
+            }
+        }
+        Div divCredit = new Div();
+        divCredit.setText("Приход: " + credit);
+        Div divExpense = new Div();
+        divExpense.setText("Расход: " + expense);
+
+        List<Div> list = new ArrayList<>();
+        list.add(divCredit);
+        list.add(divExpense);
+        return list;
     }
 }
