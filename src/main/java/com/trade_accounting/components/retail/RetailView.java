@@ -2,22 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.services.interfaces.BonusProgramService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorGroupService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.CurrencyService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.PayoutService;
-import com.trade_accounting.services.interfaces.RetailCloudCheckService;
-import com.trade_accounting.services.interfaces.RetailMakingService;
-import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;
-import com.trade_accounting.services.interfaces.RetailPointsService;
-import com.trade_accounting.services.interfaces.RetailReturnsService;
-import com.trade_accounting.services.interfaces.RetailSalesService;
-import com.trade_accounting.services.interfaces.RetailShiftService;
-import com.trade_accounting.services.interfaces.RetailStoreService;
-import com.trade_accounting.services.interfaces.TaskService;
+import com.trade_accounting.services.interfaces.*;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -53,12 +38,14 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final RetailMakingService retailMakingService;
     private final RetailCloudCheckService retailCloudCheckService;
     private final CurrencyService currencyService;
+    private final PrepayoutService prepayoutService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
-                      RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService, RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService) {
+                      RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService, RetailCloudCheckService retailCloudCheckService,
+                      CurrencyService currencyService, PrepayoutService prepayoutService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -76,6 +63,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.retailMakingService = retailMakingService;
         this.retailCloudCheckService = retailCloudCheckService;
         this.currencyService = currencyService;
+        this.prepayoutService = prepayoutService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -140,6 +128,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Предоплаты":
                     div.removeAll();
+                    div.add(new PrepayoutView(prepayoutService));
                     break;
                 case "Возвраты предоплат":
                     div.removeAll();

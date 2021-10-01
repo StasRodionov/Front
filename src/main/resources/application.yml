@@ -138,5 +138,7 @@ returns_url: api/returns
 
 retail_points_url: api/operation_with_points
 
+prepayout_url: api/prepayout
+
 
 #debug: true
