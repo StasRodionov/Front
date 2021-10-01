@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Component for grid filtering.
  */
+@Slf4j
 public class GridFilter<T> extends HorizontalLayout {
 
     private final Grid<T> grid;
@@ -254,7 +256,8 @@ public class GridFilter<T> extends HorizontalLayout {
     private void configureFilterField() {
         try {
             grid.getColumns().forEach(e -> {
-                if (!e.getKey().equals("imageDto")) {
+
+                if (!e.getKey().equals("imageDto") && !e.getKey().equals("sumOut")) {
                     this.add(getFilterTextField(e.getKey()));
                 }
             });
