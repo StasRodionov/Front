@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author Pavel Andrusov
@@ -17,6 +18,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InternalOrderDtoForValidation {
+
+    private List<Long> internalOrderProductsIdsValid;
 
     private LocalDateTime dateValid;
 

@@ -3,9 +3,13 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
+import com.trade_accounting.models.dto.InternalOrderProductsDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
 import com.trade_accounting.services.interfaces.InternalOrderService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -24,10 +28,15 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @UIScope
 @SpringComponent
@@ -35,10 +44,13 @@ public class InternalOrderModalView extends Dialog {
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final InternalOrderService internalOrderService;
+    private final InternalOrderProductsDtoService internalOrderProductsDtoService;
+    private final ProductService productService;
     private InternalOrderDto internalOrderDto;
 
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
+    private final MultiselectComboBox<Long> internalOrderProductsIdComboBox = new MultiselectComboBox();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox checkboxIsSpend = new Checkbox("Проведено");
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
@@ -50,11 +62,16 @@ public class InternalOrderModalView extends Dialog {
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Notifications notifications;
 
-    public InternalOrderModalView(CompanyService companyService, WarehouseService warehouseService, InternalOrderService internalOrderService, Notifications notifications) {
+    public InternalOrderModalView(CompanyService companyService, WarehouseService warehouseService,
+                                  InternalOrderService internalOrderService, Notifications notifications,
+                                  InternalOrderProductsDtoService internalOrderProductsDtoService,
+                                  ProductService productService) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.internalOrderService = internalOrderService;
         this.notifications = notifications;
+        this.internalOrderProductsDtoService = internalOrderProductsDtoService;
+        this.productService = productService;
         setSizeFull();
         add(headerLayout(), formLayout());
     }
@@ -62,11 +79,15 @@ public class InternalOrderModalView extends Dialog {
     public void setInternalOrderForEdit(InternalOrderDto editDto) {
         this.internalOrderDto = editDto;
         returnNumber.setValue(editDto.getId().toString());
-        //dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
         dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         textArea.setValue(editDto.getComment());
         companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
+        Set<Long> idset = new HashSet<>(internalOrderDto.getInternalOrderProductsIds());
+        internalOrderProductsIdComboBox.setValue(idset);
+        checkboxIsSpend.setValue(internalOrderDto.getIsSent());
+        checkboxIsPrint.setValue(internalOrderDto.getIsPrint());
+
     }
 
     private HorizontalLayout headerLayout() {
@@ -83,7 +104,7 @@ public class InternalOrderModalView extends Dialog {
 
     private HorizontalLayout formLayout1() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(numberConfigure(), dateConfigure(), checkboxLayout());
+        horizontalLayout.add(dateConfigure(), checkboxLayout());
         return horizontalLayout;
     }
 
@@ -95,7 +116,7 @@ public class InternalOrderModalView extends Dialog {
 
     private HorizontalLayout formLayout4() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(commentConfig());
+        horizontalLayout.add(internalOrderProductsConfigure(), commentConfig());
         return horizontalLayout;
     }
 
@@ -104,25 +125,32 @@ public class InternalOrderModalView extends Dialog {
     }
 
     private Button saveButton() {
+
         return new Button("Сохранить", e -> {
             if (!internalOrderDtoBinder.validate().isOk()) {
                 internalOrderDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
                 InternalOrderDto dto = new InternalOrderDto();
-                dto.setId(Long.parseLong(returnNumber.getValue()));
+
+                if(returnNumber.getValue() != "") {
+                    dto.setId(Long.parseLong(returnNumber.getValue()));
+                    dto.setInternalOrderProductsIds(internalOrderDto.getInternalOrderProductsIds());
+                }
+
                 dto.setCompanyId(companyDtoComboBox.getValue().getId());
                 dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
                 dto.setDate(dateTimePicker.getValue().toString());
                 dto.setIsSent(checkboxIsSpend.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
                 dto.setComment(textArea.getValue());
-                dto.setInternalOrderProductsIds(internalOrderDto.getInternalOrderProductsIds());
+                List<Long> idList = new ArrayList<>(internalOrderProductsIdComboBox.getValue());
+                dto.setInternalOrderProductsIds(idList);
                 internalOrderService.create(dto);
 
-                UI.getCurrent().navigate("internalorder");
                 close();
                 clearAllFieldsModalView();
-                notifications.infoNotification(String.format("Внутренние заказ c ID=%s сохранен", dto.getId()));
+                notifications.infoNotification("Внутренний заказ сохранен");
+                UI.getCurrent().navigate("internalorder");
             }
         });
     }
@@ -140,21 +168,27 @@ public class InternalOrderModalView extends Dialog {
         Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS));
         button.addClickListener(e -> {
             // Добавить продукт в таблицу
+            InternalOrderProductsModalView modalView = new InternalOrderProductsModalView(
+                    internalOrderProductsDtoService,
+                    notifications,
+                    productService
+            );
+            modalView.open();
         });
         return button;
     }
 
-    private HorizontalLayout numberConfigure() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Возврат поставщику №");
-        label.setWidth("150px");
-        returnNumber.setWidth("50px");
-        horizontalLayout.add(label, returnNumber);
-        internalOrderDtoBinder.forField(returnNumber)
-                .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(InternalOrderDto::getIdValid, InternalOrderDto::setIdValid);
-        return horizontalLayout;
-    }
+//    private HorizontalLayout numberConfigure() {
+//        HorizontalLayout horizontalLayout = new HorizontalLayout();
+//        Label label = new Label("Возврат поставщику №");
+//        label.setWidth("150px");
+//        returnNumber.setWidth("50px");
+//        horizontalLayout.add(label, returnNumber);
+//        internalOrderDtoBinder.forField(returnNumber)
+//                .asRequired(TEXT_FOR_REQUEST_FIELD)
+//                .bind(InternalOrderDto::getIdValid, InternalOrderDto::setIdValid);
+//        return horizontalLayout;
+//    }
 
     private HorizontalLayout dateConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -171,6 +205,43 @@ public class InternalOrderModalView extends Dialog {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.add(checkboxIsSpend, checkboxIsPrint);
         return verticalLayout;
+    }
+
+
+    private HorizontalLayout  internalOrderProductsConfigure() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        List<InternalOrderDto> iod = internalOrderService.getAll();
+        List<Long> checkInIod = new ArrayList<>();
+        for(InternalOrderDto id : iod) {
+            List<Long> list = id.getInternalOrderProductsIds();
+            checkInIod.addAll(list);
+        }
+
+        List<InternalOrderProductsDto> labels = internalOrderProductsDtoService.getAll();
+        List<Long> items = new ArrayList<>();
+        for(InternalOrderProductsDto id : labels) {
+            Long check = id.getId();
+            if(!(checkInIod.contains(check))) {
+                items.add(id.getId());
+            }
+        }
+
+        internalOrderProductsIdComboBox.setItems(items);
+        internalOrderProductsIdComboBox.setItemLabelGenerator(item -> productService.getById(internalOrderProductsDtoService
+                                                                                    .getById(item).getProductId()).getName());
+        internalOrderProductsIdComboBox.setWidth("350px");
+        Label label = new Label("Список товаров");
+        label.setWidth("100px");
+        horizontalLayout.add(label, internalOrderProductsIdComboBox);
+
+        internalOrderDtoBinder.forField(internalOrderProductsIdComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(internalOrderDto -> new HashSet<Long>(internalOrderDto.getInternalOrderProductsIdsValid()),
+                        (internalOrderDto, internalOrderDto2) -> internalOrderDto.setInternalOrderProductsIdsValid(internalOrderDto
+                                                                                 .getInternalOrderProductsIdsValid()));
+        UI.getCurrent().navigate("internalorder");
+        return horizontalLayout;
     }
 
     private HorizontalLayout companyConfigure() {
@@ -225,5 +296,6 @@ public class InternalOrderModalView extends Dialog {
         returnNumber.setValue("");
         checkboxIsPrint.setValue(false);
         checkboxIsSpend.setValue(false);
+        internalOrderProductsIdComboBox.setValue(null);
     }
 }
