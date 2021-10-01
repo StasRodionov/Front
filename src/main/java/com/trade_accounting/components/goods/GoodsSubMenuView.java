@@ -32,10 +32,10 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
     private final Div div = new Div();
 
-    public GoodsSubMenuView(GoodsView goodsView, RevenueView revenueView, PostingTabView postingTabView,
+    public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
                             GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder,
                             MovementView movementView, RemainView remainView, LossView lossView,
-                            GoodsPriceLayout priceLayoutView) {
+                            GoodsPriceLayout priceLayoutView, RevenueView revenueView) {
         this.goodsView = goodsView;
         this.revenueView = revenueView;
         this.postingTabView = postingTabView;
