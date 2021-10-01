@@ -79,6 +79,8 @@ retail_stores_url: api/retail_stores
 
 retail_operation_with_points_url: api/operation_with
 
+revenue_url: api/revenue
+
 contractor_status_url: api/contractor_status
 
 task_url: api/tasks
