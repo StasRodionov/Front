@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -38,6 +39,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView;
     private final CommissionAgentReportModalView commissionAgentReportModalView;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
+    private final Notifications notifications;
 
 
     @Autowired
@@ -50,7 +52,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
-                            ReturnBuyersReturnModalView returnBuyersReturnModalView) {
+                            ReturnBuyersReturnModalView returnBuyersReturnModalView, Notifications notifications) {
         this.invoiceProductService = invoiceProductService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
         this.invoiceService = invoiceService;
@@ -62,6 +64,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.salesSubInvoicesToBuyersView = salesSubInvoicesToBuyersView;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
+        this.notifications = notifications;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -120,7 +123,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add(new SalesSubBuyersReturnsView(buyersReturnService, contractorService, companyService,returnBuyersReturnModalView, warehouseService));
+                    div.add(new SalesSubBuyersReturnsView(buyersReturnService, contractorService, companyService,returnBuyersReturnModalView, warehouseService, notifications));
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
