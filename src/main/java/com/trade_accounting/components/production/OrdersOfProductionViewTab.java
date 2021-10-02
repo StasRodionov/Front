@@ -62,30 +62,31 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         this.technicalCardService = technicalCardService;
         this.notifications = notifications;
         this.modalWindow = modalWindow;
-        paginator = new GridPaginator<>(grid, this.ordersOfProductionService.getAll(), 100);
-        add(getTollBar(), grid, paginator);
-        configureGrid();
         setSizeFull();
-        //configureFilter();
         this.data = getData();
+        paginator = new GridPaginator<>(grid, this.ordersOfProductionService.getAll(), 100);
+        configureGrid();
         this.filter = new GridFilter<>(grid);
+      //  configureFilter();
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(getTollBar(), filter, grid, paginator);
     }
 
     private void configureGrid () {
+        grid.setItems(data);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(OrdersOfProductionDto::getDate).setKey("date").setHeader("время").setSortable(true);
+        grid.addColumn(OrdersOfProductionDto::getDate).setKey("date").setHeader("время").setSortable(true).setId("Дата");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setId("организация");
-        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCardId()).getName()).setHeader("Технологическая карта")
-                .setId("Технологическая карта");
+        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCardId()).getName()).setHeader("Технологическая карта").setId("Технологическая карта");
         grid.addColumn("volume").setHeader("Объем производства").setId("Объем производства");
         grid.addColumn("produce").setHeader("Произведено").setId("Произведено");
-        grid.addColumn(OrdersOfProductionDto::getPlannedProductionDate).setKey("PlannedProductionDate")
-                .setHeader("План. дата производства").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
+        grid.addColumn(OrdersOfProductionDto::getPlannedProductionDate)
+                .setHeader("План. дата производства").setSortable(true).setId("План. дата производства");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -103,8 +104,8 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         });
 
 
-
     }
+
 
     private Component getIsSentIcon(OrdersOfProductionDto ordersOfProductionDto) {
         if (ordersOfProductionDto.getIsSent()) {
@@ -165,17 +166,10 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
 
         private Button buttonFilter () {
         Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+    //    buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
-    private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.onSearchClick(e ->
-                paginator.setData(ordersOfProductionService.searchOrdersOfProduction(filter.getFilterData())));
-        filter.onClearClick(e ->
-                paginator.setData(ordersOfProductionService.getAll()));
-    }
 
         private TextField text () {
         textField.setWidth("300px");
@@ -183,9 +177,12 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-        setSizeFull();
+     //       textField.addValueChangeListener(e -> updateListTextField());
+            setSizeFull();
         return textField;
     }
+
+
 
         private NumberField numberField () {
         NumberField numberField = new NumberField();

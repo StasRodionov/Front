@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.OrdersOfProductionDto;
+import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -9,6 +10,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 import java.util.List;
@@ -38,5 +40,10 @@ public interface OrdersOfProductionApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/searchOrdersOfProduction")
-    Call<List<OrdersOfProductionDto>> searchOrdersOfProduction(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> queryOrdersOfProduction);
+    Call<List<OrdersOfProductionDto>> searchOrdersOfProduction(@Path(value = "url", encoded = true) String url,
+                                                               @QueryMap Map<String, String> queryOrdersOfProduction);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search")
+    Call<List<OrdersOfProductionDto>> search(@Path(value = "url", encoded = true) String url, @Query("query") String query);
 }

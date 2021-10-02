@@ -74,11 +74,13 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                     break;
                 case "Заказы на производство":
                     div.removeAll();
-                    div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService,technicalCardService, notifications, modalWindow));
+                    div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService,technicalCardService,
+                            notifications, modalWindow));
                     break;
                 case "Тех. операции":
                     div.removeAll();
-                    div.add(new TechnologicalOperationsViewTab(technicalCardService, technicalOperationsService, notifications, warehouseService, view));
+                    div.add(new TechnologicalOperationsViewTab(technicalCardService, technicalOperationsService,
+                            notifications, warehouseService, view));
                     break;
             }
         });
@@ -90,7 +92,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
         div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, productService, technicalCardProductionService, notifications));
-        div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService,technicalCardService, notifications, modalWindow));
+        //div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService,technicalCardService, notifications, modalWindow));
     }
 }
 

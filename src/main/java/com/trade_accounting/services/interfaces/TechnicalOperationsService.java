@@ -1,8 +1,10 @@
 package com.trade_accounting.services.interfaces;
 
+import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TechnicalOperationsService {
 
@@ -15,4 +17,9 @@ public interface TechnicalOperationsService {
     void update(TechnicalOperationsDto dto);
 
     void deleteById(Long id);
+
+    List<TechnicalOperationsDto> search(String query);
+
+    List<TechnicalOperationsDto> searchTechnicalOperations(Map<String, String> queryTechnicalOperations);
+
 }

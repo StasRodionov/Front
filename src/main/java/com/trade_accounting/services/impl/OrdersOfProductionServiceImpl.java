@@ -2,6 +2,7 @@ package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.OrdersOfProductionDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
+import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.api.OrdersOfProductionApi;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class OrdersOfProductionServiceImpl implements OrdersOfProductionService 
     private final OrdersOfProductionApi ordersOfProductionApi;
     private final OrdersOfProductionDto ordersOfProductionDto = new OrdersOfProductionDto();
     private final CallExecuteService<OrdersOfProductionDto> dtoCallExecuteService;
+    private List<OrdersOfProductionDto> ordersOfProductionDtoList = new ArrayList<>();
 
     public OrdersOfProductionServiceImpl(@Value("${orders_of_production_url}") String ordersOfProductionUrl, Retrofit retrofit, CallExecuteService<OrdersOfProductionDto> dtoCallExecuteService) {
         this.ordersOfProductionUrl = ordersOfProductionUrl;
@@ -70,5 +72,17 @@ public class OrdersOfProductionServiceImpl implements OrdersOfProductionService 
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка технических карт: {IOException}", e);
         }
         return ordersOfProductionList;
+    }
+
+    @Override
+    public List<OrdersOfProductionDto> search(String query) {
+        Call<List<OrdersOfProductionDto>> ordersOfProductionDtoListCall = ordersOfProductionApi.search(ordersOfProductionUrl, query);
+        try {
+            ordersOfProductionDtoList = ordersOfProductionDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка OrdersOfProductionDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка OrdersOfProductionDto - ", e);
+        }
+        return ordersOfProductionDtoList;
     }
 }
