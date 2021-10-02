@@ -67,7 +67,7 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         paginator = new GridPaginator<>(grid, this.ordersOfProductionService.getAll(), 100);
         configureGrid();
         this.filter = new GridFilter<>(grid);
-      //  configureFilter();
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getTollBar(), filter, grid, paginator);
     }
@@ -104,6 +104,15 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         });
 
 
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.onSearchClick(e ->
+                paginator.setData(ordersOfProductionService.searchOrdersOfProduction(filter.getFilterData())));
+        filter.onClearClick(e ->
+                paginator.setData(ordersOfProductionService.getAll()));
     }
 
 
@@ -166,7 +175,7 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
 
         private Button buttonFilter () {
         Button buttonFilter = new Button("Фильтр");
-    //    buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
@@ -177,12 +186,18 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-     //       textField.addValueChangeListener(e -> updateListTextField());
+            textField.addValueChangeListener(e -> updateListTextField());
             setSizeFull();
         return textField;
     }
 
-
+    public void updateListTextField() {
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(ordersOfProductionService.search(textField.getValue()));
+        } else {
+            grid.setItems(ordersOfProductionService.search("null"));
+        }
+    }
 
         private NumberField numberField () {
         NumberField numberField = new NumberField();
