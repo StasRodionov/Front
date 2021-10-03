@@ -287,6 +287,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         Icon circle = new Icon(VaadinIcon.REFRESH);
         buttonRefresh = new Button();
         buttonRefresh.setIcon(circle);
+        buttonRefresh.addClickListener(e -> updateList());
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
