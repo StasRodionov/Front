@@ -148,7 +148,7 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
     }
 
     private H2 title() {
-        H2 title = new H2("Предоплаты");
+        H2 title = new H2("Возвраты предоплат");
         title.setHeight("2.2em");
         return title;
     }
