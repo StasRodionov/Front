@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.api.BuyersReturnApi;
@@ -11,7 +12,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -72,5 +75,19 @@ public class BuyersReturnServiceImpl implements BuyersReturnService {
     public void deleteById(Long id) {
         Call<Void> buyersReturnDtoCall = buyersReturnApi.deleteById(buyersReturnUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(buyersReturnDtoCall, BuyersReturnDto.class, id);
+    }
+
+    @Override
+    public List<BuyersReturnDto> search(Map<String, String> query) {
+        List<BuyersReturnDto> buyersReturnDtoList = new ArrayList<>();
+        Call<List<BuyersReturnDto>> buyersReturnDtoListCall = buyersReturnApi.search(buyersReturnUrl, query);
+
+        try {
+            buyersReturnDtoList = buyersReturnDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка BuyersReturnDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка BuyersReturnDto - ", e);
+        }
+        return buyersReturnDtoList;
     }
 }

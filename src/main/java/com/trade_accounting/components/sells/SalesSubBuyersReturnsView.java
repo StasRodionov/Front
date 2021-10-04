@@ -45,7 +45,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final List<BuyersReturnDto> data;
-    private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
+    private final Grid<BuyersReturnDto> grid;
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
 
@@ -60,22 +60,14 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         this.companyService = companyService;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.data = buyersReturnService.getAll();
-        grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
-                .setKey("date").setId("Дата");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
-        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setFlexGrow(7).setHeader("Контрагент")
-                .setKey("contractorId").setId("Контрагент");
-        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7).setHeader("Компания")
-                .setKey("companyId").setId("Компания");
-        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
-        grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
-        this.filter = new GridFilter<>(grid);
+
+        grid = new Grid<>(BuyersReturnDto.class, false);
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), filter);
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
+        add(getToolbar(), filter, grid, paginator);
     }
 
 
@@ -85,11 +77,12 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
                 .setKey("date").setId("Дата");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
-        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setFlexGrow(7).setHeader("Контрагент")
-                .setKey("contractorId").setId("Контрагент");
-        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7).setHeader("Компания")
-                .setKey("companyId").setId("Компания");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7)
+                .setFlexGrow(7).setHeader("На склад").setKey("warehouseId").setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName())
+                .setFlexGrow(7).setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName())
+                .setFlexGrow(7).setHeader("Компания").setKey("companyId").setId("Компания");
         grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
@@ -109,6 +102,13 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.onSearchClick(e -> paginator.setData(buyersReturnService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(buyersReturnService.getAll()));
     }
 
     private H2 title() {
