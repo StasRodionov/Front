@@ -4,7 +4,6 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.InternalOrderProductsDto;
-import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @UIScope
 @SpringComponent
@@ -46,6 +44,7 @@ public class InternalOrderModalView extends Dialog {
     private final InternalOrderService internalOrderService;
     private final InternalOrderProductsDtoService internalOrderProductsDtoService;
     private final ProductService productService;
+    private final TitleForModal title;
     private InternalOrderDto internalOrderDto;
 
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
@@ -65,13 +64,14 @@ public class InternalOrderModalView extends Dialog {
     public InternalOrderModalView(CompanyService companyService, WarehouseService warehouseService,
                                   InternalOrderService internalOrderService, Notifications notifications,
                                   InternalOrderProductsDtoService internalOrderProductsDtoService,
-                                  ProductService productService) {
+                                  ProductService productService, TitleForModal title) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.internalOrderService = internalOrderService;
         this.notifications = notifications;
         this.internalOrderProductsDtoService = internalOrderProductsDtoService;
         this.productService = productService;
+        this.title = title;
         setSizeFull();
         add(headerLayout(), formLayout());
     }
@@ -87,12 +87,11 @@ public class InternalOrderModalView extends Dialog {
         internalOrderProductsIdComboBox.setValue(idset);
         checkboxIsSpend.setValue(internalOrderDto.getIsSent());
         checkboxIsPrint.setValue(internalOrderDto.getIsPrint());
-
     }
 
     private HorizontalLayout headerLayout() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(title(), saveButton(), closeButton(), addGoodButton());
+        horizontalLayout.add(title(title.toString()), saveButton(), closeButton(), addGoodButton());
         return horizontalLayout;
     }
 
@@ -120,8 +119,8 @@ public class InternalOrderModalView extends Dialog {
         return horizontalLayout;
     }
 
-    private H2 title() {
-        return new H2("Добавление внутреннего заказа");
+    private H2 title(String title) {
+        return new H2(title);
     }
 
     private Button saveButton() {
@@ -167,28 +166,20 @@ public class InternalOrderModalView extends Dialog {
     private Button addGoodButton() {
         Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS));
         button.addClickListener(e -> {
+            close();
             // Добавить продукт в таблицу
             InternalOrderProductsModalView modalView = new InternalOrderProductsModalView(
                     internalOrderProductsDtoService,
                     notifications,
-                    productService
+                    productService,
+                    companyService,
+                    warehouseService,
+                    internalOrderService
             );
             modalView.open();
         });
         return button;
     }
-
-//    private HorizontalLayout numberConfigure() {
-//        HorizontalLayout horizontalLayout = new HorizontalLayout();
-//        Label label = new Label("Возврат поставщику №");
-//        label.setWidth("150px");
-//        returnNumber.setWidth("50px");
-//        horizontalLayout.add(label, returnNumber);
-//        internalOrderDtoBinder.forField(returnNumber)
-//                .asRequired(TEXT_FOR_REQUEST_FIELD)
-//                .bind(InternalOrderDto::getIdValid, InternalOrderDto::setIdValid);
-//        return horizontalLayout;
-//    }
 
     private HorizontalLayout dateConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -206,7 +197,6 @@ public class InternalOrderModalView extends Dialog {
         verticalLayout.add(checkboxIsSpend, checkboxIsPrint);
         return verticalLayout;
     }
-
 
     private HorizontalLayout  internalOrderProductsConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
