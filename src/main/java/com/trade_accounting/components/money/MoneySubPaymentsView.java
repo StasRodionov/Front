@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -287,6 +288,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         Icon circle = new Icon(VaadinIcon.REFRESH);
         buttonRefresh = new Button();
         buttonRefresh.setIcon(circle);
+        buttonRefresh.addClickListener(e -> updateList());
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
@@ -312,6 +314,16 @@ public class MoneySubPaymentsView extends VerticalLayout {
         MenuBar menuBar = new MenuBar();
         MenuItem menuPayment = menuBar.addItem("Изменить");
         SubMenu subMenu = menuPayment.getSubMenu();
+        subMenu.addItem("Провести", menuItemClickEvent -> {
+            conductPayments();
+            grid.deselectAll();
+            paginator.setData(getDate());
+        });
+        subMenu.addItem("Снять проведение", menuItemClickEvent -> {
+            removeConductPayments();
+            grid.deselectAll();
+            paginator.setData(getDate());
+        });
         subMenu.addItem("Удалить", menuItemClickEvent -> {
             deleteSelectedPayments();
             grid.deselectAll();
@@ -332,6 +344,28 @@ public class MoneySubPaymentsView extends VerticalLayout {
         }
     }
 
+    private void conductPayments() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (PaymentDto paymentDto: grid.getSelectedItems()) {
+                paymentService.getById(paymentDto.getId()).setIsConducted(true);
+                notifications.infoNotification("Выбранные платежи успешно проведены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные платежы");
+        }
+    }
+
+    private void removeConductPayments() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (PaymentDto paymentDto: grid.getSelectedItems()) {
+                paymentService.getById(paymentDto.getId()).setIsConducted(false);
+                notifications.infoNotification("Выбранные платежи успешно проведены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные платежы");
+        }
+    }
+
     /*Меню Печать*/
     private MenuBar getPrint() {
         MenuBar menuBar = new MenuBar();
@@ -345,7 +379,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private List<PaymentDto> getDate() {
-        return paymentService.getAll().stream().sorted((o1, o2) -> o1.getId().compareTo(o2.getId())).collect(Collectors.toList());
+        return paymentService.getAll().stream().sorted(Comparator.comparing(PaymentDto::getId)).collect(Collectors.toList());
     }
 
     private List<Div> getCreditAndExpense() {
