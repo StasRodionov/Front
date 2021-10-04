@@ -1,6 +1,10 @@
 server:
   port: 4445
 
+issued_invoice_url: api/issuedInvoice
+
+prepayment_return_url: api/prepaymentreturn
+
 retail_cloud_check_url: api/cloudcheck
 
 retail_shift_url: api/retailshift
