@@ -108,6 +108,18 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
        return prepaymentReturnDto.getSumCash().add(prepaymentReturnDto.getSumNonСash());
     }
 
+    private Button buttonCreate() {
+        Button createRetailStoreButton = new Button("Возврат преоплаты", new Icon(VaadinIcon.PLUS_CIRCLE));
+        PrepaymentReturnModalWindow prepaymentReturnModalWindow =
+                new PrepaymentReturnModalWindow(prepaymentReturnService, companyService, retailStoreService, contractorService);
+        createRetailStoreButton.addClickListener(e -> {
+            prepaymentReturnModalWindow.addDetachListener(event -> updateList());
+            prepaymentReturnModalWindow.open();
+        });
+        createRetailStoreButton.getStyle().set("cursor", "pointer");
+        return createRetailStoreButton;
+    }
+
     private Component isSentCheckedIcon(PrepaymentReturnDto prepaymentReturnDto) {
         if (prepaymentReturnDto.getSent()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -130,7 +142,7 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(),buttonCreate(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
     }
