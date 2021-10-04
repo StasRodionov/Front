@@ -5,8 +5,6 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InternalOrderDto;
-import com.trade_accounting.models.dto.InternalOrderProductsDto;
-import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
 import com.trade_accounting.services.interfaces.InternalOrderService;
@@ -16,15 +14,12 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -35,9 +30,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -50,10 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -75,13 +65,16 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final Notifications notifications;
     private final InternalOrderModalView modalView;
     private final GoodsModalWindow goodsModalWindow;
+    private final TitleForModal titleForEdit;
+    private final TitleForModal titleForСreate;
 
     @Autowired
     public GoodsSubInternalOrder(CompanyService companyService,
                                  WarehouseService warehouseService,
                                  InternalOrderService internalOrderService,
                                  Notifications notifications, InternalOrderModalView modalView, GoodsModalWindow goodsModalWindow,
-                                 InternalOrderProductsDtoService internalOrderProductsDtoService, ProductService productService) {
+                                 InternalOrderProductsDtoService internalOrderProductsDtoService, ProductService productService
+                                 ) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.internalOrderService = internalOrderService;
@@ -90,6 +83,8 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         this.modalView = modalView;
         this.goodsModalWindow = goodsModalWindow;
         this.notifications = notifications;
+        titleForEdit = new TitleForModal("Редактирование внутреннего заказа");
+        titleForСreate = new TitleForModal("Добавление внутреннего заказа");
 
         List<InternalOrderDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -98,9 +93,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         configureFilter();
         add(configureActions(),filter, grid, paginator);
         setSizeFull();
-
     }
-
 
     private void configureFilter() {
         filter.setFieldToDatePicker("date");
@@ -140,7 +133,6 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         grid.addColumn(this::getTotalPrice).setWidth("1px").setHeader("Сумма").setSortable(true);
         grid.addColumn(this::getTotalAmount).setWidth("1px").setHeader("Количество").setSortable(true);
 
-
         grid.addColumn(internalOrderDto -> (internalOrderDto.getInternalOrderProductsIds()).stream()
                         .map(internalOrderProductsDtoService::getById)
                         .map(map -> productService.getById(map.getProductId()).getName())
@@ -160,7 +152,8 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                     internalOrderService,
                     notifications,
                     internalOrderProductsDtoService,
-                    productService
+                    productService,
+                    titleForEdit
             );
             modalView.setInternalOrderForEdit(dto);
             modalView.open();
@@ -185,7 +178,6 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         return String.format("%.2f", totalAmount);
     }
 
-
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -205,13 +197,6 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         return buttonQuestion;
     }
 
-//    private Button buttonAdd() {
-//        Button button = new Button("Возврат", new Icon(VaadinIcon.PLUS_CIRCLE));
-//        button.addClickListener(e -> modalView.open());
-//        updateList();
-//        return button;
-//    }
-
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addClickListener(ev -> updateList());
@@ -225,22 +210,21 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Внутренний заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(e -> modalView.open());
+        buttonUnit.addClickListener(e -> {
+
+            InternalOrderModalView modalView = new InternalOrderModalView(
+                    companyService,
+                    warehouseService,
+                    internalOrderService,
+                    notifications,
+                    internalOrderProductsDtoService,
+                    productService,
+                    titleForСreate
+            );
+            modalView.open();
+        });
         return buttonUnit;
     }
-
-//    String titleForCreate = "Добавление внтуреннего заказа";
-//    Button buttonUnit = new Button("Внутренний заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-//        buttonUnit.addClickListener(e -> {
-//        InternalOrderModalView modalView = new InternalOrderModalView(
-//                companyService,
-//                warehouseService,
-//                internalOrderService,
-//                notifications,
-//                titleForCreate
-//        );
-//        modalView.open();
-//    });
 
     private Button buttonFilter() {
         Button button = new Button("Фильтр");
@@ -268,17 +252,17 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
         List<String> stringList = new ArrayList<>();
-        stringList.add("Изменить");
+        stringList.add("Выберите действие");
         stringList.add("Удалить");
         stringList.add("Массовое редактирование");
         select.setItems(stringList);
-        select.setValue("Изменить");
+        select.setValue("Выберите действие");
         select.setWidth("130px");
         select.addValueChangeListener(event -> {
             if (select.getValue().equals("Удалить")) {
                 deleteSelectedInternalOrders();
                 grid.deselectAll();
-                select.setValue("Изменить");
+                select.setValue("Выберите действие");
                 paginator.setData(getData());
             }
         });
