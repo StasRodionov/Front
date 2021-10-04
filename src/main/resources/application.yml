@@ -1,6 +1,8 @@
 server:
   port: 4445
 
+prepayment_return_url: api/prepaymentreturn
+
 retail_cloud_check_url: api/cloudcheck
 
 retail_shift_url: api/retailshift

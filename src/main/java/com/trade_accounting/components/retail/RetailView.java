@@ -39,13 +39,14 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final RetailCloudCheckService retailCloudCheckService;
     private final CurrencyService currencyService;
     private final PrepayoutService prepayoutService;
+    private final PrepaymentReturnService prepaymentReturnService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
                       RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService, RetailCloudCheckService retailCloudCheckService,
-                      CurrencyService currencyService, PrepayoutService prepayoutService) {
+                      CurrencyService currencyService, PrepayoutService prepayoutService, PrepaymentReturnService prepaymentReturnService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -64,6 +65,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.retailCloudCheckService = retailCloudCheckService;
         this.currencyService = currencyService;
         this.prepayoutService = prepayoutService;
+        this.prepaymentReturnService = prepaymentReturnService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -132,6 +134,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Возвраты предоплат":
                     div.removeAll();
+                    div.add(new PrepaymentReturnView(prepaymentReturnService, contractorService, retailStoreService, companyService));
                     break;
                 case "Очередь облачных чеков":
                     div.removeAll();
