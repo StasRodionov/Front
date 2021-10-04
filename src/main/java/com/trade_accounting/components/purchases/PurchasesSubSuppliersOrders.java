@@ -177,6 +177,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
