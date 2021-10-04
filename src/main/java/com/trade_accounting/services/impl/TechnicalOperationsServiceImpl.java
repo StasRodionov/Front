@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
 import com.trade_accounting.services.interfaces.api.TechnicalOperationsApi;
@@ -9,7 +10,10 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -19,6 +23,7 @@ public class TechnicalOperationsServiceImpl implements TechnicalOperationsServic
     private final TechnicalOperationsApi technicalOperationsApi;
     private TechnicalOperationsDto technicalOperationsDto = new TechnicalOperationsDto();
     private final CallExecuteService<TechnicalOperationsDto> dtoCallExecuteService;
+    private List<TechnicalOperationsDto> technicalOperationsList = new ArrayList<>();
 
     public TechnicalOperationsServiceImpl(@Value("${technical_operations_url}") String technicalOperationsUrl, Retrofit retrofit, CallExecuteService<TechnicalOperationsDto> dtoCallExecuteService) {
         this.technicalOperationsUrl = technicalOperationsUrl;
@@ -54,5 +59,31 @@ public class TechnicalOperationsServiceImpl implements TechnicalOperationsServic
     public void deleteById(Long id) {
         Call<Void> technicalOperationsDeleteCall = technicalOperationsApi.deleteById(technicalOperationsUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(technicalOperationsDeleteCall, TechnicalOperationsDto.class, id);
+    }
+
+    @Override
+    public List<TechnicalOperationsDto> search(String query) {
+        Call<List<TechnicalOperationsDto>> technicalOperationsListCall = technicalOperationsApi.search(technicalOperationsUrl, query);
+        try {
+            technicalOperationsList = technicalOperationsListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка TechnicalOperationsDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка TechnicalOperationsDto - ", e);
+        }
+        return technicalOperationsList;
+    }
+
+    @Override
+    public List<TechnicalOperationsDto> searchTechnicalOperations(Map<String, String> queryTechnicalOperations) {
+        List<TechnicalOperationsDto> technicalOperationsDtoList = new ArrayList<>();
+        Call<List<TechnicalOperationsDto>> technicalOperationsDtoListCall = technicalOperationsApi.searchContractor(technicalOperationsUrl, queryTechnicalOperations);
+        try {
+            technicalOperationsDtoList = technicalOperationsDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка технических операции");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка технических операции: {IOException}", e);
+        }
+        return technicalOperationsDtoList;
+
     }
 }

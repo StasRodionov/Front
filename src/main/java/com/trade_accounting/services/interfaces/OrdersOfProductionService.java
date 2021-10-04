@@ -2,6 +2,7 @@ package com.trade_accounting.services.interfaces;
 
 
 import com.trade_accounting.models.dto.OrdersOfProductionDto;
+import com.trade_accounting.models.dto.TechnicalOperationsDto;
 
 import java.util.List;
 import java.util.Map;
@@ -19,4 +20,7 @@ public interface OrdersOfProductionService {
     void deleteById(Long id);
 
     List<OrdersOfProductionDto> searchOrdersOfProduction(Map<String, String> queryOrdersOfProduction);
+
+    List<OrdersOfProductionDto> search(String query);
+
 }

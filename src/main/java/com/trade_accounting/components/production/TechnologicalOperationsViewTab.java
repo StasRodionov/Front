@@ -1,8 +1,10 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
@@ -49,6 +51,8 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
+    private final GridFilter<TechnicalOperationsDto> filter;
+
     private final List<TechnicalOperationsDto> data;
 
     private final GridPaginator<TechnicalOperationsDto> paginator;
@@ -66,20 +70,22 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         this.notifications = notifications;
         this.warehouseService = warehouseService;
         this.view = view;
-
-        paginator = new GridPaginator<>(grid, this.technicalOperationsService.getAll(), 100);
         this.technicalCardService = technicalCardService;
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getTollBar(), grid, paginator);
-        configureGrid();
-        setSizeFull();
         this.data = getData();
+        paginator = new GridPaginator<>(grid, this.technicalOperationsService.getAll(), 100);
+        setSizeFull();
+        configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(getTollBar(), filter, grid, paginator);
 
     }
 
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(TechnicalOperationsDto::getDate).setKey("date").setHeader("время").setSortable(true);
+        grid.addColumn(TechnicalOperationsDto::getDate).setKey("date").setHeader("время").setSortable(true).setId("Дата");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(e -> warehouseService.getById(e.getWarehouse()).getName()).setHeader("организация").setId("организация");
         grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCard()).getName()).setHeader("Технологическая карта").setId("Технологическая карта");
         grid.addColumn("volume").setHeader("Объем производства").setId("Объем производства");
@@ -87,7 +93,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+
 
 
         grid.setColumnReorderingAllowed(true);
@@ -176,7 +182,17 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.onSearchClick(e ->
+                paginator.setData(technicalOperationsService.searchTechnicalOperations(filter.getFilterData())));
+        filter.onClearClick(e ->
+                paginator.setData(technicalOperationsService.getAll()));
     }
 
     private TextField text() {
@@ -185,8 +201,17 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateListTextField());
         setSizeFull();
         return textField;
+    }
+
+    public void updateListTextField() {
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(technicalOperationsService.search(textField.getValue()));
+        } else {
+            grid.setItems(technicalOperationsService.search("null"));
+        }
     }
 
     private NumberField numberField() {
