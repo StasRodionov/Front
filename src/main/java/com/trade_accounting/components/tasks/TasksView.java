@@ -131,6 +131,7 @@ public class TasksView extends VerticalLayout {
     private Button getButtonRefresh() {
         final var buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
