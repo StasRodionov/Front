@@ -34,7 +34,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringComponent
 @PageTitle("Остатки")
@@ -51,6 +50,7 @@ public class RemainView extends VerticalLayout {
     private List<RemainDto> data;
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final RemainModalWindow remainModalWindow;
     private final GridFilter<RemainDto> filter;
     private final String typeOfRemain = "EXPENSE";
 
@@ -59,6 +59,7 @@ public class RemainView extends VerticalLayout {
         this.unitService = unitService;
         this.notifications = notifications;
         data = getData();
+        this.remainModalWindow = new RemainModalWindow(remainService);
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
@@ -84,6 +85,10 @@ public class RemainView extends VerticalLayout {
         grid.addColumn(RemainDto::getSalesSum).setKey("salesSum").setHeader("Сумма продаж").setId("Сумма продаж");
         grid.setHeight("66vh");
         grid.setMaxWidth("100%");
+        grid.addItemDoubleClickListener(event -> {
+            remainModalWindow.addDetachListener(e -> updateList());
+            remainModalWindow.open();
+        });
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
@@ -109,6 +114,18 @@ public class RemainView extends VerticalLayout {
                 numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonUnit() {
+        Button createRetailStoreButton = new Button("Остатки", new Icon(VaadinIcon.PLUS_CIRCLE));
+        RemainModalWindow remainModalWindow =
+                new RemainModalWindow(remainService);
+        createRetailStoreButton.addClickListener(e -> {
+            remainModalWindow.addDetachListener(event -> updateList());
+            remainModalWindow.open();
+        });
+        createRetailStoreButton.getStyle().set("cursor", "pointer");
+        return createRetailStoreButton;
     }
 
     private H2 getTextOrder() {
@@ -153,9 +170,6 @@ public class RemainView extends VerticalLayout {
         paginator.setData(data, false);
     }
 
-    private Button buttonUnit() {
-        return new Button("Остатки", new Icon(VaadinIcon.PLUS_CIRCLE));
-    }
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");

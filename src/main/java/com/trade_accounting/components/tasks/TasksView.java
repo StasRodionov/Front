@@ -1,11 +1,9 @@
 package com.trade_accounting.components.tasks;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.production.TechnicalCardModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.TaskDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.button.Button;
@@ -30,8 +28,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
-import java.util.Map;
-
 
 @SpringComponent
 @UIScope
@@ -54,19 +50,19 @@ public class TasksView extends VerticalLayout {
         this.employeeService = employeeService;
         this.taskDto = new TaskDto();
         paginator = new GridPaginator<>(grid, taskService.getAll(), 15);
-        configureFilter();
+        configureGrid();
         this.filter = new GridFilter<>(grid);
+        configureFilter();
         add(getToolBar(), filter, grid, paginator);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        configureGrid();
     }
-
 
     private void configureGrid() {
         grid.removeAllColumns();
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
-        grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName()).setHeader("Ответственный").setId("Ответственный");
+        grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName())
+                .setKey("employeeId").setHeader("Ответственный").setId("Ответственный");
         grid.addColumn(TaskDto::getDeadlineDateTime).setHeader("Срок")
                 .setKey("deadLineDateTime").setId("Срок");
         grid.addColumn(TaskDto::getCreationDateTime).setHeader("Создано")
@@ -114,12 +110,9 @@ public class TasksView extends VerticalLayout {
     }
 
     private void configureFilter() {
-        grid.removeAllColumns();
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn("description").setHeader("Описание").setId("Описание");
-        grid.addColumn("employeeId").setHeader("Ответственный").setId("Ответственный");
-        grid.addColumn("deadlineDateTime").setHeader("Срок").setId("Срок");
-        grid.addColumn("creationDateTime").setHeader("Создано").setId("Создано");
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> paginator.setData(taskService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(taskService.getAll()));
     }
 
     private H2 getTextTask() {
@@ -131,6 +124,7 @@ public class TasksView extends VerticalLayout {
     private Button getButtonRefresh() {
         final var buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
