@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -67,6 +68,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final GoodsModalWindow goodsModalWindow;
     private final TitleForModal titleForEdit;
     private final TitleForModal titleForСreate;
+    private final TitleForModal titleForEditSelected;
 
     @Autowired
     public GoodsSubInternalOrder(CompanyService companyService,
@@ -85,6 +87,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         this.notifications = notifications;
         titleForEdit = new TitleForModal("Редактирование внутреннего заказа");
         titleForСreate = new TitleForModal("Добавление внутреннего заказа");
+        titleForEditSelected = new TitleForModal("Массовое редактирование заказов");
 
         List<InternalOrderDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -137,7 +140,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                         .map(internalOrderProductsDtoService::getById)
                         .map(map -> productService.getById(map.getProductId()).getName())
                         .collect(Collectors.toList()))
-                .setHeader("Товары внутреннего заказа").setId("Товары внутреннего заказа");
+                        .setHeader("Товары внутреннего заказа").setId("Товары внутреннего заказа");
 
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
@@ -264,6 +267,11 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                 grid.deselectAll();
                 select.setValue("Выберите действие");
                 paginator.setData(getData());
+            } else if(select.getValue().equals("Массовое редактирование")) {
+                editSelectedInternalOrders();
+                grid.deselectAll();
+                select.setValue("Выберите действие");
+                paginator.setData(getData());
             }
         });
         return select;
@@ -321,6 +329,23 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                 internalOrderService.deleteById(internalOrderDto.getId());
                 notifications.infoNotification("Выбранные заказы успешно удалены");
             }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
+    }
+
+    private void editSelectedInternalOrders() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            Set<InternalOrderDto> list = grid.getSelectedItems();
+            EditSelectedModalWindow editSelectedModalWindow = new EditSelectedModalWindow(
+                    companyService,
+                    warehouseService,
+                    internalOrderService,
+                    notifications,
+                    list
+            );
+
+                editSelectedModalWindow.open();
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные заказы");
         }

@@ -87,6 +87,7 @@ public class InternalOrderModalView extends Dialog {
         internalOrderProductsIdComboBox.setValue(idset);
         checkboxIsSpend.setValue(internalOrderDto.getIsSent());
         checkboxIsPrint.setValue(internalOrderDto.getIsPrint());
+
     }
 
     private HorizontalLayout headerLayout() {
@@ -167,7 +168,6 @@ public class InternalOrderModalView extends Dialog {
         Button button = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS));
         button.addClickListener(e -> {
             close();
-            // Добавить продукт в таблицу
             InternalOrderProductsModalView modalView = new InternalOrderProductsModalView(
                     internalOrderProductsDtoService,
                     notifications,
@@ -198,6 +198,7 @@ public class InternalOrderModalView extends Dialog {
         return verticalLayout;
     }
 
+
     private HorizontalLayout  internalOrderProductsConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
@@ -227,7 +228,7 @@ public class InternalOrderModalView extends Dialog {
 
         internalOrderDtoBinder.forField(internalOrderProductsIdComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(internalOrderDto -> new HashSet<Long>(internalOrderDto.getInternalOrderProductsIdsValid()),
+                .bind(internalOrderDto -> new HashSet<>(internalOrderDto.getInternalOrderProductsIdsValid()),
                         (internalOrderDto, internalOrderDto2) -> internalOrderDto.setInternalOrderProductsIdsValid(internalOrderDto
                                                                                  .getInternalOrderProductsIdsValid()));
         UI.getCurrent().navigate("internalorder");
