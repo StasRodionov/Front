@@ -2,6 +2,7 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -32,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -46,6 +48,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final List<InvoiceDto> data;
+    private final Notifications notifications;
 
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid;
@@ -58,12 +61,14 @@ public class SalesSubAgentReportsView extends VerticalLayout {
                                     ContractorService contractorService,
                                     CompanyService companyService,
                                     WarehouseService warehouseService,
-                                    CommissionAgentReportModalView commissionAgentReportModalView) {
+                                    CommissionAgentReportModalView commissionAgentReportModalView,
+                                    Notifications notifications) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
+        this.notifications = notifications;
         this.data = getData();
 
         configureActions();
@@ -185,10 +190,32 @@ public class SalesSubAgentReportsView extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedInvoices();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
+    }
+
+    private void deleteSelectedInvoices() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
+                invoiceService.deleteById(invoiceDto.getId());
+                notifications.infoNotification("Выбранные отчеты успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные отчеты");
+        }
     }
 
     private Select<String> valueStatus() {

@@ -54,7 +54,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
-                            ReturnBuyersReturnModalView returnBuyersReturnModalView, Notifications notifications) {
+                            ReturnBuyersReturnModalView returnBuyersReturnModalView,
+                            Notifications notifications) {
         this.invoiceProductService = invoiceProductService;
         this.issuedInvoiceService = issuedInvoiceService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
@@ -122,7 +123,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Отчеты комиссионера":
                     div.removeAll();
-                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService, commissionAgentReportModalView));
+                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService, commissionAgentReportModalView, notifications));
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
