@@ -103,6 +103,16 @@ public class PostingTabView extends VerticalLayout {
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addItemDoubleClickListener(event -> {
+            CorrectionDto correctionDto = event.getItem();
+            PostingModal postingModal = new PostingModal(
+                    correctionService,
+                    warehouseService,
+                    companyService,
+                    notifications);
+            postingModal.setPostingEdit(correctionDto);
+            postingModal.open();
+        });
     }
 
     private List<CorrectionDto> getData() {
