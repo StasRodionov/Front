@@ -17,7 +17,13 @@ public class IssuedInvoiceDto {
 
     private Long contractorId;
 
+    private Long paymentId;
+
     private Boolean isSpend;
+
+    private Boolean isSend;
+
+    private Boolean isPrint;
 
     private String comment;
 }
