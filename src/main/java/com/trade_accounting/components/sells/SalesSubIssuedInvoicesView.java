@@ -7,6 +7,7 @@ import com.trade_accounting.models.dto.IssuedInvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.IssuedInvoiceService;
+import com.trade_accounting.services.interfaces.PaymentService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -46,16 +47,18 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
     private final IssuedInvoiceService issuedInvoiceService;
     private final CompanyService companyService;
     private final ContractorService contractorService;
+    private final PaymentService paymentService;
     private List<IssuedInvoiceDto> data;
 
     private final GridFilter<IssuedInvoiceDto> filter;
     private final Grid<IssuedInvoiceDto> grid = new Grid<>(IssuedInvoiceDto.class, false);
     private final GridPaginator<IssuedInvoiceDto> paginator;
 
-    public SalesSubIssuedInvoicesView(IssuedInvoiceService issuedInvoiceService, CompanyService companyService, ContractorService contractorService) {
+    public SalesSubIssuedInvoicesView(IssuedInvoiceService issuedInvoiceService, CompanyService companyService, ContractorService contractorService, PaymentService paymentService) {
         this.issuedInvoiceService = issuedInvoiceService;
         this.companyService = companyService;
         this.contractorService = contractorService;
+        this.paymentService = paymentService;
         this.data = this.issuedInvoiceService.getAll();
         this.filter = new GridFilter<>(grid);
         add(upperLayout(), filter);
@@ -73,16 +76,29 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
                 .getName()).setFlexGrow(10).setHeader("Контрагент").setId("contractor");
         grid.addColumn(issuedInvoiceDto -> companyService.getById(issuedInvoiceDto.getCompanyId())
                 .getName()).setHeader("Организация").setId("company");
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("sent")
-                .setHeader("Отправлена").setId("Отправлена");
+        grid.addColumn((issuedInvoiceDto -> paymentService.getById(issuedInvoiceDto.getPaymentId()).getSum())).setHeader("Сумма").setId("sum");
+        grid.addColumn(new ComponentRenderer<>(this::isSendCheckedIcon)).setFlexGrow(5).setWidth("25px").setKey("send")
+                .setHeader("Отправлено").setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::isPrintCheckedIcon)).setFlexGrow(5).setWidth("25px").setKey("print")
+                .setHeader("Напечатано").setId("Напечатано");
         grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("Комментарий");
         GridSortOrder<IssuedInvoiceDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
     }
 
-    private Component isSentCheckedIcon(IssuedInvoiceDto issuedInvoiceDto) {
-        if (issuedInvoiceDto.getIsSpend()) {
+    private Component isSendCheckedIcon(IssuedInvoiceDto issuedInvoiceDto) {
+        if (issuedInvoiceDto.getIsSend()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
+    }
+
+    private Component isPrintCheckedIcon(IssuedInvoiceDto issuedInvoiceDto) {
+        if (issuedInvoiceDto.getIsPrint()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
