@@ -40,13 +40,14 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final CurrencyService currencyService;
     private final PrepayoutService prepayoutService;
     private final PrepaymentReturnService prepaymentReturnService;
+    private final WarehouseService warehouseService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
                       RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService, RetailCloudCheckService retailCloudCheckService,
-                      CurrencyService currencyService, PrepayoutService prepayoutService, PrepaymentReturnService prepaymentReturnService) {
+                      CurrencyService currencyService, PrepayoutService prepayoutService, PrepaymentReturnService prepaymentReturnService, WarehouseService warehouseService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -66,6 +67,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.currencyService = currencyService;
         this.prepayoutService = prepayoutService;
         this.prepaymentReturnService = prepaymentReturnService;
+        this.warehouseService = warehouseService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -105,7 +107,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Смены":
                     div.removeAll();
-                    div.add(new RetailShiftView(retailShiftService));
+                    div.add(new RetailShiftView(retailShiftService, retailStoreService, warehouseService, companyService));
                     break;
                 case "Продажи":
                     div.removeAll();
