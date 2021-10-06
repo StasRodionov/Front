@@ -3,6 +3,7 @@ package com.trade_accounting.components.contractors;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -31,6 +32,9 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @SpringComponent
 @UIScope
@@ -48,18 +52,21 @@ public class ContractsView extends VerticalLayout {
     private final GridPaginator<ContractDto> paginator;
     private final TextField textField = new TextField();
     private final Grid<ContractDto> grid;
+    private final Notifications notifications;
 
 
     @Autowired
     ContractsView(LegalDetailService legalDetailService, BankAccountService bankAccountService, CompanyService companyService, ContractService contractService,
                   ContractorService contractorService,
-                  ContractModalWindow contractModalWindow) {
+                  ContractModalWindow contractModalWindow,
+                  Notifications notifications) {
         this.legalDetailService = legalDetailService;
         this.bankAccountService = bankAccountService;
         this.companyService = companyService;
         this.contractService = contractService;
         this.contractorService = contractorService;
         this.contractModalWindow = contractModalWindow;
+        this.notifications = notifications;
         grid = new Grid<>(ContractDto.class);
         paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -67,12 +74,6 @@ public class ContractsView extends VerticalLayout {
         filter = new GridFilter<>(grid);
         configureFilter();
         add(getToolbar(), filter, grid, paginator);
-
-//        GridSortOrder<ContractDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("number"), SortDirection.ASCENDING);
-//        List<GridSortOrder<ContractDto>> gridSortOrderList = new ArrayList<>();
-//        gridSortOrderList.add(gridSortOrder);
-//        grid.sort(gridSortOrderList);
-
         contractModalWindow.addDetachListener(detachEvent -> reloadGrid());
     }
 
@@ -226,10 +227,32 @@ public class ContractsView extends VerticalLayout {
     }
 
     private Select<String> getSelect() {
-        final Select<String> selector = new Select<>();
-        selector.setItems("Изменить");
-        selector.setValue("Изменить");
-        selector.setWidth("130px");
-        return selector;
+        Select<String> select = new Select<>();
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
+        select.setValue("Изменить");
+        select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedInvoices();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(contractService.getAll());
+            }
+        });
+        return select;
+    }
+
+    private void deleteSelectedInvoices() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ContractDto contractDto : grid.getSelectedItems()) {
+                contractService.deleteById(contractDto.getId());
+                notifications.infoNotification("Выбранные заказы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
     }
 }
