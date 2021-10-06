@@ -34,6 +34,9 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,7 +74,7 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
     private void configureGrid() {
         grid.removeAllColumns();
         grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("date");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(4).setHeader("Время").setId("date");
         grid.addColumn(issuedInvoiceDto -> contractorService.getById(issuedInvoiceDto.getContractorId())
                 .getName()).setFlexGrow(10).setHeader("Контрагент").setId("contractor");
         grid.addColumn(issuedInvoiceDto -> companyService.getById(issuedInvoiceDto.getCompanyId())
@@ -105,6 +108,11 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
         } else {
             return new Span("");
         }
+    }
+
+    private static String formatDate(String date) {
+        return LocalDateTime.parse(date)
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
     }
 
     private HorizontalLayout upperLayout() {
