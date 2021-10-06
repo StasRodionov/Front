@@ -52,6 +52,7 @@ public class MovementView extends VerticalLayout {
     private final CompanyService companyService;
     private final MovementProductService movementProductService;
     private final Notifications notifications;
+    private final MovementViewModalWindow view;
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
     private final GridPaginator<MovementDto> paginator;
@@ -64,12 +65,13 @@ public class MovementView extends VerticalLayout {
                         WarehouseService warehouseService,
                         CompanyService companyService,
                         MovementProductService movementProductService,
-                        Notifications notifications) {
+                        Notifications notifications, MovementViewModalWindow view) {
         this.movementService = movementService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.movementProductService = movementProductService;
         this.notifications = notifications;
+        this.view = view;
         List<MovementDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -196,7 +198,9 @@ public class MovementView extends VerticalLayout {
     }
 
     private Button buttonUnit() {
-        return new Button("Перемещение", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button button = new Button("Перемещение", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> button.getUI().ifPresent(ui -> ui.navigate("goods/add_moving")));
+        return button;
     }
 
     private Button buttonFilter() {
