@@ -249,10 +249,10 @@ public class ContractsView extends VerticalLayout {
         if (!grid.getSelectedItems().isEmpty()) {
             for (ContractDto contractDto : grid.getSelectedItems()) {
                 contractService.deleteById(contractDto.getId());
-                notifications.infoNotification("Выбранные заказы успешно удалены");
+                notifications.infoNotification("Выбранные контракты успешно удалены");
             }
         } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+            notifications.errorNotification("Сначала отметьте галочками нужные контракты");
         }
     }
 }
