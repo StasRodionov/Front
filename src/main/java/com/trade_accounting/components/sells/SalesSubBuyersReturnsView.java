@@ -3,7 +3,9 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -27,6 +29,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -43,6 +46,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
+    private final Notifications notifications;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final List<BuyersReturnDto> data;
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
@@ -53,13 +57,16 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
                                      ContractorService contractorService,
                                      CompanyService companyService, ReturnBuyersReturnModalView returnBuyersReturnModalView,
-                                     WarehouseService warehouseService) {
+                                     WarehouseService warehouseService,
+                                     Notifications notifications) {
         this.buyersReturnService = buyersReturnService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.data = buyersReturnService.getAll();
+        this.notifications = notifications;
+
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
                 .setKey("date").setId("Дата");
@@ -185,6 +192,14 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         select.setItems("Изменить", "Удалить", "Массовое редактирование", "Провести", "Снять проведение");
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedBuyersReturn();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
     }
 
@@ -194,5 +209,20 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         status.setValue("Статус");
         status.setWidth("130px");
         return status;
+    }
+
+    private void deleteSelectedBuyersReturn() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (BuyersReturnDto buyersReturnDto : grid.getSelectedItems()) {
+                buyersReturnService.deleteById(buyersReturnDto.getId());
+                notifications.infoNotification("Выбранные заказы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+        }
+    }
+
+    private List<BuyersReturnDto> getData() {
+        return buyersReturnService.getAll();
     }
 }

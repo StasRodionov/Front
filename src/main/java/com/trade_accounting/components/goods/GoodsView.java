@@ -5,6 +5,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
 import com.trade_accounting.services.interfaces.ProductGroupService;
@@ -62,16 +63,20 @@ public class GoodsView extends VerticalLayout {
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridFilter<ProductDto> filter;
     private final GridPaginator<ProductDto> paginator;
+    private final Notifications notifications;
+
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
                      GoodsModalWindow goodsModalWindow,
-                     ServiceModalWindow serviceModalWindow) {
+                     ServiceModalWindow serviceModalWindow,
+                     Notifications notifications) {
         this.grid = new Grid<>(ProductDto.class);
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
         this.serviceModalWindow = serviceModalWindow;
+        this.notifications = notifications;
         treeGrid = getTreeGrid();
         List<ProductDto> data = getData();
         configureGrid();
@@ -300,11 +305,33 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        valueSelect.setWidth(VALUE_SELECT_WIDTH);
-        valueSelect.setItems("Изменить");
-        valueSelect.setValue("Изменить");
-        return valueSelect;
+        Select<String> select = new Select<>();
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
+        select.setValue("Изменить");
+        select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedGoods();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
+        return select;
+    }
+
+    private void deleteSelectedGoods() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ProductDto productDto : grid.getSelectedItems()) {
+                productService.deleteById(productDto.getId());
+                notifications.infoNotification("Выбранные товары успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные товары");
+        }
     }
 
     private Select<String> valueSelectPrint() {

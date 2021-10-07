@@ -1,10 +1,13 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.CorrectionProductDto;
+import com.trade_accounting.models.dto.InventarizationDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CorrectionProductService;
 import com.trade_accounting.services.interfaces.CorrectionService;
@@ -52,6 +55,7 @@ public class PostingTabView extends VerticalLayout {
     private final CompanyService companyService;
     private final CorrectionProductService correctionProductService;
     private Notifications notifications;
+    private final PostingModal modalWindow;
 
     private final List<CorrectionDto> data;
 
@@ -66,12 +70,14 @@ public class PostingTabView extends VerticalLayout {
                           WarehouseService warehouseService,
                           CompanyService companyService,
                           CorrectionProductService correctionProductService,
-                          Notifications notifications) {
+                          Notifications notifications,
+                          PostingModal modalWindow) {
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.correctionProductService = correctionProductService;
         this.notifications = notifications;
+        this.modalWindow = modalWindow;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -97,6 +103,16 @@ public class PostingTabView extends VerticalLayout {
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addItemDoubleClickListener(event -> {
+            CorrectionDto correctionDto = event.getItem();
+            PostingModal postingModal = new PostingModal(
+                    correctionService,
+                    warehouseService,
+                    companyService,
+                    notifications);
+            postingModal.setPostingEdit(correctionDto);
+            postingModal.open();
+        });
     }
 
     private List<CorrectionDto> getData() {
@@ -202,8 +218,11 @@ public class PostingTabView extends VerticalLayout {
     }
 
     private Button buttonUnit() {
-        Button buttonUnit = new Button("Оприходование", new Icon(VaadinIcon.PLUS_CIRCLE));
-        return buttonUnit;
+
+        Button button = new Button("Оприходование", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> modalWindow.open());
+        updateList();
+        return button;
     }
 
     private Button buttonFilter() {
