@@ -1,8 +1,10 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.PriceListDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.PriceListService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -38,6 +40,7 @@ public class GoodsPriceLayout extends VerticalLayout {
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final CompanyService companyService;
     private final PriceModalWindow modalWindow;
+    PriceListService priceListService;
     private final Grid<PriceListDto> grid = new Grid<>(PriceListDto.class, false);
 
     @Autowired
@@ -67,6 +70,15 @@ public class GoodsPriceLayout extends VerticalLayout {
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("commentary").setHeader("Комментарий").setId("Комментарий");
+        grid.addItemDoubleClickListener(event -> {
+            PriceListDto priceListDto = event.getItem();
+            PriceModalWindow view = new PriceModalWindow(
+                    priceListService,
+                    companyService
+            );
+            view.setPostingEdit(priceListDto);
+            view.open();
+        });
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
