@@ -67,6 +67,7 @@ public class ReturnBuyersReturnModalView extends Dialog {
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
         commentConfig.setValue(editDto.getComment());
+
 //        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
     }

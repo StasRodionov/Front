@@ -106,6 +106,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
                     companyService);
             view.setReturnEdit(buyersReturnDto);
             view.open();
+
         });
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
