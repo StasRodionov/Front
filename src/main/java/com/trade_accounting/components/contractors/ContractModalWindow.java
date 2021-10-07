@@ -28,6 +28,9 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
 @SpringComponent
@@ -96,6 +99,16 @@ public class ContractModalWindow extends Dialog {
         if (value != null) {
             field.setValue(value);
         }
+    }
+
+    public void setContractDataForEdit(ContractDto contractDto) {
+        dateField.setValue(LocalDate.parse(contractDto.getDate().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        amountField.setValue(contractDto.getAmount().toString());
+        archiveField.setValue(contractDto.getArchive());
+        commentField.setValue(contractDto.getComment());
+        numberField.setValue(contractDto.getNumber());
+        selectContractor.setValue(contractorService.getById(contractDto.getContractorId()));
+        selectCompany.setValue(companyService.getById(contractDto.getCompanyId()));
     }
 
     private HorizontalLayout header(String titleText) {
