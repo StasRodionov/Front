@@ -7,6 +7,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.IssuedInvoiceService;
+
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
@@ -35,6 +36,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final InvoiceProductService invoiceProductService;
     private final BuyersReturnService buyersReturnService;
     private final IssuedInvoiceService issuedInvoiceService;
+
     private final ProductService productService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
@@ -54,7 +56,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
-                            ReturnBuyersReturnModalView returnBuyersReturnModalView, ProductService productService) {
+
+                            ProductService productService) {
         this.invoiceProductService = invoiceProductService;
         this.issuedInvoiceService = issuedInvoiceService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
@@ -67,6 +70,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.salesSubInvoicesToBuyersView = salesSubInvoicesToBuyersView;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
+
         this.productService = productService;
 
         div = new Div();
