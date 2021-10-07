@@ -112,6 +112,18 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addItemDoubleClickListener(event -> {
+            AcceptanceDto acceptanceDto = event.getItem();
+            AcceptanceModalView modalView = new AcceptanceModalView(
+                    companyService,
+                    acceptanceService,
+                    contractService,
+                    warehouseService,
+                    contractorService,
+                    notifications);
+            modalView.setAcceptanceForEdit(acceptanceDto);
+            modalView.open();
+        });
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
