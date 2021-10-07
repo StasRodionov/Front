@@ -30,8 +30,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -47,7 +45,7 @@ import java.util.List;
 @PageTitle("Прибыльность")
 @SpringComponent
 @UIScope
-public class SalesSubProfitabilityView extends VerticalLayout implements AfterNavigationObserver {
+public class SalesSubProfitabilityView extends VerticalLayout {
     private final CompanyService companyService;
     private final ContractorService contractorService;
     private final InvoiceService invoiceService;
@@ -56,9 +54,12 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
     private final BuyersReturnService buyersReturnService;
 
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
+    private final Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<ContractorDto> paginator;
-    private final GridFilter<ContractorDto> filter;
+    private final GridPaginator<InvoiceProductDto> paginatorProduct;
     private final List<ContractorDto> data;
+    private final List<InvoiceProductDto> dataForProducts;
+    private final GridFilter<ContractorDto> filter;
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService, InvoiceProductService invoiceProductService,
@@ -70,16 +71,66 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
         this.productService = productService;
         this.buyersReturnService = buyersReturnService;
         this.data = getData();
+        this.dataForProducts = getDataForProducts();
         paginator = new GridPaginator<>(grid, data, 50);
+        paginatorProduct = new GridPaginator<>(gridProducts, dataForProducts, 50);
         this.filter = new GridFilter<>(grid);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorProduct);
         add(upperLayout());
-        add(grid, paginator);
+        configureGrid();
+        add(gridProducts, paginatorProduct);
+    }
 
+    private void configureGrid() {
+        gridProducts.setItems(dataForProducts);
+
+        gridProducts.addColumn(iDto -> productService.getById(invoiceProductService.getById(iDto.getId()).getProductId()).getName())
+                .setHeader("Продукт")
+                .setKey("productDto")
+                .setId("Продукт");
+        gridProducts.addColumn(iDto -> productService.getById(invoiceProductService.getById(iDto.getId()).getProductId()).getDescription())
+                .setHeader("Арктикул")
+                .setKey("description")
+                .setId("Арктикул");
+        gridProducts.addColumn(iDto -> invoiceProductService.getById(iDto.getId()).getAmount())
+                .setHeader("Количество")
+                .setKey("amount")
+                .setId("Количество");
+        gridProducts.addColumn(iDto -> invoiceProductService.getById(iDto.getId()).getPrice())
+                .setHeader("Цена")
+                .setKey("price")
+                .setId("Цена");
+        gridProducts.addColumn(iDto -> productService.getById(invoiceProductService.getById(iDto.getId()).getProductId()).getPurchasePrice())
+                .setHeader("Себестоимость")
+                .setKey("costPrice")
+                .setId("Себестоимость");
+        gridProducts.addColumn(iDto -> getTotalPriceForProducts(iDto.getId()))
+                .setHeader("Сумма продаж")
+                .setKey("totalPrice")
+                .setId("Сумма продаж");
+        gridProducts.addColumn(iDto -> getTotalCostPriceForProducts(iDto.getId()))
+                .setHeader("Сумма себестоимости")
+                .setKey("totalCostPrice")
+                .setId("Сумма себестоимости");
+        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts())
+                .setHeader("Сумма возвратов")
+                .setSortable(true);
+        gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId()))
+                .setHeader("Прибыль")
+                .setSortable(true);
+
+        gridProducts.setHeight("100vh");
+        gridProducts.setColumnReorderingAllowed(true);
+        gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private List<ContractorDto> getData() {
         return contractorService.getAll();
+    }
+
+    private List<InvoiceProductDto> getDataForProducts() {
+        return invoiceProductService.getAll();
     }
 
     private HorizontalLayout upperLayout() {
@@ -98,10 +149,17 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
             if ("По товарам".equals(tabName)) {
-
+                remove(grid, paginator);
+                add(gridProducts, paginatorProduct);
+                gridProducts.removeAllColumns();
+                configureGrid();
             } else if ("По сотрудникам".equals(tabName)) {
 
+                //Реализовать прибыльность по сотрудникам
+
             } else if ("По покупателям".equals(tabName)) {
+                remove(gridProducts, paginatorProduct);
+                add(grid, paginator);
                 grid.removeAllColumns();
                 grid.setItems(data);
 
@@ -120,6 +178,45 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
             }
         });
         return tabs;
+    }
+
+    private String getProfitByProducts(Long id) {
+        BigDecimal profit;
+
+        String buyerBuying = getTotalPriceForProducts(id);
+        buyerBuying = buyerBuying.replace(',', '.');
+        String buyersReturn = getTotalReturnPriceForProducts();
+        buyersReturn = buyersReturn.replace(',', '.');
+        String costPrice = getTotalCostPriceForProducts(id);
+        costPrice = costPrice.replace(',', '.');
+
+        profit = new BigDecimal(buyerBuying).subtract(new BigDecimal(costPrice)).subtract(new BigDecimal(buyersReturn));
+        return String.format("%.2f", profit);
+    }
+
+    private String getTotalReturnPriceForProducts() {
+        //Нужно реализовать сумму возврата продуктов.
+        //Дальше в расчете прибыли этот метод учитывается.
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        return String.format("%.2f", totalPrice);
+    }
+
+    private String getTotalCostPriceForProducts(Long id) {
+        BigDecimal totalPrice;
+
+        InvoiceProductDto invoiceProductDto = invoiceProductService.getById(id);
+        totalPrice = productService.getById(invoiceProductDto.getProductId()).getPurchasePrice().multiply(invoiceProductDto.getAmount());
+
+        return String.format("%.2f", totalPrice);
+    }
+
+    private String getTotalPriceForProducts(Long id) {
+        BigDecimal totalPrice;
+
+        InvoiceProductDto invoiceProductDto = invoiceProductService.getById(id);
+        totalPrice = invoiceProductDto.getPrice().multiply(invoiceProductDto.getAmount());
+
+        return String.format("%.2f", totalPrice);
     }
 
     private String getProfit(Long id) {
@@ -170,7 +267,6 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
         for(InvoiceProductDto dto : list2) {
             totalPrice = totalPrice.add(dto.getPrice().multiply(dto.getAmount()));
         }
-
         return String.format("%.2f", totalPrice);
     }
 
@@ -182,7 +278,6 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
         for(BuyersReturnDto dto : list) {
             totalPrice = totalPrice.add(dto.getSum());
         }
-
         return String.format("%.2f", totalPrice);
     }
 
@@ -199,7 +294,9 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
         Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлена прибыль от реализации товаров и услуг. Здесь отображаются товары и услуги из документов розничной продажи и отгрузок за указанный период. Если период не задать, будет показана прибыльность за последний месяц.\n" +
+        dialog.add(new Text("В разделе представлена прибыль от реализации товаров и услуг. Здесь отображаются товары и услуги из документов " +
+                "\n" +
+                "розничной продажи и отгрузок за указанный период. Если период не задать, будет показана прибыльность за последний месяц.\n" +
                 "\n" +
                 "Отчет позволяет оценить рентабельность продукции. Он может быть сформирован по товарам, сотрудникам и покупателям.\n" +
                 "\n" +
@@ -241,10 +338,5 @@ public class SalesSubProfitabilityView extends VerticalLayout implements AfterNa
         Button graphButton = new Button("График");
 //        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return graphButton;
-    }
-
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-
     }
 }
