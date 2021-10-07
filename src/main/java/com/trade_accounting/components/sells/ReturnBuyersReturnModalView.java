@@ -1,11 +1,9 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.*;
 import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -21,6 +19,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @UIScope
@@ -28,10 +28,10 @@ import java.util.List;
 public class ReturnBuyersReturnModalView extends Dialog {
 
     private final ContractorService contractorService;
-    private final ContractService contractService;
+    private final WarehouseService warehouseService;
     private final CompanyService companyService;
 
-    private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
+    private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     public  final  ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final Checkbox chooseReturnBuyersReturn = new Checkbox("Проведено");
@@ -42,13 +42,14 @@ public class ReturnBuyersReturnModalView extends Dialog {
     private       String datePeriod;
     private final DatePicker dateOn = new DatePicker();
     private final DatePicker dateTo = new DatePicker();
+    private BuyersReturnDto buyersReturnDto;
 
 
     public ReturnBuyersReturnModalView(ContractorService contractorService,
-                                          ContractService contractService,
+                                       WarehouseService warehouseService,
                                           CompanyService companyService) {
         this.contractorService = contractorService;
-        this.contractService = contractService;
+        this.warehouseService = warehouseService;
         this.companyService = companyService;
         setSizeFull();
         add(topButtons(), formToAddCommissionAgent());
@@ -61,13 +62,21 @@ public class ReturnBuyersReturnModalView extends Dialog {
         return horizontalLayout;
     }
 
+    public void setReturnEdit(BuyersReturnDto editDto) {
+        this.buyersReturnDto = editDto;
+        warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
+        contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
+        commentConfig.setValue(editDto.getComment());
+//        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
+    }
+
 
 
     private Button save() {
         Button button = new Button("Сохранить");
         button.addClickListener(e -> {
             close();
-
         });
         return button;
     }
@@ -134,7 +143,7 @@ public class ReturnBuyersReturnModalView extends Dialog {
 
     private HorizontalLayout horizontalLayout3() {
         HorizontalLayout hLay3 = new HorizontalLayout();
-        hLay3.add(contractorConfigure(), contractConfigure());
+        hLay3.add(contractorConfigure(), warehouseConfigure());
         return hLay3;
     }
 
@@ -152,17 +161,16 @@ public class ReturnBuyersReturnModalView extends Dialog {
         return horizontalLayout;
     }
 
-    private HorizontalLayout contractConfigure() {
+    private HorizontalLayout warehouseConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        List<ContractDto> contractDtos = contractService.getAll();
-        if(contractDtos !=null) {
-            contractDtoComboBox.setItems(contractDtos);
+        List<WarehouseDto> wareDtos = warehouseService.getAll();
+        if(wareDtos !=null) {
+            warehouseDtoComboBox.setItems(wareDtos);
         }
-        contractDtoComboBox.setItemLabelGenerator(ContractDto::getNumber);
-        contractDtoComboBox.setWidth("350px");
+        warehouseDtoComboBox.setWidth("350px");
         Label label = new Label("Договор");
         label.setWidth("100px");
-        horizontalLayout.add(label,contractDtoComboBox);
+        horizontalLayout.add(label,warehouseDtoComboBox);
         return horizontalLayout;
     }
 
