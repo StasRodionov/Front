@@ -39,6 +39,7 @@ public class PrepayoutModalWindow extends Dialog {
     private final TextField comment = new TextField();
 
     private final PrepayoutService prepayoutService;
+    PrepayoutDto prepayoutDto;
     private PrepayoutDto prepayoutDtoToEdit = new PrepayoutDto();
     private Binder<PrepayoutDto> prepayoutDtoBinder = new Binder<>(PrepayoutDto.class);
 
@@ -153,17 +154,18 @@ public class PrepayoutModalWindow extends Dialog {
         return new HorizontalLayout(label, comment);
     }
 
-    public void setPrepayoutForEdit(PrepayoutDto prepayoutDtoToEdit) {
-        prepayoutDtoToEdit.setDate(date.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        prepayoutDtoToEdit.setRetailStoreId(retailStoreId.getValue().getId());
-        prepayoutDtoToEdit.setContractorId(contractorId.getValue().getId());
-        prepayoutDtoToEdit.setCompanyId(companyId.getValue().getId());
-        prepayoutDtoToEdit.setCash(BigDecimal.valueOf(cash.getValue()));
-        prepayoutDtoToEdit.setCashless(BigDecimal.valueOf(cashless.getValue()));
-        prepayoutDtoToEdit.setSum(BigDecimal.valueOf(sum.getValue()));
-        prepayoutDtoToEdit.setIsSent(isSent.getValue());
-        prepayoutDtoToEdit.setIsPrint(isPrint.getValue());
-        prepayoutDtoToEdit.setComment(comment.getValue());
+    public void setPrepayoutForEdit(PrepayoutDto editDto) {
+        prepayoutDto = editDto;
+        prepayoutDtoToEdit.setDate(editDto.getDate());
+        prepayoutDtoToEdit.setRetailStoreId(editDto.getRetailStoreId());
+        prepayoutDtoToEdit.setContractorId(editDto.getContractorId());
+        prepayoutDtoToEdit.setCompanyId(editDto.getCompanyId());
+        prepayoutDtoToEdit.setCash(editDto.getCash());
+        prepayoutDtoToEdit.setCashless(editDto.getCashless());
+        prepayoutDtoToEdit.setSum(editDto.getSum());
+        prepayoutDtoToEdit.setIsSent(editDto.getIsSent());
+        prepayoutDtoToEdit.setIsPrint(editDto.getIsPrint());
+        prepayoutDtoToEdit.setComment(editDto.getComment());
     }
 
 
