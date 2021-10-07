@@ -19,6 +19,10 @@ public interface BuyersReturnApi {
     Call<List<BuyersReturnDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
+    @GET("{url}/getByContractorId{id}")
+    Call<List<BuyersReturnDto>> getByContractorId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
     @GET("{url}/{id}")
     Call<BuyersReturnDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 

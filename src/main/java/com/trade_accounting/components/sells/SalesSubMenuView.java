@@ -7,6 +7,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.IssuedInvoiceService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -34,6 +35,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final InvoiceProductService invoiceProductService;
     private final BuyersReturnService buyersReturnService;
     private final IssuedInvoiceService issuedInvoiceService;
+    private final ProductService productService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
@@ -52,7 +54,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
-                            ReturnBuyersReturnModalView returnBuyersReturnModalView) {
+                            ReturnBuyersReturnModalView returnBuyersReturnModalView, ProductService productService) {
         this.invoiceProductService = invoiceProductService;
         this.issuedInvoiceService = issuedInvoiceService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
@@ -65,6 +67,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.salesSubInvoicesToBuyersView = salesSubInvoicesToBuyersView;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
+        this.productService = productService;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -131,7 +134,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Прибыльность":
                     div.removeAll();
-                    div.add("SalesSubProfitabilityView");
+                    div.add(new SalesSubProfitabilityView(invoiceService, companyService, contractorService, invoiceProductService, productService, buyersReturnService));
                     break;
                 case "Товары на реализации":
                     div.removeAll();
