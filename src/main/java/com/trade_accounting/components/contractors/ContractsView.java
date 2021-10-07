@@ -128,7 +128,7 @@ public class ContractsView extends VerticalLayout {
                     contractService,
                     contractorService,
                     companyService);
-//            сontractModalWindow.setContractDataForEdit(сontractDto);
+            сontractModalWindow.setContractDataForEdit(сontractDto);
             сontractModalWindow.open();
         });
         grid.setHeight("66vh");

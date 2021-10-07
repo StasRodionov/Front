@@ -102,7 +102,7 @@ public class ContractModalWindow extends Dialog {
     }
 
     public void setContractDataForEdit(ContractDto contractDto) {
-        dateField.setValue(LocalDate.parse(contractDto.getDate().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+//        dateField.setValue(LocalDate.parse(contractDto.getDate().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         amountField.setValue(contractDto.getAmount().toString());
         archiveField.setValue(contractDto.getArchive());
         commentField.setValue(contractDto.getComment());
