@@ -26,6 +26,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -43,6 +44,7 @@ import java.util.List;
 @SpringComponent
 @UIScope
 public class RetailShiftView extends VerticalLayout implements AfterNavigationObserver {
+    private final TextField textField = new TextField();
     private final RetailShiftService retailShiftService;
     private final RetailStoreService retailStoreService;
     private final WarehouseService warehouseService;
@@ -180,13 +182,23 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
     }
 
     private TextField textField() {
-        final TextField textField = new TextField();
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setClearButtonVisible(true);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateListTextField());
+        setSizeFull();
         return textField;
     }
 
+    public void updateListTextField() {
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(retailShiftService.search(textField.getValue()));
+        } else {
+            grid.setItems(retailShiftService.search("null"));
+        }
+    }
 
     private Select<String> getSelect() {
         Select<String> select = new Select<>();
