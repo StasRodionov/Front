@@ -45,7 +45,8 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final List<BuyersReturnDto> data;
-    private final Grid<BuyersReturnDto> grid;
+    private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
+
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
 
@@ -60,8 +61,18 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         this.companyService = companyService;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.data = buyersReturnService.getAll();
-
-        grid = new Grid<>(BuyersReturnDto.class, false);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
+                .setKey("date").setId("Дата");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7).setFlexGrow(7)
+                .setHeader("На склад").setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setFlexGrow(7)
+                .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7)
+                .setHeader("Компания").setKey("companyId").setId("Компания");
+        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
+        grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
+        grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureGrid();
@@ -69,7 +80,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         configureFilter();
         add(getToolbar(), filter, grid, paginator);
     }
-
 
     private void configureGrid() {
         grid.removeAllColumns();
@@ -92,7 +102,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         add(grid, paginator);
-
     }
 
     private HorizontalLayout getToolbar() {
