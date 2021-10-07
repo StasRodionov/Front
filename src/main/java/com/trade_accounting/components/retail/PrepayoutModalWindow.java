@@ -153,6 +153,19 @@ public class PrepayoutModalWindow extends Dialog {
         return new HorizontalLayout(label, comment);
     }
 
+    public void setPrepayoutForEdit(PrepayoutDto prepayoutDtoToEdit) {
+        prepayoutDtoToEdit.setDate(date.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        prepayoutDtoToEdit.setRetailStoreId(retailStoreId.getValue().getId());
+        prepayoutDtoToEdit.setContractorId(contractorId.getValue().getId());
+        prepayoutDtoToEdit.setCompanyId(companyId.getValue().getId());
+        prepayoutDtoToEdit.setCash(BigDecimal.valueOf(cash.getValue()));
+        prepayoutDtoToEdit.setCashless(BigDecimal.valueOf(cashless.getValue()));
+        prepayoutDtoToEdit.setSum(BigDecimal.valueOf(sum.getValue()));
+        prepayoutDtoToEdit.setIsSent(isSent.getValue());
+        prepayoutDtoToEdit.setIsPrint(isPrint.getValue());
+        prepayoutDtoToEdit.setComment(comment.getValue());
+    }
+
 
     private Button getSaveButton() {
         Button saveButton = new Button("Сохранить", event -> {
