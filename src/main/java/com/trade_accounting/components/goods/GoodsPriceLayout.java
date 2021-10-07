@@ -37,11 +37,13 @@ public class GoodsPriceLayout extends VerticalLayout {
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final CompanyService companyService;
+    private final PriceModalWindow modalWindow;
     private final Grid<PriceListDto> grid = new Grid<>(PriceListDto.class, false);
 
     @Autowired
-    public GoodsPriceLayout( CompanyService companyService) {
+    public GoodsPriceLayout( CompanyService companyService, PriceModalWindow modalWindow) {
         this.companyService = companyService;
+        this.modalWindow = modalWindow;
         add(configureActions(),grid);
         configureGrid();
         setSizeFull();
@@ -86,7 +88,13 @@ public class GoodsPriceLayout extends VerticalLayout {
 
     public void updateList() {}
 
-    private Button buttonUnit() {return new Button("Прайс-лист", new Icon(VaadinIcon.PLUS_CIRCLE));}
+    private Button buttonUnit() {
+
+        Button button = new Button("Прайс-лист", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> modalWindow.open());
+        updateList();
+        return button;
+    }
 
     private Button buttonFilter() {
                 return new Button("Фильтр");
