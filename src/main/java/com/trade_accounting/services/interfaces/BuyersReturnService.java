@@ -15,4 +15,6 @@ public interface BuyersReturnService {
     void update(BuyersReturnDto buyersReturnDto);
 
     void deleteById(Long id);
+
+    List<BuyersReturnDto> getByContractorId(Long id);
 }
