@@ -26,6 +26,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -44,6 +45,7 @@ import java.util.List;
 @UIScope
 public class RetailSalesTabView extends VerticalLayout implements AfterNavigationObserver {
 
+    private final TextField textField = new TextField();
     private final RetailSalesService retailSalesService;
     private final RetailStoreService retailStoreService;
     private final CompanyService companyService;
@@ -62,44 +64,52 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
         this.companyService = companyService;
         this.contractorService = contractorService;
         grid.removeAllColumns();
-        grid.addColumn("time").setHeader("Время").setId("Время");
-        grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("Точка продаж");
-        grid.addColumn("contractorId").setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn("companyId").setHeader("Организация").setId("Организация");
-        grid.addColumn("sumCash").setHeader("Сумма нал.").setId("Сумма нал.");
-        grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setId("Сумма безнал.");
-        grid.addColumn("prepayment").setHeader("Сумма предопл.").setId("Предоплата");
-        grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("Скидка");
-        grid.addColumn("sum").setHeader("Итого").setId("Итого");
-
+        configureGrid();
         this.filter = new GridFilter<>(grid);
+        configureFilter();
+
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
         add(upperLayout(), filter, grid, paginator);
-        configureGrid();
     }
 
     private void configureGrid() {
         grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn("time").setHeader("Время").setId("time");
+        grid.addColumn("id").setHeader("№").setId("id");
+        grid.addColumn("sumCash").setHeader("Сумма нал.").setId("Сумма нал.");
+        grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setId("Сумма безнал.");
+        grid.addColumn("prepayment").setHeader("Сумма предопл.").setId("Сумма предопл.");
+        grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("Сумма скидок");
+        grid.addColumn("sum").setHeader("Итого").setId("Итого");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setId("организация");
+        grid.addColumn("time").setHeader("Время").setId("Время");
         grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("retailStoreId");
         grid.addColumn("contractorId").setHeader("Контрагент").setId("contractorId");
-        grid.addColumn("companyId").setHeader("Организация").setId("companyId");
-        grid.addColumn("sumCash").setHeader("Сумма нал.").setId("sumCash");
-        grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setId("sumNonСash");
-        grid.addColumn("prepayment").setHeader("Сумма предопл.").setId("prepayment");
-        grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("sumDiscount");
-        grid.addColumn("sum").setHeader("Итого").setId("sum");
+
         grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setWidth("35px").setKey("sent")
                 .setHeader("Отправлена").setId("Отправлена");
         grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setWidth("35px").setKey("printed")
                 .setHeader("Напечатана").setId("Напечатана");
-        grid.addColumn("comment").setHeader("Комментарий").setId("comment");
 
         GridSortOrder<RetailSalesDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
+    }
+
+    private Button getButtonFilter() {
+        Button filterButton = new Button("Фильтр");
+        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return filterButton;
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+         filter.setFieldToDatePicker("time");
+        filter.onSearchClick(e ->
+                paginator.setData(retailSalesService.searchRetailSales(filter.getFilterData())));
+        filter.onClearClick(e ->
+                paginator.setData(retailSalesService.getAll()));
     }
 
     private Component isSentCheckedIcon(RetailSalesDto retailSalesDto) {
@@ -150,18 +160,13 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
         return buttonRefresh;
     }
 
-    private Button getButtonFilter() {
-        Button filterButton = new Button("Фильтр");
-        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
-        return filterButton;
-    }
 
     private void updateList() {
         GridPaginator<RetailSalesDto> paginatorUpdateList
                 = new GridPaginator<>(grid, retailSalesService.getAll(), 100);
         grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn("time").setHeader("Время").setId("time");
+        grid.addColumn("id").setWidth("30px").setHeader("№").setId("id");
+        grid.addColumn("time").setHeader("Время");
         grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("retailStoreId");
         grid.addColumn("contractorId").setHeader("Контрагент").setId("contractorId");
         grid.addColumn("companyId").setHeader("Организация").setId("companyId");
@@ -171,9 +176,9 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
         grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("sumDiscount");
         grid.addColumn("sum").setHeader("Итого").setId("sum");
         grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setWidth("35px").setKey("sent")
-                .setHeader("Отправлена").setId("Отправлена");
+                .setHeader("Отправлена").setId("sent");
         grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setWidth("35px").setKey("printed")
-                .setHeader("Напечатана").setId("Напечатана");
+                .setHeader("Напечатана").setId("printed");
         grid.addColumn("comment").setHeader("Комментарий").setId("comment");
         GridSortOrder<RetailSalesDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
@@ -194,13 +199,23 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
     }
 
     private TextField textField() {
-        final TextField textField = new TextField();
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setClearButtonVisible(true);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateListTextField());
+        setSizeFull();
         return textField;
     }
 
+    public void updateListTextField() {
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(retailSalesService.search(textField.getValue()));
+        } else {
+            grid.setItems(retailSalesService.search("null"));
+        }
+    }
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
         List<String> listItems = new ArrayList<>();
