@@ -139,15 +139,22 @@ public class ContractorsTabView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
-            ContractorDto editContractorDto = event.getItem();
-            ContractorModalWindow addContractorModalWindowUpdate =
-                    new ContractorModalWindow(editContractorDto,
-                            contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
-                            legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService, addressService,
-                            contactService);
-            addContractorModalWindowUpdate.addDetachListener(e -> updateList());
-            addContractorModalWindowUpdate.setContractorDataForEdit(editContractorDto);
-            addContractorModalWindowUpdate.open();
+            ContractorDto contractorDto = event.getItem();
+            ContractorModalWindow contractorModalWindow = new ContractorModalWindow(
+                    contractorDto,
+                    contractorService,
+                    contractorGroupService,
+                    typeOfContractorService,
+                    typeOfPriceService,
+                    legalDetailService,
+                    contractorStatusService,
+                    departmentService,
+                    employeeService,
+                    bankAccountService,
+                    addressService,
+                    contactService);
+            contractorModalWindow.setContractorDataForEdit(contractorDto);
+            contractorModalWindow.open();
         });
     }
 
