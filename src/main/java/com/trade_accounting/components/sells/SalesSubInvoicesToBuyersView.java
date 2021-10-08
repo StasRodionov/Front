@@ -169,7 +169,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private TextField textField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Номер или компания");
+        textField.setPlaceholder("Номер, склад или компания");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
         textField.setValueChangeMode(ValueChangeMode.EAGER);
