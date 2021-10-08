@@ -17,4 +17,6 @@ public interface BuyersReturnService  {
     void deleteById(Long id);
 
     List<BuyersReturnDto> findBySearch(String search);
+
+    List<BuyersReturnDto> getByContractorId(Long id);
 }
