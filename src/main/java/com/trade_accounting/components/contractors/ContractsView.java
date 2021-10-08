@@ -122,6 +122,15 @@ public class ContractsView extends VerticalLayout {
                 grid.getColumnByKey("number"));
 
 
+        grid.addItemDoubleClickListener(event -> {
+            ContractDto сontractDto = event.getItem();
+            ContractModalWindow сontractModalWindow = new ContractModalWindow(
+                    contractService,
+                    contractorService,
+                    companyService);
+            сontractModalWindow.setContractDataForEdit(сontractDto);
+            сontractModalWindow.open();
+        });
         grid.setHeight("66vh");
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
         grid.addItemDoubleClickListener(event -> {
