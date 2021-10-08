@@ -23,6 +23,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -162,8 +163,10 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private TextField textField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Номер или комментарий");
+        textField.setPlaceholder("Номер, склад или организация");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         textField.setWidth("300px");
         return textField;
     }
@@ -216,6 +219,10 @@ public class SalesSubShipmentView extends VerticalLayout {
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
         System.out.println("Обновлен");
+    }
+
+    private void updateList(String text) {
+        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
 
     private List<InvoiceDto> getData() {

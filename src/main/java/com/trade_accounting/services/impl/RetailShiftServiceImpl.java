@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.RetailShiftDto;
+import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.RetailShiftService;
 import com.trade_accounting.services.interfaces.api.RetailShiftApi;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -20,6 +23,8 @@ public class RetailShiftServiceImpl implements RetailShiftService {
     private final String retailShiftUrl;
 
     private RetailShiftDto retailShiftDto;
+
+    private List<RetailShiftDto> retailShiftDtoList = new ArrayList<>();
 
     private final CallExecuteService<RetailShiftDto> dtoCallExecuteService;
 
@@ -58,5 +63,17 @@ public class RetailShiftServiceImpl implements RetailShiftService {
     public void deleteById(Long id) {
         Call<Void> retailShiftDtoCall = retailShiftApi.deleteById(retailShiftUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(retailShiftDtoCall, RetailShiftDto.class, id);
+    }
+
+    @Override
+    public List<RetailShiftDto> search(String query){
+        Call<List<RetailShiftDto>> retailShiftDtoListCall = retailShiftApi.search(retailShiftUrl, query);
+        try {
+            retailShiftDtoList = retailShiftDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка RetailShiftDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка RetailShiftDto - ", e);
+        }
+        return retailShiftDtoList;
     }
 }

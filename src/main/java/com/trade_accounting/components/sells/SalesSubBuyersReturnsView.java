@@ -5,11 +5,7 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.services.interfaces.BuyersReturnService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.services.interfaces.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -53,6 +49,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
+    ContractService contractService;
 
     @Autowired
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
@@ -102,6 +99,16 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
         grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("Комментарий");
+        grid.addItemDoubleClickListener(event -> {
+            BuyersReturnDto buyersReturnDto = event.getItem();
+            ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(
+                    contractorService,
+                    warehouseService,
+                    companyService);
+            view.setReturnEdit(buyersReturnDto);
+            view.open();
+
+        });
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);

@@ -1,6 +1,8 @@
 server:
   port: 4445
 
+invoice_received_url: api/invoice_received
+
 issued_invoice_url: api/issuedInvoice
 
 prepayment_return_url: api/prepaymentreturn

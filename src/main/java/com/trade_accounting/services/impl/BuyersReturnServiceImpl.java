@@ -34,6 +34,12 @@ public class BuyersReturnServiceImpl implements BuyersReturnService {
     }
 
     @Override
+    public List<BuyersReturnDto> getByContractorId(Long id) {
+        Call<List<BuyersReturnDto>> buyersReturnDtoListCall = buyersReturnApi.getByContractorId(buyersReturnUrl, id);
+        return dtoCallExecuteService.callExecuteBodyList(buyersReturnDtoListCall, BuyersReturnDto.class);
+    }
+
+    @Override
     public List<BuyersReturnDto> getAll() {
         Call<List<BuyersReturnDto>> buyersReturnDtoListCall = buyersReturnApi.getAll(buyersReturnUrl);
         return dtoCallExecuteService.callExecuteBodyList(buyersReturnDtoListCall, BuyersReturnDto.class);

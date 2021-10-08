@@ -24,4 +24,16 @@ public class InvoiceDto {
     private Boolean isSpend;
 
     private String comment;
+
+    @Override
+    public String toString() {
+        return  "Заказ № = " + id +
+                ", Дата ='" + date + '\'' +
+                ", typeOfInvoice ='" + typeOfInvoice + '\'' +
+                ", Организация = " + companyId +
+                ", Контрагент = " + contractorId +
+                ", Склад = " + warehouseId +
+                ", Проведено = " + isSpend +
+                ", Комментарий = '" + comment + '\'';
+    }
 }
