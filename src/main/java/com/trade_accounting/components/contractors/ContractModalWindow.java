@@ -6,9 +6,11 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
@@ -56,13 +58,18 @@ public class ContractModalWindow extends Dialog {
     private final ContractService contractService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
+    private final LegalDetailService legalDetailService;
+    private final BankAccountService bankAccountService;
 
     @Autowired
     public ContractModalWindow(ContractService contractService, ContractorService contractorService,
-                               CompanyService companyService) {
+                               CompanyService companyService, LegalDetailService legalDetailService,
+                               BankAccountService bankAccountService) {
         this.contractService = contractService;
         this.contractorService = contractorService;
         this.companyService = companyService;
+        this.legalDetailService = legalDetailService;
+        this.bankAccountService = bankAccountService;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -163,8 +170,8 @@ public class ContractModalWindow extends Dialog {
         );
         selectCompany.addValueChangeListener(event -> {
             if (selectCompany.getValue() != null) {
-//       TODO         selectBankAccount.setItems(selectCompany.getValue().getBankAccountDto());
-//                selectLegalDetail.setItems(selectCompany.getValue().getLegalDetailDto());
+                selectLegalDetail.setItems(legalDetailService.getById(selectCompany.getValue().getLegalDetailDtoId()));
+                selectBankAccount.setItems(bankAccountService.getAll());
             }
         });
         selectCompany.setWidth(FIELD_WIDTH);
