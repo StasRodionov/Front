@@ -340,4 +340,3 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return graphButton;
     }
 }
-
