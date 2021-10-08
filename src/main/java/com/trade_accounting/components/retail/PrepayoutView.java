@@ -76,6 +76,13 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
                 .setHeader("Напечатана").setId("Напечатана");
         grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("comment");
 
+        grid.addItemDoubleClickListener(event -> {
+            PrepayoutDto prepayoutDto = event.getItem();
+            PrepayoutModalWindow prepayoutModalWindow = new PrepayoutModalWindow(prepayoutService);
+            prepayoutModalWindow.setPrepayoutForEdit(prepayoutDto);
+            prepayoutModalWindow.open();
+        });
+
         GridSortOrder<PrepayoutDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
