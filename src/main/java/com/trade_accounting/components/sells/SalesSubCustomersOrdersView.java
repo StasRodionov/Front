@@ -206,7 +206,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private TextField textField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Номер или комментарий");
+        textField.setPlaceholder("Номер, компания или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
         textField.setValueChangeMode(ValueChangeMode.EAGER);
