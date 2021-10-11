@@ -1,5 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
+import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -18,6 +19,10 @@ public interface InternalOrderApi {
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<InternalOrderDto>> getAll(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")   // добавил
+    @GET("{url}/search/{searchItem}")
+    Call<List<InternalOrderDto>> getAll(@Path(value = "url", encoded = true) String url, @Path("searchItem") String searchItem);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")

@@ -80,6 +80,19 @@ public class InternalOrderServiceImpl implements InternalOrderService {
     }
 
     @Override
+    public List<InternalOrderDto> searchByTerm(String searchItem) {
+        List<InternalOrderDto> internalOrderDtoList = new ArrayList<>();
+        Call<List<InternalOrderDto>> internalOrderDtoListCall = internalOrderApi.getAll(internalOrderUrl, searchItem);
+        try {
+            internalOrderDtoList = internalOrderDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка InternalOrderDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при отправке запроса на получение списка InternalOrderDto: {IOException}", e);
+        }
+        return internalOrderDtoList;
+    }
+
+    @Override
     public List<InternalOrderDto> searchByFilter(Map<String, String> query) {
         List<InternalOrderDto> internalOrderDtoList = new ArrayList<>();
         Call<List<InternalOrderDto>> internalOrderDtoListCall = internalOrderApi.searchByFilter(internalOrderUrl, query);

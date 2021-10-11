@@ -237,12 +237,23 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
 
     private TextField text() {
         textField.setWidth("300px");
-        textField.setPlaceholder("Номер или комментарий");
+        textField.setPlaceholder("Организация, склад или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateTextField());
         setSizeFull();
+
         return textField;
+    }
+
+    private void updateTextField() {
+
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(internalOrderService.searchByTerm(textField.getValue()));
+        } else {
+            grid.setItems(internalOrderService.searchByTerm("null"));
+        }
     }
 
     private NumberField numberField() {
