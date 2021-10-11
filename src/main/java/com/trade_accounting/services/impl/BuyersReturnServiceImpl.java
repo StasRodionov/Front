@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.api.BuyersReturnApi;
@@ -11,6 +12,7 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -78,5 +80,19 @@ public class BuyersReturnServiceImpl implements BuyersReturnService {
     public void deleteById(Long id) {
         Call<Void> buyersReturnDtoCall = buyersReturnApi.deleteById(buyersReturnUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(buyersReturnDtoCall, BuyersReturnDto.class, id);
+    }
+    @Override
+    public List<BuyersReturnDto> findBySearch(String search) {
+        List<BuyersReturnDto> buyersReturnDtoList = new ArrayList<>();
+        Call<List<BuyersReturnDto>> buyersReturnDtoListCall = buyersReturnApi
+                .search(buyersReturnUrl, search.toLowerCase());
+
+        try {
+            buyersReturnDtoList = buyersReturnDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return buyersReturnDtoList;
     }
 }

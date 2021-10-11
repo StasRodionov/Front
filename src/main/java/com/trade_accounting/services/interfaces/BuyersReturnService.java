@@ -4,7 +4,7 @@ import com.trade_accounting.models.dto.BuyersReturnDto;
 
 import java.util.List;
 
-public interface BuyersReturnService {
+public interface BuyersReturnService  {
 
     List<BuyersReturnDto> getAll();
 
@@ -15,6 +15,8 @@ public interface BuyersReturnService {
     void update(BuyersReturnDto buyersReturnDto);
 
     void deleteById(Long id);
+
+    List<BuyersReturnDto> findBySearch(String search);
 
     List<BuyersReturnDto> getByContractorId(Long id);
 }

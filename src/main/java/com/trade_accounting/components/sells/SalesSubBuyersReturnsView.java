@@ -19,6 +19,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -191,7 +192,13 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         return textField;
+    }
+
+    private void updateList(String text) {
+        grid.setItems(buyersReturnService.findBySearch(text));
     }
 
     private Select<String> getSelect() {
