@@ -16,5 +16,7 @@ public interface InternalOrderService {
 
     void deleteById(Long id);
 
+    List<InternalOrderDto> searchByTerm (String searchItem);
+
     List<InternalOrderDto> searchByFilter(Map<String, String> query);
 }
