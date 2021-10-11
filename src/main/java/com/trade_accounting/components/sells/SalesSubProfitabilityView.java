@@ -157,6 +157,9 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
                 //Реализовать прибыльность по сотрудникам
 
+                remove(grid, paginator);
+                remove(gridProducts, paginatorProduct);
+
             } else if ("По покупателям".equals(tabName)) {
                 remove(gridProducts, paginatorProduct);
                 add(grid, paginator);

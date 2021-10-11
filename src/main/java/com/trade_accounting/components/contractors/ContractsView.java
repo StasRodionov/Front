@@ -127,7 +127,9 @@ public class ContractsView extends VerticalLayout {
             ContractModalWindow сontractModalWindow = new ContractModalWindow(
                     contractService,
                     contractorService,
-                    companyService);
+                    companyService,
+                    legalDetailService,
+                    bankAccountService);
             сontractModalWindow.setContractDataForEdit(сontractDto);
             сontractModalWindow.open();
         });
