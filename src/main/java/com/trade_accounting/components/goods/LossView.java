@@ -56,19 +56,23 @@ public class LossView extends VerticalLayout {
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private List<LossDto> data;
+    private final LossModalWindow modalWindow;
 
     @Autowired
     public LossView(LossService lossService,
                     WarehouseService warehouseService,
                     CompanyService companyService,
                     LossProductService lossProductService,
-                    Notifications notifications) {
+                    Notifications notifications,
+                    LossModalWindow modalWindow) {
         this.lossService = lossService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.lossProductService = lossProductService;
         this.notifications = notifications;
-        List<LossDto> data = getData();
+        this.modalWindow = modalWindow;
+        data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
@@ -97,7 +101,7 @@ public class LossView extends VerticalLayout {
     }
 
     private List<LossDto> getData() {
-        return lossService.getAll();
+        return new ArrayList<>(lossService.getAll());
     }
 
     private void deleteSelectedLoss() {
@@ -187,14 +191,21 @@ public class LossView extends VerticalLayout {
     }
 
     public void updateList() {
+        paginator.setData(getData(),false);
     }
 
+
     private Button buttonUnit() {
-        return new Button("Списание", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button button = new Button("Списание", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> modalWindow.open());
+        updateList();
+        return button;
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+
+        Button buttonFilter = new Button("Фильтр");
+        return buttonFilter;
     }
 
     private TextField text() {
