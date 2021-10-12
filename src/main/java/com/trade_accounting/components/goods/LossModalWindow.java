@@ -78,7 +78,7 @@ public class LossModalWindow extends Dialog {
         add(headerLayout(), formLayout());
     }
 
-    public void SetLossEdit(LossDto editDto) {
+    public void setLossEdit(LossDto editDto) {
         this.lossDto = editDto;
         returnNumber.setValue(editDto.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));

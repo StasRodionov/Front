@@ -98,6 +98,12 @@ public class LossView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
+
+        grid.addItemDoubleClickListener(e-> {
+            LossDto dto = e.getItem();
+            modalWindow.setLossEdit(dto);
+            modalWindow.open();
+        });
     }
 
     private List<LossDto> getData() {
