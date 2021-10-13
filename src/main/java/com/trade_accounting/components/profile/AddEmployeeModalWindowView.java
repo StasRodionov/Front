@@ -2,11 +2,15 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.ValidTextField;
+import com.trade_accounting.models.dto.DepartmentDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.models.dto.PositionDto;
 import com.trade_accounting.models.dto.RoleDto;
+import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
+import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RoleService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -58,6 +62,10 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private final Select<RoleDto> rolesSelect = new Select<>();
 
+    private final Select<DepartmentDto> departmentDtoSelect = new Select<>();
+
+    private final Select<PositionDto> positionDtoSelect = new Select<>();
+
     private final String labelWidth = "100px";
 
     private final String fieldWidth = "400px";
@@ -69,6 +77,10 @@ public class AddEmployeeModalWindowView extends Dialog {
     private final RoleService roleService;
 
     private final ImageService imageService;
+
+    private final DepartmentService departmentService;
+
+    private final PositionService positionService;
 
     private final Notifications notifications;
 
@@ -86,10 +98,14 @@ public class AddEmployeeModalWindowView extends Dialog {
                                       EmployeeService employeeService,
                                       RoleService roleService,
                                       ImageService imageService,
-                                      ImageDto imageDto, Notifications notifications) {
+                                      ImageDto imageDto, Notifications notifications,
+                                      DepartmentService departmentService,
+                                      PositionService positionService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         this.imageService = imageService;
+        this.departmentService = departmentService;
+        this.positionService = positionService;
         this.notifications = notifications;
         div = new Div();
         if (employeeDto != null) {
@@ -103,6 +119,8 @@ public class AddEmployeeModalWindowView extends Dialog {
             innAdd.setValue(getFieldValueNotNull(employeeDto.getInn()));
             descriptionAdd.setValue(getFieldValueNotNull(employeeDto.getDescription()));
             passwordAdd.setValue(getFieldValueNotNull(employeeDto.getPassword()));
+            departmentDtoSelect.setValue(departmentService.getById(employeeDto.getDepartmentDtoId()));
+            positionDtoSelect.setValue(positionService.getById(employeeDto.getPositionDtoId()));
             roles = employeeDto.getRoleDtoIds().stream().map(map -> roleService.getById(map)).collect(Collectors.toSet());
         }
         this.imageDto = imageDto;
@@ -138,10 +156,42 @@ public class AddEmployeeModalWindowView extends Dialog {
                 addEmployeeDescription(),
                 addEmployeePassword(),
                 rolesSelect(),
-                addEmployeeImage()
+                addEmployeeImage(),
+                departmentSelect(),
+                positionSelect()
         );
         add(div);
         return lowerLayout;
+    }
+
+    private HorizontalLayout positionSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        List<PositionDto> positionDtoList = positionService.getAll();
+
+        positionDtoSelect.setItemLabelGenerator(PositionDto::getName);
+        positionDtoSelect.setItems(positionDtoList);
+        positionDtoSelect.setWidth(fieldWidth);
+        positionDtoSelect.setPlaceholder("Введите позицию");
+        Label label = new Label("Позиция");
+        label.setWidth(labelWidth);
+        horizontalLayout.add(label, positionDtoSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout departmentSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        List<DepartmentDto> DepartmentDtoList = departmentService.getAll();
+
+        departmentDtoSelect.setItemLabelGenerator(DepartmentDto::getName);
+        departmentDtoSelect.setItems(DepartmentDtoList);
+        departmentDtoSelect.setWidth(fieldWidth);
+        departmentDtoSelect.setPlaceholder("Введите отдел");
+        Label label = new Label("Отдел");
+        label.setWidth(labelWidth);
+        horizontalLayout.add(label, departmentDtoSelect);
+        return horizontalLayout;
     }
 
     private Component addEmployeeImage() {
@@ -322,6 +372,8 @@ public class AddEmployeeModalWindowView extends Dialog {
         updateEmployeeDto.setPassword(passwordAdd.getValue());
         updateEmployeeDto.setRoleDtoIds(getRoles().stream().map(RoleDto::getId).collect(Collectors.toSet()));
         updateEmployeeDto.setImageDtoId(imageDto.getId());
+        updateEmployeeDto.setDepartmentDtoId(departmentDtoSelect.getValue().getId());
+        updateEmployeeDto.setPositionDtoId(positionDtoSelect.getValue().getId());
         return updateEmployeeDto;
     }
 
