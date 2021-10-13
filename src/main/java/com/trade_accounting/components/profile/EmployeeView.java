@@ -117,7 +117,9 @@ public class EmployeeView extends VerticalLayout {
                             roleService,
                             imageService,
                             imageDto,
-                            notifications);
+                            notifications,
+                            departmentService,
+                            positionService);
             addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
             addEmployeeModalWindowView.open();
         });
@@ -152,7 +154,9 @@ public class EmployeeView extends VerticalLayout {
                             roleService,
                             imageService,
                             new ImageDto(),
-                            notifications);
+                            notifications,
+                            departmentService,
+                            positionService);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
