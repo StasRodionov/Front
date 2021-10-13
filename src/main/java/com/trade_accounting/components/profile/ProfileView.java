@@ -6,15 +6,16 @@ import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CurrencyService;
+import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RoleService;
 import com.trade_accounting.services.interfaces.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -40,10 +41,13 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final Div divMenu;
     private final TypeOfContractorService typeOfContractorService;
     private final BankAccountService bankAccountService;
+    private final DepartmentService departmentService;
+    private final PositionService positionService;
 
     public ProfileView(Notifications notifications, UnitService unitService, CompanyService companyService,
                        AddressService addressService, LegalDetailService legalDetailService, EmployeeService employeeService, WarehouseService warehouseService,
-                       CurrencyService currencyService, RoleService roleService, ImageService imageService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService) {
+                       CurrencyService currencyService, RoleService roleService, ImageService imageService, TypeOfContractorService typeOfContractorService,
+                       BankAccountService bankAccountService, DepartmentService departmentService, PositionService positionService) {
         this.notifications = notifications;
         this.unitService = unitService;
         this.companyService = companyService;
@@ -56,6 +60,8 @@ public class ProfileView extends Div implements AfterNavigationObserver {
         this.imageService = imageService;
         this.typeOfContractorService = typeOfContractorService;
         this.bankAccountService = bankAccountService;
+        this.departmentService = departmentService;
+        this.positionService = positionService;
         div = new Div();
         divMenu = new Div();
         add(divMenu, div);
@@ -94,7 +100,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                     break;
                 case "Сотрудники":
                     div.removeAll();
-                    div.add(new EmployeeView(employeeService, roleService, imageService, notifications));
+                    div.add(new EmployeeView(employeeService, roleService, imageService, notifications, departmentService, positionService));
                     break;
                 case "Склады":
                     div.removeAll();

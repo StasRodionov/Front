@@ -5,6 +5,7 @@ import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -42,14 +43,16 @@ public class RetailStoreModalWindow extends Dialog {
     private final RetailStoreService retailStoreService;
     private final CompanyService companyService;
     private final EmployeeService employeeService;
+    private final PositionService positionService;
     private RetailStoreDto retailStoreDtoToEdit = new RetailStoreDto();
     private Binder<RetailStoreDto> retailStoreDtoBinder = new Binder<>(RetailStoreDto.class);
 
     public RetailStoreModalWindow(RetailStoreService retailStoreService, CompanyService companyService,
-                                  EmployeeService employeeService) {
+                                  EmployeeService employeeService, PositionService positionService) {
         this.retailStoreService = retailStoreService;
         this.companyService = companyService;
         this.employeeService = employeeService;
+        this.positionService = positionService;
         add(header());
         add(lowerLayout());
         setCloseOnOutsideClick(true);
@@ -136,7 +139,7 @@ public class RetailStoreModalWindow extends Dialog {
         Label label = new Label("Кассиры");
         label.setWidth(labelWidth);
         List<EmployeeDto> cashierEmployees = employeeService.getAll().stream().
-                filter(e -> (e.getPositionDto().getName().equals("Кассир"))).collect(Collectors.toList());
+                filter(e -> (positionService.getById(e.getPositionDtoId()).getName().equals("Кассир"))).collect(Collectors.toList());
         cashiers.setItems(cashierEmployees);
         cashiers.setWidth(fieldWidth);
         return new HorizontalLayout(label, cashiers);

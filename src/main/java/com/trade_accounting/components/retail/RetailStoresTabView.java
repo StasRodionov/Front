@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -41,17 +42,21 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     private final EmployeeService employeeService;
     private final RetailStoreModalWindow retailStoreModalWindow;
     private List<RetailStoreDto> data;
+    private final PositionService positionService;
 
     private final Grid<RetailStoreDto> grid = new Grid<>(RetailStoreDto.class, false);
     private final GridPaginator<RetailStoreDto> paginator;
 
     public RetailStoresTabView(RetailStoreService retailStoreService,
-                               CompanyService companyService, EmployeeService employeeService) {
+                               CompanyService companyService, EmployeeService employeeService,
+                               PositionService positionService) {
         this.retailStoreService = retailStoreService;
         this.data = retailStoreService.getAll();
         this.companyService = companyService;
         this.employeeService = employeeService;
-        this.retailStoreModalWindow = new RetailStoreModalWindow(retailStoreService, companyService, employeeService);
+        this.positionService = positionService;
+        this.retailStoreModalWindow = new RetailStoreModalWindow(retailStoreService, companyService, employeeService,
+                                    positionService);
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -127,7 +132,7 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     private Button buttonCreate() {
         Button createRetailStoreButton = new Button("Точка продаж", new Icon(VaadinIcon.PLUS_CIRCLE));
         RetailStoreModalWindow retailStoreModalWindow =
-                new RetailStoreModalWindow(retailStoreService, companyService, employeeService);
+                new RetailStoreModalWindow(retailStoreService, companyService, employeeService, positionService);
         createRetailStoreButton.addClickListener(e -> {
             retailStoreModalWindow.addDetachListener(event -> updateList());
             retailStoreModalWindow.open();
