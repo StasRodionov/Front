@@ -186,7 +186,7 @@ public class ProfileSettingsView extends VerticalLayout {
         List<PositionDto> positions = positionService.getAll();
         position.setItems(positions);
         position.setItemLabelGenerator(PositionDto::getName);
-        position.setValue(employeeService.getPrincipal().getPositionDto());
+        position.setValue(positionService.getById(employeeService.getPrincipal().getPositionDtoId()));
         HorizontalLayout positionLayout = new HorizontalLayout(label, position);
         return positionLayout;
     }
@@ -208,7 +208,7 @@ public class ProfileSettingsView extends VerticalLayout {
         updateEmployeeDto.setLastName(lastName.getValue());
         updateEmployeeDto.setMiddleName(middleName.getValue());
         updateEmployeeDto.setEmail(email.getValue());
-        updateEmployeeDto.setPositionDto(position.getValue());
+        updateEmployeeDto.setPositionDtoId(position.getValue().getId());
         updateEmployeeDto.setInn(inn.getValue());
         updateEmployeeDto.setPhone(phone.getValue());
         return updateEmployeeDto;

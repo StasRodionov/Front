@@ -2,13 +2,17 @@ package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import java.util.Set;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeDto {
@@ -35,13 +39,13 @@ public class EmployeeDto {
 
     private String password;
 
-    private DepartmentDto departmentDto;
+    private Long departmentDtoId;
 
-    private PositionDto positionDto;
+    private Long positionDtoId;
 
-    private Set<RoleDto> roleDto;
+    private Set<Long> roleDtoIds;
 
-    private ImageDto imageDto;
+    private Long imageDtoId;
 
     @Override
     public String toString() {

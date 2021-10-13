@@ -41,13 +41,14 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final PrepayoutService prepayoutService;
     private final PrepaymentReturnService prepaymentReturnService;
     private final WarehouseService warehouseService;
+    private final PositionService positionService;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
                       CompanyService companyService, EmployeeService employeeService,
                       PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
                       RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService, RetailCloudCheckService retailCloudCheckService,
-                      CurrencyService currencyService, PrepayoutService prepayoutService, PrepaymentReturnService prepaymentReturnService, WarehouseService warehouseService) {
+                      CurrencyService currencyService, PrepayoutService prepayoutService, PrepaymentReturnService prepaymentReturnService, WarehouseService warehouseService, PositionService positionService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -68,6 +69,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.prepayoutService = prepayoutService;
         this.prepaymentReturnService = prepaymentReturnService;
         this.warehouseService = warehouseService;
+        this.positionService = positionService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -75,7 +77,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService));
+        div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService, positionService));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -106,7 +108,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Точки продаж":
                     div.removeAll();
-                    div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService));
+                    div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService, positionService));
                     break;
                 case "Смены":
                     div.removeAll();

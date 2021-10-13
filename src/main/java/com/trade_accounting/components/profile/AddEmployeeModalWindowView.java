@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class AddEmployeeModalWindowView extends Dialog {
@@ -102,7 +103,7 @@ public class AddEmployeeModalWindowView extends Dialog {
             innAdd.setValue(getFieldValueNotNull(employeeDto.getInn()));
             descriptionAdd.setValue(getFieldValueNotNull(employeeDto.getDescription()));
             passwordAdd.setValue(getFieldValueNotNull(employeeDto.getPassword()));
-            roles = employeeDto.getRoleDto();
+            roles = employeeDto.getRoleDtoIds().stream().map(map -> roleService.getById(map)).collect(Collectors.toSet());
         }
         this.imageDto = imageDto;
 
@@ -319,8 +320,8 @@ public class AddEmployeeModalWindowView extends Dialog {
         updateEmployeeDto.setPhone(phoneAdd.getValue());
         updateEmployeeDto.setDescription(descriptionAdd.getValue());
         updateEmployeeDto.setPassword(passwordAdd.getValue());
-        updateEmployeeDto.setRoleDto(getRoles());
-        updateEmployeeDto.setImageDto(imageDto);
+        updateEmployeeDto.setRoleDtoIds(getRoles().stream().map(RoleDto::getId).collect(Collectors.toSet()));
+        updateEmployeeDto.setImageDtoId(imageDto.getId());
         return updateEmployeeDto;
     }
 

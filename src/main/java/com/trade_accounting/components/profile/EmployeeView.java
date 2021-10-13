@@ -6,17 +6,16 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
+import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RoleService;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -25,35 +24,37 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "employee", layout = AppView.class)
 @PageTitle("Сотрудники")
 public class EmployeeView extends VerticalLayout {
 
-    private final Grid<EmployeeDto> grid;
+    private final Grid<EmployeeDto> grid = new Grid<>(EmployeeDto.class, false);
     private final EmployeeService employeeService;
     private final RoleService roleService;
     private final ImageService imageService;
+    private final DepartmentService departmentService;
+    private final PositionService positionService;
     private final GridFilter<EmployeeDto> filter;
     private final GridPaginator<EmployeeDto> paginator;
     private final Notifications notifications;
 
-    public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService, Notifications notifications) {
+    public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService, Notifications notifications,
+                        DepartmentService departmentService, PositionService positionService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         this.imageService = imageService;
+        this.departmentService = departmentService;
+        this.positionService = positionService;
         this.notifications = notifications;
-        this.grid = new Grid<>(EmployeeDto.class);
         List<EmployeeDto> data = getData();
         configureGrid();
         this.filter = new GridFilter<>(grid);
@@ -73,32 +74,42 @@ public class EmployeeView extends VerticalLayout {
 
     private void configureGrid() {
         grid.removeAllColumns();
-        grid.addColumn("lastName").setHeader("Фамилия").setId("Фамилия");
-        Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
-            @Override
-            public Component createComponent(EmployeeDto item) {
-                ImageDto imageDto = item.getImageDto();
-                if (imageDto != null) {
-                    Image image = new Image(new StreamResource("image", () ->
-                            new ByteArrayInputStream(imageDto.getContent())), "");
-                    image.setHeight("48px");
+        grid.addColumn(EmployeeDto::getLastName).setHeader("Фамилия").setId("Фамилия");
 
-                    return image;
-                }
-                return new Label();
-            }
-        }).setHeader("Фото");
-        photoColumn.setKey("imageDto").setId("Фото");
-        grid.addColumn("firstName").setHeader("Имя").setId("Имя");
-        grid.addColumn("middleName").setHeader("Отчество").setId("Отчество");
-        grid.addColumn("email").setHeader("E-mail").setId("E-mail");
-        grid.addColumn("phone").setHeader("Телефон").setId("Телефон");
-        grid.addColumn("description").setHeader("Описание").setId("Описание");
-        grid.addColumn("roleDto").setHeader("Роль").setId("Роль");
+        // Нужно добавить фотографию при инициализации сотрудника
+
+//        Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
+//            @Override
+//            public Component createComponent(EmployeeDto item) {
+//                ImageDto imageDto = imageService.getById(item.getImageDtoId());
+//                if (imageDto != null) {
+//                    Image image = new Image(new StreamResource("image", () ->
+//                            new ByteArrayInputStream(imageDto.getContent())), "");
+//                    image.setHeight("48px");
+//
+//                    return image;
+//                }
+//                return new Label();
+//            }
+//        }).setHeader("Фото");
+//        photoColumn.setKey("imageDto").setId("Фото");
+        grid.addColumn(EmployeeDto::getFirstName).setHeader("Имя").setId("Имя");
+        grid.addColumn(EmployeeDto::getMiddleName).setHeader("Отчество").setId("Отчество");
+        grid.addColumn(EmployeeDto::getEmail).setHeader("E-mail").setId("E-mail");
+        grid.addColumn(EmployeeDto::getPhone).setHeader("Телефон").setId("Телефон");
+        grid.addColumn(EmployeeDto::getDescription).setHeader("Описание").setId("Описание");
+        grid.addColumn(employeeDto -> (departmentService.getById(employeeDto.getDepartmentDtoId()).getName()))
+                .setHeader("Отдел").setId("Отдел");
+        grid.addColumn(employeeDto -> (employeeDto.getRoleDtoIds().stream()
+                .map(map -> roleService.getById(map).getName())
+                .collect(Collectors.toSet())))
+                .setHeader("Роль").setId("Роль");
+        grid.addColumn(employeeDto -> (positionService.getById(employeeDto.getPositionDtoId()).getName()))
+                .setHeader("Должность").setId("Должность");
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
-            ImageDto imageDto = employeeDto.getImageDto();
+            ImageDto imageDto = imageService.getById(employeeDto.getImageDtoId());
             AddEmployeeModalWindowView addEmployeeModalWindowView =
                     new AddEmployeeModalWindowView(
                             employeeDto,
