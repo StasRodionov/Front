@@ -1,5 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
+import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -9,6 +10,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 import java.util.List;
 
@@ -33,4 +35,9 @@ public interface WarehouseApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByString")
+    Call<List<WarehouseDto>> searchByString(@Path(value = "url", encoded = true) String url,
+                                           @Query("search") String text);
 }

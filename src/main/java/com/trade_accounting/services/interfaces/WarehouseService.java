@@ -15,4 +15,6 @@ public interface WarehouseService {
     void update(WarehouseDto warehouseDto);
 
     void deleteById(Long id);
+
+    List<WarehouseDto> findBySearch(String search);
 }

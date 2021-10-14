@@ -106,16 +106,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDto> findBySearch(String search) {
-        List<EmployeeDto> EmployeeDtoList = new ArrayList<>();
-        Call<List<EmployeeDto>> EmployeeDtoListCall = employeeApi
+        List<EmployeeDto> employeeDtoList = new ArrayList<>();
+        Call<List<EmployeeDto>> employeeDtoListCall = employeeApi
                 .searchByString(employeeUrl, search.toLowerCase());
 
         try {
-            EmployeeDtoList = EmployeeDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+            employeeDtoList = employeeDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка сотрудников");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка сотрудников - ", e);
         }
-        return EmployeeDtoList;
+        return employeeDtoList;
     }
 }
