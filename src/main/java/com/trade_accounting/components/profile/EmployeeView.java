@@ -69,6 +69,7 @@ public class EmployeeView extends VerticalLayout {
         this.filter = new GridFilter<>(grid);
         this.paginator = new GridPaginator<>(grid, data, 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureFilter();
         add(upperLayout(), filter, grid, paginator);
     }
 
@@ -81,10 +82,13 @@ public class EmployeeView extends VerticalLayout {
         log.info("Таблица обновилась");
     }
 
+    private void configureFilter() {
+        filter.onSearchClick(e -> paginator.setData(employeeService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(employeeService.getAll()));
+    }
+
     private void configureGrid() {
         grid.removeAllColumns();
-        grid.addColumn(EmployeeDto::getLastName).setHeader("Фамилия").setId("Фамилия");
-
         Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
             @Override
             public Component createComponent(EmployeeDto item) {
@@ -100,19 +104,20 @@ public class EmployeeView extends VerticalLayout {
             }
         }).setHeader("Фото");
         photoColumn.setKey("imageDto").setId("Фото");
-        grid.addColumn(EmployeeDto::getFirstName).setHeader("Имя").setId("Имя");
-        grid.addColumn(EmployeeDto::getMiddleName).setHeader("Отчество").setId("Отчество");
-        grid.addColumn(EmployeeDto::getEmail).setHeader("E-mail").setId("E-mail");
-        grid.addColumn(EmployeeDto::getPhone).setHeader("Телефон").setId("Телефон");
-        grid.addColumn(EmployeeDto::getDescription).setHeader("Описание").setId("Описание");
+        grid.addColumn(EmployeeDto::getLastName).setKey("lastName").setHeader("Фамилия").setId("Фамилия");
+        grid.addColumn(EmployeeDto::getFirstName).setKey("firstName").setHeader("Имя").setId("Имя");
+        grid.addColumn(EmployeeDto::getMiddleName).setKey("middleName").setHeader("Отчество").setId("Отчество");
+        grid.addColumn(EmployeeDto::getEmail).setKey("email").setHeader("E-mail").setId("E-mail");
+        grid.addColumn(EmployeeDto::getPhone).setKey("phone").setHeader("Телефон").setId("Телефон");
+        grid.addColumn(EmployeeDto::getDescription).setKey("description").setHeader("Описание").setId("Описание");
         grid.addColumn(employeeDto -> (departmentService.getById(employeeDto.getDepartmentDtoId()).getName()))
-                .setHeader("Отдел").setId("Отдел");
+                .setKey("department").setHeader("Отдел").setId("Отдел");
+        grid.addColumn(employeeDto -> (positionService.getById(employeeDto.getPositionDtoId()).getName()))
+                .setKey("position").setHeader("Должность").setId("Должность");
         grid.addColumn(employeeDto -> (employeeDto.getRoleDtoIds().stream()
                 .map(map -> roleService.getById(map).getName())
                 .collect(Collectors.toSet())))
                 .setHeader("Роль").setId("Роль");
-        grid.addColumn(employeeDto -> (positionService.getById(employeeDto.getPositionDtoId()).getName()))
-                .setHeader("Должность").setId("Должность");
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
