@@ -6,6 +6,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
@@ -198,19 +199,36 @@ public class EmployeeView extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
-        valueSelect.setItems("","Изменить", "Удалить");
-        valueSelect.setValue("");
-        if (valueSelect.getValue().equals("Изменить")) {
-            notifications.infoNotification("Сотрудник успешно изменен");
-            valueSelect.setPlaceholder("");
-        }
+        valueSelect.setItems("Выберите действие", "Удалить");
+        valueSelect.setValue("Выберите действие");
+        valueSelect.addValueChangeListener(event -> {
+
         if (valueSelect.getValue().equals("Удалить")) {
-            notifications.infoNotification("Сотрудник успешно удален");
+            deleteSelectedInternalOrders();
+            grid.deselectAll();
+            valueSelect.setValue("Выберите действие");
+            paginator.setData(getData());
             valueSelect.setPlaceholder("");
         }
+        });
 
         valueSelect.setWidth("130px");
         return valueSelect;
+    }
+
+    private void deleteSelectedInternalOrders() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (EmployeeDto employeeDto : grid.getSelectedItems()) {
+                employeeService.deleteById(employeeDto.getId());
+            }
+            if (grid.getSelectedItems().size() == 1) {
+                notifications.infoNotification("Выбранный сотрудник успешно удален");
+            } else if (grid.getSelectedItems().size() > 1) {
+                notifications.infoNotification("Выбранные сотрудники успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужных сотрудников");
+        }
     }
 
     private HorizontalLayout upperLayout() {
