@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.PageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -101,5 +102,20 @@ public class EmployeeServiceImpl implements EmployeeService {
             log.error("Произошла ошибка при выполнении запроса информации о работнике");
         }
         return employeeDto;
+    }
+
+    @Override
+    public List<EmployeeDto> findBySearch(String search) {
+        List<EmployeeDto> EmployeeDtoList = new ArrayList<>();
+        Call<List<EmployeeDto>> EmployeeDtoListCall = employeeApi
+                .searchByString(employeeUrl, search.toLowerCase());
+
+        try {
+            EmployeeDtoList = EmployeeDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return EmployeeDtoList;
     }
 }

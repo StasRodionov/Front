@@ -194,7 +194,12 @@ public class EmployeeView extends VerticalLayout {
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
         text.setValueChangeMode(ValueChangeMode.EAGER);
+        text.addValueChangeListener(event -> updateList(text.getValue()));
         return text;
+    }
+
+    private void updateList(String text) {
+        grid.setItems(employeeService.findBySearch(text));
     }
 
     private H2 title() {

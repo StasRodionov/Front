@@ -1,5 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
+import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.PageDto;
 import retrofit2.Call;
@@ -53,4 +54,9 @@ public interface EmployeeApi {
     @Headers("Accept: application/json")
     @GET("{url}/profile")
     Call<EmployeeDto> getPrincipal(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByString")
+    Call<List<EmployeeDto>> searchByString(@Path(value = "url", encoded = true) String url,
+                                       @Query("search") String text);
 }
