@@ -12,11 +12,14 @@ import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RoleService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -25,11 +28,14 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +53,8 @@ public class EmployeeView extends VerticalLayout {
     private final GridFilter<EmployeeDto> filter;
     private final GridPaginator<EmployeeDto> paginator;
     private final Notifications notifications;
+    private String addTitle = "Добавление сотрудника";
+    private String editTitle = "Изменение сотрудника";
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService, Notifications notifications,
                         DepartmentService departmentService, PositionService positionService) {
@@ -77,23 +85,21 @@ public class EmployeeView extends VerticalLayout {
         grid.removeAllColumns();
         grid.addColumn(EmployeeDto::getLastName).setHeader("Фамилия").setId("Фамилия");
 
-        // Нужно добавить фотографию при инициализации сотрудника
+        Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
+            @Override
+            public Component createComponent(EmployeeDto item) {
+                ImageDto imageDto = imageService.getById(item.getImageDtoId());
+                if (imageDto != null) {
+                    Image image = new Image(new StreamResource("image", () ->
+                            new ByteArrayInputStream(imageDto.getContent())), "");
+                    image.setHeight("48px");
 
-//        Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
-//            @Override
-//            public Component createComponent(EmployeeDto item) {
-//                ImageDto imageDto = imageService.getById(item.getImageDtoId());
-//                if (imageDto != null) {
-//                    Image image = new Image(new StreamResource("image", () ->
-//                            new ByteArrayInputStream(imageDto.getContent())), "");
-//                    image.setHeight("48px");
-//
-//                    return image;
-//                }
-//                return new Label();
-//            }
-//        }).setHeader("Фото");
-//        photoColumn.setKey("imageDto").setId("Фото");
+                    return image;
+                }
+                return new Label();
+            }
+        }).setHeader("Фото");
+        photoColumn.setKey("imageDto").setId("Фото");
         grid.addColumn(EmployeeDto::getFirstName).setHeader("Имя").setId("Имя");
         grid.addColumn(EmployeeDto::getMiddleName).setHeader("Отчество").setId("Отчество");
         grid.addColumn(EmployeeDto::getEmail).setHeader("E-mail").setId("E-mail");
@@ -120,7 +126,8 @@ public class EmployeeView extends VerticalLayout {
                             imageDto,
                             notifications,
                             departmentService,
-                            positionService);
+                            positionService,
+                            editTitle);
             addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
             addEmployeeModalWindowView.open();
         });
@@ -154,10 +161,11 @@ public class EmployeeView extends VerticalLayout {
                             employeeService,
                             roleService,
                             imageService,
-                            new ImageDto(),
+                            imageService.getById(1L),
                             notifications,
                             departmentService,
-                            positionService);
+                            positionService,
+                            addTitle);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
@@ -204,7 +212,7 @@ public class EmployeeView extends VerticalLayout {
         valueSelect.addValueChangeListener(event -> {
 
         if (valueSelect.getValue().equals("Удалить")) {
-            deleteSelectedInternalOrders();
+            deleteSelectedEmployees();
             grid.deselectAll();
             valueSelect.setValue("Выберите действие");
             paginator.setData(getData());
@@ -216,7 +224,7 @@ public class EmployeeView extends VerticalLayout {
         return valueSelect;
     }
 
-    private void deleteSelectedInternalOrders() {
+    private void deleteSelectedEmployees() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (EmployeeDto employeeDto : grid.getSelectedItems()) {
                 employeeService.deleteById(employeeDto.getId());
