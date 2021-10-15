@@ -1,6 +1,5 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.trade_accounting.services.interfaces.api.WarehouseApi;
@@ -13,6 +12,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -65,6 +65,19 @@ public class WarehouseServiceImpl implements WarehouseService {
         Call<List<WarehouseDto>> warehouseDtoListCall = warehouseApi
                 .searchByString(warehouseUrl, search.toLowerCase());
 
+        try {
+            warehouseDtoList = warehouseDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка складов");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка складов - ", e);
+        }
+        return warehouseDtoList;
+    }
+
+    @Override
+    public List<WarehouseDto> search(Map<String, String> query) {
+        List<WarehouseDto> warehouseDtoList = new ArrayList<>();
+        Call<List<WarehouseDto>> warehouseDtoListCall = warehouseApi.search(warehouseUrl, query);
         try {
             warehouseDtoList = warehouseDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение списка складов");

@@ -102,7 +102,9 @@ public class WareHouseModalWindow extends Dialog {
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
             WarehouseDto newWarehouseDto = new WarehouseDto();
-            newWarehouseDto.setId(id);
+            if (id != null) {
+                newWarehouseDto.setId(id);
+            }
             newWarehouseDto.setName(nameField.getValue());
             newWarehouseDto.setAddress(addressField.getValue());
             newWarehouseDto.setCommentToAddress(commentToAddressField.getValue());
