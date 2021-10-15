@@ -18,4 +18,6 @@ public interface UnitService {
     void deleteById(Long id);
 
     List<UnitDto> search(Map<String, String> query);
+
+    List<UnitDto> findBySearch(String search);
 }

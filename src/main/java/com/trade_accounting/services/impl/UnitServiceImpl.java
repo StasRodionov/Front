@@ -69,8 +69,23 @@ public class UnitServiceImpl implements UnitService {
             uitDtoList = uitDtoListListCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение списка единиц измерения");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка идиниц измерения - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка eдиниц измерения - ", e);
         }
         return uitDtoList;
+    }
+
+    @Override
+    public List<UnitDto> findBySearch(String search) {
+        List<UnitDto> unitDtoList = new ArrayList<>();
+        Call<List<UnitDto>> unitDtoListCall = unitApi
+                .searchByString(unitUrl, search.toLowerCase());
+
+        try {
+            unitDtoList = unitDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка единиц измерения");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка eдиниц измерения - ", e);
+        }
+        return unitDtoList;
     }
 }
