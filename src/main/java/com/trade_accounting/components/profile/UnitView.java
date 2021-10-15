@@ -20,6 +20,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -83,8 +84,14 @@ public class UnitView extends VerticalLayout {
         final TextField textField = new TextField();
         textField.setPlaceholder("Наименование или код");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateListAfterSearch(textField.getValue()));
         textField.setWidth("300px");
         return textField;
+    }
+
+    private void updateListAfterSearch(String text) {
+        grid.setItems(unitService.findBySearch(text));
     }
 
     private Button getButtonFilter() {
