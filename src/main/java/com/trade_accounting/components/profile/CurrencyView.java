@@ -24,6 +24,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -92,10 +93,6 @@ public class CurrencyView extends VerticalLayout {
         filter.onClearClick(e -> paginator.setData(currencyService.getAll()));
     }
 
-    private Button buttonFilter() {
-        return new Button("Фильтр");
-    }
-
     private TextField textFieldTop() {
         TextField text = new TextField();
         text.setPlaceholder("Краткое наименование");
@@ -128,6 +125,8 @@ public class CurrencyView extends VerticalLayout {
         TextField searchTextField = new TextField();
         searchTextField.setPlaceholder("Наименование");
         searchTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        searchTextField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchTextField.addValueChangeListener(event -> updateList(searchTextField.getValue()));
         searchTextField.setWidth("300px");
 
         Button filterButton = new Button("Фильтр");
@@ -139,6 +138,10 @@ public class CurrencyView extends VerticalLayout {
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         return toolbar;
+    }
+
+    private void updateList(String text) {
+        grid.setItems(currencyService.findBySearch(text));
     }
 
     private void grid() {
