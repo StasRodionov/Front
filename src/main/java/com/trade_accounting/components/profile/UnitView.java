@@ -1,6 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
@@ -31,6 +32,8 @@ public class UnitView extends VerticalLayout {
 
     private final UnitService unitService;
     private Grid<UnitDto> grid;
+    private GridPaginator<UnitDto> paginator;
+    private GridFilter<UnitDto> filter;
 
     public UnitView(UnitService unitService) {
         this.unitService = unitService;
@@ -49,9 +52,10 @@ public class UnitView extends VerticalLayout {
     private void getGrid() {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.setColumns("id", "shortName", "fullName", "sortNumber");
-        grid.getColumnByKey("shortName").setHeader("Краткое наименование");
-        grid.getColumnByKey("fullName").setHeader("Полное наименование");
-        grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер");
+        grid.getColumnByKey("id").setHeader("id").setId("id");
+        grid.getColumnByKey("shortName").setHeader("Краткое наименование").setId("Краткое наименование");
+        grid.getColumnByKey("fullName").setHeader("Полное наименование").setId("Полное наименование");
+        grid.getColumnByKey("sortNumber").setHeader("Сортировочный номер").setId("Сортировочный номер");
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             UnitDto editUnit = event.getItem();
@@ -84,7 +88,9 @@ public class UnitView extends VerticalLayout {
     }
 
     private Button getButtonFilter() {
-        return new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
     }
 
     private Button getButton() {
@@ -128,13 +134,20 @@ public class UnitView extends VerticalLayout {
         return selector;
     }
 
+    private void configureFilter() {
+        filter.onSearchClick(e -> paginator.setData(unitService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(unitService.getAll()));
+    }
+
     private void updateList() {
         grid = new Grid<>(UnitDto.class);
-        GridPaginator<UnitDto> paginator = new GridPaginator<>(grid, unitService.getAll(), 100);
+        paginator = new GridPaginator<>(grid, unitService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         getGrid();
         removeAll();
-        add(getToolbar(), grid, paginator);
+        filter = new GridFilter<>(grid);
+        configureFilter();
+        add(getToolbar(),filter, grid, paginator);
         GridSortOrder<UnitDto> gridSortOrder = new GridSortOrder(grid.getColumnByKey("sortNumber"), SortDirection.ASCENDING);
         List<GridSortOrder<UnitDto>> gridSortOrderList = new ArrayList<>();
         gridSortOrderList.add(gridSortOrder);

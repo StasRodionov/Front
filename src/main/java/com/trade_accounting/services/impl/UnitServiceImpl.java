@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -56,5 +59,18 @@ public class UnitServiceImpl implements UnitService {
     public void deleteById(Long id) {
         Call<Void> unitDtoCall = unitApi.deleteById(unitUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(unitDtoCall, UnitDto.class, id);
+    }
+
+    @Override
+    public List<UnitDto> search(Map<String, String> query) {
+        List<UnitDto> uitDtoList = new ArrayList<>();
+        Call<List<UnitDto>> uitDtoListListCall = unitApi.search(unitUrl, query);
+        try {
+            uitDtoList = uitDtoListListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка единиц измерения");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка идиниц измерения - ", e);
+        }
+        return uitDtoList;
     }
 }

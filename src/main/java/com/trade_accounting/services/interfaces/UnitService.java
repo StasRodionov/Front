@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces;
 import com.trade_accounting.models.dto.UnitDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UnitService {
 
@@ -15,4 +16,6 @@ public interface UnitService {
     void update(UnitDto unitDto);
 
     void deleteById(Long id);
+
+    List<UnitDto> search(Map<String, String> query);
 }
