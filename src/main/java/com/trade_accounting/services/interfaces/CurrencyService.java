@@ -18,4 +18,6 @@ public interface CurrencyService {
     void update(CurrencyDto currencyDto);
 
     void deleteById(Long id);
+
+    List<CurrencyDto> findBySearch(String search);
 }

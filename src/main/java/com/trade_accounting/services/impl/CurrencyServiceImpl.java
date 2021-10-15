@@ -72,7 +72,20 @@ public class CurrencyServiceImpl implements CurrencyService {
     public void deleteById(Long id) {
         Call<Void> currencyDtoCall = currencyApi.deleteById(currencyUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(currencyDtoCall, CurrencyDto.class, id);
+    }
 
+    @Override
+    public List<CurrencyDto> findBySearch(String search) {
+        List<CurrencyDto> сurrencyDtoList = new ArrayList<>();
+        Call<List<CurrencyDto>> сurrencyDtoListCall = currencyApi
+                .searchByString(currencyUrl, search.toLowerCase());
 
+        try {
+            сurrencyDtoList = сurrencyDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка сотрудников");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка сотрудников - ", e);
+        }
+        return сurrencyDtoList;
     }
 }
