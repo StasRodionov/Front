@@ -20,4 +20,6 @@ public interface EmployeeService extends PageableService<EmployeeDto> {
     List<EmployeeDto> search(Map<String, String> query);
 
     EmployeeDto getPrincipal();
+
+    List<EmployeeDto> findBySearch(String search);
 }

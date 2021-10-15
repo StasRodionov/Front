@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -83,10 +84,16 @@ public class WareHouseView extends VerticalLayout {
 
     private TextField text() {
         TextField text = new TextField();
-        text.setPlaceholder("Наименование или код");
+        text.setPlaceholder("Поиск");
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+        text.setValueChangeMode(ValueChangeMode.EAGER);
+        text.addValueChangeListener(event -> updateListAfterSearch(text.getValue()));
         text.setWidth("300px");
         return text;
+    }
+
+    private void updateListAfterSearch(String text) {
+        grid.setItems(warehouseService.findBySearch(text));
     }
 
     private NumberField numberField() {
