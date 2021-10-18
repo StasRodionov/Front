@@ -7,10 +7,15 @@ import com.trade_accounting.models.dto.MoneySubMutualSettlementsDto;
 import com.trade_accounting.models.dto.RetailReturnsDto;
 import com.trade_accounting.services.interfaces.RetailReturnsService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -118,6 +123,22 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog modal = new Dialog();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Html content = new Html("<div><p>Документы фиксируют возвраты товаров в точки продаж. " +
+                "Возврат создается на основе отгрузки или без основания.</p>" +
+                "<p>Читать инструкции:</p><p> <a href=\"https://support.moysklad.ru/hc/ru/articles/231107628\" " +
+                "target=\"_blank\">Возврат покупателя</a></p>" +
+                "<p> <a href=\"https://support.moysklad.ru/hc/ru/articles/203325423\" target=\"_blank\">Розница</a></p></div>");
+        Button close = new Button(new Icon(VaadinIcon.CLOSE));
+        close.setWidth("30px");
+        close.addClickListener(e -> modal.close());
+        horizontalLayout.add(content, new Div(close));
+        modal.add(horizontalLayout);
+        modal.setWidth("500px");
+        modal.setHeight("250px");
+        buttonQuestion.addClickListener(e -> modal.open());
+        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
         return buttonQuestion;
     }
 
