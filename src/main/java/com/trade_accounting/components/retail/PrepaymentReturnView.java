@@ -9,10 +9,15 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.PrepaymentReturnService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -104,8 +109,8 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
         grid.addColumn("sum").setFlexGrow(5).setHeader("Итого").setId("Итого");
     }
 
-    private BigDecimal getSum(PrepaymentReturnDto prepaymentReturnDto){
-       return prepaymentReturnDto.getSumCash().add(prepaymentReturnDto.getSumNonСash());
+    private BigDecimal getSum(PrepaymentReturnDto prepaymentReturnDto) {
+        return prepaymentReturnDto.getSumCash().add(prepaymentReturnDto.getSumNonСash());
     }
 
     private Button buttonCreate() {
@@ -142,7 +147,7 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(),buttonCreate(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonCreate(), buttonFilter(), numberField(), textField(), getSelect(), getStatus(), getPrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
     }
@@ -156,9 +161,24 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog modal = new Dialog();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Html content = new Html("<div><p>При предоплате покупатель вносит полную или частичную стоимость " +
+                "товара, после чего имеет возможность вернуть эти деньги или получить предоплаченный товар (с " +
+                "внесением остатка суммы, если предоплата была неполной).</p>" +
+                "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Предоплата в кассе</a></p></div>");
+        Button close = new Button(new Icon(VaadinIcon.CLOSE));
+        close.setWidth("30px");
+        close.addClickListener(e -> modal.close());
+        horizontalLayout.add(content, new Div(close));
+        modal.add(horizontalLayout);
+        modal.setWidth("500px");
+        modal.setHeight("250px");
+        buttonQuestion.addClickListener(e -> modal.open());
+        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
         return buttonQuestion;
     }
-
+    
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addClickListener(e -> updateList());
@@ -239,7 +259,7 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
 
     private Select<String> getStatus() {
         Select<String> status = new Select<>();
-        status.setItems("Статус","Настроить...");
+        status.setItems("Статус", "Настроить...");
         status.setValue("Статус");
         status.setWidth("130px");
         return status;
@@ -248,7 +268,7 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
 
     private Select<String> getPrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Список выплат", "Комплект...","Настроить...");
+        print.setItems("Печать", "Список выплат", "Комплект...", "Настроить...");
         print.setValue("Печать");
         print.setWidth("130px");
         return print;
