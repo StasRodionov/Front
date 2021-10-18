@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.button.Button;
@@ -40,14 +41,16 @@ public class TasksView extends VerticalLayout {
     private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
     private final GridFilter<TaskDto> filter;
     private final EmployeeService employeeService;
+    private final ContractorService contractorService;
     private final GridPaginator<TaskDto> paginator;
 
     private final TaskDto taskDto;
 
     @Autowired
-    public TasksView(TaskService taskService, EmployeeService employeeService) {
+    public TasksView(TaskService taskService, EmployeeService employeeService, ContractorService contractorService) {
         this.taskService = taskService;
         this.employeeService = employeeService;
+        this.contractorService = contractorService;
         this.taskDto = new TaskDto();
         paginator = new GridPaginator<>(grid, taskService.getAll(), 15);
         configureGrid();
@@ -61,6 +64,8 @@ public class TasksView extends VerticalLayout {
         grid.removeAllColumns();
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
+        grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName())
+                .setKey("contractorId").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName())
                 .setKey("employeeId").setHeader("Ответственный").setId("Ответственный");
         grid.addColumn(TaskDto::getDeadlineDateTime).setHeader("Срок")
@@ -74,7 +79,7 @@ public class TasksView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             TaskDto taskDto = event.getItem();
             TaskModalWin addTaskModalWin =
-                    new TaskModalWin(taskService, taskDto, employeeService);
+                    new TaskModalWin(taskService, taskDto, employeeService, contractorService);
             addTaskModalWin.addDetachListener(e -> updateList());
             addTaskModalWin.getSaveButton();
             addTaskModalWin.open();
@@ -131,7 +136,7 @@ public class TasksView extends VerticalLayout {
     private Button getButtonCreateTask() {
         var buttonUnit = new Button("Задача", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(click -> {
-            TaskModalWin taskModalWin = new TaskModalWin(taskService, taskDto, employeeService);
+            TaskModalWin taskModalWin = new TaskModalWin(taskService, taskDto, employeeService, contractorService);
             taskModalWin.open();
         });
         return buttonUnit;
