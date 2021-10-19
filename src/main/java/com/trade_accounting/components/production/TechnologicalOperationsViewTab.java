@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
@@ -144,19 +145,21 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Технологические операции позволяют планировать закупки " +
-                "у поставщиков и перемещения товаров по складам " +
-                "внутри организации. С их помощью можно пополнять " +
-                "резервы при достижении неснижаемого остатка."));
-        dialog.setWidth("400px");
-        dialog.setHeight("250px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
+        Dialog modal = new Dialog();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Html content = new Html("<div><p>Технологические операции позволяют регистрировать в системе операции по сборке и производству." +
+                " В результате списываются материалы и добавляются готовые изделия.</p>" +
+                "<p>Читать инструкцию: </p><p><a href=\"#\" target=\"_blank\">Сборочные и производственные операции</a></p>" +
+                "<p>Видео: </p><p><a href=\"#\" target=\"_blank\">Возможности для производства</a></p></div>");
+        Button close = new Button(new Icon(VaadinIcon.CLOSE));
+        close.setWidth("30px");
+        close.addClickListener(e -> modal.close());
+        horizontalLayout.add(content, new Div(close));
+        modal.add(horizontalLayout);
+        modal.setWidth("500px");
+        modal.setHeight("300px");
+        buttonQuestion.addClickListener(e -> modal.open());
+        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
         return buttonQuestion;
     }
 
