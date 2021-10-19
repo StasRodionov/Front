@@ -9,10 +9,15 @@ import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -28,6 +33,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,6 +129,19 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        com.vaadin.flow.component.dialog.Dialog dialog = new Dialog();
+        Button cancelButton = new Button("Закрыть", event -> dialog.close());
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        buttonsLayout.addComponentAsFirst(cancelButton);
+        dialog.add(new Text("Для каждой точки продаж можно назначить отдельный склад, " +
+                "тип цен и указать кассиров, которые получат к ней доступ. " +
+                "В карточке точки продаж отображаются данные о кассе, " +
+                "фискальном накопителе и активности."));
+        dialog.setWidth("500px");
+        dialog.setHeight("200px");
+        buttonQuestion.addClickListener(event -> dialog.open());
+        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
+        dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
 
