@@ -1,8 +1,10 @@
 package com.trade_accounting.components.tasks;
 
 
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.Component;
@@ -29,6 +31,7 @@ public class TaskModalWin extends Dialog {
     private final TaskService taskService;
     private final TaskDto taskDto;
     private final EmployeeService employeeService;
+    private final ContractorService contractorService;
 
     private final TextArea description = new TextArea("Описание задачи");
     private final Checkbox completed = new Checkbox("Выполнена");
@@ -36,15 +39,19 @@ public class TaskModalWin extends Dialog {
     private final DateTimePicker creationDataTime = new DateTimePicker();
     private final DateTimePicker deadlineDateTime = new DateTimePicker();
     private final ComboBox<EmployeeDto> employeeDtoSelect = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorDtoSelect = new ComboBox<>();
 
     private final Binder<TaskDto> taskDtoBinder = new Binder<>(TaskDto.class);
 
     private List<EmployeeDto> employeeDtoList;
+    private List<ContractorDto> contractorDtoList;
 
-    public TaskModalWin(TaskService taskService, TaskDto taskDto, EmployeeService employeeService) {
+    public TaskModalWin(TaskService taskService, TaskDto taskDto,
+                        EmployeeService employeeService, ContractorService contractorService) {
         this.taskService = taskService;
         this.taskDto = taskDto;
         this.employeeService = employeeService;
+        this.contractorService = contractorService;
 
         setCloseOnOutsideClick(true);
         setCloseOnEsc(true);
@@ -57,6 +64,7 @@ public class TaskModalWin extends Dialog {
         idField.setValue(getFieldValueNotNull(String.valueOf(taskDto.getId())));
         description.setValue(getFieldValueNotNull(taskDto.getDescription()));
         completed.setValue(taskDto.isCompleted());
+        contractorDtoSelect.setValue(contractorService.getById(getLongIdNotNull(taskDto.getContractorId())));
         employeeDtoSelect.setValue(employeeService.getById(getLongIdNotNull(taskDto.getEmployeeId())));
         creationDataTime.setValue(LocalDateTime.parse(getFieldValueNotNull
                 (taskDto.getCreationDataTimeNotNull().replaceAll(" ", "T"))));
@@ -111,6 +119,7 @@ public class TaskModalWin extends Dialog {
         div.getElement().getStyle().set("font-size", "14px");
 
         verticalComponents.add(completed);
+        verticalComponents.add(contractorSelect());
         verticalComponents.add(employeeSelect());
         verticalComponents.add(creationDataTime);
         verticalComponents.add(deadlineDateTime);
@@ -133,6 +142,21 @@ public class TaskModalWin extends Dialog {
         Label label = new Label("Исполнитель");
         label.setWidth(String.valueOf(300));
         horizontalLayout.add(label, employeeDtoSelect);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout contractorSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        contractorDtoList = contractorService.getAll();
+        if (contractorDtoList != null) {
+            List<ContractorDto> list = contractorDtoList;
+            contractorDtoSelect.setItems(list);
+        }
+        contractorDtoSelect.setItemLabelGenerator(ContractorDto::getName);
+        contractorDtoSelect.setWidth(String.valueOf(300));
+        Label label = new Label("Контрагент");
+        label.setWidth(String.valueOf(300));
+        horizontalLayout.add(label, contractorDtoSelect);
         return horizontalLayout;
     }
 
@@ -162,6 +186,7 @@ public class TaskModalWin extends Dialog {
         taskDto.setCreationDateTime(creationDataTime.getValue().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss")));
         taskDto.setDeadlineDateTime(deadlineDateTime.getValue().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss")));
         taskDto.setEmployeeId(employeeDtoSelect.getValue().getId());
+        taskDto.setContractorId(contractorDtoSelect.getValue().getId());
         taskDto.setTaskAuthorId(employeeService.getPrincipal().getId());
         taskDto.setTaskCommentsIds(List.of());
     }

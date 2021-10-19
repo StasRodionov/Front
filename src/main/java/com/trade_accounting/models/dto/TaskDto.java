@@ -16,6 +16,8 @@ public class TaskDto {
 
     private String description;
 
+    private Long contractorId;
+
     private Long employeeId; //EmployeeDto
 
     private Long taskAuthorId; //EmployeeDto
