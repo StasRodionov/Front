@@ -30,6 +30,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "RetailStoresTabView", layout = AppView.class)
 @PageTitle("Точки продаж")
@@ -74,7 +75,10 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         grid.addColumn(unused -> "0").setHeader("Чеки").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Средний чек").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Денег в кассе").setWidth("20px");
-        grid.addColumn(unused -> getCashiers()).setWidth("100px").setHeader("Кассиры").setId("Кассиры");
+        grid.addColumn(unused -> (unused.getCashiersIds().stream()
+                        .map(map -> employeeService.getById(map).getFirstName())
+                        .collect(Collectors.toSet())))
+                        .setWidth("100px").setHeader("Кассиры").setId("Кассиры");
         grid.addColumn(unused -> "-").setHeader("Синхронизация");
         grid.addColumn(unused -> "Нет").setHeader("ФН").setWidth("20px");
         grid.setHeight("66vh");
@@ -160,13 +164,4 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         updateList();
     }
 
-    private String getCashiers() {
-        List<EmployeeDto> list = employeeService.getAll();
-        long size = list.size();
-        Long random = 1 + (long) (Math.random() * size);
-
-        EmployeeDto employeeDto = employeeService.getById(random);
-
-        return employeeDto.toString();
-    }
 }

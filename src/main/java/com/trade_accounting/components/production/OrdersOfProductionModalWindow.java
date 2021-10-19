@@ -2,11 +2,8 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.OrdersOfProductionDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
-import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
@@ -28,8 +25,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
-import javax.swing.*;
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -54,6 +49,7 @@ public class OrdersOfProductionModalWindow  extends Dialog {
     private final TextField volumeField = new TextField();
     private final TextField produceField = new TextField();
     private final TextArea textArea = new TextArea();
+    private final String text;
 
     private final Binder<OrdersOfProductionDto> ordersOfProductionBinder =
             new Binder<>(OrdersOfProductionDto.class);
@@ -62,12 +58,13 @@ public class OrdersOfProductionModalWindow  extends Dialog {
     public OrdersOfProductionModalWindow(TechnicalCardService technicalCardService,
                                          CompanyService companyService,
                                          OrdersOfProductionService ordersOfProductionService,
-                                         Notifications notifications) {
+                                         Notifications notifications, String text) {
 
         this.technicalCardService = technicalCardService;
         this.companyService = companyService;
         this.ordersOfProductionService = ordersOfProductionService;
         this.notifications = notifications;
+        this.text = text;
 
 
         setSizeFull();
@@ -88,7 +85,7 @@ public class OrdersOfProductionModalWindow  extends Dialog {
 
     private HorizontalLayout headerLayout() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(title(), saveButton(), closeButton());
+        horizontalLayout.add(title(text), saveButton(), closeButton());
         return horizontalLayout;
     }
 
@@ -100,7 +97,7 @@ public class OrdersOfProductionModalWindow  extends Dialog {
 
     private HorizontalLayout formLayout1() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(numberConfigure(), dateConfigure(), checkboxLayout());
+        horizontalLayout.add(dateConfigure(), checkboxLayout());
         return horizontalLayout;
     }
 
@@ -129,8 +126,8 @@ public class OrdersOfProductionModalWindow  extends Dialog {
     }
 
 
-    private H2 title() {
-        return new H2("Добавление заказа на производство");
+    private H2 title(String text) {
+        return new H2(text);
     }
 
     private Button saveButton() {
@@ -139,7 +136,11 @@ public class OrdersOfProductionModalWindow  extends Dialog {
                 ordersOfProductionBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
                 OrdersOfProductionDto dto = new OrdersOfProductionDto();
-                dto.setId(Long.parseLong(numberField.getValue()));
+
+                if (numberField.getValue() != "") {
+                    dto.setId(Long.parseLong(numberField.getValue()));
+                }
+
                 dto.setCompanyId(companyComboBox.getValue().getId());
                 dto.setTechnicalCardId(technicalCardComboBox.getValue().getId());
                 dto.setComment(textArea.getValue());
@@ -154,7 +155,7 @@ public class OrdersOfProductionModalWindow  extends Dialog {
                 UI.getCurrent().navigate("ordersOfProductionViewTab");
                 close();
                 clearAllFieldsModalView();
-                notifications.infoNotification(String.format("Заказ на производство c ID=%s сохранен", dto.getId()));
+                notifications.infoNotification(String.format("Заказ на производство сохранен", dto.getId()));
             }
         });
     }
@@ -166,18 +167,6 @@ public class OrdersOfProductionModalWindow  extends Dialog {
             clearAllFieldsModalView();
         });
         return button;
-    }
-
-    private HorizontalLayout numberConfigure() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Заказ на производство №");
-        label.setWidth("100px");
-        numberField.setWidth("50px");
-        horizontalLayout.add(label, numberField);
-        ordersOfProductionBinder.forField(numberField)
-                .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(OrdersOfProductionDto::getIdValid, OrdersOfProductionDto::setIdValid);
-        return horizontalLayout;
     }
 
     private HorizontalLayout dateConfigure() {
