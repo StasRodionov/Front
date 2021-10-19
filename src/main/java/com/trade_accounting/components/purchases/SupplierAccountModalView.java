@@ -43,11 +43,12 @@ public class SupplierAccountModalView extends Dialog {
     private final ContractorService contractorService;
     private final ContractService contractService;
     private SupplierAccountDto supplierAccountDto;
+    private SupplierAccountDto saveSupplier = new SupplierAccountDto();
 
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
-    public final  ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
+    public final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox isSpend = new Checkbox("Проведено");
     private final TextField supplierNumber = new TextField();
@@ -66,15 +67,14 @@ public class SupplierAccountModalView extends Dialog {
         this.contractService = contractService;
         this.notifications = notifications;
         setSizeFull();
-        add(upperButtonInModalView(),formToAddSupplerAccount());
+        add(upperButtonInModalView(), formToAddSupplerAccount());
     }
-
 
 
     public void setSupplierAccountsForEdit(SupplierAccountDto editSupplierAccounts) {
         this.supplierAccountDto = editSupplierAccounts;
         supplierNumber.setValue(supplierAccountDto.getId().toString());
-        dateTimePicker.setValue( LocalDateTime.parse(supplierAccountDto.getDate()));
+        dateTimePicker.setValue(LocalDateTime.parse(supplierAccountDto.getDate()));
         commentConfig.setValue(supplierAccountDto.getComment());
         companyDtoComboBox.setValue(companyService.getById(supplierAccountDto.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(supplierAccountDto.getWarehouseId()));
@@ -84,7 +84,7 @@ public class SupplierAccountModalView extends Dialog {
 
     private HorizontalLayout upperButtonInModalView() {
         HorizontalLayout upperButton = new HorizontalLayout();
-        upperButton.add(title(),saveButton(),closeButton(),addProductButton());
+        upperButton.add(title(), saveButton(), closeButton(), addProductButton());
         upperButton.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperButton;
     }
@@ -97,21 +97,31 @@ public class SupplierAccountModalView extends Dialog {
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
-            SupplierAccountDto saveSupplier = new SupplierAccountDto();
-            saveSupplier.setId(Long.parseLong(supplierNumber.getValue()));
-            saveSupplier.setDate(dateTimePicker.getValue().toString());
-            saveSupplier.setCompanyId(companyDtoComboBox.getValue().getId());
-            saveSupplier.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-            saveSupplier.setContractId(contractDtoComboBox.getValue().getId());
-            saveSupplier.setContractorId(contractorDtoComboBox.getValue().getId());
-            saveSupplier.setIsSpend(isSpend.getValue());
-            saveSupplier.setComment(commentConfig.getValue());
-            supplierAccountService.create(saveSupplier);
-
-            UI.getCurrent().navigate("suppliersInvoices");
-            close();
-            notifications.infoNotification(String.format("Счет поставщика № %s сохранен", saveSupplier.getId()));
+            if (supplierNumber.getValue().contains("№")) {
+                UI.getCurrent().navigate("suppliersInvoices");
+                notifications.errorNotification("Поле \"Счет поставщика\" должно быть заполненно");
+            } else if (supplierAccountService.getById(Long.parseLong(supplierNumber.getValue())) != null) {
+                saveSupplier();
+                notifications.errorNotification(String.format("Документ №%s уже существует и изменен", saveSupplier.getId()));
+            } else {
+                saveSupplier();
+                notifications.infoNotification(String.format("Счет поставщика № %s сохранен", saveSupplier.getId()));
+            }
         });
+    }
+
+    private void saveSupplier() {
+        saveSupplier.setId(Long.parseLong(supplierNumber.getValue()));
+        saveSupplier.setDate(dateTimePicker.getValue().toString());
+        saveSupplier.setCompanyId(companyDtoComboBox.getValue().getId());
+        saveSupplier.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+        saveSupplier.setContractId(contractDtoComboBox.getValue().getId());
+        saveSupplier.setContractorId(contractorDtoComboBox.getValue().getId());
+        saveSupplier.setIsSpend(isSpend.getValue());
+        saveSupplier.setComment(commentConfig.getValue());
+        supplierAccountService.update(saveSupplier);
+        UI.getCurrent().navigate("suppliersInvoices");
+        close();
     }
 
     private Button closeButton() {
@@ -139,12 +149,12 @@ public class SupplierAccountModalView extends Dialog {
     private HorizontalLayout horizontalLayout1() {
         HorizontalLayout hLay1 = new HorizontalLayout();
         hLay1.add(dataConfigure(), isSpend);
-        return  hLay1;
+        return hLay1;
     }
 
     private HorizontalLayout horizontalLayout2() {
         HorizontalLayout hLay2 = new HorizontalLayout();
-        hLay2.add(companyConfigure(),warehouseConfigure());
+        hLay2.add(companyConfigure(), warehouseConfigure());
         return hLay2;
     }
 
@@ -158,21 +168,29 @@ public class SupplierAccountModalView extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Счет поставщика №");
         label.setWidth("150px");
+
+        supplierNumber.setAutofocus(true);
         supplierNumber.setWidth("50px");
+        supplierNumber.setRequired(true);
+        supplierNumber.setRequiredIndicatorVisible(true);
+        supplierNumber.setValue("№");
         Label label2 = new Label("от");
         dateTimePicker.setWidth("350px");
-        horizontalLayout.add(label,supplierNumber,label2,dateTimePicker);
+        dateTimePicker.setRequiredIndicatorVisible(true);
+        horizontalLayout.add(label, supplierNumber, label2, dateTimePicker);
         return horizontalLayout;
     }
 
     private HorizontalLayout contractorConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         List<ContractorDto> contractorDtos = contractorService.getAll();
-        if(contractorDtos != null) {
+        if (contractorDtos != null) {
             contractorDtoComboBox.setItems(contractorDtos);
         }
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
         contractorDtoComboBox.setWidth("350px");
+        contractorDtoComboBox.setRequired(true);
+        contractorDtoComboBox.setRequiredIndicatorVisible(true);
         Label label = new Label("Контрагент");
         label.setWidth("100px");
         horizontalLayout.add(label, contractorDtoComboBox);
@@ -182,42 +200,48 @@ public class SupplierAccountModalView extends Dialog {
     private HorizontalLayout companyConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         List<CompanyDto> companyDtos = companyService.getAll();
-        if(companyDtos != null) {
+        if (companyDtos != null) {
             companyDtoComboBox.setItems(companyDtos);
         }
         companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
         companyDtoComboBox.setWidth("350px");
+        companyDtoComboBox.setRequired(true);
+        companyDtoComboBox.setRequiredIndicatorVisible(true);
         Label label = new Label("Компания");
         label.setWidth("100px");
-        horizontalLayout.add(label,companyDtoComboBox);
+        horizontalLayout.add(label, companyDtoComboBox);
         return horizontalLayout;
     }
 
     private HorizontalLayout warehouseConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         List<WarehouseDto> warehouseDtos = warehouseService.getAll();
-        if(warehouseDtos !=null) {
+        if (warehouseDtos != null) {
             warehouseDtoComboBox.setItems(warehouseDtos);
         }
         warehouseDtoComboBox.setItemLabelGenerator(WarehouseDto::getName);
         warehouseDtoComboBox.setWidth("350px");
+        warehouseDtoComboBox.setRequired(true);
+        warehouseDtoComboBox.setRequiredIndicatorVisible(true);
         Label label = new Label("Склад");
         label.setWidth("100px");
-        horizontalLayout.add(label,warehouseDtoComboBox);
+        horizontalLayout.add(label, warehouseDtoComboBox);
         return horizontalLayout;
     }
 
     private HorizontalLayout contractConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         List<ContractDto> contractDtos = contractService.getAll();
-        if(contractDtos !=null) {
+        if (contractDtos != null) {
             contractDtoComboBox.setItems(contractDtos);
         }
         contractDtoComboBox.setItemLabelGenerator(ContractDto::getNumber);
         contractDtoComboBox.setWidth("350px");
+        contractDtoComboBox.setRequired(true);
+        contractDtoComboBox.setRequiredIndicatorVisible(true);
         Label label = new Label("Договор");
         label.setWidth("100px");
-        horizontalLayout.add(label,contractDtoComboBox);
+        horizontalLayout.add(label, contractDtoComboBox);
         return horizontalLayout;
     }
 
@@ -227,7 +251,7 @@ public class SupplierAccountModalView extends Dialog {
         Label label = new Label("План. дата оплаты");
         label.setWidth("150px");
         dt.setWidth("150px");
-        horizontal.add(label,dt);
+        horizontal.add(label, dt);
         return horizontal;
     }
 
@@ -240,7 +264,7 @@ public class SupplierAccountModalView extends Dialog {
         text.setWidth("70px");
         Label label2 = new Label("от");
         dt1.setWidth("150px");
-        horizontal1.add(label,text,label2,dt1);
+        horizontal1.add(label, text, label2, dt1);
         return horizontal1;
     }
 
