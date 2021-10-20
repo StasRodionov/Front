@@ -25,6 +25,8 @@ public class InvoiceDto {
 
     private String comment;
 
+    private Long invoicesStatusId;
+
     @Override
     public String toString() {
         return  "Заказ № = " + id +
