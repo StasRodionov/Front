@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SupplierAccountDto {
+public class SupplierAccountDto extends SupplierAccountDtoForValidation {
 
     private Long id;
 
