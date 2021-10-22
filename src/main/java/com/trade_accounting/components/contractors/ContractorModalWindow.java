@@ -113,17 +113,17 @@ public class ContractorModalWindow extends Dialog {
     private List<ContractorStatusDto> statusDtoList;
     private List<DepartmentDto> departmentDtoList;
     private List<EmployeeDto> employeeDtoList;
-    private final TextField lastNameLegalDetailField = new TextField(); //"Фамилия"
-    private final TextField firstNameLegalDetailField = new TextField(); //"Имя"
-    private final TextField middleNameLegalDetailField = new TextField(); //"Отчество"
-    private final TextArea addressLegalDetailField = new TextArea(); //"Юридический адрес"
-    private final TextArea commentToAddressLegalDetailField = new TextArea(); //"Комментарий к адресу"
-    private final ValidTextField innLegalDetailField = new ValidTextField(); //"ИНН"
-    private final ValidTextField kppLegalDetailField = new ValidTextField(); //"КПП"
-    private final ValidTextField okpoLegalDetailField = new ValidTextField(); //"ОКПО"
-    private final ValidTextField ogrnLegalDetailField = new ValidTextField(); //"ОГРН"
-    private final ValidTextField numberOfTheCertificateLegalDetailField = new ValidTextField(); //"Номер сертефиката"
-    private final DatePicker dateOfTheCertificateLegalDetailField = new DatePicker(); //"Дата сертефиката"
+    private final TextField lastNameLegalDetailField = new TextField();                         // Фамилия
+    private final TextField firstNameLegalDetailField = new TextField();                        // Имя
+    private final TextField middleNameLegalDetailField = new TextField();                       // Отчество
+    private final TextArea addressLegalDetailField = new TextArea();                            // Юридический адрес
+    private final TextArea commentToAddressLegalDetailField = new TextArea();                   // Комментарий к адресу
+    private final ValidTextField innLegalDetailField = new ValidTextField();                    // ИНН
+    private final ValidTextField kppLegalDetailField = new ValidTextField();                    // КПП
+    private final ValidTextField okpoLegalDetailField = new ValidTextField();                   // ОКПО
+    private final ValidTextField ogrnLegalDetailField = new ValidTextField();                   // ОГРН
+    private final ValidTextField numberOfTheCertificateLegalDetailField = new ValidTextField(); // Номер сертификата
+    private final DatePicker dateOfTheCertificateLegalDetailField = new DatePicker();           // Дата сертификата
 
     private final ComboBox<TypeOfContractorDto> typeOfContractorDtoLegalDetailField = new ComboBox<>("Тип контрагента");
 
@@ -221,6 +221,8 @@ public class ContractorModalWindow extends Dialog {
 //                        : Supplier<AddressDto> addressService.getById(
 //                        contractorDto.getLegalDetailDto().getAddressDtoId()));
         TextField labelField = new TextField();
+        contractorDtoBinder.forField(labelField)
+                .asRequired("Не заполнено!");
         labelField.setPlaceholder("Наименование");
         labelField.setWidth("585px");
         labelField.setRequired(true);
@@ -230,7 +232,7 @@ public class ContractorModalWindow extends Dialog {
 
     private String getStringValueOf(Function<ContractorDto, ?> projection) {
         return Optional.ofNullable(projection.apply(contractorDto))
-                .map(field -> field.toString()).orElse("");
+                .map(Object::toString).orElse("");
     }
 
     private String getAddress(ContractorDto contractorDto) {
@@ -251,7 +253,7 @@ public class ContractorModalWindow extends Dialog {
 
     public void setContractorDataForEdit(ContractorDto contractorDto) {
         if (contractorGroupService.getById(contractorDto.getContractorGroupId()).getName() != null) {
-                contractorGroupDtoSelect.setValue(contractorGroupService.getById(contractorDto.getContractorGroupId()));
+            contractorGroupDtoSelect.setValue(contractorGroupService.getById(contractorDto.getContractorGroupId()));
         }
 
         if (contractorStatusService.getById(contractorDto.getContractorStatusId()).getName() != null) {
@@ -512,9 +514,9 @@ public class ContractorModalWindow extends Dialog {
         HorizontalLayout okpo = getNumberField(legalDetailDtoBinder, okpoLegalDetailField, "okpo", "ОКПО");
         HorizontalLayout ogrnip = getNumberField(legalDetailDtoBinder, ogrnLegalDetailField, "ogrn", "ОГРН");
         HorizontalLayout numberOfTheCertificate = getNumberField(legalDetailDtoBinder,
-                numberOfTheCertificateLegalDetailField, "numberOfTheCertificate", "Номер сертефиката");
+                numberOfTheCertificateLegalDetailField, "numberOfTheCertificate", "Номер сертификата");
         HorizontalLayout dateOfTheCertificate = getDateField(legalDetailDtoBinder, dateOfTheCertificateLegalDetailField,
-                "date", "Дата сертефиката");
+                "date", "Дата сертификата");
 
         FormLayout accountForm = new FormLayout();
         AtomicBoolean legalEntity = new AtomicBoolean(false);
@@ -684,7 +686,7 @@ public class ContractorModalWindow extends Dialog {
                         legalDetailDto.setTypeOfContractorDtoId(typeOfContractorDto.getId());
                     }
                 });
-               // .bind("typeOfContractorDtoId");
+        // .bind("typeOfContractorDtoId");
         Label label = new Label("Тип контрагента");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, typeOfContractorDtoSelect);
@@ -960,9 +962,16 @@ public class ContractorModalWindow extends Dialog {
         if (nameField.isEmpty()) {
             legalDetailDto = new LegalDetailDto();
             return new Button("Добавить", event -> {
+                boolean allBindersValidated = true;
                 if (!contractorDtoBinder.validate().isOk()) {
                     contractorDtoBinder.validate().notifyBindingValidationStatusHandlers();
-                } else {
+                    allBindersValidated = false;
+                }
+                if (!legalDetailDtoBinder.validate().isOk()) {
+                    legalDetailDtoBinder.validate().notifyBindingValidationStatusHandlers();
+                    allBindersValidated = false;
+                }
+                if (allBindersValidated) {
                     saveFieldsCreate(legalDetailDto);
                     saveFields(contractorDto);
                     contractorService.create(contractorDto);
@@ -1030,7 +1039,7 @@ public class ContractorModalWindow extends Dialog {
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
-        contractorDto.setAddressId(contractorService.getById(contractorDto.getId()).getAddressId());
+        //contractorDto.setAddressId(contractorService.getById(contractorDto.getId()).getAddressId());
         contractorDto.setCommentToAddress(commentToAddressField.getValue());
         contractorDto.setComment(commentField.getValue());
         contractorDto.setSortNumber(sortNumberField.getValue());
@@ -1132,7 +1141,7 @@ public class ContractorModalWindow extends Dialog {
                         .email(contact.get(3).getValue())
                         .comment(contact.get(4).getValue())
                         .build()).getId());
-                      });
+            });
 
 
             newBankAccountTextFields.forEach(bankAccount -> {
