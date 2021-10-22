@@ -8,6 +8,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.InvoicesStatusDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.models.dto.WarehouseDto;
@@ -15,6 +16,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.InvoicesStatusService;
 import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
@@ -79,6 +81,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final InvoiceService invoiceService;
+    private final InvoicesStatusService invoicesStatusService;
     private final InvoiceProductService invoiceProductService;
     private final Notifications notifications;
     private final TypeOfPriceService typeOfPriceService;
@@ -91,9 +94,10 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final DateTimePicker dateField = new DateTimePicker();
     private final TextField typeOfInvoiceField = new TextField();
     private final Checkbox isSpend = new Checkbox("Проведено");
-    private final ComboBox<CompanyDto> companySelect = new ComboBox<>();
+    private final ComboBox<CompanyDto> companySelectComboBox = new ComboBox<>();
     public final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
+    private final ComboBox<InvoicesStatusDto> invoicesStatusSelectComboBox = new ComboBox<>();
 
     private final TextField amountField = new TextField();
 
@@ -123,7 +127,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                                       CompanyService companyService,
                                       WarehouseService warehouseService,
                                       InvoiceService invoiceService,
-                                      InvoiceProductService invoiceProductService,
+                                      InvoicesStatusService invoicesStatusService, InvoiceProductService invoiceProductService,
                                       Notifications notifications,
                                       SalesChooseGoodsModalWin salesChooseGoodsModalWin,
                                       TypeOfPriceService typeOfPriceService,
@@ -133,6 +137,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
+        this.invoicesStatusService = invoicesStatusService;
         this.invoiceProductService = invoiceProductService;
         this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
@@ -169,8 +174,6 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
-
-
 
 
     private void configureGrid() {
@@ -290,6 +293,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         HorizontalLayout horizontalLayout1 = new HorizontalLayout();
         horizontalLayout1.add(configureDateField(),
                 configureContractorSelect(),
+                configureinvoicesStatusSelect(),
                 isSpend
         );
         return horizontalLayout1;
@@ -318,17 +322,32 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         HorizontalLayout companyLayout = new HorizontalLayout();
         List<CompanyDto> companies = companyService.getAll();
         if (companies != null) {
-            companySelect.setItems(companies);
+            companySelectComboBox.setItems(companies);
         }
-        companySelect.setItemLabelGenerator(CompanyDto::getName);
-        companySelect.setWidth(FIELD_WIDTH);
-        binderInvoiceDto.forField(companySelect)
+        companySelectComboBox.setItemLabelGenerator(CompanyDto::getName);
+        companySelectComboBox.setWidth(FIELD_WIDTH);
+        binderInvoiceDto.forField(companySelectComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
                 .bind("companyId");
         Label label = new Label("Компания");
         label.setWidth(LABEL_WIDTH);
-        companyLayout.add(label, companySelect);
+        companyLayout.add(label, companySelectComboBox);
         return companyLayout;
+    }
+
+    private HorizontalLayout configureinvoicesStatusSelect() {
+        HorizontalLayout invoicesStatusLayout = new HorizontalLayout();
+        List<InvoicesStatusDto> invoicesStatusDtoList = invoicesStatusService.getAll();
+        if (invoicesStatusDtoList != null) {
+            invoicesStatusSelectComboBox.setItems(invoicesStatusDtoList);
+        }
+        invoicesStatusSelectComboBox.setItemLabelGenerator(InvoicesStatusDto::getStatusName);
+        invoicesStatusSelectComboBox.setWidth(FIELD_WIDTH);
+        Label label = new Label("Статус");
+        label.setWidth(LABEL_WIDTH);
+        invoicesStatusSelectComboBox.setHelperText("По умолчанию установится статус \"Новый\"");
+        invoicesStatusLayout.add(label, invoicesStatusSelectComboBox);
+        return invoicesStatusLayout;
     }
 
     private HorizontalLayout configureContractorSelect() {
@@ -443,7 +462,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         return new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
 
             salesChooseGoodsModalWin.updateProductList();
-               salesChooseGoodsModalWin.open();
+            salesChooseGoodsModalWin.open();
         });
     }
 
@@ -509,7 +528,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
 
         if (invoiceDto.getCompanyId() != null) {
-            companySelect.setValue(companyService.getById(invoiceDto.getCompanyId()));
+            companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
         }
 
         if (invoiceDto.getContractorId() != null) {
@@ -520,6 +539,10 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
         if (invoiceDto.getWarehouseId() != null) {
             warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
+        }
+
+        if (invoiceDto.getInvoicesStatusId() != null) {
+            invoicesStatusSelectComboBox.setValue(invoicesStatusService.getById(invoiceDto.getInvoicesStatusId()));
         }
 
     }
@@ -557,12 +580,13 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     public void resetView() {
         invoiceIdField.clear();
         dateField.clear();
-        companySelect.setValue(null);
+        companySelectComboBox.setValue(null);
         contractorSelect.setValue(null);
         warehouseSelect.setValue(null);
+        invoicesStatusSelectComboBox.setValue(null);
         isSpend.clear();
         contractorSelect.setInvalid(false);
-        companySelect.setInvalid(false);
+        companySelectComboBox.setInvalid(false);
         warehouseSelect.setInvalid(false);
         title.setText("Добавление заказа");
         paginator.setData(tempInvoiceProductDtoList = new ArrayList<>());
@@ -575,9 +599,10 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
         }
         invoiceDto.setDate(dateField.getValue().toString());
-        invoiceDto.setCompanyId(companySelect.getValue().getId());
+        invoiceDto.setCompanyId(companySelectComboBox.getValue().getId());
         invoiceDto.setContractorId(contractorSelect.getValue().getId());
         invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
+        invoiceDto.setInvoicesStatusId(invoicesStatusSelectComboBox.getValue().getId());
         invoiceDto.setTypeOfInvoice(type);
         invoiceDto.setIsSpend(isSpend.getValue());
         invoiceDto.setComment("");

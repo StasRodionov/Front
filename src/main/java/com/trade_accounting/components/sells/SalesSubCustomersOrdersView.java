@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.InvoicesStatusService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -73,6 +74,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final ContractorService contractorService;
     private final InvoiceService invoiceService;
     private final EmployeeService employeeService;
+    private final InvoicesStatusService invoicesStatusService;
 
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
@@ -90,13 +92,14 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     public SalesSubCustomersOrdersView(CompanyService companyService, ContractorService contractorService, InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                        @Lazy Notifications notifications,
-                                       EmployeeService employeeService) {
+                                       EmployeeService employeeService, InvoicesStatusService invoicesStatusService) {
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.employeeService = employeeService;
         this.invoiceService = invoiceService;
         this.notifications = notifications;
+        this.invoicesStatusService = invoicesStatusService;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
@@ -116,6 +119,8 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
                 .setId("Компания");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
+        grid.addColumn(iDto -> invoicesStatusService.getById(iDto.getInvoicesStatusId()).getStatusName()).setHeader("Статус").setKey("invoicesStatusDto")
+                .setId("Статус");
 
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
