@@ -46,7 +46,7 @@ public class MovementServiceImpl implements MovementService {
 
         try {
             movementDto = movementDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на создание InternalOrder");
+            log.info("Успешно выполнен запрос на создание Movement");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение MovementDto - {}", e);
         }

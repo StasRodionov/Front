@@ -44,7 +44,7 @@ public class MovementProductServiceImpl implements MovementProductService {
 
         try {
             movementProductDto = movementDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на создание InternalOrder");
+            log.info("Успешно выполнен запрос на создание MovementProduct");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на получение MovementProductDto - {}", e);
         }
@@ -57,9 +57,9 @@ public class MovementProductServiceImpl implements MovementProductService {
         Call<Void> movementProductDtoCall = movementProductApi.update(movementProductUrl, movementProductDto);
         try {
             movementProductDtoCall.execute();
-            log.info("Успешно выполнен запрос на обновление экземпляра InternalOrder");
+            log.info("Успешно выполнен запрос на обновление экземпляра MovementProduct");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра InternalOrderDto - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра MovementProduct - {}", e);
         }
     }
 
@@ -69,9 +69,9 @@ public class MovementProductServiceImpl implements MovementProductService {
 
         try {
             movementProductDtoCall.execute();
-            log.info("Успешно выполнен запрос на удаление экземпляра InternalOrderDto с id= {}", id);
+            log.info("Успешно выполнен запрос на удаление экземпляра MovementProduct с id= {}", id);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра InternalOrderDto с id= {} - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра MovementProduct с id= {} - {}", e);
         }
     }
 }

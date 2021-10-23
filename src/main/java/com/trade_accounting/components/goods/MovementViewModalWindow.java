@@ -4,13 +4,11 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.InventarizationDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.models.dto.MovementProductDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.InventarizationService;
+import com.trade_accounting.services.interfaces.MovementProductService;
 import com.trade_accounting.services.interfaces.MovementService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.UnitService;
@@ -39,10 +37,15 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Route(value = "goods/add_moving", layout = AppView.class)
@@ -50,7 +53,7 @@ import java.util.List;
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class MovementViewModalWindow extends VerticalLayout {
+public class MovementViewModalWindow extends Dialog {
 
     private final ProductService productService;
     private final MovementService movementService;
@@ -58,8 +61,9 @@ public class MovementViewModalWindow extends VerticalLayout {
     private final CompanyService companyService;
     private final Notifications notifications;
     private final UnitService unitService;
-
+    private MovementDto movementDto;
     private final List<MovementDto> data;
+    private final MovementProductService movementProductService;
 
     private final ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseComboBox = new ComboBox<>();
@@ -71,6 +75,7 @@ public class MovementViewModalWindow extends VerticalLayout {
     private final TextArea textArea = new TextArea();
     private final TextArea textCom = new TextArea();
     private List<MovementProductDto> tempMovementProductDtoList = new ArrayList<>();
+    private final MultiselectComboBox<Long> movementProductsIdComboBox = new MultiselectComboBox();
 
     private final H4 totalPrice = new H4();
     private final H2 title = new H2("Добавление перемещения");
@@ -88,21 +93,21 @@ public class MovementViewModalWindow extends VerticalLayout {
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
 
 
-    public MovementViewModalWindow(InventarizationService inventarizationService,
-                                   ProductService productService, MovementService movementService, WarehouseService warehouseService,
+    public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,
-                                   Notifications notifications, UnitService unitService) {
+                                   Notifications notifications, UnitService unitService, MovementProductService movementProductService) {
         this.productService = productService;
         this.movementService = movementService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.notifications = notifications;
         this.unitService = unitService;
+        this.movementProductService = movementProductService;
         this.data = getData();
 
         configureGrid();
         paginator = new GridPaginator<>(grid, tempMovementProductDtoList, 50);
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+//        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         setSizeFull();
         add(headerLayout(), formLayout(), grid, paginator);
@@ -127,14 +132,18 @@ public class MovementViewModalWindow extends VerticalLayout {
 
     }
 
-    public void setInventarizationEdit(InventarizationDto editDto) {
-        //update
-//        //this.
-//        returnNumber.setValue(editDto.getId().toString());
-//        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-//        textArea.setValue(editDto.getComment());
-//        warehouseComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
-//        companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
+    public void setMovementForEdit(MovementDto editDto) {
+        this.movementDto = editDto;
+        returnNumber.setValue(editDto.getId().toString());
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        textArea.setValue(editDto.getComment());
+        checkboxIsSent.setValue(movementDto.getIsSent());
+        checkboxIsPrint.setValue(movementDto.getIsPrint());
+        warehouseComboBox.setValue(warehouseService.getById(editDto.getWarehouseFromId()));
+        companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
+        warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
+        Set<Long> idset = new HashSet<>(movementDto.getMovementProductsIds());
+        movementProductsIdComboBox.setValue(idset);
 
     }
 
@@ -149,7 +158,7 @@ public class MovementViewModalWindow extends VerticalLayout {
 
     private VerticalLayout formLayout() {
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(formLayout1(), formLayout2(), formLayout4());
+        verticalLayout.add(formLayout1(), formLayout2(), formLayout4(), formLayout6());
         return verticalLayout;
     }
 
@@ -167,27 +176,33 @@ public class MovementViewModalWindow extends VerticalLayout {
             if (!movementDtoBinder.validate().isOk()) {
                 movementDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
-//                InventarizationDto dto = new InventarizationDto();
-//                dto.setId(Long.parseLong(returnNumber.getValue()));
-//                dto.setCompanyId(companyComboBox.getValue().getId());
-//                dto.setWarehouseId(warehouseComboBox.getValue().getId());
-//                dto.setDate(dateTimePicker.getValue().toString());
-//                dto.setStatus(checkboxIsSent.getValue());
-//                dto.setComment(textArea.getValue());
-//                inventarizationService.create(dto);
-//
-//                UI.getCurrent().navigate("inventory");
-//                close();
-//                clearAllFieldsModalView();
-//                notifications.infoNotification(String.format("инвентаризация c ID=%s сохранен", dto.getId()));
+                MovementDto dto = new MovementDto();
+                dto.setId(Long.parseLong(returnNumber.getValue()));
+                dto.setCompanyId(companyComboBox.getValue().getId());
+                dto.setWarehouseToId(warehouseComboBox.getValue().getId());
+                dto.setWarehouseFromId(warehouseComboBox.getValue().getId());
+                dto.setDate(dateTimePicker.getValue().toString());
+                dto.setIsSent(checkboxIsSent.getValue());
+                dto.setIsPrint(checkboxIsPrint.getValue());
+                dto.setComment(textArea.getValue());
+                List<Long> idList = new ArrayList<>(movementProductsIdComboBox.getValue());
+                dto.setMovementProductsIds(idList);
+                movementService.create(dto);
+
+                UI.getCurrent().navigate("movementView");
+                close();
+                clearAllFieldsModalView();
+                notifications.infoNotification(String.format("Перемещение c ID=%s сохранен", dto.getId()));
             }
         });
     }
 
     private Button closeButton() {
         Button button = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
-        button.addClickListener(e -> button.getUI().ifPresent(ui -> ui.navigate("movementView")));
-
+        button.addClickListener(e -> {
+            close();
+            clearAllFieldsModalView();
+        });
         return button;
     }
 
@@ -214,6 +229,12 @@ public class MovementViewModalWindow extends VerticalLayout {
         return horizontalLayout;
     }
 
+    private HorizontalLayout formLayout6() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(movementProductsConfigure());
+        return horizontalLayout;
+    }
+
 //    private HorizontalLayout formLayout5() {
 //        HorizontalLayout horizontalLayout = new HorizontalLayout();
 //        horizontalLayout.add(addCom(), buttonUnit());
@@ -222,7 +243,55 @@ public class MovementViewModalWindow extends VerticalLayout {
 
     private Button buttonUnit() {
         Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e -> {
+            close();
+            MovementProductsModalView modalView = new MovementProductsModalView(movementProductService,
+            productService,
+            companyService,
+            warehouseService,
+            movementService,
+            unitService,
+            notifications
+            );
+            modalView.open();
+        });
         return button;
+    }
+
+    private HorizontalLayout  movementProductsConfigure() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        List<MovementDto> iod = movementService.getAll();
+        List<Long> checkInIod = new ArrayList<>();
+        for(MovementDto id : iod) {
+            List<Long> list = id.getMovementProductsIds();
+            checkInIod.addAll(list);
+        }
+
+        List<MovementProductDto> labels = movementProductService.getAll();
+        List<Long> items = new ArrayList<>();
+        for(MovementProductDto id : labels) {
+            Long check = id.getId();
+            if(!(checkInIod.contains(check))) {
+                items.add(id.getId());
+            }
+        }
+
+        movementProductsIdComboBox.setItems(items);
+        movementProductsIdComboBox.setItemLabelGenerator(item -> productService.getById(movementProductService
+                .getById(item).getProductId()).getName());
+        movementProductsIdComboBox.setWidth("350px");
+        Label label = new Label("Список товаров");
+        label.setWidth("100px");
+        horizontalLayout.add(label, movementProductsIdComboBox);
+
+        movementDtoBinder.forField(movementProductsIdComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(movementDto -> new HashSet<>(movementDto.getMovementProductsIds()),
+                        (movementDto, movementDto1) -> movementDto.setMovementProductsIds(movementDto
+                                .getMovementProductsIds()));
+        UI.getCurrent().navigate("movementView");
+        return horizontalLayout;
     }
 
 //    private HorizontalLayout addCom() {
@@ -376,4 +445,5 @@ public class MovementViewModalWindow extends VerticalLayout {
     private List<MovementDto> getData() {
         return movementService.getAll();
     }
+
 }
