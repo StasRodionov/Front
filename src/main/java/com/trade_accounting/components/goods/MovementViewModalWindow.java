@@ -15,6 +15,7 @@ import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -62,7 +63,6 @@ public class MovementViewModalWindow extends Dialog {
     private final Notifications notifications;
     private final UnitService unitService;
     private MovementDto movementDto;
-    private final List<MovementDto> data;
     private final MovementProductService movementProductService;
 
     private final ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
@@ -74,7 +74,7 @@ public class MovementViewModalWindow extends Dialog {
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
     private final TextArea textCom = new TextArea();
-    private List<MovementProductDto> tempMovementProductDtoList = new ArrayList<>();
+    private List<MovementProductDto> tempMovementProductDtoList;
     private final MultiselectComboBox<Long> movementProductsIdComboBox = new MultiselectComboBox();
 
     private final H4 totalPrice = new H4();
@@ -103,19 +103,18 @@ public class MovementViewModalWindow extends Dialog {
         this.notifications = notifications;
         this.unitService = unitService;
         this.movementProductService = movementProductService;
-        this.data = getData();
 
-        configureGrid();
+        this.tempMovementProductDtoList = new ArrayList<>();
         paginator = new GridPaginator<>(grid, tempMovementProductDtoList, 50);
 //        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         setSizeFull();
         add(headerLayout(), formLayout(), grid, paginator);
+        configureGrid();
 
     }
 
     private void configureGrid() {
-       grid.setItems(tempMovementProductDtoList);
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название")
                 .setKey("productDtoName").setId("Название");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание")
@@ -132,6 +131,13 @@ public class MovementViewModalWindow extends Dialog {
 
     }
 
+//    private Button buttonRefresh() {
+//        Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
+//        buttonRefresh.addClickListener(ev -> getData());
+//        buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+//        return buttonRefresh;
+//    }
+
     public void setMovementForEdit(MovementDto editDto) {
         this.movementDto = editDto;
         returnNumber.setValue(editDto.getId().toString());
@@ -144,6 +150,7 @@ public class MovementViewModalWindow extends Dialog {
         warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
         Set<Long> idset = new HashSet<>(movementDto.getMovementProductsIds());
         movementProductsIdComboBox.setValue(idset);
+        getData();
 
     }
 
@@ -257,6 +264,17 @@ public class MovementViewModalWindow extends Dialog {
         });
         return button;
     }
+
+    private void getData() {
+        List<MovementProductDto>productDtosList = new ArrayList<>();
+
+        for (Long id : movementDto.getMovementProductsIds()){
+            MovementProductDto productDto = movementProductService.getById(id);
+            productDtosList.add(productDto);
+        }
+       grid.setItems(productDtosList);
+    }
+
 
     private HorizontalLayout  movementProductsConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -442,8 +460,5 @@ public class MovementViewModalWindow extends Dialog {
         checkboxIsPrint.setValue(false);
     }
 
-    private List<MovementDto> getData() {
-        return movementService.getAll();
-    }
 
 }
