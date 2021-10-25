@@ -14,10 +14,7 @@ import com.trade_accounting.components.purchases.AcceptanceModalView;
 import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
-import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.OperationsDto;
-import com.trade_accounting.services.interfaces.OperationsService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -27,7 +24,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -56,7 +52,6 @@ import java.util.List;
 @PageTitle("Документы")
 @UIScope
 public class OperationsView extends VerticalLayout {
-    private final OperationsService operationsService;
     private final CreditOrderModal creditOrderModal;
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
     private final GoodsSubInventoryModalWindow goodsSubInventoryModalWindow;
@@ -72,10 +67,8 @@ public class OperationsView extends VerticalLayout {
     private final SalesEditShipmentView salesEditShipmentView;
 
 
-//    private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
-//    private final GridPaginator<OperationsDto> paginator;
     private final Notifications notifications;
-    public OperationsView(OperationsService operationsService, CreditOrderModal creditOrderModal,
+    public OperationsView( CreditOrderModal creditOrderModal,
                           SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                           GoodsSubInventoryModalWindow goodsSubInventoryModalWindow,
                           InternalOrderModalView internalOrderModalView,
@@ -83,7 +76,7 @@ public class OperationsView extends VerticalLayout {
                           PostingModal postingModal, IncomingPaymentModal incomingPaymentModal,
                           OutgoingPaymentModal outgoingPaymentModal, ExpenseOrderModal expenseOrderModal,
                           SupplierAccountModalView supplierAccountModalView, AcceptanceModalView acceptanceModalView, SalesEditShipmentView salesEditShipmentView, Notifications notifications) {
-        this.operationsService = operationsService;
+
         this.creditOrderModal = creditOrderModal;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.goodsSubInventoryModalWindow = goodsSubInventoryModalWindow;
@@ -98,23 +91,14 @@ public class OperationsView extends VerticalLayout {
         this.acceptanceModalView = acceptanceModalView;
         this.salesEditShipmentView = salesEditShipmentView;
         this.notifications = notifications;
-//        List<OperationsDto> data = getData();
-//        paginator = new GridPaginator<>(grid, data, 50);
+
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(getUpperLayout());
-//        configureGrid();
+
     }
 
-//    private Grid<OperationsDto> configureGrid() {
-//        grid.addColumn(OperationsDto::getDate).setHeader("Дата документа").setId("Дата документа");
-//        grid.addColumn(OperationsDto::getId).setHeader("№").setId("№");
-//        grid.addColumn(OperationsDto::getComment).setHeader("Комментарий").setId("Комментарий");
-//        return grid;
-//    }
 
-//    private List<OperationsDto> getData() {
-//        return operationsService.getAll();
-//    }
+
 
     private Component getUpperLayout(){
         HorizontalLayout mainLayout = new HorizontalLayout();
