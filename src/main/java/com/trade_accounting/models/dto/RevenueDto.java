@@ -12,20 +12,27 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RevenueDto {
+
     private Long id;
-
-    private Long idProduct;
-
-    private String description;
-
-    private Long unitId;
 
     private Integer itemNumber;
 
-    private BigDecimal amountAcceptance;
+    private Long productId;                 // Product
 
-    private String incomingNumberDate;
+    private String description;             // Product
 
-    private BigDecimal amountShipment;
+    private Long unitId;                    // Product
+
+    private Long acceptanceProductionId;    // AcceptanceProduction
+
+    private Long amountAcceptance;          // AcceptanceProduction
+
+    private Long acceptanceId;              // Acceptance
+
+    private String incomingNumberDate;      // Acceptance
+
+    private Long invoiceProductId;          // InvoiceProduct
+
+    private BigDecimal amountShipment;      // InvoiceProduct
 
 }
