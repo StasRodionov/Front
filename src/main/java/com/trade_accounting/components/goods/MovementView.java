@@ -8,6 +8,8 @@ import com.trade_accounting.models.dto.MovementProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.MovementProductService;
 import com.trade_accounting.services.interfaces.MovementService;
+import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -31,6 +33,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -45,7 +49,7 @@ import java.util.List;
 @PageTitle("Перемещения")
 @Route(value = "movementView", layout = AppView.class)
 @UIScope
-public class MovementView extends VerticalLayout {
+public class MovementView extends VerticalLayout implements AfterNavigationObserver {
 
     private final MovementService movementService;
     private final WarehouseService warehouseService;
@@ -53,6 +57,8 @@ public class MovementView extends VerticalLayout {
     private final MovementProductService movementProductService;
     private final Notifications notifications;
     private final MovementViewModalWindow view;
+    private final UnitService unitService;
+    private final ProductService productService;
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
     private final GridPaginator<MovementDto> paginator;
@@ -65,13 +71,15 @@ public class MovementView extends VerticalLayout {
                         WarehouseService warehouseService,
                         CompanyService companyService,
                         MovementProductService movementProductService,
-                        Notifications notifications, MovementViewModalWindow view) {
+                        Notifications notifications, MovementViewModalWindow view, UnitService unitService, ProductService productService) {
         this.movementService = movementService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.movementProductService = movementProductService;
         this.notifications = notifications;
         this.view = view;
+        this.unitService = unitService;
+        this.productService = productService;
         List<MovementDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -100,6 +108,20 @@ public class MovementView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
+
+        grid.addItemDoubleClickListener(e -> {
+            MovementDto dto = e.getItem();
+            MovementViewModalWindow modalView = new MovementViewModalWindow(
+                    productService,
+                    movementService,
+                    warehouseService,
+                    companyService,
+                    notifications,
+                    unitService,
+                    movementProductService);
+            modalView.setMovementForEdit(dto);
+            modalView.open();
+        });
     }
 
     private List<MovementDto> getData() {
@@ -195,12 +217,24 @@ public class MovementView extends VerticalLayout {
     }
 
     public void updateList() {
+        grid.setItems(movementService.getAll());
     }
 
     private Button buttonUnit() {
-        Button button = new Button("Перемещение", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(e -> button.getUI().ifPresent(ui -> ui.navigate("goods/add_moving")));
-        return button;
+        Button buttonUnit = new Button("Перемещение", new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonUnit.addClickListener(e -> {
+
+            MovementViewModalWindow modalView = new MovementViewModalWindow(
+                    productService,
+                    movementService,
+                    warehouseService,
+                    companyService,
+                    notifications,
+                    unitService,
+                    movementProductService);
+            modalView.open();
+        });
+        return buttonUnit;
     }
 
     private Button buttonFilter() {
@@ -261,5 +295,10 @@ public class MovementView extends VerticalLayout {
         print.setValue("Печать");
         print.setWidth("110px");
         return print;
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }
