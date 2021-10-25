@@ -59,7 +59,9 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
         Tabs tabs = new Tabs(
                 new Tab("Тех. карты"),
                 new Tab("Заказы на производство"),
-                new Tab("Тех. операции")
+                new Tab("Тех. операции"),
+                new Tab("Этапы")
+
         );
         tabs.addSelectedChangeListener(event -> {
             String name = event.getSelectedTab().getLabel();
