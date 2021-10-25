@@ -14,18 +14,18 @@ import java.math.BigDecimal;
 public class RevenueDto {
     private Long id;
 
-    private Long idProduct; //ProductDto
+    private Long idProduct;
 
-    private String description; //ProductDto
+    private String description;
 
-    private Long unitId; //ProductDto
+    private Long unitId;
 
-    private int itemNumber; //ProductDto
+    private Integer itemNumber;
 
-    private BigDecimal amountAcceptance; //AcceptanceProductionDto
+    private BigDecimal amountAcceptance;
 
-    private String incomingNumberDate; //AcceptanceDto
+    private String incomingNumberDate;
 
-    private BigDecimal amountShipment; //InvoiceProductDto
+    private BigDecimal amountShipment;
 
 }
