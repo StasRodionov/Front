@@ -73,7 +73,9 @@ public class UnitModalWindow extends Dialog {
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
             UnitDto newUnitDto = new UnitDto();
-            newUnitDto.setId(id);
+            if(id != null) {
+                newUnitDto.setId(id);
+            }
             newUnitDto.setFullName(fullNameField.getValue());
             newUnitDto.setShortName(shortNameField.getValue());
             newUnitDto.setSortNumber(sortNumberField.getValue());

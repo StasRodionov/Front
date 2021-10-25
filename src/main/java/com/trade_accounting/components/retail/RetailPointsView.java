@@ -14,10 +14,15 @@ import com.trade_accounting.services.interfaces.RetailPointsService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -132,6 +137,19 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog modal = new Dialog();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Html content = new Html("<div><p>Выплаты фиксируют выдачу наличных денег из точки продаж.</p>" +
+                "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Выплаты</a></p></div>");
+        Button close = new Button(new Icon(VaadinIcon.CLOSE));
+        close.setWidth("30px");
+        close.addClickListener(e -> modal.close());
+        horizontalLayout.add(content, new Div(close));
+        modal.add(horizontalLayout);
+        modal.setWidth("500px");
+        modal.setHeight("150px");
+        buttonQuestion.addClickListener(e -> modal.open());
+        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
         return buttonQuestion;
     }
 

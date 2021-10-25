@@ -18,7 +18,6 @@ import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.TaxSystemService;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.UnitService;
-import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
@@ -95,6 +94,8 @@ public class GoodsModalWindow extends Dialog {
     private final HorizontalLayout footer = new HorizontalLayout();
     private final Binder<ProductDto> productDtoBinder = new Binder<>(ProductDto.class);
     private final Binder<ProductPriceDto> priceDtoBinder = new Binder<>(ProductPriceDto.class);
+
+    private ProductDto productDto;
 
     @Autowired
     public GoodsModalWindow(ProductPriceService productPriceService, UnitService unitService,
@@ -175,21 +176,18 @@ public class GoodsModalWindow extends Dialog {
         countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Страна происхождения", countryOriginField));
 
-        productDtoBinder.forField(unitDtoComboBox)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("unitId");
+        unitDtoComboBox.setPlaceholder("Выберите единицу измерения");
+        unitDtoComboBox.setItems(unitService.getAll());
         unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
         add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
 
-        productDtoBinder.forField(contractorDtoComboBox)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorId");
+        contractorDtoComboBox.setPlaceholder("Выберите поставщика");
+        contractorDtoComboBox.setItems(contractorService.getAll());
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
         add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
 
-        productDtoBinder.forField(taxSystemDtoComboBox)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("taxSystemId");
+        taxSystemDtoComboBox.setPlaceholder("Выберите систему налогообложения");
+        taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
         add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
 
@@ -200,9 +198,8 @@ public class GoodsModalWindow extends Dialog {
         saleTax.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("НДС", saleTax));
 
-        productDtoBinder.forField(productGroupDtoComboBox)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("productGroupId");
+        productGroupDtoComboBox.setPlaceholder("Выберите группу продуктов");
+        productGroupDtoComboBox.setItems(productGroupService.getAll());
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
 
@@ -214,9 +211,8 @@ public class GoodsModalWindow extends Dialog {
         minimumBalance.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Артикул", minimumBalance));
 
-        productDtoBinder.forField(attributeOfCalculationObjectComboBox)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("attributeOfCalculationObjectId");
+        attributeOfCalculationObjectComboBox.setPlaceholder("Выберите предмет расчета");
+        attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
         attributeOfCalculationObjectComboBox.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
         add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
 
@@ -234,17 +230,26 @@ public class GoodsModalWindow extends Dialog {
     }
 
 
-    public void open(ProductDto productDto) {
+    public void open(ProductDto editProductDto) {
         init();
+        this.productDto = editProductDto;
         productDto = productService.getById(productDto.getId());
         nameTextField.setValue(productDto.getName());
         descriptionField.setValue(productDto.getDescription());
         weightNumberField.setValue(productDto.getWeight());
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
-        countryOriginField.setValue(productDto.getCountryOrigin());
+        if(productDto.getCountryOrigin()==null){
+            countryOriginField.setValue("нет данных");
+        } else {
+            countryOriginField.setValue(productDto.getCountryOrigin());
+        }
         minimumBalance.setValue(BigDecimal.valueOf(productDto.getMinimumBalance()));
-        saleTax.setValue(productDto.getSaleTax());
+        if(productDto.getSaleTax()==null){
+            saleTax.setValue("нет данных");
+        } else {
+            saleTax.setValue(productDto.getSaleTax());
+        }
         itemNumber.setValue(BigDecimal.valueOf(productDto.getItemNumber()));
         unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
         contractorDtoComboBox.setValue(contractorService.getById(productDto.getContractorId()));
@@ -259,7 +264,7 @@ public class GoodsModalWindow extends Dialog {
             image.setHeight("100px");
             imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
         }
-        initTypeOfPriceFrom(productDto.getProductPriceIds());
+//        initTypeOfPriceFrom(productDto.getProductPriceIds());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
 
         super.open();
@@ -479,5 +484,4 @@ public class GoodsModalWindow extends Dialog {
         horizontalLayout.add(label, field);
         return horizontalLayout;
     }
-
 }

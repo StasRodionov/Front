@@ -6,16 +6,20 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RoleService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -24,11 +28,14 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +53,8 @@ public class EmployeeView extends VerticalLayout {
     private final GridFilter<EmployeeDto> filter;
     private final GridPaginator<EmployeeDto> paginator;
     private final Notifications notifications;
+    private String addTitle = "Добавление сотрудника";
+    private String editTitle = "Изменение сотрудника";
 
     public EmployeeView(EmployeeService employeeService, RoleService roleService, ImageService imageService, Notifications notifications,
                         DepartmentService departmentService, PositionService positionService) {
@@ -60,6 +69,7 @@ public class EmployeeView extends VerticalLayout {
         this.filter = new GridFilter<>(grid);
         this.paginator = new GridPaginator<>(grid, data, 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        configureFilter();
         add(upperLayout(), filter, grid, paginator);
     }
 
@@ -72,40 +82,42 @@ public class EmployeeView extends VerticalLayout {
         log.info("Таблица обновилась");
     }
 
+    private void configureFilter() {
+        filter.onSearchClick(e -> paginator.setData(employeeService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(employeeService.getAll()));
+    }
+
     private void configureGrid() {
         grid.removeAllColumns();
-        grid.addColumn(EmployeeDto::getLastName).setHeader("Фамилия").setId("Фамилия");
+        Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
+            @Override
+            public Component createComponent(EmployeeDto item) {
+                ImageDto imageDto = imageService.getById(item.getImageDtoId());
+                if (imageDto != null) {
+                    Image image = new Image(new StreamResource("image", () ->
+                            new ByteArrayInputStream(imageDto.getContent())), "");
+                    image.setHeight("48px");
 
-        // Нужно добавить фотографию при инициализации сотрудника
-
-//        Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
-//            @Override
-//            public Component createComponent(EmployeeDto item) {
-//                ImageDto imageDto = imageService.getById(item.getImageDtoId());
-//                if (imageDto != null) {
-//                    Image image = new Image(new StreamResource("image", () ->
-//                            new ByteArrayInputStream(imageDto.getContent())), "");
-//                    image.setHeight("48px");
-//
-//                    return image;
-//                }
-//                return new Label();
-//            }
-//        }).setHeader("Фото");
-//        photoColumn.setKey("imageDto").setId("Фото");
-        grid.addColumn(EmployeeDto::getFirstName).setHeader("Имя").setId("Имя");
-        grid.addColumn(EmployeeDto::getMiddleName).setHeader("Отчество").setId("Отчество");
-        grid.addColumn(EmployeeDto::getEmail).setHeader("E-mail").setId("E-mail");
-        grid.addColumn(EmployeeDto::getPhone).setHeader("Телефон").setId("Телефон");
-        grid.addColumn(EmployeeDto::getDescription).setHeader("Описание").setId("Описание");
+                    return image;
+                }
+                return new Label();
+            }
+        }).setHeader("Фото");
+        photoColumn.setKey("imageDto").setId("Фото");
+        grid.addColumn(EmployeeDto::getLastName).setKey("lastName").setHeader("Фамилия").setId("Фамилия");
+        grid.addColumn(EmployeeDto::getFirstName).setKey("firstName").setHeader("Имя").setId("Имя");
+        grid.addColumn(EmployeeDto::getMiddleName).setKey("middleName").setHeader("Отчество").setId("Отчество");
+        grid.addColumn(EmployeeDto::getEmail).setKey("email").setHeader("E-mail").setId("E-mail");
+        grid.addColumn(EmployeeDto::getPhone).setKey("phone").setHeader("Телефон").setId("Телефон");
+        grid.addColumn(EmployeeDto::getDescription).setKey("description").setHeader("Описание").setId("Описание");
         grid.addColumn(employeeDto -> (departmentService.getById(employeeDto.getDepartmentDtoId()).getName()))
-                .setHeader("Отдел").setId("Отдел");
+                .setKey("department").setHeader("Отдел").setId("Отдел");
+        grid.addColumn(employeeDto -> (positionService.getById(employeeDto.getPositionDtoId()).getName()))
+                .setKey("position").setHeader("Должность").setId("Должность");
         grid.addColumn(employeeDto -> (employeeDto.getRoleDtoIds().stream()
                 .map(map -> roleService.getById(map).getName())
                 .collect(Collectors.toSet())))
                 .setHeader("Роль").setId("Роль");
-        grid.addColumn(employeeDto -> (positionService.getById(employeeDto.getPositionDtoId()).getName()))
-                .setHeader("Должность").setId("Должность");
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
             EmployeeDto employeeDto = event.getItem();
@@ -119,7 +131,8 @@ public class EmployeeView extends VerticalLayout {
                             imageDto,
                             notifications,
                             departmentService,
-                            positionService);
+                            positionService,
+                            editTitle);
             addEmployeeModalWindowView.addDetachListener(e -> updateGrid());
             addEmployeeModalWindowView.open();
         });
@@ -153,10 +166,11 @@ public class EmployeeView extends VerticalLayout {
                             employeeService,
                             roleService,
                             imageService,
-                            new ImageDto(),
+                            imageService.getById(1L),
                             notifications,
                             departmentService,
-                            positionService);
+                            positionService,
+                            addTitle);
             addEmployeeModalWindowView.addDetachListener(event -> updateGrid());
             addEmployeeModalWindowView.isModal();
             addEmployeeModalWindowView.open();
@@ -180,7 +194,12 @@ public class EmployeeView extends VerticalLayout {
         text.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         text.setWidth("300px");
         text.setValueChangeMode(ValueChangeMode.EAGER);
+        text.addValueChangeListener(event -> updateList(text.getValue()));
         return text;
+    }
+
+    private void updateList(String text) {
+        grid.setItems(employeeService.findBySearch(text));
     }
 
     private H2 title() {
@@ -198,19 +217,36 @@ public class EmployeeView extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> valueSelect = new Select<>();
-        valueSelect.setItems("","Изменить", "Удалить");
-        valueSelect.setValue("");
-        if (valueSelect.getValue().equals("Изменить")) {
-            notifications.infoNotification("Сотрудник успешно изменен");
-            valueSelect.setPlaceholder("");
-        }
+        valueSelect.setItems("Выберите действие", "Удалить");
+        valueSelect.setValue("Выберите действие");
+        valueSelect.addValueChangeListener(event -> {
+
         if (valueSelect.getValue().equals("Удалить")) {
-            notifications.infoNotification("Сотрудник успешно удален");
+            deleteSelectedEmployees();
+            grid.deselectAll();
+            valueSelect.setValue("Выберите действие");
+            paginator.setData(getData());
             valueSelect.setPlaceholder("");
         }
+        });
 
         valueSelect.setWidth("130px");
         return valueSelect;
+    }
+
+    private void deleteSelectedEmployees() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (EmployeeDto employeeDto : grid.getSelectedItems()) {
+                employeeService.deleteById(employeeDto.getId());
+            }
+            if (grid.getSelectedItems().size() == 1) {
+                notifications.infoNotification("Выбранный сотрудник успешно удален");
+            } else if (grid.getSelectedItems().size() > 1) {
+                notifications.infoNotification("Выбранные сотрудники успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужных сотрудников");
+        }
     }
 
     private HorizontalLayout upperLayout() {

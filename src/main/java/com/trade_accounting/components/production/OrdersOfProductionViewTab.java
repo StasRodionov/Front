@@ -9,6 +9,9 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -74,16 +77,16 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     private final List<OrdersOfProductionDto> data;
     private GridFilter<OrdersOfProductionDto> filter;
     private final Notifications notifications;
-    private final OrdersOfProductionModalWindow modalWindow;
     private final MenuItem print;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/ordersOfProduction_templates/";
+    private final String editString = "Изменение заказа на производство";
+    private final String addString = "Добавление заказа на производство";
 
-    OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnicalCardService technicalCardService, Notifications notifications, OrdersOfProductionModalWindow modalWindow) {
+    OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnicalCardService technicalCardService, Notifications notifications) {
             this.ordersOfProductionService = ordersOfProductionService;
             this.companyService = companyService;
         this.technicalCardService = technicalCardService;
         this.notifications = notifications;
-        this.modalWindow = modalWindow;
         setSizeFull();
         print = selectXlsTemplateButton.addItem("Печать");
         this.data = getData();
@@ -197,13 +200,12 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
             technicalCardService,
             companyService,
             ordersOfProductionService,
-            notifications
+            notifications,
+            editString
             );
            modalWindow.setOrdersOfProductionEdit(dto);
            modalWindow.open();
         });
-
-
     }
 
     private void configureFilter() {
@@ -249,9 +251,24 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         return horizontalLayout;
     }
 
-        private Button buttonQuestion () {
+    private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Dialog modal = new Dialog();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Html content = new Html("<div><p>Технологическая карта описывает состав изделия — с комплектующими, сырьем и материалами. " +
+                "Технологическая карта может использоваться как в базовом, так и в расширенном способе производства</p>" +
+                "<p>Читать инструкцию: </p><p><a href=\"#\" target=\"_blank\">Учет производственных операций</a></p>" +
+                "<p>Видео: </p><p><a href=\"#\" target=\"_blank\">Базовый способ</a></p></div>");
+        Button close = new Button(new Icon(VaadinIcon.CLOSE));
+        close.setWidth("30px");
+        close.addClickListener(e -> modal.close());
+        horizontalLayout.add(content, new Div(close));
+        modal.add(horizontalLayout);
+        modal.setWidth("500px");
+        modal.setHeight("300px");
+        buttonQuestion.addClickListener(e -> modal.open());
+        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
         return buttonQuestion;
     }
 
@@ -268,7 +285,16 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
 
         private Button buttonUnit () {
         Button buttonUnit = new Button("Заказ", new Icon(VaadinIcon.PLUS_CIRCLE));
-            buttonUnit.addClickListener(e -> modalWindow.open());
+            buttonUnit.addClickListener(e -> {
+                OrdersOfProductionModalWindow modalWindow = new OrdersOfProductionModalWindow(
+                        technicalCardService,
+                        companyService,
+                        ordersOfProductionService,
+                        notifications,
+                        addString
+                );
+                modalWindow.open();
+            });
             updateList();
         return buttonUnit;
     }

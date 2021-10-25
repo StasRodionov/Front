@@ -6,12 +6,20 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.services.interfaces.*;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,18 +27,31 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "buyersReturns", layout = AppView.class)
@@ -38,7 +59,7 @@ import java.util.List;
 @SpringComponent
 @UIScope
 public class SalesSubBuyersReturnsView extends VerticalLayout {
-
+    private final TextField textField = new TextField();
     private final BuyersReturnService buyersReturnService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -50,6 +71,9 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
     ContractService contractService;
+    private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final MenuItem print;
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
 
     @Autowired
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
@@ -64,6 +88,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.data = buyersReturnService.getAll();
         this.notifications = notifications;
+        print = selectXlsTemplateButton.addItem("Печать");
 
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
@@ -81,8 +106,85 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getToolbar(), filter);
         configureGrid();
+        configureSelectXlsTemplateButton();
     }
 
+    private void configureSelectXlsTemplateButton() {
+        SubMenu printSubMenu = print.getSubMenu();
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
+        uploadXlsMenuItem(printSubMenu);
+    }
+
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+    }
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        List<String> sumList = new ArrayList<>();
+        List<BuyersReturnDto> list1 = buyersReturnService.getAll();
+        PrintSalesSubBuyersReturnsXls printSalesSubBuyersReturnsXls = new PrintSalesSubBuyersReturnsXls(file.getPath(), buyersReturnService.getAll(),
+                contractorService, companyService, sumList );
+        return new Anchor(new StreamResource(templateName,printSalesSubBuyersReturnsXls::createReport), templateName);
+    }
+
+    private void uploadXlsMenuItem(SubMenu subMenu) {
+        MenuItem menuItem = subMenu.addItem("добавить шаблон");
+        Dialog dialog = new Dialog();
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        configureUploadFinishedListener(upload, buffer, dialog);
+        dialog.add(upload);
+        menuItem.addClickListener(x -> dialog.open());
+    }
+
+    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog) {
+        upload.addFinishedListener(event -> {
+            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
+                getErrorNotification("Файл с таким именем уже существует");
+            } else {
+                File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
+                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
+                    fos.write(buffer.getInputStream().readAllBytes());
+                    configureSelectXlsTemplateButton();
+                    getInfoNotification("Файл успешно загружен");
+                    log.info("xls шаблон успешно загружен");
+                } catch (IOException e) {
+                    getErrorNotification("При загрузке шаблона произошла ошибка");
+                    log.error("при загрузке xls шаблона произошла ошибка");
+                }
+                dialog.close();
+            }
+        });
+    }
+
+    private void getErrorNotification(String message) {
+        Div content = new Div();
+        content.addClassName("my-style");
+        content.setText(message);
+        Notification notification = new Notification(content);
+        notification.setDuration(5000);
+        String styles = ".my-style { color: red; }";
+        StreamRegistration resource = UI.getCurrent().getSession()
+                .getResourceRegistry()
+                .registerResource(new StreamResource("styles.css", () ->
+                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
+        UI.getCurrent().getPage().addStyleSheet(
+                "base://" + resource.getResourceUri().toString());
+        notification.open();
+    }
+
+    private void getInfoNotification(String message) {
+        Notification notification = new Notification(message, 5000);
+        notification.open();
+    }
 
     private void configureGrid() {
         grid.removeAllColumns();
@@ -119,7 +221,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), getPrint(), textField(),
+        toolbar.add(getButtonQuestion(), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), selectXlsTemplateButton, textField(),
                 numberField(), getSelect(), getStatus(), buttonSettings());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
@@ -162,14 +264,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     }
 
 
-
-    private Select<String> getPrint() {
-        Select getPrint = new Select();
-        getPrint.setWidth("130px");
-        getPrint.setItems("Печать", "Взаиморасчеты");
-        getPrint.setValue("Печать");
-        return getPrint;
-    }
 
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)

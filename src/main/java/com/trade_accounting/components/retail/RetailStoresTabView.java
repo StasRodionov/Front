@@ -9,10 +9,15 @@ import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -28,8 +33,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Route(value = "RetailStoresTabView", layout = AppView.class)
 @PageTitle("Точки продаж")
@@ -74,7 +81,10 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         grid.addColumn(unused -> "0").setHeader("Чеки").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Средний чек").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Денег в кассе").setWidth("20px");
-        grid.addColumn(unused -> getCashiers()).setWidth("100px").setHeader("Кассиры").setId("Кассиры");
+        grid.addColumn(unused -> (unused.getCashiersIds().stream()
+                        .map(map -> employeeService.getById(map).getFirstName())
+                        .collect(Collectors.toSet())))
+                        .setWidth("100px").setHeader("Кассиры").setId("Кассиры");
         grid.addColumn(unused -> "-").setHeader("Синхронизация");
         grid.addColumn(unused -> "Нет").setHeader("ФН").setWidth("20px");
         grid.setHeight("66vh");
@@ -119,6 +129,19 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     private Button buttonQuestion() {
         Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        com.vaadin.flow.component.dialog.Dialog dialog = new Dialog();
+        Button cancelButton = new Button("Закрыть", event -> dialog.close());
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        buttonsLayout.addComponentAsFirst(cancelButton);
+        dialog.add(new Text("Для каждой точки продаж можно назначить отдельный склад, " +
+                "тип цен и указать кассиров, которые получат к ней доступ. " +
+                "В карточке точки продаж отображаются данные о кассе, " +
+                "фискальном накопителе и активности."));
+        dialog.setWidth("500px");
+        dialog.setHeight("200px");
+        buttonQuestion.addClickListener(event -> dialog.open());
+        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
+        dialog.add(new Div(cancelButton));
         return buttonQuestion;
     }
 
@@ -160,13 +183,4 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         updateList();
     }
 
-    private String getCashiers() {
-        List<EmployeeDto> list = employeeService.getAll();
-        long size = list.size();
-        Long random = 1 + (long) (Math.random() * size);
-
-        EmployeeDto employeeDto = employeeService.getById(random);
-
-        return employeeDto.toString();
-    }
 }

@@ -34,21 +34,19 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     private final OrdersOfProductionService ordersOfProductionService;
     private final CompanyService companyService;
     private final TechnologicalOperationsModalView view;
-    private final OrdersOfProductionModalWindow modalWindow;
 
 
 
     @Autowired
     public ProductionSubMenuView(TechnicalCardService technicalCardService,
                                  TechnicalCardGroupService technicalCardGroupService,
-                                 ProductService productService, TechnicalCardProductionService technicalCardProductionService, Notifications notifications, TechnicalOperationsService technicalOperationsService, WarehouseService warehouseService, OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnologicalOperationsModalView view, OrdersOfProductionModalWindow modalWindow) {
+                                 ProductService productService, TechnicalCardProductionService technicalCardProductionService, Notifications notifications, TechnicalOperationsService technicalOperationsService, WarehouseService warehouseService, OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnologicalOperationsModalView view) {
         this.notifications = notifications;
         this.technicalOperationsService = technicalOperationsService;
         this.warehouseService = warehouseService;
         this.ordersOfProductionService = ordersOfProductionService;
         this.companyService = companyService;
         this.view = view;
-        this.modalWindow = modalWindow;
         div = new Div();
         add(configurationSubMenu(), div);
         this.technicalCardService = technicalCardService;
@@ -61,6 +59,9 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
         Tabs tabs = new Tabs(
                 new Tab("Тех. карты"),
                 new Tab("Заказы на производство"),
+                new Tab("Тех. операции"),
+                new Tab("Этапы")
+
                 new Tab("Тех. операции"),
                 new Tab("Произведственные Задания")
         );
@@ -76,7 +77,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                 case "Заказы на производство":
                     div.removeAll();
                     div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService,technicalCardService,
-                            notifications, modalWindow));
+                            notifications));
                     break;
                 case "Тех. операции":
                     div.removeAll();
