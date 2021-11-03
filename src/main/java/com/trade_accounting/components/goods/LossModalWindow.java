@@ -297,7 +297,7 @@ public class LossModalWindow extends Dialog {
                 .bind(lossDto -> new HashSet<>(lossDto.getLossProductsIds()),
                         (lossDto, lossDto1) -> lossDto.setLossProductsIds(lossDto
                                 .getLossProductsIds()));
-        UI.getCurrent().navigate("lossView");
+//        UI.getCurrent().navigate("lossView");
         return horizontalLayout;
     }
 }

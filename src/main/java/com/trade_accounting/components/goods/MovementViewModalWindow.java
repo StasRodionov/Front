@@ -145,7 +145,7 @@ public class MovementViewModalWindow extends Dialog {
         textArea.setValue(editDto.getComment());
         checkboxIsSent.setValue(movementDto.getIsSent());
         checkboxIsPrint.setValue(movementDto.getIsPrint());
-        warehouseComboBox.setValue(warehouseService.getById(editDto.getWarehouseFromId()));
+        warehouseComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
         Set<Long> idset = new HashSet<>(movementDto.getMovementProductsIds());
@@ -187,7 +187,7 @@ public class MovementViewModalWindow extends Dialog {
                 dto.setId(Long.parseLong(returnNumber.getValue()));
                 dto.setCompanyId(companyComboBox.getValue().getId());
                 dto.setWarehouseToId(warehouseComboBox.getValue().getId());
-                dto.setWarehouseFromId(warehouseComboBox.getValue().getId());
+                dto.setWarehouseId(warehouseComboBox.getValue().getId());
                 dto.setDate(dateTimePicker.getValue().toString());
                 dto.setIsSent(checkboxIsSent.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
@@ -444,6 +444,7 @@ public class MovementViewModalWindow extends Dialog {
         });
         return buttonDelete;
     }
+
 
     public void deleteInvoiceById(Long movementDtoId) {
         movementService.deleteById(movementDtoId);

@@ -17,7 +17,7 @@ public class MovementDto {
 
     private String whenChangedDate;
 
-    private Long warehouseFromId;
+    private Long warehouseId;
 
     private BigDecimal sum;
 
