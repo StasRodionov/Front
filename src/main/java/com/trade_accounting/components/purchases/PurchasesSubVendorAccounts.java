@@ -102,7 +102,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Grid<SupplierAccountDto> configureGrid() {
         grid.addColumn("id").setWidth("20px").setHeader("№").setId("№");
-        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Время").setSortable(true)
+        grid.addColumn(SupplierAccountDto::getDate).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
         grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName()).setWidth("200px")
                 .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");

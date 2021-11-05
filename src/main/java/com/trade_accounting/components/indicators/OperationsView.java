@@ -30,6 +30,9 @@ import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.models.dto.MovementProductDto;
 import com.trade_accounting.models.dto.OperationsDto;
 import com.trade_accounting.models.dto.PaymentDto;
+import com.trade_accounting.models.dto.ShipmentDto;
+import com.trade_accounting.models.dto.ShipmentProductDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -48,6 +51,9 @@ import com.trade_accounting.services.interfaces.MovementProductService;
 import com.trade_accounting.services.interfaces.MovementService;
 import com.trade_accounting.services.interfaces.OperationsService;
 import com.trade_accounting.services.interfaces.PaymentService;
+import com.trade_accounting.services.interfaces.ShipmentProductService;
+import com.trade_accounting.services.interfaces.ShipmentService;
+import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -123,6 +129,9 @@ public class OperationsView extends VerticalLayout {
     private final InvoiceProductService invoiceProductService;
     private final AcceptanceService acceptanceService;
     private final AcceptanceProductionService acceptanceProductionService;
+    private final SupplierAccountService supplierAccountService;
+    private final ShipmentService shipmentService;
+    private final ShipmentProductService shipmentProductService;
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
     private final GridPaginator<OperationsDto> paginator;
@@ -135,6 +144,8 @@ public class OperationsView extends VerticalLayout {
     private List<Long> inventarizationsIds;
     private List<Long> invoiceIds;
     private List<Long> acceptanceIds;
+    private List<Long> supplierAccountIds;
+    private List<Long> shipmentIds;
 
     public OperationsView(CreditOrderModal creditOrderModal,
                           SalesEditCreateInvoiceView salesEditCreateInvoiceView,
@@ -158,7 +169,8 @@ public class OperationsView extends VerticalLayout {
                           InventarizationProductService inventarizationProductService,
                           InvoiceService invoiceService, InvoiceProductService invoiceProductService,
                           AcceptanceService acceptanceService, AcceptanceProductionService acceptanceProductionService,
-                          Notifications notifications) {
+                          SupplierAccountService supplierAccountService, ShipmentService shipmentService,
+                          ShipmentProductService shipmentProductService, Notifications notifications) {
         this.creditOrderModal = creditOrderModal;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.goodsSubInventoryModalWindow = goodsSubInventoryModalWindow;
@@ -191,6 +203,9 @@ public class OperationsView extends VerticalLayout {
         this.invoiceProductService = invoiceProductService;
         this.acceptanceService = acceptanceService;
         this.acceptanceProductionService = acceptanceProductionService;
+        this.supplierAccountService = supplierAccountService;
+        this.shipmentService = shipmentService;
+        this.shipmentProductService = shipmentProductService;
         this.notifications = notifications;
         List<OperationsDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -206,6 +221,8 @@ public class OperationsView extends VerticalLayout {
         inventarizationsIds = getInventarizationsIds();
         invoiceIds = getInvoiceIds();
         acceptanceIds = getAcceptanceIds();
+        supplierAccountIds = getSupplierAccountIds();
+        shipmentIds = getShipmentIds();
 
     }
 
@@ -293,6 +310,10 @@ public class OperationsView extends VerticalLayout {
             InventarizationDto invDto = inventarizationService.getById(operationsDto.getId());
             warehouseFrom = warehouseService.getById(invDto.getWarehouseId()).getName();
             return warehouseFrom;
+        } else if (shipmentIds.contains(operationsDto.getId())) {
+            ShipmentDto shipmentDto = shipmentService.getById(operationsDto.getId());
+            warehouseFrom = warehouseService.getById(shipmentDto.getWarehouseId()).getName();
+            return warehouseFrom;
         }
         else {
             warehouseFrom = " ";
@@ -341,6 +362,14 @@ public class OperationsView extends VerticalLayout {
         } else if (acceptanceIds.contains(operationsDto.getId())) {
             AcceptanceDto acceptanceDto = acceptanceService.getById(operationsDto.getId());
             contractor = contractorService.getById(acceptanceDto.getContractorId()).getName();
+            return contractor;
+        } else if (supplierAccountIds.contains(operationsDto.getId())) {
+            SupplierAccountDto supplierAccountDto = supplierAccountService.getById(operationsDto.getId());
+            contractor = contractorService.getById(supplierAccountDto.getContractorId()).getName();
+            return contractor;
+        } else if (shipmentIds.contains(operationsDto.getId())) {
+            ShipmentDto shipmentDto = shipmentService.getById(operationsDto.getId());
+            contractor = contractorService.getById(shipmentDto.getContractorId()).getName();
             return contractor;
         }
         else {
@@ -522,6 +551,21 @@ public class OperationsView extends VerticalLayout {
         return accIds;
     }
 
+    private List<Long> getSupplierAccountIds(){
+        List<Long> suppIds = new ArrayList<>();
+        for (SupplierAccountDto supplierAccountDto : supplierAccountService.getAll()) {
+            suppIds.add(supplierAccountDto.getId());
+        }
+        return suppIds;
+    }
+
+    private List<Long> getShipmentIds() {
+        List<Long> shipIds = new ArrayList<>();
+        for (ShipmentDto shipmentDto : shipmentService.getAll()){
+            shipIds.add(shipmentDto.getId());
+        }
+        return shipIds;
+    }
 
 
     private String getTotalPrice(OperationsDto operationsDto){
@@ -567,15 +611,26 @@ public class OperationsView extends VerticalLayout {
                 totalPrice = totalPrice.add(corrPrDto.getAmount().multiply(corrPrDto.getPrice()));
             }
             return String.format("%.2f", totalPrice);
-        }
-        else {
-            MovementDto movementDto = movementService.getById(1L);
-            for (Long id : movementDto.getMovementProductsIds()) {
-                MovementProductDto movementProductDto = movementProductService.getById(id);
-                totalPrice = totalPrice.add(movementProductDto.getAmount()
-                        .multiply(movementProductDto.getPrice()));
+        } else if(shipmentIds.contains(operationsDto.getId())){
+            ShipmentDto shipmentDto = shipmentService.getById(operationsDto.getId());
+            for (Long id : shipmentDto.getShipmentProductsIds()) {
+                ShipmentProductDto shipmentProductDto = shipmentProductService.getById(id);
+                totalPrice = totalPrice.add(shipmentProductDto.getAmount().multiply(shipmentProductDto.getPrice()));
             }
             return String.format("%.2f", totalPrice);
+        }
+
+
+//        else if (acceptanceIds.contains(operationsDto.getId())) {
+//            AcceptanceDto acceptanceDto = acceptanceService.getById(operationsDto.getId());
+//            for (Long id : acceptanceDto.getAcceptanceProductIds()) {
+//                AcceptanceProductionDto acceptanceProductionDto = acceptanceProductionService.getById(id);
+//                totalPrice = totalPrice.add(acceptanceProductionDto.getAmount().multiply(acceptanceProductionDto.getPrice()));
+//            }
+//            return String.format("%.2f", totalPrice);
+//        }
+        else {
+            return String.valueOf(0.00);
         }
     }
 
@@ -614,10 +669,21 @@ public class OperationsView extends VerticalLayout {
             typeOfOperation = "Инвентаризация";
             return typeOfOperation;
         } else if (invoiceIds.contains(operationsDto.getId())) {
-            typeOfOperation = "Заказ поставщику";
+            InvoiceDto invoiceDto = invoiceService.getById(operationsDto.getId());
+            if (invoiceDto.getTypeOfInvoice().equals("EXPENSE")) {
+                typeOfOperation = "Заказ поставщику";
+            } else {
+                typeOfOperation = "Заказ покупателя";
+            }
             return typeOfOperation;
         } else if (acceptanceIds.contains(operationsDto.getId())) {
             typeOfOperation = "Приемки";
+            return typeOfOperation;
+        } else if (supplierAccountIds.contains(operationsDto.getId())){
+            typeOfOperation = "Счет поставщика";
+            return typeOfOperation;
+        } else if (shipmentIds.contains(operationsDto.getId())) {
+            typeOfOperation = "Отгрузка";
             return typeOfOperation;
         }
         else {
