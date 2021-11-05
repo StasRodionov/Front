@@ -232,8 +232,52 @@ public class OperationsView extends VerticalLayout {
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addItemDoubleClickListener(e-> {
+            OperationsDto dto = e.getItem();
+            openModalWindow(dto);
+        });
 
     }
+
+    private void openModalWindow(OperationsDto dto) {
+        Long operationId = dto.getId();
+        if (lossIds.contains(dto.getId())) {
+            LossDto lossDto = lossService.getById(dto.getId());
+            lossModalWindow.setLossEdit(lossDto);
+            lossModalWindow.open();
+        } else if (movementsIds.contains(dto.getId())) {
+            MovementDto movementDto = movementService.getById(dto.getId());
+            movementViewModalWindow.setMovementForEdit(movementDto);
+            movementViewModalWindow.open();
+        } else if (inventarizationsIds.contains(operationId)) {
+            InventarizationDto inventarizationDto = inventarizationService.getById(operationId);
+            goodsSubInventoryModalWindow.setInventarizationEdit(inventarizationDto);
+            goodsSubInventoryModalWindow.open();
+        } else if (internalOrdersIds.contains(operationId)) {
+            InternalOrderDto internalOrderDto = internalOrderService.getById(operationId);
+            internalOrderModalView.setInternalOrderForEdit(internalOrderDto);
+            internalOrderModalView.open();
+        } else if (paymentsIds.contains(operationId)) {
+            PaymentDto paymentDto = paymentService.getById(operationId);
+            if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
+                incomingPaymentModal.setPaymentDataForEdit(paymentDto);
+                incomingPaymentModal.open();
+            } else {
+                outgoingPaymentModal.setPaymentDataForEdit(paymentDto);
+                outgoingPaymentModal.open();
+            }
+        } else if (correctionIds.contains(operationId)) {
+            CorrectionDto correctionDto = correctionService.getById(operationId);
+            postingModal.setPostingEdit(correctionDto);
+            postingModal.open();
+        } else if (acceptanceIds.contains(operationId)){
+            AcceptanceDto acceptanceDto = acceptanceService.getById(operationId);
+            acceptanceModalView.setAcceptanceForEdit(acceptanceDto);
+            acceptanceModalView.open();
+        }
+    }
+
+//    invoiceIds = getInvoiceIds();
 
     private String getDWarehouseFrom(OperationsDto operationsDto) {
         String warehouseFrom;
@@ -534,6 +578,8 @@ public class OperationsView extends VerticalLayout {
             return String.format("%.2f", totalPrice);
         }
     }
+
+
 
 
     private Component getIsPrintIcon(OperationsDto operationsDto) {
