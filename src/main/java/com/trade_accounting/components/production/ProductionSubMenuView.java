@@ -61,7 +61,6 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                 new Tab("Заказы на производство"),
                 new Tab("Тех. операции"),
                 new Tab("Этапы"),
-
                 new Tab("Тех. операции"),
                 new Tab("Произведственные Задания")
         );

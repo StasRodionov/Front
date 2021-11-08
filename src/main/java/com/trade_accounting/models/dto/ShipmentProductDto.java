@@ -1,23 +1,24 @@
 package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Data
-@Builder
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcceptanceProductionDto {
-
+public class ShipmentProductDto {
     private Long id;
 
-    private BigDecimal amount;
-
     private Long productId;
+
+    private BigDecimal amount;
 
     private BigDecimal price;
 }

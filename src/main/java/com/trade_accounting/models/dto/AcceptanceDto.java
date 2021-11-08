@@ -34,4 +34,6 @@ public class AcceptanceDto extends AcceptanceDtoForValidation {
     private Boolean isPrint = null;
 
     private List<AcceptanceProductionDto> acceptanceProduction;
+
+    private List<Long>acceptanceProductIds;
 }

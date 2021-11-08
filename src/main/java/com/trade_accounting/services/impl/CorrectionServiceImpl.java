@@ -15,6 +15,7 @@ import java.util.List;
 @Slf4j
 public class CorrectionServiceImpl implements CorrectionService {
 
+    private CorrectionDto correctionDto;
     private final CorrectionApi correctionApi;
     private final String correctionUrl;
     private final CallExecuteService<CorrectionDto> callExecuteService;
@@ -34,7 +35,9 @@ public class CorrectionServiceImpl implements CorrectionService {
 
     @Override
     public CorrectionDto getById(Long id) {
-        return null;
+
+        Call<CorrectionDto> correctionDtoCall = correctionApi.getById(correctionUrl, id);
+        return callExecuteService.callExecuteBodyById(correctionDtoCall, correctionDto, CorrectionDto.class, id);
     }
 
     @Override
