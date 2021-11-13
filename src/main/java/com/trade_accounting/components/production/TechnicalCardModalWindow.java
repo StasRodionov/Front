@@ -39,9 +39,9 @@ public class TechnicalCardModalWindow extends Dialog {
     private final TextArea commentField = new TextArea();
     private final ComboBox<TechnicalCardGroupDto> technicalCardGroupDtoSelect = new ComboBox<>();
 
-    private static final String LABEL_WIDTH = "100px";
-    private static final String FIELD_WIDTH = "400px";
-    private static final String MODAL_WINDOW_WIDTH = "650px";
+    private static final String LABEL_WIDTH = "155px";
+    private static final String FIELD_WIDTH = "320px";
+    private static final String MODAL_WINDOW_WIDTH = "630px";
 
     private final TechnicalCardService technicalCardService;
     private final TechnicalCardGroupService technicalCardGroupService;
@@ -75,41 +75,49 @@ public class TechnicalCardModalWindow extends Dialog {
         productionCostField.setValue(getFieldValueNotNull(technicalCardDto.getProductionCost()));
         commentField.setValue(getFieldValueNotNull(technicalCardDto.getComment()));
 
-        add(new Text("Техническая карта"), header(), technicalCardAccordion());
+        add(new Text("Техническая карта"), header(), mainVerticalLayout());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 
 
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
-        nameField.setWidth("445px");
+        nameField.setWidth("600px");
         header.add(getSaveButton(), getCancelButton());
         return header;
     }
 
-    private Details technicalCardAccordion() {
-        Details allComponents = new Details();
-        allComponents.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
-        allComponents.setOpened(true);
+    private VerticalLayout mainVerticalLayout() {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.add(getTechnicalCardGroupDetails(), getSelector1(), getSelector2());
+        return verticalLayout;
+    }
 
+    private Details getTechnicalCardGroupDetails() {
         Details technicalCardGroupDetails = new Details("О тех. карте", new Text(" "));
         technicalCardGroupDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         technicalCardGroupDetails.setOpened(true);
         technicalCardGroupDetails.addContent(
-                configureNameField(),
-                configureCommentField(),
-                configureProductionCostField(),
-                technicalCardGroupSelect()
+                configureNameField(), // Указание имени
+                configureCommentField(), // Указание комментария
+                configureProductionCostField(), // Затраты на производство
+                technicalCardGroupSelect() // Выбор группы тех. карт
         );
         add(technicalCardGroupDetails);
+        return technicalCardGroupDetails;
+    }
 
+    private Details getSelector1() {
         Details materialsDetails = new Details("Материалы", new Text(" "));
         materialsDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         materialsDetails.setOpened(true);
         materialsDetails.addContent(
                 materialsSelect(true)
         );
+        return materialsDetails;
+    }
 
+    private Details getSelector2() {
         Details finalProductionDetails = new Details("Готовая продукция", new Text(" "));
         finalProductionDetails.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED);
         finalProductionDetails.setOpened(true);
@@ -117,12 +125,14 @@ public class TechnicalCardModalWindow extends Dialog {
                 materialsSelect(false)
         );
 
-        allComponents.addContent(technicalCardGroupDetails, materialsDetails, finalProductionDetails);
-        return allComponents;
+        return finalProductionDetails;
     }
 
     private VerticalLayout materialsSelect(boolean material) {
         VerticalLayout verticalLayout = new VerticalLayout();
+        //
+        verticalLayout.setWidth("516px");
+        //
         verticalLayout.add(getAddTechnicalCardProductionButton(verticalLayout, material));
         if (technicalCardDto.getId() != null) {
             List<Long> technicalCardProductionDtoList = technicalCardDto.getMaterialsId();
