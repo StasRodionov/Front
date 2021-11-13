@@ -130,9 +130,7 @@ public class TechnicalCardModalWindow extends Dialog {
 
     private VerticalLayout materialsSelect(boolean material) {
         VerticalLayout verticalLayout = new VerticalLayout();
-        //
         verticalLayout.setWidth("516px");
-        //
         verticalLayout.add(getAddTechnicalCardProductionButton(verticalLayout, material));
         if (technicalCardDto.getId() != null) {
             List<Long> technicalCardProductionDtoList = technicalCardDto.getMaterialsId();
