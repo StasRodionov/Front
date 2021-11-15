@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BuyersReturnDto {
+public class BuyersReturnDto extends ReturnToSupplierDtoForValidation {
 
     private Long id;
 
