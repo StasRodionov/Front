@@ -42,8 +42,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getById(Long id) {
         Call<ProductDto> productGetCall = productApi.getById(productUrl, id);
-        ProductDto productDto = new ProductDto();
-        return dtoCallExecuteService.callExecuteBodyById(productGetCall, productDto, ProductDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(productGetCall, ProductDto.class, id);
     }
 
     @Override

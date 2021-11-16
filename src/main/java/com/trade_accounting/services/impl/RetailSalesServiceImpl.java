@@ -23,7 +23,6 @@ public class RetailSalesServiceImpl implements RetailSalesService {
 
     private final String retailSalesUrl;
 
-    private RetailSalesDto retailSalesDto;
     private List<RetailSalesDto> retailSalesDtoList = new ArrayList<>();
 
     private final CallExecuteService<RetailSalesDto> dtoCallExecuteService;
@@ -43,7 +42,7 @@ public class RetailSalesServiceImpl implements RetailSalesService {
     @Override
     public RetailSalesDto getById(Long id) {
         Call<RetailSalesDto> retailSalesDtoCall = retailSalesApi.getById(retailSalesUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailSalesDtoCall, retailSalesDto, RetailSalesDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(retailSalesDtoCall, RetailSalesDto.class, id);
     }
 
     @Override

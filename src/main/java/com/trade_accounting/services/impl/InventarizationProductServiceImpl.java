@@ -19,7 +19,6 @@ public class InventarizationProductServiceImpl implements InventarizationProduct
     private final InventarizationProductApi inventarizationProductApi;
     private final String inventarizationProductUrl;
     private final CallExecuteService<InventarizationProductDto> callExecuteService;
-    private InventarizationProductDto inventarizationProductDto;
 
     public InventarizationProductServiceImpl(Retrofit retrofit, @Value("${inventarization_product_url}") String inventarizationProductUrl, CallExecuteService<InventarizationProductDto> callExecuteService) {
         inventarizationProductApi = retrofit.create(InventarizationProductApi.class);
@@ -35,7 +34,7 @@ public class InventarizationProductServiceImpl implements InventarizationProduct
     @Override
     public InventarizationProductDto getById(Long id) {
         Call<InventarizationProductDto> inventarizationProductDtoCall = inventarizationProductApi.getById(inventarizationProductUrl, id);
-        return callExecuteService.callExecuteBodyById(inventarizationProductDtoCall, inventarizationProductDto, InventarizationProductDto.class, id);
+        return callExecuteService.callExecuteBodyById(inventarizationProductDtoCall, InventarizationProductDto.class, id);
     }
 
     @Override

@@ -17,7 +17,6 @@ public class AcceptanceServiceProductionImpl implements AcceptanceProductionServ
     private final AcceptanceProductionApi acceptanceProductionApi;
     private final String acceptanceProductUrl;
     private final CallExecuteService<AcceptanceProductionDto> callExecuteService;
-    private AcceptanceProductionDto acceptanceProductionDto;
 
     public AcceptanceServiceProductionImpl(Retrofit retrofit, @Value("${acceptance_product_url}") String acceptanceProductUrl,
                                            CallExecuteService<AcceptanceProductionDto> callExecuteService) {
@@ -34,7 +33,7 @@ public class AcceptanceServiceProductionImpl implements AcceptanceProductionServ
     @Override
     public AcceptanceProductionDto getById(Long id) {
         Call<AcceptanceProductionDto> acceptanceProductionDtoCall = acceptanceProductionApi.getById(acceptanceProductUrl, id);
-        return callExecuteService.callExecuteBodyById(acceptanceProductionDtoCall, acceptanceProductionDto, AcceptanceProductionDto.class, id);
+        return callExecuteService.callExecuteBodyById(acceptanceProductionDtoCall, AcceptanceProductionDto.class, id);
     }
 
     @Override

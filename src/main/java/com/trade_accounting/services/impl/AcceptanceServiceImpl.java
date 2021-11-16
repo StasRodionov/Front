@@ -21,7 +21,6 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     private final AcceptanceApi acceptanceApi;
     private final String acceptanceUrl;
     private final CallExecuteService<AcceptanceDto> callExecuteService;
-    private AcceptanceDto acceptanceDto;
 
     public AcceptanceServiceImpl(Retrofit retrofit, @Value("${acceptance_url}") String acceptanceUrl,
                                  CallExecuteService<AcceptanceDto> callExecuteService) {
@@ -39,7 +38,7 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     @Override
     public AcceptanceDto getById(Long id) {
         Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.getById(acceptanceUrl, id);
-        return callExecuteService.callExecuteBodyById(acceptanceDtoCall, acceptanceDto, AcceptanceDto.class, id);
+        return callExecuteService.callExecuteBodyById(acceptanceDtoCall, AcceptanceDto.class, id);
     }
 
     @Override

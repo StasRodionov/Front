@@ -19,10 +19,6 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
 
     private final String typeOfContractorUrl;
 
-    private List<TypeOfContractorDto> typeOfContractorDtoList;
-
-    private TypeOfContractorDto typeOfContractorDto;
-
     private final CallExecuteService<TypeOfContractorDto> dtoCallExecuteService;
 
     public TypeOfContractorServiceImpl(@Value("${type_of_contractor_url}") String typeOfContractorUrl, Retrofit retrofit, CallExecuteService<TypeOfContractorDto> dtoCallExecuteService) {
@@ -40,7 +36,7 @@ public class TypeOfContractorServiceImpl implements TypeOfContractorService {
     @Override
     public TypeOfContractorDto getById(Long id) {
         Call<TypeOfContractorDto> typeOfContractorDtoCall = typeOfContractorApi.getById(typeOfContractorUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(typeOfContractorDtoCall, typeOfContractorDto, TypeOfContractorDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(typeOfContractorDtoCall, TypeOfContractorDto.class, id);
     }
 
     @Override

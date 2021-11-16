@@ -20,8 +20,6 @@ public class PrepayoutServiceImpl implements PrepayoutService {
 
     private final String prepayoutUrl;
 
-    private PrepayoutDto prepayoutDto;
-
     private final CallExecuteService<PrepayoutDto> dtoCallExecuteService;
 
     public PrepayoutServiceImpl(@Value("${prepayout_url}") String prepayoutUrl, Retrofit retrofit, CallExecuteService<PrepayoutDto> dtoCallExecuteService) {
@@ -39,7 +37,7 @@ public class PrepayoutServiceImpl implements PrepayoutService {
     @Override
     public PrepayoutDto getById(Long id) {
         Call<PrepayoutDto> prepayoutDtoCall = prepayoutApi.getById(prepayoutUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(prepayoutDtoCall, prepayoutDto, PrepayoutDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(prepayoutDtoCall, PrepayoutDto.class, id);
     }
 
     @Override

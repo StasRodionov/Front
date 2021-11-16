@@ -41,7 +41,7 @@ public class RetailCloudCheckServiceImpl implements RetailCloudCheckService {
     @Override
     public RetailCloudCheckDto getById(Long id) {
         Call<RetailCloudCheckDto> retailCloudCheckDtoCall = retailCloudCheckApi.getById(retailCloudCheckUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailCloudCheckDtoCall, retailCloudCheckDto, RetailCloudCheckDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(retailCloudCheckDtoCall, RetailCloudCheckDto.class, id);
 
     }
 

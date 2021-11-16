@@ -24,8 +24,6 @@ public class TechnicalCardServiceImpl implements TechnicalCardService {
 
     private List<TechnicalCardDto> technicalCardDtoList = new ArrayList<>();
 
-    private TechnicalCardDto technicalCardDto = new TechnicalCardDto();
-
     private final CallExecuteService<TechnicalCardDto> dtoCallExecuteService;
 
     public TechnicalCardServiceImpl(@Value("${technical_card_url}") String technicalCardUrl, Retrofit retrofit, CallExecuteService<TechnicalCardDto> dtoCallExecuteService) {
@@ -56,7 +54,7 @@ public class TechnicalCardServiceImpl implements TechnicalCardService {
     @Override
     public TechnicalCardDto getById(Long id) {
         Call<TechnicalCardDto> technicalCardDtoGetCall = technicalCardApi.getById(technicalCardUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(technicalCardDtoGetCall, technicalCardDto, TechnicalCardDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(technicalCardDtoGetCall, TechnicalCardDto.class, id);
     }
 
     @Override

@@ -38,9 +38,8 @@ public class UnitServiceImpl implements UnitService {
 
     @Override
     public UnitDto getById(Long id) {
-        UnitDto unitDto = new UnitDto();
         Call<UnitDto> unitDtoCall = unitApi.getById(unitUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(unitDtoCall, unitDto, UnitDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(unitDtoCall, UnitDto.class, id);
     }
 
     @Override

@@ -23,8 +23,6 @@ public class ContractorServiceImpl implements ContractorService {
 
     private final ContractorApi contractorApi;
 
-    private ContractorDto contractorDto;
-
     private final CallExecuteService<ContractorDto> contractorDtoCallExecuteService;
 
     private final CallExecuteService<FiasModelDto> fiasModelDtoCallExecuteService;
@@ -110,7 +108,7 @@ public class ContractorServiceImpl implements ContractorService {
     @Override
     public ContractorDto getById(Long id) {
         Call<ContractorDto> contractorDtoCall = contractorApi.getById(contractorUrl, id);
-        return contractorDtoCallExecuteService.callExecuteBodyById(contractorDtoCall, contractorDto, ContractorDto.class, id);
+        return contractorDtoCallExecuteService.callExecuteBodyById(contractorDtoCall, ContractorDto.class, id);
     }
 
     @Override

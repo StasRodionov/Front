@@ -20,7 +20,6 @@ public class InternalOrderProductsDtoServiceImpl implements InternalOrderProduct
     private final InternalOrderProductsDtoApi internalOrderProductsDtoApi;
     private final String internalOrderProductsDtoUrl;
     private final CallExecuteService<InternalOrderProductsDto> callExecuteService;
-    private InternalOrderProductsDto internalOrderProductsDto;
 
     public InternalOrderProductsDtoServiceImpl(Retrofit retrofit,
                                     @Value("${internal_order_product_url}") String internalOrderProductsDtoUrl,
@@ -48,7 +47,7 @@ public class InternalOrderProductsDtoServiceImpl implements InternalOrderProduct
     @Override
     public InternalOrderProductsDto getById(Long id) {
         Call<InternalOrderProductsDto> internalDtoListCall = internalOrderProductsDtoApi.getById(internalOrderProductsDtoUrl, id);
-        return callExecuteService.callExecuteBodyById(internalDtoListCall, new InternalOrderProductsDto(), InternalOrderProductsDto.class, id);
+        return callExecuteService.callExecuteBodyById(internalDtoListCall, InternalOrderProductsDto.class, id);
     }
 
     @Override

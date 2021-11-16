@@ -19,8 +19,6 @@ public class RetailPointsServiceImpl implements RetailPointsService {
 
     private final String retailPointsUrl;
 
-    private RetailPointsDto retailPointsDto;
-
     private final CallExecuteService<RetailPointsDto> dtoCallExecuteService;
 
     public RetailPointsServiceImpl(Retrofit retrofit, @Value("${retail_points_url}") String retailPointsUrl, CallExecuteService<RetailPointsDto> dtoCallExecuteService) {
@@ -38,7 +36,7 @@ public class RetailPointsServiceImpl implements RetailPointsService {
     @Override
     public RetailPointsDto getById(Long id) {
         Call<RetailPointsDto> retailPointsDtoCall = retailPointsApi.getById(retailPointsUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailPointsDtoCall, retailPointsDto, RetailPointsDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(retailPointsDtoCall, RetailPointsDto.class, id);
     }
 
     @Override

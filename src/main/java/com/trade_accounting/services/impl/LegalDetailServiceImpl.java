@@ -39,7 +39,7 @@ public class LegalDetailServiceImpl implements LegalDetailService {
     @Override
     public LegalDetailDto getById(Long id) {
         Call<LegalDetailDto> legalDetailDtoCall = legalDetailApi.getById(legalDetailUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(legalDetailDtoCall, legalDetailDto, LegalDetailDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(legalDetailDtoCall, LegalDetailDto.class, id);
     }
 
     @Override

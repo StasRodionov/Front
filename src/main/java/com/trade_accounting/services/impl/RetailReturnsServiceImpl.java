@@ -20,8 +20,6 @@ public class RetailReturnsServiceImpl implements RetailReturnsService {
 
     private final String retailReturnUrl;
 
-    private RetailReturnsDto retailReturnsDto;
-
     private final CallExecuteService<RetailReturnsDto> dtoCallExecuteService;
 
     public RetailReturnsServiceImpl(Retrofit retrofit, @Value("${returns_url}") String retailReturnUrl, CallExecuteService<RetailReturnsDto> dtoCallExecuteService) {
@@ -39,7 +37,7 @@ public class RetailReturnsServiceImpl implements RetailReturnsService {
     @Override
     public RetailReturnsDto getById(Long id) {
         Call<RetailReturnsDto> retailReturnsDtoCall = retailReturnsApi.getById(retailReturnUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailReturnsDtoCall, retailReturnsDto, RetailReturnsDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(retailReturnsDtoCall, RetailReturnsDto.class, id);
     }
 
     @Override

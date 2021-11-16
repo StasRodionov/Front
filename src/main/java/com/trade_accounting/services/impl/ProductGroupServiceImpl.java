@@ -39,7 +39,7 @@ public class ProductGroupServiceImpl implements ProductGroupService {
     @Override
     public ProductGroupDto getById(Long id) {
         Call<ProductGroupDto> productGroupDtoCall = productGroupApi.getById(productGroupUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(productGroupDtoCall, productGroupDto, ProductGroupDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(productGroupDtoCall, ProductGroupDto.class, id);
     }
 
     @Override
