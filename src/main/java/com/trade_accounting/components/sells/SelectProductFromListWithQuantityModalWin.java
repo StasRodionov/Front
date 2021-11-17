@@ -1,9 +1,6 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -13,29 +10,24 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @SpringComponent
 @UIScope
-public class ReturnBuyersGoodModalWin extends Dialog {
-    private ProductDto productDto = new ProductDto();
+public class SelectProductFromListWithQuantityModalWin extends Dialog {
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "300px";
     private final ProductService productService;
     private List<ProductDto> productDtos;
-    public final ComboBox<ProductDto> productSelect = new ComboBox<>();
-    private final TextField number = new TextField();
-    private final Notifications notifications;
-    private static Double summ = 0.00;
+    public ComboBox<ProductDto> productSelect;
+    private TextField number;
+    private static Double summ;
 
-    public ReturnBuyersGoodModalWin(ProductService productService,
-                                    Notifications notifications) {
+    public SelectProductFromListWithQuantityModalWin(ProductService productService) {
         this.productService = productService;
-        this.notifications = notifications;
+        productSelect = new ComboBox<>();
+        number = new TextField();
+        summ = 0.00;
         add(header(), configureProductSelect(), summConfigure());
     }
 
@@ -80,12 +72,7 @@ public class ReturnBuyersGoodModalWin extends Dialog {
             productSelect.setLabel(number.getValue());
             summ += Integer.parseInt(number.getValue()) * productSelect.getValue().getPurchasePrice().longValue();
             productSelect.setHelperText(summ.toString());
-//            productService.update(productDto);
-//            notifications.infoNotification(String.format("Продукт %s добавлен для возврата", productSelect.getValue()));
-//            updateProductList();
             close();
-
-//            open();
         });
     }
 

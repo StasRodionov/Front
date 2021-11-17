@@ -73,7 +73,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     private ContractService contractService;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
-    private final ReturnBuyersGoodModalWin returnBuyersGoodModalWin;
+    private final SelectProductFromListWithQuantityModalWin selectProductFromListWithQuantityModalWin;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
 
     @Autowired
@@ -82,7 +82,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
                                      CompanyService companyService, ReturnBuyersReturnModalView returnBuyersReturnModalView,
                                      WarehouseService warehouseService,
                                      Notifications notifications,
-                                     ReturnBuyersGoodModalWin returnBuyersGoodModalWin) {
+                                     SelectProductFromListWithQuantityModalWin selectProductFromListWithQuantityModalWin) {
         this.buyersReturnService = buyersReturnService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
@@ -90,7 +90,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.data = buyersReturnService.getAll();
         this.notifications = notifications;
-        this.returnBuyersGoodModalWin = returnBuyersGoodModalWin;
+        this.selectProductFromListWithQuantityModalWin = selectProductFromListWithQuantityModalWin;
         print = selectXlsTemplateButton.addItem("Печать");
 
         grid.addColumn("id").setHeader("№").setId("№");
@@ -210,7 +210,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
                     contractorService,
                     warehouseService,
                     companyService,
-                    returnBuyersGoodModalWin);
+                    selectProductFromListWithQuantityModalWin);
             view.setReturnEdit(buyersReturnDto);
             view.open();
 

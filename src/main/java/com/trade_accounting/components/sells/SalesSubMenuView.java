@@ -46,7 +46,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final CommissionAgentReportModalView commissionAgentReportModalView;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final Notifications notifications;
-    private final ReturnBuyersGoodModalWin returnBuyersGoodModalWin;
+    private final SelectProductFromListWithQuantityModalWin selectProductFromListWithQuantityModalWin;
 
 
     @Autowired
@@ -61,10 +61,10 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             CommissionAgentReportModalView commissionAgentReportModalView,
                             ReturnBuyersReturnModalView returnBuyersReturnModalView,
                             Notifications notifications, ProductService productService,
-                            ReturnBuyersGoodModalWin returnBuyersGoodModalWin) {
+                            SelectProductFromListWithQuantityModalWin selectProductFromListWithQuantityModalWin) {
 
 
-        this.returnBuyersGoodModalWin = returnBuyersGoodModalWin;
+        this.selectProductFromListWithQuantityModalWin = selectProductFromListWithQuantityModalWin;
         this.invoiceProductService = invoiceProductService;
         this.issuedInvoiceService = issuedInvoiceService;
         this.paymentService = paymentService;
@@ -138,7 +138,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add(new SalesSubBuyersReturnsView(buyersReturnService,contractorService,companyService, returnBuyersReturnModalView,warehouseService,notifications,returnBuyersGoodModalWin));
+                    div.add(new SalesSubBuyersReturnsView(buyersReturnService,contractorService,companyService, returnBuyersReturnModalView,warehouseService,notifications, selectProductFromListWithQuantityModalWin));
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
