@@ -22,17 +22,15 @@ import java.util.Map;
 @SpringComponent
 @UIScope
 public class ReturnBuyersGoodModalWin extends Dialog {
-    private InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-    private InvoiceProductService invoiceProductService;
+    private ProductDto productDto = new ProductDto();
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "300px";
     private final ProductService productService;
     private List<ProductDto> productDtos;
-    private List<ProductDto> productDtosSelect;
     public final ComboBox<ProductDto> productSelect = new ComboBox<>();
     private final TextField number = new TextField();
     private final Notifications notifications;
-    private Map<ProductDto, Long> prodSelect = new HashMap<>();
+    private static Double summ = 0.00;
 
     public ReturnBuyersGoodModalWin(ProductService productService,
                                     Notifications notifications) {
@@ -79,17 +77,15 @@ public class ReturnBuyersGoodModalWin extends Dialog {
 
     private Button getSaveButton() {
         return new Button("Добавить", event -> {
-            invoiceProductDto.setAmount(new BigDecimal(number.getValue()));
-            invoiceProductDto.setId(productSelect.getValue().getId());
-//            invoiceProductDto.setInvoiceId();
-            invoiceProductDto.setPrice(productSelect.getValue().getPurchasePrice());
-            invoiceProductDto.setProductId(productSelect.getValue().getId());
-
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + invoiceProductDto);
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"  + invoiceProductService);
-            invoiceProductService.update(invoiceProductDto);
-            notifications.infoNotification(String.format("Продукт %s добавлен для возврата", invoiceProductDto.getId()));
+            productSelect.setLabel(number.getValue());
+            summ += Integer.parseInt(number.getValue()) * productSelect.getValue().getPurchasePrice().longValue();
+            productSelect.setHelperText(summ.toString());
+//            productService.update(productDto);
+//            notifications.infoNotification(String.format("Продукт %s добавлен для возврата", productSelect.getValue()));
+//            updateProductList();
             close();
+
+//            open();
         });
     }
 

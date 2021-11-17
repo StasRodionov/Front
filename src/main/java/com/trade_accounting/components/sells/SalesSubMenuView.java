@@ -46,6 +46,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final CommissionAgentReportModalView commissionAgentReportModalView;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final Notifications notifications;
+    private final ReturnBuyersGoodModalWin returnBuyersGoodModalWin;
 
 
     @Autowired
@@ -59,10 +60,11 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
                             ReturnBuyersReturnModalView returnBuyersReturnModalView,
-                            Notifications notifications, ProductService productService) {
+                            Notifications notifications, ProductService productService,
+                            ReturnBuyersGoodModalWin returnBuyersGoodModalWin) {
 
 
-
+        this.returnBuyersGoodModalWin = returnBuyersGoodModalWin;
         this.invoiceProductService = invoiceProductService;
         this.issuedInvoiceService = issuedInvoiceService;
         this.paymentService = paymentService;
@@ -136,7 +138,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add(new SalesSubBuyersReturnsView(buyersReturnService, contractorService, companyService,returnBuyersReturnModalView, warehouseService, notifications));
+                    div.add(new SalesSubBuyersReturnsView(buyersReturnService,contractorService,companyService, returnBuyersReturnModalView,warehouseService,notifications,returnBuyersGoodModalWin));
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
