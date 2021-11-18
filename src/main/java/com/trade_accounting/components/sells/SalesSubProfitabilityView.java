@@ -93,11 +93,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private void configureGrid() {
         gridProducts.setItems(invoiceProductDtos);
 
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()-1).getName())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()).getName())
                 .setHeader("Продукт")
                 .setKey("productDto")
                 .setId("Продукт");
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()-1).getDescription())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()).getDescription())
                 .setHeader("Арктикул")
                 .setKey("description")
                 .setId("Арктикул");
@@ -109,7 +109,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .setHeader("Цена")
                 .setKey("price")
                 .setId("Цена");
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()+1).getPurchasePrice())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()).getPurchasePrice())
                 .setHeader("Себестоимость")
                 .setKey("costPrice")
                 .setId("Себестоимость");
