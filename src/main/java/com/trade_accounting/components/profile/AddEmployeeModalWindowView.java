@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -135,7 +136,7 @@ public class AddEmployeeModalWindowView extends Dialog {
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
-        add(title(title), header() /*lowerLayout()*/); //не понял почему 2 раза подряд добавляется группа компонентов lowerLayuot()
+        add(title(title), header());
         add(upperLayout(), lowerLayout());
     }
 
@@ -195,10 +196,10 @@ public class AddEmployeeModalWindowView extends Dialog {
     private HorizontalLayout departmentSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
-        List<DepartmentDto> DepartmentDtoList = departmentService.getAll();
+        List<DepartmentDto> departmentDtoList = departmentService.getAll();
 
         departmentDtoSelect.setItemLabelGenerator(DepartmentDto::getName);
-        departmentDtoSelect.setItems(DepartmentDtoList);
+        departmentDtoSelect.setItems(departmentDtoList);
 
         if (departmentDto != null) {
            departmentDtoSelect.setValue(departmentService.getById(employeeDto.getDepartmentDtoId()));
@@ -365,7 +366,7 @@ public class AddEmployeeModalWindowView extends Dialog {
                 }
             } else {
                 log.info("Вы нажали кнопку для обновления сотрудника!");
-                notifications.infoNotification("Вы добавили нового сотрудника");
+                notifications.infoNotification("Вы отредактировали сотрудника");
                 EmployeeDto updateEmployeeDto = setEmployeeDto(id);
                 employeeService.update(updateEmployeeDto);
                 div.removeAll();
@@ -407,33 +408,32 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private Component getImageButton() {
         Button imageButton = new Button("Добавить фото");
+        Dialog dialog = new Dialog();
+        MemoryBuffer memoryBuffer = new MemoryBuffer();
+        Upload upload = new Upload(memoryBuffer);
+        upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/gif");
 
-        // Починить. Не добавляется фото в ресурсы и в бд, не присваивается фотография сотруднику.
+        upload.addFinishedListener(event -> {
+            byte[] content = new byte[0];
+            try {
+                content = memoryBuffer.getInputStream().readAllBytes();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            avatar = this.setImage(content);
+            imageDto = new ImageDto();
+            final String fileName = event.getFileName();
+            String fileExtension = fileName.substring(fileName.indexOf("."));
+            imageDto.setFileExtension(fileExtension);
+            imageDto.setContent(content);
+            imageDto.setId(ZonedDateTime.now().toInstant().toEpochMilli());
+            imageService.create(imageDto);
+            div.add(avatarContainer = this.addEmployeeImage());
+            dialog.close();
+        });
 
-//        Dialog dialog = new Dialog();
-//        MemoryBuffer memoryBuffer = new MemoryBuffer();
-//        Upload upload = new Upload(memoryBuffer);
-//        upload.setAcceptedFileTypes("image/jpeg", "image/png", "image/gif");
-//
-//        upload.addFinishedListener(event -> {
-//            byte[] content = new byte[0];
-//            try {
-//                content = memoryBuffer.getInputStream().readAllBytes();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            avatar = this.setImage(content);
-//            imageDto = new ImageDto();
-//            final String fileName = event.getFileName();
-//            String fileExtension = fileName.substring(fileName.indexOf("."));
-//            imageDto.setFileExtension(fileExtension);
-//            imageDto.setContent(content);
-//            div.add(avatarContainer = this.addEmployeeImage());
-//            dialog.close();
-//        });
-//
-//        dialog.add(upload);
-//        imageButton.addClickListener(x -> dialog.open());
+        dialog.add(upload);
+        imageButton.addClickListener(x -> dialog.open());
         return imageButton;
     }
 
