@@ -98,7 +98,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
 
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(AcceptanceDto::getIncomingNumberDate).setKey("date").setHeader("Время").setSortable(true)
+        grid.addColumn(AcceptanceDto::getDate).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
                 .setKey("warehouseDto").setId("На склад");
@@ -243,7 +243,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     }
 
     private String getTotalPrice(AcceptanceDto dto) {
-        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        BigDecimal totalPrice = dto.getAcceptanceProduction().get(0).getAmount();
         return String.format("%.2f", totalPrice);
     }
 
