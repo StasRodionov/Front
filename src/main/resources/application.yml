@@ -61,6 +61,8 @@ product_group_url: api/productgroup
 
 product_url: api/product
 
+production_targets_url: api/production_targets
+
 type_of_contractor_url: api/typeofcontractor
 
 type_of_price_url: api/typeofprice
