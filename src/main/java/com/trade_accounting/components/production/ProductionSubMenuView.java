@@ -58,12 +58,10 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                                  CompanyService companyService,
                                  TechnologicalOperationsModalView view,
                                  StagesProductionService stagesProductionService,
-                                 StageProductionModalView stageProductionModalView, DepartmentService departmentService, EmployeeService employeeService) {
-                                 ProductService productService, TechnicalCardProductionService technicalCardProductionService,
-                                 Notifications notifications, TechnicalOperationsService technicalOperationsService,
-                                 WarehouseService warehouseService, OrdersOfProductionService ordersOfProductionService,
-                                 CompanyService companyService, TechnologicalOperationsModalView view,
-                                 ProductionTargetsService productionTargetsService) {
+                                 StageProductionModalView stageProductionModalView,
+                                 DepartmentService departmentService,
+                                 EmployeeService employeeService,
+                                 ProductionTargetsService productionTargetsService ) {
         this.notifications = notifications;
         this.technicalOperationsService = technicalOperationsService;
         this.warehouseService = warehouseService;

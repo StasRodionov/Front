@@ -39,7 +39,7 @@ public class StagesProductionServiceImpl implements StagesProductionService {
     @Override
     public StagesProductionDto getById(long id) {
         Call<StagesProductionDto> stagesProductionDtoGetCall = stagesProductionApi.getById(stagesProductionUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(stagesProductionDtoGetCall, stagesProductionDto, StagesProductionDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(stagesProductionDtoGetCall, StagesProductionDto.class, id);
     }
 
     @Override
