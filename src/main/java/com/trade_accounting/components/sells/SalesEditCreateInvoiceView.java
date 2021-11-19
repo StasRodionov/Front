@@ -513,14 +513,14 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     public void setInvoiceDataForEdit(InvoiceDto invoiceDto) {
 
-        //if (invoiceDto.getId() != null) {
+        if (invoiceDto.getId() != null) {
             invoiceIdField.setValue(invoiceDto.getId().toString());
             setInvoiceProductDtoListForEdit(invoiceDto);
-        //}
+        }
 
-        //if (invoiceDto.getDate() != null) {
+        if (invoiceDto.getDate() != null) {
             dateField.setValue(LocalDateTime.parse(invoiceDto.getDate()));
-        //}
+        }
 
         if (invoiceDto.getTypeOfInvoice() != null) {
             typeOfInvoiceField.setValue(invoiceDto.getTypeOfInvoice());
@@ -528,19 +528,19 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             typeOfInvoiceField.setValue("");
         }
 
-        //if (invoiceDto.getCompanyId() != null) {
+        if (invoiceDto.getCompanyId() != null) {
            companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
-       // }
+        }
 
-        //if (invoiceDto.getContractorId() != null) {
+        if (invoiceDto.getContractorId() != null) {
             contractorSelect.setValue(contractorService.getById(invoiceDto.getContractorId()));
-        //}
+        }
 
         isSpend.setValue(invoiceDto.getIsSpend());
 
-       //if (invoiceDto.getWarehouseId() != null) {
+       if (invoiceDto.getWarehouseId() != null) {
             warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
-       //}
+       }
 
         if (invoiceDto.getInvoicesStatusId() != null) {
             invoicesStatusSelectComboBox.setValue(invoicesStatusService.getById(invoiceDto.getInvoicesStatusId()));
