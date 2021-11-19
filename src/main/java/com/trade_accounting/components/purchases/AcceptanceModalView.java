@@ -28,8 +28,10 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @UIScope
@@ -41,8 +43,7 @@ public class AcceptanceModalView extends Dialog {
     private final ContractService contractService;
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
-    private AcceptanceDto acceptanceDto;
-
+    private AcceptanceDto dto = new AcceptanceDto();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
@@ -57,7 +58,8 @@ public class AcceptanceModalView extends Dialog {
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Notifications notifications;
 
-    public AcceptanceModalView(CompanyService companyService, AcceptanceService acceptanceService,
+    public AcceptanceModalView(CompanyService companyService,
+                               AcceptanceService acceptanceService,
                                ContractService contractService,
                                WarehouseService warehouseService,
                                ContractorService contractorService,
@@ -72,11 +74,46 @@ public class AcceptanceModalView extends Dialog {
         add(headerLayout(), formLayout());
     }
 
+    private void updateSupplier() {
+        dto.setId(Long.parseLong(returnNumber.getValue()));
+        dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+        dto.setContractId(contractDtoComboBox.getValue().getId());
+        dto.setContractorId(contractorDtoComboBox.getValue().getId());
+        dto.setComment(textArea.getValue());
+        dto.setIncomingNumberDate(dateTimePicker.getValue().toString());
+//        buyersReturnDto.setSum(new BigDecimal(summConfig.getValue()));
+        dto.setIsSent(checkboxIsSent.getValue());
+        dto.setIsPrint(checkboxIsPrint.getValue());
+        dto.setAcceptanceProductIds(new ArrayList<>());
+        dto.setAcceptanceProductIds(new ArrayList<>());
+        dto.setIncomingNumber("1");
+        acceptanceService.create(dto);
+        for (AcceptanceDto aa : acceptanceService.getAll()) {
+            System.out.println("Nomer2 ========= " + aa.getContractorId());
+        }
+        UI.getCurrent().navigate("admissions");
+        close();
+        clearAllFieldsModalView();
+    }
+
+    private Button saveButton() {
+        return new Button("Сохранить", e -> {
+            for (AcceptanceDto aa : acceptanceService.getAll()) {
+                System.out.println("Nomer1 ========= " + aa.getContractorId());
+            }
+//                dto.setAcceptanceProduction(acceptanceDto.getAcceptanceProduction());
+//                clearAllFieldsModalView();
+            updateSupplier();
+            notifications.infoNotification(String.format("Приемка c ID=%s сохранена", dto.getId()));
+//            }
+        });
+    }
+
     public void setAcceptanceForEdit(AcceptanceDto editDto) {
-        this.acceptanceDto = editDto;
-        returnNumber.setValue(editDto.getId().toString());
-        dateTimePicker.setValue(LocalDateTime.parse(editDto.getIncomingNumberDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        textArea.setValue(editDto.getComment());
+        this.dto = editDto;
+        returnNumber.setValue(dto.getId().toString());
+        dateTimePicker.setValue(LocalDateTime.parse(dto.getIncomingNumberDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        textArea.setValue(dto.getComment());
         contractDtoComboBox.setValue(contractService.getById(editDto.getContractId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
@@ -117,30 +154,7 @@ public class AcceptanceModalView extends Dialog {
         return title;
     }
 
-    private Button saveButton() {
-        return new Button("Сохранить", e -> {
-            if (!acceptanceDtoBinder.validate().isOk()) {
-                acceptanceDtoBinder.validate().notifyBindingValidationStatusHandlers();
-            } else {
-                AcceptanceDto dto = new AcceptanceDto();
-                dto.setId(Long.parseLong(returnNumber.getValue()));
-                dto.setContractId(contractDtoComboBox.getValue().getId());
-                dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-                dto.setContractorId(contractorDtoComboBox.getValue().getId());
-                dto.setIncomingNumberDate(dateTimePicker.getValue().toString());
-                dto.setIsSent(checkboxIsSent.getValue());
-                dto.setIsPrint(checkboxIsPrint.getValue());
-                dto.setComment(textArea.getValue());
-                dto.setAcceptanceProduction(acceptanceDto.getAcceptanceProduction());
-                acceptanceService.create(dto);
 
-                UI.getCurrent().navigate("admissions");
-                close();
-                clearAllFieldsModalView();
-                notifications.infoNotification(String.format("Приемка c ID=%s сохранена", dto.getId()));
-            }
-        });
-    }
 
     private Button closeButton() {
         Button button = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
