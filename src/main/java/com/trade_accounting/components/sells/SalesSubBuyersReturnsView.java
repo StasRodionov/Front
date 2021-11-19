@@ -266,8 +266,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         return buttonQuestion;
     }
 
-
-
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));

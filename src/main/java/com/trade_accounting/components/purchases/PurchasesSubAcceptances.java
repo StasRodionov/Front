@@ -41,6 +41,9 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,11 +98,17 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
     }
+    private static String formatDate(String date) {
+        return LocalDateTime.parse(date)
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+    }
 
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(AcceptanceDto::getIncomingNumberDate).setKey("date").setHeader("Время").setSortable(true)
-                .setId("Дата");
+        grid.addColumn(dto -> dto.getDate()).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
+//                .setKey("date").setId("Дата");
+//        grid.addColumn(AcceptanceDto::getIncomingNumberDate).setKey("date").setHeader("Время").setSortable(true)
+//                .setId("Дата");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
                 .setKey("warehouseDto").setId("На склад");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")

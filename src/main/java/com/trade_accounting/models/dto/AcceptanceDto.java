@@ -19,7 +19,7 @@ public class AcceptanceDto extends AcceptanceDtoForValidation {
 
     private String incomingNumber;
 
-    private String incomingNumberDate;
+    private String date;
 
     private Long contractorId;
 

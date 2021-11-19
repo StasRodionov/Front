@@ -2,6 +2,7 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
@@ -47,7 +48,6 @@ public class AcceptanceModalView extends Dialog {
     private final ContractorService contractorService;
     private AcceptanceDto dto = new AcceptanceDto();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
-    private final TextField returnProjectId = new TextField();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
@@ -81,12 +81,12 @@ public class AcceptanceModalView extends Dialog {
     private void updateSupplier() {
         dto.setId(Long.parseLong(returnNumber.getValue()));
         dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+        dto.setDate(dateTimePicker.getValue().toString());
         dto.setContractId(contractDtoComboBox.getValue().getId());
         dto.setCompanyId(contractDtoComboBox.getValue().getId());
         dto.setContractorId(contractorDtoComboBox.getValue().getId());
         dto.setComment(textArea.getValue());
-        dto.setIncomingNumberDate(dateTimePicker.getValue().toString());
-        dto.setProjectId(Long.parseLong(returnProjectId.getValue()));
+        dto.setProjectId((long) 1); //Это не правлильно. Должен быть чекбокс с выбором проекта. Пока списка проектов нет, будет так
 //        buyersReturnDto.setSum(new BigDecimal(summConfig.getValue()));
         dto.setIsSent(checkboxIsSent.getValue());
         dto.setIsPrint(checkboxIsPrint.getValue());
@@ -101,19 +101,16 @@ public class AcceptanceModalView extends Dialog {
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
-
 //                dto.setAcceptanceProduction(acceptanceDto.getAcceptanceProduction());
-//                clearAllFieldsModalView();
             updateSupplier();
             notifications.infoNotification(String.format("Приемка c ID=%s сохранена", dto.getId()));
-//            }
         });
     }
 
     public void setAcceptanceForEdit(AcceptanceDto editDto) {
         this.dto = editDto;
         returnNumber.setValue(dto.getId().toString());
-        dateTimePicker.setValue(LocalDateTime.parse(dto.getIncomingNumberDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        dateTimePicker.setValue(LocalDateTime.parse(dto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         textArea.setValue(dto.getComment());
         contractDtoComboBox.setValue(contractService.getById(dto.getContractId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
@@ -140,12 +137,12 @@ public class AcceptanceModalView extends Dialog {
 
     private HorizontalLayout formLayout2() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(contractorConfigure(), contractConfigure(), projectIdConfigure());
+        horizontalLayout.add(contractorConfigure(), contractConfigure());
         return horizontalLayout;
     }
     private HorizontalLayout formLayout3() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(companyConfigure(), warehouseConfigure(), projectIdConfigure() );
+        horizontalLayout.add(companyConfigure(), warehouseConfigure());
         return horizontalLayout;
     }
 
@@ -172,25 +169,12 @@ public class AcceptanceModalView extends Dialog {
     }
 
     private Button addAcceptanceButton() {
-        Button button = new Button("Добавить приемку", new Icon(VaadinIcon.PLUS));
+        Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS));
         button.addClickListener(e -> {
             // Добавить приемку в таблицу
         });
         return button;
     }
-
-    private HorizontalLayout projectIdConfigure() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Проект №");
-        label.setWidth("150px");
-        returnNumber.setWidth("50px");
-        horizontalLayout.add(label, returnProjectId);
-        acceptanceDtoBinder.forField(returnNumber)
-                .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(AcceptanceDto::getIdValid, AcceptanceDto::setIdValid);
-        return horizontalLayout;
-    }
-
 
     private HorizontalLayout numberConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -204,16 +188,50 @@ public class AcceptanceModalView extends Dialog {
         return horizontalLayout;
     }
 
+//    private HorizontalLayout dataConfigure() {
+//        HorizontalLayout horizontalLayout = new HorizontalLayout();
+//        Label label = new Label("Возврат покупателя №");
+//        label.setWidth("150px");
+//        buyersNumber.setAutofocus(true);
+//        buyersNumber.setWidth("50px");
+//        buyersNumber.setRequired(true);
+//        buyersNumber.setRequiredIndicatorVisible(true);
+//        buyersReturnDtoBinder.forField(buyersNumber)
+//                .asRequired(TEXT_FOR_REQUEST_FIELD)
+//                .bind(BuyersReturnDto::getIdValid, BuyersReturnDto::setIdValid);
+//        Label label2 = new Label("от");
+//        dateTimePicker.setWidth("350px");
+//        dateTimePicker.setRequiredIndicatorVisible(true);
+//        buyersReturnDtoBinder.forField(dateTimePicker)
+//                .asRequired(TEXT_FOR_REQUEST_FIELD)
+//                .bind(BuyersReturnDto::getDateValid, BuyersReturnDto::setDateValid);
+//        horizontalLayout.add(label, buyersNumber, label2, dateTimePicker);
+//        return horizontalLayout;
+//    }
+
     private HorizontalLayout dateConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
+        dateTimePicker.setRequiredIndicatorVisible(true);
         horizontalLayout.add(label, dateTimePicker);
         acceptanceDtoBinder.forField(dateTimePicker)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(AcceptanceDto::getDateValid, AcceptanceDto::setDateValid);
         return horizontalLayout;
     }
+
+
+//    private HorizontalLayout dateConfigure() {
+//        HorizontalLayout horizontalLayout = new HorizontalLayout();
+//        Label label = new Label("От");
+//        dateTimePicker.setWidth("350px");
+//        horizontalLayout.add(label, dateTimePicker);
+//        acceptanceDtoBinder.forField(dateTimePicker)
+//                .asRequired(TEXT_FOR_REQUEST_FIELD)
+//                .bind(AcceptanceDto::getDateValid, AcceptanceDto::setDateValid);
+//        return horizontalLayout;
+//    }
 
     private VerticalLayout checkboxLayout() {
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -292,24 +310,6 @@ public class AcceptanceModalView extends Dialog {
         horizontalLayout.add(label, companyDtoComboBox);
         return horizontalLayout;
     }
-//
-//    private HorizontalLayout contractConfigure() {
-//        HorizontalLayout horizontalLayout = new HorizontalLayout();
-//        List<ContractDto> list = contractService.getAll();
-//        if (list != null) {
-//            contractDtoComboBox.setItems(list);
-//        }
-//        contractDtoComboBox.setItemLabelGenerator(AcceptanceDto::getAll)
-////                dto -> contractService.getById(companyService.getById(dto.getId()).getId()).get);
-//        contractDtoComboBox.setWidth("350px");
-//        Label label = new Label("Организация");
-//        label.setWidth("100px");
-//        horizontalLayout.add(label, contractDtoComboBox);
-//        acceptanceDtoBinder.forField(contractDtoComboBox)
-//                .asRequired(TEXT_FOR_REQUEST_FIELD)
-//                .bind(AcceptanceDto::getContractDtoValid, AcceptanceDto::setContractDtoValid);
-//        return horizontalLayout;
-//    }
 
     private HorizontalLayout commentConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
