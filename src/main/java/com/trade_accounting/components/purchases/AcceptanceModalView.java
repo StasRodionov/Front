@@ -83,7 +83,7 @@ public class AcceptanceModalView extends Dialog {
         dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
         dto.setDate(dateTimePicker.getValue().toString());
         dto.setContractId(contractDtoComboBox.getValue().getId());
-        dto.setCompanyId(contractDtoComboBox.getValue().getId());
+        dto.setCompanyId(companyDtoComboBox.getValue().getId());
         dto.setContractorId(contractorDtoComboBox.getValue().getId());
         dto.setComment(textArea.getValue());
         dto.setProjectId((long) 1); //Это не правлильно. Должен быть чекбокс с выбором проекта. Пока списка проектов нет, будет так
@@ -109,12 +109,15 @@ public class AcceptanceModalView extends Dialog {
 
     public void setAcceptanceForEdit(AcceptanceDto editDto) {
         this.dto = editDto;
-        returnNumber.setValue(dto.getId().toString());
-        dateTimePicker.setValue(LocalDateTime.parse(dto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        returnNumber.setValue(editDto.getId().toString());
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
+        companyDtoComboBox.setValue(companyService.getById(dto.getCompanyId()));
         textArea.setValue(dto.getComment());
         contractDtoComboBox.setValue(contractService.getById(dto.getContractId()));
-        warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
-        contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
+        checkboxIsSent.setValue(dto.getIsSent());
+        checkboxIsPrint.setValue(dto.getIsPrint());
+        warehouseDtoComboBox.setValue(warehouseService.getById(dto.getWarehouseId()));
+        contractorDtoComboBox.setValue(contractorService.getById(dto.getContractorId()));
     }
 
     private HorizontalLayout headerLayout() {

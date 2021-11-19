@@ -106,9 +106,6 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> dto.getDate()).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
-//                .setKey("date").setId("Дата");
-//        grid.addColumn(AcceptanceDto::getIncomingNumberDate).setKey("date").setHeader("Время").setSortable(true)
-//                .setId("Дата");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
                 .setKey("warehouseDto").setId("На склад");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")
