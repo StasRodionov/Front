@@ -44,9 +44,12 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
         this.moneySubMutualSettlementsService = moneySubMutualSettlementsService;
         getGrid();
         this.data = moneySubMutualSettlementsService.getAll();
-        this.filter = new GridFilter<>(grid);
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
         add(getToolbar(), filter);
         grid.removeAllColumns();
         grid.setItems(data);
@@ -67,6 +70,23 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
         grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
         return grid;
     }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("contractorId");
+        filter.setFieldToIntegerField("employeeId");
+        filter.setFieldToIntegerField("initialBalance");
+        filter.setFieldToIntegerField("income");
+        filter.setFieldToIntegerField("expenses");
+        filter.setFieldToIntegerField("finalBalance");
+        filter.onSearchClick(e ->
+            paginator.setData(moneySubMutualSettlementsService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(getData()));
+    }
+
+    private  List<MoneySubMutualSettlementsDto> getData(){
+        return moneySubMutualSettlementsService.getAll();
+    }
+
 
 
 
