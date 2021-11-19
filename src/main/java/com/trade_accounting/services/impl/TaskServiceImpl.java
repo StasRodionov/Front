@@ -69,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskDto getById(Long id) {
         TaskDto taskDto = new TaskDto();
         Call<TaskDto> taskDtoCall = taskApi.getById(taskUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(taskDtoCall, taskDto, TaskDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(taskDtoCall, TaskDto.class, id);
     }
 
     @Override

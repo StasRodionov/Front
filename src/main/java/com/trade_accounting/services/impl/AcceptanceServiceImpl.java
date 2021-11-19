@@ -37,7 +37,8 @@ public class AcceptanceServiceImpl implements AcceptanceService {
 
     @Override
     public AcceptanceDto getById(Long id) {
-        return null;
+        Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.getById(acceptanceUrl, id);
+        return callExecuteService.callExecuteBodyById(acceptanceDtoCall, AcceptanceDto.class, id);
     }
 
     @Override

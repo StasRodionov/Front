@@ -34,7 +34,9 @@ public class CorrectionServiceImpl implements CorrectionService {
 
     @Override
     public CorrectionDto getById(Long id) {
-        return null;
+
+        Call<CorrectionDto> correctionDtoCall = correctionApi.getById(correctionUrl, id);
+        return callExecuteService.callExecuteBodyById(correctionDtoCall, CorrectionDto.class, id);
     }
 
     @Override

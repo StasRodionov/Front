@@ -36,9 +36,8 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public WarehouseDto getById(Long id) {
-        WarehouseDto warehouseDto = new WarehouseDto();
         Call<WarehouseDto> warehouseDtoCall = warehouseApi.getById(warehouseUrl, id);
-       return dtoCallExecuteService.callExecuteBodyById(warehouseDtoCall, warehouseDto, WarehouseDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(warehouseDtoCall, WarehouseDto.class, id);
     }
 
     @Override

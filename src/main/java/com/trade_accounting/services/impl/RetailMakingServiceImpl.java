@@ -20,8 +20,6 @@ public class RetailMakingServiceImpl implements RetailMakingService {
 
     private final String retailMakingUrl;
 
-    private RetailMakingDto retailMakingDto;
-
     private final CallExecuteService<RetailMakingDto> dtoCallExecuteService;
 
     public RetailMakingServiceImpl(@Value("${retail_making_url}") String retailMakingUrl, Retrofit retrofit,
@@ -41,7 +39,7 @@ public class RetailMakingServiceImpl implements RetailMakingService {
     @Override
     public RetailMakingDto getById(Long id) {
         Call<RetailMakingDto> retailMakingDtoCall = retailMakingApi.getById(retailMakingUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailMakingDtoCall, retailMakingDto, RetailMakingDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(retailMakingDtoCall, RetailMakingDto.class, id);
     }
 
     @Override

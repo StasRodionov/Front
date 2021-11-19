@@ -69,11 +69,12 @@ public class MovementViewModalWindow extends Dialog {
     private final ComboBox<WarehouseDto> warehouseComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseComboBoxOne = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
-    private final Checkbox checkboxIsSent = new Checkbox("Отправленно");
-    private final Checkbox checkboxIsPrint = new Checkbox("Напечатанно");
+    private final Checkbox checkboxIsSent = new Checkbox("Отправлено");
+    private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
     private final TextArea textCom = new TextArea();
+    private final Label labelSum = new Label();
     private List<MovementProductDto> tempMovementProductDtoList;
     private final MultiselectComboBox<Long> movementProductsIdComboBox = new MultiselectComboBox();
 
@@ -143,9 +144,10 @@ public class MovementViewModalWindow extends Dialog {
         returnNumber.setValue(editDto.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         textArea.setValue(editDto.getComment());
+        labelSum.setText(String.valueOf(editDto.getSum()));
         checkboxIsSent.setValue(movementDto.getIsSent());
         checkboxIsPrint.setValue(movementDto.getIsPrint());
-        warehouseComboBox.setValue(warehouseService.getById(editDto.getWarehouseFromId()));
+        warehouseComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
         Set<Long> idset = new HashSet<>(movementDto.getMovementProductsIds());
@@ -187,7 +189,7 @@ public class MovementViewModalWindow extends Dialog {
                 dto.setId(Long.parseLong(returnNumber.getValue()));
                 dto.setCompanyId(companyComboBox.getValue().getId());
                 dto.setWarehouseToId(warehouseComboBox.getValue().getId());
-                dto.setWarehouseFromId(warehouseComboBox.getValue().getId());
+                dto.setWarehouseId(warehouseComboBox.getValue().getId());
                 dto.setDate(dateTimePicker.getValue().toString());
                 dto.setIsSent(checkboxIsSent.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
@@ -232,13 +234,13 @@ public class MovementViewModalWindow extends Dialog {
 
     private HorizontalLayout formLayout4() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(warehouseConfigureOne(), commentConfig(), totalPriceTitle());
+        horizontalLayout.add(warehouseConfigureOne(), commentConfig());
         return horizontalLayout;
     }
 
     private HorizontalLayout formLayout6() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(movementProductsConfigure());
+        horizontalLayout.add(movementProductsConfigure(), totalPriceTitle());
         return horizontalLayout;
     }
 
@@ -253,12 +255,12 @@ public class MovementViewModalWindow extends Dialog {
         button.addClickListener(e -> {
             close();
             MovementProductsModalView modalView = new MovementProductsModalView(movementProductService,
-            productService,
-            companyService,
-            warehouseService,
-            movementService,
-            unitService,
-            notifications
+                    productService,
+                    companyService,
+                    warehouseService,
+                    movementService,
+                    unitService,
+                    notifications
             );
             modalView.open();
         });
@@ -272,7 +274,7 @@ public class MovementViewModalWindow extends Dialog {
             MovementProductDto productDto = movementProductService.getById(id);
             productDtosList.add(productDto);
         }
-       grid.setItems(productDtosList);
+        grid.setItems(productDtosList);
     }
 
 
@@ -391,7 +393,7 @@ public class MovementViewModalWindow extends Dialog {
         warehouseComboBoxOne.setItemLabelGenerator(WarehouseDto::getName);
         warehouseComboBoxOne.setWidth("350px");
         Label label = new Label("На склад");
-        horizontalLayout.setWidth("590px");
+        horizontalLayout.setWidth("460px");
         label.setWidth("95px");
         horizontalLayout.add(label, warehouseComboBoxOne);
         movementDtoBinder.forField(warehouseComboBoxOne)
@@ -405,14 +407,19 @@ public class MovementViewModalWindow extends Dialog {
         textArea.setWidth("350px");
         textArea.setHeight("50px");
         textArea.setPlaceholder("Комментарий");
-        horizontalLayout.add(textArea);
+        Label label = new Label("Комментарий");
+        label.setWidth("95px");
+        horizontalLayout.add(label,textArea);
         return horizontalLayout;
     }
 
-    private H4 totalPriceTitle() {
-        H4 totalPriceTitle = new H4("Итого:");
-        totalPriceTitle.setHeight("2.0em");
-        return totalPriceTitle;
+    private HorizontalLayout totalPriceTitle() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Итого: ");
+        label.setWidth("60px");
+        labelSum.setWidth("60px");
+        horizontalLayout.add(label,labelSum);
+        return horizontalLayout;
     }
 
     private H4 totalPrice() {
@@ -430,6 +437,8 @@ public class MovementViewModalWindow extends Dialog {
         return totalPrice;
     }
 
+
+
     private void setTotalPrice() {
         totalPrice.setText(
                 String.format("%.2f", getTotalPrice())
@@ -444,6 +453,7 @@ public class MovementViewModalWindow extends Dialog {
         });
         return buttonDelete;
     }
+
 
     public void deleteInvoiceById(Long movementDtoId) {
         movementService.deleteById(movementDtoId);

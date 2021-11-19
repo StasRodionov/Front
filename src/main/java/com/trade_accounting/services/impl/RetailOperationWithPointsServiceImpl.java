@@ -19,8 +19,6 @@ public class RetailOperationWithPointsServiceImpl implements RetailOperationWith
 
     private final String retailOperationWithPointsUrl;
 
-    private RetailOperationWithPointsDto retailOperationWithPointsDto;
-
     private final CallExecuteService<RetailOperationWithPointsDto> dtoCallExecuteService;
 
     public RetailOperationWithPointsServiceImpl(@Value("${retail_operation_with_points_url}")String retailOperationWithPointsUrl,
@@ -43,7 +41,7 @@ public class RetailOperationWithPointsServiceImpl implements RetailOperationWith
     public RetailOperationWithPointsDto getById(Long id) {
         Call<RetailOperationWithPointsDto> retailOperationWithPointsDtoCall = retailOperationWithPointsApi
                 .getById(retailOperationWithPointsUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailOperationWithPointsDtoCall, retailOperationWithPointsDto,
+        return dtoCallExecuteService.callExecuteBodyById(retailOperationWithPointsDtoCall,
                 RetailOperationWithPointsDto.class, id);
     }
 

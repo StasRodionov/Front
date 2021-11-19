@@ -178,7 +178,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setItems(tempInvoiceProductDtoList);
-        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(inPrDto -> tempInvoiceProductDtoList.indexOf(inPrDto) + 1).setHeader("№").setId("№");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название")
                 .setKey("productDtoName").setId("Название");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание")
@@ -187,8 +187,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         grid.addColumn(inPrDto -> unitService.getById(productService.getById(inPrDto.getProductId()).getUnitId()).getFullName()).setHeader("Единицы")
                 .setKey("productDtoUnit").setId("Единицы");
         grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
-        grid.addColumn(inPrDto -> invoiceService.getById(inPrDto.getInvoiceId())).setHeader("Заказ №")
-                .setKey("invoice").setId("Заказ №");
+        /*grid.addColumn(inPrDto -> invoiceService.getById(inPrDto.getInvoiceId())).setHeader("Заказ №")
+                .setKey("invoice").setId("Заказ №");*/
         grid.setHeight("36vh");
         grid.setColumnReorderingAllowed(true);
 //        grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -459,11 +459,13 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private Button buttonAddProduct() {
-        return new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), buttonClickEvent -> {
-
+        Button buttonAddSale = new Button("Добавить продукт",  new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonAddSale.addClickListener(event -> {
             salesChooseGoodsModalWin.updateProductList();
             salesChooseGoodsModalWin.open();
         });
+        return buttonAddSale;
+
     }
 
     public void addProduct(ProductDto productDto) {
@@ -486,8 +488,11 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
-        Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
-                productPriceDto.getTypeOfPriceId().equals(id)).findFirst();
+        // TODO
+        // Раскомментить, когда в базе будут notNullable TypeOfPrice в таблице product_prises и закомментить
+        /*Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
+                productPriceDto.getTypeOfPriceId().equals(id)).findFirst();*/
+        Optional<ProductPriceDto> productPrice = Optional.ofNullable(productPriceDtoList.get(0));
 
         //TODO
         // Когда переделают инициализвцию продуктов (у которых есть список ProductPrice) на бэке

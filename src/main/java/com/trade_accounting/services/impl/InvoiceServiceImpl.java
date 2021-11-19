@@ -73,7 +73,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public InvoiceDto getById(Long id) {
         Call<InvoiceDto> invoiceDtoCall = invoiceApi.getById(invoiceUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(invoiceDtoCall, invoiceDto, InvoiceDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(invoiceDtoCall, InvoiceDto.class, id);
     }
 
     @Override

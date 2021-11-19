@@ -18,7 +18,6 @@ public class CorrectionProductServiceImpl implements CorrectionProductService {
     private final CorrectionProductApi correctionProductApi;
     private final String correctionProductUrl;
     private final CallExecuteService<CorrectionProductDto> callExecuteService;
-    private CorrectionProductDto correctionProductDto;
 
     public CorrectionProductServiceImpl(Retrofit retrofit, @Value("${correction_product_url}") String correctionProductUrl, CallExecuteService<CorrectionProductDto> callExecuteService) {
         correctionProductApi = retrofit.create(CorrectionProductApi.class);
@@ -34,7 +33,7 @@ public class CorrectionProductServiceImpl implements CorrectionProductService {
     @Override
     public CorrectionProductDto getById(Long id) {
         Call<CorrectionProductDto> correctionProductDtoCall = correctionProductApi.getById(correctionProductUrl, id);
-        return callExecuteService.callExecuteBodyById(correctionProductDtoCall, correctionProductDto, CorrectionProductDto.class, id);
+        return callExecuteService.callExecuteBodyById(correctionProductDtoCall, CorrectionProductDto.class, id);
     }
 
     @Override

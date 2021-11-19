@@ -3,10 +3,14 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.ShipmentDto;
+import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.ShipmentProductService;
+import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -49,24 +53,28 @@ public class SalesSubShipmentView extends VerticalLayout {
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final SalesEditShipmentView salesEditShipmentView;
-    private final List<InvoiceDto> data;
+    private final List<ShipmentDto> data;
     private final InvoiceProductService invoiceProductService;
+    private final ShipmentService shipmentService;
+    private final ShipmentProductService shipmentProductService;
     private HorizontalLayout actions;
-    private Grid<InvoiceDto> grid;
-    private GridPaginator<InvoiceDto> paginator;
+    private Grid<ShipmentDto> grid;
+    private GridPaginator<ShipmentDto> paginator;
 
-    private final String typeOfInvoice = "RECEIPT";
+//    private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
     public SalesSubShipmentView(WarehouseService warehouseService, InvoiceService invoiceService,
                                 ContractorService contractorService,
-                                CompanyService companyService, SalesEditShipmentView salesEditShipmentView, InvoiceProductService invoiceProductService) {
+                                CompanyService companyService, SalesEditShipmentView salesEditShipmentView, InvoiceProductService invoiceProductService, ShipmentService shipmentService, ShipmentProductService shipmentProductService) {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.salesEditShipmentView = salesEditShipmentView;
         this.invoiceProductService = invoiceProductService;
+        this.shipmentService = shipmentService;
+        this.shipmentProductService = shipmentProductService;
         this.data = getData();
 
         configureActions();
@@ -84,7 +92,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid = new Grid<>(InvoiceDto.class, false);
+        grid = new Grid<>(ShipmentDto.class, false);
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
@@ -94,7 +102,7 @@ public class SalesSubShipmentView extends VerticalLayout {
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
                 .setKey("companyId").setId("Компания");
-        grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -132,7 +140,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         Button buttonUnit = new Button("Отгрузка", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(event -> {
             salesEditShipmentView.resetView();
-            salesEditShipmentView.setType("RECEIPT");
+//            salesEditShipmentView.setType("RECEIPT");
             salesEditShipmentView.setLocation("sells");
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/shipment-edit"));
         });
@@ -166,7 +174,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         textField.setPlaceholder("Номер, склад или организация");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.addValueChangeListener(event -> updateList(textField.getValue()));
+        textField.addValueChangeListener(event -> updateList());
         textField.setWidth("300px");
         return textField;
     }
@@ -209,23 +217,30 @@ public class SalesSubShipmentView extends VerticalLayout {
         return print;
     }
 
-    private String getTotalPrice(Long id) {
-        var totalPrice = invoiceProductService.getByInvoiceId(id).stream()
-                .map(ipdto -> ipdto.getPrice().multiply(ipdto.getAmount()))
-                .reduce(BigDecimal.valueOf(0.0), BigDecimal::add);
+    private String getTotalPrice(ShipmentDto shipmentDto) {
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (Long id : shipmentDto.getShipmentProductsIds()) {
+            ShipmentProductDto shipmentProductDto = shipmentProductService.getById(id);
+            totalPrice = totalPrice.add(shipmentProductDto.getAmount()
+                    .multiply(shipmentProductDto.getPrice()));
+        }
         return String.format("%.2f", totalPrice);
     }
 
-    private void updateList() {
-        grid.setItems(invoiceService.getAll(typeOfInvoice));
-        System.out.println("Обновлен");
+//    private void updateList() {
+//        grid.setItems(invoiceService.getAll(typeOfInvoice));
+//        System.out.println("Обновлен");
+//    }
+
+//    private void updateList(String text) {
+//        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
+//    }
+
+    private void updateList(){
+        grid.setItems(shipmentService.getAll());
     }
 
-    private void updateList(String text) {
-        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
-    }
-
-    private List<InvoiceDto> getData() {
-        return invoiceService.getAll(typeOfInvoice);
+    private List<ShipmentDto> getData() {
+        return shipmentService.getAll();
     }
 }

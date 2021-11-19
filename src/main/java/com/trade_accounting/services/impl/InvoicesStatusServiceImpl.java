@@ -20,10 +20,6 @@ public class InvoicesStatusServiceImpl implements InvoicesStatusService {
 
     private final String invoicesStatusUrl;
 
-    private List<InvoicesStatusDto> InvoicesStatusDtoList = new ArrayList<>();
-
-    private InvoicesStatusDto invoicesStatusDto = new InvoicesStatusDto();
-
     private final CallExecuteService<InvoicesStatusDto> dtoCallExecuteService;
 
     public InvoicesStatusServiceImpl(Retrofit retrofit, @Value("${invoices_status_url}")
@@ -44,7 +40,7 @@ public class InvoicesStatusServiceImpl implements InvoicesStatusService {
     @Override
     public InvoicesStatusDto getById(Long id) {
         Call<InvoicesStatusDto> statusGetCall = invoicesStatusApi.getById(invoicesStatusUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(statusGetCall, invoicesStatusDto, InvoicesStatusDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(statusGetCall, InvoicesStatusDto.class, id);
     }
 
     @Override

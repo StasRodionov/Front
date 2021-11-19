@@ -61,8 +61,9 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
-    private static final String TYPE_OF_INVOICE = "RECEIPT";
+//    private static final String TYPE_OF_INVOICE = "RECEIPT";
 
+        private final String typeOfInvoice = "RECEIPT";
     public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService, ContractorService contractorService, InvoiceService invoiceService, InvoiceProductService invoiceProductService,
                                         @Lazy Notifications notifications,
                                         @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
@@ -119,7 +120,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         filter.setFieldToDatePicker("date");
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
-            map.put("typeOfInvoice", TYPE_OF_INVOICE);
+            map.put("typeOfInvoice", typeOfInvoice);
             paginator.setData(invoiceService.search(map));
         });
         filter.onClearClick(e -> paginator.setData(getData()));
@@ -178,7 +179,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void updateList(String text) {
-        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, TYPE_OF_INVOICE));
+        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
 
     private H2 title() {
@@ -242,7 +243,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll(TYPE_OF_INVOICE);
+        return invoiceService.getAll(typeOfInvoice);
     }
 
 

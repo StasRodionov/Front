@@ -58,9 +58,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentDto getById(Long id) {
-        PaymentDto paymentDto = new PaymentDto();
         Call<PaymentDto> paymentDtoCall = paymentApi.getById(paymentUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(paymentDtoCall, paymentDto,PaymentDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(paymentDtoCall, PaymentDto.class, id);
     }
 
     @Override

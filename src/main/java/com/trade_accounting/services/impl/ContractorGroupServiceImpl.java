@@ -38,15 +38,14 @@ public class ContractorGroupServiceImpl implements ContractorGroupService {
 
     @Override
     public ContractorGroupDto getById(Long id) {
-        Call<ContractorGroupDto> contractorGroupDtoCall = contractorGroupApi
-                .getById(contractorGroupUrl, id);
-       return dtoCallExecuteService.callExecuteBodyById(contractorGroupDtoCall, contractorGroupDto, ContractorGroupDto.class, id);
+        Call<ContractorGroupDto> contractorGroupDtoCall = contractorGroupApi.getById(contractorGroupUrl, id);
+        return dtoCallExecuteService.callExecuteBodyById(contractorGroupDtoCall, ContractorGroupDto.class, id);
     }
 
     @Override
     public ContractorGroupDto getByName(String name) {
         Call<ContractorGroupDto> contractorGroupDtoCallName = contractorGroupApi
-                .getByName(contractorGroupUrl,name);
+                .getByName(contractorGroupUrl, name);
         try {
             contractorGroupDto = contractorGroupDtoCallName.execute().body();
             log.info("Успешно выполнен запрос на получение экземпляра ContractorGroupDto");

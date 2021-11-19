@@ -20,10 +20,6 @@ public class ContractorStatusServiceImpl implements ContractorStatusService {
 
     private final String statusUrl;
 
-    private List<ContractorStatusDto> statusDtoList = new ArrayList<>();
-
-    private ContractorStatusDto statusDto = new ContractorStatusDto();
-
     private final CallExecuteService<ContractorStatusDto> dtoCallExecuteService;
 
     public ContractorStatusServiceImpl(@Value("${contractor_status_url}") String statusUrl, Retrofit retrofit, CallExecuteService<ContractorStatusDto> dtoCallExecuteService) {
@@ -31,7 +27,6 @@ public class ContractorStatusServiceImpl implements ContractorStatusService {
         this.statusUrl = statusUrl;
         this.dtoCallExecuteService = dtoCallExecuteService;
     }
-
 
     @Override
     public List<ContractorStatusDto> getAll() {
@@ -42,7 +37,7 @@ public class ContractorStatusServiceImpl implements ContractorStatusService {
     @Override
     public ContractorStatusDto getById(Long id) {
         Call<ContractorStatusDto> statusGetCall = contractorStatusApi.getById(statusUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(statusGetCall, statusDto, ContractorStatusDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(statusGetCall, ContractorStatusDto.class, id);
     }
 
 }

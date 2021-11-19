@@ -37,7 +37,7 @@ public class InventarizationServiceImpl implements InventarizationService {
     @Override
     public InventarizationDto getById(Long id) {
         Call<InventarizationDto> inventarizationDtoGetCall = inventarizationApi.getById(inventarizationUrl, id);
-        return callExecuteService.callExecuteBodyById(inventarizationDtoGetCall, inventarizationDto, InventarizationDto.class, id);
+        return callExecuteService.callExecuteBodyById(inventarizationDtoGetCall, InventarizationDto.class, id);
     }
 
     @Override

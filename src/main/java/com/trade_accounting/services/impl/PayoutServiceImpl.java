@@ -23,8 +23,6 @@ public class PayoutServiceImpl implements PayoutService {
 
     private final String payoutURL;
 
-    private PayoutDto payoutDto;
-
     private final CallExecuteService<PayoutDto> dtoCallExecuteService;
 
     public PayoutServiceImpl(@Value("${payout_url}") String payoutURL, Retrofit retrofit,
@@ -56,7 +54,7 @@ public class PayoutServiceImpl implements PayoutService {
     @Override
     public PayoutDto getById(Long id) {
         Call<PayoutDto> payoutDtoCall = payoutApi.getById(payoutURL, id);
-        return dtoCallExecuteService.callExecuteBodyById(payoutDtoCall, payoutDto, PayoutDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(payoutDtoCall, PayoutDto.class, id);
     }
 
     @Override

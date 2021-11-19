@@ -5,25 +5,32 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class BuyersReturnDto extends ReturnToSupplierDtoForValidation {
+@NoArgsConstructor
+public class ShipmentDto {
 
     private Long id;
 
     private String date;
 
+    private Long warehouseId;
+
     private Long companyId;
 
     private Long contractorId;
 
-    private Long warehouseId;
+    private List<Long> shipmentProductsIds;
 
     private BigDecimal sum;
 
-    private Boolean isSent;
+    private BigDecimal paid;
+
+    private Boolean isSpend;
+
+    private Boolean isSend;
 
     private Boolean isPrint;
 

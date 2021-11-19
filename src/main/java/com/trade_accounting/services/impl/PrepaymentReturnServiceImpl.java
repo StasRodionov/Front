@@ -23,8 +23,6 @@ public class PrepaymentReturnServiceImpl implements PrepaymentReturnService {
 
     private final String prepaymentReturnUrl;
 
-    private PrepaymentReturnDto prepaymentReturnDto;
-
     private final CallExecuteService<PrepaymentReturnDto> dtoCallExecuteService;
 
     public PrepaymentReturnServiceImpl(@Value("${prepayment_return_url}") String prepaymentReturnUrl, Retrofit retrofit, CallExecuteService<PrepaymentReturnDto> dtoCallExecuteService) {
@@ -42,7 +40,7 @@ public class PrepaymentReturnServiceImpl implements PrepaymentReturnService {
     @Override
     public PrepaymentReturnDto getById(Long id) {
         Call<PrepaymentReturnDto> prepaymentReturnDtoCall = prepaymentReturnApi.getById(prepaymentReturnUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(prepaymentReturnDtoCall, prepaymentReturnDto, PrepaymentReturnDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(prepaymentReturnDtoCall, PrepaymentReturnDto.class, id);
     }
 
     @Override

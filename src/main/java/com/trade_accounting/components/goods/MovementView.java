@@ -91,7 +91,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     private void configureGrid() {
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(MovementDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
-        grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseFromId())
+        grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseId())
                 .getName()).setKey("warehouseFrom").setHeader("Со Склада").setId("Со Склада");
         grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseToId())
                 .getName()).setKey("warehouseTo").setHeader("На Склад").setId("На Склад");

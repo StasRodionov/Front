@@ -19,10 +19,6 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
 
     private final String typeOfPriceUrl;
 
-    private List<TypeOfPriceDto> typeOfPriceDtoList;
-
-    private TypeOfPriceDto typeOfPriceDto;
-
     private final CallExecuteService<TypeOfPriceDto> dtoCallExecuteService;
 
     public TypeOfPriceServiceImpl(@Value("${type_of_price_url}") String typeOfPriceUrl, Retrofit retrofit, CallExecuteService<TypeOfPriceDto> dtoCallExecuteService) {
@@ -40,7 +36,7 @@ public class TypeOfPriceServiceImpl implements TypeOfPriceService {
     @Override
     public TypeOfPriceDto getById(Long id) {
         Call<TypeOfPriceDto> typeOfPriceDtoCall = typeOfPriceApi.getById(typeOfPriceUrl, id);
-       return dtoCallExecuteService.callExecuteBodyById(typeOfPriceDtoCall, typeOfPriceDto, TypeOfPriceDto.class, id);
+       return dtoCallExecuteService.callExecuteBodyById(typeOfPriceDtoCall, TypeOfPriceDto.class, id);
     }
 
     @Override

@@ -68,9 +68,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDto getById(Long id) {
-        EmployeeDto employeeDto = new EmployeeDto();
         Call<EmployeeDto> employeeDtoCall = employeeApi.getById(employeeUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(employeeDtoCall, employeeDto,EmployeeDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(employeeDtoCall, EmployeeDto.class, id);
     }
 
     @Override
