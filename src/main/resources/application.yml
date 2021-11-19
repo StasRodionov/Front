@@ -152,6 +152,8 @@ retail_points_url: api/operation_with_points
 
 prepayout_url: api/prepayout
 
+stage_production_url: api/stagesproduction
+
 operations_url: api/operations
 
 shipment_url: api/shipment
