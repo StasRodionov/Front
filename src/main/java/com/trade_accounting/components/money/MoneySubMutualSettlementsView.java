@@ -42,7 +42,7 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
 
     public MoneySubMutualSettlementsView(MoneySubMutualSettlementsService moneySubMutualSettlementsService) {
         this.moneySubMutualSettlementsService = moneySubMutualSettlementsService;
-        getGrid();
+        configureGrid();
         this.data = moneySubMutualSettlementsService.getAll();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -51,24 +51,16 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
         configureFilter();
 
         add(getToolbar(), filter);
-        grid.removeAllColumns();
-        grid.setItems(data);
-        grid.addColumn("contractorId").setFlexGrow(7).setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");
-        grid.addColumn("income").setFlexGrow(7).setHeader("Приход").setId("Приход");
-        grid.addColumn("expenses").setFlexGrow(7).setHeader("Расход").setId("Расход");
-        grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
         add(grid, paginator);
     }
 
-    private Grid getGrid() {
+    private void configureGrid() {
         grid.addColumn("contractorId").setFlexGrow(10).setHeader("Контрагент").setId("Контрагент");
         grid.addColumn("employeeId").setFlexGrow(7).setHeader("Сотрудник").setId("Сотрудник");
         grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");
         grid.addColumn("income").setFlexGrow(7).setHeader("Приход").setId("Приход");
         grid.addColumn("expenses").setFlexGrow(7).setHeader("Расход").setId("Расход");
         grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
-        return grid;
     }
 
     private void configureFilter() {
