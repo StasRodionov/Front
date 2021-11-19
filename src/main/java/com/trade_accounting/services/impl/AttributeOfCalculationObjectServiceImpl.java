@@ -40,9 +40,9 @@ public class AttributeOfCalculationObjectServiceImpl implements AttributeOfCalcu
 
     @Override
     public AttributeOfCalculationObjectDto getById(Long id) {
-        AttributeOfCalculationObjectDto attributeOfCalculationObjectDto = new AttributeOfCalculationObjectDto();
         Call<AttributeOfCalculationObjectDto> attributeOfCalculationObjectDtoCall = attributeOfCalculationObjectApi.getById(attributeOfCalculationObjectUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(attributeOfCalculationObjectDtoCall,attributeOfCalculationObjectDto, AttributeOfCalculationObjectDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(attributeOfCalculationObjectDtoCall,
+                AttributeOfCalculationObjectDto.class, id);
     }
 
     @Override

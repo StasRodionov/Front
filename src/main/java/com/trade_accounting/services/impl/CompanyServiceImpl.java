@@ -54,8 +54,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyDto getById(Long id) {
         Call<CompanyDto> companyDtoCall = companyApi.getById(companyUrl, id);
-        CompanyDto companyDto = new CompanyDto();
-        return dtoCallExecuteService.callExecuteBodyById(companyDtoCall, companyDto, CompanyDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(companyDtoCall, CompanyDto.class, id);
     }
 
     @Override

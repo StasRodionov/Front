@@ -22,8 +22,6 @@ public class RetailShiftServiceImpl implements RetailShiftService {
 
     private final String retailShiftUrl;
 
-    private RetailShiftDto retailShiftDto;
-
     private List<RetailShiftDto> retailShiftDtoList = new ArrayList<>();
 
     private final CallExecuteService<RetailShiftDto> dtoCallExecuteService;
@@ -43,7 +41,7 @@ public class RetailShiftServiceImpl implements RetailShiftService {
     @Override
     public RetailShiftDto getById(Long id) {
         Call<RetailShiftDto> retailShiftDtoCall = retailShiftApi.getById(retailShiftUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailShiftDtoCall, retailShiftDto, RetailShiftDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(retailShiftDtoCall, RetailShiftDto.class, id);
     }
 
     @Override

@@ -18,7 +18,6 @@ public class MovementProductServiceImpl implements MovementProductService {
     private final MovementProductApi movementProductApi;
     private final String movementProductUrl;
     private final CallExecuteService<MovementProductDto> callExecuteService;
-    private MovementProductDto movementProductDto;
 
     public MovementProductServiceImpl(Retrofit retrofit, @Value("${movement_product_url}") String movementProductUrl, CallExecuteService<MovementProductDto> callExecuteService) {
         movementProductApi = retrofit.create(MovementProductApi.class);
@@ -35,7 +34,7 @@ public class MovementProductServiceImpl implements MovementProductService {
     @Override
     public MovementProductDto getById(Long id) {
         Call<MovementProductDto> movementProductDtoCall = movementProductApi.getById(movementProductUrl, id);
-        return callExecuteService.callExecuteBodyById(movementProductDtoCall, movementProductDto, MovementProductDto.class, id);
+        return callExecuteService.callExecuteBodyById(movementProductDtoCall, MovementProductDto.class, id);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDto getById(Long id) {
         Call<ContactDto> contactDtoCall = contactApi.getById(contactUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(contactDtoCall, contactDto, ContactDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(contactDtoCall, ContactDto.class, id);
     }
 
 

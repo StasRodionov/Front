@@ -19,7 +19,6 @@ public class MovementServiceImpl implements MovementService {
     private final MovementApi movementApi;
     private final String movementUrl;
     private final CallExecuteService<MovementDto> callExecuteService;
-    private MovementDto movementDto;
 
     public MovementServiceImpl(Retrofit retrofit, @Value("${movement_url}") String movementUrl, CallExecuteService<MovementDto> callExecuteService) {
         movementApi = retrofit.create(MovementApi.class);
@@ -37,7 +36,7 @@ public class MovementServiceImpl implements MovementService {
     @Override
     public MovementDto getById(Long id) {
         Call<MovementDto> movementDtoCall = movementApi.getById(movementUrl, id);
-        return callExecuteService.callExecuteBodyById(movementDtoCall, movementDto, MovementDto.class, id);
+        return callExecuteService.callExecuteBodyById(movementDtoCall, MovementDto.class, id);
     }
 
     @Override

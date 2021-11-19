@@ -19,8 +19,6 @@ public class IssuedInvoiceServiceImpl implements IssuedInvoiceService {
 
     private final String issuedInvoiceUrl;
 
-    private IssuedInvoiceDto issuedInvoiceDto;
-
     private final CallExecuteService<IssuedInvoiceDto> dtoCallExecuteService;
 
     public IssuedInvoiceServiceImpl(Retrofit retrofit, @Value("${issued_invoice_url}") String issuedInvoiceUrl, CallExecuteService<IssuedInvoiceDto> dtoCallExecuteService) {
@@ -38,7 +36,7 @@ public class IssuedInvoiceServiceImpl implements IssuedInvoiceService {
     @Override
     public IssuedInvoiceDto getById(Long id) {
         Call<IssuedInvoiceDto> issuedInvoiceDtoCall = issuedInvoiceApi.getById(issuedInvoiceUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(issuedInvoiceDtoCall, issuedInvoiceDto, IssuedInvoiceDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(issuedInvoiceDtoCall, IssuedInvoiceDto.class, id);
     }
 
     @Override

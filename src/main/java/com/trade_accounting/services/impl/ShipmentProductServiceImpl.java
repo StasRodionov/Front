@@ -1,10 +1,8 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.MovementProductDto;
-import com.trade_accounting.models.dto.ShipmentDto;
 import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.ShipmentProductService;
-import com.trade_accounting.services.interfaces.ShipmentService;
+
 import com.trade_accounting.services.interfaces.api.ShipmentProductApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +18,6 @@ public class ShipmentProductServiceImpl implements ShipmentProductService {
     private final ShipmentProductApi shipmentProductApi;
     private final String shipmentProductUrl;
     private final CallExecuteService<ShipmentProductDto> callExecuteService;
-    private ShipmentProductDto shipmentProductDto;
 
     public ShipmentProductServiceImpl(Retrofit retrofit, @Value("${shipment_product_url}") String shipmentProductUrl, CallExecuteService<ShipmentProductDto> callExecuteService) {
         shipmentProductApi = retrofit.create(ShipmentProductApi.class);
@@ -37,7 +34,7 @@ public class ShipmentProductServiceImpl implements ShipmentProductService {
     @Override
     public ShipmentProductDto getById(Long id) {
         Call<ShipmentProductDto> shipmentProductDtoCall = shipmentProductApi.getById(shipmentProductUrl, id);
-        return callExecuteService.callExecuteBodyById(shipmentProductDtoCall, shipmentProductDto, ShipmentProductDto.class, id);
+        return callExecuteService.callExecuteBodyById(shipmentProductDtoCall, ShipmentProductDto.class, id);
     }
 
     @Override

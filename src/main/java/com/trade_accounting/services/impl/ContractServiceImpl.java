@@ -53,7 +53,7 @@ public class ContractServiceImpl implements ContractService  {
     public ContractDto getById(Long id) {
         ContractDto contractDto = new ContractDto();
         Call<ContractDto> contractDtoCall = contractApi.getById(contractUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(contractDtoCall, contractDto, ContractDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(contractDtoCall, ContractDto.class, id);
     }
 
     @Override

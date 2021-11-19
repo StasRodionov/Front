@@ -19,8 +19,6 @@ public class RevenueServiceImpl implements RevenueService {
 
     private final String revenueUrl;
 
-    private RevenueDto revenueDto;
-
     private final CallExecuteService<RevenueDto> dtoCallExecuteService;
 
     public RevenueServiceImpl(Retrofit retrofit, @Value("${returns_url}") String retailReturnUrl, CallExecuteService<RevenueDto> dtoCallExecuteService) {
@@ -38,7 +36,7 @@ public class RevenueServiceImpl implements RevenueService {
     @Override
     public RevenueDto getById(Long id) {
         Call<RevenueDto> revenueDtoCall = revenueApi.getById(revenueUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(revenueDtoCall, revenueDto, RevenueDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(revenueDtoCall, RevenueDto.class, id);
     }
 
     @Override

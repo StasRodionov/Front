@@ -36,9 +36,8 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public InvoiceProductDto getById(Long id) {
-        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         Call<InvoiceProductDto> invoiceProductDtoCall = invoiceProductApi.getById(invoiceProductUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(invoiceProductDtoCall, invoiceProductDto, InvoiceProductDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(invoiceProductDtoCall, InvoiceProductDto.class, id);
     }
 
     @Override

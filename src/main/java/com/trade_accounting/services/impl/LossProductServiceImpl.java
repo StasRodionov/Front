@@ -36,7 +36,7 @@ public class LossProductServiceImpl implements LossProductService {
     @Override
     public LossProductDto getById(Long id) {
         Call<LossProductDto> lossProductDtoCall = lossProductApi.getById(lossProductUrl, id);
-        return callExecuteService.callExecuteBodyById(lossProductDtoCall, lossProductDto, LossProductDto.class, id);
+        return callExecuteService.callExecuteBodyById(lossProductDtoCall, LossProductDto.class, id);
     }
 
     @Override
