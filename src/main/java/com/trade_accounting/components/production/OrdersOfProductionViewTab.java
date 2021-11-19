@@ -242,7 +242,7 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         return ordersOfProductionService.getAll();
     }
 
-        private HorizontalLayout getTollBar () {
+    private HorizontalLayout getTollBar () {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(),
                 buttonFilter(), text(), numberField(), valueSelect(), valueStatus(),
