@@ -43,7 +43,7 @@ public class ProductionTargetsServiceImpl implements ProductionTargetsService {
     @Override
     public ProductionTargetsDto getById(Long id) {
         Call<ProductionTargetsDto> productionTargetsGetCall = productionTargetsApi.getById(productionTargetsUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(productionTargetsGetCall, productionTargetsDto, ProductionTargetsDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(productionTargetsGetCall, ProductionTargetsDto.class, id);
     }
 
     @Override
