@@ -27,6 +27,10 @@ public class AcceptanceDto extends AcceptanceDtoForValidation {
 
     private Long contractId;
 
+    private Long companyId;
+
+    private Long projectId;
+
     private String comment;
 
     private Boolean isSent = null;
