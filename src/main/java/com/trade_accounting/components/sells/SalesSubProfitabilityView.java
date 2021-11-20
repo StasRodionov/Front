@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
@@ -54,6 +55,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final InvoiceProductService invoiceProductService;
     private final ProductService productService;
     private final BuyersReturnService buyersReturnService;
+    private final ReturnAmountByProductService returnAmountByProductService;
 
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
     private final Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
@@ -68,18 +70,24 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final GridFilter<ContractorDto> filter;
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
-                                     ContractorService contractorService, InvoiceProductService invoiceProductService,
-                                     ProductService productService, BuyersReturnService buyersReturnService) {
+                                     ContractorService contractorService,
+                                     InvoiceProductService invoiceProductService,
+                                     ProductService productService,
+                                     BuyersReturnService buyersReturnService,
+                                     ReturnAmountByProductService returnAmountByProductService) {
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.productService = productService;
         this.buyersReturnService = buyersReturnService;
+        this.returnAmountByProductService = returnAmountByProductService;
+
         this.contractorDtos = getContractorDtos();
         this.invoiceProductDtos = getInvoiceProductDtos();
         this.productDtos = getProductDtos();
         this.invoiceDtos = getInvoiceDtos();
+
         paginator = new GridPaginator<>(grid, contractorDtos, 50);
         paginatorProduct = new GridPaginator<>(gridProducts, invoiceProductDtos, 50);
         this.filter = new GridFilter<>(grid);
@@ -91,25 +99,26 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private void configureGrid() {
+
         gridProducts.setItems(invoiceProductDtos);
 
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()).getName())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getName())
                 .setHeader("Продукт")
                 .setKey("productDto")
                 .setId("Продукт");
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()).getDescription())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getDescription())
                 .setHeader("Арктикул")
                 .setKey("description")
                 .setId("Арктикул");
-        gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue()-1).getAmount())
+        gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue() - 1).getAmount())
                 .setHeader("Количество")
                 .setKey("amount")
                 .setId("Количество");
-        gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue()-1).getPrice())
+        gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue() - 1).getPrice())
                 .setHeader("Цена")
                 .setKey("price")
                 .setId("Цена");
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue()-1).getProductId().intValue()).getPurchasePrice())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getPurchasePrice())
                 .setHeader("Себестоимость")
                 .setKey("costPrice")
                 .setId("Себестоимость");
@@ -121,10 +130,10 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .setHeader("Сумма себестоимости")
                 .setKey("totalCostPrice")
                 .setId("Сумма себестоимости");
-        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts())
+        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getProductId(), iDto.getInvoiceId()))
                 .setHeader("Сумма возвратов")
                 .setSortable(true);
-        gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId()))
+        gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId(), iDto.getProductId(), iDto.getInvoiceId()))
                 .setHeader("Прибыль")
                 .setSortable(true);
 
@@ -137,13 +146,18 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private List<ContractorDto> getContractorDtos() {
         return contractorService.getAll();
     }
+
     private List<InvoiceProductDto> getInvoiceProductDtos() {
         return invoiceProductService.getAll();
     }
+
     private List<ProductDto> getProductDtos() {
         return productService.getAll();
     }
-    private List<InvoiceDto> getInvoiceDtos() { return invoiceService.getAll(); }
+
+    private List<InvoiceDto> getInvoiceDtos() {
+        return invoiceService.getAll();
+    }
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
@@ -195,12 +209,12 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return tabs;
     }
 
-    private String getProfitByProducts(Long id) {
+    private String getProfitByProducts(Long id, Long productId, Long invoiceId) {
         BigDecimal profit;
 
         String buyerBuying = getTotalPriceForProducts(id);
         buyerBuying = buyerBuying.replace(',', '.');
-        String buyersReturn = getTotalReturnPriceForProducts();
+        String buyersReturn = getTotalReturnPriceForProducts(productId, invoiceId);
         buyersReturn = buyersReturn.replace(',', '.');
         String costPrice = getTotalCostPriceForProducts(id);
         costPrice = costPrice.replace(',', '.');
@@ -209,18 +223,17 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return String.format("%.2f", profit);
     }
 
-    private String getTotalReturnPriceForProducts() {
-        //Нужно реализовать сумму возврата продуктов.
-        //Дальше в расчете прибыли этот метод учитывается.
-        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        return String.format("%.2f", totalPrice);
+    private String getTotalReturnPriceForProducts(Long productId, Long invoiceId) {
+        return String.format("%.2f", returnAmountByProductService
+                .getTotalReturnAmountByProduct(productId, invoiceId)
+                .getAmount());
     }
 
     private String getTotalCostPriceForProducts(Long id) {
         BigDecimal totalPrice;
 
-        InvoiceProductDto invoiceProductDto = invoiceProductDtos.get(id.intValue()-1);
-        totalPrice = productDtos.get(invoiceProductDto.getProductId().intValue()-1).getPurchasePrice().multiply(invoiceProductDto.getAmount());
+        InvoiceProductDto invoiceProductDto = invoiceProductDtos.get(id.intValue() - 1);
+        totalPrice = productDtos.get(invoiceProductDto.getProductId().intValue() - 1).getPurchasePrice().multiply(invoiceProductDto.getAmount());
 
         return String.format("%.2f", totalPrice);
     }
@@ -228,7 +241,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private String getTotalPriceForProducts(Long id) {
         BigDecimal totalPrice;
 
-        InvoiceProductDto invoiceProductDto = invoiceProductDtos.get(id.intValue()-1);
+        InvoiceProductDto invoiceProductDto = invoiceProductDtos.get(id.intValue() - 1);
         totalPrice = invoiceProductDto.getPrice().multiply(invoiceProductDto.getAmount());
 
         return String.format("%.2f", totalPrice);
@@ -261,12 +274,12 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .collect(Collectors.toList());
         List<InvoiceProductDto> list2 = new ArrayList<>();
 
-        for(InvoiceDto ids : list) {
+        for (InvoiceDto ids : list) {
             list2.addAll(invoiceProductDtos.stream().filter(a -> a.getInvoiceId().equals(ids.getId())).collect(Collectors.toList()));
         }
 
-        for(InvoiceProductDto dto : list2) {
-            totalPrice = totalPrice.add(productDtos.get(dto.getProductId().intValue()-1).getPurchasePrice().multiply(dto.getAmount()));
+        for (InvoiceProductDto dto : list2) {
+            totalPrice = totalPrice.add(productDtos.get(dto.getProductId().intValue() - 1).getPurchasePrice().multiply(dto.getAmount()));
         }
         return String.format("%.2f", totalPrice);
     }
@@ -279,11 +292,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .collect(Collectors.toList());
         List<InvoiceProductDto> list2 = new ArrayList<>();
 
-        for(InvoiceDto ids : list) {
+        for (InvoiceDto ids : list) {
             list2.addAll(invoiceProductDtos.stream().filter(a -> a.getInvoiceId().equals(ids.getId())).collect(Collectors.toList()));
         }
 
-        for(InvoiceProductDto dto : list2) {
+        for (InvoiceProductDto dto : list2) {
             totalPrice = totalPrice.add(dto.getPrice().multiply(dto.getAmount()));
         }
         return String.format("%.2f", totalPrice);
@@ -294,7 +307,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
         List<BuyersReturnDto> list = buyersReturnService.getByContractorId(id);
 
-        for(BuyersReturnDto dto : list) {
+        for (BuyersReturnDto dto : list) {
             totalPrice = totalPrice.add(dto.getSum());
         }
         return String.format("%.2f", totalPrice);
