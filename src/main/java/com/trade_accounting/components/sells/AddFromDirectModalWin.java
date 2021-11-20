@@ -109,12 +109,6 @@ public class AddFromDirectModalWin extends Dialog {
             AcceptanceProductionDto acceptanceProductionDto = new AcceptanceProductionDto();
             view.setReturnEdit(productDto);
             acceptanceProduction.add(acceptanceProductionDto);
-            for (AcceptanceProductionDto ap : acceptanceProduction) {
-                System.out.println("1111111111111  " + ap.getAmount());
-            }
-
-
-
             view.open();
 
         });

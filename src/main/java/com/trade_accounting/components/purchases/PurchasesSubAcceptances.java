@@ -6,6 +6,7 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
@@ -69,7 +70,8 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final AddFromDirectModalWin addFromDirectModalWin;
-    ProductService productService;
+    private final ProductService productService;
+    private final AcceptanceProductionService acceptanceProductionService;
 
     public PurchasesSubAcceptances(CompanyService companyService, AcceptanceService acceptanceService,
                                    WarehouseService warehouseService,
@@ -78,7 +80,8 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                                    Notifications notifications,
                                    AcceptanceModalView modalView,
                                    AddFromDirectModalWin addFromDirectModalWin,
-                                   ProductService productService) {
+                                   ProductService productService,
+                                   AcceptanceProductionService acceptanceProductionService) {
         this.companyService = companyService;
         this.acceptanceService = acceptanceService;
         this.warehouseService = warehouseService;
@@ -86,6 +89,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         this.contractService = contractService;
         this.notifications = notifications;
         this.productService = productService;
+        this.acceptanceProductionService = acceptanceProductionService;
         this.modalView = modalView;
         this.data = getData();
         this.addFromDirectModalWin = addFromDirectModalWin;
@@ -136,7 +140,8 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                     contractorService,
                     notifications,
                     addFromDirectModalWin,
-                    productService);
+                    productService,
+                    acceptanceProductionService);
             modalView.setAcceptanceForEdit(acceptanceDto);
             modalView.open();
         });

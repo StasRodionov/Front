@@ -12,6 +12,7 @@ import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.WarehouseDto;
+import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
@@ -69,15 +70,14 @@ public class AcceptanceModalView extends Dialog {
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
     private final AddFromDirectModalWin modalView;
-    private final Binder<AcceptanceDto> acceptanceDtoBinder =
-            new Binder<>(AcceptanceDto.class);
+    private final Binder<AcceptanceDto> acceptanceDtoBinder = new Binder<>(AcceptanceDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Notifications notifications;
     private final ProductService productService;
     private final Grid<AcceptanceProductionDto> grid = new Grid<>(AcceptanceProductionDto.class, false);
     private GridPaginator<AcceptanceProductionDto> paginator;
     private List<AcceptanceProductionDto> data;
-
+    private final AcceptanceProductionService acceptanceProductionService;
     private final Editor<AcceptanceProductionDto> editor = grid.getEditor();
     private final Binder<AcceptanceProductionDto> binderInvoiceProductDto = new Binder<>(AcceptanceProductionDto.class);//Rename!!!!
     private final TextField amountField = new TextField();
@@ -89,7 +89,8 @@ public class AcceptanceModalView extends Dialog {
                                ContractorService contractorService,
                                Notifications notifications,
                                AddFromDirectModalWin modalView,
-                               ProductService productService) {
+                               ProductService productService,
+                               AcceptanceProductionService acceptanceProductionService) {
         this.companyService = companyService;
         this.acceptanceService = acceptanceService;
         this.contractService = contractService;
@@ -98,6 +99,7 @@ public class AcceptanceModalView extends Dialog {
         this.notifications = notifications;
         this.modalView = modalView;
         this.productService = productService;
+        this.acceptanceProductionService = acceptanceProductionService;
         data = getData();
 //        paginator = new GridPaginator<>(grid, data, 50);
 
@@ -155,14 +157,32 @@ public class AcceptanceModalView extends Dialog {
 //            return edit;
 //        });
 
-//        grid.addComponentColumn(column -> {
-//            Button edit = new Button(new Icon(VaadinIcon.TRASH));
-//            edit.addClassName("delete");
-//            edit.addClickListener(e -> deleteProduct(column.getProductId()));
-//            edit.setEnabled(!editor.isOpen());
-//            editButtons.add(edit);
-//            return edit;
-//        });
+        grid.addComponentColumn(column -> {
+            Button edit = new Button(new Icon(VaadinIcon.TRASH));
+            edit.addClassName("delete");
+            edit.addClickListener(e -> deleteProduct(column.getId()));
+            edit.setEnabled(!editor.isOpen());
+            editButtons.add(edit);
+            return edit;
+        });
+
+        grid.addComponentColumn(column -> {
+            Button edit = new Button(new Icon(VaadinIcon.PLUS));
+            edit.addClassName("add");
+            edit.addClickListener(e -> addProduct());
+            edit.setEnabled(!editor.isOpen());
+            editButtons.add(edit);
+            return edit;
+        });
+
+        grid.addComponentColumn(column -> {
+            Button edit = new Button(new Icon(VaadinIcon.EDIT));
+            edit.addClassName("edit");
+//            edit.addClickListener(e -> editProduct(column.getProductId()));
+            edit.setEnabled(!editor.isOpen());
+            editButtons.add(edit);
+            return edit;
+        });
 //
 //        editor.addOpenListener(e -> editButtons
 //                .forEach(button -> button.setEnabled(!editor.isOpen())));
@@ -217,17 +237,25 @@ public class AcceptanceModalView extends Dialog {
         return totalPrice;
     }
 
+    private void addProduct() {
+        SelectProductFromListModalWin view = new SelectProductFromListModalWin(productService, acceptanceProductionService);
+        AcceptanceProductionDto add = new AcceptanceProductionDto();
+        view.setNewAcceptanceProductionDto(add);
+        view.open();
+        configureGrid();
+    }
 
     private void deleteProduct(Long id) {
         AcceptanceProductionDto found = new AcceptanceProductionDto();
         for (AcceptanceProductionDto acceptanceProductionDto : data) {
-            if (acceptanceProductionDto.getProductId().equals(id)) {
+            if (acceptanceProductionDto.getId().equals(id)) {
                 found = acceptanceProductionDto;
                 break;
             }
         }
         data.remove(found);
-        paginator.setData(data);
+        configureGrid();
+//        paginator.setData(data);
     }
 
     private void updateSupplier() {
