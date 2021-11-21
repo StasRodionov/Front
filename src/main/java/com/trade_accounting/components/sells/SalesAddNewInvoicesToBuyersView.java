@@ -4,11 +4,13 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceToBuyerListProductsDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -27,15 +29,19 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Route(value = "sells/add-new-invoices-to-buyers", layout = AppView.class)
@@ -48,43 +54,50 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private final TextField invoiceBuyerField;
     private final DateTimePicker dateTimePickerField;
     private final Checkbox isSpend;
-    private final ComboBox<CompanyDto> companySelectField;
-    private final ComboBox<WarehouseDto> warehouseSelectField;
-    private final ComboBox<ContractorDto> contractorSelectField;
-    private final ComboBox<ContractDto> contractSelectField;
+    private final ComboBox<CompanyDto> companySelectField = new ComboBox<>();
+    private final ComboBox<WarehouseDto> warehouseSelectField = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorSelectField = new ComboBox<>();
+    private final ComboBox<ContractDto> contractSelectField = new ComboBox<>();
     private final DatePicker plannedDatePaymentField;
     private final Grid<InvoiceToBuyerListProductsDto> grid;
     private final TextField commentTextField;
     private final H4 totalPriceField;
     private final H4 ndsPriceField;
+    private final H2 title = new H2("Добавление счета");
+    private static final String LABEL_WIDTH = "100px";
+    private static final String FIELD_WIDTH = "350px";
 
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final ContractService contractService;
     private final ContractorService contractorService;
+    private final InvoiceService invoiceService;
 
+    private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
+
+    @Autowired
     public SalesAddNewInvoicesToBuyersView(CompanyService companyService,
                                            WarehouseService warehouseService,
                                            ContractService contractService,
-                                           ContractorService contractorService) {
+                                           ContractorService contractorService,
+                                           InvoiceService invoiceService) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractService = contractService;
         this.contractorService = contractorService;
+        this.invoiceService = invoiceService;
 
         invoiceBuyerField = new TextField();
         configureInvoiceBuyerField();
         dateTimePickerField = new DateTimePicker();
         configureDateTimePickerField();
         isSpend = new Checkbox("Проведено");
-        companySelectField = new ComboBox<>();
+
         configureCompanySelectField();
-        warehouseSelectField = new ComboBox<>();
         configureWarehouseSelectField();
-        contractorSelectField = new ComboBox<>();
         configureContractorSelectField();
-        contractSelectField = new ComboBox<>();
         configureContractSelectField();
+
         plannedDatePaymentField = new DatePicker();
         grid = new Grid<>(InvoiceToBuyerListProductsDto.class, false);
         configureGrid();
@@ -128,7 +141,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         Button confirmButton = new Button("Продолжить", buttonClickEvent -> {
-            UI.getCurrent().navigate("sells");
+            UI.getCurrent().navigate("invoicesToBuyers");
             dialog.close();
         });
         horizontalLayout.add(confirmButton);
@@ -153,7 +166,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     //Верхнее меню (buttonSave, buttonClose, buttonAddFromDirectory)
     private HorizontalLayout upperMenu() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        H2 title = new H2("Добавление счета");
+
         title.setHeight("2.0em");
         horizontalLayout.add(title, buttonSave(), buttonClose(), buttonAddFromDirectory());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -258,30 +271,39 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void configureCompanySelectField() {
-        companySelectField.setWidth("25em");
-        List<CompanyDto> listCompany = companyService.getAll();
-        if (listCompany != null) {
-            companySelectField.setItems(listCompany);
-            companySelectField.setItemLabelGenerator(CompanyDto::getName);
+        List<CompanyDto> companies = companyService.getAll();
+        if (companies != null) {
+            companySelectField.setItems(companies);
         }
+        companySelectField.setItemLabelGenerator(CompanyDto::getName);
+        companySelectField.setWidth(FIELD_WIDTH);
+        binderInvoiceDto.forField(companySelectField)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("companyDto");
     }
 
     private void configureWarehouseSelectField() {
-        warehouseSelectField.setWidth("25em");
         List<WarehouseDto> listWarehouse = warehouseService.getAll();
         if (listWarehouse != null) {
             warehouseSelectField.setItems(listWarehouse);
-            warehouseSelectField.setItemLabelGenerator(WarehouseDto::getName);
         }
+        warehouseSelectField.setItemLabelGenerator(WarehouseDto::getName);
+        warehouseSelectField.setWidth(FIELD_WIDTH);
+        binderInvoiceDto.forField(warehouseSelectField)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("warehouseDto");
     }
 
     private void configureContractorSelectField() {
-        contractorSelectField.setWidth("25em");
         List<ContractorDto> listContractor = contractorService.getAll();
         if (listContractor != null) {
             contractorSelectField.setItems(listContractor);
-            contractorSelectField.setItemLabelGenerator(ContractorDto::getName);
         }
+        contractorSelectField.setItemLabelGenerator(ContractorDto::getName);
+        contractorSelectField.setWidth(FIELD_WIDTH);
+        binderInvoiceDto.forField(contractorSelectField)
+                .withValidator(Objects::nonNull, "Не заполнено!")
+                .bind("contractorDto");
     }
 
     private void configureContractSelectField() {
@@ -315,5 +337,24 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private void configureNdsPriceField() {
         ndsPriceField.setText("0.00");
     }
+
+    public void setUpdateState(boolean isUpdate) {
+        title.setText(isUpdate ? "Редактирование счета" : "Добавление счета");
+
+    }
+
+    public void resetView() {
+        dateTimePickerField.clear();
+        companySelectField.setValue(null);
+        contractorSelectField.setValue(null);
+        warehouseSelectField.setValue(null);
+        isSpend.clear();
+        contractorSelectField.setInvalid(false);
+        companySelectField.setInvalid(false);
+        warehouseSelectField.setInvalid(false);
+        title.setText("Добавление счета");
+
+    }
+
 }
 

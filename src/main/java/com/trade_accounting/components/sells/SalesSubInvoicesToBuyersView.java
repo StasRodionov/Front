@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -46,11 +47,11 @@ import java.util.Map;
 public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private final CompanyService companyService;
-    private  final WarehouseService warehouseService;
+    private final WarehouseService warehouseService;
     private final ContractorService contractorService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
-    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    private final SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView;
 
     private final List<InvoiceDto> data;
 
@@ -66,13 +67,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         private final String typeOfInvoice = "RECEIPT";
     public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService, ContractorService contractorService, InvoiceService invoiceService, InvoiceProductService invoiceProductService,
                                         @Lazy Notifications notifications,
-                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
+                                        @Lazy SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
-        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        this.salesAddNewInvoicesToBuyersView = salesAddNewInvoicesToBuyersView;
         this.notifications = notifications;
         this.data = getData();
 
@@ -108,6 +109,12 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemDoubleClickListener(event -> {
+            InvoiceDto editInvoice = event.getItem();
+            salesAddNewInvoicesToBuyersView.setUpdateState(true);
+            UI.getCurrent().navigate("sells/add-new-invoices-to-buyers");
+        });
     }
 
     private void configurePaginator() {
@@ -142,10 +149,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private Button buttonUnit() {
         Button buttonUnit = new Button("Счет", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(event -> {
-            salesEditCreateInvoiceView.resetView();
-            salesEditCreateInvoiceView.setUpdateState(false);
-            salesEditCreateInvoiceView.setType("RECEIPT");
-            salesEditCreateInvoiceView.setLocation("sells");
+            salesAddNewInvoicesToBuyersView.resetView();
+            salesAddNewInvoicesToBuyersView.setUpdateState(false);
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/add-new-invoices-to-buyers"));
         });
         return buttonUnit;
