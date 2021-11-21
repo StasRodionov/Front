@@ -6,6 +6,8 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -264,7 +266,12 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     }
 
     private String getTotalPrice(AcceptanceDto dto) {
+        List<AcceptanceProductionDto> acceptanceProductionDto = dto.getAcceptanceProduction();
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (AcceptanceProductionDto apd : acceptanceProductionDto) {
+            totalPrice = totalPrice.add(apd.getPrice()
+                    .multiply(apd.getAmount()));
+        }
         return String.format("%.2f", totalPrice);
     }
 
