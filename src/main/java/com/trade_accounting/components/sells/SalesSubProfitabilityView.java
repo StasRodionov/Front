@@ -49,18 +49,18 @@ import java.util.stream.Collectors;
 @SpringComponent
 @UIScope
 public class SalesSubProfitabilityView extends VerticalLayout {
-    private CompanyService companyService;
-    private ContractorService contractorService;
-    private InvoiceService invoiceService;
-    private InvoiceProductService invoiceProductService;
-    private ProductService productService;
-    private BuyersReturnService buyersReturnService;
-    private ReturnAmountByProductService returnAmountByProductService;
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
+    private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
+    private final tService productService;
+    private final BuyersReturnService buyersReturnService;
+    private final ReturnAmountByProductService returnAmountByProductService;
 
-    private Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
-    private Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
-    private GridPaginator<ContractorDto> paginator;
-    private GridPaginator<InvoiceProductDto> paginatorProduct;
+    private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
+    private final Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
+    private final GridPaginator<ContractorDto> paginator;
+    private final GridPaginator<InvoiceProductDto> paginatorProduct;
 
     private List<ContractorDto> contractorDtos;
     private List<InvoiceProductDto> invoiceProductDtos;
