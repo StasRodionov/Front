@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.IssuedInvoiceService;
 import com.trade_accounting.services.interfaces.PaymentService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -39,6 +40,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final IssuedInvoiceService issuedInvoiceService;
     private final PaymentService paymentService;
     private final ProductService productService;
+    private final ReturnAmountByProductService returnAmountByProductService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
@@ -54,13 +56,16 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             CompanyService companyService,
                             WarehouseService warehouseService,
                             BuyersReturnService buyersReturnService,
-                            InvoiceProductService invoiceProductService, IssuedInvoiceService issuedInvoiceService, PaymentService paymentService, @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
+                            InvoiceProductService invoiceProductService,
+                            IssuedInvoiceService issuedInvoiceService,
+                            PaymentService paymentService,
+                            @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
                             ReturnBuyersReturnModalView returnBuyersReturnModalView,
-                            Notifications notifications, ProductService productService) {
-
+                            Notifications notifications, ProductService productService,
+                            ReturnAmountByProductService returnAmountByProductService) {
 
 
         this.invoiceProductService = invoiceProductService;
@@ -78,6 +83,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.notifications = notifications;
         this.productService = productService;
+        this.returnAmountByProductService = returnAmountByProductService;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -136,15 +142,22 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add(new SalesSubBuyersReturnsView(buyersReturnService, contractorService, companyService,returnBuyersReturnModalView, warehouseService, notifications));
+                    div.add(new SalesSubBuyersReturnsView(buyersReturnService, contractorService, companyService, returnBuyersReturnModalView, warehouseService, notifications));
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
-                    div.add(new SalesSubIssuedInvoicesView(issuedInvoiceService,companyService, contractorService, paymentService));
+                    div.add(new SalesSubIssuedInvoicesView(issuedInvoiceService, companyService, contractorService, paymentService));
                     break;
                 case "Прибыльность":
                     div.removeAll();
-                    div.add(new SalesSubProfitabilityView(invoiceService, companyService, contractorService, invoiceProductService, productService, buyersReturnService));
+                    div.add(new SalesSubProfitabilityView(
+                            invoiceService,
+                            companyService,
+                            contractorService,
+                            invoiceProductService,
+                            productService,
+                            buyersReturnService,
+                            returnAmountByProductService));
                     break;
                 case "Товары на реализации":
                     div.removeAll();
