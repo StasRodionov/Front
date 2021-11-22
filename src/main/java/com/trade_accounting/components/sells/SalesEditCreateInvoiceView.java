@@ -45,6 +45,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.router.PageTitle;
@@ -95,7 +96,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final TextField typeOfInvoiceField = new TextField();
     private final Checkbox isSpend = new Checkbox("Проведено");
     private final ComboBox<CompanyDto> companySelectComboBox = new ComboBox<>();
-    public final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
     private final ComboBox<InvoicesStatusDto> invoicesStatusSelectComboBox = new ComboBox<>();
 
@@ -156,7 +157,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
         binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorId");
+                .bind("contractorDto");
         binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
             if (
                     valueChangeEvent.isFromClient()
@@ -328,7 +329,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         companySelectComboBox.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(companySelectComboBox)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("companyId");
+                .bind("companyDto");
         Label label = new Label("Компания");
         label.setWidth(LABEL_WIDTH);
         companyLayout.add(label, companySelectComboBox);
@@ -360,7 +361,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         contractorSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(contractorSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorId");
+                .bind("contractorDto");
         Label label = new Label("Контрагент");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorSelect);
@@ -377,7 +378,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         warehouseSelect.setWidth(FIELD_WIDTH);
         binderInvoiceDto.forField(warehouseSelect)
                 .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("warehouseId");
+                .bind("warehouseDto");
         Label label = new Label("Склад");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseSelect);
@@ -533,7 +534,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
 
         if (invoiceDto.getCompanyId() != null) {
-            companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
+           companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
         }
 
         if (invoiceDto.getContractorId() != null) {
@@ -542,9 +543,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
         isSpend.setValue(invoiceDto.getIsSpend());
 
-        if (invoiceDto.getWarehouseId() != null) {
+       if (invoiceDto.getWarehouseId() != null) {
             warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
-        }
+       }
 
         if (invoiceDto.getInvoicesStatusId() != null) {
             invoicesStatusSelectComboBox.setValue(invoicesStatusService.getById(invoiceDto.getInvoicesStatusId()));
@@ -711,6 +712,5 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     public void setLocation(String location) {
         this.location = location;
     }
-
 
 }

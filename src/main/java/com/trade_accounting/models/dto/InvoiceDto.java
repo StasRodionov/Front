@@ -2,6 +2,7 @@ package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -38,4 +39,13 @@ public class InvoiceDto {
                 ", Проведено = " + isSpend +
                 ", Комментарий = '" + comment + '\'';
     }
+
+    @EqualsAndHashCode.Exclude
+    private WarehouseDto warehouseDto;
+
+    @EqualsAndHashCode.Exclude
+    private ContractorDto contractorDto;
+
+    @EqualsAndHashCode.Exclude
+    private CompanyDto companyDto;
 }
