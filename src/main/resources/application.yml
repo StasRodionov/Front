@@ -162,4 +162,6 @@ return_amount_by_product_url: api/return-amount-by-product
 
 stage_production_url: api/stagesproduction
 
+return_amount_by_product_url: api/return-amount-by-product
+
 #debug: true
