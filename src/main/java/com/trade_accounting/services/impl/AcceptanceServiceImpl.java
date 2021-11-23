@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.BankAccountDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.api.AcceptanceApi;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,15 @@ public class AcceptanceServiceImpl implements AcceptanceService {
 
     @Override
     public AcceptanceDto create(AcceptanceDto acceptanceDto) {
-        return null;
+        Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.create(acceptanceUrl, acceptanceDto);
+        AcceptanceDto result = null;
+        try {
+            result = acceptanceDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание экземпляра Приемки");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра Приемки - {}", e);
+        }
+        return result;
     }
 
     @Override

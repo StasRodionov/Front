@@ -22,8 +22,12 @@ public interface AcceptanceProductionApi {
     Call<AcceptanceProductionDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
+    @GET("{url}/{id}")
+    Call<List<AcceptanceProductionDto>> getByAcceptanceId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
-    Call<AcceptanceProductionDto> create(@Path(value = "url", encoded = true) String url, @Body AcceptanceProductionDto acceptanceProductionDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body AcceptanceProductionDto acceptanceProductionDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
