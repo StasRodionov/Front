@@ -11,5 +11,5 @@ public interface MoneySubMutualSettlementsService {
 
     void update(MoneySubMutualSettlementsDto MoneySubMutualSettlementsDto);
 
-    List<MoneySubMutualSettlementsDto> filter(Map<String, String> query);
+    List<MoneySubMutualSettlementsDto> searchByFilter(Map<String ,String> query);
 }
