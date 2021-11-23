@@ -2,12 +2,14 @@ package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.models.dto.BankAccountDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.api.AcceptanceApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
@@ -43,17 +45,32 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     }
 
     @Override
-    public AcceptanceDto create(AcceptanceDto acceptanceDto) {
-        Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.create(acceptanceUrl, acceptanceDto);
-        AcceptanceDto result = null;
+    public Response<AcceptanceDto> create(AcceptanceDto acceptDto) {
+        Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.create(acceptanceUrl, acceptDto);
+        Response<AcceptanceDto> response = Response.success(new AcceptanceDto());
         try {
-            result = acceptanceDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на создание экземпляра Приемки");
+            response = acceptanceDtoCall.execute();
+            log.info("Успешно выполнен запрос на создание Приемки");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на создание экземпляра Приемки - {}", e);
+            log.error("Произошла ошибка при создании Приемки {}", e);
         }
-        return result;
+        System.out.println("RESULT!!!!!!!!!!!!!!!!!!    " + response.body());
+        return response;
     }
+
+//    @Override
+//    public AcceptanceDto create(AcceptanceDto acceptanceDto) {
+//        Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.create(acceptanceUrl, acceptanceDto);
+//        Response<AcceptanceDto> resp = Response.success(new AcceptanceDto());;
+//        try {
+//            resp = acceptanceDtoCall.execute();
+//            log.info("Успешно выполнен запрос на создание экземпляра Приемки");
+//        } catch (IOException e) {
+//            log.error("Произошла ошибка при выполнении запроса на создание экземпляра Приемки - {}", e);
+//        }
+//        System.out.println("RESULT!!!!!!!!!!!!!!!!!!    " + resp.body());
+//        return resp.body();
+//    }
 
     @Override
     public void update(AcceptanceDto acceptanceDto) {

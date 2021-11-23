@@ -1,7 +1,8 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.models.dto.AcceptanceProductionDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.AddressDto;
 import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.api.AcceptanceProductionApi;
 import lombok.extern.slf4j.Slf4j;
@@ -56,14 +57,21 @@ public class AcceptanceServiceProductionImpl implements AcceptanceProductionServ
     }
 
     @Override
-    public void create(AcceptanceProductionDto acceptanceProductionDto) {
-        Call<Void> acceptanceProductionDtoCall = acceptanceProductionApi.create(acceptanceProductUrl, acceptanceProductionDto);
-        callExecuteService.callExecuteBodyCreate(acceptanceProductionDtoCall, AcceptanceProductionDto.class);
+    public AcceptanceProductionDto create(AcceptanceProductionDto acceptanceProductionDto) {
+        Call<AcceptanceProductionDto> acceptProductionDto = acceptanceProductionApi.create(acceptanceProductUrl, acceptanceProductionDto);
+        AcceptanceProductionDto result = null;
+        try {
+            result = acceptProductionDto.execute().body();
+            log.info("Успешно выполнен запрос на создание экземпляра Приемки");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на создание экземпляра Приемки - {}", e);
+        }
+        return result;
     }
 
     @Override
     public void update(AcceptanceProductionDto acceptanceProductionDto) {
-        Call<Void> acceptanceProductionDtoCall = acceptanceProductionApi.create(acceptanceProductUrl, acceptanceProductionDto);
+        Call<Void> acceptanceProductionDtoCall = acceptanceProductionApi.update(acceptanceProductUrl, acceptanceProductionDto);
         callExecuteService.callExecuteBodyUpdate(acceptanceProductionDtoCall, AcceptanceProductionDto.class);
     }
 

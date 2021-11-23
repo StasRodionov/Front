@@ -27,7 +27,7 @@ public interface AcceptanceProductionApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body AcceptanceProductionDto acceptanceProductionDto);
+    Call<AcceptanceProductionDto> create(@Path(value = "url", encoded = true) String url, @Body AcceptanceProductionDto acceptanceProductionDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")

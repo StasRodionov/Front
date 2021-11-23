@@ -84,7 +84,7 @@ public class AcceptanceModalView extends Dialog {
     private final Editor<AcceptanceProductionDto> editor = grid.getEditor();
     private final Binder<AcceptanceProductionDto> binderInvoiceProductDto = new Binder<>(AcceptanceProductionDto.class);//Rename!!!!
     private final TextField amountField = new TextField();
-    private List<AcceptanceProductionDto> listNewAcceptanceProductionDto = new ArrayList<>();
+    private boolean isNew;
 
     public AcceptanceModalView(CompanyService companyService,
                                AcceptanceService acceptanceService,
@@ -104,7 +104,7 @@ public class AcceptanceModalView extends Dialog {
         this.modalView = modalView;
         this.productService = productService;
         this.acceptanceProductionService = acceptanceProductionService;
-
+        this.isNew = true;
         data = getData();
 //        paginator = new GridPaginator<>(grid, data, 50);
         if (data.size()!=0){
@@ -128,7 +128,7 @@ public class AcceptanceModalView extends Dialog {
         grid.removeAllColumns();
         grid.setItems(data);
         grid.addColumn(inPrDto -> inPrDto.getId()).setHeader("№").setId("№");
-//        grid.addColumn(inPrDto -> productService.getById(inPrDto.getId()).getName()).setHeader("Название");
+        grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Название");
         grid.addColumn(inPrDto -> inPrDto.getAmount()).setHeader("Количество");
         grid.addColumn(inPrDto -> inPrDto.getPrice()).setHeader("Цена").setId("Цена");
         grid.setHeight("36vh");
@@ -138,26 +138,26 @@ public class AcceptanceModalView extends Dialog {
         Div validationStatus = new Div();
         validationStatus.setId("validation");
         add(validationStatus);
-        Collection<Button> editButtons = Collections
-                .newSetFromMap(new WeakHashMap<>());
-
-        grid.addComponentColumn(column -> {
-            Button edit = new Button(new Icon(VaadinIcon.TRASH));
-            edit.addClassName("delete");
-            edit.addClickListener(e -> deleteProduct(column.getId()));
-            edit.setEnabled(!editor.isOpen());
-            editButtons.add(edit);
-            return edit;
-        });
-
-        grid.addComponentColumn(column -> {
-            Button edit = new Button(new Icon(VaadinIcon.EDIT));
-            edit.addClassName("edit");
-//            edit.addClickListener(e -> editProduct(column.getProductId()));
-            edit.setEnabled(!editor.isOpen());
-            editButtons.add(edit);
-            return edit;
-        });
+//        Collection<Button> editButtons = Collections
+//                .newSetFromMap(new WeakHashMap<>());
+//
+//        grid.addComponentColumn(column -> {
+//            Button edit = new Button(new Icon(VaadinIcon.TRASH));
+//            edit.addClassName("delete");
+//            edit.addClickListener(e -> deleteProduct(column.getId()));
+//            edit.setEnabled(!editor.isOpen());
+//            editButtons.add(edit);
+//            return edit;
+//        });
+//
+//        grid.addComponentColumn(column -> {
+//            Button edit = new Button(new Icon(VaadinIcon.EDIT));
+//            edit.addClassName("edit");
+////            edit.addClickListener(e -> editProduct(column.getProductId()));
+//            edit.setEnabled(!editor.isOpen());
+//            editButtons.add(edit);
+//            return edit;
+//        });
     }
 
     public BigDecimal getTotalPrice() {
@@ -183,10 +183,8 @@ public class AcceptanceModalView extends Dialog {
     }
 
     private void updateSupplier() {
-        for (AcceptanceProductionDto acceptanceProductionDto: data) {
-            System.out.println("11111111111111111111111 " + acceptanceProductionDto.getAmount());
-        }
         dto.setAcceptanceProduction(data);
+        dto.setIncomingNumber(returnNumber.getValue());
         dto.setId(Long.parseLong(returnNumber.getValue()));
         dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
         dto.setDate(dateTimePicker.getValue());
@@ -197,83 +195,60 @@ public class AcceptanceModalView extends Dialog {
         dto.setProjectId((long) 1); //Это не правлильно. Должен быть список с выбором проекта. Пока списка проектов нет, будет так
         dto.setIsSent(checkboxIsSent.getValue());
         dto.setIsPrint(checkboxIsPrint.getValue());
-        dto.setAcceptanceProduction(new ArrayList<>());
-//        dto.setId(acceptanceService.create(dto).getId()); //Здесь ошибка
-        List<AcceptanceProductionDto> tmp = new ArrayList<>();
-        for (AcceptanceProductionDto acceptanceProductionDto : data) {
-            System.out.println("DATA!!!!!!!!!!!!!!!!!!!! " + data);
-
-//            acceptanceProductionDto.se tId(acceptanceProductionService.create(acceptanceProductionDto).getId());
-//            acceptanceProductionDto.setAcceptanceDto(dto);
-            tmp.add(acceptanceProductionDto);
+        System.out.println("IS_NEW !!!!!!!!!!!!!!!!!!!   " + isNew);
+        if (isNew) {
+            dto.setAcceptanceProduction(new ArrayList<>());
+            acceptanceService.create(dto);
+            System.out.println("SAVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        } else {
+            dto.setAcceptanceProduction(data);
+            acceptanceService.update(dto);
+            UI.getCurrent().navigate("admissions");
+            close();
+            clearAllFieldsModalView();
         }
-
-        dto.setAcceptanceProduction(tmp);
-
-        acceptanceService.update(dto);
-        UI.getCurrent().navigate("admissions");
-        close();
-        clearAllFieldsModalView();
+        isNew = false;
     }
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
             updateSupplier();
-            notifications.infoNotification(String.format("Приемка №=%s сохранена", dto.getIncomingNumber()));
+            notifications.infoNotification(String.format("Приемка №=%s сохранена", dto.getId()));
         });
     }
-    private final ComboBox<Long> acceptnceDtoComboBox = new ComboBox<>();
-    private Button addProduct() {
 
+    private Button addProduct() {
         Button button = new Button("Добавить продукт", new Icon(VaadinIcon.ADD_DOCK));
         button.addClickListener(e -> {
-//            InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-//
-//            invoiceProductDto.setInvoiceId(invoiceDtoComboBox.getValue());
-//            invoiceProductDto.setProductId(productDtoComboBox.getValue());
-//            invoiceProductDto.setPrice(priceField.getValue());
-//            invoiceProductDto.setAmount(amountField.getValue());
-//
-//            invoiceProductService.create(invoiceProductDto);
-
-            close();
-
-
             AcceptanceProductionDto acceptanceProductionDto = new AcceptanceProductionDto();
+            if (dto.getId() == null) {
+                updateSupplier();
+            }
             acceptanceProductionDto.setAcceptanceId(dto.getId());
-//            acceptanceProductionDto.setId(productDtoComboBox.getValue().getId());
             acceptanceProductionDto.setProductId(productDtoComboBox.getValue().getId());
             acceptanceProductionDto.setAmount(new BigDecimal(amountField.getValue()));
             acceptanceProductionDto.setPrice(productDtoComboBox.getValue().getPurchasePrice());
-//            acceptanceProductionDto.setId(acceptanceProductionService.create(acceptanceProductionDto).getId());
-
             acceptanceProductionService.create(acceptanceProductionDto);
             data.add(acceptanceProductionDto);
-
             configureGrid();
         });
         return button;
     }
-    private HorizontalLayout acceptanceConfigure() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        List<AcceptanceDto> list = acceptanceService.getAll();
-        List<Long> listItems = new ArrayList<>();
-        for(AcceptanceDto id : list) {
-            listItems.add(id.getId());
-        }
-        if (listItems != null) {
-            acceptnceDtoComboBox.setItems(listItems);
-        }
-        acceptnceDtoComboBox.setItemLabelGenerator(item -> acceptanceService.getById(item).toString());
-        acceptnceDtoComboBox.setWidth("350px");
-        Label label = new Label("Заказ №");
-        label.setWidth("100px");
-        horizontalLayout.add(label, acceptnceDtoComboBox);
-        return horizontalLayout;
-    }
 
     public void setAcceptanceForEdit(AcceptanceDto editDto) {
         this.dto = editDto;
+        for (AcceptanceProductionDto apd : acceptanceProductionService.getAll()) {
+            for (AcceptanceProductionDto apd1 : editDto.getAcceptanceProduction()) {
+                if(apd.getId().equals(apd1.getId())) {
+                    apd1.setProductId(apd.getProductId());
+                    apd1.setAcceptanceId(apd.getAcceptanceId());
+                    data.add(apd1);
+                }
+            }
+        }
+        isNew = false;
+        System.out.println("ACCEPT!!!!!!!!!!!!!!  " + data);
+//        List<AcceptanceProductionDto> listAcceptanceProductionDto;
         returnNumber.setValue(editDto.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate().toString()));
         companyDtoComboBox.setValue(companyService.getById(dto.getCompanyId()));
@@ -283,7 +258,9 @@ public class AcceptanceModalView extends Dialog {
         checkboxIsPrint.setValue(dto.getIsPrint());
         warehouseDtoComboBox.setValue(warehouseService.getById(dto.getWarehouseId()));
         contractorDtoComboBox.setValue(contractorService.getById(dto.getContractorId()));
-        data = dto.getAcceptanceProduction();
+//        listAcceptanceProductionDto = editDto.getAcceptanceProduction();
+
+        isNew = false;
         configureGrid();
     }
 
@@ -318,7 +295,7 @@ public class AcceptanceModalView extends Dialog {
 
     private HorizontalLayout formLayout4() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(productConfigure(), amountFieldConfig(), addProduct(), acceptanceConfigure(), commentConfig());
+        horizontalLayout.add(productConfigure(), amountFieldConfig(), addProduct(), commentConfig());
         return horizontalLayout;
     }
 
