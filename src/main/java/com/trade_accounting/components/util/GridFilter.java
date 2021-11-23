@@ -77,6 +77,23 @@ public class GridFilter<T> extends HorizontalLayout {
     }
 
     /**
+     * Sets field uses column key to ComboBox with specific item label generator and items.
+     *
+     * @param columnKey          columnKey
+     * @param itemLabelGenerator itemLabelGenerator
+     * @param items              items
+     */
+    public final <I> void setFieldToComboBox(String columnKey, ItemLabelGenerator<I> itemLabelGenerator, List<I> items) {
+        ComboBox<I> comboBox = getFilterComboBox(columnKey, itemLabelGenerator, items);
+
+        this.getChildren().forEach(e -> {
+            if (e.getId().orElse("").equals(columnKey)) {
+                this.replace(e, comboBox);
+            }
+        });
+    }
+
+    /**
      * Sets field uses column key to ComboBox with specific items.
      *
      * @param columnKey columnKey
@@ -123,7 +140,7 @@ public class GridFilter<T> extends HorizontalLayout {
         });
     }
 
-    public void setFieldToCheckBox(String columnKey){
+    public void setFieldToCheckBox(String columnKey) {
         Checkbox checkbox = getFilterCheckbox(columnKey);
 
         this.getChildren().forEach(e -> {
@@ -178,11 +195,12 @@ public class GridFilter<T> extends HorizontalLayout {
      */
     public Map<String, String> getFilterData() {
         String datetime = filterData.get("date");
-        if(datetime != null) {
+        if (datetime != null) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-                filterData.put("date", LocalDate.parse(datetime).atTime(0,0,0,0).format(formatter));
-            } catch (Exception ignored) {}
+                filterData.put("date", LocalDate.parse(datetime).atTime(0, 0, 0, 0).format(formatter));
+            } catch (Exception ignored) {
+            }
         }
         return filterData;
     }
@@ -191,16 +209,17 @@ public class GridFilter<T> extends HorizontalLayout {
      * Gets filter data from all fields.
      *
      * @return filter data
-     *
+     * <p>
      * Conversion to format LocalDateTime.
      */
     public Map<String, String> getFilterData2() {
         String datetime = filterData.get("date");
-        if(datetime != null) {
+        if (datetime != null) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
                 filterData.put("date", LocalDateTime.parse(datetime).format(formatter));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         return filterData;
@@ -307,6 +326,19 @@ public class GridFilter<T> extends HorizontalLayout {
         return filter;
     }
 
+    private <I> ComboBox<I> getFilterComboBox(String columnKey, ItemLabelGenerator<I> itemLabelGenerator, List<I> items) {
+        ComboBox<I> filter = new ComboBox<>();
+        filter.setId(columnKey);
+
+        filter.setItemLabelGenerator(itemLabelGenerator);
+        filter.setItems(items);
+        filter.addValueChangeListener(e -> onFilterComboBoxChange(filter, itemLabelGenerator));
+
+        filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
+
+        return filter;
+    }
+
     @SafeVarargs
     private <I> ComboBox<I> getFilterComboBox(String columnKey, I... items) {
         ComboBox<I> filter = new ComboBox<>();
@@ -320,6 +352,7 @@ public class GridFilter<T> extends HorizontalLayout {
         return filter;
     }
 
+
     private DateTimePicker getFilterDatePicker(String columnKey) {
         DateTimePicker filter = new DateTimePicker();
         filter.setId(columnKey);
@@ -330,7 +363,7 @@ public class GridFilter<T> extends HorizontalLayout {
         return filter;
     }
 
-    private Checkbox getFilterCheckbox(String columnKey){
+    private Checkbox getFilterCheckbox(String columnKey) {
         Checkbox checkbox = new Checkbox();
         checkbox.setId(columnKey);
         checkbox.addValueChangeListener(e -> onFilterChange(checkbox));
@@ -345,6 +378,16 @@ public class GridFilter<T> extends HorizontalLayout {
                 filterData.put(filter.getId().orElse(""), ((AbstractField<?, ?>) filter).getValue().toString());
             } else {
                 filterData.remove(filter.getId().orElse(""));
+            }
+        }
+    }
+
+    private <I> void onFilterComboBoxChange(ComboBox<I> comboBox, ItemLabelGenerator<I> itemLabelGenerator) {
+        if (comboBox != null) {
+            if (!comboBox.isEmpty()) {
+                filterData.put(comboBox.getId().orElse(""), itemLabelGenerator.apply(comboBox.getValue()));
+            } else {
+                filterData.remove(comboBox.getId().orElse(""));
             }
         }
     }
