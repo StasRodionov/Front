@@ -53,7 +53,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final ContractorService contractorService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
-    private final ProductService productService;
+    private final tService productService;
     private final BuyersReturnService buyersReturnService;
     private final ReturnAmountByProductService returnAmountByProductService;
 
@@ -62,10 +62,10 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final GridPaginator<ContractorDto> paginator;
     private final GridPaginator<InvoiceProductDto> paginatorProduct;
 
-    private final List<ContractorDto> contractorDtos;
-    private final List<InvoiceProductDto> invoiceProductDtos;
-    private final List<ProductDto> productDtos;
-    private final List<InvoiceDto> invoiceDtos;
+    private List<ContractorDto> contractorDtos;
+    private List<InvoiceProductDto> invoiceProductDtos;
+    private List<ProductDto> productDtos;
+    private List<InvoiceDto> invoiceDtos;
 
     private final GridFilter<ContractorDto> filter;
 
@@ -94,11 +94,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorProduct);
         add(upperLayout());
-        configureGrid();
+        configureGrid(false);
         add(gridProducts, paginatorProduct);
     }
 
-    private void configureGrid() {
+    private void configureGrid(boolean refreshing) {
 
         gridProducts.setItems(invoiceProductDtos);
 
@@ -139,8 +139,12 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
         gridProducts.setHeight("100vh");
         gridProducts.setColumnReorderingAllowed(true);
-        gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
+        if (!refreshing) {
+            gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
+        }
     }
+
+    private String currentTab = "По товарам";
 
     //Загрузчики данных
     private List<ContractorDto> getContractorDtos() {
@@ -166,6 +170,49 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return upper;
     }
 
+    private void refreshData() {
+        this.invoiceDtos = getInvoiceDtos();
+        this.productDtos = getProductDtos();
+        this.contractorDtos = getContractorDtos();
+        this.invoiceProductDtos = getInvoiceProductDtos();
+    }
+
+    private void fillByContractors() {
+        remove(grid, paginator);
+        add(gridProducts, paginatorProduct);
+        gridProducts.removeAllColumns();
+        configureGrid(false);
+        currentTab = "По товарам";
+    }
+
+    private void fillByEmployees() {
+        //Реализовать прибыльность по сотрудникам
+        remove(grid, paginator);
+        remove(gridProducts, paginatorProduct);
+        currentTab = "По сотрудникам";
+    }
+
+    private void fillByCustomers() {
+        remove(gridProducts, paginatorProduct);
+        add(grid, paginator);
+        grid.removeAllColumns();
+        grid.setItems(contractorDtos);
+
+        grid.addColumn(iDto -> contractorService.getById(iDto.getId()).getName()).setHeader("Контрагент").setKey("contractorDto")
+                .setId("Контрагент");
+        grid.addColumn(iDto -> getTotalPrice(iDto.getId())).setHeader("Сумма продаж").setSortable(true);
+        grid.addColumn(iDto -> getTotalCostPrice(iDto.getId())).setHeader("Сумма себестоимости").setSortable(true);
+        grid.addColumn(iDto -> averagePrice(iDto.getId())).setHeader("Средний чек").setSortable(true);
+
+        grid.addColumn(iDto -> getReturnsTotalPrice(iDto.getId())).setHeader("Сумма возврата").setSortable(true);
+        grid.addColumn(iDto -> getProfit(iDto.getId())).setHeader("Прибыль").setSortable(true);
+
+        grid.setHeight("100vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        currentTab = "По покупателям";
+    }
+
     private Tabs configurationSubMenu() {
         Tab contractors = new Tab("По товарам");
         Tab employees = new Tab("По сотрудникам");
@@ -175,35 +222,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
             if ("По товарам".equals(tabName)) {
-                remove(grid, paginator);
-                add(gridProducts, paginatorProduct);
-                gridProducts.removeAllColumns();
-                configureGrid();
+                fillByContractors();
             } else if ("По сотрудникам".equals(tabName)) {
-
-                //Реализовать прибыльность по сотрудникам
-
-                remove(grid, paginator);
-                remove(gridProducts, paginatorProduct);
-
+                fillByEmployees();
             } else if ("По покупателям".equals(tabName)) {
-                remove(gridProducts, paginatorProduct);
-                add(grid, paginator);
-                grid.removeAllColumns();
-                grid.setItems(contractorDtos);
-
-                grid.addColumn(iDto -> contractorService.getById(iDto.getId()).getName()).setHeader("Контрагент").setKey("contractorDto")
-                        .setId("Контрагент");
-                grid.addColumn(iDto -> getTotalPrice(iDto.getId())).setHeader("Сумма продаж").setSortable(true);
-                grid.addColumn(iDto -> getTotalCostPrice(iDto.getId())).setHeader("Сумма себестоимости").setSortable(true);
-                grid.addColumn(iDto -> averagePrice(iDto.getId())).setHeader("Средний чек").setSortable(true);
-
-                grid.addColumn(iDto -> getReturnsTotalPrice(iDto.getId())).setHeader("Сумма возврата").setSortable(true);
-                grid.addColumn(iDto -> getProfit(iDto.getId())).setHeader("Прибыль").setSortable(true);
-
-                grid.setHeight("100vh");
-                grid.setColumnReorderingAllowed(true);
-                grid.setSelectionMode(Grid.SelectionMode.MULTI);
+                fillByCustomers();
             }
         });
         return tabs;
@@ -347,7 +370,28 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
-//        buttonRefresh.addClickListener(e -> updateList());
+        buttonRefresh.addClickListener(e -> {
+            switch (currentTab) {
+                case "По товарам" : {
+                    refreshData();
+                    fillByContractors();
+                    break;
+                }
+                case "По сотрудникам" : {
+                    // Требует реализации
+                    refreshData();
+                    fillByEmployees();
+                    break;
+                }
+                case "По покупателям" : {
+                    refreshData();
+                    fillByCustomers();
+                    break;
+                }
+                default: break;
+            }
+
+        });
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
