@@ -35,4 +35,20 @@ public class RevenueDto {
 
     private BigDecimal amountShipment;      // InvoiceProduct
 
+    private Integer startOfPeriodAmount;
+
+    private Integer startOfPeriodSumOfPrice;
+
+    private Integer endOfPeriodAmount;
+
+    private Integer endOfPeriodSumOfPrice;
+
+    private Integer comingAmount;
+
+    private Integer comingSumOfPrice;
+
+    private Integer spendingAmount;
+
+    private Integer spendingSumOfPrice;
+
 }
