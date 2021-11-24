@@ -4,7 +4,9 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
 import com.trade_accounting.services.interfaces.InternalOrderService;
@@ -103,6 +105,8 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
 
         filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("warehouse", WarehouseDto::getName,warehouseService.getAll());
+        filter.setFieldToComboBox("company", CompanyDto::getName,companyService.getAll());
 
         filter.onSearchClick(e -> paginator.setData(internalOrderService.searchByFilter(filter.getFilterData2())));
         filter.onClearClick(e -> paginator.setData(internalOrderService.getAll()));
