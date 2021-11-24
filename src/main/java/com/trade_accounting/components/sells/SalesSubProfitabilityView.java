@@ -53,7 +53,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final ContractorService contractorService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
-    private final tService productService;
+    private final ProductService productService;
     private final BuyersReturnService buyersReturnService;
     private final ReturnAmountByProductService returnAmountByProductService;
 
