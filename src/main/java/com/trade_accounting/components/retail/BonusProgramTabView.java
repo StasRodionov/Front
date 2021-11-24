@@ -15,6 +15,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -58,6 +59,7 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setWidth("20px").setHeader("№").setId("№");
         grid.addColumn("name").setHeader("Название").setId("name");
         grid.addColumn(new ComponentRenderer<>(this::isActiveStatusCheckedIcon)).setWidth("35px").setKey("activeStatus")

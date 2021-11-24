@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -80,6 +81,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
     }
 
     private Grid getGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setItems(data);
         grid.addColumn("time").setFlexGrow(10).setHeader("Дата").setId("Дата");
         grid.addColumn("bankcoming").setFlexGrow(7).setHeader("Банк Приход").setId("Банк Приход");
