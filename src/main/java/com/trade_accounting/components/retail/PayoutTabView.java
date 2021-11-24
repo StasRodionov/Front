@@ -4,12 +4,10 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.PayoutDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
@@ -52,8 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -62,8 +58,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "PayoutTabView", layout = AppView.class)
@@ -101,9 +95,13 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         this.data = payoutService.getAll();
         this.employeeService = employeeService;
         this.notifications = notifications;
-        this.filter = new GridFilter<>(grid);
-        configureGrid();
+
         this.paginator = new GridPaginator<>(grid, data, 100);
+        configureGrid();
+
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(upperLayout(),filter, grid, paginator);
     }
@@ -226,11 +224,13 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
-        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("print", Boolean.TRUE,Boolean.FALSE);
+        filter.setFieldToComboBox("send", Boolean.TRUE, Boolean.FALSE);
+
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
             map.put("typeOfInvoice", typeOfInvoice);
-            paginator.setData(payoutService.search(map));
+            paginator.setData(payoutService.searchByFilter(map));
         });
         filter.onClearClick(e -> paginator.setData(payoutService.getAll()));
     }
