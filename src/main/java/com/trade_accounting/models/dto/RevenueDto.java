@@ -39,9 +39,9 @@ public class RevenueDto {
 
     private Integer startOfPeriodSumOfPrice;
 
-    private Integer endOfPeriodAmount;
-
     private Integer endOfPeriodSumOfPrice;
+
+    private Integer endOfPeriodAmount;
 
     private Integer comingAmount;
 
