@@ -4,7 +4,9 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
 import com.trade_accounting.services.interfaces.InternalOrderService;
@@ -44,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,7 +79,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                                  InternalOrderService internalOrderService,
                                  Notifications notifications, InternalOrderModalView modalView, GoodsModalWindow goodsModalWindow,
                                  InternalOrderProductsDtoService internalOrderProductsDtoService, ProductService productService
-                                 ) {
+    ) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.internalOrderService = internalOrderService;
@@ -94,17 +97,24 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         configureGrid();
         this.filter = new GridFilter<>(this.grid);
         configureFilter();
-        add(configureActions(),filter, grid, paginator);
+        add(configureActions(), filter, grid, paginator);
         setSizeFull();
     }
 
     private void configureFilter() {
         filter.setFieldToDatePicker("date");
-
         filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("warehouse", WarehouseDto::getName,warehouseService.getAll());
+        filter.setFieldToComboBox("company", CompanyDto::getName,companyService.getAll());
 
-        filter.onSearchClick(e -> paginator.setData(internalOrderService.searchByFilter(filter.getFilterData2())));
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData2();
+            paginator.setData(internalOrderService.searchByFilter(map).stream()
+                    .filter(dto -> !map.containsKey("totalPrice") || getTotalPrice(dto).compareTo(new BigDecimal(map.get("totalPrice"))) == 0)
+                    .filter(dto -> !map.containsKey("totalAmount") || getTotalAmount(dto).compareTo(new BigDecimal(map.get("totalAmount"))) == 0)
+                    .collect(Collectors.toList()));
+        });
         filter.onClearClick(e -> paginator.setData(internalOrderService.getAll()));
     }
 
@@ -133,14 +143,14 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setWidth("1px").setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setWidth("1px").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(this::getTotalPrice).setWidth("1px").setHeader("Сумма").setSortable(true);
-        grid.addColumn(this::getTotalAmount).setWidth("1px").setHeader("Количество").setSortable(true);
+        grid.addColumn(this::getTotalPriceString).setWidth("1px").setHeader("Сумма").setKey("totalPrice").setSortable(true).setId("Сумма");
+        grid.addColumn(this::getTotalAmountString).setWidth("1px").setHeader("Количество").setKey("totalAmount").setSortable(true).setId("Количество");
 
         grid.addColumn(internalOrderDto -> (internalOrderDto.getInternalOrderProductsIds()).stream()
                         .map(internalOrderProductsDtoService::getById)
                         .map(map -> productService.getById(map.getProductId()).getName())
                         .collect(Collectors.toList()))
-                        .setHeader("Товары внутреннего заказа").setId("Товары внутреннего заказа");
+                .setHeader("Товары внутреннего заказа").setId("Товары внутреннего заказа");
 
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
@@ -163,22 +173,30 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         });
     }
 
-    private String getTotalPrice(InternalOrderDto dto) {
+    private BigDecimal getTotalPrice(InternalOrderDto dto) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         List<Long> list = dto.getInternalOrderProductsIds();
-        for(Long id : list) {
+        for (Long id : list) {
             totalPrice = totalPrice.add(internalOrderProductsDtoService.getById(id).getPrice());
         }
-        return String.format("%.2f", totalPrice);
+        return totalPrice;
     }
 
-    private String getTotalAmount(InternalOrderDto dto) {
+    private String getTotalPriceString(InternalOrderDto dto) {
+        return String.format("%.2f", getTotalPrice(dto));
+    }
+
+    private BigDecimal getTotalAmount(InternalOrderDto dto) {
         BigDecimal totalAmount = BigDecimal.valueOf(0.0);
         List<Long> list = dto.getInternalOrderProductsIds();
-        for(Long id : list) {
+        for (Long id : list) {
             totalAmount = totalAmount.add(internalOrderProductsDtoService.getById(id).getAmount());
         }
-        return String.format("%.2f", totalAmount);
+        return totalAmount;
+    }
+
+    private String getTotalAmountString(InternalOrderDto dto) {
+        return String.format("%.2f", getTotalAmount(dto));
     }
 
     private Button buttonQuestion() {
@@ -278,7 +296,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                 grid.deselectAll();
                 select.setValue("Выберите действие");
                 paginator.setData(getData());
-            } else if(select.getValue().equals("Массовое редактирование")) {
+            } else if (select.getValue().equals("Массовое редактирование")) {
                 editSelectedInternalOrders();
                 grid.deselectAll();
                 select.setValue("Выберите действие");
@@ -356,7 +374,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                     list
             );
 
-                editSelectedModalWindow.open();
+            editSelectedModalWindow.open();
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные заказы");
         }

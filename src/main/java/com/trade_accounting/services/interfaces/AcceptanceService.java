@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.AcceptanceDto;
+import retrofit2.Response;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ public interface AcceptanceService {
 
     AcceptanceDto getById(Long id);
 
-    AcceptanceDto create(AcceptanceDto acceptanceDto);
+    Response<AcceptanceDto> create(AcceptanceDto acceptanceDto);
 
     void update(AcceptanceDto acceptanceDto);
 

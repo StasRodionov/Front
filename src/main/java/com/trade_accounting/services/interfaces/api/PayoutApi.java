@@ -43,12 +43,12 @@ public interface PayoutApi {
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 
     @Headers("Accept: application/json")
-    @GET("{url}/search")
-    Call<List<PayoutDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+    @GET("{url}/searchByFilter")
+    Call<List<PayoutDto>> searchByFilter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
     @GET("{url}/searchByString")
-    Call<List<PayoutDto>> search(@Path(value = "url", encoded = true) String url,
-                                  @Query("search") String search,
-                                  @Query("typeOfPayout") String typeOfPayout);
+    Call<List<PayoutDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                         @Query("search") String search,
+                                         @Query("typeOfPayout") String typeOfPayout);
 }
