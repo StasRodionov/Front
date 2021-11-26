@@ -22,6 +22,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -110,7 +111,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private void configureProductsGrid(boolean refreshing) {
-
+        gridProducts.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         gridProducts.setItems(invoiceProductDtos);
 
         gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue() - 1).getName())

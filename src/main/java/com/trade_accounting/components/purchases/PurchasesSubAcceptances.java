@@ -1,14 +1,18 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.sells.AddFromDirectModalWin;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -18,6 +22,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
@@ -41,6 +46,9 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,21 +71,30 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final GridFilter<AcceptanceDto> filter;
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final AddFromDirectModalWin addFromDirectModalWin;
+    private final ProductService productService;
+    private final AcceptanceProductionService acceptanceProductionService;
 
     public PurchasesSubAcceptances(CompanyService companyService, AcceptanceService acceptanceService,
                                    WarehouseService warehouseService,
                                    ContractorService contractorService,
                                    ContractService contractService,
                                    Notifications notifications,
-                                   AcceptanceModalView modalView) {
+                                   AcceptanceModalView modalView,
+                                   AddFromDirectModalWin addFromDirectModalWin,
+                                   ProductService productService,
+                                   AcceptanceProductionService acceptanceProductionService) {
         this.companyService = companyService;
         this.acceptanceService = acceptanceService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.notifications = notifications;
+        this.productService = productService;
+        this.acceptanceProductionService = acceptanceProductionService;
         this.modalView = modalView;
         this.data = getData();
+        this.addFromDirectModalWin = addFromDirectModalWin;
         paginator = new GridPaginator<>(grid, data, 50);
         this.filter = new GridFilter<>(grid);
         add(configureActions(), filter, grid, paginator);
@@ -95,11 +112,15 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
     }
+    private static String formatDate(String date) {
+        return LocalDateTime.parse(date)
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+    }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(AcceptanceDto::getDate).setKey("date").setHeader("Время").setSortable(true)
-                .setId("Дата");
+        grid.addColumn(dto -> dto.getDate()).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
                 .setKey("warehouseDto").setId("На склад");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")
@@ -120,7 +141,10 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                     contractService,
                     warehouseService,
                     contractorService,
-                    notifications);
+                    notifications,
+                    addFromDirectModalWin,
+                    productService,
+                    acceptanceProductionService);
             modalView.setAcceptanceForEdit(acceptanceDto);
             modalView.open();
         });
@@ -243,9 +267,15 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     }
 
     private String getTotalPrice(AcceptanceDto dto) {
-        BigDecimal totalPrice = dto.getAcceptanceProduction().get(0).getAmount();
+        List<AcceptanceProductionDto> acceptanceProductionDto = dto.getAcceptanceProduction();
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (AcceptanceProductionDto apd : acceptanceProductionDto) {
+            totalPrice = totalPrice.add(apd.getPrice()
+                    .multiply(apd.getAmount()));
+        }
         return String.format("%.2f", totalPrice);
     }
+
 
 
     private Component getIsCheckedSend(AcceptanceDto dto) {

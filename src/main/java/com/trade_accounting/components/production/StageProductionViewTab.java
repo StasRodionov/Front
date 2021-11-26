@@ -17,6 +17,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -84,6 +85,7 @@ public class StageProductionViewTab extends VerticalLayout implements AfterNavig
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
         grid.addColumn(e -> departmentService.getById(e.getDepartmentId()).getName()).setHeader("Владелец-отдел").setId("Владелец-отдел");

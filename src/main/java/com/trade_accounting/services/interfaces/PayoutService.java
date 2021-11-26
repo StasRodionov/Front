@@ -11,7 +11,7 @@ public interface PayoutService {
 
     List<PayoutDto> getAllByParameters(String searchTerm);
 
-    List<PayoutDto> search(Map<String, String> query);
+    List<PayoutDto> searchByFilter(Map<String, String> query);
 
     PayoutDto getById(Long id);
 

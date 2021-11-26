@@ -17,6 +17,8 @@ public class AcceptanceProductionDto {
 
     private BigDecimal amount;
 
+    private Long acceptanceId;
+
     private Long productId;
 
     private BigDecimal price;
