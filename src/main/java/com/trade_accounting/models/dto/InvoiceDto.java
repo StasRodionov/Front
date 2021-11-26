@@ -24,6 +24,10 @@ public class InvoiceDto {
 
     private Boolean isSpend;
 
+    private Boolean isSent;
+
+    private Boolean isPrint;
+
     private String comment;
 
     private Long invoicesStatusId;
@@ -37,6 +41,8 @@ public class InvoiceDto {
                 ", Контрагент = " + contractorId +
                 ", Склад = " + warehouseId +
                 ", Проведено = " + isSpend +
+                ", Отправлено = " + isSent +
+                ", Напечатано = " + isPrint +
                 ", Комментарий = '" + comment + '\'';
     }
 
