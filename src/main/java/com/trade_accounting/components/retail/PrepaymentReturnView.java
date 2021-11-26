@@ -17,6 +17,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -75,6 +76,7 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
         grid.addColumn("time").setFlexGrow(7).setHeader("Время").setId("time");

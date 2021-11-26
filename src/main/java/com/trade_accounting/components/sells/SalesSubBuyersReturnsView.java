@@ -14,6 +14,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -188,6 +189,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     }
 
     private Grid<BuyersReturnDto> configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         grid.setItems(data);
         grid.addColumn("id").setHeader("№").setId("№");

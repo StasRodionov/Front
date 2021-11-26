@@ -23,6 +23,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -111,7 +112,7 @@ public class ContractorsTabView extends VerticalLayout {
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
-        //this.textField = new GridFilter<>(grid);
+
         this.filter = new GridFilter<>(grid);
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
@@ -122,6 +123,7 @@ public class ContractorsTabView extends VerticalLayout {
 
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("sortNumber").setHeader("номер").setId("номер");
@@ -135,7 +137,6 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setId("Скидки и цены");
         grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setId("Реквизиты");
         grid.setHeight("64vh");
-
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {

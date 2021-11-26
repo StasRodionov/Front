@@ -17,6 +17,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -88,6 +89,7 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         Grid.Column<EmployeeDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
             @Override

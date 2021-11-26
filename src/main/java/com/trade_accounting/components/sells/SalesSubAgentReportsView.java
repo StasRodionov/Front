@@ -12,6 +12,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -88,6 +89,7 @@ public class SalesSubAgentReportsView extends VerticalLayout {
 
     private void configureGrid() {
         grid = new Grid<>(InvoiceDto.class, false);
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("id").setId("id");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");

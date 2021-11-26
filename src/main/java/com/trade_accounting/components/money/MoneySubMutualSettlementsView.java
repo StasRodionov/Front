@@ -8,6 +8,7 @@ import com.trade_accounting.services.interfaces.MoneySubMutualSettlementsService
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -55,6 +56,7 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("contractorId").setFlexGrow(10).setHeader("Контрагент").setId("Контрагент");
         grid.addColumn("employeeId").setFlexGrow(7).setHeader("Сотрудник").setId("Сотрудник");
         grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");

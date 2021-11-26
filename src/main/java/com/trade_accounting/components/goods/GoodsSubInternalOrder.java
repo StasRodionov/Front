@@ -20,6 +20,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -132,6 +133,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setWidth("1px").setHeader("№").setId("№");
         grid.addColumn(InternalOrderDto::getDate).setKey("date").setWidth("1px").setHeader("Время").setSortable(true).setId("Дата");
         grid.addColumn(internalOrderDto -> companyService.getById(internalOrderDto.getCompanyId())
