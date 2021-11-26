@@ -47,6 +47,7 @@ import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.function.ValueProvider;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
     private final TextArea nameField = new TextArea();
@@ -1049,7 +1051,7 @@ public class ContractorModalWindow extends Dialog {
 //                .generalAccess(generalAccess.getValue()).departmentId(departmentDtoSelect.getValue().getId())
 //                .employeeId(employeeDtoSelect.getValue().getId()).build().getId());
         //для теста... требуется сделать апи и сервис для AccessParameters
-        contractorDto.setAccessParametersId(1L);
+//        contractorDto.setAccessParametersId(1L);
 
         List<Long> newContactDtoListIds = new ArrayList<>();
         List<ContactDto> newContactDtoList = new ArrayList<>();
@@ -1188,10 +1190,6 @@ public class ContractorModalWindow extends Dialog {
 
         private HorizontalLayout configureAddressBlock() {
             HorizontalLayout horizontalLayout = new HorizontalLayout();
-            List<FiasModelDto> addressByLevel1 = contractorService.getAllAddressByLevel("1");
-            var listRegion = addressByLevel1.stream()
-                    .map(x -> (x.getFormalname() + " " + x.getShortname() + "."))
-                    .collect(Collectors.toList());
             FormLayout addressForm = new FormLayout();
             Style addressFormStyle = addressForm.getStyle();
             addressFormStyle.set("width", "385px");
@@ -1205,16 +1203,25 @@ public class ContractorModalWindow extends Dialog {
             addressDtoBinder.forField(addressCountry).bind(AddressDto::getCountry, AddressDto::setCountry);
 
             addressForm.addFormItem(addressRegion, "Область");
-            addressRegion.setItems(listRegion);
+            addressRegion.setItems(
+                    contractorService.getAllAddressByLevel("1").stream()
+                            .map(x -> (x.getFormalname() + " " + x.getShortname() + "."))
+                            .collect(Collectors.toList()));
             addressDtoBinder.forField(addressRegion).bind(AddressDto::getRegion, AddressDto::setRegion);
 
             addressForm.addFormItem(addressCity, "Город");
+            addressCity.setItems(
+                    contractorService.getAllAddressByLevel("4").stream()
+                            .map(e -> e.getFormalname() + " " + e.getShortname() + ".")
+                            .collect(Collectors.toList()));
             addressDtoBinder.forField(addressCity).bind(AddressDto::getCity, AddressDto::setCity);
-            addressCity.setItems(List.of(""));
 
             addressForm.addFormItem(addressStreet, "Улица");
+            addressStreet.setItems(
+                    contractorService.getAllAddressByLevel("7").stream()
+                            .map(e -> e.getFormalname() + " " + e.getShortname() + ".")
+                            .collect(Collectors.toList()));
             addressDtoBinder.forField(addressStreet).bind(AddressDto::getStreet, AddressDto::setStreet);
-            addressStreet.setItems(List.of(""));
 
             addressForm.addFormItem(addressHouse, "Дом");
             addressDtoBinder.forField(addressHouse).bind(AddressDto::getHouse, AddressDto::setHouse);
@@ -1231,27 +1238,7 @@ public class ContractorModalWindow extends Dialog {
                 addressHouse.setValue(addressDtoSupplier.get().getHouse());
                 addressApartment.setValue(addressDtoSupplier.get().getApartment());
             }
-            AtomicReference<List<FiasModelDto>> citiesByRegion = new AtomicReference<>();
-            addressRegion.addValueChangeListener(event -> {
-                String regionValue = addressRegion.getValue();
-                if (regionValue != null) {
-                    String aoguid = addressByLevel1.stream()
-                            .filter(x -> (x.getFormalname() + " " + x.getShortname() + ".").equals(regionValue))
-                            .findFirst()
-                            .get()
-                            .getAoguid();
-                    citiesByRegion.set(contractorService.getAddressesByGuid(aoguid));
-                    addressCity.setItems(contractorService.getAddressesByGuid(aoguid).stream()
-                            .map(x -> (x.getShortname() + " " + x.getFormalname())));
-                }
-            });
-            addressCity.addValueChangeListener(event -> {
-                String cityValue = addressCity.getValue();
-                if (cityValue != null) {
-                    String aoguid = citiesByRegion.get().get(0).getAoguid();
-                    addressStreet.setItems(contractorService.getAddressesByGuid(aoguid).stream().map(x -> (x.getShortname() + " " + x.getFormalname())));
-                }
-            });
+
             horizontalLayout.add(addressForm);
             horizontalLayout.setVisible(false);
             return horizontalLayout;
