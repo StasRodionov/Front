@@ -38,7 +38,7 @@ public class AcceptanceProductionServiceImpl implements AcceptanceProductionServ
     @Override
     public AcceptanceProductionDto getById(Long id) {
         Call<AcceptanceProductionDto> acceptanceProductionDtoCall = acceptanceProductionApi.getById(acceptanceProductUrl, id);
-        return callExecuteService.callExecuteBodyById(acceptanceProductionDtoCall, acceptanceProductionDto, AcceptanceProductionDto.class, id);
+        return callExecuteService.callExecuteBodyById(acceptanceProductionDtoCall, AcceptanceProductionDto.class, id);
     }
 
     @Override

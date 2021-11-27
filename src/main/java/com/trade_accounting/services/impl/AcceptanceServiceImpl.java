@@ -40,7 +40,7 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     @Override
     public AcceptanceDto getById(Long id) {
         Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.getById(acceptanceUrl, id);
-        return callExecuteService.callExecuteBodyById(acceptanceDtoCall, acceptanceDto, AcceptanceDto.class, id);
+        return callExecuteService.callExecuteBodyById(acceptanceDtoCall, AcceptanceDto.class, id);
     }
 
     @Override
@@ -67,18 +67,6 @@ public class AcceptanceServiceImpl implements AcceptanceService {
         }
 
     }
-
-
-
-//
-//        Call<Void> acceptanceDtoCall = acceptanceApi.update(acceptanceUrl, acceptanceDto);
-//        try {
-//            acceptanceDtoCall.execute();
-//            log.info("Успешно выполнен запрос на обновление экземпляра Приемки");
-//        } catch (IOException e) {
-//            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра Приемки - {}", e);
-//        }
-//    }
 
     @Override
     public void deleteById(Long id) {

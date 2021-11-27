@@ -1,7 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.sells.AddFromDirectModalWin;
+import com.trade_accounting.components.purchases.AddFromDirectModalWin;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -140,7 +140,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                     warehouseService,
                     contractorService,
                     notifications,
-                    addFromDirectModalWin,
+//                    addFromDirectModalWin,
                     productService,
                     acceptanceProductionService);
             modalView.setAcceptanceForEdit(acceptanceDto);
