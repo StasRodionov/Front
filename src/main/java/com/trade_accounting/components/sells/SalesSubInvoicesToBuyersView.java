@@ -4,11 +4,11 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -29,12 +29,12 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,29 +49,33 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
-    private final InvoiceService invoiceService;
+    private final SupplierAccountService supplierAccountService;
     private final InvoiceProductService invoiceProductService;
+
     private final SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView;
 
-    private final List<InvoiceDto> data;
+    private final List<SupplierAccountDto> data;
 
     private final Notifications notifications;
 
     private HorizontalLayout actions;
-    private Grid<InvoiceDto> grid;
-    private GridPaginator<InvoiceDto> paginator;
-    private final GridFilter<InvoiceDto> filter;
+    private Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
+    private GridPaginator<SupplierAccountDto> paginator;
+    private final GridFilter<SupplierAccountDto> filter;
 
-//    private static final String TYPE_OF_INVOICE = "RECEIPT";
+    private final String typeOfInvoice = "RECEIPT";
 
-        private final String typeOfInvoice = "RECEIPT";
-    public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService, ContractorService contractorService, InvoiceService invoiceService, InvoiceProductService invoiceProductService,
+    @Autowired
+    public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService,
+                                        ContractorService contractorService,
+                                        InvoiceProductService invoiceProductService,
                                         @Lazy Notifications notifications,
-                                        @Lazy SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView) {
+                                        @Lazy SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView,
+                                        SupplierAccountService supplierAccountService) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
-        this.invoiceService = invoiceService;
+        this.supplierAccountService = supplierAccountService;
         this.invoiceProductService = invoiceProductService;
         this.salesAddNewInvoicesToBuyersView = salesAddNewInvoicesToBuyersView;
         this.notifications = notifications;
@@ -95,7 +99,6 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid = new Grid<>(InvoiceDto.class, false);
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
@@ -111,8 +114,10 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.addItemDoubleClickListener(event -> {
-            InvoiceDto editInvoice = event.getItem();
+            SupplierAccountDto editInvoice = event.getItem();
+            salesAddNewInvoicesToBuyersView.setSupplierDataForEdit(editInvoice);
             salesAddNewInvoicesToBuyersView.setUpdateState(true);
+            salesAddNewInvoicesToBuyersView.setLocation("sells");
             UI.getCurrent().navigate("sells/add-new-invoices-to-buyers");
         });
     }
@@ -128,9 +133,9 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
             map.put("typeOfInvoice", typeOfInvoice);
-            paginator.setData(invoiceService.search(map));
+            paginator.setData(supplierAccountService.searchByFilter(map));
         });
-        filter.onClearClick(e -> paginator.setData(getData()));
+        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll(typeOfInvoice)));
     }
 
 
@@ -151,6 +156,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         buttonUnit.addClickListener(event -> {
             salesAddNewInvoicesToBuyersView.resetView();
             salesAddNewInvoicesToBuyersView.setUpdateState(false);
+            salesAddNewInvoicesToBuyersView.setLocation("sells");
             buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/add-new-invoices-to-buyers"));
         });
         return buttonUnit;
@@ -184,7 +190,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void updateList(String text) {
-        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
+        grid.setItems(supplierAccountService.getAll());
+        grid.setItems(supplierAccountService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
 
     private H2 title() {
@@ -195,8 +202,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private void deleteSelectedInvoices() {
         if (!grid.getSelectedItems().isEmpty()) {
-            for (InvoiceDto invoiceDto : grid.getSelectedItems()) {
-                invoiceService.deleteById(invoiceDto.getId());
+            for (SupplierAccountDto supplierAccountDto : grid.getSelectedItems()) {
+                supplierAccountService.deleteById(supplierAccountDto.getId());
                 notifications.infoNotification("Выбранные счета успешно удалены");
             }
         } else {
@@ -247,8 +254,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         return print;
     }
 
-    private List<InvoiceDto> getData() {
-        return invoiceService.getAll(typeOfInvoice);
+    private List<SupplierAccountDto> getData() {
+        return supplierAccountService.getAll(typeOfInvoice);
     }
 
 
@@ -260,7 +267,9 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private static String formatDate(String date) {
-        return LocalDateTime.parse(date)
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(date);
+        return formatDateTime.format(formatter);
+
     }
 }
