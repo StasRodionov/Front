@@ -12,6 +12,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class CallExecuteService<T> {
+    private T object;
 
     public List<T> callExecuteBodyList(Call<List<T>> call, Class<T> tClass) {
         List<T> list = new ArrayList<>();
@@ -26,12 +27,11 @@ public class CallExecuteService<T> {
 
     /**
      * @param call
-     * @param object
      * @param tClass класс дя г
      * @param id
      * @return
      */
-    public T callExecuteBodyById(Call<T> call, T object, Class<T> tClass, Long id) {
+    public T callExecuteBodyById(Call<T> call, Class<T> tClass, Long id) {
         try {
             object = call.execute().body();
             log.info(String.format("Успешно выполнен запрос на получение %s по id %d", tClass.getSimpleName(), id));
@@ -41,20 +41,19 @@ public class CallExecuteService<T> {
         return object;
     }
 
-    public T callExecuteBodyCreate(Call<Void> call, Class<T> tClass) {
-        T result = null;
+    public void callExecuteBodyCreate(Call<Void> call, Class<T> tClass) {
+
         try {
-            result = (T) call.execute().body();
+            call.execute();
             log.info(String.format("Успешно выполнен запрос на создание экземпляра %s", tClass.getSimpleName()));
         } catch (IOException e) {
             log.error(String.format("Произошла ошибка при выполнении запроса на создание экземпляра %s", tClass.getSimpleName()));
         }
-        return result;
     }
 
     public void callExecuteBodyUpdate(Call<Void> call, Class<T> tClass) {
         try {
-            call.execute().body();
+            call.execute();
             log.info(String.format("Успешно выполнен запрос на обновление экземпляра %s", tClass.getSimpleName()));
         } catch (IOException e) {
             log.error(String.format("Произошла ошибка при выполнении запроса на обновление экземпляра %s", tClass.getSimpleName()));
@@ -63,7 +62,7 @@ public class CallExecuteService<T> {
 
     public void callExecuteBodyDelete(Call<Void> call, Class<T> tClass, Long id) {
         try {
-            call.execute().body();
+            call.execute();
             log.info(String.format("Успешно выполнен запрос на удаление экземпляра %s c id = %d", tClass.getSimpleName(), id));
         } catch (IOException e) {
             log.error(String.format("Произошла ошибка при выполнении запроса на обновление экземпляра %s c id = %d", tClass.getSimpleName(), id));

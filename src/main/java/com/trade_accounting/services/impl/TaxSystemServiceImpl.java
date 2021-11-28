@@ -19,8 +19,6 @@ public class TaxSystemServiceImpl implements TaxSystemService {
 
     private final String taxSystemUrl;
 
-    private TaxSystemDto taxSystemDto;
-
     private final CallExecuteService<TaxSystemDto> dtoCallExecuteService;
 
     public TaxSystemServiceImpl(@Value("${tax_system_url}") String taxSystemUrl, Retrofit retrofit, CallExecuteService<TaxSystemDto> dtoCallExecuteService) {
@@ -38,7 +36,7 @@ public class TaxSystemServiceImpl implements TaxSystemService {
     @Override
     public TaxSystemDto getById(Long id) {
         Call<TaxSystemDto> taxSystemDtoCall = taxSystemApi.getById(taxSystemUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(taxSystemDtoCall, taxSystemDto, TaxSystemDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(taxSystemDtoCall, TaxSystemDto.class, id);
     }
 
     @Override

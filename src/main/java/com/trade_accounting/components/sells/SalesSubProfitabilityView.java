@@ -7,12 +7,14 @@ import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
@@ -20,6 +22,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -39,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "profitability", layout = AppView.class)
@@ -52,56 +56,71 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final InvoiceProductService invoiceProductService;
     private final ProductService productService;
     private final BuyersReturnService buyersReturnService;
+    private final ReturnAmountByProductService returnAmountByProductService;
 
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
     private final Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<ContractorDto> paginator;
     private final GridPaginator<InvoiceProductDto> paginatorProduct;
-    private final List<ContractorDto> data;
-    private final List<InvoiceProductDto> dataForProducts;
+
+    private List<ContractorDto> contractorDtos;
+    private List<InvoiceProductDto> invoiceProductDtos;
+    private List<ProductDto> productDtos;
+    private List<InvoiceDto> invoiceDtos;
+
     private final GridFilter<ContractorDto> filter;
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
-                                     ContractorService contractorService, InvoiceProductService invoiceProductService,
-                                     ProductService productService, BuyersReturnService buyersReturnService) {
+                                     ContractorService contractorService,
+                                     InvoiceProductService invoiceProductService,
+                                     ProductService productService,
+                                     BuyersReturnService buyersReturnService,
+                                     ReturnAmountByProductService returnAmountByProductService) {
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
         this.productService = productService;
         this.buyersReturnService = buyersReturnService;
-        this.data = getData();
-        this.dataForProducts = getDataForProducts();
-        paginator = new GridPaginator<>(grid, data, 50);
-        paginatorProduct = new GridPaginator<>(gridProducts, dataForProducts, 50);
+        this.returnAmountByProductService = returnAmountByProductService;
+
+        this.contractorDtos = getContractorDtos();
+        this.invoiceProductDtos = getInvoiceProductDtos();
+        this.productDtos = getProductDtos();
+        this.invoiceDtos = getInvoiceDtos();
+
+        paginator = new GridPaginator<>(grid, contractorDtos, 50);
+        paginatorProduct = new GridPaginator<>(gridProducts, invoiceProductDtos, 50);
         this.filter = new GridFilter<>(grid);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorProduct);
         add(upperLayout());
-        configureGrid();
+        configureGrid(false);
         add(gridProducts, paginatorProduct);
     }
 
-    private void configureGrid() {
-        gridProducts.setItems(dataForProducts);
+    private void configureGrid(boolean refreshing) {
+        gridProducts.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
-        gridProducts.addColumn(iDto -> productService.getById(invoiceProductService.getById(iDto.getId()).getProductId()).getName())
+        gridProducts.setItems(invoiceProductDtos);
+
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getName())
                 .setHeader("Продукт")
                 .setKey("productDto")
                 .setId("Продукт");
-        gridProducts.addColumn(iDto -> productService.getById(invoiceProductService.getById(iDto.getId()).getProductId()).getDescription())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getDescription())
                 .setHeader("Арктикул")
                 .setKey("description")
                 .setId("Арктикул");
-        gridProducts.addColumn(iDto -> invoiceProductService.getById(iDto.getId()).getAmount())
+        gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue() - 1).getAmount())
                 .setHeader("Количество")
                 .setKey("amount")
                 .setId("Количество");
-        gridProducts.addColumn(iDto -> invoiceProductService.getById(iDto.getId()).getPrice())
+        gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue() - 1).getPrice())
                 .setHeader("Цена")
                 .setKey("price")
                 .setId("Цена");
-        gridProducts.addColumn(iDto -> productService.getById(invoiceProductService.getById(iDto.getId()).getProductId()).getPurchasePrice())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getPurchasePrice())
                 .setHeader("Себестоимость")
                 .setKey("costPrice")
                 .setId("Себестоимость");
@@ -113,24 +132,37 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .setHeader("Сумма себестоимости")
                 .setKey("totalCostPrice")
                 .setId("Сумма себестоимости");
-        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts())
+        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getProductId(), iDto.getInvoiceId()))
                 .setHeader("Сумма возвратов")
                 .setSortable(true);
-        gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId()))
+        gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId(), iDto.getProductId(), iDto.getInvoiceId()))
                 .setHeader("Прибыль")
                 .setSortable(true);
 
         gridProducts.setHeight("100vh");
         gridProducts.setColumnReorderingAllowed(true);
-        gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
+        if (!refreshing) {
+            gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
+        }
     }
 
-    private List<ContractorDto> getData() {
+    private String currentTab = "По товарам";
+
+    //Загрузчики данных
+    private List<ContractorDto> getContractorDtos() {
         return contractorService.getAll();
     }
 
-    private List<InvoiceProductDto> getDataForProducts() {
+    private List<InvoiceProductDto> getInvoiceProductDtos() {
         return invoiceProductService.getAll();
+    }
+
+    private List<ProductDto> getProductDtos() {
+        return productService.getAll();
+    }
+
+    private List<InvoiceDto> getInvoiceDtos() {
+        return invoiceService.getAll();
     }
 
     private HorizontalLayout upperLayout() {
@@ -138,6 +170,49 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), getPrint(), buttonGraph());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
+    }
+
+    private void refreshData() {
+        this.invoiceDtos = getInvoiceDtos();
+        this.productDtos = getProductDtos();
+        this.contractorDtos = getContractorDtos();
+        this.invoiceProductDtos = getInvoiceProductDtos();
+    }
+
+    private void fillByContractors() {
+        remove(grid, paginator);
+        add(gridProducts, paginatorProduct);
+        gridProducts.removeAllColumns();
+        configureGrid(false);
+        currentTab = "По товарам";
+    }
+
+    private void fillByEmployees() {
+        //Реализовать прибыльность по сотрудникам
+        remove(grid, paginator);
+        remove(gridProducts, paginatorProduct);
+        currentTab = "По сотрудникам";
+    }
+
+    private void fillByCustomers() {
+        remove(gridProducts, paginatorProduct);
+        add(grid, paginator);
+        grid.removeAllColumns();
+        grid.setItems(contractorDtos);
+
+        grid.addColumn(iDto -> contractorService.getById(iDto.getId()).getName()).setHeader("Контрагент").setKey("contractorDto")
+                .setId("Контрагент");
+        grid.addColumn(iDto -> getTotalPrice(iDto.getId())).setHeader("Сумма продаж").setSortable(true);
+        grid.addColumn(iDto -> getTotalCostPrice(iDto.getId())).setHeader("Сумма себестоимости").setSortable(true);
+        grid.addColumn(iDto -> averagePrice(iDto.getId())).setHeader("Средний чек").setSortable(true);
+
+        grid.addColumn(iDto -> getReturnsTotalPrice(iDto.getId())).setHeader("Сумма возврата").setSortable(true);
+        grid.addColumn(iDto -> getProfit(iDto.getId())).setHeader("Прибыль").setSortable(true);
+
+        grid.setHeight("100vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        currentTab = "По покупателям";
     }
 
     private Tabs configurationSubMenu() {
@@ -149,46 +224,22 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
             if ("По товарам".equals(tabName)) {
-                remove(grid, paginator);
-                add(gridProducts, paginatorProduct);
-                gridProducts.removeAllColumns();
-                configureGrid();
+                fillByContractors();
             } else if ("По сотрудникам".equals(tabName)) {
-
-                //Реализовать прибыльность по сотрудникам
-
-                remove(grid, paginator);
-                remove(gridProducts, paginatorProduct);
-
+                fillByEmployees();
             } else if ("По покупателям".equals(tabName)) {
-                remove(gridProducts, paginatorProduct);
-                add(grid, paginator);
-                grid.removeAllColumns();
-                grid.setItems(data);
-
-                grid.addColumn(iDto -> contractorService.getById(iDto.getId()).getName()).setHeader("Контрагент").setKey("contractorDto")
-                        .setId("Контрагент");
-                grid.addColumn(iDto -> getTotalPrice(iDto.getId())).setHeader("Сумма продаж").setSortable(true);
-                grid.addColumn(iDto -> getTotalCostPrice(iDto.getId())).setHeader("Сумма себестоимости").setSortable(true);
-                grid.addColumn(iDto -> averagePrice(iDto.getId())).setHeader("Средний чек").setSortable(true);
-
-                grid.addColumn(iDto -> getReturnsTotalPrice(iDto.getId())).setHeader("Сумма возврата").setSortable(true);
-                grid.addColumn(iDto -> getProfit(iDto.getId())).setHeader("Прибыль").setSortable(true);
-
-                grid.setHeight("100vh");
-                grid.setColumnReorderingAllowed(true);
-                grid.setSelectionMode(Grid.SelectionMode.MULTI);
+                fillByCustomers();
             }
         });
         return tabs;
     }
 
-    private String getProfitByProducts(Long id) {
+    private String getProfitByProducts(Long id, Long productId, Long invoiceId) {
         BigDecimal profit;
 
         String buyerBuying = getTotalPriceForProducts(id);
         buyerBuying = buyerBuying.replace(',', '.');
-        String buyersReturn = getTotalReturnPriceForProducts();
+        String buyersReturn = getTotalReturnPriceForProducts(productId, invoiceId);
         buyersReturn = buyersReturn.replace(',', '.');
         String costPrice = getTotalCostPriceForProducts(id);
         costPrice = costPrice.replace(',', '.');
@@ -197,18 +248,17 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return String.format("%.2f", profit);
     }
 
-    private String getTotalReturnPriceForProducts() {
-        //Нужно реализовать сумму возврата продуктов.
-        //Дальше в расчете прибыли этот метод учитывается.
-        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        return String.format("%.2f", totalPrice);
+    private String getTotalReturnPriceForProducts(Long productId, Long invoiceId) {
+        return String.format("%.2f", returnAmountByProductService
+                .getTotalReturnAmountByProduct(productId, invoiceId)
+                .getAmount());
     }
 
     private String getTotalCostPriceForProducts(Long id) {
         BigDecimal totalPrice;
 
-        InvoiceProductDto invoiceProductDto = invoiceProductService.getById(id);
-        totalPrice = productService.getById(invoiceProductDto.getProductId()).getPurchasePrice().multiply(invoiceProductDto.getAmount());
+        InvoiceProductDto invoiceProductDto = invoiceProductDtos.get(id.intValue() - 1);
+        totalPrice = productDtos.get(invoiceProductDto.getProductId().intValue() - 1).getPurchasePrice().multiply(invoiceProductDto.getAmount());
 
         return String.format("%.2f", totalPrice);
     }
@@ -216,7 +266,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private String getTotalPriceForProducts(Long id) {
         BigDecimal totalPrice;
 
-        InvoiceProductDto invoiceProductDto = invoiceProductService.getById(id);
+        InvoiceProductDto invoiceProductDto = invoiceProductDtos.get(id.intValue() - 1);
         totalPrice = invoiceProductDto.getPrice().multiply(invoiceProductDto.getAmount());
 
         return String.format("%.2f", totalPrice);
@@ -244,15 +294,17 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private String getTotalCostPrice(Long id) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
 
-        List<InvoiceDto> list = invoiceService.getByContractorId(id);
+        List<InvoiceDto> list = invoiceDtos.stream()
+                .filter(a -> a.getContractorId().equals(id))
+                .collect(Collectors.toList());
         List<InvoiceProductDto> list2 = new ArrayList<>();
 
-        for(InvoiceDto ids : list) {
-            list2.addAll(invoiceProductService.getByInvoiceId(ids.getId()));
+        for (InvoiceDto ids : list) {
+            list2.addAll(invoiceProductDtos.stream().filter(a -> a.getInvoiceId().equals(ids.getId())).collect(Collectors.toList()));
         }
 
-        for(InvoiceProductDto dto : list2) {
-            totalPrice = totalPrice.add(productService.getById(dto.getProductId()).getPurchasePrice().multiply(dto.getAmount()));
+        for (InvoiceProductDto dto : list2) {
+            totalPrice = totalPrice.add(productDtos.get(dto.getProductId().intValue() - 1).getPurchasePrice().multiply(dto.getAmount()));
         }
         return String.format("%.2f", totalPrice);
     }
@@ -260,14 +312,16 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private String getTotalPrice(Long id) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
 
-        List<InvoiceDto> list = invoiceService.getByContractorId(id);
+        List<InvoiceDto> list = invoiceDtos.stream()
+                .filter(a -> a.getContractorId().equals(id))
+                .collect(Collectors.toList());
         List<InvoiceProductDto> list2 = new ArrayList<>();
 
-        for(InvoiceDto ids : list) {
-            list2.addAll(invoiceProductService.getByInvoiceId(ids.getId()));
+        for (InvoiceDto ids : list) {
+            list2.addAll(invoiceProductDtos.stream().filter(a -> a.getInvoiceId().equals(ids.getId())).collect(Collectors.toList()));
         }
 
-        for(InvoiceProductDto dto : list2) {
+        for (InvoiceProductDto dto : list2) {
             totalPrice = totalPrice.add(dto.getPrice().multiply(dto.getAmount()));
         }
         return String.format("%.2f", totalPrice);
@@ -278,7 +332,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
         List<BuyersReturnDto> list = buyersReturnService.getByContractorId(id);
 
-        for(BuyersReturnDto dto : list) {
+        for (BuyersReturnDto dto : list) {
             totalPrice = totalPrice.add(dto.getSum());
         }
         return String.format("%.2f", totalPrice);
@@ -318,7 +372,28 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
-//        buttonRefresh.addClickListener(e -> updateList());
+        buttonRefresh.addClickListener(e -> {
+            switch (currentTab) {
+                case "По товарам" : {
+                    refreshData();
+                    fillByContractors();
+                    break;
+                }
+                case "По сотрудникам" : {
+                    // Требует реализации
+                    refreshData();
+                    fillByEmployees();
+                    break;
+                }
+                case "По покупателям" : {
+                    refreshData();
+                    fillByCustomers();
+                    break;
+                }
+                default: break;
+            }
+
+        });
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }

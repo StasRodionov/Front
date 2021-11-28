@@ -20,8 +20,6 @@ public class RetailStoreServiceImpl implements RetailStoreService {
 
     private final String retailStoreUrl;
 
-    private RetailStoreDto retailStoreDto;
-
     private final CallExecuteService<RetailStoreDto> dtoCallExecuteService;
 
     public RetailStoreServiceImpl(Retrofit retrofit, @Value("${retail_stores_url}") String retailStoreUrl,
@@ -33,8 +31,6 @@ public class RetailStoreServiceImpl implements RetailStoreService {
 
     @Override
     public List<RetailStoreDto> getAll() {
-
-        List<RetailStoreDto> retailStoreDtoList = new ArrayList<>();
         Call<List<RetailStoreDto>> retailStoreDtoListCall = retailStoreApi.getAll(retailStoreUrl);
         return dtoCallExecuteService.callExecuteBodyList(retailStoreDtoListCall, RetailStoreDto.class);
     }
@@ -42,7 +38,7 @@ public class RetailStoreServiceImpl implements RetailStoreService {
     @Override
     public RetailStoreDto getById(Long id) {
         Call<RetailStoreDto> retailStoreDtoCall = retailStoreApi.getById(retailStoreUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(retailStoreDtoCall, retailStoreDto, RetailStoreDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(retailStoreDtoCall, RetailStoreDto.class, id);
     }
 
     @Override

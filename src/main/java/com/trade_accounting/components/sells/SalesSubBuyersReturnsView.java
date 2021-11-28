@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -186,7 +188,8 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         notification.open();
     }
 
-    private void configureGrid() {
+    private Grid<BuyersReturnDto> configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         grid.setItems(data);
         grid.addColumn("id").setHeader("№").setId("№");
@@ -201,12 +204,14 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
         grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("Комментарий");
-        grid.addItemDoubleClickListener(event -> {
+        grid.addItemClickListener(event -> {
             BuyersReturnDto buyersReturnDto = event.getItem();
             ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(
+                    buyersReturnService,
                     contractorService,
                     warehouseService,
-                    companyService);
+                    companyService,
+                    notifications);
             view.setReturnEdit(buyersReturnDto);
             view.open();
 
@@ -216,7 +221,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         add(grid, paginator);
-
+        return grid;
     }
 
     private HorizontalLayout getToolbar() {

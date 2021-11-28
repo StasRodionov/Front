@@ -19,8 +19,6 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
 
     private final String invoiceReceivedUrl;
 
-    private InvoiceReceivedDto invoiceReceivedDto;
-
     private final CallExecuteService<InvoiceReceivedDto> dtoCallExecuteService;
 
     public InvoiceReceivedServiceImpl(Retrofit retrofit, @Value("${invoice_received_url}") String invoiceReceivedUrl,
@@ -39,7 +37,7 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
     @Override
     public InvoiceReceivedDto getById(Long id) {
         Call<InvoiceReceivedDto> invoiceReceivedDtoCall = invoiceReceivedApi.getById(invoiceReceivedUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(invoiceReceivedDtoCall, invoiceReceivedDto, InvoiceReceivedDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(invoiceReceivedDtoCall, InvoiceReceivedDto.class, id);
     }
 
     @Override

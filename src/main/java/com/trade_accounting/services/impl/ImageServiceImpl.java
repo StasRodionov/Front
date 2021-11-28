@@ -39,7 +39,7 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public ImageDto getById(Long id) {
         Call<ImageDto> imageDtoCall = imageApi.getById(imageUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(imageDtoCall, imageDto, ImageDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(imageDtoCall, ImageDto.class, id);
     }
 
     @Override

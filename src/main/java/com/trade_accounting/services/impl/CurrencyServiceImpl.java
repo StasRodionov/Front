@@ -35,6 +35,7 @@ public class CurrencyServiceImpl implements CurrencyService {
         Call<List<CurrencyDto>> currencyDtoListCall = currencyApi.getAll(currencyUrl);
         return dtoCallExecuteService.callExecuteBodyList(currencyDtoListCall, CurrencyDto.class);
     }
+
     @Override
     public List<CurrencyDto> search(Map<String, String> query) {
         List<CurrencyDto> currencyDtoList = new ArrayList<>();
@@ -51,9 +52,8 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public CurrencyDto getById(Long id) {
-        CurrencyDto currencyDto = new CurrencyDto();
         Call<CurrencyDto> currencyDtoCall = currencyApi.getById(currencyUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(currencyDtoCall, currencyDto, CurrencyDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(currencyDtoCall, CurrencyDto.class, id);
     }
 
     @Override

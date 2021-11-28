@@ -1,14 +1,21 @@
 package com.trade_accounting.components.purchases;
 
+import com.trade_accounting.components.sells.AddFromDirectModalWin;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.WarehouseDto;
+import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -16,6 +23,9 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -27,9 +37,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @UIScope
@@ -41,45 +51,186 @@ public class AcceptanceModalView extends Dialog {
     private final ContractService contractService;
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
-    private AcceptanceDto acceptanceDto;
-
+    private AcceptanceDto dto = new AcceptanceDto();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
+    private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
+    private final ComboBox<ProductDto> productDtoComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox checkboxIsSent = new Checkbox("Отправлено");
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
-
-    private final Binder<AcceptanceDto> acceptanceDtoBinder =
-            new Binder<>(AcceptanceDto.class);
+    private final AddFromDirectModalWin modalView;
+    private final Binder<AcceptanceDto> acceptanceDtoBinder = new Binder<>(AcceptanceDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Notifications notifications;
+    private final ProductService productService;
+    private final Grid<AcceptanceProductionDto> grid = new Grid<>(AcceptanceProductionDto.class, false);
+    private GridPaginator<AcceptanceProductionDto> paginator;
+    private List<AcceptanceProductionDto> data;
+    private final AcceptanceProductionService acceptanceProductionService;
+    private final Editor<AcceptanceProductionDto> editor = grid.getEditor();
+    private final Binder<AcceptanceProductionDto> binderInvoiceProductDto = new Binder<>(AcceptanceProductionDto.class);//Rename!!!!
+    private final TextField amountField = new TextField();
+    private final TextField summ = new TextField();
+    private boolean isNew;
+    private boolean isNewProd;
 
-    public AcceptanceModalView(CompanyService companyService, AcceptanceService acceptanceService,
+    public AcceptanceModalView(CompanyService companyService,
+                               AcceptanceService acceptanceService,
                                ContractService contractService,
                                WarehouseService warehouseService,
                                ContractorService contractorService,
-                               Notifications notifications) {
+                               Notifications notifications,
+                               AddFromDirectModalWin modalView,
+                               ProductService productService,
+                               AcceptanceProductionService acceptanceProductionService) {
         this.companyService = companyService;
         this.acceptanceService = acceptanceService;
         this.contractService = contractService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.notifications = notifications;
+        this.modalView = modalView;
+        this.productService = productService;
+        this.acceptanceProductionService = acceptanceProductionService;
+        isNew = true;
+        isNewProd = true;
+        data = getData();
+        paginator = new GridPaginator<>(grid, data, 40);
         setSizeFull();
-        add(headerLayout(), formLayout());
+        add(headerLayout(), formLayout(), grid, paginator);
+    }
+
+    private List<AcceptanceProductionDto> getData() {
+        if (dto.getAcceptanceProduction() == null){
+            dto.setAcceptanceProduction(new ArrayList<>());
+        }
+        return dto.getAcceptanceProduction();
+    }
+
+    private void configureGrid() {
+        grid.removeAllColumns();
+        grid.setItems(data);
+        grid.addColumn(inPrDto -> inPrDto.getId()).setHeader("№").setId("№");
+        grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Название");
+        grid.addColumn(inPrDto -> inPrDto.getAmount()).setHeader("Количество");
+        grid.addColumn(inPrDto -> inPrDto.getPrice()).setHeader("Цена").setId("Цена");
+        grid.setHeight("36vh");
+        grid.setColumnReorderingAllowed(true);
+        editor.setBinder(binderInvoiceProductDto);
+    }
+
+    private void updateSupplier() {
+        dto.setAcceptanceProduction(data);
+        dto.setId(Long.parseLong(returnNumber.getValue()));
+        dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+        dto.setDate(dateTimePicker.getValue().toString());
+        dto.setContractId(contractDtoComboBox.getValue().getId());
+        dto.setCompanyId(companyDtoComboBox.getValue().getId());
+        dto.setContractorId(contractorDtoComboBox.getValue().getId());
+        dto.setComment(textArea.getValue());
+        dto.setProjectId((long) 1); //Это неправлильно. Должен быть список с выбором проекта. Пока списка проектов нет, будет так
+        dto.setIsSent(checkboxIsSent.getValue());
+        dto.setIsPrint(checkboxIsPrint.getValue());
+        if (data.size() == 0) {
+            dto.setAcceptanceProduction(new ArrayList<>());
+        }
+        dto.setAcceptanceProduction(data);
+        if (!isNew) {
+            acceptanceService.update(dto);
+            isNew = true;
+        }
+        data = null;
+        clearAllFieldsModalView();
+        UI.getCurrent().navigate("admissions");
+        close();
+
+    }
+
+    private Button saveButton() {
+        return new Button("Сохранить", e -> {
+            if (returnNumber.getValue() != null && warehouseDtoComboBox.getValue() != null && dateTimePicker.getValue() != null &&
+                    contractDtoComboBox.getValue() != null && companyDtoComboBox.getValue() != null && contractorDtoComboBox.getValue() != null) {
+                updateSupplier();
+                clearAllFieldsModalView();
+                notifications.infoNotification(String.format("Приемка №=%s сохранена", dto.getIncomingNumber()));
+            }
+        });
+    }
+
+    private Button addProduct() {
+        Button button = new Button("Добавить продукт", new Icon(VaadinIcon.ADD_DOCK));
+        button.addClickListener(e -> {
+            AcceptanceProductionDto acceptanceProductionDto = new AcceptanceProductionDto();
+            acceptanceProductionDto.setId(productDtoComboBox.getValue().getId());
+            acceptanceProductionDto.setProductId(productDtoComboBox.getValue().getId());
+            acceptanceProductionDto.setAmount(new BigDecimal(amountField.getValue()));
+            acceptanceProductionDto.setPrice(productDtoComboBox.getValue().getPurchasePrice());
+            Long dtoId;
+            if (isNewProd) {
+                dto.setAcceptanceProduction(new ArrayList<>());
+                dto.setId(Long.parseLong(returnNumber.getValue()));
+                dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+                dto.setDate(dateTimePicker.getValue().toString());
+                dto.setContractId(contractDtoComboBox.getValue().getId());
+                dto.setCompanyId(companyDtoComboBox.getValue().getId());
+                dto.setContractorId(contractorDtoComboBox.getValue().getId());
+                dto.setComment(textArea.getValue());
+                dto.setProjectId((long) 1); //Это неправлильно. Должен быть список с выбором проекта. Пока списка проектов нет, будет так
+                dto.setIsSent(checkboxIsSent.getValue());
+                dto.setIsPrint(checkboxIsPrint.getValue());
+                dtoId = acceptanceService.create(dto).body().getId();
+                acceptanceProductionDto.setAcceptanceId(dtoId);
+                dto.setId(dtoId);
+                isNewProd = false;
+            } else {
+                acceptanceProductionDto.setAcceptanceId(dto.getId());
+            }
+            acceptanceProductionDto.setId(acceptanceProductionService.create(acceptanceProductionDto).body().getId());
+            data.add(acceptanceProductionDto);
+            summ.setValue(getTotalPrice().toString());
+            configureGrid();
+        });
+        return button;
+    }
+
+    public BigDecimal getTotalPrice() {
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (AcceptanceProductionDto acceptanceProductionDto : data) {
+            totalPrice = totalPrice.add(acceptanceProductionDto.getPrice()
+                    .multiply(acceptanceProductionDto.getAmount()));
+        }
+        return totalPrice;
     }
 
     public void setAcceptanceForEdit(AcceptanceDto editDto) {
-        this.acceptanceDto = editDto;
+        this.dto = editDto;
+        isNew = false;
         returnNumber.setValue(editDto.getId().toString());
-        dateTimePicker.setValue(LocalDateTime.parse(editDto.getIncomingNumberDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        textArea.setValue(editDto.getComment());
-        contractDtoComboBox.setValue(contractService.getById(editDto.getContractId()));
-        warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
-        contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
+        companyDtoComboBox.setValue(companyService.getById(dto.getCompanyId()));
+        textArea.setValue(dto.getComment());
+        contractDtoComboBox.setValue(contractService.getById(dto.getContractId()));
+        checkboxIsSent.setValue(dto.getIsSent());
+        checkboxIsPrint.setValue(dto.getIsPrint());
+        warehouseDtoComboBox.setValue(warehouseService.getById(dto.getWarehouseId()));
+        contractorDtoComboBox.setValue(contractorService.getById(dto.getContractorId()));
+        List <AcceptanceProductionDto> tmp = acceptanceProductionService.getAll();
+        for (AcceptanceProductionDto aps : tmp) {
+            for (AcceptanceProductionDto acp : dto.getAcceptanceProduction()) {
+                if(acp.getId().equals(aps.getId())) {
+                    data.add(aps);
+                }
+            }
+        }
+        summ.setValue(getTotalPrice().toString());
+        if (!data.isEmpty()) {
+            configureGrid();
+        }
+
     }
 
     private HorizontalLayout headerLayout() {
@@ -90,7 +241,7 @@ public class AcceptanceModalView extends Dialog {
 
     private VerticalLayout formLayout() {
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(formLayout1(), formLayout2(), formLayout4());
+        verticalLayout.add(formLayout1(), formLayout2(), formLayout3(), formLayout4(), formLayout5());
         return verticalLayout;
     }
 
@@ -102,44 +253,30 @@ public class AcceptanceModalView extends Dialog {
 
     private HorizontalLayout formLayout2() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(warehouseConfigure(), contractorConfigure(), contractConfigure());
+        horizontalLayout.add(contractorConfigure(), contractConfigure());
+        return horizontalLayout;
+    }
+    private HorizontalLayout formLayout3() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(companyConfigure(), warehouseConfigure());
         return horizontalLayout;
     }
 
     private HorizontalLayout formLayout4() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(commentConfig());
+        horizontalLayout.add(productConfigure(), amountFieldConfig(), addProduct());
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout formLayout5() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(commentSumm(), commentConfig());
         return horizontalLayout;
     }
 
     private H2 title() {
         H2 title = new H2("Добавление приемки");
         return title;
-    }
-
-    private Button saveButton() {
-        return new Button("Сохранить", e -> {
-            if (!acceptanceDtoBinder.validate().isOk()) {
-                acceptanceDtoBinder.validate().notifyBindingValidationStatusHandlers();
-            } else {
-                AcceptanceDto dto = new AcceptanceDto();
-                dto.setId(Long.parseLong(returnNumber.getValue()));
-                dto.setContractId(contractDtoComboBox.getValue().getId());
-                dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-                dto.setContractorId(contractorDtoComboBox.getValue().getId());
-                dto.setIncomingNumberDate(dateTimePicker.getValue().toString());
-                dto.setIsSent(checkboxIsSent.getValue());
-                dto.setIsPrint(checkboxIsPrint.getValue());
-                dto.setComment(textArea.getValue());
-                dto.setAcceptanceProduction(acceptanceDto.getAcceptanceProduction());
-                acceptanceService.create(dto);
-
-                UI.getCurrent().navigate("admissions");
-                close();
-                clearAllFieldsModalView();
-                notifications.infoNotification(String.format("Приемка c ID=%s сохранена", dto.getId()));
-            }
-        });
     }
 
     private Button closeButton() {
@@ -152,9 +289,9 @@ public class AcceptanceModalView extends Dialog {
     }
 
     private Button addAcceptanceButton() {
-        Button button = new Button("Добавить приемку", new Icon(VaadinIcon.PLUS));
+        Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS));
         button.addClickListener(e -> {
-            // Добавить приемку в таблицу
+            modalView.open();
         });
         return button;
     }
@@ -175,6 +312,7 @@ public class AcceptanceModalView extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
+        dateTimePicker.setRequiredIndicatorVisible(true);
         horizontalLayout.add(label, dateTimePicker);
         acceptanceDtoBinder.forField(dateTimePicker)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -224,33 +362,85 @@ public class AcceptanceModalView extends Dialog {
 
     private HorizontalLayout contractConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        List<ContractDto> list = contractService.getAll();
-        if (list != null) {
-            contractDtoComboBox.setItems(list);
+        List<ContractDto> contractDtos = contractService.getAll();
+        if (contractDtos != null) {
+            contractDtoComboBox.setItems(contractDtos);
         }
-        contractDtoComboBox.setItemLabelGenerator(dto -> companyService.getById(contractService.getById(dto.getId()).getCompanyId()).getName());
+        contractDtoComboBox.setItemLabelGenerator(ContractDto::getNumber);
         contractDtoComboBox.setWidth("350px");
-        Label label = new Label("Организация");
-        label.setWidth("100px");
-        horizontalLayout.add(label, contractDtoComboBox);
+        contractDtoComboBox.setRequired(true);
+        contractDtoComboBox.setRequiredIndicatorVisible(true);
         acceptanceDtoBinder.forField(contractDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(AcceptanceDto::getContractDtoValid, AcceptanceDto::setContractDtoValid);
+        Label label = new Label("Договор");
+        label.setWidth("100px");
+        horizontalLayout.add(label, contractDtoComboBox);
+        return horizontalLayout;
+    }
+    private HorizontalLayout companyConfigure() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<CompanyDto> companyDtos = companyService.getAll();
+        if (companyDtos != null) {
+            companyDtoComboBox.setItems(companyDtos);
+        }
+        companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
+        companyDtoComboBox.setWidth("350px");
+        companyDtoComboBox.setRequired(true);
+        companyDtoComboBox.setRequiredIndicatorVisible(true);
+        acceptanceDtoBinder.forField(companyDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(AcceptanceDto::getCompanyDtoValid, AcceptanceDto::setCompanyDtoValid);
+        Label label = new Label("Компания");
+        label.setWidth("100px");
+        horizontalLayout.add(label, companyDtoComboBox);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout productConfigure() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<ProductDto> productDto = productService.getAll();
+        if (productDto != null) {
+            productDtoComboBox.setItems(productDto);
+        }
+        productDtoComboBox.setItemLabelGenerator(ProductDto::getDescription);
+        productDtoComboBox.setWidth("350px");
+        productDtoComboBox.setRequired(true);
+        productDtoComboBox.setRequiredIndicatorVisible(true);
+        acceptanceDtoBinder.forField(productDtoComboBox)
+                .asRequired(TEXT_FOR_REQUEST_FIELD);
+        Label label = new Label("Продукты");
+        label.setWidth("100px");
+        horizontalLayout.add(label, productDtoComboBox);
+        return horizontalLayout;
+    }
+
+    private HorizontalLayout amountFieldConfig() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Количество");
+        label.setWidth("100px");
+        horizontalLayout.add(label, amountField);
         return horizontalLayout;
     }
 
     private HorizontalLayout commentConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Комментарий");
-        label.setWidth("100px");
-        horizontalLayout.setWidth("750px");
-        horizontalLayout.setHeight("100px");
+        label.setWidth("300px");
         horizontalLayout.add(label, textArea);
+        return horizontalLayout;
+    }
+    private HorizontalLayout commentSumm() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Сумма");
+        label.setWidth("300px");
+        horizontalLayout.add(label, summ);
         return horizontalLayout;
     }
 
     private void clearAllFieldsModalView() {
         contractDtoComboBox.setValue(null);
+        companyDtoComboBox.setValue(null);
         warehouseDtoComboBox.setValue(null);
         contractorDtoComboBox.setValue(null);
         dateTimePicker.setValue(null);
@@ -258,5 +448,6 @@ public class AcceptanceModalView extends Dialog {
         returnNumber.setValue("");
         checkboxIsPrint.setValue(false);
         checkboxIsSent.setValue(false);
+        grid.removeAllColumns();
     }
 }

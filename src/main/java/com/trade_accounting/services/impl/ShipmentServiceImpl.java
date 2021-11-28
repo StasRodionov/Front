@@ -19,7 +19,6 @@ public class ShipmentServiceImpl implements ShipmentService {
     private final ShipmentApi shipmentApi;
     private final String shipmentUrl;
     private final CallExecuteService<ShipmentDto> callExecuteService;
-    private ShipmentDto shipmentDto;
 
     public ShipmentServiceImpl(Retrofit retrofit, @Value("${shipment_url}") String shipmentUrl, CallExecuteService<ShipmentDto> callExecuteService) {
         shipmentApi = retrofit.create(ShipmentApi.class);
@@ -36,7 +35,7 @@ public class ShipmentServiceImpl implements ShipmentService {
     @Override
     public ShipmentDto getById(Long id) {
         Call<ShipmentDto> shipmentDtoCall = shipmentApi.getById(shipmentUrl, id);
-        return callExecuteService.callExecuteBodyById(shipmentDtoCall, shipmentDto, ShipmentDto.class, id);
+        return callExecuteService.callExecuteBodyById(shipmentDtoCall, ShipmentDto.class, id);
     }
 
     @Override

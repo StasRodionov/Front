@@ -23,8 +23,6 @@ public class BuyersReturnServiceImpl implements BuyersReturnService {
 
     private final String buyersReturnUrl;
 
-    private BuyersReturnDto buyersReturnDto;
-
     private final CallExecuteService<BuyersReturnDto> dtoCallExecuteService;
 
     public BuyersReturnServiceImpl(@Value("${buyersReturn_url}") String buyersReturnUrl, Retrofit retrofit, CallExecuteService<BuyersReturnDto> dtoCallExecuteService) {
@@ -48,7 +46,7 @@ public class BuyersReturnServiceImpl implements BuyersReturnService {
     @Override
     public BuyersReturnDto getById(Long id) {
         Call<BuyersReturnDto> buyersReturnDtoCall = buyersReturnApi.getById(buyersReturnUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(buyersReturnDtoCall, buyersReturnDto, BuyersReturnDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(buyersReturnDtoCall, BuyersReturnDto.class, id);
     }
 
     @Override

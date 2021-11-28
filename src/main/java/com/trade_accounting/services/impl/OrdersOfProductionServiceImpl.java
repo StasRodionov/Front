@@ -22,7 +22,6 @@ public class OrdersOfProductionServiceImpl implements OrdersOfProductionService 
 
     private final String ordersOfProductionUrl;
     private final OrdersOfProductionApi ordersOfProductionApi;
-    private final OrdersOfProductionDto ordersOfProductionDto = new OrdersOfProductionDto();
     private final CallExecuteService<OrdersOfProductionDto> dtoCallExecuteService;
     private List<OrdersOfProductionDto> ordersOfProductionDtoList = new ArrayList<>();
 
@@ -41,7 +40,7 @@ public class OrdersOfProductionServiceImpl implements OrdersOfProductionService 
     @Override
     public OrdersOfProductionDto getById(Long id) {
         Call<OrdersOfProductionDto> ordersOfProductionDtoGetCall = ordersOfProductionApi.getById(ordersOfProductionUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(ordersOfProductionDtoGetCall, ordersOfProductionDto, OrdersOfProductionDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(ordersOfProductionDtoGetCall, OrdersOfProductionDto.class, id);
     }
 
     @Override

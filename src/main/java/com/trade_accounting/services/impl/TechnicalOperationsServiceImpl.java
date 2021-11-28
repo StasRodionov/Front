@@ -21,7 +21,6 @@ public class TechnicalOperationsServiceImpl implements TechnicalOperationsServic
 
     private final String technicalOperationsUrl;
     private final TechnicalOperationsApi technicalOperationsApi;
-    private TechnicalOperationsDto technicalOperationsDto = new TechnicalOperationsDto();
     private final CallExecuteService<TechnicalOperationsDto> dtoCallExecuteService;
     private List<TechnicalOperationsDto> technicalOperationsList = new ArrayList<>();
 
@@ -40,7 +39,7 @@ public class TechnicalOperationsServiceImpl implements TechnicalOperationsServic
     @Override
     public TechnicalOperationsDto getById(Long id) {
         Call<TechnicalOperationsDto> technicalOperationsDtoGetCall = technicalOperationsApi.getById(technicalOperationsUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(technicalOperationsDtoGetCall, technicalOperationsDto, TechnicalOperationsDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(technicalOperationsDtoGetCall, TechnicalOperationsDto.class, id);
     }
 
     @Override

@@ -19,13 +19,17 @@ public class AcceptanceDto extends AcceptanceDtoForValidation {
 
     private String incomingNumber;
 
-    private String incomingNumberDate;
+    private String date;
 
     private Long contractorId;
 
     private Long warehouseId;
 
     private Long contractId;
+
+    private Long companyId;
+
+    private Long projectId;
 
     private String comment;
 

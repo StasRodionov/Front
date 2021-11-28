@@ -19,8 +19,6 @@ public class TechnicalCardGroupServiceImpl implements TechnicalCardGroupService 
 
     private final TechnicalCardGroupApi technicalCardGroupApi;
 
-    private TechnicalCardGroupDto technicalCardGroupDto = new TechnicalCardGroupDto();
-
     private final CallExecuteService<TechnicalCardGroupDto> dtoCallExecuteService;
 
     public TechnicalCardGroupServiceImpl(@Value("${technical_card_group_url}") String technicalCardGroupUrl, Retrofit retrofit, CallExecuteService<TechnicalCardGroupDto> dtoCallExecuteService) {
@@ -38,7 +36,7 @@ public class TechnicalCardGroupServiceImpl implements TechnicalCardGroupService 
     @Override
     public TechnicalCardGroupDto getById(Long id) {
         Call<TechnicalCardGroupDto> technicalCardGroupDtoGetCall = technicalCardGroupApi.getById(technicalCardGroupUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(technicalCardGroupDtoGetCall, technicalCardGroupDto, TechnicalCardGroupDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(technicalCardGroupDtoGetCall, TechnicalCardGroupDto.class, id);
 
     }
 

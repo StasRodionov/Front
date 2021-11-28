@@ -61,6 +61,8 @@ product_group_url: api/productgroup
 
 product_url: api/product
 
+production_targets_url: api/production_targets
+
 type_of_contractor_url: api/typeofcontractor
 
 type_of_price_url: api/typeofprice
@@ -143,7 +145,6 @@ moneySubProfitLoss_url: /api/moneysubprofitloss
 
 productprice_url: /api/productprice
 
-
 returns_url: api/returns
 
 retail_points_url: api/operation_with_points
@@ -156,5 +157,8 @@ shipment_url: api/shipment
 
 shipment_product_url: api/shipmentproduct
 
+return_amount_by_product_url: api/return-amount-by-product
+
+stage_production_url: api/stagesproduction
 
 #debug: true

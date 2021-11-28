@@ -14,6 +14,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -66,6 +67,7 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
         grid.addColumn("date").setFlexGrow(10).setHeader("Дата").setId("date");
@@ -138,7 +140,7 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonCreate(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonCreate(), buttonFilter(), numberField(), textField(), getSelect(), getStatus(), getPrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -251,7 +253,7 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
 
     private Select<String> getStatus() {
         Select<String> status = new Select<>();
-        status.setItems("Статус","Настроить...");
+        status.setItems("Статус", "Настроить...");
         status.setValue("Статус");
         status.setWidth("130px");
         return status;
@@ -260,7 +262,7 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
 
     private Select<String> getPrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Список выплат", "Комплект...","Настроить...");
+        print.setItems("Печать", "Список выплат", "Комплект...", "Настроить...");
         print.setValue("Печать");
         print.setWidth("130px");
         return print;

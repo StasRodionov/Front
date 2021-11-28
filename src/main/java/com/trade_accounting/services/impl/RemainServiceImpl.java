@@ -21,8 +21,6 @@ public class RemainServiceImpl implements RemainService {
     private final RemainApi remainApi;
     private final String remainUrl;
     private final CallExecuteService<RemainDto> callExecuteService;
-    private RemainDto remainDto;
-
 
     public RemainServiceImpl(Retrofit retrofit, @Value("${remain_url}") String remainUrl, CallExecuteService<RemainDto> callExecuteService) {
         remainApi = retrofit.create(RemainApi.class);
@@ -40,7 +38,7 @@ public class RemainServiceImpl implements RemainService {
     @Override
     public RemainDto getById(Long id) {
         Call<RemainDto> remainDtoCall = remainApi.getById(remainUrl, id);
-        return callExecuteService.callExecuteBodyById(remainDtoCall, remainDto, RemainDto.class, id);
+        return callExecuteService.callExecuteBodyById(remainDtoCall, RemainDto.class, id);
     }
 
     @Override

@@ -20,10 +20,6 @@ public class RoleServiceImpl implements RoleService {
 
     private final String roleUrl;
 
-    private List<RoleDto> roleDtoList = new ArrayList<>();
-
-    private RoleDto roleDto = new RoleDto();
-
     private final CallExecuteService<RoleDto> dtoCallExecuteService;
 
     public RoleServiceImpl(@Value("${role_url}") String roleUrl, Retrofit retrofit, CallExecuteService<RoleDto> dtoCallExecuteService) {
@@ -41,7 +37,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDto getById(Long id) {
         Call<RoleDto> roleGetCall = roleApi.getById(roleUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(roleGetCall,roleDto, RoleDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(roleGetCall,RoleDto.class, id);
     }
 
     @Override

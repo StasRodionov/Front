@@ -20,8 +20,6 @@ public class BonusProgramServiceImpl implements BonusProgramService {
 
     private final String bonusProgramUrl;
 
-    private BonusProgramDto bonusProgramDto;
-
     private final CallExecuteService<BonusProgramDto> dtoCallExecuteService;
 
     public BonusProgramServiceImpl(Retrofit retrofit, @Value("${bonus_program_url}") String bonusProgramUrl,
@@ -41,7 +39,7 @@ public class BonusProgramServiceImpl implements BonusProgramService {
     @Override
     public BonusProgramDto getById(Long id) {
         Call<BonusProgramDto> bonusProgramDtoCall = bonusProgramApi.getById(bonusProgramUrl, id);
-        return dtoCallExecuteService.callExecuteBodyById(bonusProgramDtoCall, bonusProgramDto, BonusProgramDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(bonusProgramDtoCall, BonusProgramDto.class, id);
     }
 
     @Override

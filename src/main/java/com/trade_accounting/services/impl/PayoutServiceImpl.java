@@ -1,6 +1,5 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.PayoutDto;
 import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.api.PayoutApi;
@@ -22,8 +21,6 @@ public class PayoutServiceImpl implements PayoutService {
     private final PayoutApi payoutApi;
 
     private final String payoutURL;
-
-    private PayoutDto payoutDto;
 
     private final CallExecuteService<PayoutDto> dtoCallExecuteService;
 
@@ -56,7 +53,7 @@ public class PayoutServiceImpl implements PayoutService {
     @Override
     public PayoutDto getById(Long id) {
         Call<PayoutDto> payoutDtoCall = payoutApi.getById(payoutURL, id);
-        return dtoCallExecuteService.callExecuteBodyById(payoutDtoCall, payoutDto, PayoutDto.class, id);
+        return dtoCallExecuteService.callExecuteBodyById(payoutDtoCall, PayoutDto.class, id);
     }
 
     @Override
@@ -102,7 +99,7 @@ public class PayoutServiceImpl implements PayoutService {
     public List<PayoutDto> findBySearchAndTypeOfPayout(String search, String typeOfPayout) {
         List<PayoutDto> payoutDtoList = new ArrayList<>();
         Call<List<PayoutDto>> payoutDtoListCall = payoutApi
-                .search(payoutURL, search.toLowerCase(), typeOfPayout);
+                .searchByFilter(payoutURL, search.toLowerCase(), typeOfPayout);
 
         try {
             payoutDtoList = payoutDtoListCall.execute().body();
@@ -114,9 +111,9 @@ public class PayoutServiceImpl implements PayoutService {
     }
 
     @Override
-    public List<PayoutDto> search(Map<String, String> query) {
+    public List<PayoutDto> searchByFilter(Map<String, String> query) {
         List<PayoutDto> payoutDtoList = new ArrayList<>();
-        Call<List<PayoutDto>> payoutDtoListCall = payoutApi.search(payoutURL,query);
+        Call<List<PayoutDto>> payoutDtoListCall = payoutApi.searchByFilter(payoutURL,query);
         try {
             payoutDtoList = payoutDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение списка счетов payout {}", query);

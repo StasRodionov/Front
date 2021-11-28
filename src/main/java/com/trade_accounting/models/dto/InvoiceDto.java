@@ -2,6 +2,7 @@ package com.trade_accounting.models.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -23,6 +24,10 @@ public class InvoiceDto {
 
     private Boolean isSpend;
 
+    private Boolean isSent;
+
+    private Boolean isPrint;
+
     private String comment;
 
     private Long invoicesStatusId;
@@ -36,6 +41,17 @@ public class InvoiceDto {
                 ", Контрагент = " + contractorId +
                 ", Склад = " + warehouseId +
                 ", Проведено = " + isSpend +
+                ", Отправлено = " + isSent +
+                ", Напечатано = " + isPrint +
                 ", Комментарий = '" + comment + '\'';
     }
+
+    @EqualsAndHashCode.Exclude
+    private WarehouseDto warehouseDto;
+
+    @EqualsAndHashCode.Exclude
+    private ContractorDto contractorDto;
+
+    @EqualsAndHashCode.Exclude
+    private CompanyDto companyDto;
 }

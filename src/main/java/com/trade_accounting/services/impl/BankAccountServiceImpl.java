@@ -35,9 +35,8 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public BankAccountDto getById(Long id) {
-        BankAccountDto bankAccountDto = new BankAccountDto();
         Call<BankAccountDto> bankAccountDtoCall = bankAccountApi.getById(bankAccountUrl, id);
-        return dto.callExecuteBodyById(bankAccountDtoCall, bankAccountDto, BankAccountDto.class, id);
+        return dto.callExecuteBodyById(bankAccountDtoCall, BankAccountDto.class, id);
     }
 
 
@@ -52,7 +51,6 @@ public class BankAccountServiceImpl implements BankAccountService {
             log.error("Произошла ошибка при выполнении запроса на создание экземпляра BankAccountDto - {}", e);
         }
         return result;
-        //  return dto.callExecuteBodyCreate(bankAccountDtoCall, BankAccountDto.class);
     }
 
     @Override
