@@ -95,8 +95,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        System.out.println("DATA!!!!!!!!!!!!! +  "  + data);
-//        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid = new Grid<>(InvoiceDto.class, false);
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
@@ -246,7 +245,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll();
+        return invoiceService.getAll(typeOfInvoice);
     }
 
 
