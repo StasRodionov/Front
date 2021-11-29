@@ -1,6 +1,6 @@
 package com.trade_accounting.components.purchases;
 
-import com.trade_accounting.components.sells.AddFromDirectModalWin;
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
@@ -25,7 +25,6 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -35,6 +34,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.math.BigDecimal;
@@ -44,6 +44,7 @@ import java.util.List;
 
 @UIScope
 @SpringComponent
+@Route(value = "accepts", layout = AppView.class)
 public class AcceptanceModalView extends Dialog {
 
     private final CompanyService companyService;
@@ -62,7 +63,6 @@ public class AcceptanceModalView extends Dialog {
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
-    private final AddFromDirectModalWin modalView;
     private final Binder<AcceptanceDto> acceptanceDtoBinder = new Binder<>(AcceptanceDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Notifications notifications;
@@ -75,7 +75,7 @@ public class AcceptanceModalView extends Dialog {
     private final Binder<AcceptanceProductionDto> binderInvoiceProductDto = new Binder<>(AcceptanceProductionDto.class);//Rename!!!!
     private final TextField amountField = new TextField();
     private final TextField summ = new TextField();
-    private boolean isNew;
+    private static boolean isNew;
     private boolean isNewProd;
 
     public AcceptanceModalView(CompanyService companyService,
@@ -84,7 +84,6 @@ public class AcceptanceModalView extends Dialog {
                                WarehouseService warehouseService,
                                ContractorService contractorService,
                                Notifications notifications,
-                               AddFromDirectModalWin modalView,
                                ProductService productService,
                                AcceptanceProductionService acceptanceProductionService) {
         this.companyService = companyService;
@@ -93,7 +92,6 @@ public class AcceptanceModalView extends Dialog {
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.notifications = notifications;
-        this.modalView = modalView;
         this.productService = productService;
         this.acceptanceProductionService = acceptanceProductionService;
         isNew = true;
@@ -230,7 +228,6 @@ public class AcceptanceModalView extends Dialog {
         if (!data.isEmpty()) {
             configureGrid();
         }
-
     }
 
     private HorizontalLayout headerLayout() {
@@ -291,7 +288,37 @@ public class AcceptanceModalView extends Dialog {
     private Button addAcceptanceButton() {
         Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS));
         button.addClickListener(e -> {
-            modalView.open();
+            Long dtoId;
+            AddFromDirectModalWin modalAddFromDirectModalWin = new AddFromDirectModalWin(productService,
+                    acceptanceService,
+                    acceptanceProductionService,
+                    contractService,
+                    warehouseService,
+                    contractorService,
+                    notifications,
+                    companyService);
+
+            if (isNew) {
+                dto.setAcceptanceProduction(new ArrayList<>());
+                dto.setId(Long.parseLong(returnNumber.getValue()));
+                dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+                dto.setDate(dateTimePicker.getValue().toString());
+                dto.setContractId(contractDtoComboBox.getValue().getId());
+                dto.setCompanyId(companyDtoComboBox.getValue().getId());
+                dto.setContractorId(contractorDtoComboBox.getValue().getId());
+                dto.setComment(textArea.getValue());
+                dto.setProjectId((long) 1); //Это неправлильно. Должен быть список с выбором проекта. Пока списка проектов нет, будет так
+                dto.setIsSent(checkboxIsSent.getValue());
+                dto.setIsPrint(checkboxIsPrint.getValue());
+                dtoId = acceptanceService.create(dto).body().getId();
+                dto.setId(dtoId);
+                isNewProd = false;
+            } else {
+                dto.setAcceptanceProduction(data);
+            }
+            modalAddFromDirectModalWin.setAcceptance(dto);
+            modalAddFromDirectModalWin.open();
+            close();
         });
         return button;
     }
