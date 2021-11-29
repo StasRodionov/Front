@@ -3,11 +3,16 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProjectDto;
+import com.trade_accounting.models.dto.ReturnToSupplierDto;
+import com.trade_accounting.models.dto.ShipmentDto;
+import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -15,6 +20,8 @@ import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.ProjectService;
+import com.trade_accounting.services.interfaces.ShipmentProductService;
+import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Key;
@@ -63,16 +70,16 @@ import java.util.Objects;
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditShipmentView extends VerticalLayout{
+public class SalesEditShipmentView extends Dialog{
     private final ProductService productService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final ProjectService projectService;
     private final WarehouseService warehouseService;
-    private final InvoiceService invoiceService;
-    private final InvoiceProductService invoiceProductService;
+    private final ShipmentService invoiceService;
     private final Notifications notifications;
     private final UnitService unitService;
+    private final ShipmentProductService shipmentProductService;
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
@@ -89,81 +96,123 @@ public class SalesEditShipmentView extends VerticalLayout{
     private final H4 totalPrice = new H4();
     private final H2 title = new H2("Добавление отгрузки");
 
-    private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
+    private List<ShipmentProductDto> tempShipmentProductDtoList = new ArrayList<>();
 
     private final Dialog dialogOnChangeContractor = new Dialog();
     private final Dialog dialogOnCloseView = new Dialog();
 
-    private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
-    private final GridPaginator<InvoiceProductDto> paginator;
+    private final Grid<ShipmentProductDto> grid = new Grid<>(ShipmentProductDto.class, false);
+    private final GridPaginator<ShipmentProductDto> paginator;
 
-    private final Editor<InvoiceProductDto> editor = grid.getEditor();
-    private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
-    private final Binder<InvoiceDto> binderInvoiceDtoContractorValueChangeListener = new Binder<>(InvoiceDto.class);
+    private final Editor<ShipmentProductDto> editor = grid.getEditor();
+    private final Binder<ShipmentDto> binderShipmentDto = new Binder<>(ShipmentDto.class);
+//    private final Binder<ShipmentDto> binderInvoiceDtoContractorValueChangeListener = new Binder<>(ShipmentDto.class);
     private String type = null;
     private String location = null;
+    private ShipmentDto dto = new ShipmentDto();
 
     @Autowired
-    public SalesEditShipmentView(ProductService productService, ContractorService contractorService,
+    public SalesEditShipmentView(ProductService productService,
+                                 ContractorService contractorService,
                                  CompanyService companyService,
-                                 ProjectService projectService, WarehouseService warehouseService,
-                                 InvoiceService invoiceService,
-                                 InvoiceProductService invoiceProductService,
+                                 ProjectService projectService,
+                                 WarehouseService warehouseService,
+                                 ShipmentService invoiceService,
                                  Notifications notifications,
-                                 UnitService unitService) {
+                                 UnitService unitService,
+                                 ShipmentProductService shipmentProductService) {
         this.productService = productService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.projectService = projectService;
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
-        this.invoiceProductService = invoiceProductService;
         this.notifications = notifications;
         this.unitService = unitService;
-
+        this.shipmentProductService = shipmentProductService;
         configureCloseViewDialog();
-
-        binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorId");
-        binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
-            if (
-                    valueChangeEvent.isFromClient()
-                            && valueChangeEvent.getOldValue() != null
-                            && !tempInvoiceProductDtoList.isEmpty()
-            ) {
-                dialogOnChangeContractor.open();
-            }
-        });
-
+        setSizeFull();
+//        binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
+//                .withValidator(Objects::nonNull, "Не заполнено!")
+//                .bind("contractorId");
+//        binderInvoiceDtoContractorValueChangeListener.addValueChangeListener(valueChangeEvent -> {
+//            if (
+//                    valueChangeEvent.isFromClient()
+//                            && valueChangeEvent.getOldValue() != null
+//                            && !tempShipmentProductDtoList.isEmpty()
+//            ) {
+//                dialogOnChangeContractor.open();
+//            }
+//        });
+        tempShipmentProductDtoList = getData();
         configureGrid();
-        paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+        paginator = new GridPaginator<>(grid, tempShipmentProductDtoList, 50);
+//        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
     }
 
+    private List<ShipmentProductDto> getData() {
+        List<ShipmentProductDto> tmp = new ArrayList<>();
+        if (dto.getShipmentProductsIds() == null){
+            dto.setShipmentProductsIds(new ArrayList<>());
+        }
+        for (Long shipProductsId : dto.getShipmentProductsIds()){
+            tmp.add(shipmentProductService.getById(shipProductsId));
+        }
+        return tmp;
+    }
+
+
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setItems(tempInvoiceProductDtoList);
+//        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.removeAllColumns();
+//        System.out.println("!!!!!!  " + tempShipmentProductDtoList);
+        grid.setItems(tempShipmentProductDtoList);
+        grid.addColumn(inPrDto -> tempShipmentProductDtoList.indexOf(inPrDto) + 1).setHeader("№").setId("№");
+//        if (!tempShipmentProductDtoList.isEmpty()) {
+//            System.out.println("!!!!!!!!!!!!!!!!!!!!!!   " + tempShipmentProductDtoList.get(0).getProductId());
+//            System.out.println("!!!!!!!!!!!!!!!!!!!!!!   " + productService.getById((long)1));
+//        }
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название")
                 .setKey("productDtoName").setId("Название");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание")
                 .setKey("productDtoDescr").setId("Описание");
-        Grid.Column<InvoiceProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
-        grid.addColumn(inPrDto -> unitService.getById(productService.getById(inPrDto.getProductId()).getUnitId()).getFullName()).setHeader("Единицы")
-                .setKey("productDtoUnit").setId("Единицы");
-        grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
+////        Grid.Column<InvoiceProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
+//        grid.addColumn(inPrDto -> unitService.getById(productService.getById(inPrDto.getProductId()).getUnitId()).getFullName()).setHeader("Единицы")
+//                .setKey("productDtoUnit").setId("Единицы");
+        grid.addColumn(ShipmentProductDto::getAmount).setHeader("Количество");
+        grid.addColumn(ShipmentProductDto::getPrice).setHeader("Цена").setSortable(true).setId("Цена");
         grid.setHeight("36vh");
         grid.setColumnReorderingAllowed(true);
 
-        editor.setBuffered(true);
-        Div validationStatus = new Div();
-        validationStatus.setId("validation");
-        add(validationStatus);
+        grid.setHeight("36vh");
+        grid.setColumnReorderingAllowed(true);
+//
+//        editor.setBuffered(true);
+//        Div validationStatus = new Div();
+//        validationStatus.setId("validation");
+//        add(validationStatus);
+//
+//        Button cancel = new Button("Cancel", e -> editor.cancel());
+//        cancel.addClassName("cancel");
+    }
 
-        Button cancel = new Button("Cancel", e -> editor.cancel());
-        cancel.addClassName("cancel");
+    public void setReturnToShiptmentForEdit(ShipmentDto editDto) {
+        this.dto = editDto;
+        tempShipmentProductDtoList = new ArrayList<>();
+        if (!dto.getShipmentProductsIds().isEmpty()){
+            for (Long shipProductsId : dto.getShipmentProductsIds()) {
+                ShipmentProductDto shipmentProductDto = shipmentProductService.getById(shipProductsId);
+                tempShipmentProductDtoList.add(shipmentProductDto);
+            }
+        }
+        dateField.setValue(LocalDateTime.parse(editDto.getDate()));
+        companySelect.setValue(companyService.getById(editDto.getCompanyId()));
+        warehouseSelect.setValue(warehouseService.getById(editDto.getWarehouseId()));
+        isSpend.setValue(editDto.getIsSpend());
+        contractorSelect.setValue(contractorService.getById(editDto.getContractorId()));
+        configureGrid();
     }
 
     private HorizontalLayout upperButtonsLayout() {
@@ -216,6 +265,9 @@ public class SalesEditShipmentView extends VerticalLayout{
     private HorizontalLayout configureDateField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Дата");
+        binderShipmentDto.forField(dateField)
+                .asRequired("Не заполнено!")
+                .bind(ShipmentDto::getDateValid, ShipmentDto::setDateValid);
         label.setWidth(LABEL_WIDTH);
         dateField.setWidth(FIELD_WIDTH);
         dateField.setHelperText("По умолчанию текущая дата/время");
@@ -224,20 +276,22 @@ public class SalesEditShipmentView extends VerticalLayout{
     }
 
     private HorizontalLayout configureCompanySelect() {
-        HorizontalLayout companyLayout = new HorizontalLayout();
-        List<CompanyDto> companies = companyService.getAll();
-        if (companies != null) {
-            companySelect.setItems(companies);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<CompanyDto> companyDtos = companyService.getAll();
+        if (companyDtos != null) {
+            companySelect.setItems(companyDtos);
         }
         companySelect.setItemLabelGenerator(CompanyDto::getName);
-        companySelect.setWidth(FIELD_WIDTH);
-        binderInvoiceDto.forField(companySelect)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("companyId");
+        companySelect.setWidth("350px");
+        companySelect.setRequired(true);
+        companySelect.setRequiredIndicatorVisible(true);
+        binderShipmentDto.forField(companySelect)
+                .asRequired("Не заполнено!")
+                .bind(ShipmentDto::getCompanyDtoValid, ShipmentDto::setCompanyDtoValid);
         Label label = new Label("Организация");
-        label.setWidth(LABEL_WIDTH);
-        companyLayout.add(label, companySelect);
-        return companyLayout;
+        label.setWidth("100px");
+        horizontalLayout.add(label, companySelect);
+        return horizontalLayout;
     }
 
     private HorizontalLayout configureContractorSelect() {
@@ -248,9 +302,9 @@ public class SalesEditShipmentView extends VerticalLayout{
         }
         contractorSelect.setItemLabelGenerator(ContractorDto::getName);
         contractorSelect.setWidth(FIELD_WIDTH);
-        binderInvoiceDto.forField(contractorSelect)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("contractorId");
+        binderShipmentDto.forField(contractorSelect)
+                .asRequired("Не заполнено!")
+                .bind(ShipmentDto::getContractorDtoValid, ShipmentDto::setContractorDtoValid);
         Label label = new Label("Контрагент");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorSelect);
@@ -269,15 +323,15 @@ public class SalesEditShipmentView extends VerticalLayout{
 
     private HorizontalLayout configureProjectSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        List<ProjectDto> projects = projectService.getAll();
-        if (projects != null) {
-            projectSelect.setItems(projects);
-        }
-        projectSelect.setItemLabelGenerator(ProjectDto::getName);
-        projectSelect.setWidth(FIELD_WIDTH);
-        Label label = new Label("Проект");
-        label.setWidth(LABEL_WIDTH);
-        horizontalLayout.add(label, projectSelect);
+//        List<ProjectDto> projects = projectService.getAll();
+//        if (projects != null) {
+//            projectSelect.setItems(projects);
+//        }
+//        projectSelect.setItemLabelGenerator(ProjectDto::getName);
+//        projectSelect.setWidth(FIELD_WIDTH);
+//        Label label = new Label("Проект");
+//        label.setWidth(LABEL_WIDTH);
+//        horizontalLayout.add(label, projectSelect);
         return horizontalLayout;
     }
 
@@ -289,9 +343,9 @@ public class SalesEditShipmentView extends VerticalLayout{
         }
         warehouseSelect.setItemLabelGenerator(WarehouseDto::getName);
         warehouseSelect.setWidth(FIELD_WIDTH);
-        binderInvoiceDto.forField(warehouseSelect)
-                .withValidator(Objects::nonNull, "Не заполнено!")
-                .bind("warehouseId");
+        binderShipmentDto.forField(warehouseSelect)
+                .asRequired("Не заполнено!")
+                .bind(ShipmentDto::getWarehouseDtoValid, ShipmentDto::setWarehouseDtoValid);
         Label label = new Label("Склад");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseSelect);
@@ -312,14 +366,14 @@ public class SalesEditShipmentView extends VerticalLayout{
     private Button buttonSave() {
         return new Button("Сохранить", buttonClickEvent -> {
 
-            if (!binderInvoiceDto.validate().isOk()) {
-                binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
+            if (!binderShipmentDto.validate().isOk()) {
+                binderShipmentDto.validate().notifyBindingValidationStatusHandlers();
             } else {
 
                 if (dateField.getValue() == null) {
                     dateField.setValue(LocalDateTime.now());
                 }
-                InvoiceDto invoiceDto = saveInvoice(type);
+                ShipmentDto invoiceDto = saveInvoice(type);
                 UI.getCurrent().navigate(location);
                 notifications.infoNotification(String.format("Отгрузка № %s сохранена", invoiceDto.getId()));
             }
@@ -350,7 +404,7 @@ public class SalesEditShipmentView extends VerticalLayout{
 
     public BigDecimal getTotalPrice() {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
+        for (ShipmentProductDto invoiceProductDto : tempShipmentProductDtoList) {
             totalPrice = totalPrice.add(invoiceProductDto.getPrice()
                     .multiply(invoiceProductDto.getAmount()));
         }
@@ -379,8 +433,8 @@ public class SalesEditShipmentView extends VerticalLayout{
         setTotalPrice();
     }
 
-    private InvoiceDto saveInvoice(String type) {
-        InvoiceDto invoiceDto = new InvoiceDto();
+    private ShipmentDto saveInvoice(String type) {
+        ShipmentDto invoiceDto = new ShipmentDto();
         if (!invoiceIdField.getValue().equals("")) {
             invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
         }
@@ -388,11 +442,11 @@ public class SalesEditShipmentView extends VerticalLayout{
         invoiceDto.setCompanyId(companySelect.getValue().getId());
         invoiceDto.setContractorId(contractorSelect.getValue().getId());
         invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
-        invoiceDto.setTypeOfInvoice(type);
+//        invoiceDto.setTypeOfInvoice(type);
         invoiceDto.setIsSpend(isSpend.getValue());
         invoiceDto.setComment("");
-        Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
-        return invoiceDtoResponse.body();
+        ShipmentDto invoiceDtoResponse = invoiceService.create(invoiceDto);
+        return invoiceDtoResponse;
     }
 
     public void deleteInvoiceById(Long invoiceDtoId) {
@@ -407,7 +461,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         Span message = new Span();
 
         Button confirmButton = new Button("Продолжить", event -> {
-            closeView();
+            close();
             dialogOnCloseView.close();
         });
         Button cancelButton = new Button("Отменить", event -> {
