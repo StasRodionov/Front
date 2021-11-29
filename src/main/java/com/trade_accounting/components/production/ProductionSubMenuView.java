@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
+import com.trade_accounting.services.interfaces.TechnicalProcessService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -43,6 +44,8 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
     private final ProductionTargetsService productionTargetsService;
+    private final TechnicalProcessService technicalProcessService;
+    private final TechnicalProcessModalView technicalProcessModalView;
 
 
 
@@ -61,7 +64,9 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                                  StageProductionModalView stageProductionModalView,
                                  DepartmentService departmentService,
                                  EmployeeService employeeService,
-                                 ProductionTargetsService productionTargetsService ) {
+                                 ProductionTargetsService productionTargetsService,
+                                 TechnicalProcessService technicalProcessService,
+                                 TechnicalProcessModalView technicalProcessModalView) {
         this.notifications = notifications;
         this.technicalOperationsService = technicalOperationsService;
         this.warehouseService = warehouseService;
@@ -72,13 +77,16 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
         this.stageProductionModalView = stageProductionModalView;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
-        div = new Div();
-        add(configurationSubMenu(), div);
+        this.technicalProcessService = technicalProcessService;
+        this.technicalProcessModalView = technicalProcessModalView;
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
         this.productService = productService;
         this.technicalCardProductionService = technicalCardProductionService;
         this.productionTargetsService = productionTargetsService;
+        div = new Div();
+        add(configurationSubMenu(), div);
+
     }
 
     private Tabs configurationSubMenu() {
@@ -86,7 +94,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                 new Tab("Тех. карты"),
                 new Tab("Заказы на производство"),
                 new Tab("Тех. операции"),
-                new Tab("Произведственные Задания"),
+                new Tab("Производственные Задания"),
                 new Tab("Тех. процессы"),
                 new Tab("Этапы")
 
@@ -114,6 +122,12 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                     div.removeAll();
                     div.add(new ProductionTargetsViewTab(productionTargetsService, notifications, companyService, warehouseService));
                     break;
+
+                case "Тех. процессы":
+                    div.removeAll();
+                    div.add(new TechnicalProcessViewTab(technicalProcessService, notifications, technicalProcessModalView, departmentService, employeeService, stagesProductionService));
+                    break;
+
                 case "Этапы":
                     div.removeAll();
                     div.add(new StageProductionViewTab(stagesProductionService, notifications, stageProductionModalView, departmentService, employeeService));
