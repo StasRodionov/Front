@@ -33,6 +33,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -45,7 +46,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.router.PageTitle;
@@ -63,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.WeakHashMap;
@@ -95,6 +96,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final DateTimePicker dateField = new DateTimePicker();
     private final TextField typeOfInvoiceField = new TextField();
     private final Checkbox isSpend = new Checkbox("Проведено");
+    private final Checkbox isSent = new Checkbox("Отправлено");
+    private final Checkbox isPrint = new Checkbox("Напечатано");
+    private final TextField commentTextField = new TextField();
     private final ComboBox<CompanyDto> companySelectComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
@@ -150,8 +154,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         configureCloseViewDialog();
 
         salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
-            if (salesChooseGoodsModalWin.productSelect.getValue() != null) {
-                addProduct(salesChooseGoodsModalWin.productSelect.getValue());
+            if (salesChooseGoodsModalWin.productSelect.getValue() != null
+                    && salesChooseGoodsModalWin.priceSelect.getValue() != null) {
+                addProduct(salesChooseGoodsModalWin.productSelect.getValue(), salesChooseGoodsModalWin.priceSelect.getValue());
             }
         });
 
@@ -178,6 +183,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setItems(tempInvoiceProductDtoList);
         grid.addColumn(inPrDto -> tempInvoiceProductDtoList.indexOf(inPrDto) + 1).setHeader("№").setId("№");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название")
@@ -285,7 +291,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private VerticalLayout formLayout() {
         VerticalLayout upper = new VerticalLayout();
         upper.add(horizontalLayout1(),
-                horizontalLayout2()
+                horizontalLayout2(),
+                horizontalLayout3()
         );
         return upper;
     }
@@ -294,8 +301,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         HorizontalLayout horizontalLayout1 = new HorizontalLayout();
         horizontalLayout1.add(configureDateField(),
                 configureContractorSelect(),
-                configureinvoicesStatusSelect(),
-                isSpend
+                configureInvoicesStatusSelect()
         );
         return horizontalLayout1;
     }
@@ -307,6 +313,14 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 configureTotalPrice()
         );
         return horizontalLayout2;
+    }
+
+    private HorizontalLayout horizontalLayout3() {
+        HorizontalLayout horizontalLayout3 = new HorizontalLayout();
+        horizontalLayout3.add(
+                isSpend, isSent, isPrint, commentTextField
+        );
+        return horizontalLayout3;
     }
 
     private HorizontalLayout configureDateField() {
@@ -336,16 +350,17 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         return companyLayout;
     }
 
-    private HorizontalLayout configureinvoicesStatusSelect() {
+    private HorizontalLayout configureInvoicesStatusSelect() {
         HorizontalLayout invoicesStatusLayout = new HorizontalLayout();
         List<InvoicesStatusDto> invoicesStatusDtoList = invoicesStatusService.getAll();
         if (invoicesStatusDtoList != null) {
             invoicesStatusSelectComboBox.setItems(invoicesStatusDtoList);
         }
-        invoicesStatusSelectComboBox.setItemLabelGenerator(InvoicesStatusDto::getStatusName);
         invoicesStatusSelectComboBox.setWidth(FIELD_WIDTH);
         Label label = new Label("Статус");
         label.setWidth(LABEL_WIDTH);
+
+        invoicesStatusSelectComboBox.setItemLabelGenerator(InvoicesStatusDto::getStatusName);
         invoicesStatusSelectComboBox.setHelperText("По умолчанию установится статус \"Новый\"");
         invoicesStatusLayout.add(label, invoicesStatusSelectComboBox);
         return invoicesStatusLayout;
@@ -417,6 +432,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private Button buttonSave() {
         return new Button("Сохранить", buttonClickEvent -> {
 
+            if (tempInvoiceProductDtoList.isEmpty()){
+                InformationView informationView = new InformationView("Вы не добавили ни одного продукта");
+                informationView.open();
+                return;
+            }
+
             if (!binderInvoiceDto.validate().isOk()) {
                 binderInvoiceDto.validate().notifyBindingValidationStatusHandlers();
             } else {
@@ -469,17 +490,18 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    public void addProduct(ProductDto productDto) {
+    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto) {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductId(productDto.getId());
         invoiceProductDto.setAmount(BigDecimal.ONE);
         invoiceProductDto.setPrice(
-                getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds().stream()
+                productPriceDto.getValue()
+                /*getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds().stream()
                                 .map(productPriceService::getById)
                                 .collect(Collectors.toList()),
                         typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
                         //contractorSelect.getValue().getTypeOfPriceDto().getId()
-                )
+                )*/
         );
         if (!isProductInList(productDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
@@ -542,6 +564,11 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
 
         isSpend.setValue(invoiceDto.getIsSpend());
+        isSent.setValue(invoiceDto.getIsSent());
+        isPrint.setValue(invoiceDto.getIsPrint());
+        commentTextField.setPlaceholder("Комментарий к заказу");
+        commentTextField.setValue("");
+        commentTextField.setWidth("300px");
 
        if (invoiceDto.getWarehouseId() != null) {
             warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
@@ -589,8 +616,16 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         companySelectComboBox.setValue(null);
         contractorSelect.setValue(null);
         warehouseSelect.setValue(null);
-        invoicesStatusSelectComboBox.setValue(null);
+
+        List<InvoicesStatusDto> invoicesStatusDtoList = invoicesStatusService.getAll();
+        Optional<InvoicesStatusDto> dto = invoicesStatusDtoList.stream().filter(x -> x.getStatusName().toUpperCase(Locale.ROOT).contains("НОВЫЙ")).findFirst();
+        invoicesStatusSelectComboBox.setValue(dto.get());
+
         isSpend.clear();
+        isSent.clear();
+        isPrint.clear();
+        commentTextField.setValue("");
+        commentTextField.setPlaceholder("Комментарий");
         contractorSelect.setInvalid(false);
         companySelectComboBox.setInvalid(false);
         warehouseSelect.setInvalid(false);
@@ -611,7 +646,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         invoiceDto.setInvoicesStatusId(invoicesStatusSelectComboBox.getValue().getId());
         invoiceDto.setTypeOfInvoice(type);
         invoiceDto.setIsSpend(isSpend.getValue());
-        invoiceDto.setComment("");
+        invoiceDto.setIsSent(isSent.getValue());
+        invoiceDto.setIsPrint(isPrint.getValue());
+        invoiceDto.setComment(commentTextField.getValue());
         Response<InvoiceDto> invoiceDtoResponse = invoiceService.create(invoiceDto);
         return invoiceDtoResponse.body();
     }

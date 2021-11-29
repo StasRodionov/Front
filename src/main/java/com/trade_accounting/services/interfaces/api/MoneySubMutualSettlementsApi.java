@@ -23,7 +23,7 @@ public interface MoneySubMutualSettlementsApi {
     Call<Void> update(@Path(value = "url", encoded = true) String url, @Body MoneySubMutualSettlementsDto moneySubMutualSettlementsDto);
 
     @Headers("Accept: application/json")
-    @GET("{url}/filter")
-    Call<List<MoneySubMutualSettlementsDto>> filter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> filterData);
+    @GET("{url}/searchByFilter")
+    Call<List<MoneySubMutualSettlementsDto>> searchByFilter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> filterData);
 
 }

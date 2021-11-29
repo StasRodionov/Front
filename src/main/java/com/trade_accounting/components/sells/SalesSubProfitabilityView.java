@@ -22,6 +22,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -57,17 +59,18 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final BuyersReturnService buyersReturnService;
     private final ReturnAmountByProductService returnAmountByProductService;
 
-    private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
-    private final Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
-    private final GridPaginator<ContractorDto> paginator;
-    private final GridPaginator<InvoiceProductDto> paginatorProduct;
+    private Grid<ContractorDto> gridCostumers = new Grid<>(ContractorDto.class, false);
+    private final GridFilter<InvoiceProductDto> productsFilter;
+    private Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
+    private GridPaginator<ContractorDto> paginatorCustomers;
+    private GridPaginator<InvoiceProductDto> paginatorProducts;
 
-    private final List<ContractorDto> contractorDtos;
-    private final List<InvoiceProductDto> invoiceProductDtos;
-    private final List<ProductDto> productDtos;
-    private final List<InvoiceDto> invoiceDtos;
+    private List<ContractorDto> contractorDtos;
+    private List<InvoiceProductDto> invoiceProductDtos;
+    private List<ProductDto> productDtos;
+    private List<InvoiceDto> invoiceDtos;
 
-    private final GridFilter<ContractorDto> filter;
+    private final GridFilter<ContractorDto> costumersFilter;
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService,
@@ -88,73 +91,236 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         this.productDtos = getProductDtos();
         this.invoiceDtos = getInvoiceDtos();
 
-        paginator = new GridPaginator<>(grid, contractorDtos, 50);
-        paginatorProduct = new GridPaginator<>(gridProducts, invoiceProductDtos, 50);
-        this.filter = new GridFilter<>(grid);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginatorProduct);
+        paginatorCustomers = new GridPaginator<>(gridCostumers, contractorDtos, 50);
+        paginatorProducts = new GridPaginator<>(gridProducts, invoiceProductDtos, 50);
+
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorCustomers);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorProducts);
+
         add(upperLayout());
-        configureGrid();
-        add(gridProducts, paginatorProduct);
+        configureCostumersGrid(false);
+        configureProductsGrid(false);
+
+        this.costumersFilter = new GridFilter<>(gridCostumers);
+        this.productsFilter = new GridFilter<>(gridProducts);
+
+        configureProductFilter();
+        configureCostumerFilter();
+
+        add(productsFilter, costumersFilter, gridProducts, paginatorProducts, gridCostumers, paginatorCustomers);
     }
 
-    private void configureGrid() {
-
+    private void configureProductsGrid(boolean refreshing) {
+        gridProducts.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         gridProducts.setItems(invoiceProductDtos);
 
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getName())
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue() - 1).getName())
                 .setHeader("Продукт")
                 .setKey("productDto")
                 .setId("Продукт");
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getDescription())
+
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue() - 1).getDescription())
                 .setHeader("Арктикул")
                 .setKey("description")
                 .setId("Арктикул");
+
         gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue() - 1).getAmount())
                 .setHeader("Количество")
                 .setKey("amount")
                 .setId("Количество");
+
         gridProducts.addColumn(iDto -> invoiceProductDtos.get(iDto.getId().intValue() - 1).getPrice())
                 .setHeader("Цена")
                 .setKey("price")
                 .setId("Цена");
-        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue()).getPurchasePrice())
+
+        gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue() - 1).getPurchasePrice())
                 .setHeader("Себестоимость")
                 .setKey("costPrice")
                 .setId("Себестоимость");
+
         gridProducts.addColumn(iDto -> getTotalPriceForProducts(iDto.getId()))
                 .setHeader("Сумма продаж")
-                .setKey("totalPrice")
+                .setKey("totalSalesPrice")
                 .setId("Сумма продаж");
+
         gridProducts.addColumn(iDto -> getTotalCostPriceForProducts(iDto.getId()))
                 .setHeader("Сумма себестоимости")
                 .setKey("totalCostPrice")
                 .setId("Сумма себестоимости");
+
         gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getProductId(), iDto.getInvoiceId()))
                 .setHeader("Сумма возвратов")
-                .setSortable(true);
+                .setKey("totalReturnPrice")
+                .setSortable(true)
+                .setId("Сумма возвратов");
+
         gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId(), iDto.getProductId(), iDto.getInvoiceId()))
                 .setHeader("Прибыль")
-                .setSortable(true);
+                .setKey("profit")
+                .setSortable(true)
+                .setId("Прибыль");
 
         gridProducts.setHeight("100vh");
         gridProducts.setColumnReorderingAllowed(true);
-        gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
+        if (!refreshing) {
+            gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
+        }
     }
+
+    private void configureCostumersGrid(boolean refreshing) {
+        gridCostumers.setItems(contractorDtos);
+
+        gridCostumers.addColumn(iDto -> contractorService.getById(iDto.getId()).getName())
+                .setHeader("Контрагент")
+                .setKey("name")
+                .setId("Контрагент");
+
+        gridCostumers.addColumn(iDto -> getTotalPrice(iDto.getId()))
+                .setHeader("Сумма продаж")
+                .setKey("salesTotal")
+                .setId("Cумма продаж");
+
+        gridCostumers.addColumn(iDto -> getTotalCostPrice(iDto.getId()))
+                .setHeader("Сумма себестоимости")
+                .setKey("costTotal")
+                .setId("Сумма себестоимости");
+
+        gridCostumers.addColumn(iDto -> averagePrice(iDto.getId()))
+                .setHeader("Средний чек")
+                .setKey("average")
+                .setId("Средний чек");
+
+        gridCostumers.addColumn(iDto -> getReturnsTotalPrice(iDto.getId()))
+                .setHeader("Сумма возврата")
+                .setKey("returnTotal")
+                .setId("Сумма возврата");
+
+        gridCostumers.addColumn(iDto -> getProfit(iDto.getId()))
+                .setHeader("Прибыль")
+                .setKey("profit")
+                .setId("Прибыль");
+
+        gridCostumers.setHeight("100vh");
+        gridCostumers.setColumnReorderingAllowed(true);
+        if (!refreshing) {
+            gridCostumers.setSelectionMode(Grid.SelectionMode.MULTI);
+        }
+    }
+
+    private void configureCostumerFilter() {
+        costumersFilter.onClearClick(e -> {
+            refreshData();
+            reloadTabs();
+        });
+        costumersFilter.onSearchClick(e -> {
+            int i = 1;
+            Map<String, String> map = costumersFilter.getFilterData();
+            List<ContractorDto> list = contractorService.searchContractor(map);
+            list = additionalCostumersFiltering(list, map);
+            paginatorCustomers.setData(list);
+            paginatorCustomers.reloadGrid();
+        });
+    }
+
+    private void configureProductFilter() {
+        productsFilter.onClearClick(e -> {
+            refreshData();
+            reloadTabs();
+        });
+        productsFilter.onSearchClick(e -> {
+            int i = 1;
+            Map<String, String> map = productsFilter.getFilterData();
+            this.invoiceProductDtos = invoiceProductService.search(map);
+            for (InvoiceProductDto ip : invoiceProductDtos) {
+                ip.setId((long)i++);
+            }
+            this.invoiceProductDtos = additionalProductsFiltering(invoiceProductDtos, map);
+            i = 1;
+            for (InvoiceProductDto ip : invoiceProductDtos) {
+                ip.setId((long)i++);
+            }
+            reloadTabs();
+        });
+    }
+
+    private List<InvoiceProductDto> additionalProductsFiltering(List<InvoiceProductDto> inputList, Map<String, String> query) {
+        List<InvoiceProductDto> result = inputList;
+        if (query.containsKey("profit")) {
+            result = result.stream()
+                    .filter(e -> getProfitByProducts(e.getId(), e.getProductId(), e.getInvoiceId()).equals(query.get("profit")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("totalReturnPrice")) {
+            result = result.stream()
+                    .filter(e -> getTotalReturnPriceForProducts(e.getProductId(), e.getInvoiceId()).equals(query.get("totalReturnPrice")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("totalCostPrice")) {
+            result = result.stream()
+                    .filter(e -> getTotalCostPriceForProducts(e.getId()).equals(query.get("totalCostPrice")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("totalSalesPrice")) {
+            result = result.stream()
+                    .filter(e -> getTotalPriceForProducts(e.getId()).equals(query.get("totalSalesPrice")))
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    private List<ContractorDto> additionalCostumersFiltering(List<ContractorDto> inputList, Map<String, String> query) {
+        List<ContractorDto> result = inputList;
+        if (query.containsKey("average")) {
+            result = result.stream()
+                    .filter(e -> averagePrice(e.getId()).equals(query.get("average")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("returnTotal")) {
+            result = result.stream()
+                    .filter(e -> getReturnsTotalPrice(e.getId()).equals(query.get("returnTotal")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("salesTotal")) {
+            result = result.stream()
+                    .filter(e -> getTotalPrice(e.getId()).equals(query.get("salesTotal")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("costTotal")) {
+            result = result.stream()
+                    .filter(e -> getTotalCostPrice(e.getId()).equals(query.get("costTotal")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("profit")) {
+            result = result.stream()
+                    .filter(e -> getProfit(e.getId()).equals(query.get("profit")))
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    private void reloadTabs() {
+        if ("По товарам".equals(currentTab)) {
+            fillByContractors();
+        } else if ("По сотрудникам".equals(currentTab)) {
+            fillByEmployees();
+        } else if ("По покупателям".equals(currentTab)) {
+            fillByCustomers();
+        }
+    }
+
+    private String currentTab = "По товарам";
 
     //Загрузчики данных
     private List<ContractorDto> getContractorDtos() {
         return contractorService.getAll();
     }
-
     private List<InvoiceProductDto> getInvoiceProductDtos() {
         return invoiceProductService.getAll();
     }
-
     private List<ProductDto> getProductDtos() {
         return productService.getAll();
     }
-
     private List<InvoiceDto> getInvoiceDtos() {
         return invoiceService.getAll();
     }
@@ -166,6 +332,36 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return upper;
     }
 
+    private void refreshData() {
+        this.invoiceDtos = getInvoiceDtos();
+        this.productDtos = getProductDtos();
+        this.contractorDtos = getContractorDtos();
+        this.invoiceProductDtos = getInvoiceProductDtos();
+    }
+
+    private void fillByContractors() {
+        remove(gridCostumers, paginatorCustomers);
+        add(gridProducts, paginatorProducts);
+        gridProducts.removeAllColumns();
+        configureProductsGrid(false);
+        currentTab = "По товарам";
+    }
+
+    private void fillByEmployees() {
+        //Реализовать прибыльность по сотрудникам
+        remove(gridCostumers, paginatorCustomers);
+        remove(gridProducts, paginatorProducts);
+        currentTab = "По сотрудникам";
+    }
+
+    private void fillByCustomers() {
+        remove(gridProducts, paginatorProducts);
+        add(gridCostumers, paginatorCustomers);
+        gridCostumers.removeAllColumns();
+        configureCostumersGrid(false);
+        currentTab = "По покупателям";
+    }
+
     private Tabs configurationSubMenu() {
         Tab contractors = new Tab("По товарам");
         Tab employees = new Tab("По сотрудникам");
@@ -173,38 +369,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         Tabs tabs = new Tabs(contractors, employees, customer);
 
         tabs.addSelectedChangeListener(event -> {
-            String tabName = event.getSelectedTab().getLabel();
-            if ("По товарам".equals(tabName)) {
-                remove(grid, paginator);
-                add(gridProducts, paginatorProduct);
-                gridProducts.removeAllColumns();
-                configureGrid();
-            } else if ("По сотрудникам".equals(tabName)) {
-
-                //Реализовать прибыльность по сотрудникам
-
-                remove(grid, paginator);
-                remove(gridProducts, paginatorProduct);
-
-            } else if ("По покупателям".equals(tabName)) {
-                remove(gridProducts, paginatorProduct);
-                add(grid, paginator);
-                grid.removeAllColumns();
-                grid.setItems(contractorDtos);
-
-                grid.addColumn(iDto -> contractorService.getById(iDto.getId()).getName()).setHeader("Контрагент").setKey("contractorDto")
-                        .setId("Контрагент");
-                grid.addColumn(iDto -> getTotalPrice(iDto.getId())).setHeader("Сумма продаж").setSortable(true);
-                grid.addColumn(iDto -> getTotalCostPrice(iDto.getId())).setHeader("Сумма себестоимости").setSortable(true);
-                grid.addColumn(iDto -> averagePrice(iDto.getId())).setHeader("Средний чек").setSortable(true);
-
-                grid.addColumn(iDto -> getReturnsTotalPrice(iDto.getId())).setHeader("Сумма возврата").setSortable(true);
-                grid.addColumn(iDto -> getProfit(iDto.getId())).setHeader("Прибыль").setSortable(true);
-
-                grid.setHeight("100vh");
-                grid.setColumnReorderingAllowed(true);
-                grid.setSelectionMode(Grid.SelectionMode.MULTI);
-            }
+            currentTab = event.getSelectedTab().getLabel();
+            productsFilter.setVisible(false);
+            costumersFilter.setVisible(false);
+            refreshData();
+            reloadTabs();
         });
         return tabs;
     }
@@ -347,14 +516,41 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
-//        buttonRefresh.addClickListener(e -> updateList());
+        buttonRefresh.addClickListener(e -> {
+            switch (currentTab) {
+                case "По товарам" : {
+                    refreshData();
+                    fillByContractors();
+                    break;
+                }
+                case "По сотрудникам" : {
+                    // Требует реализации
+                    refreshData();
+                    fillByEmployees();
+                    break;
+                }
+                case "По покупателям" : {
+                    refreshData();
+                    fillByCustomers();
+                    break;
+                }
+                default: break;
+            }
+
+        });
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
 
     private Button buttonFilter() {
         Button filterButton = new Button("Фильтр");
-//        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        filterButton.addClickListener(e -> {
+            if (currentTab.equals("По товарам")) {
+                productsFilter.setVisible(!productsFilter.isVisible());
+            } else if (currentTab.equals("По покупателям")) {
+                costumersFilter.setVisible(!costumersFilter.isVisible());
+            }
+        });
         return filterButton;
     }
 

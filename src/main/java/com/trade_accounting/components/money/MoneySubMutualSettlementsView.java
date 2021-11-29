@@ -8,6 +8,7 @@ import com.trade_accounting.services.interfaces.MoneySubMutualSettlementsService
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -42,31 +43,44 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
 
     public MoneySubMutualSettlementsView(MoneySubMutualSettlementsService moneySubMutualSettlementsService) {
         this.moneySubMutualSettlementsService = moneySubMutualSettlementsService;
-        getGrid();
+        configureGrid();
         this.data = moneySubMutualSettlementsService.getAll();
-        this.filter = new GridFilter<>(grid);
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
         add(getToolbar(), filter);
-        grid.removeAllColumns();
-        grid.setItems(data);
-        grid.addColumn("contractorId").setFlexGrow(7).setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");
-        grid.addColumn("income").setFlexGrow(7).setHeader("Приход").setId("Приход");
-        grid.addColumn("expenses").setFlexGrow(7).setHeader("Расход").setId("Расход");
-        grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
         add(grid, paginator);
     }
 
-    private Grid getGrid() {
+    private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("contractorId").setFlexGrow(10).setHeader("Контрагент").setId("Контрагент");
         grid.addColumn("employeeId").setFlexGrow(7).setHeader("Сотрудник").setId("Сотрудник");
         grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");
         grid.addColumn("income").setFlexGrow(7).setHeader("Приход").setId("Приход");
         grid.addColumn("expenses").setFlexGrow(7).setHeader("Расход").setId("Расход");
         grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
-        return grid;
     }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("contractorId");
+        filter.setFieldToIntegerField("employeeId");
+        filter.setFieldToIntegerField("initialBalance");
+        filter.setFieldToIntegerField("income");
+        filter.setFieldToIntegerField("expenses");
+        filter.setFieldToIntegerField("finalBalance");
+        filter.onSearchClick(e ->
+            paginator.setData(moneySubMutualSettlementsService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(getData()));
+    }
+
+    private  List<MoneySubMutualSettlementsDto> getData(){
+        return moneySubMutualSettlementsService.getAll();
+    }
+
 
 
 

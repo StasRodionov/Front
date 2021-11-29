@@ -11,6 +11,7 @@ import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -69,5 +70,18 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     public void deleteById(Long id) {
         Call<Void> invoiceProductDtoCall = invoiceProductApi.deleteById(invoiceProductUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(invoiceProductDtoCall,InvoiceProductDto.class, id);
+    }
+
+    @Override
+    public List<InvoiceProductDto> search(Map<String, String> query) {
+        List<InvoiceProductDto> invoiceProductDtoList = null;
+        Call<List<InvoiceProductDto>> callDtoList = invoiceProductApi.search(invoiceProductUrl, query);
+        try {
+            invoiceProductDtoList = callDtoList.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка InvoiceProductDto по ФИЛЬТРУ -{}", query);
+        } catch (Exception e) {
+            log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка InvoiceProductDto - ");
+        }
+        return invoiceProductDtoList;
     }
 }

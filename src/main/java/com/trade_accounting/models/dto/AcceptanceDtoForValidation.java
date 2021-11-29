@@ -21,5 +21,7 @@ public class AcceptanceDtoForValidation {
 
     private ContractDto contractDtoValid;
 
+    private CompanyDto companyDtoValid;
+
     private String idValid;
 }

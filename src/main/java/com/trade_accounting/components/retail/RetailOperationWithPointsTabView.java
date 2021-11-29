@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -56,8 +57,8 @@ public class RetailOperationWithPointsTabView extends VerticalLayout implements 
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setWidth("1px").setHeader("№").setId("№");
-        //grid.addColumn("number").setHeader("№").setId("number");
         grid.addColumn("currentTime").setHeader("Время").setId("currentTime");
         grid.addColumn("typeOperation").setHeader("Тип операции").setId("typeOperation");
         grid.addColumn("numberOfPoints").setHeader("Колличество баллов").setId("numberOfPoints");

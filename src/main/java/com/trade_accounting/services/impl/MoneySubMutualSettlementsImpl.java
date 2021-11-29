@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +42,17 @@ public class MoneySubMutualSettlementsImpl implements MoneySubMutualSettlementsS
     }
 
     @Override
-    public List<MoneySubMutualSettlementsDto> filter(Map<String, String> query) {
-        return null;
+    public List<MoneySubMutualSettlementsDto> searchByFilter(Map<String, String> query) {
+        List<MoneySubMutualSettlementsDto> dataList = new ArrayList<>();
+        Call<List<MoneySubMutualSettlementsDto>> callDataList = moneySubMutualSettlementsApi.searchByFilter(moneySubMutualSettlementsUrl, query);
+        try{
+            dataList = callDataList.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка MoneySubMutualSettlementsDto по ФИЛЬТРУ -{}", query);
+        }catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка MoneySubMutualSettlementsDto - ", e);
+        }
+
+        return dataList;
     }
 
 }

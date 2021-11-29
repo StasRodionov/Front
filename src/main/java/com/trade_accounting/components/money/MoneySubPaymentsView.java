@@ -16,6 +16,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -120,7 +121,9 @@ public class MoneySubPaymentsView extends VerticalLayout {
         filter.onClearClick(e -> paginator.setData(getDate()));
     }
 
+    //TODO Rename to configureGrid
     private Grid getGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setItems(data);
         grid.addColumn("typeOfDocument").setWidth("11em").setFlexGrow(0).setHeader("Тип документа").setId("Тип документа");
         grid.addColumn("number").setWidth("6em").setFlexGrow(0).setHeader("№").setId("Номер платежа");

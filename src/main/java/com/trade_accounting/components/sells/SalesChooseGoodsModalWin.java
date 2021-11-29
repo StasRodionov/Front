@@ -30,6 +30,8 @@ public class SalesChooseGoodsModalWin extends Dialog {
     public final ComboBox<ProductDto> productSelect = new ComboBox<>();
     public final ComboBox<ProductPriceDto> priceSelect = new ComboBox<>();
 
+    public Button saveButton = new Button();
+
     public SalesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService
     ) {
         this.productService = productService;
@@ -57,6 +59,9 @@ public class SalesChooseGoodsModalWin extends Dialog {
                     .collect(Collectors.toList())
             );
             priceSelect.setItemLabelGenerator(x -> x.getValue().toString());
+            priceSelect.addValueChangeListener(e -> {
+                updateSaveButtonEnable();
+            });
         }
     }
 
@@ -72,7 +77,10 @@ public class SalesChooseGoodsModalWin extends Dialog {
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, productSelect);
 
-        productSelect.addValueChangeListener(e -> updatePricesList());
+        productSelect.addValueChangeListener(e -> {
+            updatePricesList();
+            updateSaveButtonEnable();
+        });
 
         return horizontalLayout;
     }
@@ -86,9 +94,11 @@ public class SalesChooseGoodsModalWin extends Dialog {
     }
 
     private Button getSaveButton() {
-        return new Button("Добавить", event -> {
+        saveButton = new Button("Добавить", event -> {
             close();
         });
+        saveButton.setEnabled(false);
+        return saveButton;
     }
 
     private Button getCloseButton() {
@@ -97,5 +107,13 @@ public class SalesChooseGoodsModalWin extends Dialog {
             priceSelect.setValue(null);
             close();
         });
+    }
+
+    private void updateSaveButtonEnable() {
+        if (productSelect.getValue() != null && priceSelect.getValue() != null){
+            saveButton.setEnabled(true);
+        } else {
+            saveButton.setEnabled(false);
+        }
     }
 }

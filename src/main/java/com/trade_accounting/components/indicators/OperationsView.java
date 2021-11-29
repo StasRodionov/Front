@@ -65,6 +65,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -234,7 +235,7 @@ public class OperationsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setWidth("5px").setHeader("ID").setId("ID");
         grid.addColumn(this::getType).setHeader("Тип документа").setSortable(true);
         grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
