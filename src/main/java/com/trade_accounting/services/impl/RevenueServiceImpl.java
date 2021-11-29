@@ -21,7 +21,7 @@ public class RevenueServiceImpl implements RevenueService {
 
     private final CallExecuteService<RevenueDto> dtoCallExecuteService;
 
-    public RevenueServiceImpl(Retrofit retrofit, @Value("${returns_url}") String retailReturnUrl, CallExecuteService<RevenueDto> dtoCallExecuteService) {
+    public RevenueServiceImpl(Retrofit retrofit, @Value("${revenue_url}") String retailReturnUrl, CallExecuteService<RevenueDto> dtoCallExecuteService) {
         this.revenueApi = retrofit.create(RevenueApi.class);
         this.revenueUrl = retailReturnUrl;
         this.dtoCallExecuteService = dtoCallExecuteService;
