@@ -3,7 +3,6 @@ package com.trade_accounting.components.sells;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ShipmentDto;
 import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
@@ -33,7 +32,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +39,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @SpringComponent
@@ -89,18 +86,19 @@ public class SalesAddFromDirectModalWin  extends Dialog {
         this.buyersReturnService = buyersReturnService;
         countTextField.setValue("0");
         shipmentDtoList = new ArrayList<>();
-//        data = getData();
-//        paginator = new GridPaginator<>(grid, shipmentDtoList, 7);
+        paginator = new GridPaginator<>(grid, shipmentDtoList, 7);
         gridAdd.setHeight("30vh");
         grid.setHeight("38vh");
         setSizeFull();
         configureGrid();
-        add(configureActions(), countTextFieldConfig(), gridAdd, grid, getBottomBar());
+        add(configureActions(), countTextFieldConfig(), gridAdd, grid, paginator, getBottomBar());
     }
 
     public void setShipment (ShipmentDto shipmentDto) {
         this.dto = shipmentDto;
-        List<ShipmentDto> tmp = shipmentService.getAll().stream().filter(el -> el.getCompanyId().equals(dto.getCompanyId()) && el.getContractorId().equals(dto.getContractorId())).collect(Collectors.toList());
+        List<ShipmentDto> tmp = shipmentService.getAll().stream().
+                filter(el -> el.getCompanyId().equals(dto.getCompanyId()) && el.getContractorId().equals(dto.getContractorId()))
+                .collect(Collectors.toList());
         for (ShipmentDto sdto : tmp) {
             List<Long> qwer = sdto.getShipmentProductsIds();
             qwer.stream().forEach(e-> shipmentDtoList.add(shipmentProductService.getById(e)));
@@ -134,7 +132,6 @@ public class SalesAddFromDirectModalWin  extends Dialog {
     private void configureGrid() {
         grid.removeAllColumns();
         grid.setItems(shipmentDtoList);
-
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Наименование");
         grid.addColumn(inPrDto -> inPrDto.getPrice()).setHeader("Цена").setId("Цена");
         grid.addColumn(inPrDto -> inPrDto.getAmount()).setHeader("Лимит").setId("Лимит");
@@ -162,7 +159,7 @@ public class SalesAddFromDirectModalWin  extends Dialog {
                         tmp.setPrice(column.getPrice());
                         shipmentProductDtoList.add(tmp);
                         addAmount.remove(amo);
-//                        column.setAmount(column.getAmount().subtract(new BigDecimal(amo.getValue())));
+//                        column.setAmount(column.getAmount().subtract(new BigDecimal(amo.getValue()))); //сожалею, но это не работает, а жаль. Было бы правильно уменьшать лимит после выбора
                     }
                 }
                 BigDecimal totalPrice = BigDecimal.valueOf(0.0);
@@ -174,7 +171,6 @@ public class SalesAddFromDirectModalWin  extends Dialog {
                 configureGridAdd();
             });
             return edit;
-
         });
     }
 
@@ -210,7 +206,7 @@ public class SalesAddFromDirectModalWin  extends Dialog {
         Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Продекты  - В этом окне Вы можете добавить необходимые продукты из прайс-листа"));
+        dialog.add(new Text("Продукты  - В этом окне Вы можете добавить необходимые продукты из прайс-листа"));
         dialog.setWidth("450px");
         dialog.setHeight("250px");
         buttonQuestion.addClickListener(event -> dialog.open());
@@ -229,9 +225,7 @@ public class SalesAddFromDirectModalWin  extends Dialog {
     }
 
     private Button saveButton() {
-
         return new Button("Сохранить", e -> {
-
             ReturnBuyersReturnModalView wind = new ReturnBuyersReturnModalView(buyersReturnService,
                     contractorService,
                     warehouseService,
@@ -249,6 +243,8 @@ public class SalesAddFromDirectModalWin  extends Dialog {
             brdto.setIsPrint(dto.getIsPrint());
             brdto.setIsSent(dto.getIsSend());
             brdto.setDate(dto.getDate());
+            brdto.setId(dto.getId());
+            brdto.setComment(dto.getComment());
             wind.setAcceptanceForEdit(brdto);
             close();
             wind.open();

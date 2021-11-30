@@ -151,7 +151,6 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     div.add(new SalesSubBuyersReturnsView(buyersReturnService,
                             contractorService,
                             companyService,
-                            returnBuyersReturnModalView,
                             warehouseService,
                             notifications,
                             productService,

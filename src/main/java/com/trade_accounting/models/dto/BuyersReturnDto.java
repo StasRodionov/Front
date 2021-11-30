@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BuyersReturnDto extends ReturnToSupplierDtoForValidation {
-
+    private Boolean isNew;
 
     private Long id;
 

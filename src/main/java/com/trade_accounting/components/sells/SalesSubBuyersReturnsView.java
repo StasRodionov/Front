@@ -67,7 +67,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final Notifications notifications;
-    private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
+//    private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final List<BuyersReturnDto> data;
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
     private final GridPaginator<BuyersReturnDto> paginator;
@@ -85,7 +85,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     @Autowired
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
                                      ContractorService contractorService,
-                                     CompanyService companyService, ReturnBuyersReturnModalView returnBuyersReturnModalView,
+                                     CompanyService companyService,
                                      WarehouseService warehouseService,
                                      Notifications notifications,
                                      ProductService productService,
@@ -95,7 +95,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.companyService = companyService;
-        this.returnBuyersReturnModalView = returnBuyersReturnModalView;
+//        this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.shipmentProductService = shipmentProductService;
         this.productService = productService;
 //        this.contractService = contractService;
@@ -202,7 +202,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     }
 
     private Grid<BuyersReturnDto> configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+//        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         grid.setItems(data);
         grid.addColumn("id").setHeader("№").setId("№");
@@ -228,9 +228,9 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
                     shipmentService,
                     shipmentProductService,
                     contractService);
+            buyersReturnDto.setIsNew(false);
             view.setReturnEdit(buyersReturnDto);
             view.open();
-
         });
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
@@ -245,7 +245,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         toolbar.add(getButtonQuestion(), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), selectXlsTemplateButton, textField(),
                 numberField(), getSelect(), getStatus(), buttonSettings());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-
         return toolbar;
     }
 
@@ -257,7 +256,23 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
 
     public Button buttonUnit() {
         Button buttonUnit = new Button("Возврат покупателя", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(event -> returnBuyersReturnModalView.open());
+        BuyersReturnDto buyersReturnDto = new BuyersReturnDto();
+        buttonUnit.addClickListener(event -> {
+            buyersReturnDto.setIsNew(true);
+            ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(
+                    buyersReturnService,
+                    contractorService,
+                    warehouseService,
+                    companyService,
+                    notifications,
+                    productService,
+                    shipmentService,
+                    shipmentProductService,
+                    contractService);
+            view.setReturnEdit(buyersReturnDto);
+            view.open();
+        });
+        configureGrid();
         return buttonUnit;
     }
 
