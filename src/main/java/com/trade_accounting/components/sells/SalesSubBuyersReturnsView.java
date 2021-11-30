@@ -32,6 +32,8 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
@@ -60,26 +62,23 @@ import java.util.stream.Collectors;
 @PageTitle("Возвраты покупателей")
 @SpringComponent
 @UIScope
-public class SalesSubBuyersReturnsView extends VerticalLayout {
+public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNavigationObserver {
     private final TextField textField = new TextField();
     private final BuyersReturnService buyersReturnService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final Notifications notifications;
-//    private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
-    private final List<BuyersReturnDto> data;
+    private List<BuyersReturnDto> data;
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
     ContractService contractService;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
-
     private final ProductService productService;
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
-
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
 
     @Autowired
@@ -95,16 +94,12 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.companyService = companyService;
-//        this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         this.shipmentProductService = shipmentProductService;
         this.productService = productService;
-//        this.contractService = contractService;
         this.shipmentService = shipmentService;
         this.data = buyersReturnService.getAll();
         this.notifications = notifications;
-
         print = selectXlsTemplateButton.addItem("Печать");
-
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
                 .setKey("date").setId("Дата");
@@ -272,7 +267,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
             view.setReturnEdit(buyersReturnDto);
             view.open();
         });
-        configureGrid();
         return buttonUnit;
     }
 
@@ -368,5 +362,14 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
 
     private List<BuyersReturnDto> getData() {
         return buyersReturnService.getAll();
+    }
+
+    private void updateList() {
+        grid.setItems(buyersReturnService.getAll());
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }

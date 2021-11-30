@@ -131,21 +131,18 @@ public class ReturnBuyersReturnModalView extends Dialog {
         } else {
             buyersReturnService.update(buyersReturnDto);
         }
+        UI.getCurrent().navigate("buyersReturns");
+        close();
     }
 
     private Button save() {
-        Button button = new Button("Сохранить");
-        button.addClickListener(e -> {
-            if (!buyersReturnDtoBinder.validate().isOk()) {
-                buyersReturnDtoBinder.validate().notifyBindingValidationStatusHandlers();
-            } else {
+        return new Button("Сохранить", e -> {
+            if (buyersNumber.getValue() != null && warehouseDtoComboBox.getValue() != null && dateTimePicker.getValue() != null &&
+                    contractorDtoComboBox.getValue() != null && companyDtoComboBox.getValue() != null) {
                 updateSupplier();
                 notifications.infoNotification(String.format("Возврат покупателя № %s сохранен", buyersReturnDto.getId()));
             }
-            UI.getCurrent().navigate("buyersReturns");
-            close();
         });
-        return button;
     }
 
     public void setReturnEdit(BuyersReturnDto editDto) {
