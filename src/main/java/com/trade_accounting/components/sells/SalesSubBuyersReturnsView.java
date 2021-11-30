@@ -75,6 +75,11 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     ContractService contractService;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
+
+    private final ProductService productService;
+    private final ShipmentService shipmentService;
+    private final ShipmentProductService shipmentProductService;
+
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
 
     @Autowired
@@ -82,14 +87,22 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
                                      ContractorService contractorService,
                                      CompanyService companyService, ReturnBuyersReturnModalView returnBuyersReturnModalView,
                                      WarehouseService warehouseService,
-                                     Notifications notifications) {
+                                     Notifications notifications,
+                                     ProductService productService,
+                                     ShipmentService shipmentService,
+                                     ShipmentProductService shipmentProductService) {
         this.buyersReturnService = buyersReturnService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
+        this.shipmentProductService = shipmentProductService;
+        this.productService = productService;
+//        this.contractService = contractService;
+        this.shipmentService = shipmentService;
         this.data = buyersReturnService.getAll();
         this.notifications = notifications;
+
         print = selectXlsTemplateButton.addItem("Печать");
 
         grid.addColumn("id").setHeader("№").setId("№");
@@ -204,14 +217,17 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
         grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("Комментарий");
-        grid.addItemClickListener(event -> {
+        grid.addItemDoubleClickListener(event -> {
             BuyersReturnDto buyersReturnDto = event.getItem();
-            ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(
-                    buyersReturnService,
+            ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(buyersReturnService,
                     contractorService,
                     warehouseService,
                     companyService,
-                    notifications);
+                    notifications,
+                    productService,
+                    shipmentService,
+                    shipmentProductService,
+                    contractService);
             view.setReturnEdit(buyersReturnDto);
             view.open();
 

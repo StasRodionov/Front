@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class BuyersReturnDto extends ReturnToSupplierDtoForValidation {
 
+
     private Long id;
 
     private String date;

@@ -4,7 +4,11 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.*;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.ShipmentProductService;
+import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -54,19 +58,64 @@ public class ReturnBuyersReturnModalView extends Dialog {
     private final Notifications notifications;
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
 
+    private final ProductService productService;
+    private final ShipmentService shipmentService;
+    private final ShipmentProductService shipmentProductService;
+    private final ContractService contractService;
+
+
+
     public ReturnBuyersReturnModalView(BuyersReturnService buyersReturnService,
                                        ContractorService contractorService,
                                        WarehouseService warehouseService,
-                                          CompanyService companyService,
-                                       Notifications notifications) {
+                                       CompanyService companyService,
+                                       Notifications notifications,
+                                       ProductService productService,
+                                       ShipmentService shipmentService,
+                                       ShipmentProductService shipmentProductService,
+                                       ContractService contractService) {
         this.buyersReturnService = buyersReturnService;
         this.contractorService = contractorService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.notifications = notifications;
+        this.productService = productService;
+        this.shipmentProductService = shipmentProductService;
+        this.contractService = contractService;
+        this.shipmentService = shipmentService;
         setSizeFull();
 
         add(topButtons(), formToAddCommissionAgent());
+    }
+
+    public void setAcceptanceForEdit(BuyersReturnDto brdto){
+        if(brdto.getSum() != null) {
+            summConfig.setValue(brdto.getSum().toString());
+        }
+        if(brdto.getContractorId() != null){
+            contractorDtoComboBox.setValue(contractorService.getById(brdto.getContractorId()));
+        }
+        if(brdto.getCompanyId() != null){
+            companyDtoComboBox.setValue(companyService.getById(brdto.getCompanyId()));
+        }
+        if(brdto.getWarehouseId() != null){
+            warehouseDtoComboBox.setValue(warehouseService.getById(brdto.getWarehouseId()));
+        }
+        if(brdto.getWarehouseId() != null){
+            warehouseDtoComboBox.setValue(warehouseService.getById(brdto.getWarehouseId()));
+        }
+        if(brdto.getDate() != null){
+            dateTimePicker.setValue(LocalDateTime.parse(brdto.getDate()));
+        }
+        if(brdto.getId() != null){
+            buyersNumber.setValue(brdto.getId().toString());
+        }
+        if(brdto.getIsPrint() != null){
+            checkboxIsPrint.setValue(brdto.getIsPrint());
+        }
+        if(brdto.getIsSent() != null){
+            checkboxIsSent.setValue(brdto.getIsSent());
+        }
     }
 
     private void updateSupplier() {
@@ -91,7 +140,7 @@ public class ReturnBuyersReturnModalView extends Dialog {
                 buyersReturnDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
                 updateSupplier();
-                notifications.infoNotification(String.format("Возврат покупателя № %s сохранен", buyersReturnDto.getId()));
+//                notifications.infoNotification(String.format("Возврат покупателя № %s сохранен", buyersReturnDto.getId()));
             }
         });
         return button;
@@ -103,7 +152,7 @@ public class ReturnBuyersReturnModalView extends Dialog {
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
         commentConfig.setValue(editDto.getComment());
-        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
         companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         summConfig.setValue(String.valueOf(editDto.getSum()));
     }
@@ -126,6 +175,28 @@ public class ReturnBuyersReturnModalView extends Dialog {
 
     private Button addProductButton() {
         return new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS_CIRCLE), e -> {
+            if (!companyDtoComboBox.isEmpty() && !contractorDtoComboBox.isEmpty()) {
+                SalesAddFromDirectModalWin modalWin = new SalesAddFromDirectModalWin(productService,
+                        shipmentService,
+                        shipmentProductService,
+                        contractService,
+                        warehouseService,
+                        contractorService,
+                        notifications,
+                        companyService,
+                        buyersReturnService);
+                ShipmentDto shipmentDto = new ShipmentDto();
+                shipmentDto.setCompanyId(companyDtoComboBox.getValue().getId());
+                shipmentDto.setContractorId(contractorDtoComboBox.getValue().getId());
+                shipmentDto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+                shipmentDto.setIsSend(checkboxIsSent.getValue());
+                shipmentDto.setIsPrint(checkboxIsPrint.getValue());
+                shipmentDto.setDate(dateTimePicker.getValue().toString());
+                shipmentDto.setId(Long.parseLong(buyersNumber.getValue()));
+                modalWin.setShipment(shipmentDto);
+                modalWin.open();
+                close();
+            }
         });
     }
 
