@@ -204,7 +204,7 @@ public class TechnicalProcessModalView extends Dialog {
                 dto.setStagesProductionIds(stagesProductionIds);
                 dto.setIsArchived(isArchived.getValue());
                 dto.setIsShared(isSharedCheckBox.getValue());
-                dto.setDateOfChanged(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                dto.setDateOfChanged(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()));
                 dto.setEmployeeWhoLastChangedId(employeeService.getPrincipal().getId());
                 if (id != null) {
                     technicalProcessService.update(dto);
