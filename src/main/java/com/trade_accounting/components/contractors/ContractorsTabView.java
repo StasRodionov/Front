@@ -139,6 +139,8 @@ public class ContractorsTabView extends VerticalLayout {
         grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.getColumns().forEach(column -> column.setAutoWidth(true));
+
         grid.addItemDoubleClickListener(event -> {
             ContractorDto contractorDto = event.getItem();
             ContractorModalWindow contractorModalWindow = new ContractorModalWindow(
