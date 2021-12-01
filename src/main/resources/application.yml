@@ -161,4 +161,5 @@ return_amount_by_product_url: api/return-amount-by-product
 
 stage_production_url: api/stagesproduction
 
+technical_process_url: api/technical/process
 #debug: true
