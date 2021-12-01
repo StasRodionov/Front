@@ -1,7 +1,6 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.purchases.AddFromDirectModalWin;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -44,11 +43,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,10 +107,6 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
     }
-    private static String formatDate(String date) {
-        return LocalDateTime.parse(date)
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
-    }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
@@ -142,7 +133,6 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                     warehouseService,
                     contractorService,
                     notifications,
-//                    addFromDirectModalWin,
                     productService,
                     acceptanceProductionService);
             modalView.setAcceptanceForEdit(acceptanceDto);
