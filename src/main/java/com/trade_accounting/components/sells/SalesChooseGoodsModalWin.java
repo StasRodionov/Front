@@ -1,22 +1,25 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.ProductPriceDto;
-import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-
+import org.springframework.asm.TypeReference;
+import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
+import com.trade_accounting.services.interfaces.ProductPriceService;
+import com.vaadin.flow.component.combobox.ComboBox;
 
 @SpringComponent
 @UIScope
+@Component
 public class SalesChooseGoodsModalWin extends Dialog {
 
     private static final String LABEL_WIDTH = "100px";
@@ -25,6 +28,8 @@ public class SalesChooseGoodsModalWin extends Dialog {
     private final ProductService productService;
     private final ProductPriceService productPriceService;
 
+    public TextField amoSelect = new TextField();
+
     private List<ProductDto> productDtos;
 
     public final ComboBox<ProductDto> productSelect = new ComboBox<>();
@@ -32,12 +37,11 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     public Button saveButton = new Button();
 
-    public SalesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService
-    ) {
+    public SalesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService) {
         this.productService = productService;
         this.productPriceService = productPriceService;
 
-        add(header(), configureProductSelect(), configurePriceSelect());
+        add(header(), configureProductSelect(), configureAmoSelect(), configurePriceSelect());
     }
 
     private HorizontalLayout header() {
@@ -93,6 +97,14 @@ public class SalesChooseGoodsModalWin extends Dialog {
         return horizontalLayout;
     }
 
+    private HorizontalLayout configureAmoSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Укажите количество");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, amoSelect);
+        return horizontalLayout;
+    }
+
     private Button getSaveButton() {
         saveButton = new Button("Добавить", event -> {
             close();
@@ -105,12 +117,13 @@ public class SalesChooseGoodsModalWin extends Dialog {
         return new Button("Закрыть", event -> {
             productSelect.setValue(null);
             priceSelect.setValue(null);
+            amoSelect.setValue("");
             close();
         });
     }
 
     private void updateSaveButtonEnable() {
-        if (productSelect.getValue() != null && priceSelect.getValue() != null){
+        if (productSelect.getValue() != null && priceSelect.getValue() != null && amoSelect.getValue() !=null){
             saveButton.setEnabled(true);
         } else {
             saveButton.setEnabled(false);
