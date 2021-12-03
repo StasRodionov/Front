@@ -4,8 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.*;
 import com.trade_accounting.services.interfaces.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -51,10 +50,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -69,7 +65,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final Notifications notifications;
-    private List<BuyersReturnDto> data;
+    //    private List<BuyersReturnDto> data;
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
@@ -97,27 +93,34 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         this.shipmentProductService = shipmentProductService;
         this.productService = productService;
         this.shipmentService = shipmentService;
-        this.data = buyersReturnService.getAll();
         this.notifications = notifications;
         print = selectXlsTemplateButton.addItem("Печать");
-        grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
-                .setKey("date").setId("Дата");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
-        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setFlexGrow(7).setHeader("Контрагент")
-                .setKey("contractorId").setId("Контрагент");
-        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7).setHeader("Компания")
-                .setKey("companyId").setId("Компания");
-        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
-        grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
-        this.filter = new GridFilter<>(grid);
-        this.paginator = new GridPaginator<>(grid, data, 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), filter);
+
+        List<BuyersReturnDto> data = getData();
+        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
+        this.filter = new GridFilter<>(this.grid);
+        configureFilter();
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(getToolbar(), filter, grid, paginator);
         configureSelectXlsTemplateButton();
     }
+
+    private void configureFilter() {
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("isSent", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("isPrint", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("company", CompanyDto::getName,companyService.getAll());
+        filter.setFieldToComboBox("contractor", ContractorDto::getName,contractorService.getAll());
+        filter.setFieldToComboBox("warehouse", WarehouseDto::getName,warehouseService.getAll());
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData2();
+            paginator.setData(buyersReturnService.searchByFilter(map));
+        });
+        filter.onClearClick(e -> paginator.setData(getData()));
+    }
+
+
 
     private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
@@ -141,8 +144,8 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         List<String> sumList = new ArrayList<>();
         List<BuyersReturnDto> list1 = buyersReturnService.getAll();
         PrintSalesSubBuyersReturnsXls printSalesSubBuyersReturnsXls = new PrintSalesSubBuyersReturnsXls(file.getPath(), buyersReturnService.getAll(),
-                contractorService, companyService, sumList );
-        return new Anchor(new StreamResource(templateName,printSalesSubBuyersReturnsXls::createReport), templateName);
+                contractorService, companyService, sumList);
+        return new Anchor(new StreamResource(templateName, printSalesSubBuyersReturnsXls::createReport), templateName);
     }
 
     private void uploadXlsMenuItem(SubMenu subMenu) {
@@ -196,18 +199,16 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         notification.open();
     }
 
-    private Grid<BuyersReturnDto> configureGrid() {
-//        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
-        grid.setItems(data);
+    private void configureGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
-                .setKey("date").setId("Дата");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
-        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setFlexGrow(7).setHeader("Контрагент")
-                .setKey("contractorId").setId("Контрагент");
+        grid.addColumn(BuyersReturnDto::getDate).setFlexGrow(7).setHeader("Время").setKey("date").setId("Дата");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId())
+                .getName()).setKey("warehouse").setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId())
+                .getName()).setFlexGrow(7).setHeader("Контрагент").setKey("contractor").setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7).setHeader("Компания")
-                .setKey("companyId").setId("Компания");
+                .setKey("company").setId("Компания");
         grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
@@ -223,16 +224,9 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
                     shipmentService,
                     shipmentProductService,
                     contractService);
-            buyersReturnDto.setIsNew(false);
             view.setReturnEdit(buyersReturnDto);
             view.open();
         });
-        grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        add(grid, paginator);
-        return grid;
     }
 
     private HorizontalLayout getToolbar() {
@@ -292,7 +286,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return buttonQuestion;
     }
-
 
 
     private static String formatDate(String date) {
