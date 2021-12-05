@@ -312,7 +312,7 @@ public class MovementViewModalWindow extends Dialog {
                 .bind(movementDto -> new HashSet<>(movementDto.getMovementProductsIds()),
                         (movementDto, movementDto1) -> movementDto.setMovementProductsIds(movementDto
                                 .getMovementProductsIds()));
-        UI.getCurrent().navigate("movementView");
+        UI.getCurrent().navigate("goods");
         return horizontalLayout;
     }
 

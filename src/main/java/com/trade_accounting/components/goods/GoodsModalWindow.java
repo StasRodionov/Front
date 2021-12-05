@@ -21,6 +21,7 @@ import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -444,6 +445,7 @@ public class GoodsModalWindow extends Dialog {
 
                 Notification.show(String.format("Товар %s изменен", productDto.getName()));
                 close();
+                UI.getCurrent().navigate("goods");
             } else {
                 com.trade_accounting.components.sells.InformationView informationView =
                         new InformationView("Одно или несколько полей не заполнены");
