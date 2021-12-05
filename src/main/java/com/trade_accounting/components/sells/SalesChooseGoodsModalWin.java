@@ -1,5 +1,6 @@
 package com.trade_accounting.components.sells;
 
+import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.services.interfaces.ProductPriceService;
@@ -9,9 +10,14 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,15 +35,14 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     public final ComboBox<ProductDto> productSelect = new ComboBox<>();
     public final ComboBox<ProductPriceDto> priceSelect = new ComboBox<>();
+    public final BigDecimalField amountField = new BigDecimalField();
 
     public Button saveButton = new Button();
 
-    public SalesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService
-    ) {
+    public SalesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService) {
         this.productService = productService;
         this.productPriceService = productPriceService;
-
-        add(header(), configureProductSelect(), configurePriceSelect());
+        add(header(), configureProductSelect(), configurePriceSelect(), configureAmountField());
     }
 
     private HorizontalLayout header() {
@@ -52,6 +57,7 @@ public class SalesChooseGoodsModalWin extends Dialog {
     }
 
     public void updatePricesList() {
+        priceSelect.clear();
         if (productSelect.getValue() != null){
             priceSelect.setItems(productPriceService.getAll()
                     .stream()
@@ -93,10 +99,24 @@ public class SalesChooseGoodsModalWin extends Dialog {
         return horizontalLayout;
     }
 
-    private Button getSaveButton() {
-        saveButton = new Button("Добавить", event -> {
-            close();
+    private HorizontalLayout configureAmountField() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        amountField.setValue(BigDecimal.ONE);
+        amountField.setErrorMessage("Требуется положительное число");
+        Label label = new Label("Укажите количество");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, amountField);
+
+        amountField.addValueChangeListener(e -> {
+            amountField.setInvalid(amountField.getValue().compareTo(BigDecimal.ZERO) <= 0);
+            updateSaveButtonEnable();
         });
+
+        return horizontalLayout;
+    }
+
+    private Button getSaveButton() {
+        saveButton = new Button("Добавить", event -> close());
         saveButton.setEnabled(false);
         return saveButton;
     }
@@ -109,11 +129,20 @@ public class SalesChooseGoodsModalWin extends Dialog {
         });
     }
 
+    public InvoiceProductDto getInvoiceProductDto() {
+        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
+        invoiceProductDto.setProductId(productSelect.getValue().getId());
+        invoiceProductDto.setAmount(amountField.getValue());
+        invoiceProductDto.setPrice(priceSelect.getValue().getValue());
+        return invoiceProductDto;
+    }
+
     private void updateSaveButtonEnable() {
-        if (productSelect.getValue() != null && priceSelect.getValue() != null){
-            saveButton.setEnabled(true);
-        } else {
-            saveButton.setEnabled(false);
-        }
+        saveButton.setEnabled(isFormValid());
+    }
+
+    public boolean isFormValid() {
+        return productSelect.getValue() != null && priceSelect.getValue() != null
+                && amountField.getValue().compareTo(BigDecimal.ZERO) > 0;
     }
 }

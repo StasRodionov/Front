@@ -154,9 +154,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         configureCloseViewDialog();
 
         salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
-            if (salesChooseGoodsModalWin.productSelect.getValue() != null
-                    && salesChooseGoodsModalWin.priceSelect.getValue() != null) {
-                addProduct(salesChooseGoodsModalWin.productSelect.getValue(), salesChooseGoodsModalWin.priceSelect.getValue());
+            if (salesChooseGoodsModalWin.isFormValid()) {
+                addProduct(salesChooseGoodsModalWin.getInvoiceProductDto());
             }
         });
 
@@ -490,20 +489,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto) {
-        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-        invoiceProductDto.setProductId(productDto.getId());
-        invoiceProductDto.setAmount(BigDecimal.ONE);
-        invoiceProductDto.setPrice(
-                productPriceDto.getValue()
-                /*getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds().stream()
-                                .map(productPriceService::getById)
-                                .collect(Collectors.toList()),
-                        typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
-                        //contractorSelect.getValue().getTypeOfPriceDto().getId()
-                )*/
-        );
-        if (!isProductInList(productDto)) {
+    public void addProduct(InvoiceProductDto invoiceProductDto) {
+        if (!isProductInList(invoiceProductDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
             setTotalPrice();
@@ -580,14 +567,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    private boolean isProductInList(ProductDto productDto) {
-        boolean isExists = false;
-        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            if (invoiceProductDto.getProductId().equals(productDto.getId())) {
-                isExists = true;
-            }
-        }
-        return isExists;
+    private boolean isProductInList(InvoiceProductDto invoiceProductDto) {
+        return tempInvoiceProductDtoList.stream()
+                .anyMatch(invoiceProductDtoElem -> invoiceProductDtoElem.getProductId().equals(invoiceProductDto.getProductId()));
     }
 
     public BigDecimal getTotalPrice() {
