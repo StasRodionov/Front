@@ -28,6 +28,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -45,6 +46,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -161,6 +166,7 @@ public class MovementViewModalWindow extends Dialog {
 
         configureDeleteButton(editDto.getId());
         configurePrintButtonContextMenu(editDto);
+        configureSendButton(editDto);
 
         getData();
 
@@ -181,6 +187,47 @@ public class MovementViewModalWindow extends Dialog {
         subMenuTorg13.addItem("Скачать в формате Open Office Calc");
 
         contextMenu.addItem("...");
+    }
+
+    private void configureSendButton(MovementDto movementDto) {
+
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.setTarget(buttonSend);
+        contextMenu.setOpenOnClick(true);
+
+        Div container = new Div();
+        container.setWidth("160px");
+        container.setId("containerTorg13");
+        container.add(new Span("TОРГ-13"));
+
+        if (Boolean.TRUE.equals(movementDto.getIsSent())) {
+            container.add(new Span(" отправлено"));
+        }
+
+        contextMenu.addItem(container, event -> {
+            if (Boolean.FALSE.equals(movementDto.getIsSent())) {
+                movementService.update(movementDto);
+                //TODO Add request to update torg13.xls template data
+                HttpClient httpClient = HttpClient.newHttpClient();
+                HttpRequest httpRequest = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:4445/api/movements/files/send/torg13/pdf"))
+                        .build();
+                httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+                        .thenApply(HttpResponse::statusCode)
+                        .thenAccept(integer -> {
+                            System.out.println("200 ОК : Документ успешно отправлен на почту");
+                            movementDto.setIsSent(true);
+
+                        }).join();
+                if (Boolean.TRUE.equals(movementDto.getIsSent())) {
+                    container.add(new Span(" отправлено"));
+                    movementService.update(movementDto);
+                    checkboxIsSent.setValue(true);
+                    //TODO Add new modal window with message info to.. subject.. text.. etc
+                }
+            }
+        });
+        contextMenu.addItem("Комплект . . .");
     }
 
     private HorizontalLayout headerLayout() {
