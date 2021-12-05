@@ -13,14 +13,18 @@ import com.trade_accounting.services.interfaces.MovementService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
@@ -46,6 +50,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
 
 @Slf4j
 @Route(value = "goods/add_moving", layout = AppView.class)
@@ -92,10 +97,11 @@ public class MovementViewModalWindow extends Dialog {
             new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
 
-
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,
-                                   Notifications notifications, UnitService unitService, MovementProductService movementProductService) {
+                                   Notifications notifications,
+                                   UnitService unitService,
+                                   MovementProductService movementProductService) {
         this.productService = productService;
         this.movementService = movementService;
         this.warehouseService = warehouseService;
@@ -152,10 +158,29 @@ public class MovementViewModalWindow extends Dialog {
         warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
         movementProductsIdComboBox.setValue(new HashSet<>(movementDto.getMovementProductsIds()));
 
+
         configureDeleteButton(editDto.getId());
+        configurePrintButtonContextMenu(editDto);
 
         getData();
 
+    }
+
+    private void configurePrintButtonContextMenu(MovementDto movementDto) {
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.setTarget(buttonPrint);
+        contextMenu.setOpenOnClick(true);
+
+        SubMenu subMenuTorg13 = contextMenu.addItem(new Div(new Text("ТОРГ-13"))).getSubMenu();
+        subMenuTorg13.addItem("Открыть в браузере");
+        subMenuTorg13.addItem("Скачать в формате Excel", event -> {
+            UI.getCurrent().getPage()
+                    .open("http://localhost:4445/api/movements/files/torg13/xls", "print");
+        });
+        subMenuTorg13.addItem("Скачать в формате PDF");
+        subMenuTorg13.addItem("Скачать в формате Open Office Calc");
+
+        contextMenu.addItem("...");
     }
 
     private HorizontalLayout headerLayout() {
@@ -260,8 +285,7 @@ public class MovementViewModalWindow extends Dialog {
                     warehouseService,
                     movementService,
                     unitService,
-                    notifications
-            );
+                    notifications);
             modalView.open();
         });
         return button;
