@@ -6,6 +6,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
@@ -14,6 +15,8 @@ import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
+import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -62,6 +65,8 @@ public class SupplierAccountModalView extends Dialog {
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
     private final ContractService contractService;
+    private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
     private SupplierAccountDto saveSupplier = new SupplierAccountDto();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
@@ -78,11 +83,12 @@ public class SupplierAccountModalView extends Dialog {
     private final Binder<SupplierAccountDto> supplierAccountDtoBinder = new Binder<>(SupplierAccountDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Dialog dialogOnCloseView = new Dialog();
-    private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
+    private Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<InvoiceProductDto> paginator;
     private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
     private final H4 totalPrice = new H4();
+    private final ComboBox<InvoiceDto> invoiceSelectField = new ComboBox<>();
 
     public SupplierAccountModalView(SupplierAccountService supplierAccountService,
                                     CompanyService companyService,
@@ -91,7 +97,9 @@ public class SupplierAccountModalView extends Dialog {
                                     ContractService contractService,
                                     Notifications notifications,
                                     PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin,
-                                    ProductService productService) {
+                                    ProductService productService,
+                                    InvoiceService invoiceService,
+                                    InvoiceProductService invoiceProductService) {
         this.supplierAccountService = supplierAccountService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
@@ -100,7 +108,10 @@ public class SupplierAccountModalView extends Dialog {
         this.notifications = notifications;
         this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
         this.productService = productService;
+        this.invoiceService = invoiceService;
+        this.invoiceProductService = invoiceProductService;
         configureGrid();
+        configureInvoiceSelectField();
         paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
         configureCloseViewDialog();
         setSizeFull();
@@ -118,6 +129,46 @@ public class SupplierAccountModalView extends Dialog {
                 purchasesChooseGoodsModalWin.amoSelect.setValue("");
             }
         });
+    }
+
+    //кнопка "заполнить по заказу"
+    private Button buttonFillInOrder() {
+        Button button = new Button("Заполнить по...");
+        button.addClickListener(buttonClickEvent -> {
+            supplierNumber.setValue(invoiceSelectField.getValue().getId().toString());
+            dateTimePicker.setValue(LocalDateTime.parse(invoiceSelectField.getValue().getDate()));
+            commentConfig.setValue(invoiceSelectField.getValue().getComment());
+            companyDtoComboBox.setValue(companyService.getById(invoiceSelectField.getValue().getCompanyId()));
+            contractorDtoComboBox.setValue(contractorService.getById(invoiceSelectField.getValue().getContractorId()));
+            warehouseDtoComboBox.setValue(warehouseService.getById(invoiceSelectField.getValue().getWarehouseId()));
+            isSpend.setValue(invoiceSelectField.getValue().getIsSpend());
+            tempInvoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceSelectField.getValue().getId());
+            paginator.setData(tempInvoiceProductDtoList);
+            setTotalPrice();
+        });
+        return button;
+    }
+
+    //Выпадающий список с заказами
+    private void configureInvoiceSelectField() {
+        List<InvoiceDto> invoices = invoiceService.getAll("EXPENSE");
+        if (invoices != null) {
+            invoiceSelectField.setItems(invoices);
+        }
+        invoiceSelectField.setWidth("500px");
+        invoiceSelectField.setPlaceholder("Заказ");
+        invoiceSelectField.setItemLabelGenerator(e -> "Id: " + e.getId() +
+                ", Контрагент: " + contractorService.getById(e.getContractorId()).getName() +
+                ", Компания: " + companyService.getById(e.getCompanyId()).getName()  +
+                ", на сумму: " + getTotalPriceForSelectFild(e));
+    }
+
+    public BigDecimal getTotalPriceForSelectFild(InvoiceDto invoiceDto) {
+        BigDecimal totalPriceForSelectFild = BigDecimal.valueOf(0);
+        for (InvoiceProductDto iDto : invoiceProductService.getByInvoiceId(invoiceDto.getId())) {
+            totalPriceForSelectFild = totalPriceForSelectFild.add(iDto.getPrice().multiply(iDto.getAmount()));
+        }
+        return totalPriceForSelectFild;
     }
 
     public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, String amo) {
@@ -139,18 +190,19 @@ public class SupplierAccountModalView extends Dialog {
         grid.addColumn(inPrDto -> tempInvoiceProductDtoList.indexOf(inPrDto) + 1).setHeader("№");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название").setSortable(true);
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание");
-        grid.addColumn(inPrDto -> inPrDto.getAmount()).setHeader("Количество").setSortable(true);
-        grid.addColumn(inPrDto -> inPrDto.getPrice()).setHeader("Цена").setSortable(true);
+        grid.addColumn(InvoiceProductDto::getAmount).setHeader("Количество").setSortable(true);
+        grid.addColumn(InvoiceProductDto::getPrice).setHeader("Цена").setSortable(true);
         grid.setHeight("36vh");
         grid.setColumnReorderingAllowed(true);
     }
-
 
     public void clearField() {
         companyDtoComboBox.setValue(null);
         warehouseDtoComboBox.setValue(null);
         contractDtoComboBox.setValue(null);
         contractorDtoComboBox.setValue(null);
+        invoiceSelectField.setValue(null);
+        configureInvoiceSelectField();
         dateTimePicker.setValue(null);
         dt.setValue(null);
         dt1.setValue(null);
@@ -177,7 +229,7 @@ public class SupplierAccountModalView extends Dialog {
 
     private HorizontalLayout upperButtonInModalView() {
         HorizontalLayout upperButton = new HorizontalLayout();
-        upperButton.add(title(), saveButton(), closeButton(), addProductButton());
+        upperButton.add(title(), saveButton(), closeButton(), addProductButton(), invoiceSelectField, buttonFillInOrder());
         upperButton.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upperButton;
     }
@@ -193,7 +245,7 @@ public class SupplierAccountModalView extends Dialog {
             if (!supplierAccountDtoBinder.validate().isOk()) {
                 supplierAccountDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
-                SupplierAccountDto supplierAccountDto = updateSupplier("EXPENSE");
+                SupplierAccountDto supplierAccountDto = updateSupplier();
                 clearField();
                 close();
                 UI.getCurrent().navigate("purchases");
@@ -202,14 +254,14 @@ public class SupplierAccountModalView extends Dialog {
         });
     }
 
-    private SupplierAccountDto updateSupplier(String typeOfInvoice) {
+    private SupplierAccountDto updateSupplier() {
         SupplierAccountDto supplierAccountDto = new SupplierAccountDto();
         supplierAccountDto.setId(Long.parseLong(supplierNumber.getValue()));
         supplierAccountDto.setDate(dateTimePicker.getValue().toString());
         supplierAccountDto.setCompanyId(companyDtoComboBox.getValue().getId());
         supplierAccountDto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
         supplierAccountDto.setContractId(contractDtoComboBox.getValue().getId());
-        supplierAccountDto.setTypeOfInvoice(typeOfInvoice);
+        supplierAccountDto.setTypeOfInvoice("EXPENSE");
         supplierAccountDto.setContractorId(contractorDtoComboBox.getValue().getId());
         supplierAccountDto.setIsSpend(isSpend.getValue());
         supplierAccountDto.setComment(commentConfig.getValue());
@@ -395,8 +447,6 @@ public class SupplierAccountModalView extends Dialog {
         dialogOnCloseView.add(new Text("Вы уверены? Несохраненные данные будут потеряны!!!"));
         dialogOnCloseView.setCloseOnEsc(false);
         dialogOnCloseView.setCloseOnOutsideClick(false);
-        Span message = new Span();
-
         Button confirmButton = new Button("Продолжить", event -> {
             closeView();
             dialogOnCloseView.close();
@@ -408,7 +458,6 @@ public class SupplierAccountModalView extends Dialog {
         Shortcuts.addShortcutListener(dialogOnCloseView, () -> {
             dialogOnCloseView.close();
         }, Key.ESCAPE);
-
         dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
