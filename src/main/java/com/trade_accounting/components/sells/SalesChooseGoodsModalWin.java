@@ -17,10 +17,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.ProductPriceDto;
-import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.vaadin.flow.component.combobox.ComboBox;
+import org.springframework.stereotype.Component;
 
 @SpringComponent
 @UIScope
@@ -33,7 +31,6 @@ public class SalesChooseGoodsModalWin extends Dialog {
     private final ProductService productService;
     private final ProductPriceService productPriceService;
 
-    public TextField amoSelect = new TextField();
 
     private List<ProductDto> productDtos;
 
@@ -129,12 +126,7 @@ public class SalesChooseGoodsModalWin extends Dialog {
     }
 
     private Button getCloseButton() {
-        return new Button("Закрыть", event -> {
-            productSelect.setValue(null);
-            priceSelect.setValue(null);
-            amoSelect.setValue("");
-            close();
-        });
+        return new Button("Закрыть", event -> close());
     }
 
     public InvoiceProductDto getInvoiceProductDto() {
