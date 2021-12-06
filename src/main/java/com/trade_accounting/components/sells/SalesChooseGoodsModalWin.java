@@ -11,13 +11,11 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +55,6 @@ public class SalesChooseGoodsModalWin extends Dialog {
     }
 
     public void updatePricesList() {
-        priceSelect.clear();
         if (productSelect.getValue() != null){
             priceSelect.setItems(productPriceService.getAll()
                     .stream()
@@ -108,11 +105,15 @@ public class SalesChooseGoodsModalWin extends Dialog {
         horizontalLayout.add(label, amountField);
 
         amountField.addValueChangeListener(e -> {
-            amountField.setInvalid(amountField.getValue().compareTo(BigDecimal.ZERO) <= 0);
+            amountField.setInvalid(!isAmountFieldValid());
             updateSaveButtonEnable();
         });
 
         return horizontalLayout;
+    }
+
+    private boolean isAmountFieldValid() {
+        return amountField.getValue() != null && amountField.getValue().compareTo(BigDecimal.ZERO) > 0;
     }
 
     private Button getSaveButton() {
@@ -132,8 +133,8 @@ public class SalesChooseGoodsModalWin extends Dialog {
     public InvoiceProductDto getInvoiceProductDto() {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductId(productSelect.getValue().getId());
-        invoiceProductDto.setAmount(amountField.getValue());
         invoiceProductDto.setPrice(priceSelect.getValue().getValue());
+        invoiceProductDto.setAmount(amountField.getValue());
         return invoiceProductDto;
     }
 
@@ -142,7 +143,13 @@ public class SalesChooseGoodsModalWin extends Dialog {
     }
 
     public boolean isFormValid() {
-        return productSelect.getValue() != null && priceSelect.getValue() != null
-                && amountField.getValue().compareTo(BigDecimal.ZERO) > 0;
+        return productSelect.getValue() != null && priceSelect.getValue() != null && isAmountFieldValid();
+    }
+
+    public void clearForm() {
+        productSelect.setItems(new ArrayList<>());
+        priceSelect.setItems(new ArrayList<>());
+        amountField.setValue(BigDecimal.ONE);
+        amountField.setInvalid(false);
     }
 }

@@ -9,7 +9,6 @@ import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.InvoicesStatusDto;
-import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -157,6 +156,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             if (salesChooseGoodsModalWin.isFormValid()) {
                 addProduct(salesChooseGoodsModalWin.getInvoiceProductDto());
             }
+            salesChooseGoodsModalWin.clearForm();
         });
 
         binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
