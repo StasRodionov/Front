@@ -1,9 +1,11 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.PrintInvoicesXls;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
@@ -16,9 +18,12 @@ import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -31,17 +36,24 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @SpringComponent
@@ -54,17 +66,16 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
     private final GridFilter<TechnicalOperationsDto> filter;
-
     private final List<TechnicalOperationsDto> data;
-
     private final GridPaginator<TechnicalOperationsDto> paginator;
     private final Grid<TechnicalOperationsDto> grid = new Grid<>(TechnicalOperationsDto.class, false);
-
     private final TechnicalCardService technicalCardService;
     private final TechnicalOperationsService technicalOperationsService;
     private final Notifications notifications;
     private final WarehouseService warehouseService;
     private final TechnologicalOperationsModalView view;
+    private final MenuItem print;
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/technologicalOperations_templates/";
 
     TechnologicalOperationsViewTab(TechnicalCardService technicalCardService, TechnicalOperationsService technicalOperationsService,
                                    Notifications notifications, WarehouseService warehouseService, TechnologicalOperationsModalView view) {
@@ -74,6 +85,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         this.view = view;
         this.technicalCardService = technicalCardService;
         this.data = getData();
+        this.print = selectXlsTemplateButton.addItem("Печать");
         paginator = new GridPaginator<>(grid, this.technicalOperationsService.getAll(), 100);
         setSizeFull();
         configureGrid();
@@ -81,7 +93,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getTollBar(), filter, grid, paginator);
-
+        valuePrint();
     }
 
     private void configureGrid() {
@@ -138,8 +150,8 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private HorizontalLayout getTollBar() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(),buttonPlusTechnologicalOperations(),
-                buttonFilter(), text(), numberField(), valueSelect(), valueStatus(),
-                valuePrint(), buttonSettings(), selectXlsTemplateButton);
+                buttonFilter(), text(), numberField(), valueSelect(), valueStatus(), selectXlsTemplateButton, buttonSettings());
+
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
     }
@@ -272,12 +284,35 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         return status;
     }
 
-    private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+    private void valuePrint() {
+        SubMenu printSubMenu = print.getSubMenu();
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
+        uploadXlsMenuItem(printSubMenu);
+
+    }
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        PrintTechnologicalOperationsXls printTechnologicalOperationsXls
+                = new PrintTechnologicalOperationsXls(file.getPath(), technicalOperationsService.getAll(), warehouseService, technicalCardService);
+
+        return new Anchor(new StreamResource(templateName, printTechnologicalOperationsXls::createReport), templateName);
+    }
+
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+    }
+
+    private void uploadXlsMenuItem(SubMenu subMenu) {
+        MenuItem menuItem = subMenu.addItem("добавить шаблон");
+
     }
 
     private H2 getTextOrder() {
