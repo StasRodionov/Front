@@ -5,16 +5,21 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
+import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
@@ -41,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,10 +64,15 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final ProductService productService;
     private final BuyersReturnService buyersReturnService;
     private final ReturnAmountByProductService returnAmountByProductService;
+    private final EmployeeService employeeService;
+    private final PositionService positionService;
+    private final RetailStoreService retailStoreService;
 
     private Grid<ContractorDto> gridCostumers = new Grid<>(ContractorDto.class, false);
-    private final GridFilter<InvoiceProductDto> productsFilter;
     private Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
+    private Grid<EmployeeDto> gridEmployees = new Grid<>(EmployeeDto.class, false);
+
+    private GridPaginator<EmployeeDto> paginatorEmployees;
     private GridPaginator<ContractorDto> paginatorCustomers;
     private GridPaginator<InvoiceProductDto> paginatorProducts;
 
@@ -69,7 +80,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private List<InvoiceProductDto> invoiceProductDtos;
     private List<ProductDto> productDtos;
     private List<InvoiceDto> invoiceDtos;
+    private List<EmployeeDto> employeeDtos;
+    private List<RetailStoreDto> retailStoreDtos;
 
+    private final GridFilter<EmployeeDto> employeeFilter;
+    private final GridFilter<InvoiceProductDto> productsFilter;
     private final GridFilter<ContractorDto> costumersFilter;
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
@@ -77,7 +92,10 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                                      InvoiceProductService invoiceProductService,
                                      ProductService productService,
                                      BuyersReturnService buyersReturnService,
-                                     ReturnAmountByProductService returnAmountByProductService) {
+                                     ReturnAmountByProductService returnAmountByProductService,
+                                     EmployeeService employeeService,
+                                     PositionService positionService,
+                                     RetailStoreService retailStoreService) {
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.invoiceService = invoiceService;
@@ -85,29 +103,108 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         this.productService = productService;
         this.buyersReturnService = buyersReturnService;
         this.returnAmountByProductService = returnAmountByProductService;
+        this.employeeService = employeeService;
+        this.positionService = positionService;
+        this.retailStoreService = retailStoreService;
 
         this.contractorDtos = getContractorDtos();
         this.invoiceProductDtos = getInvoiceProductDtos();
         this.productDtos = getProductDtos();
         this.invoiceDtos = getInvoiceDtos();
+        this.employeeDtos = getEmployeeDtos();
+        this.retailStoreDtos = getRetailSoresDtos();
 
         paginatorCustomers = new GridPaginator<>(gridCostumers, contractorDtos, 50);
         paginatorProducts = new GridPaginator<>(gridProducts, invoiceProductDtos, 50);
+        paginatorEmployees = new GridPaginator<>(gridEmployees, employeeDtos, 50);
 
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorCustomers);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorProducts);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorEmployees);
 
         add(upperLayout());
+
         configureCostumersGrid(false);
+        configureEmployeeGrid(false);
         configureProductsGrid(false);
 
         this.costumersFilter = new GridFilter<>(gridCostumers);
         this.productsFilter = new GridFilter<>(gridProducts);
+        this.employeeFilter = new GridFilter<>(gridEmployees);
 
         configureProductFilter();
+        configureEmployeeFilter();
         configureCostumerFilter();
 
-        add(productsFilter, costumersFilter, gridProducts, paginatorProducts, gridCostumers, paginatorCustomers);
+        add(productsFilter, costumersFilter, employeeFilter,
+                gridProducts, paginatorProducts,
+                gridCostumers, paginatorCustomers,
+                gridEmployees, paginatorEmployees);
+
+        getCashiersIdsRevenues();
+    }
+
+    private void configureEmployeeGrid(boolean refreshing) {
+        gridEmployees.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        gridEmployees.setItems(employeeDtos);
+
+        gridEmployees.addColumn(iDto -> employeeDtos.get(iDto.getId().intValue() - 1))
+                .setHeader("Работник")
+                .setKey("employeeDto")
+                .setId("Работник");
+
+        gridEmployees.addColumn(iDto ->
+                        positionService.getById(employeeDtos.get(iDto.getId().intValue() - 1).getPositionDtoId()).getName())
+                .setHeader("Должность")
+                .setKey("position")
+                .setId("Должность");
+
+        gridEmployees.addColumn(iDto -> averagePrice(iDto.getId()))
+                .setHeader("Средний чек")
+                .setKey("average")
+                .setId("Средний чек");
+
+        gridEmployees.addColumn(iDto -> cashiersIdsTotalRevenues.get(iDto.getId()))
+                .setHeader("Прибыль")
+                .setKey("profit")
+                .setId("Прибыль");
+
+        gridEmployees.setHeight("100vh");
+        gridEmployees.setColumnReorderingAllowed(true);
+        if (!refreshing) {
+            gridEmployees.setSelectionMode(Grid.SelectionMode.MULTI);
+        }
+    }
+
+    private List<BigDecimal> revs = new ArrayList<>();
+    private List<List<Long>> ids = new ArrayList<>();
+    private Map<Long, BigDecimal> cashiersIdsTotalRevenues;
+
+    private void getCashiersIdsRevenues() {
+        for (RetailStoreDto rs : retailStoreDtos) {
+            revs.add(rs.getRevenue());
+            ids.add(rs.getCashiersIds());
+        }
+        Map<Long, BigDecimal> result = new HashMap<>();
+        for (int i = 1 ; i <= revs.size() ; i++) {
+            if (ids.get(i-1).size() > 1) {
+                List<Long> list = new ArrayList<>(ids.get(i-1));
+                for (int a = 0; a < list.size(); a++) {
+                    if (result.containsKey(list.get(a))) {
+                        result.put(list.get(a), revs.get(i-1).divide(new BigDecimal(list.size())).add(result.get(list.get(a))));
+                    } else {
+                        result.put(list.get(a), revs.get(i-1).divide(new BigDecimal(list.size())));
+                    }
+                }
+            } else {
+                if (result.containsKey(ids.get(i-1).get(0))) {
+                    result.put(ids.get(i-1).get(0), revs.get(i-1).add(result.get(ids.get(i-1).get(0))));
+                } else {
+                    result.put(ids.get(i-1).get(0), revs.get(i-1));
+                }
+            }
+        }
+        cashiersIdsTotalRevenues = result;
     }
 
     private void configureProductsGrid(boolean refreshing) {
@@ -208,13 +305,26 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         }
     }
 
+    private void configureEmployeeFilter() {
+        employeeFilter.onClearClick(e -> {
+            refreshData();
+            reloadTabs();
+        });
+        employeeFilter.onSearchClick(e -> {
+            Map<String, String> map = employeeFilter.getFilterData();
+            List<EmployeeDto> list = employeeService.search(map);
+            list = additionalEmployeesFiltering(list, map);
+            paginatorEmployees.setData(list);
+            paginatorEmployees.reloadGrid();
+        });
+    }
+
     private void configureCostumerFilter() {
         costumersFilter.onClearClick(e -> {
             refreshData();
             reloadTabs();
         });
         costumersFilter.onSearchClick(e -> {
-            int i = 1;
             Map<String, String> map = costumersFilter.getFilterData();
             List<ContractorDto> list = contractorService.searchContractor(map);
             list = additionalCostumersFiltering(list, map);
@@ -233,15 +343,41 @@ public class SalesSubProfitabilityView extends VerticalLayout {
             Map<String, String> map = productsFilter.getFilterData();
             this.invoiceProductDtos = invoiceProductService.search(map);
             for (InvoiceProductDto ip : invoiceProductDtos) {
-                ip.setId((long)i++);
+                ip.setId((long) i++);
             }
             this.invoiceProductDtos = additionalProductsFiltering(invoiceProductDtos, map);
             i = 1;
             for (InvoiceProductDto ip : invoiceProductDtos) {
-                ip.setId((long)i++);
+                ip.setId((long) i++);
             }
             reloadTabs();
         });
+    }
+
+    private List<EmployeeDto> additionalEmployeesFiltering(List<EmployeeDto> inputList, Map<String, String> query) {
+        List<EmployeeDto> result = inputList;
+        if (query.containsKey("employeeDto")) {
+            result = result.stream()
+                    .filter(e -> e.toString().equals(query.get("employeeDto")))
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("profit")) {
+            result = result.stream()
+                    .filter(e -> {
+                        if (cashiersIdsTotalRevenues.get(e.getId())!=null) {
+                            if (cashiersIdsTotalRevenues.get(e.getId()).equals(new BigDecimal(query.get("profit")))) {
+                                return true;
+                            } else return false;
+                        } else return false;
+                    })
+                    .collect(Collectors.toList());
+        }
+        if (query.containsKey("average")) {
+            result = result.stream()
+                    .filter(e -> averagePrice(e.getId()).equals(query.get("average")))
+                    .collect(Collectors.toList());
+        }
+        return result;
     }
 
     private List<InvoiceProductDto> additionalProductsFiltering(List<InvoiceProductDto> inputList, Map<String, String> query) {
@@ -315,14 +451,25 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private List<ContractorDto> getContractorDtos() {
         return contractorService.getAll();
     }
+
     private List<InvoiceProductDto> getInvoiceProductDtos() {
         return invoiceProductService.getAll();
     }
+
     private List<ProductDto> getProductDtos() {
         return productService.getAll();
     }
+
     private List<InvoiceDto> getInvoiceDtos() {
         return invoiceService.getAll();
+    }
+
+    private List<EmployeeDto> getEmployeeDtos() {
+        return employeeService.getAll();
+    }
+
+    private List<RetailStoreDto> getRetailSoresDtos() {
+        return retailStoreService.getAll();
     }
 
     private HorizontalLayout upperLayout() {
@@ -337,10 +484,12 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         this.productDtos = getProductDtos();
         this.contractorDtos = getContractorDtos();
         this.invoiceProductDtos = getInvoiceProductDtos();
+        this.employeeDtos = getEmployeeDtos();
+        this.retailStoreDtos = getRetailSoresDtos();
     }
 
     private void fillByContractors() {
-        remove(gridCostumers, paginatorCustomers);
+        remove(gridCostumers, paginatorCustomers, gridEmployees, paginatorEmployees);
         add(gridProducts, paginatorProducts);
         gridProducts.removeAllColumns();
         configureProductsGrid(false);
@@ -348,14 +497,15 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private void fillByEmployees() {
-        //Реализовать прибыльность по сотрудникам
-        remove(gridCostumers, paginatorCustomers);
-        remove(gridProducts, paginatorProducts);
+        remove(gridCostumers, paginatorCustomers, gridProducts, paginatorProducts);
+        add(gridEmployees, paginatorEmployees);
+        gridEmployees.removeAllColumns();
+        configureEmployeeGrid(false);
         currentTab = "По сотрудникам";
     }
 
     private void fillByCustomers() {
-        remove(gridProducts, paginatorProducts);
+        remove(gridProducts, paginatorProducts, gridEmployees, paginatorEmployees);
         add(gridCostumers, paginatorCustomers);
         gridCostumers.removeAllColumns();
         configureCostumersGrid(false);
@@ -372,6 +522,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
             currentTab = event.getSelectedTab().getLabel();
             productsFilter.setVisible(false);
             costumersFilter.setVisible(false);
+            employeeFilter.setVisible(false);
             refreshData();
             reloadTabs();
         });
@@ -518,25 +669,24 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addClickListener(e -> {
             switch (currentTab) {
-                case "По товарам" : {
+                case "По товарам": {
                     refreshData();
                     fillByContractors();
                     break;
                 }
-                case "По сотрудникам" : {
-                    // Требует реализации
+                case "По сотрудникам": {
                     refreshData();
                     fillByEmployees();
                     break;
                 }
-                case "По покупателям" : {
+                case "По покупателям": {
                     refreshData();
                     fillByCustomers();
                     break;
                 }
-                default: break;
+                default:
+                    break;
             }
-
         });
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
@@ -549,6 +699,8 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 productsFilter.setVisible(!productsFilter.isVisible());
             } else if (currentTab.equals("По покупателям")) {
                 costumersFilter.setVisible(!costumersFilter.isVisible());
+            } else if (currentTab.equals("По сотрудникам")) {
+                employeeFilter.setVisible(!employeeFilter.isVisible());
             }
         });
         return filterButton;
