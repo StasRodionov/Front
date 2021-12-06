@@ -116,7 +116,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
                     .filter(dto -> !map.containsKey("totalAmount") || getTotalAmount(dto).compareTo(new BigDecimal(map.get("totalAmount"))) == 0)
                     .collect(Collectors.toList()));
         });
-        filter.onClearClick(e -> paginator.setData(internalOrderService.getAll()));
+        filter.onClearClick(e -> paginator.setData(getData()));
     }
 
     private List<InternalOrderDto> getData() {
