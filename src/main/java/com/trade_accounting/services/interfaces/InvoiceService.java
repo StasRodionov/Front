@@ -24,4 +24,8 @@ public interface InvoiceService {
     void deleteById(Long id);
 
     List<InvoiceDto> getByContractorId(Long id);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
 }

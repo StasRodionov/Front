@@ -69,4 +69,21 @@ public class CallExecuteService<T> {
         }
     }
 
+    public void callExecuteBodyMoveToIsRecyclebin (Call<Void> call, Class<T> tClass, Long id) {
+        try {
+            call.execute();
+            log.info(String.format("Успешно выполнен запрос на перемещение в корзину экземпляра %s c id = %d", tClass.getSimpleName(), id));
+        } catch (IOException e) {
+            log.error(String.format("Произошла ошибка при выполнении запроса на перемещение экземпляра в корзину %s c id = %d", tClass.getSimpleName(), id));
+        }
+    }
+
+    public void callExecuteBodyRestoreFromIsRecyclebin (Call<Void> call, Class<T> tClass, Long id) {
+        try {
+            call.execute();
+            log.info(String.format("Успешно выполнен запрос на восстановление из корзины экземпляра %s c id = %d", tClass.getSimpleName(), id));
+        } catch (IOException e) {
+            log.error(String.format("Произошла ошибка при выполнении запроса на восстановление экземпляра из корзины %s c id = %d", tClass.getSimpleName(), id));
+        }
+    }
 }

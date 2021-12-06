@@ -44,4 +44,13 @@ public interface InternalOrderApi {
     @GET("{url}/searchByFilter")
     Call<List<InternalOrderDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
                                                 @QueryMap Map<String, String> query);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/moveToIsRecyclebin/{id}")
+    Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/restoreFromIsRecyclebin/{id}")
+    Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
 }

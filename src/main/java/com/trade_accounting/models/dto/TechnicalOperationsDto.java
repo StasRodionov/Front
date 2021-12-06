@@ -30,4 +30,6 @@ public class TechnicalOperationsDto extends TechnicalOperationsDtoForValidation{
     private Long warehouse;
 
     private Long companyId;
+
+    private Boolean isRecyclebin;
 }

@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.services.interfaces.InternalOrderService;
 import com.trade_accounting.services.interfaces.api.InternalOrderApi;
@@ -103,4 +104,18 @@ public class InternalOrderServiceImpl implements InternalOrderService {
         }
         return internalOrderDtoList;
     }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = internalOrderApi.moveToIsRecyclebin(internalOrderUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, InternalOrderDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = internalOrderApi.restoreFromIsRecyclebin(internalOrderUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, InternalOrderDto.class, id);
+
+    }
+
 }

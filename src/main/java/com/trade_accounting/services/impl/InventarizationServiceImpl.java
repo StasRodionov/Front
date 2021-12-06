@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.InventarizationDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.InventarizationService;
@@ -56,5 +57,18 @@ public class InventarizationServiceImpl implements InventarizationService {
     public void deleteById(Long id) {
         Call<Void> inventarizationDtoCall = inventarizationApi.deleteById(inventarizationUrl, id);
         callExecuteService.callExecuteBodyDelete(inventarizationDtoCall, InventarizationDto.class, id);
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = inventarizationApi.moveToIsRecyclebin(inventarizationUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, InventarizationDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = inventarizationApi.restoreFromIsRecyclebin(inventarizationUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, InventarizationDto.class, id);
+
     }
 }

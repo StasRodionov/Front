@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.CorrectionDto;
+import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.services.interfaces.CorrectionService;
 import com.trade_accounting.services.interfaces.api.CorrectionApi;
 import lombok.extern.slf4j.Slf4j;
@@ -53,5 +54,18 @@ public class CorrectionServiceImpl implements CorrectionService {
     public void deleteById(Long id) {
         Call<Void> correctionDtoCall = correctionApi.deleteById(correctionUrl, id);
        callExecuteService.callExecuteBodyDelete(correctionDtoCall, CorrectionDto.class, id);
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = correctionApi.moveToIsRecyclebin(correctionUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, CorrectionDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = correctionApi.restoreFromIsRecyclebin(correctionUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, CorrectionDto.class, id);
+
     }
 }

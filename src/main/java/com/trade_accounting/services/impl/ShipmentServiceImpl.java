@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.ShipmentDto;
 import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.ShipmentService;
@@ -52,4 +53,18 @@ public class ShipmentServiceImpl implements ShipmentService {
     public void deleteById(Long id) {
 
     }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = shipmentApi.moveToIsRecyclebin(shipmentUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, ShipmentDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = shipmentApi.restoreFromIsRecyclebin(shipmentUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, ShipmentDto.class, id);
+
+    }
+
 }

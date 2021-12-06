@@ -69,4 +69,17 @@ public class MovementServiceImpl implements MovementService {
         Call<Void> movementDtoCall = movementApi.deleteById(movementUrl, id);
         callExecuteService.callExecuteBodyDelete(movementDtoCall, MovementDto.class, id);
     }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> movementDtoCall = movementApi.moveToIsRecyclebin(movementUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(movementDtoCall, MovementDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> movementDtoCall = movementApi.restoreFromIsRecyclebin(movementUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(movementDtoCall, MovementDto.class, id);
+
+    }
 }

@@ -20,4 +20,8 @@ public interface PaymentService {
     List<PaymentDto> filter(Map<String, String> query);
 
     List<PaymentDto> search(String search);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
 }

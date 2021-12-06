@@ -15,4 +15,8 @@ public interface CorrectionService {
     void update(CorrectionDto correctionDto);
 
     void deleteById(Long id);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
 }
