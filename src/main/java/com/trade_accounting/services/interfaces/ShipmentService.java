@@ -15,4 +15,8 @@ public interface ShipmentService {
     void update(ShipmentDto shipmentDto);
 
     void deleteById(Long id);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
 }

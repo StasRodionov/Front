@@ -32,6 +32,8 @@ public class InvoiceDto {
 
     private Long invoicesStatusId;
 
+    private Boolean isRecyclebin;
+
     @Override
     public String toString() {
         return  "Заказ № = " + id +

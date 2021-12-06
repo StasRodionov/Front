@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.LossDto;
 import com.trade_accounting.services.interfaces.LossService;
 import com.trade_accounting.services.interfaces.api.LossApi;
@@ -71,4 +72,18 @@ public class LossServiceImpl implements LossService {
         Call<Void> lossDtoCall = lossApi.deleteById(lossUrl, id);
         callExecuteService.callExecuteBodyDelete(lossDtoCall, LossDto.class, id);
     }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = lossApi.moveToIsRecyclebin(lossUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, LossDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = lossApi.restoreFromIsRecyclebin(lossUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, LossDto.class, id);
+
+    }
+
 }

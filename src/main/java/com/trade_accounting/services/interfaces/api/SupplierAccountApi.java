@@ -58,8 +58,13 @@ public interface SupplierAccountApi {
                                   @Query("search") String search,
                                   @Query("typeOfInvoice") String typeOfInvoice);
 
+    @Headers("Accept: application/json")
+    @PUT("{url}/moveToIsRecyclebin/{id}")
+    Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
-
+    @Headers("Accept: application/json")
+    @PUT("{url}/restoreFromIsRecyclebin/{id}")
+    Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
 
 

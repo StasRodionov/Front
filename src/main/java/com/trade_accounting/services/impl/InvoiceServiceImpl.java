@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.api.InvoiceApi;
@@ -130,5 +131,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void deleteById(Long id) {
         Call<Void> invoiceDtoCall = invoiceApi.deleteById(invoiceUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(invoiceDtoCall, InvoiceDto.class, id);
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = invoiceApi.moveToIsRecyclebin(invoiceUrl, id);
+        dtoCallExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, InvoiceDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = invoiceApi.restoreFromIsRecyclebin(invoiceUrl, id);
+        dtoCallExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, InvoiceDto.class, id);
+
     }
 }

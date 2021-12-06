@@ -26,4 +26,9 @@ public interface SupplierAccountService {
     List<SupplierAccountDto> searchByFilter(Map<String,String> querySupplier);
 
     List<SupplierAccountDto> findBySearchAndTypeOfInvoice(String search, String typeOfInvoice);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
+
 }

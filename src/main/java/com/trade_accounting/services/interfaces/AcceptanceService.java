@@ -21,4 +21,9 @@ public interface AcceptanceService {
     List<AcceptanceDto> searchByFilter(Map<String, String> queryAcceptance);
 
     List<AcceptanceDto> searchByString(String nameFilter);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
+
 }

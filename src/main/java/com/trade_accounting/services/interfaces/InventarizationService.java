@@ -15,4 +15,8 @@ public interface InventarizationService {
     void update(InventarizationDto dto);
 
     void deleteById(Long id);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
 }

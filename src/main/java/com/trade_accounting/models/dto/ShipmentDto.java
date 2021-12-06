@@ -35,4 +35,6 @@ public class ShipmentDto  extends ReturnToSupplierDtoForValidation  {
     private Boolean isPrint;
 
     private String comment;
+
+    private Boolean isRecyclebin;
 }

@@ -47,4 +47,12 @@ public interface TechnicalOperationsApi {
     Call<List<TechnicalOperationsDto>> searchContractor(@Path(value = "url", encoded = true) String url,
                                                         @QueryMap Map<String, String> queryTechnicalOperations);
 
+    @Headers("Accept: application/json")
+    @PUT("{url}/moveToIsRecyclebin/{id}")
+    Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/restoreFromIsRecyclebin/{id}")
+    Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
 }
