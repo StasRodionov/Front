@@ -105,12 +105,12 @@ public class AddFromDirectModalWin extends Dialog {
             del.addClassName("delete");
             del.addClickListener(e -> {
                 acceptanceProduction.remove(column);
-                    BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-                    System.err.println(data);
-                    for (AcceptanceProductionDto acceptanceProductionDto : acceptanceProduction) {
-                        totalPrice = totalPrice.add(acceptanceProductionDto.getPrice()
-                                .multiply(acceptanceProductionDto.getAmount()));
-                    }
+                BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+                System.err.println(data);
+                for (AcceptanceProductionDto acceptanceProductionDto : acceptanceProduction) {
+                    totalPrice = totalPrice.add(acceptanceProductionDto.getPrice()
+                            .multiply(acceptanceProductionDto.getAmount()));
+                }
                 countTextField.setValue(totalPrice.toString());
                 configureGridAdd();
             });

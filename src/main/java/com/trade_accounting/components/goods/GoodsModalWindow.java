@@ -1,5 +1,6 @@
 package com.trade_accounting.components.goods;
 
+import com.trade_accounting.components.sells.InformationView;
 import com.trade_accounting.models.dto.AttributeOfCalculationObjectDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ImageDto;
@@ -54,7 +55,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @SpringComponent
 @UIScope
@@ -203,13 +206,13 @@ public class GoodsModalWindow extends Dialog {
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
 
-        minimumBalance.setPlaceholder("Введите Артикул");
+        minimumBalance.setPlaceholder("Введите минимальный баланс");
         productDtoBinder.forField(minimumBalance)
-                .withValidator(Objects::nonNull, "Введите артикул")
+                .withValidator(Objects::nonNull, "Введите минимальный баланс")
                 .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), (productDto1, itemNumber1) -> productDto1.setItemNumber(itemNumber1.intValue()));
+                .bind(productDto -> new BigDecimal(productDto.getMinimumBalance()), (productDto1, minimumBalance1) -> productDto1.setMinimumBalance(minimumBalance1.intValue()));
         minimumBalance.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Артикул", minimumBalance));
+        add(getHorizontalLayout("Минимальный баланс", minimumBalance));
 
         attributeOfCalculationObjectComboBox.setPlaceholder("Выберите предмет расчета");
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
@@ -232,8 +235,7 @@ public class GoodsModalWindow extends Dialog {
 
     public void open(ProductDto editProductDto) {
         init();
-        this.productDto = editProductDto;
-        productDto = productService.getById(productDto.getId());
+        productDto = productService.getById(editProductDto.getId());
         nameTextField.setValue(productDto.getName());
         descriptionField.setValue(productDto.getDescription());
         weightNumberField.setValue(productDto.getWeight());
@@ -264,7 +266,7 @@ public class GoodsModalWindow extends Dialog {
             image.setHeight("100px");
             imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
         }
-//        initTypeOfPriceFrom(productDto.getProductPriceIds());
+        initTypeOfPriceFrom(productDto.getProductPriceIds());
         footer.add(getRemoveButton(productDto), getFooterHorizontalLayout(getUpdateButton(productDto)));
 
         super.open();
@@ -423,12 +425,32 @@ public class GoodsModalWindow extends Dialog {
 
     private Button getUpdateButton(ProductDto productDto) {
         return new Button("Изменить", event -> {
-            updateProductDto(productDto);
-            productService.update(productDto);
-            imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
+            if (checkAllFields()){
 
-            Notification.show(String.format("Товар %s изменен", productDto.getName()));
-            close();
+                updateProductDto(productDto);
+                List<ProductPriceDto> list = new ArrayList<>();
+                for (Long l : productDto.getProductPriceIds()){
+                    list.add(productPriceService.getById(l));
+                }
+                productService.update(productDto);
+
+                for (ProductPriceDto dto : list){
+                    TypeOfPriceDto typeOfPriceDto = typeOfPriceService.getById(dto.getTypeOfPriceId());
+                    productPriceService.update(dto);
+                    typeOfPriceService.update(typeOfPriceDto);
+                }
+
+                imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
+
+                Notification.show(String.format("Товар %s изменен", productDto.getName()));
+                close();
+            } else {
+                com.trade_accounting.components.sells.InformationView informationView =
+                        new InformationView("Одно или несколько полей не заполнены");
+                informationView.open();
+                return;
+            }
+
         });
     }
 
@@ -452,27 +474,53 @@ public class GoodsModalWindow extends Dialog {
         if (productDto.getProductPriceIds() == null) {
             productDto.setProductPriceIds(new ArrayList<>());
         }
-
+        productDto.getProductPriceIds().clear();
         bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
-            AtomicBoolean b = new AtomicBoolean(true);
-            productDto.getProductPriceIds().forEach(productPriceId -> {
-                if (productPriceId.equals(typeOfPriceDto.getId())) {
 
-                    productPriceService
-                            .getById(productPriceId)
-                            .setValue(bigDecimalField.getValue());
+            List<ProductPriceDto> list = productPriceService.getAll().stream()
+                    .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
+                    .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
+                    .collect(Collectors.toList());
 
-                    b.set(false);
-                }
-            });
-            if (b.get()) {
+            if (list.size() == 0){
+                // создаем цену
                 ProductPriceDto productPriceDto = new ProductPriceDto();
                 productPriceDto.setTypeOfPriceId(typeOfPriceDto.getId());
                 productPriceDto.setValue(bigDecimalField.getValue());
-                productDto.getProductPriceIds().add(productPriceDto.getId());
+                productPriceService.create(productPriceDto);
+
+                // получаем ID, так как заранее мы не можем его знать. затем ID присваиваем в лист TypeOfPrices
+                Optional<ProductPriceDto> id = productPriceService.getAll().stream()
+                        .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
+                        .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
+                        .findFirst();
+                if (id.isPresent()){
+                    productDto.getProductPriceIds().add(id.get().getId());
+                }
+
+            } else {
+                productDto.getProductPriceIds().add(list.get(0).getId());
             }
         });
 
+    }
+
+    private boolean checkAllFields(){
+        if ( minimumBalance.getValue().compareTo(BigDecimal.ZERO) < 0){
+            return false;
+        }
+
+        AtomicBoolean flag = new AtomicBoolean(true);
+
+        bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
+            Optional<BigDecimal> bd = Optional.ofNullable(bigDecimalField.getValue());
+
+            if (bd.isEmpty() || bd.get().compareTo(BigDecimal.ZERO) <= 0){
+                flag.set(false);
+            }
+        });
+
+        return flag.get();
     }
 
     private <T extends Component & HasSize> HorizontalLayout getHorizontalLayout(String labelText, T field) {

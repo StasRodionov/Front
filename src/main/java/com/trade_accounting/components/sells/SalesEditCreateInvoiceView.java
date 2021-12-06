@@ -543,7 +543,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
 
         if (invoiceDto.getCompanyId() != null) {
-           companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
+            companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
         }
 
         if (invoiceDto.getContractorId() != null) {
@@ -557,9 +557,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         commentTextField.setValue("");
         commentTextField.setWidth("300px");
 
-       if (invoiceDto.getWarehouseId() != null) {
+        if (invoiceDto.getWarehouseId() != null) {
             warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
-       }
+        }
 
         if (invoiceDto.getInvoicesStatusId() != null) {
             invoicesStatusSelectComboBox.setValue(invoicesStatusService.getById(invoiceDto.getInvoicesStatusId()));
