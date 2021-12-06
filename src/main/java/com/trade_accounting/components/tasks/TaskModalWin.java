@@ -8,6 +8,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -165,6 +166,9 @@ public class TaskModalWin extends Dialog {
             return new Button("Добавить", event -> {
                 saveFields(taskDto);
                 taskService.create(taskDto);
+                //UI.getCurrent().navigate("tasks");
+                //notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
+                UI.getCurrent().close();
                 close();
             });
         } else {
@@ -172,6 +176,7 @@ public class TaskModalWin extends Dialog {
                 saveFields(taskDto);
                 taskService.update(taskDto);
                 close();
+                UI.getCurrent().navigate("tasks");
             });
         }
     }
