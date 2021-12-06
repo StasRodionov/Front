@@ -1,17 +1,17 @@
-package com.trade_accounting.components.purchases;
-
+package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.AcceptanceDto;
-import com.trade_accounting.models.dto.AcceptanceProductionDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.services.interfaces.AcceptanceProductionService;
-import com.trade_accounting.services.interfaces.AcceptanceService;
+import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.ShipmentDto;
+import com.trade_accounting.models.dto.ShipmentProductDto;
+import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.ShipmentProductService;
+import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -31,6 +31,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,64 +40,74 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Component;
 
 @SpringComponent
 @PageTitle("Выбор товара из списка")
 @UIScope
 @Component
-public class AddFromDirectModalWin extends Dialog {
+public class SalesAddFromDirectModalWin  extends Dialog {
     private final ProductService productService;
-    private final Grid<AcceptanceProductionDto> grid = new Grid<>(AcceptanceProductionDto.class, false);
-    private final Grid<AcceptanceProductionDto> gridAdd = new Grid<>(AcceptanceProductionDto.class, false);
-    private List<AcceptanceProductionDto> data;
-    private List<AcceptanceProductionDto> acceptanceProduction = new ArrayList<>();
+    private final Grid<ShipmentProductDto> grid = new Grid<>(ShipmentProductDto.class, false);
+    private final Grid<ShipmentProductDto> gridAdd = new Grid<>(ShipmentProductDto.class, false);
+    private List<ShipmentProductDto> data;
+    private List<ShipmentProductDto> shipmentProductDtoList = new ArrayList<>();
     private TextField countTextField = new TextField();
-    private final Editor<AcceptanceProductionDto> editor = grid.getEditor();
+    private final Editor<ShipmentProductDto> editor = grid.getEditor();
     private final TextField amountField = new TextField();
-    private final AcceptanceProductionService acceptanceProductionService;
-    private final AcceptanceService acceptanceService;
-    private AcceptanceDto dto;
+    private GridPaginator<ShipmentProductDto> paginator;
+    private final BuyersReturnService buyersReturnService;
+    private final ShipmentProductService shipmentProductService;
+    private final ShipmentService shipmentService;
+    private ShipmentDto dto = new ShipmentDto();
     private final ContractService contractService;
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
     private final Notifications notifications;
     private final CompanyService companyService;
+    private List<ShipmentProductDto> shipmentDtoList;
 
-    public AddFromDirectModalWin (ProductService productService,
-                                  AcceptanceService acceptanceService,
-                                  AcceptanceProductionService acceptanceProductionService,
-                                  ContractService contractService,
-                                  WarehouseService warehouseService,
-                                  ContractorService contractorService,
-                                  Notifications notifications,
-                                  CompanyService companyService) {
+    public SalesAddFromDirectModalWin (ProductService productService,
+                                       ShipmentService shipmentService,
+                                       ShipmentProductService shipmentProductService,
+                                       ContractService contractService,
+                                       WarehouseService warehouseService,
+                                       ContractorService contractorService,
+                                       Notifications notifications,
+                                       CompanyService companyService,
+                                       BuyersReturnService buyersReturnService) {
         this.productService = productService;
-        this.acceptanceProductionService = acceptanceProductionService;
-        this.acceptanceService = acceptanceService;
+        this.shipmentProductService = shipmentProductService;
+        this.shipmentService = shipmentService;
         this.contractService = contractService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.notifications = notifications;
         this.companyService = companyService;
+        this.buyersReturnService = buyersReturnService;
         countTextField.setValue("0");
-        data = getData();
-        paginator = new GridPaginator<>(grid, data, 7);
+        shipmentDtoList = new ArrayList<>();
+        paginator = new GridPaginator<>(grid, shipmentDtoList, 7);
         gridAdd.setHeight("30vh");
         grid.setHeight("38vh");
         setSizeFull();
         configureGrid();
-        add(configureActions(), countTextFieldConfig(), gridAdd, grid,paginator, getBottomBar());
+        add(configureActions(), countTextFieldConfig(), gridAdd, grid, paginator, getBottomBar());
     }
 
-    public void setAcceptance (AcceptanceDto acceptanceDto) {
-        this.dto = acceptanceDto;
-        dto.setAcceptanceProduction(acceptanceProductionService.getAll().stream().filter(el -> el.getAcceptanceId() == dto.getId()).collect(Collectors.toList()));
+    public void setShipment (ShipmentDto shipmentDto) {
+        this.dto = shipmentDto;
+        List<ShipmentDto> tmp = shipmentService.getAll().stream().
+                filter(el -> el.getCompanyId().equals(dto.getCompanyId()) && el.getContractorId().equals(dto.getContractorId()))
+                .collect(Collectors.toList());
+        for (ShipmentDto sdto : tmp) {
+            List<Long> qwer = sdto.getShipmentProductsIds();
+            qwer.stream().forEach(e-> shipmentDtoList.add(shipmentProductService.getById(e)));
+        }
     }
 
     private void configureGridAdd() {
         gridAdd.removeAllColumns();
-        gridAdd.setItems(acceptanceProduction);
+        gridAdd.setItems(shipmentProductDtoList);
         gridAdd.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Наименование");
         gridAdd.addColumn(inPrDto -> inPrDto.getAmount()).setHeader("Количество");
         gridAdd.addColumn(inPrDto -> inPrDto.getPrice()).setHeader("Цена").setId("Цена");
@@ -104,12 +115,12 @@ public class AddFromDirectModalWin extends Dialog {
             Button del = new Button("Очистить");
             del.addClassName("delete");
             del.addClickListener(e -> {
-                acceptanceProduction.remove(column);
+                shipmentProductDtoList.remove(column);
                 BigDecimal totalPrice = BigDecimal.valueOf(0.0);
                 System.err.println(data);
-                for (AcceptanceProductionDto acceptanceProductionDto : acceptanceProduction) {
-                    totalPrice = totalPrice.add(acceptanceProductionDto.getPrice()
-                            .multiply(acceptanceProductionDto.getAmount()));
+                for (ShipmentProductDto shipmentProductDto : shipmentProductDtoList) {
+                    totalPrice = totalPrice.add(shipmentProductDto.getPrice()
+                            .multiply(shipmentProductDto.getAmount()));
                 }
                 countTextField.setValue(totalPrice.toString());
                 configureGridAdd();
@@ -118,10 +129,12 @@ public class AddFromDirectModalWin extends Dialog {
         });
     }
 
-    private GridPaginator<AcceptanceProductionDto> paginator;
     private void configureGrid() {
-        grid.setItems(data);
+        grid.removeAllColumns();
+        grid.setItems(shipmentDtoList);
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Наименование");
+        grid.addColumn(inPrDto -> inPrDto.getPrice()).setHeader("Цена").setId("Цена");
+        grid.addColumn(inPrDto -> inPrDto.getAmount()).setHeader("Лимит").setId("Лимит");
         Collection<TextField> addAmount = Collections.newSetFromMap(new LinkedHashMap<>());
         grid.addComponentColumn(column -> {
             TextField amount = new TextField();
@@ -139,39 +152,26 @@ public class AddFromDirectModalWin extends Dialog {
                 amountField.focus();
                 List<TextField> list = addAmount.stream().filter(Objects::nonNull).collect(Collectors.toList());
                 for (TextField amo: list){
-                    if (!amo.isEmpty()) {
-                        AcceptanceProductionDto tmp = new AcceptanceProductionDto();
+                    if (!amo.isEmpty() && (new BigDecimal(amo.getValue()).compareTo(column.getAmount())) <= 0) {
+                        ShipmentProductDto tmp = new ShipmentProductDto();
                         tmp.setProductId(column.getProductId());
                         tmp.setAmount(new BigDecimal(amo.getValue()));
                         tmp.setPrice(column.getPrice());
-                        tmp.setAcceptanceId(dto.getId());
-                        acceptanceProduction.add(tmp);
+                        shipmentProductDtoList.add(tmp);
                         addAmount.remove(amo);
+//                        column.setAmount(column.getAmount().subtract(new BigDecimal(amo.getValue()))); //сожалею, но это не работает, а жаль. Было бы правильно уменьшать лимит после выбора
                     }
                 }
                 BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-                for (AcceptanceProductionDto acceptanceProductionDto : acceptanceProduction) {
-                    totalPrice = totalPrice.add(acceptanceProductionDto.getPrice()
-                            .multiply(acceptanceProductionDto.getAmount()));
+                for (ShipmentProductDto shipmentProductDto : shipmentProductDtoList) {
+                    totalPrice = totalPrice.add(shipmentProductDto.getPrice()
+                            .multiply(shipmentProductDto.getAmount()));
                 }
                 countTextField.setValue(totalPrice.toString());
                 configureGridAdd();
             });
             return edit;
-
         });
-        grid.addColumn(inPrDto -> inPrDto.getPrice()).setHeader("Цена").setId("Цена");
-    }
-
-    private List<AcceptanceProductionDto> getData() {
-        List<AcceptanceProductionDto> productList = new ArrayList<>();
-        for(ProductDto productDto : productService.getAll()){
-            AcceptanceProductionDto tmp = new AcceptanceProductionDto();
-            tmp.setProductId(productDto.getId());
-            tmp.setPrice(productDto.getPurchasePrice());
-            productList.add(tmp);
-        }
-        return productList;
     }
 
     private HorizontalLayout configureActions() {
@@ -206,7 +206,7 @@ public class AddFromDirectModalWin extends Dialog {
         Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Продекты  - В этом окне Вы можете добавить необходимые продукты из прайс-листа"));
+        dialog.add(new Text("Продукты  - В этом окне Вы можете добавить необходимые продукты из прайс-листа"));
         dialog.setWidth("450px");
         dialog.setHeight("250px");
         buttonQuestion.addClickListener(event -> dialog.open());
@@ -218,27 +218,34 @@ public class AddFromDirectModalWin extends Dialog {
     private Button closeButton() {
         Button button = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         button.addClickListener(e -> {
+            shipmentDtoList = new ArrayList<>();
             close();
         });
         return button;
     }
 
     private Button saveButton() {
-
         return new Button("Сохранить", e -> {
-            AcceptanceModalView wind = new AcceptanceModalView(companyService,
-                    acceptanceService,
-                    contractService,
-                    warehouseService,
+            ReturnBuyersReturnModalView wind = new ReturnBuyersReturnModalView(buyersReturnService,
                     contractorService,
+                    warehouseService,
+                    companyService,
                     notifications,
                     productService,
-                    acceptanceProductionService);
-            for (AcceptanceProductionDto newAcceptanceProductionDto : acceptanceProduction) {
-                newAcceptanceProductionDto.setId(acceptanceProductionService.create(newAcceptanceProductionDto).body().getId());
-            }
-            dto.setAcceptanceProduction(acceptanceProductionService.getAll().stream().filter(el -> el.getAcceptanceId() == dto.getId()).collect(Collectors.toList()));
-            wind.setAcceptanceForEdit(dto);
+                    shipmentService,
+                    shipmentProductService,
+                    contractService);
+            BuyersReturnDto brdto = new BuyersReturnDto();
+            brdto.setSum(new BigDecimal(countTextField.getValue()));
+            brdto.setContractorId(dto.getContractorId());
+            brdto.setCompanyId(dto.getCompanyId());
+            brdto.setWarehouseId(dto.getWarehouseId());
+            brdto.setIsPrint(dto.getIsPrint());
+            brdto.setIsSent(dto.getIsSend());
+            brdto.setDate(dto.getDate());
+            brdto.setId(dto.getId());
+            brdto.setComment(dto.getComment());
+            wind.setAcceptanceForEdit(brdto);
             close();
             wind.open();
         });

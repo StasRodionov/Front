@@ -1,16 +1,22 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.ReturnToSupplierModalView;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.ReturnToSupplierDto;
 import com.trade_accounting.models.dto.ShipmentDto;
 import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.ProjectService;
 import com.trade_accounting.services.interfaces.ShipmentProductService;
 import com.trade_accounting.services.interfaces.ShipmentService;
+import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -49,33 +55,44 @@ import java.util.List;
 @UIScope
 public class SalesSubShipmentView extends VerticalLayout {
 
+    private final ProductService productService;
+    ProjectService projectService;
+    Notifications notifications;
+    UnitService unitService;
+
+
     private final WarehouseService warehouseService;
-    private final InvoiceService invoiceService;
+    private final ShipmentService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final SalesEditShipmentView salesEditShipmentView;
     private final List<ShipmentDto> data;
-    private final InvoiceProductService invoiceProductService;
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
     private HorizontalLayout actions;
     private Grid<ShipmentDto> grid;
     private GridPaginator<ShipmentDto> paginator;
+    SalesEditShipmentView modalView;
 
 //    private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
-    public SalesSubShipmentView(WarehouseService warehouseService, InvoiceService invoiceService,
+    public SalesSubShipmentView(WarehouseService warehouseService,
+                                ShipmentService invoiceService,
                                 ContractorService contractorService,
-                                CompanyService companyService, SalesEditShipmentView salesEditShipmentView, InvoiceProductService invoiceProductService, ShipmentService shipmentService, ShipmentProductService shipmentProductService) {
+                                CompanyService companyService,
+                                SalesEditShipmentView salesEditShipmentView,
+                                ShipmentService shipmentService,
+                                ShipmentProductService shipmentProductService,
+                                ProductService productService) {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.salesEditShipmentView = salesEditShipmentView;
-        this.invoiceProductService = invoiceProductService;
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
+        this.productService = productService;
         this.data = getData();
 
         configureActions();
@@ -105,6 +122,20 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
                 .setKey("companyId").setId("Компания");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addItemDoubleClickListener(e -> {
+            ShipmentDto dto = e.getItem();
+            SalesEditShipmentView modalView = new SalesEditShipmentView(productService,
+                    contractorService,
+                    companyService,
+                    projectService,
+                    warehouseService,
+                    invoiceService,
+                    notifications,
+                    unitService,
+                    shipmentProductService);
+            modalView.setReturnToShiptmentForEdit(dto);
+            modalView.open();
+        });
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);

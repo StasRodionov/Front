@@ -1,27 +1,25 @@
-package com.trade_accounting.components.sells;
+package com.trade_accounting.components.purchases;
 
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
+import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.asm.TypeReference;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.ProductPriceDto;
-import com.trade_accounting.services.interfaces.ProductPriceService;
-import com.vaadin.flow.component.combobox.ComboBox;
 
 @SpringComponent
 @UIScope
 @Component
-public class SalesChooseGoodsModalWin extends Dialog {
-
+public class PurchasesChooseGoodsModalWin extends Dialog {
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "300px";
 
@@ -37,7 +35,7 @@ public class SalesChooseGoodsModalWin extends Dialog {
 
     public Button saveButton = new Button();
 
-    public SalesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService) {
+    public PurchasesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService) {
         this.productService = productService;
         this.productPriceService = productPriceService;
 

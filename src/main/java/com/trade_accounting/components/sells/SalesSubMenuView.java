@@ -14,6 +14,8 @@ import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
+import com.trade_accounting.services.interfaces.ShipmentProductService;
+import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -54,7 +56,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final CommissionAgentReportModalView commissionAgentReportModalView;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final Notifications notifications;
-
+    private final ShipmentService shipmentService;
+    private final ShipmentProductService shipmentProductService;
 
     @Autowired
     public SalesSubMenuView(InvoiceService invoiceService,
@@ -74,9 +77,12 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             ReturnAmountByProductService returnAmountByProductService,
                             EmployeeService employeeService,
                             PositionService positionService,
-                            RetailStoreService retailStoreService) {
+                            RetailStoreService retailStoreService,
+                            ShipmentService shipmentService,
+                            ShipmentProductService shipmentProductService) {
 
-
+        this.shipmentService = shipmentService;
+        this.shipmentProductService = shipmentProductService;
         this.invoiceProductService = invoiceProductService;
         this.issuedInvoiceService = issuedInvoiceService;
         this.paymentService = paymentService;
@@ -151,7 +157,15 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add(new SalesSubBuyersReturnsView(buyersReturnService, contractorService, companyService, returnBuyersReturnModalView, warehouseService, notifications));
+                    div.add(new SalesSubBuyersReturnsView(buyersReturnService,
+                            contractorService,
+                            companyService,
+                            warehouseService,
+                            notifications,
+                            productService,
+                            shipmentService,
+                            shipmentProductService
+                            ));
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();

@@ -13,15 +13,18 @@ import com.trade_accounting.services.interfaces.MovementService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
@@ -47,7 +50,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 @Slf4j
 @Route(value = "goods/add_moving", layout = AppView.class)
@@ -94,10 +97,11 @@ public class MovementViewModalWindow extends Dialog {
             new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
 
-
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,
-                                   Notifications notifications, UnitService unitService, MovementProductService movementProductService) {
+                                   Notifications notifications,
+                                   UnitService unitService,
+                                   MovementProductService movementProductService) {
         this.productService = productService;
         this.movementService = movementService;
         this.warehouseService = warehouseService;
@@ -152,17 +156,38 @@ public class MovementViewModalWindow extends Dialog {
         warehouseComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
-        Set<Long> idset = new HashSet<>(movementDto.getMovementProductsIds());
-        movementProductsIdComboBox.setValue(idset);
+        movementProductsIdComboBox.setValue(new HashSet<>(movementDto.getMovementProductsIds()));
+
+
+        configureDeleteButton(editDto.getId());
+        configurePrintButtonContextMenu(editDto);
+
         getData();
 
     }
 
+    private void configurePrintButtonContextMenu(MovementDto movementDto) {
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.setTarget(buttonPrint);
+        contextMenu.setOpenOnClick(true);
 
+        SubMenu subMenuTorg13 = contextMenu.addItem(new Div(new Text("ТОРГ-13"))).getSubMenu();
+        subMenuTorg13.addItem("Открыть в браузере");
+        subMenuTorg13.addItem("Скачать в формате Excel", event -> {
+            UI.getCurrent().getPage()
+                    .open("http://localhost:4445/api/movements/files/torg13/xls", "print");
+        });
+        subMenuTorg13.addItem("Скачать в формате PDF");
+        subMenuTorg13.addItem("Скачать в формате Open Office Calc");
+
+        contextMenu.addItem("...");
+    }
 
     private HorizontalLayout headerLayout() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(title(), saveButton(), closeButton(), buttonUnit(), configureDeleteButton(), buttonPrint, buttonSend);
+        horizontalLayout.add(
+                title(), saveButton(), closeButton(), buttonUnit(),
+                buttonDelete, buttonPrint, buttonSend);
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return horizontalLayout;
     }
@@ -177,8 +202,6 @@ public class MovementViewModalWindow extends Dialog {
         title.setHeight("2.0em");
         return title;
     }
-
-
 
 
     private Button saveButton() {
@@ -262,17 +285,16 @@ public class MovementViewModalWindow extends Dialog {
                     warehouseService,
                     movementService,
                     unitService,
-                    notifications
-            );
+                    notifications);
             modalView.open();
         });
         return button;
     }
 
     private void getData() {
-        List<MovementProductDto>productDtosList = new ArrayList<>();
+        List<MovementProductDto> productDtosList = new ArrayList<>();
 
-        for (Long id : movementDto.getMovementProductsIds()){
+        for (Long id : movementDto.getMovementProductsIds()) {
             MovementProductDto productDto = movementProductService.getById(id);
             productDtosList.add(productDto);
         }
@@ -280,21 +302,21 @@ public class MovementViewModalWindow extends Dialog {
     }
 
 
-    private HorizontalLayout  movementProductsConfigure() {
+    private HorizontalLayout movementProductsConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         List<MovementDto> iod = movementService.getAll();
         List<Long> checkInIod = new ArrayList<>();
-        for(MovementDto id : iod) {
+        for (MovementDto id : iod) {
             List<Long> list = id.getMovementProductsIds();
             checkInIod.addAll(list);
         }
 
         List<MovementProductDto> labels = movementProductService.getAll();
         List<Long> items = new ArrayList<>();
-        for(MovementProductDto id : labels) {
+        for (MovementProductDto id : labels) {
             Long check = id.getId();
-            if(!(checkInIod.contains(check))) {
+            if (!(checkInIod.contains(check))) {
                 items.add(id.getId());
             }
         }
@@ -324,7 +346,6 @@ public class MovementViewModalWindow extends Dialog {
 //        horizontalLayout.add(textCom);
 //        return horizontalLayout;
 //    }
-
 
 
     private HorizontalLayout numberConfigure() {
@@ -411,7 +432,7 @@ public class MovementViewModalWindow extends Dialog {
         textArea.setPlaceholder("Комментарий");
         Label label = new Label("Комментарий");
         label.setWidth("95px");
-        horizontalLayout.add(label,textArea);
+        horizontalLayout.add(label, textArea);
         return horizontalLayout;
     }
 
@@ -420,7 +441,7 @@ public class MovementViewModalWindow extends Dialog {
         Label label = new Label("Итого: ");
         label.setWidth("60px");
         labelSum.setWidth("60px");
-        horizontalLayout.add(label,labelSum);
+        horizontalLayout.add(label, labelSum);
         return horizontalLayout;
     }
 
@@ -440,20 +461,18 @@ public class MovementViewModalWindow extends Dialog {
     }
 
 
-
     private void setTotalPrice() {
         totalPrice.setText(
                 String.format("%.2f", getTotalPrice())
         );
     }
 
-    private Button configureDeleteButton() {
+    private void configureDeleteButton(Long id) {
         buttonDelete.addClickListener(event -> {
-            deleteInvoiceById(Long.parseLong(textArea.getValue()));
+            deleteInvoiceById(id);
+            UI.getCurrent().close();
             clearAllFieldsModalView();
-            buttonDelete.getUI().ifPresent(ui -> ui.navigate(location));
         });
-        return buttonDelete;
     }
 
 
@@ -471,6 +490,5 @@ public class MovementViewModalWindow extends Dialog {
         checkboxIsSent.setValue(false);
         checkboxIsPrint.setValue(false);
     }
-
 
 }

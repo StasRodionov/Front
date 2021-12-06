@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.api.SupplierAccountApi;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -40,6 +42,22 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
             log.error("Произошла ошибка при выполнении запроса на получение списка SupplierAccountsDto - {IOException}", e);
         }
         return getAllSupplierAccount;
+    }
+
+    @Override
+    public List<SupplierAccountDto> getAll(String typeOfInvoice) {
+        List<SupplierAccountDto> invoiceDtoList = new ArrayList<>();
+        Call<List<SupplierAccountDto>> invoiceDtoListCall = supplier.getAll(supplierUrl, typeOfInvoice);
+
+        try {
+            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка SupplierAccountDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка SupplierAccountDto - {IOException}", e);
+        }
+        return invoiceDtoList;
+
     }
 
     @Override
@@ -114,6 +132,21 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
             log.info("Успешно выполнен запрос на поиск и получение счета поставщика  по фильтру {}",querySupplier);
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск иполучение счета поставщика {IOException}", e);
+        }
+        return supplierAccountDtoList;
+    }
+
+    @Override
+    public List<SupplierAccountDto> findBySearchAndTypeOfInvoice(String search, String typeOfInvoice) {
+        List<SupplierAccountDto> supplierAccountDtoList = new ArrayList<>();
+        Call<List<SupplierAccountDto>> callSupplier = supplier
+                .search(supplierUrl, search.toLowerCase(), typeOfInvoice);
+
+        try {
+            supplierAccountDtoList = callSupplier.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
         }
         return supplierAccountDtoList;
     }

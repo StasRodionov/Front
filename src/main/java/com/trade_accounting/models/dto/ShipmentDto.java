@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShipmentDto {
+public class ShipmentDto  extends ReturnToSupplierDtoForValidation  {
 
     private Long id;
 

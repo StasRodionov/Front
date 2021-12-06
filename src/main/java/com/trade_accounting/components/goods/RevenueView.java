@@ -3,6 +3,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.RevenueDto;
 import com.trade_accounting.services.interfaces.RevenueService;
 import com.vaadin.flow.component.button.Button;
@@ -23,6 +24,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.util.List;
+
 @SpringComponent
 @PageTitle("Обороты")
 @Route(value = "revenueView", layout = AppView.class)
@@ -30,21 +33,42 @@ import com.vaadin.flow.spring.annotation.UIScope;
 public class RevenueView extends VerticalLayout {
 
     private final RevenueService revenueService;
-    private final RevenueDto revenueDto;
 
     private final Grid<RevenueDto> grid = new Grid<>(RevenueDto.class, false);
     private final GridFilter<RevenueDto> filter;
+    private final GridPaginator<RevenueDto> paginator;
+    private final List<RevenueDto> data;
 
     public RevenueView(RevenueService revenueService) {
         this.revenueService = revenueService;
         this.filter = new GridFilter<>(grid);
-        this.revenueDto = new RevenueDto();
-
-        add(upperLayout(), filter);
+        this.data = getData();
+        this.paginator = new GridPaginator<>(grid, data, 100);
+        setSizeFull();
+        configureGrid();
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(RevenueDto::getDescription).setKey("description").setHeader("Наименование").setId("Наименование");
+        grid.addColumn(RevenueDto::getItemNumber).setKey("itemNumber").setHeader("Код товара").setId("Код товара");
+        grid.addColumn(RevenueDto::getUnitShortName).setKey("unitShortName").setHeader("Ед. изм.").setId("Ед. изм.");
+        grid.addColumn(RevenueDto::getStartOfPeriodAmount).setKey("startOfPeriodAmount").setHeader("Кол-во на начало периода").setId("Кол-во на начало периода");
+        grid.addColumn(RevenueDto::getStartOfPeriodSumOfPrice).setKey("startOfPeriodSumOfPrice").setHeader("Сумма на начало периода").setId("Сумма на начало периода");
+        grid.addColumn(RevenueDto::getComingAmount).setKey("comingAmount").setHeader("Кол-во(приход)").setId("Кол-во(приход)");
+        grid.addColumn(RevenueDto::getComingSumOfPrice).setKey("comingSumOfPrice").setHeader("Сумма(приход)").setId("Сумма(приход)");
+        grid.addColumn(RevenueDto::getSpendingAmount).setKey("spendingAmount").setHeader("Кол-во(расход)").setId("Кол-во(расход)");
+        grid.addColumn(RevenueDto::getSpendingSumOfPrice).setKey("spendingSumOfPrice").setHeader("Сумма(расход)").setId("Сумма(расход)");
+        grid.addColumn(RevenueDto::getEndOfPeriodAmount).setKey("endOfPeriodAmount").setHeader("Кол-во на конец периода").setId("Кол-во на конец периода");
+        grid.addColumn(RevenueDto::getEndOfPeriodSumOfPrice).setKey("endOfPeriodSumOfPrice").setHeader("Сумма на конец периода").setId("Сумма на конец периода");
+        grid.setHeight("66vh");
+        grid.setMaxWidth("100%");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.getColumns().forEach(column -> column.setAutoWidth(true));
     }
 
     private HorizontalLayout upperLayout() {
@@ -93,7 +117,7 @@ public class RevenueView extends VerticalLayout {
     }
 
     private void updateList() {
-
+        grid.setItems(revenueService.getAll());
     }
 
 
@@ -116,6 +140,10 @@ public class RevenueView extends VerticalLayout {
         print.setValue("Печать");
         print.setWidth("130px");
         return print;
+    }
+
+    private List<RevenueDto> getData() {
+        return revenueService.getAll();
     }
 
 }

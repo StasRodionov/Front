@@ -32,6 +32,8 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
@@ -60,38 +62,44 @@ import java.util.stream.Collectors;
 @PageTitle("Возвраты покупателей")
 @SpringComponent
 @UIScope
-public class SalesSubBuyersReturnsView extends VerticalLayout {
+public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNavigationObserver {
     private final TextField textField = new TextField();
     private final BuyersReturnService buyersReturnService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
     private final Notifications notifications;
-    private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
-    private final List<BuyersReturnDto> data;
+    private List<BuyersReturnDto> data;
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
     ContractService contractService;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
+    private final ProductService productService;
+    private final ShipmentService shipmentService;
+    private final ShipmentProductService shipmentProductService;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
 
     @Autowired
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
                                      ContractorService contractorService,
-                                     CompanyService companyService, ReturnBuyersReturnModalView returnBuyersReturnModalView,
+                                     CompanyService companyService,
                                      WarehouseService warehouseService,
-                                     Notifications notifications) {
+                                     Notifications notifications,
+                                     ProductService productService,
+                                     ShipmentService shipmentService,
+                                     ShipmentProductService shipmentProductService) {
         this.buyersReturnService = buyersReturnService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.companyService = companyService;
-        this.returnBuyersReturnModalView = returnBuyersReturnModalView;
+        this.shipmentProductService = shipmentProductService;
+        this.productService = productService;
+        this.shipmentService = shipmentService;
         this.data = buyersReturnService.getAll();
         this.notifications = notifications;
         print = selectXlsTemplateButton.addItem("Печать");
-
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(7).setHeader("Время")
                 .setKey("date").setId("Дата");
@@ -189,7 +197,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
     }
 
     private Grid<BuyersReturnDto> configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+//        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         grid.setItems(data);
         grid.addColumn("id").setHeader("№").setId("№");
@@ -204,17 +212,20 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
         grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
         grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("Комментарий");
-        grid.addItemClickListener(event -> {
+        grid.addItemDoubleClickListener(event -> {
             BuyersReturnDto buyersReturnDto = event.getItem();
-            ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(
-                    buyersReturnService,
+            ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(buyersReturnService,
                     contractorService,
                     warehouseService,
                     companyService,
-                    notifications);
+                    notifications,
+                    productService,
+                    shipmentService,
+                    shipmentProductService,
+                    contractService);
+            buyersReturnDto.setIsNew(false);
             view.setReturnEdit(buyersReturnDto);
             view.open();
-
         });
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
@@ -229,7 +240,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
         toolbar.add(getButtonQuestion(), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), selectXlsTemplateButton, textField(),
                 numberField(), getSelect(), getStatus(), buttonSettings());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-
         return toolbar;
     }
 
@@ -241,7 +251,22 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
 
     public Button buttonUnit() {
         Button buttonUnit = new Button("Возврат покупателя", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(event -> returnBuyersReturnModalView.open());
+        BuyersReturnDto buyersReturnDto = new BuyersReturnDto();
+        buttonUnit.addClickListener(event -> {
+            buyersReturnDto.setIsNew(true);
+            ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(
+                    buyersReturnService,
+                    contractorService,
+                    warehouseService,
+                    companyService,
+                    notifications,
+                    productService,
+                    shipmentService,
+                    shipmentProductService,
+                    contractService);
+            view.setReturnEdit(buyersReturnDto);
+            view.open();
+        });
         return buttonUnit;
     }
 
@@ -337,5 +362,14 @@ public class SalesSubBuyersReturnsView extends VerticalLayout {
 
     private List<BuyersReturnDto> getData() {
         return buyersReturnService.getAll();
+    }
+
+    private void updateList() {
+        grid.setItems(buyersReturnService.getAll());
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }

@@ -132,12 +132,13 @@ public class GoodsView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.setColumns("id", "name", "description", "weight", "volume", "purchasePrice");
+        grid.setColumns("id", "name", "itemNumber", "description", "weight", "volume", "purchasePrice");
         grid.getColumnByKey("id").setHeader("id").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("weight").setHeader("Вес").setId("Вес");
         grid.getColumnByKey("volume").setHeader("Объем").setId("Объем");
-        grid.getColumnByKey("description").setHeader("Артикул").setId("Артикул");
+        grid.getColumnByKey("itemNumber").setHeader("Артикул").setId("Артикул");
+        grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
         grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена").setId("Закупочная цена");
 
         grid.addItemDoubleClickListener(event -> {
@@ -365,11 +366,12 @@ public class GoodsView extends VerticalLayout {
     private InputStream buildXlsTable() {
         return new NaiveXlsTableBuilder<ProductDto>().header("Товары")
                 .metadata("Создал: ")
-                .columns("№", "Наименование", "Артикул", "Вес", "Объем", "Закупочная цена")
+                .columns("№", "Наименование", "Описание", "Артикул", "Вес", "Объем", "Закупочная цена")
                 .mappings(
                         (product, cell) -> cell.setCellValue(product.getId()),
                         (product, cell) -> cell.setCellValue(product.getName()),
                         (product, cell) -> cell.setCellValue(product.getDescription()),
+                        (product, cell) -> cell.setCellValue(product.getItemNumber()),
                         (product, cell) -> cell.setCellValue(product.getWeight().doubleValue()),
                         (product, cell) -> cell.setCellValue(product.getVolume().doubleValue()),
                         (product, cell) -> cell.setCellValue(product.getPurchasePrice().doubleValue()))

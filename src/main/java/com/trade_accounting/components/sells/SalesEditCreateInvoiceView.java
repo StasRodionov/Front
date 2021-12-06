@@ -156,7 +156,10 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
             if (salesChooseGoodsModalWin.productSelect.getValue() != null
                     && salesChooseGoodsModalWin.priceSelect.getValue() != null) {
-                addProduct(salesChooseGoodsModalWin.productSelect.getValue(), salesChooseGoodsModalWin.priceSelect.getValue());
+                addProduct(salesChooseGoodsModalWin.productSelect.getValue(), salesChooseGoodsModalWin.priceSelect.getValue(), salesChooseGoodsModalWin.amoSelect.getValue());
+                salesChooseGoodsModalWin.productSelect.setValue(null);
+                salesChooseGoodsModalWin.priceSelect.setValue(null);
+                salesChooseGoodsModalWin.amoSelect.setValue("");
             }
         });
 
@@ -490,10 +493,10 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto) {
+    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, String amo) {
         InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
         invoiceProductDto.setProductId(productDto.getId());
-        invoiceProductDto.setAmount(BigDecimal.ONE);
+        invoiceProductDto.setAmount(new BigDecimal(amo));
         invoiceProductDto.setPrice(
                 productPriceDto.getValue()
                 /*getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds().stream()
@@ -556,7 +559,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
 
         if (invoiceDto.getCompanyId() != null) {
-           companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
+            companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
         }
 
         if (invoiceDto.getContractorId() != null) {
@@ -570,9 +573,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         commentTextField.setValue("");
         commentTextField.setWidth("300px");
 
-       if (invoiceDto.getWarehouseId() != null) {
+        if (invoiceDto.getWarehouseId() != null) {
             warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
-       }
+        }
 
         if (invoiceDto.getInvoicesStatusId() != null) {
             invoicesStatusSelectComboBox.setValue(invoicesStatusService.getById(invoiceDto.getInvoicesStatusId()));

@@ -1,6 +1,8 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.sells.SalesAddNewInvoicesToBuyersView;
+import com.trade_accounting.components.sells.SalesChooseGoodsModalWin;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -8,6 +10,7 @@ import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -49,7 +52,7 @@ import java.util.List;
 @SpringComponent
 @UIScope
 public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterNavigationObserver {
-
+    private final ProductService productService;
     private final SupplierAccountService supplierAccountService;
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
@@ -58,21 +61,20 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
-
-
     private List<SupplierAccountDto> supplierAccount;
-
     private HorizontalLayout actions;
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
+    private final String typeOfInvoice = "EXPENSE";
 
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
                                       ContractorService contractorService, ContractService contractService,
                                       @Lazy Notifications notifications,
-                                      SupplierAccountModalView modalView) {
+                                      SupplierAccountModalView modalView,
+                                      ProductService productService) {
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -80,6 +82,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
+        this.productService = productService;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -90,7 +93,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private List<SupplierAccountDto> loadSupplierAccounts() {
-        supplierAccount = supplierAccountService.getAll();
+        supplierAccount = supplierAccountService.getAll(typeOfInvoice);
         return supplierAccount;
     }
 
@@ -122,15 +125,8 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             SupplierAccountDto editSupplierAccounts = event.getItem();
-            SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
-                    supplierAccountService,
-                    companyService,
-                    warehouseService,
-                    contractorService, contractService, notifications);
-            supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
-            supplierAccountModalView.open();
-
-
+            modalView.setSupplierAccountsForEdit(editSupplierAccounts);
+            modalView.open();
         });
         return grid;
     }
@@ -167,7 +163,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(e -> modalView.open());
+        buttonUnit.addClickListener(e -> {
+            modalView.clearField();
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate("purchases/add-new-invoices-to-suplier"));
+            modalView.open();
+        });
         return buttonUnit;
     }
 
@@ -273,7 +273,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void updateList() {
-        grid.setItems(supplierAccountService.getAll());
+        grid.setItems(supplierAccountService.getAll(typeOfInvoice));
     }
 
     private String getTotalPrice(SupplierAccountDto invoice) {
@@ -300,6 +300,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
             notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
         }
     }
+
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {

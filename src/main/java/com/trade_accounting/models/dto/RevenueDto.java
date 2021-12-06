@@ -35,6 +35,8 @@ public class RevenueDto {
 
     private BigDecimal amountShipment;      // InvoiceProduct
 
+    private String unitShortName;
+
     private Integer startOfPeriodAmount;
 
     private Integer startOfPeriodSumOfPrice;
