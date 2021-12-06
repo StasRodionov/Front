@@ -64,8 +64,10 @@ public class TasksView extends VerticalLayout {
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn("description").setHeader("Описание").setId("Описание");
+        grid.addColumn(TaskDto::getId).setHeader("ID")
+                .setKey("id").setId("ID");
+        grid.addColumn(TaskDto::getDescription).setHeader("Описание")
+                .setKey("description").setId("Описание");
         grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName())
                 .setKey("contractorId").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName())
@@ -86,6 +88,8 @@ public class TasksView extends VerticalLayout {
             addTaskModalWin.getSaveButton();
             addTaskModalWin.open();
         });
+
+        grid.setSortableColumns("id", "description", "contractorId", "employeeId", "deadLineDateTime", "creationDateTime");
     }
 
     private HorizontalLayout getToolBar() {
