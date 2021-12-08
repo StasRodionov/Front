@@ -30,6 +30,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -48,7 +49,7 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
 
     private final RetailReturnsService retailReturnsService;
     private List<RetailReturnsDto> data;
-
+    private final TextField textField = new TextField();
     private final GridFilter<RetailReturnsDto> filter;
     private final Grid<RetailReturnsDto> grid = new Grid<>(RetailReturnsDto.class, false);
     private final GridPaginator<RetailReturnsDto> paginator;
@@ -56,23 +57,23 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
     public RetailReturnsView(RetailReturnsService retailReturnsService) {
         this.retailReturnsService = retailReturnsService;
         this.data = retailReturnsService.getAll();
+        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("Время");
-        grid.addColumn("retailStoreId").setFlexGrow(5).setHeader("Точка продаж").setId("Точка продаж");
         grid.addColumn("cashAmount").setFlexGrow(5).setHeader("Сумма нал.").setId("Сумма нал.");
         grid.addColumn("cashlessAmount").setFlexGrow(5).setHeader("Сумма безнал.").setId("Сумма безнал.");
         grid.addColumn("totalAmount").setFlexGrow(5).setHeader("Итого").setId("Итого");
         this.filter = new GridFilter<>(grid);
-        add(upperLayout(), filter);
+        configureFilter();
         this.paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
-        add(grid, paginator);
+        add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
+        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("date");
         grid.addColumn("retailStoreId").setFlexGrow(5).setHeader("Точка продаж").setId("retailStoreId");
         grid.addColumn("cashAmount").setFlexGrow(5).setHeader("Сумма нал.").setId("cashAmount");
@@ -158,6 +159,13 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
         return filterButton;
     }
 
+    private void configureFilter() {
+        filter.onSearchClick(e ->
+                paginator.setData(retailReturnsService.searchRetailReturns(filter.getFilterData())));
+        filter.onClearClick(e ->
+                paginator.setData(retailReturnsService.getAll()));
+    }
+
     private void updateList() {
         GridPaginator<RetailReturnsDto> paginatorUpdateList
                 = new GridPaginator<>(grid, retailReturnsService.getAll(), 100);
@@ -182,11 +190,21 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
     }
 
     private TextField textField() {
-        final TextField textField = new TextField();
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setClearButtonVisible(true);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateListTextField());
         return textField;
+    }
+
+    public void updateListTextField() {
+        if (!(textField.getValue().equals(""))) {
+            grid.setItems(retailReturnsService.search(textField.getValue()));
+        } else {
+            grid.setItems(retailReturnsService.search("null"));
+        }
     }
 
 

@@ -1,6 +1,8 @@
 package com.trade_accounting.services.interfaces;
 
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.MovementDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 
 import java.util.List;
 
@@ -18,4 +20,6 @@ public interface MovementService {
     void moveToIsRecyclebin(Long id);
 
     void restoreFromIsRecyclebin(Long id);
+
+    void updateTorg13(MovementDto movementDto, CompanyDto companyDto, WarehouseDto warehouseDto);
 }
