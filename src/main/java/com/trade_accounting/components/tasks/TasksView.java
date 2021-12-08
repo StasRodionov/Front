@@ -6,12 +6,15 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.TaskDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.TaskCommentService;
 import com.trade_accounting.services.interfaces.TaskService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -19,6 +22,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -45,15 +49,18 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
     private final GridFilter<TaskDto> filter;
     private final EmployeeService employeeService;
     private final ContractorService contractorService;
+    private final TaskCommentService taskCommentService;
     private GridPaginator<TaskDto> paginator;
 
     private final TaskDto taskDto;
 
     @Autowired
-    public TasksView(TaskService taskService, EmployeeService employeeService, ContractorService contractorService) {
+    public TasksView(TaskService taskService, EmployeeService employeeService,
+                     ContractorService contractorService, TaskCommentService taskCommentService) {
         this.taskService = taskService;
         this.employeeService = employeeService;
         this.contractorService = contractorService;
+        this.taskCommentService = taskCommentService;
         this.taskDto = new TaskDto();
         paginator = getPaginator();
         configureGrid();
@@ -70,6 +77,8 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
                 .setKey("id").setId("ID");
         grid.addColumn(TaskDto::getDescription).setHeader("Описание")
                 .setKey("description").setId("Описание");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCompleteIcon)).setHeader("Завершена")
+                .setKey("completed").setId("Завершена");
         grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName())
                 .setKey("contractorId").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName())
@@ -85,13 +94,13 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
         grid.addItemDoubleClickListener(event -> {
             TaskDto taskDto = event.getItem();
             TaskModalWin addTaskModalWin =
-                    new TaskModalWin(taskService, taskDto, employeeService, contractorService);
+                    new TaskModalWin(taskService, taskDto, employeeService, contractorService, taskCommentService);
             addTaskModalWin.addDetachListener(e -> updateList());
             addTaskModalWin.getSaveButton();
             addTaskModalWin.open();
         });
 
-        grid.setSortableColumns("id", "description", "contractorId", "employeeId", "deadLineDateTime", "creationDateTime");
+        grid.setSortableColumns("id", "description", "completed", "contractorId", "employeeId", "deadLineDateTime", "creationDateTime");
     }
 
     private HorizontalLayout getToolBar() {
@@ -144,7 +153,7 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
     private Button getButtonCreateTask() {
         var buttonUnit = new Button("Задача", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(click -> {
-            TaskModalWin taskModalWin = new TaskModalWin(taskService, new TaskDto(), employeeService, contractorService);
+            TaskModalWin taskModalWin = new TaskModalWin(taskService, new TaskDto(), employeeService, contractorService, taskCommentService);
             taskModalWin.open();
         });
         return buttonUnit;
@@ -181,6 +190,16 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
 
     private List<TaskDto> getData() {
         return taskService.getAll();
+    }
+
+    private Component getIsCompleteIcon(TaskDto taskDto) {
+        if (taskDto.isCompleted()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
     }
 
     private GridPaginator<TaskDto> getPaginator(){

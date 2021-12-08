@@ -8,6 +8,8 @@ public interface TaskCommentService {
 
     List<TaskCommentDto> getAll();
 
+    TaskCommentDto getById(Long id);
+
     void create(TaskCommentDto taskCommentDto);
 
     void update(TaskCommentDto taskCommentDto);
