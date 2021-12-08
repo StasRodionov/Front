@@ -43,6 +43,11 @@ public interface InvoiceApi {
                                           @Query("typeOfInvoice") String typeOfInvoice);
 
     @Headers("Accept: application/json")
+    @GET("{url}/getFromDateTime")
+    Call<List<InvoiceDto>> searchFromDate(@Path(value = "url", encoded = true) String url, @Query("date") String date);
+
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<InvoiceDto> create(@Path(value = "url", encoded = true) String url, @Body InvoiceDto invoiceDto);
 
