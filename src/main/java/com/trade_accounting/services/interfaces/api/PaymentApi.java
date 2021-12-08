@@ -43,4 +43,13 @@ public interface PaymentApi {
     @GET("{url}/search/{search}")
     Call<List<PaymentDto>> search(@Path(value = "url", encoded = true) String url,
                                   @Path(value = "search") String search);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/moveToIsRecyclebin/{id}")
+    Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/restoreFromIsRecyclebin/{id}")
+    Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
 }

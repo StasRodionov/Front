@@ -1,8 +1,6 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.sells.SalesAddNewInvoicesToBuyersView;
-import com.trade_accounting.components.sells.SalesChooseGoodsModalWin;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -10,6 +8,8 @@ import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
+import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -52,7 +52,7 @@ import java.util.List;
 @SpringComponent
 @UIScope
 public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterNavigationObserver {
-    private final ProductService productService;
+
     private final SupplierAccountService supplierAccountService;
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
@@ -61,12 +61,17 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
+    private PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
+    private final ProductService productService;
+    private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
+
     private List<SupplierAccountDto> supplierAccount;
+
     private HorizontalLayout actions;
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
-    private final String typeOfInvoice = "EXPENSE";
 
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
@@ -74,7 +79,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       ContractorService contractorService, ContractService contractService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView modalView,
-                                      ProductService productService) {
+                                      ProductService productService,
+                                      InvoiceService invoiceService,
+                                      InvoiceProductService invoiceProductService) {
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -83,6 +90,8 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.notifications = notifications;
         this.modalView = modalView;
         this.productService = productService;
+        this.invoiceService = invoiceService;
+        this.invoiceProductService = invoiceProductService;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -93,7 +102,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private List<SupplierAccountDto> loadSupplierAccounts() {
-        supplierAccount = supplierAccountService.getAll(typeOfInvoice);
+        supplierAccount = supplierAccountService.getAll();
         return supplierAccount;
     }
 
@@ -125,8 +134,21 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             SupplierAccountDto editSupplierAccounts = event.getItem();
-            modalView.setSupplierAccountsForEdit(editSupplierAccounts);
-            modalView.open();
+            SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
+                    supplierAccountService,
+                    companyService,
+                    warehouseService,
+                    contractorService,
+                    contractService,
+                    notifications,
+                    purchasesChooseGoodsModalWin,
+                    productService,
+                    invoiceService,
+                    invoiceProductService);
+            supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
+            supplierAccountModalView.open();
+
+
         });
         return grid;
     }
@@ -163,11 +185,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(e -> {
-            modalView.clearField();
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("purchases/add-new-invoices-to-suplier"));
-            modalView.open();
-        });
+        buttonUnit.addClickListener(e -> modalView.open());
         return buttonUnit;
     }
 
@@ -273,7 +291,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void updateList() {
-        grid.setItems(supplierAccountService.getAll(typeOfInvoice));
+        grid.setItems(supplierAccountService.getAll());
     }
 
     private String getTotalPrice(SupplierAccountDto invoice) {
@@ -300,7 +318,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
             notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
         }
     }
-
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {

@@ -89,6 +89,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -231,13 +232,15 @@ public class OperationsView extends VerticalLayout {
 
 
     private List<OperationsDto> getData() {
-        return operationsService.getAll();
+        return operationsService.getAll().stream()
+                .filter(operationsDto -> !operationsDto.getIsRecyclebin())
+                .collect(Collectors.toList());
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("5px").setHeader("ID").setId("ID");
-        grid.addColumn(this::getType).setHeader("Тип документа").setSortable(true);
+        grid.addColumn("id").setWidth("5px").setHeader("ID").setResizable(true).setId("ID");
+        grid.addColumn(this::getType).setHeader("Тип документа").setResizable(true).setSortable(true);
         grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
         grid.addColumn(operationsDto->companyService.getById(operationsDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Организация").setId("Организация");
@@ -250,6 +253,8 @@ public class OperationsView extends VerticalLayout {
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(e-> {
             OperationsDto dto = e.getItem();
             openModalWindow(dto);
@@ -453,7 +458,46 @@ public class OperationsView extends VerticalLayout {
         select.setItems(listItems);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(e -> {
+            if (select.getValue().equals("Удалить")) {
+                moveToRecyclebinOperation();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                updateList();
+            }
+        });
         return select;
+    }
+
+    private void moveToRecyclebinOperation() {
+        if (!grid.getSelectedItems().isEmpty()) {
+               for (OperationsDto dto : grid.getSelectedItems()) {
+                   Long id = dto.getId();
+                   if (movementsIds.contains(id)) {
+                       movementService.moveToIsRecyclebin(id);
+                   } else if (lossIds.contains(id)) {
+                       lossService.moveToIsRecyclebin(id);
+                   } else if (internalOrdersIds.contains(id)) {
+                       internalOrderService.moveToIsRecyclebin(id);
+                   } else if (paymentsIds.contains(id)) {
+                       paymentService.moveToIsRecyclebin(id);
+                   } else if (correctionIds.contains(id)) {
+                       correctionService.moveToIsRecyclebin(id);
+                   } else if (inventarizationsIds.contains(id)) {
+                       inventarizationService.moveToIsRecyclebin(id);
+                   } else if (invoiceIds.contains(id)) {
+                       invoiceService.moveToIsRecyclebin(id);
+                   } else if (acceptanceIds.contains(id)) {
+                       acceptanceService.moveToIsRecyclebin(id);
+                   } else if (supplierAccountIds.contains(id)) {
+                       supplierAccountService.moveToIsRecyclebin(id);
+                   } else if (shipmentIds.contains(id)) {
+                       shipmentService.moveToIsRecyclebin(id);
+                   }
+               }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные ");
+        }
     }
 
     private Select<String> valuePrint() {
@@ -466,7 +510,7 @@ public class OperationsView extends VerticalLayout {
 
 
     private void updateList() {
-       grid.setItems(operationsService.getAll());
+        grid.setItems(getData());
         movementsIds = getMovementsIds();
         lossIds = getLossIds();
         internalOrdersIds = getInternalOrdersIds();
@@ -475,7 +519,8 @@ public class OperationsView extends VerticalLayout {
         inventarizationsIds = getInventarizationsIds();
         invoiceIds = getInvoiceIds();
         acceptanceIds = getAcceptanceIds();
-
+        supplierAccountIds = getSupplierAccountIds();
+        shipmentIds = getShipmentIds();
     }
 
     private Component getIsSentIcon(OperationsDto operationsDto) {
@@ -567,7 +612,6 @@ public class OperationsView extends VerticalLayout {
         }
         return shipIds;
     }
-
 
     private String getTotalPrice(OperationsDto operationsDto){
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);

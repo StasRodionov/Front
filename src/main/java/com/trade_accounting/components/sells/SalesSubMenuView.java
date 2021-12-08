@@ -5,11 +5,14 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.IssuedInvoiceService;
 import com.trade_accounting.services.interfaces.PaymentService;
+import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
 import com.trade_accounting.services.interfaces.ShipmentProductService;
 import com.trade_accounting.services.interfaces.ShipmentService;
@@ -43,6 +46,9 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final PaymentService paymentService;
     private final ProductService productService;
     private final ReturnAmountByProductService returnAmountByProductService;
+    private final EmployeeService employeeService;
+    private final PositionService positionService;
+    private final RetailStoreService retailStoreService;
 
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
@@ -69,6 +75,9 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             ReturnBuyersReturnModalView returnBuyersReturnModalView,
                             Notifications notifications, ProductService productService,
                             ReturnAmountByProductService returnAmountByProductService,
+                            EmployeeService employeeService,
+                            PositionService positionService,
+                            RetailStoreService retailStoreService,
                             ShipmentService shipmentService,
                             ShipmentProductService shipmentProductService) {
 
@@ -90,6 +99,9 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.notifications = notifications;
         this.productService = productService;
         this.returnAmountByProductService = returnAmountByProductService;
+        this.employeeService = employeeService;
+        this.positionService = positionService;
+        this.retailStoreService = retailStoreService;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -97,9 +109,6 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-//        div.removeAll();
-//        div.add(new SalesSubCustomersOrders(invoiceService, contractorService, companyService));
-
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
             if (e.getClass() == Tabs.class) {
@@ -171,7 +180,10 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             invoiceProductService,
                             productService,
                             buyersReturnService,
-                            returnAmountByProductService));
+                            returnAmountByProductService,
+                            employeeService,
+                            positionService,
+                            retailStoreService));
                     break;
                 case "Товары на реализации":
                     div.removeAll();

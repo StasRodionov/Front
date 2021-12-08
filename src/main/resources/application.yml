@@ -1,6 +1,17 @@
 server:
   port: 4445
 
+spring:
+  mail:
+    protocol: smtps
+    host: smtp.mail.ru
+    port: 465
+    username: trade_test42@mail.ru
+    password: 62M8ZcThdpetP3EDmjeH
+    properties:
+      mail.smtp.auth : true
+      mail.smtp.starttls : true
+
 invoice_received_url: api/invoice_received
 
 issued_invoice_url: api/issuedInvoice

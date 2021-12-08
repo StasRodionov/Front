@@ -38,4 +38,6 @@ public class MovementDto {
     private String comment;
 
     private List<Long> movementProductsIds;
+
+    private Boolean isRecyclebin;
 }

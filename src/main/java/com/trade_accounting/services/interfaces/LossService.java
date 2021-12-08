@@ -14,4 +14,8 @@ public interface LossService {
     void update(LossDto lossDto);
 
     void deleteById(Long id);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
 }

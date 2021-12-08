@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.api.AcceptanceApi;
 import lombok.extern.slf4j.Slf4j;
@@ -98,5 +99,18 @@ public class AcceptanceServiceImpl implements AcceptanceService {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение приемки {IOException}", e);
         }
         return acceptanceDtoList;
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> acceptanceDtoCall = acceptanceApi.moveToIsRecyclebin(acceptanceUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(acceptanceDtoCall, AcceptanceDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> acceptanceDtoCall = acceptanceApi.restoreFromIsRecyclebin(acceptanceUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(acceptanceDtoCall, AcceptanceDto.class, id);
+
     }
 }

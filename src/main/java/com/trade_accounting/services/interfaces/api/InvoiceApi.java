@@ -43,6 +43,11 @@ public interface InvoiceApi {
                                           @Query("typeOfInvoice") String typeOfInvoice);
 
     @Headers("Accept: application/json")
+    @GET("{url}/getFromDateTime")
+    Call<List<InvoiceDto>> searchFromDate(@Path(value = "url", encoded = true) String url, @Query("date") String date);
+
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<InvoiceDto> create(@Path(value = "url", encoded = true) String url, @Body InvoiceDto invoiceDto);
 
@@ -53,4 +58,12 @@ public interface InvoiceApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/moveToIsRecyclebin/{id}")
+    Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/restoreFromIsRecyclebin/{id}")
+    Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }

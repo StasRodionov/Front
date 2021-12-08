@@ -11,6 +11,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceApi invoiceApi;
 
     private final String invoiceUrl;
-
-    private InvoiceDto invoiceDto;
 
     private final CallExecuteService<InvoiceDto> dtoCallExecuteService;
 
@@ -89,6 +88,21 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceDtoList;
     }
 
+
+    @Override
+    public List<InvoiceDto> searchFromDate(LocalDateTime dateTime) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> listCall = invoiceApi.searchFromDate(invoiceUrl, dateTime.toString());
+        try {
+            invoiceDtoList = listCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice {}", dateTime.toString());
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return invoiceDtoList;
+    }
+
+
     @Override
     public List<InvoiceDto> findBySearchAndTypeOfInvoice(String search, String typeOfInvoice) {
         List<InvoiceDto> invoiceDtoList = new ArrayList<>();
@@ -130,5 +144,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     public void deleteById(Long id) {
         Call<Void> invoiceDtoCall = invoiceApi.deleteById(invoiceUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(invoiceDtoCall, InvoiceDto.class, id);
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = invoiceApi.moveToIsRecyclebin(invoiceUrl, id);
+        dtoCallExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, InvoiceDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = invoiceApi.restoreFromIsRecyclebin(invoiceUrl, id);
+        dtoCallExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, InvoiceDto.class, id);
+
     }
 }

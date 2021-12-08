@@ -4,8 +4,10 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.RevenueDto;
 import com.trade_accounting.services.interfaces.RevenueService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -23,6 +25,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
 
@@ -38,11 +41,13 @@ public class RevenueView extends VerticalLayout {
     private final GridFilter<RevenueDto> filter;
     private final GridPaginator<RevenueDto> paginator;
     private final List<RevenueDto> data;
+    private final RevenueModalWindow revenueModalWindow;
 
-    public RevenueView(RevenueService revenueService) {
+    public RevenueView(RevenueService revenueService, @Lazy RevenueModalWindow revenueModalWindow) {
         this.revenueService = revenueService;
         this.filter = new GridFilter<>(grid);
         this.data = getData();
+        this.revenueModalWindow = revenueModalWindow;
         this.paginator = new GridPaginator<>(grid, data, 100);
         setSizeFull();
         configureGrid();
@@ -69,6 +74,11 @@ public class RevenueView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
+        grid.addItemDoubleClickListener(event -> {
+            RevenueDto edit = event.getItem();
+            //revenueModalWindow.setInvoiceDataForEdit(edit); //добавляет сущность в модальное окно, раскоментировать после реализации модального окна
+            UI.getCurrent().navigate("goods/revenue-edit");
+        });
     }
 
     private HorizontalLayout upperLayout() {

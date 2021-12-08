@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.api.SupplierAccountApi;
@@ -23,11 +23,13 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
 
     private final SupplierAccountApi supplier;
     private final String supplierUrl;
+    private final CallExecuteService<SupplierAccountDto> callExecuteService;
 
 
-    public SupplierAccountServiceImpl(@Value("${supplier_account_url}") String supplierUrl, Retrofit retrofit) {
+    public SupplierAccountServiceImpl(@Value("${supplier_account_url}") String supplierUrl, Retrofit retrofit, CallExecuteService<SupplierAccountDto> callExecuteService) {
         supplier = retrofit.create(SupplierAccountApi.class);
         this.supplierUrl = supplierUrl;
+        this.callExecuteService = callExecuteService;
     }
 
     @Override
@@ -149,5 +151,18 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
         }
         return supplierAccountDtoList;
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = supplier.moveToIsRecyclebin(supplierUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, SupplierAccountDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = supplier.restoreFromIsRecyclebin(supplierUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, SupplierAccountDto.class, id);
+
     }
 }

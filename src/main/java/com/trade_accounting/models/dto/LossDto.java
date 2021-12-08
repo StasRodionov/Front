@@ -27,4 +27,6 @@ public class LossDto {
 
     private List<Long> lossProductsIds;
 
+    private Boolean isRecyclebin;
+
 }

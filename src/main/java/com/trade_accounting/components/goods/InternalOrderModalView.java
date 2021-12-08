@@ -231,7 +231,7 @@ public class InternalOrderModalView extends Dialog {
                 .bind(internalOrderDto -> new HashSet<>(internalOrderDto.getInternalOrderProductsIdsValid()),
                         (internalOrderDto, internalOrderDto2) -> internalOrderDto.setInternalOrderProductsIdsValid(internalOrderDto
                                                                                  .getInternalOrderProductsIdsValid()));
-        UI.getCurrent().navigate("internalorder");
+        UI.getCurrent().navigate("goods");
         return horizontalLayout;
     }
 

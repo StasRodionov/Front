@@ -19,4 +19,8 @@ public interface InternalOrderService {
     List<InternalOrderDto> searchByTerm (String searchItem);
 
     List<InternalOrderDto> searchByFilter(Map<String, String> query);
+
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
 }

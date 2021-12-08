@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.PaymentDto;
 import com.trade_accounting.services.interfaces.PaymentService;
 import com.trade_accounting.services.interfaces.api.PaymentApi;
@@ -92,5 +93,18 @@ public class PaymentServiceImpl implements PaymentService {
             log.error("Произошла ошибка при выполнении запроса на поиск PaymentDto - {}", e);
         }
         return paymentDtoList;
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = paymentApi.moveToIsRecyclebin(paymentUrl, id);
+        dtoCallExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, PaymentDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = paymentApi.restoreFromIsRecyclebin(paymentUrl, id);
+        dtoCallExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, PaymentDto.class, id);
+
     }
 }

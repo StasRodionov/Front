@@ -3,16 +3,10 @@ package com.trade_accounting.services.interfaces.api;
 import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
-import retrofit2.http.GET;
-import retrofit2.http.Headers;
-import retrofit2.http.POST;
-import retrofit2.http.PUT;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
+import retrofit2.http.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BuyersReturnApi {
 
@@ -44,4 +38,9 @@ public interface BuyersReturnApi {
     @GET("{url}/searchByString")
     Call<List<BuyersReturnDto>> search(@Path(value = "url", encoded = true) String url,
                                   @Query("search") String text);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByFilter")
+    Call<List<BuyersReturnDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                               @QueryMap Map<String, String> query);
 }

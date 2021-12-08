@@ -44,4 +44,6 @@ public class SupplierAccountDto extends SupplierAccountDtoForValidation {
 
     private String plannedDatePayment;
 
+    private Boolean isRecyclebin;
+
 }

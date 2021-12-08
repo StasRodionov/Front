@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
@@ -83,6 +84,18 @@ public class TechnicalOperationsServiceImpl implements TechnicalOperationsServic
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка технических операции: {IOException}", e);
         }
         return technicalOperationsDtoList;
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = technicalOperationsApi.moveToIsRecyclebin(technicalOperationsUrl, id);
+        dtoCallExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, TechnicalOperationsDto.class, id);
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = technicalOperationsApi.restoreFromIsRecyclebin(technicalOperationsUrl, id);
+        dtoCallExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, TechnicalOperationsDto.class, id);
 
     }
 }

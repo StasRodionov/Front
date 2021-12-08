@@ -35,4 +35,6 @@ public class InternalOrderDto extends InternalOrderDtoForValidation {
     private Boolean isPrint = null;
 
     private String comment;
+
+    private Boolean isRecyclebin;
 }

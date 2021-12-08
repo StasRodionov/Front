@@ -19,6 +19,10 @@ public interface TaskCommentApi {
     Call<List<TaskCommentDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
+    @GET("{url}/{id}")
+    Call<TaskCommentDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<Void> create(@Path(value = "url", encoded = true) String url, @Body TaskCommentDto taskCommentDto);
 

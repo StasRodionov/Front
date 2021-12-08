@@ -22,4 +22,8 @@ public interface TechnicalOperationsService {
 
     List<TechnicalOperationsDto> searchTechnicalOperations(Map<String, String> queryTechnicalOperations);
 
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
+
 }

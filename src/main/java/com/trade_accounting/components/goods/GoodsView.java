@@ -82,6 +82,7 @@ public class GoodsView extends VerticalLayout {
         List<ProductDto> data = getData();
         configureGrid();
         this.filter = new GridFilter<>(this.grid);
+        configureFilter();
         this.paginator = new GridPaginator<>(this.grid, data,50);
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(getUpperLayout(), filter, getMiddleLayout(this.grid), paginator);
@@ -146,6 +147,14 @@ public class GoodsView extends VerticalLayout {
             goodsModalWindow.open(productDto);
         });
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e ->
+                paginator.setData(productService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e ->
+                paginator.setData(productService.getAll()));
     }
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
