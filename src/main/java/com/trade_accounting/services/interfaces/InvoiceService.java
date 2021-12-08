@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces;
 import com.trade_accounting.models.dto.InvoiceDto;
 import retrofit2.Response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,8 @@ public interface InvoiceService {
     InvoiceDto getById(Long id);
 
     List<InvoiceDto> search(Map<String, String> query);
+
+    List<InvoiceDto> searchFromDate(LocalDateTime dateTime);
 
     List<InvoiceDto> findBySearchAndTypeOfInvoice(String search, String typeOfInvoice);
 
