@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.RetailReturnsDto;
+import com.trade_accounting.models.dto.RetailSalesDto;
 import com.trade_accounting.services.interfaces.RetailReturnsService;
 import com.trade_accounting.services.interfaces.api.RetailReturnsApi;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,10 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -57,5 +61,31 @@ public class RetailReturnsServiceImpl implements RetailReturnsService {
     public void deleteById(Long id) {
         Call<Void> retailReturnsDtoCall = retailReturnsApi.deleteById(retailReturnUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(retailReturnsDtoCall, RetailReturnsDto.class, id);
+    }
+
+    @Override
+    public List<RetailReturnsDto> search(String query) {
+        List<RetailReturnsDto> retailReturnsDtoList = new ArrayList<>();
+        Call<List<RetailReturnsDto>> retailReturnsListCall = retailReturnsApi.search(retailReturnUrl, query);
+        try {
+            retailReturnsDtoList = retailReturnsListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка RetailReturnsDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка RetailReturnsDto - ", e);
+        }
+        return retailReturnsDtoList;
+    }
+
+    @Override
+    public List<RetailReturnsDto> searchRetailReturns(Map<String, String> queryRetailReturns) {
+        List<RetailReturnsDto> retailReturnsDtoList = new ArrayList<>();
+        Call<List<RetailReturnsDto>> retailReturnsListCall = retailReturnsApi.searchContractor(retailReturnUrl, queryRetailReturns);
+        try {
+            retailReturnsDtoList = retailReturnsListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка RetailReturnsDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка RetailReturnsDto - ", e);
+        }
+        return retailReturnsDtoList;
     }
 }
