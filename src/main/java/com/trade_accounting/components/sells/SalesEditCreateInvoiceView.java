@@ -9,7 +9,6 @@ import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.InvoicesStatusDto;
-import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -154,13 +153,10 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         configureCloseViewDialog();
 
         salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
-            if (salesChooseGoodsModalWin.productSelect.getValue() != null
-                    && salesChooseGoodsModalWin.priceSelect.getValue() != null) {
-                addProduct(salesChooseGoodsModalWin.productSelect.getValue(), salesChooseGoodsModalWin.priceSelect.getValue(), salesChooseGoodsModalWin.amoSelect.getValue());
-                salesChooseGoodsModalWin.productSelect.setValue(null);
-                salesChooseGoodsModalWin.priceSelect.setValue(null);
-                salesChooseGoodsModalWin.amoSelect.setValue("");
+            if (salesChooseGoodsModalWin.isFormValid()) {
+                addProduct(salesChooseGoodsModalWin.getInvoiceProductDto());
             }
+            salesChooseGoodsModalWin.clearForm();
         });
 
         binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
@@ -493,20 +489,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, String amo) {
-        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-        invoiceProductDto.setProductId(productDto.getId());
-        invoiceProductDto.setAmount(new BigDecimal(amo));
-        invoiceProductDto.setPrice(
-                productPriceDto.getValue()
-                /*getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds().stream()
-                                .map(productPriceService::getById)
-                                .collect(Collectors.toList()),
-                        typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
-                        //contractorSelect.getValue().getTypeOfPriceDto().getId()
-                )*/
-        );
-        if (!isProductInList(productDto)) {
+    public void addProduct(InvoiceProductDto invoiceProductDto) {
+        if (!isProductInList(invoiceProductDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
             setTotalPrice();
@@ -583,14 +567,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    private boolean isProductInList(ProductDto productDto) {
-        boolean isExists = false;
-        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            if (invoiceProductDto.getProductId().equals(productDto.getId())) {
-                isExists = true;
-            }
-        }
-        return isExists;
+    private boolean isProductInList(InvoiceProductDto invoiceProductDto) {
+        return tempInvoiceProductDtoList.stream()
+                .anyMatch(invoiceProductDtoElem -> invoiceProductDtoElem.getProductId().equals(invoiceProductDto.getProductId()));
     }
 
     public BigDecimal getTotalPrice() {

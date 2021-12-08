@@ -89,10 +89,11 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
         grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("Сумма скидок");
         grid.addColumn("sum").setHeader("Итого").setId("Итого");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setId("организация");
+
         grid.addColumn("time").setHeader("Время").setId("Время");
         grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("retailStoreId");
         grid.addColumn("contractorId").setHeader("Контрагент").setId("contractorId");
+        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setId("организация");
 
         grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setWidth("35px").setKey("sent")
                 .setHeader("Отправлена").setId("Отправлена");
@@ -112,9 +113,12 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
-         filter.setFieldToDatePicker("time");
-        filter.onSearchClick(e ->
-                paginator.setData(retailSalesService.searchRetailSales(filter.getFilterData())));
+        filter.setFieldToDatePicker("time");
+        filter.onSearchClick(e -> {
+            List<RetailSalesDto> list = retailSalesService.searchRetailSales(filter.getFilterData());
+            System.out.println("-> " + list);
+        paginator.setData(list);
+        });
         filter.onClearClick(e ->
                 paginator.setData(retailSalesService.getAll()));
     }

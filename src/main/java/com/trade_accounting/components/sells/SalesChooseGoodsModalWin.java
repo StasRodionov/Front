@@ -1,21 +1,24 @@
 package com.trade_accounting.components.sells;
 
+import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
+import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.asm.TypeReference;
-import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.ProductPriceDto;
-import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.vaadin.flow.component.combobox.ComboBox;
+import org.springframework.stereotype.Component;
 
 @SpringComponent
 @UIScope
@@ -28,20 +31,19 @@ public class SalesChooseGoodsModalWin extends Dialog {
     private final ProductService productService;
     private final ProductPriceService productPriceService;
 
-    public TextField amoSelect = new TextField();
 
     private List<ProductDto> productDtos;
 
     public final ComboBox<ProductDto> productSelect = new ComboBox<>();
     public final ComboBox<ProductPriceDto> priceSelect = new ComboBox<>();
+    public final BigDecimalField amountField = new BigDecimalField();
 
     public Button saveButton = new Button();
 
     public SalesChooseGoodsModalWin(ProductService productService, ProductPriceService productPriceService) {
         this.productService = productService;
         this.productPriceService = productPriceService;
-
-        add(header(), configureProductSelect(), configureAmoSelect(), configurePriceSelect());
+        add(header(), configureProductSelect(), configurePriceSelect(), configureAmountField());
     }
 
     private HorizontalLayout header() {
@@ -97,36 +99,56 @@ public class SalesChooseGoodsModalWin extends Dialog {
         return horizontalLayout;
     }
 
-    private HorizontalLayout configureAmoSelect() {
+    private HorizontalLayout configureAmountField() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
+        amountField.setValue(BigDecimal.ONE);
+        amountField.setErrorMessage("Требуется положительное число");
         Label label = new Label("Укажите количество");
         label.setWidth(LABEL_WIDTH);
-        horizontalLayout.add(label, amoSelect);
+        horizontalLayout.add(label, amountField);
+
+        amountField.addValueChangeListener(e -> {
+            amountField.setInvalid(!isAmountFieldValid());
+            updateSaveButtonEnable();
+        });
+
         return horizontalLayout;
     }
 
+    private boolean isAmountFieldValid() {
+        return amountField.getValue() != null && amountField.getValue().compareTo(BigDecimal.ZERO) > 0;
+    }
+
     private Button getSaveButton() {
-        saveButton = new Button("Добавить", event -> {
-            close();
-        });
+        saveButton = new Button("Добавить", event -> close());
         saveButton.setEnabled(false);
         return saveButton;
     }
 
     private Button getCloseButton() {
-        return new Button("Закрыть", event -> {
-            productSelect.setValue(null);
-            priceSelect.setValue(null);
-            amoSelect.setValue("");
-            close();
-        });
+        return new Button("Закрыть", event -> close());
+    }
+
+    public InvoiceProductDto getInvoiceProductDto() {
+        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
+        invoiceProductDto.setProductId(productSelect.getValue().getId());
+        invoiceProductDto.setPrice(priceSelect.getValue().getValue());
+        invoiceProductDto.setAmount(amountField.getValue());
+        return invoiceProductDto;
     }
 
     private void updateSaveButtonEnable() {
-        if (productSelect.getValue() != null && priceSelect.getValue() != null && amoSelect.getValue() !=null){
-            saveButton.setEnabled(true);
-        } else {
-            saveButton.setEnabled(false);
-        }
+        saveButton.setEnabled(isFormValid());
+    }
+
+    public boolean isFormValid() {
+        return productSelect.getValue() != null && priceSelect.getValue() != null && isAmountFieldValid();
+    }
+
+    public void clearForm() {
+        productSelect.setItems(new ArrayList<>());
+        priceSelect.setItems(new ArrayList<>());
+        amountField.setValue(BigDecimal.ONE);
+        amountField.setInvalid(false);
     }
 }
