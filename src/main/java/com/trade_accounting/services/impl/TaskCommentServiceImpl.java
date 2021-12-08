@@ -1,7 +1,9 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.TaskCommentDto;
+import com.trade_accounting.models.dto.TaskDto;
 import com.trade_accounting.services.interfaces.TaskCommentService;
+import com.trade_accounting.services.interfaces.TaskService;
 import com.trade_accounting.services.interfaces.api.TaskCommentApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +22,15 @@ public class TaskCommentServiceImpl implements TaskCommentService {
 
     private final String taskCommentUrl;
 
+    private final TaskService taskService;
+
     private final CallExecuteService<TaskCommentDto> dtoCallExecuteService;
 
     @Autowired
-    public TaskCommentServiceImpl(@Value("${task_comment_url}") String taskCommentUrl, Retrofit retrofit, CallExecuteService<TaskCommentDto> dtoCallExecuteService) {
+    public TaskCommentServiceImpl(@Value("${task_comment_url}") String taskCommentUrl, Retrofit retrofit, TaskService taskService, CallExecuteService<TaskCommentDto> dtoCallExecuteService) {
         taskCommentApi = retrofit.create(TaskCommentApi.class);
         this.taskCommentUrl = taskCommentUrl;
+        this.taskService = taskService;
         this.dtoCallExecuteService = dtoCallExecuteService;
     }
 
@@ -33,6 +38,12 @@ public class TaskCommentServiceImpl implements TaskCommentService {
     public List<TaskCommentDto> getAll() {
         Call<List<TaskCommentDto>> taskCommentDtoListCall = taskCommentApi.getAll(taskCommentUrl);
         return dtoCallExecuteService.callExecuteBodyList(taskCommentDtoListCall, TaskCommentDto.class);
+    }
+
+    @Override
+    public TaskCommentDto getById(Long id) {
+        Call<TaskCommentDto> taskCommentDtoCall = taskCommentApi.getById(taskCommentUrl, id);
+        return dtoCallExecuteService.callExecuteBodyById(taskCommentDtoCall, TaskCommentDto.class, id);
     }
 
     @Override

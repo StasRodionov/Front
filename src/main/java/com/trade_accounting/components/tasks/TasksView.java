@@ -6,12 +6,15 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.TaskDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.TaskCommentService;
 import com.trade_accounting.services.interfaces.TaskService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -19,6 +22,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -36,24 +42,27 @@ import java.util.List;
 @Slf4j
 @Route(value = "tasks", layout = AppView.class)
 @PageTitle("Задачи")
-public class TasksView extends VerticalLayout {
+public class TasksView extends VerticalLayout implements AfterNavigationObserver {
 
     private final TaskService taskService;
     private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
     private final GridFilter<TaskDto> filter;
     private final EmployeeService employeeService;
     private final ContractorService contractorService;
-    private final GridPaginator<TaskDto> paginator;
+    private final TaskCommentService taskCommentService;
+    private GridPaginator<TaskDto> paginator;
 
     private final TaskDto taskDto;
 
     @Autowired
-    public TasksView(TaskService taskService, EmployeeService employeeService, ContractorService contractorService) {
+    public TasksView(TaskService taskService, EmployeeService employeeService,
+                     ContractorService contractorService, TaskCommentService taskCommentService) {
         this.taskService = taskService;
         this.employeeService = employeeService;
         this.contractorService = contractorService;
+        this.taskCommentService = taskCommentService;
         this.taskDto = new TaskDto();
-        paginator = new GridPaginator<>(grid, taskService.getAll(), 15);
+        paginator = getPaginator();
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -64,8 +73,12 @@ public class TasksView extends VerticalLayout {
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
-        grid.addColumn("id").setHeader("ID").setId("ID");
-        grid.addColumn("description").setHeader("Описание").setId("Описание");
+        grid.addColumn(TaskDto::getId).setHeader("ID")
+                .setKey("id").setId("ID");
+        grid.addColumn(TaskDto::getDescription).setHeader("Описание")
+                .setKey("description").setId("Описание");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCompleteIcon)).setHeader("Завершена")
+                .setKey("completed").setId("Завершена");
         grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName())
                 .setKey("contractorId").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getLastName())
@@ -81,11 +94,13 @@ public class TasksView extends VerticalLayout {
         grid.addItemDoubleClickListener(event -> {
             TaskDto taskDto = event.getItem();
             TaskModalWin addTaskModalWin =
-                    new TaskModalWin(taskService, taskDto, employeeService, contractorService);
+                    new TaskModalWin(taskService, taskDto, employeeService, contractorService, taskCommentService);
             addTaskModalWin.addDetachListener(e -> updateList());
             addTaskModalWin.getSaveButton();
             addTaskModalWin.open();
         });
+
+        grid.setSortableColumns("id", "description", "completed", "contractorId", "employeeId", "deadLineDateTime", "creationDateTime");
     }
 
     private HorizontalLayout getToolBar() {
@@ -138,7 +153,7 @@ public class TasksView extends VerticalLayout {
     private Button getButtonCreateTask() {
         var buttonUnit = new Button("Задача", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(click -> {
-            TaskModalWin taskModalWin = new TaskModalWin(taskService, taskDto, employeeService, contractorService);
+            TaskModalWin taskModalWin = new TaskModalWin(taskService, new TaskDto(), employeeService, contractorService, taskCommentService);
             taskModalWin.open();
         });
         return buttonUnit;
@@ -163,6 +178,7 @@ public class TasksView extends VerticalLayout {
         GridPaginator<TaskDto> paginatorUpdateList
                 = new GridPaginator<>(grid, taskService.getAll(), 15);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        paginator = getPaginator();
         removeAll();
         add(getToolBar(), filter, grid, paginator);
     }
@@ -174,5 +190,24 @@ public class TasksView extends VerticalLayout {
 
     private List<TaskDto> getData() {
         return taskService.getAll();
+    }
+
+    private Component getIsCompleteIcon(TaskDto taskDto) {
+        if (taskDto.isCompleted()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
+    }
+
+    private GridPaginator<TaskDto> getPaginator(){
+        return new GridPaginator<>(grid, taskService.getAll(), 15);
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }
