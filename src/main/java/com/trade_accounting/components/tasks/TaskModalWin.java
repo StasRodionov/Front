@@ -166,10 +166,8 @@ public class TaskModalWin extends Dialog {
             return new Button("Добавить", event -> {
                 saveFields(taskDto);
                 taskService.create(taskDto);
-                //UI.getCurrent().navigate("tasks");
-                //notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
-                UI.getCurrent().close();
                 close();
+                UI.getCurrent().navigate("tasks");
             });
         } else {
             return new Button("Изменить", event -> {

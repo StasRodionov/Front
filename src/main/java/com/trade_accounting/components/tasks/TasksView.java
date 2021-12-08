@@ -19,6 +19,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -36,14 +38,14 @@ import java.util.List;
 @Slf4j
 @Route(value = "tasks", layout = AppView.class)
 @PageTitle("Задачи")
-public class TasksView extends VerticalLayout {
+public class TasksView extends VerticalLayout implements AfterNavigationObserver {
 
     private final TaskService taskService;
     private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
     private final GridFilter<TaskDto> filter;
     private final EmployeeService employeeService;
     private final ContractorService contractorService;
-    private final GridPaginator<TaskDto> paginator;
+    private GridPaginator<TaskDto> paginator;
 
     private final TaskDto taskDto;
 
@@ -53,7 +55,7 @@ public class TasksView extends VerticalLayout {
         this.employeeService = employeeService;
         this.contractorService = contractorService;
         this.taskDto = new TaskDto();
-        paginator = new GridPaginator<>(grid, taskService.getAll(), 15);
+        paginator = getPaginator();
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -142,7 +144,7 @@ public class TasksView extends VerticalLayout {
     private Button getButtonCreateTask() {
         var buttonUnit = new Button("Задача", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonUnit.addClickListener(click -> {
-            TaskModalWin taskModalWin = new TaskModalWin(taskService, taskDto, employeeService, contractorService);
+            TaskModalWin taskModalWin = new TaskModalWin(taskService, new TaskDto(), employeeService, contractorService);
             taskModalWin.open();
         });
         return buttonUnit;
@@ -167,6 +169,7 @@ public class TasksView extends VerticalLayout {
         GridPaginator<TaskDto> paginatorUpdateList
                 = new GridPaginator<>(grid, taskService.getAll(), 15);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        paginator = getPaginator();
         removeAll();
         add(getToolBar(), filter, grid, paginator);
     }
@@ -178,5 +181,14 @@ public class TasksView extends VerticalLayout {
 
     private List<TaskDto> getData() {
         return taskService.getAll();
+    }
+
+    private GridPaginator<TaskDto> getPaginator(){
+        return new GridPaginator<>(grid, taskService.getAll(), 15);
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }
