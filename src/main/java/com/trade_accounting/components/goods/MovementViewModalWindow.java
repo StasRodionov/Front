@@ -180,6 +180,12 @@ public class MovementViewModalWindow extends Dialog {
         SubMenu subMenuTorg13 = contextMenu.addItem(new Div(new Text("ТОРГ-13"))).getSubMenu();
         subMenuTorg13.addItem("Открыть в браузере");
         subMenuTorg13.addItem("Скачать в формате Excel", event -> {
+
+            //TODO movementDto should be updated before call updateTorg13
+            movementService.updateTorg13(movementDto,
+                    companyService.getById(movementDto.getCompanyId()),
+                    warehouseService.getById(movementDto.getWarehouseToId()));
+
             UI.getCurrent().getPage()
                     .open("http://localhost:4445/api/movements/files/torg13/xls", "print");
         });
@@ -206,11 +212,15 @@ public class MovementViewModalWindow extends Dialog {
 
         contextMenu.addItem(container, event -> {
             if (Boolean.FALSE.equals(movementDto.getIsSent())) {
+                //TODO movementDto should be updated before call updateTorg13
+                movementService.updateTorg13(movementDto,
+                        companyService.getById(movementDto.getCompanyId()),
+                        warehouseService.getById(movementDto.getWarehouseToId()));
+
                 movementService.update(movementDto);
-                //TODO Add request to update torg13.xls template data
                 HttpClient httpClient = HttpClient.newHttpClient();
                 HttpRequest httpRequest = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:4445/api/movements/files/send/torg13/pdf"))
+                        .uri(URI.create("http://localhost:4445/api/movements/files/send/torg13/xls"))
                         .build();
                 httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
                         .thenApply(HttpResponse::statusCode)
