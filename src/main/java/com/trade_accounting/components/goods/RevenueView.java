@@ -83,9 +83,21 @@ public class RevenueView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), numberField(), getPrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(),buttonUnit(), buttonFilter(), numberField(), getPrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonUnit() {
+        Button createRetailStoreButton = new Button("Обороты", new Icon(VaadinIcon.PLUS_CIRCLE));
+        RevenueModalWindow revenueModalWindow =
+                new RevenueModalWindow(revenueService);
+        createRetailStoreButton.addClickListener(e -> {
+            revenueModalWindow.addDetachListener(event -> updateList());
+            revenueModalWindow.open();
+        });
+        createRetailStoreButton.getStyle().set("cursor", "pointer");
+        return createRetailStoreButton;
     }
 
     private H2 title() {
