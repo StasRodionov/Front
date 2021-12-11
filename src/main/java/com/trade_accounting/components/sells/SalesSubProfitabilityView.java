@@ -25,13 +25,17 @@ import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -40,15 +44,19 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -67,6 +75,8 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final EmployeeService employeeService;
     private final PositionService positionService;
     private final RetailStoreService retailStoreService;
+    private final MenuItem print;
+    private final MenuBar selectXlsTemplateButton = new MenuBar();
 
     private Grid<ContractorDto> gridCostumers = new Grid<>(ContractorDto.class, false);
     private Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
@@ -87,6 +97,9 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final GridFilter<InvoiceProductDto> productsFilter;
     private final GridFilter<ContractorDto> costumersFilter;
 
+    private final String pathForSaveXlsTemplate =
+            "src/main/resources/xls_templates/profitability_templates/";
+
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService,
                                      InvoiceProductService invoiceProductService,
@@ -106,6 +119,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         this.employeeService = employeeService;
         this.positionService = positionService;
         this.retailStoreService = retailStoreService;
+        print = selectXlsTemplateButton.addItem("Печать");
 
         this.contractorDtos = getContractorDtos();
         this.invoiceProductDtos = getInvoiceProductDtos();
@@ -142,7 +156,61 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 gridEmployees, paginatorEmployees);
 
         getCashiersIdsRevenues();
+        configureSelectXlsTemplateButton();
     }
+
+
+    private void configureSelectXlsTemplateButton() {
+        SubMenu printSubMenu = print.getSubMenu();
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
+
+    }
+
+
+    //по продкутам ------------------------------------------------
+
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        //return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+               // .contains(".xls")).filter(x -> x.getName().contains("product")).collect(Collectors.toList());
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+    }
+
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        List<String> sumList = new ArrayList<>();
+        //List<BuyersReturnDto> list1 = buyersReturnService.getAll();
+        PrintSalesSubProfitabilityByProduct printSalesSubProfitabilityByProduct = new PrintSalesSubProfitabilityByProduct(file.getPath(), invoiceProductDtos,
+                productService);
+        return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByProduct::createReport), templateName);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    //по сотрудникам ------------------------------------------------
+
+
+
+    //по покупателям ------------------------------------------------
+
+
 
     private void configureEmployeeGrid(boolean refreshing) {
         gridEmployees.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
@@ -474,7 +542,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), getPrint(), buttonGraph());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
