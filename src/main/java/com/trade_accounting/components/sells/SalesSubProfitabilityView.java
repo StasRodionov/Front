@@ -159,7 +159,6 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         configureSelectXlsTemplateButton();
     }
 
-
     private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.removeAll();
@@ -167,14 +166,8 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     }
 
-
-    //по продкутам ------------------------------------------------
-
-
     private List<File> getXlsFiles() {
         File dir = new File(pathForSaveXlsTemplate);
-        //return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
-               // .contains(".xls")).filter(x -> x.getName().contains("product")).collect(Collectors.toList());
         return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
                 .contains(".xls")).collect(Collectors.toList());
     }
@@ -186,31 +179,27 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
-        List<String> sumList = new ArrayList<>();
-        //List<BuyersReturnDto> list1 = buyersReturnService.getAll();
-        PrintSalesSubProfitabilityByProduct printSalesSubProfitabilityByProduct = new PrintSalesSubProfitabilityByProduct(file.getPath(), invoiceProductDtos,
-                productService);
-        return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByProduct::createReport), templateName);
+        cashiersIdsTotalRevenues = getCashiersIdsTotalRevenues();
+        if (templateName.contains("product")) {
+            PrintSalesSubProfitabilityByProduct printSalesSubProfitabilityByProduct =
+                    new PrintSalesSubProfitabilityByProduct(file.getPath(), invoiceProductDtos,
+                            productService, returnAmountByProductService);
+            return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByProduct::createReport), templateName);
+        } else if (templateName.contains("employee")) {
+            PrintSalesSubProfitabilityByEmpolyee printSalesSubProfitabilityByEmpolyee =
+                    new PrintSalesSubProfitabilityByEmpolyee(file.getPath(), employeeDtos, contractorService,
+                            positionService, retailStoreService, cashiersIdsTotalRevenues);
+            return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByEmpolyee::createReport), templateName);
+
+        } else if (templateName.contains("costumers")) {
+
+            PrintSalesSubProfitabilityByCostumers printSalesSubProfitabilityByCostumers =
+                    new PrintSalesSubProfitabilityByCostumers(file.getPath(), contractorDtos, contractorService,
+                            invoiceDtos, invoiceProductDtos, productDtos, buyersReturnService);
+            return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByCostumers::createReport), templateName);
+        }
+        return null;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-    //по сотрудникам ------------------------------------------------
-
-
-
-    //по покупателям ------------------------------------------------
-
-
 
     private void configureEmployeeGrid(boolean refreshing) {
         gridEmployees.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
@@ -248,27 +237,31 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private List<List<Long>> ids = new ArrayList<>();
     private Map<Long, BigDecimal> cashiersIdsTotalRevenues;
 
+    public Map<Long, BigDecimal> getCashiersIdsTotalRevenues() {
+        return cashiersIdsTotalRevenues;
+    }
+
     private void getCashiersIdsRevenues() {
         for (RetailStoreDto rs : retailStoreDtos) {
             revs.add(rs.getRevenue());
             ids.add(rs.getCashiersIds());
         }
         Map<Long, BigDecimal> result = new HashMap<>();
-        for (int i = 1 ; i <= revs.size() ; i++) {
-            if (ids.get(i-1).size() > 1) {
-                List<Long> list = new ArrayList<>(ids.get(i-1));
+        for (int i = 1; i <= revs.size(); i++) {
+            if (ids.get(i - 1).size() > 1) {
+                List<Long> list = new ArrayList<>(ids.get(i - 1));
                 for (int a = 0; a < list.size(); a++) {
                     if (result.containsKey(list.get(a))) {
-                        result.put(list.get(a), revs.get(i-1).divide(new BigDecimal(list.size())).add(result.get(list.get(a))));
+                        result.put(list.get(a), revs.get(i - 1).divide(new BigDecimal(list.size())).add(result.get(list.get(a))));
                     } else {
-                        result.put(list.get(a), revs.get(i-1).divide(new BigDecimal(list.size())));
+                        result.put(list.get(a), revs.get(i - 1).divide(new BigDecimal(list.size())));
                     }
                 }
             } else {
-                if (result.containsKey(ids.get(i-1).get(0))) {
-                    result.put(ids.get(i-1).get(0), revs.get(i-1).add(result.get(ids.get(i-1).get(0))));
+                if (result.containsKey(ids.get(i - 1).get(0))) {
+                    result.put(ids.get(i - 1).get(0), revs.get(i - 1).add(result.get(ids.get(i - 1).get(0))));
                 } else {
-                    result.put(ids.get(i-1).get(0), revs.get(i-1));
+                    result.put(ids.get(i - 1).get(0), revs.get(i - 1));
                 }
             }
         }
@@ -432,7 +425,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         if (query.containsKey("profit")) {
             result = result.stream()
                     .filter(e -> {
-                        if (cashiersIdsTotalRevenues.get(e.getId())!=null) {
+                        if (cashiersIdsTotalRevenues.get(e.getId()) != null) {
                             if (cashiersIdsTotalRevenues.get(e.getId()).equals(new BigDecimal(query.get("profit")))) {
                                 return true;
                             } else return false;
