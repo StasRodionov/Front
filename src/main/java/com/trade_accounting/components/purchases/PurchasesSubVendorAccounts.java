@@ -67,6 +67,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final InvoiceProductService invoiceProductService;
 
     private List<SupplierAccountDto> supplierAccount;
+    private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
@@ -102,7 +103,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private List<SupplierAccountDto> loadSupplierAccounts() {
-        supplierAccount = supplierAccountService.getAll();
+        supplierAccount = supplierAccountService.getAll(typeOfInvoice);
         return supplierAccount;
     }
 
@@ -161,7 +162,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
+        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll(typeOfInvoice)));
     }
 
     private Button buttonQuestion() {
@@ -291,7 +292,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void updateList() {
-        grid.setItems(supplierAccountService.getAll());
+        grid.setItems(supplierAccountService.getAll(typeOfInvoice));
     }
 
     private String getTotalPrice(SupplierAccountDto invoice) {
