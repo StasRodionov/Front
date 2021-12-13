@@ -584,7 +584,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         }
 
         if (invoiceDto.getCompanyId() != null) {
-           companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
+            companySelectComboBox.setValue(companyService.getById(invoiceDto.getCompanyId()));
         }
 
         if (invoiceDto.getContractorId() != null) {
@@ -598,9 +598,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         commentTextField.setValue("");
         commentTextField.setWidth("300px");
 
-       if (invoiceDto.getWarehouseId() != null) {
+        if (invoiceDto.getWarehouseId() != null) {
             warehouseSelect.setValue(warehouseService.getById(invoiceDto.getWarehouseId()));
-       }
+        }
 
         if (invoiceDto.getInvoicesStatusId() != null) {
             invoicesStatusSelectComboBox.setValue(invoicesStatusService.getById(invoiceDto.getInvoicesStatusId()));
@@ -608,14 +608,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    private boolean isProductInList(ProductDto productDto) {
-        boolean isExists = false;
-        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            if (invoiceProductDto.getProductId().equals(productDto.getId())) {
-                isExists = true;
-            }
-        }
-        return isExists;
+    private boolean isProductInList(InvoiceProductDto invoiceProductDto) {
+        return tempInvoiceProductDtoList.stream()
+                .anyMatch(invoiceProductDtoElem -> invoiceProductDtoElem.getProductId().equals(invoiceProductDto.getProductId()));
     }
 
     public BigDecimal getTotalPrice() {
