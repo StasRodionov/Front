@@ -2,6 +2,7 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.goods.GoodsModalWindow;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -21,7 +22,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -74,6 +75,9 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private final TextField textField = new TextField();
 
+    private  final String textForQuestionButton = "<div><p>Возврат поставщику можно создать на основе приемки или вручную.</p>"+
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Возврат поставщику</a></p></div>";
+
     @Autowired
     public PurchasesSubReturnToSuppliers(ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
                                          CompanyService companyService, ContractorService contractorService, ContractService contractService,
@@ -96,7 +100,8 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private HorizontalLayout configureActions() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonAdd(),
+        horizontalLayout.add(Buttons.buttonQuestion(textForQuestionButton, "150px"),
+                title(), buttonRefresh(), buttonAdd(),
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -150,29 +155,11 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         return returnToSupplierService.getAll();
     }
 
-    private H2 title() {
-        H2 title = new H2("Возвраты поставщикам");
+    private H4 title() {
+        H4 title = new H4("Возвраты поставщикам");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>Возврат поставщику можно создать на основе <a href=\"#\" target=\"_blank\">приемки</a></p>" +
-                "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Возврат поставщику</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("150px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {
