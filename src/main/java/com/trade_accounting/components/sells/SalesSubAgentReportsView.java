@@ -1,8 +1,13 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -26,6 +31,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -37,13 +44,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "agentReports", layout = AppView.class)
 @PageTitle("Отчеты комиссионера")
 @SpringComponent
 @UIScope
-public class SalesSubAgentReportsView extends VerticalLayout {
+public class SalesSubAgentReportsView extends VerticalLayout implements AfterNavigationObserver {
 
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
@@ -53,9 +61,11 @@ public class SalesSubAgentReportsView extends VerticalLayout {
     private final Notifications notifications;
 
     private HorizontalLayout actions;
-    private Grid<InvoiceDto> grid;
-    private GridPaginator<InvoiceDto> paginator;
+    private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
+    private final GridPaginator<InvoiceDto> paginator;
     private CommissionAgentReportModalView commissionAgentReportModalView;
+
+    private final GridFilter<InvoiceDto> filter;
 
     private final String typeOfInvoice = "RECEIPT";
 
@@ -71,34 +81,50 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         this.warehouseService = warehouseService;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.notifications = notifications;
+
         this.data = getData();
-
-        configureActions();
+        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
-        configurePaginator();
-
-        add(actions, grid, paginator);
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+        add(configureActions(), filter, grid, paginator);
     }
 
-    private void configureActions() {
-        actions = new HorizontalLayout();
-        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+
+    private void configureFilter() {
+
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData2();
+            paginator.setData(invoiceService.search(map));
+        });
+
+        filter.onClearClick(e -> paginator.setData(getData()));
+
+    }
+
+    private HorizontalLayout configureActions() {
+        HorizontalLayout actions1 = new HorizontalLayout();
+        actions1.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
-        actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        actions1.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        return actions1;
     }
 
     private void configureGrid() {
-        grid = new Grid<>(InvoiceDto.class, false);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("id").setId("id");
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Счет-фактура")
-                .setKey("typeOfInvoiceDTO").setId("Счет-фактура");
+                .setKey("typeOfInvoice").setId("Счет-фактура");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Компания")
-                .setKey("companyId").setId("Компания");
+                .setKey("companyDto").setId("Компания");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
-                .setKey("contractorId").setId("Контрагент");
+                .setKey("contractorDto").setId("Контрагент");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
         grid.setHeight("66vh");
@@ -117,6 +143,8 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         });
     }
 
+
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -125,11 +153,6 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         } else {
             return new Span("");
         }
-    }
-
-    private void configurePaginator() {
-        paginator = new GridPaginator<>(grid, data, 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
     private static String formatDate(String date) {
@@ -156,12 +179,11 @@ public class SalesSubAgentReportsView extends VerticalLayout {
 
         });
         return buttonUnit;
-
-
     }
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
@@ -247,18 +269,25 @@ public class SalesSubAgentReportsView extends VerticalLayout {
         return print;
     }
 
-    private void updateList() {
-        grid.setItems(invoiceService.getAll(typeOfInvoice));
+    private void updateList(String text) {
+        grid.setItems(invoiceService.getAll());
         System.out.println("Обновлен");
     }
 
-    private void updateList(String text) {
-        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
+    private void updateList() {
+        GridPaginator<InvoiceDto> paginatorUpdateList
+                = new GridPaginator<>(grid, invoiceService.getAll(), 50);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+        removeAll();
+        add(configureActions(), grid, paginator);
     }
 
     private List<InvoiceDto> getData() {
-        return invoiceService.getAll(typeOfInvoice);
+        return invoiceService.getAll();
     }
 
-
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
+    }
 }
