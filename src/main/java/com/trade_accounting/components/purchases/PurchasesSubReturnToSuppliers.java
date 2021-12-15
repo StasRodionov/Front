@@ -5,7 +5,10 @@ import com.trade_accounting.components.goods.GoodsModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ReturnToSupplierDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -139,6 +142,9 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
         filter.setFieldToComboBox("send", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator
