@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -70,6 +71,14 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final ProductService productService;
     private final AcceptanceProductionService acceptanceProductionService;
 
+    private  final String textForQuestionButton = "<div><p>Приемки позволяют учитывать закупки товаров." +
+            "Приемку создают, когда покупают новый товар." +
+            "Если товар уже лежит у вас на складе или вы не хотите указывать поставщиков, лучше воспользоваться оприходованием.</p>" +
+            "<p>В результате приемки увеличиваются остатки товаров в разделе Товары → Остатки и фиксируется долг перед поставщиком в разделе Деньги → Взаиморасчеты." +
+            "Также на основе приемки формируется себестоимость товара.</p>" +
+            "<p>Приемку можно создать вручную или импортировать, в том числе из систем ЭДО.</p>"+
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Приемка товаров</a></p></div>";
+
     public PurchasesSubAcceptances(CompanyService companyService, AcceptanceService acceptanceService,
                                    WarehouseService warehouseService,
                                    ContractorService contractorService,
@@ -101,7 +110,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
 
     private HorizontalLayout configureActions() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonAdd(),
+        horizontalLayout.add(Buttons.buttonQuestion(textForQuestionButton, "450px"), title(), buttonRefresh(), buttonAdd(),
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings(), selectXlsTemplateButton);
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -148,26 +157,6 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         title.setHeight("2.2em");
         title.setWidth("80px");
         return title;
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> {
-            dialog.close();
-        });
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Проверка качества и приём товара"));
-        dialog.setWidth("400px");
-        dialog.setHeight("250px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, () -> {
-            dialog.close();
-        }, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {

@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -18,7 +19,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -73,6 +74,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
 
+    private final String textForQuestionButton = "<div><p>Счета поставщиков помогают планировать оплату товаров." +
+            "Счета не меняют количество товара на складе — для этого нужно создать приемку, а чтобы учесть оплату — платеж.</p>" +
+            "<p>Дату оплаты можно запланировать. Не оплаченные вовремя счета отображаются в разделе Показатели.</p>" +
+            "<p>Счета можно создавать сразу из заказа поставщику.</p>"+
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Счета поставщиков</a></p></div>";
+
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
@@ -108,7 +115,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
+        actions.add(Buttons.buttonQuestion(textForQuestionButton,"300px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
@@ -164,15 +171,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
     }
 
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
-    }
-
-    private H2 title() {
-        H2 title = new H2("Счета поставщиков");
+    private H4 title() {
+        H4 title = new H4("Счета поставщиков");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
     }
 
