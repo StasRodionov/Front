@@ -14,6 +14,7 @@ import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.FileService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductPriceService;
@@ -62,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -104,9 +106,11 @@ public class GoodsModalWindow extends Dialog {
     private final HorizontalLayout footer = new HorizontalLayout();
     private final Binder<ProductDto> productDtoBinder = new Binder<>(ProductDto.class);
     private final Binder<ProductPriceDto> priceDtoBinder = new Binder<>(ProductPriceDto.class);
+
     private final Grid<FileDto> fileGrid = new Grid<>(FileDto.class, false);
     private List<FileDto> fileDtoList;
     private List<FileDto> fileDtoListForRemove;
+    private final FileService fileService;
 
     private ProductDto productDto;
 
@@ -118,7 +122,9 @@ public class GoodsModalWindow extends Dialog {
                             ImageService imageService,
                             ProductGroupService productGroupService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
-                            TypeOfPriceService typeOfPriceService, EmployeeService employeeService) {
+                            TypeOfPriceService typeOfPriceService,
+                            EmployeeService employeeService,
+                            FileService fileService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
@@ -129,6 +135,7 @@ public class GoodsModalWindow extends Dialog {
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
         this.employeeService = employeeService;
+        this.fileService = fileService;
 
 
         setCloseOnOutsideClick(true);
@@ -317,6 +324,7 @@ public class GoodsModalWindow extends Dialog {
         imageDtoListForRemove = new ArrayList<>();
         fileDtoList= new ArrayList<>();
         fileDtoListForRemove = new ArrayList<>();
+        fileGrid.setItems(fileDtoList);
         unitDtoComboBox.setItems(unitService.getAll());
         contractorDtoComboBox.setItems(contractorService.getAll());//изменил
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
@@ -345,6 +353,7 @@ public class GoodsModalWindow extends Dialog {
         horizontalLayout.add(new Button("Закрыть", event -> close()));
         horizontalLayout.setMargin(false);
         horizontalLayout.setWidth("100%");
+
         return horizontalLayout;
     }
 
@@ -426,6 +435,9 @@ public class GoodsModalWindow extends Dialog {
                 FileDto fileDto = new FileDto();
                 String fileName = event.getFileName();
                 fileDto.setName(fileName);
+                String[] splitFileName = fileName.split("\\.");
+                fileDto.setExtension("." + splitFileName[splitFileName.length-1]);
+                fileDto.setKey(UUID.randomUUID().toString());
                 fileDto.setContent(memoryBuffer.getInputStream(fileName).readAllBytes());
                 fileDto.setEmployee(employeeService.getPrincipal().getFirstName());
                 fileDto.setUploadDateTime(LocalDateTime.now());
@@ -505,7 +517,6 @@ public class GoodsModalWindow extends Dialog {
                 com.trade_accounting.components.sells.InformationView informationView =
                         new InformationView("Одно или несколько полей не заполнены");
                 informationView.open();
-                return;
             }
 
         });
@@ -527,6 +538,7 @@ public class GoodsModalWindow extends Dialog {
         productDto.setCountryOrigin(countryOriginField.getValue());
         productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         productDto.setImageDtos(imageDtoList);
+
 
         if (productDto.getProductPriceIds() == null) {
             productDto.setProductPriceIds(new ArrayList<>());
@@ -559,7 +571,7 @@ public class GoodsModalWindow extends Dialog {
                 productDto.getProductPriceIds().add(list.get(0).getId());
             }
         });
-
+        productDto.setFileDtos(fileDtoList);
     }
 
     private boolean checkAllFields(){
