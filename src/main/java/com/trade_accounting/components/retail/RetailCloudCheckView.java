@@ -3,7 +3,9 @@ package com.trade_accounting.components.retail;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.CurrencyDto;
 import com.trade_accounting.models.dto.RetailCloudCheckDto;
+import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.RetailCloudCheckService;
@@ -32,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "RetailCloudCheckView", layout = AppView.class)
@@ -52,21 +55,35 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
 
     public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService) {
         this.retailCloudCheckService = retailCloudCheckService;
-        this.data = retailCloudCheckService.getAll();
+        //this.data = retailCloudCheckService.getAll();
+        this.data = getData();
         this.currencyService = currencyService;
         this.retailStoreService = retailStoreService;
         this.employeeService = employeeService;
         this.filter = new GridFilter<>(grid);
-        add(upperLayout(), filter);
+        //configureFilter();
         this.paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
-        add(grid, paginator);
+        add(upperLayout(), filter, grid, paginator);
+//        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+//        add(grid, paginator);
+    }
+
+    private void configureFilter() {
+
+        filter.setFieldToDatePicker("date");
+        //filter.setFieldToComboBox("currencyDto", CurrencyDto::getName, currencyService.getAll());
+        filter.setFieldToComboBox("retailStoreDto", RetailStoreDto::getName, retailStoreService.getAll());
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData2();
+            paginator.setData(retailCloudCheckService.search(map));
+        });
+        filter.onClearClick(e -> paginator.setData(getData()));
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
+        //grid.removeAllColumns();
         grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
         grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("date");
         grid.addColumn(retailCloudCheckDto -> retailStoreService.getById(retailCloudCheckDto.getInitiatorId())
@@ -88,9 +105,14 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
         grid.setColumnReorderingAllowed(true);
     }
 
+    private List<RetailCloudCheckDto> getData() {
+        return retailCloudCheckService.getAll();
+    }
+
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), buttonCancel(), buttonEventLog(), textField(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(),
+                buttonCancel(), buttonEventLog(), textField(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
