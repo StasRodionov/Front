@@ -294,6 +294,8 @@ public class GoodsModalWindow extends Dialog {
         attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
                 .getById(productDto.getAttributeOfCalculationObjectId()));
         imageDtoList = productDto.getImageDtos();
+        fileDtoList = productDto.getFileDtos();
+        fileGrid.setItems(fileDtoList);
         for (ImageDto imageDto : imageDtoList) {
             StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
             Image image = new Image(resource, "image");
@@ -331,6 +333,7 @@ public class GoodsModalWindow extends Dialog {
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
         typeOfPriceLayout.add(getTypeOfPriceForm(typeOfPriceService.getAll()));
+        productDto = new ProductDto();
     }
 
     private Component getHeader() {
@@ -563,9 +566,7 @@ public class GoodsModalWindow extends Dialog {
                         .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
                         .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
                         .findFirst();
-                if (id.isPresent()){
-                    productDto.getProductPriceIds().add(id.get().getId());
-                }
+                id.ifPresent(priceDto -> productDto.getProductPriceIds().add(priceDto.getId()));
 
             } else {
                 productDto.getProductPriceIds().add(list.get(0).getId());
