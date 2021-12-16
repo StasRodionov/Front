@@ -3,6 +3,8 @@ package com.trade_accounting.components.tasks;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.TaskDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -103,6 +105,14 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
         grid.setSortableColumns("id", "description", "completed", "contractorId", "employeeId", "deadLineDateTime", "creationDateTime");
     }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("employeeId", EmployeeDto::getLastName, employeeService.getAll());
+        filter.onSearchClick(e -> paginator.setData(taskService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(taskService.getAll()));
+    }
+
     private HorizontalLayout getToolBar() {
         var toolbar = new HorizontalLayout();
         toolbar.add(getButtonQuestion(), getTextTask(), getButtonRefresh(),
@@ -129,12 +139,6 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
         buttonQuestion.addClickListener(event -> notification.open());
 
         return buttonQuestion;
-    }
-
-    private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.onSearchClick(e -> paginator.setData(taskService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(taskService.getAll()));
     }
 
     private H2 getTextTask() {

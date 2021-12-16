@@ -4,7 +4,9 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.OrdersOfProductionDto;
+import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
@@ -182,8 +184,8 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(OrdersOfProductionDto::getDate).setKey("date").setHeader("время").setSortable(true).setId("Дата");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setId("организация");
-        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCardId()).getName()).setHeader("Технологическая карта").setId("Технологическая карта");
+        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setKey("companyDto").setId("организация");
+        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCardId()).getName()).setHeader("Технологическая карта").setKey("technicalCardDto").setId("Технологическая карта");
         grid.addColumn("volume").setHeader("Объем производства").setId("Объем производства");
         grid.addColumn("produce").setHeader("Произведено").setId("Произведено");
         grid.addColumn(OrdersOfProductionDto::getPlannedProductionDate)
@@ -213,6 +215,8 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("technicalCardDto", TechnicalCardDto::getName, technicalCardService.getAll());
         filter.onSearchClick(e ->
                 paginator.setData(ordersOfProductionService.searchOrdersOfProduction(filter.getFilterData())));
         filter.onClearClick(e ->

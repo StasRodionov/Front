@@ -5,6 +5,9 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.BalanceAdjustmentDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.PaymentDto;
 import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
@@ -136,6 +139,10 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("account", BalanceAdjustmentDto::getAccount, balanceAdjustmentService.getAll());
+        filter.setFieldToComboBox("cashOffice", BalanceAdjustmentDto::getCashOffice, balanceAdjustmentService.getAll());
         filter.onSearchClick(e -> paginator
                 .setData(balanceAdjustmentService.searchByFilter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(balanceAdjustmentService.getAll()));
