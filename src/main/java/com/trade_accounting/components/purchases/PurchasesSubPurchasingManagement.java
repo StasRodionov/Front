@@ -145,7 +145,10 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
          HeaderRow groupingHeader = grid.prependHeaderRow();
 
 
-        groupingHeader.join(
+
+        groupingHeader.
+                join(
+                        groupingHeader.getCell(grid.getColumnByKey("id")),
                         groupingHeader.getCell(grid.getColumnByKey("date")),
                         groupingHeader.getCell(grid.getColumnByKey("contractorId")),
                         groupingHeader.getCell(grid.getColumnByKey("companyId")),
