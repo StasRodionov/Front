@@ -565,10 +565,6 @@ public class GoodsModalWindow extends Dialog {
         productDto.getProductPriceIds().clear();
         bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
 
-//            List<ProductPriceDto> list = productPriceService.getAll().stream()
-//                    .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
-//                    .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
-//                    .collect(Collectors.toList());
             List<Long> list = new ArrayList<>();
             if (productDto.getId() != null) {
                 List<Long> productPriceIds = productService.getById(productDto.getId()).getProductPriceIds();
