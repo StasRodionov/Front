@@ -44,6 +44,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
@@ -250,6 +251,10 @@ public class GoodsModalWindow extends Dialog {
         fileGrid.addColumn(FileDto::getEmployee)
                 .setHeader("Сотрудник")
                 .setAutoWidth(true);
+        fileGrid.addColumn(new ComponentRenderer<>(Button::new, (button, fileDto) -> {
+            button.setIcon(new Icon(VaadinIcon.CLOSE_CIRCLE_O));
+            button.addClickListener(event -> this.removeFile(fileDto));
+        })).setAutoWidth(true);
         fileGrid.setHeightByRows(true);
         add(fileGrid);
         add(getFileButton());
@@ -494,6 +499,15 @@ public class GoodsModalWindow extends Dialog {
         return deleteButton;
     }
 
+    private void removeFile(FileDto fileDto) {
+        if (fileDto == null){
+            return;
+        }
+        fileDtoList.remove(fileDto);
+        fileDtoListForRemove.add(fileDto);
+        fileGrid.setItems(fileDtoList);
+    }
+
     private Button getUpdateButton(ProductDto productDto) {
         return new Button("Изменить", event -> {
             if (checkAllFields()){
@@ -513,6 +527,7 @@ public class GoodsModalWindow extends Dialog {
                 }
                 productService.update(productDto);
                 imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
+                fileDtoListForRemove.forEach(fileDto -> fileService.deleteById(fileDto.getId()));
 
                 Notification.show(String.format("Товар %s изменен", productDto.getName()));
                 close();
