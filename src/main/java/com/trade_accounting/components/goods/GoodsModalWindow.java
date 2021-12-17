@@ -513,18 +513,6 @@ public class GoodsModalWindow extends Dialog {
             if (checkAllFields()){
 
                 updateProductDto(productDto);
-                List<ProductPriceDto> list = new ArrayList<>();
-                for (Long l : productDto.getProductPriceIds()){
-                    list.add(productPriceService.getById(l));
-                }
-
-
-
-                for (ProductPriceDto dto : list){
-                    TypeOfPriceDto typeOfPriceDto = typeOfPriceService.getById(dto.getTypeOfPriceId());
-                    productPriceService.update(dto);
-                    typeOfPriceService.update(typeOfPriceDto);
-                }
                 productService.update(productDto);
                 imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
                 fileDtoListForRemove.forEach(fileDto -> fileService.deleteById(fileDto.getId()));
