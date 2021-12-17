@@ -503,14 +503,15 @@ public class GoodsModalWindow extends Dialog {
                 for (Long l : productDto.getProductPriceIds()){
                     list.add(productPriceService.getById(l));
                 }
-                productService.update(productDto);
+
+
 
                 for (ProductPriceDto dto : list){
                     TypeOfPriceDto typeOfPriceDto = typeOfPriceService.getById(dto.getTypeOfPriceId());
                     productPriceService.update(dto);
                     typeOfPriceService.update(typeOfPriceDto);
                 }
-
+                productService.update(productDto);
                 imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
 
                 Notification.show(String.format("Товар %s изменен", productDto.getName()));
@@ -549,10 +550,17 @@ public class GoodsModalWindow extends Dialog {
         productDto.getProductPriceIds().clear();
         bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
 
-            List<ProductPriceDto> list = productPriceService.getAll().stream()
-                    .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
-                    .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
-                    .collect(Collectors.toList());
+//            List<ProductPriceDto> list = productPriceService.getAll().stream()
+//                    .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
+//                    .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
+//                    .collect(Collectors.toList());
+            List<Long> list = new ArrayList<>();
+            if (productDto.getId() != null) {
+                List<Long> productPriceIds = productService.getById(productDto.getId()).getProductPriceIds();
+                list = productService.getById(productDto.getId()).getProductPriceIds().stream()
+                        .filter(x -> productPriceService.getById(x).getTypeOfPriceId().equals(typeOfPriceDto.getId()))
+                        .collect(Collectors.toList());
+            }
 
             if (list.size() == 0){
                 // создаем цену
@@ -569,7 +577,11 @@ public class GoodsModalWindow extends Dialog {
                 id.ifPresent(priceDto -> productDto.getProductPriceIds().add(priceDto.getId()));
 
             } else {
-                productDto.getProductPriceIds().add(list.get(0).getId());
+                ProductPriceDto priceDto = productPriceService.getById(list.get(0));
+                priceDto.setValue(bigDecimalField.getValue());
+                productPriceService.update(priceDto);
+
+                productDto.getProductPriceIds().add(list.get(0));
             }
         });
         productDto.setFileDtos(fileDtoList);
