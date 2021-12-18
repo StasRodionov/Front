@@ -1,13 +1,12 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -18,7 +17,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -69,6 +68,13 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
     private final String typeOfInvoice = "RECEIPT";
 
+    private final String textForQuestionButton = "<div><p>В разделе представлены выданные и полученные отчеты комиссионера." +
+            "В отчетах указываются проданные товары, сумма продажи, вознаграждение комиссионера." +
+            "На основе отчетов формируется долг комиссионера перед комитентом.</p>" +
+            "<p>Выданные отчеты создает комиссионер. Полученные — комитент.</p>" +
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Комиссионная торговля. Комиссионеру</a></p>" +
+            "<a href=\"#\" target=\"_blank\">Комиссионная торговля. Комитенту</a></p></div>";
+
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
                                     CompanyService companyService,
@@ -108,7 +114,7 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
     private HorizontalLayout configureActions() {
         HorizontalLayout actions1 = new HorizontalLayout();
-        actions1.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions1.add(Buttons.buttonQuestion(textForQuestionButton, "350px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions1.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return actions1;
@@ -144,7 +150,6 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
     }
 
 
-
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -158,12 +163,6 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {
@@ -209,9 +208,10 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
         return textField;
     }
 
-    private H2 title() {
-        H2 title = new H2("Отчеты комиссионера");
+    private H4 title() {
+        H4 title = new H4("Отчеты комиссионера");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
     }
 
