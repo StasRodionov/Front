@@ -210,7 +210,7 @@ public class LossView extends VerticalLayout {
     private Button buttonUnit() {
         Button button = new Button("Списание", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(e -> {
-            lossCreateView.resetView();
+            lossCreateView.clearForm();
             lossCreateView.setParentLocation("lossView");
             button.getUI().ifPresent(ui -> ui.navigate("goods/loss-create"));
         });

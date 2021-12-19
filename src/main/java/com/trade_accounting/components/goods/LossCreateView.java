@@ -98,7 +98,6 @@ public class LossCreateView extends VerticalLayout {
             if (productSelectModal.isFormValid()) {
                 addProduct(productSelectModal.getLossProductDto());
             }
-            productSelectModal.clearForm();
         });
     }
 
@@ -115,10 +114,6 @@ public class LossCreateView extends VerticalLayout {
         grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
         grid.setHeight("36vh");
         grid.setColumnReorderingAllowed(true);
-    }
-
-    public void resetView() {
-
     }
 
     private HorizontalLayout getUpperLayout() {
@@ -168,6 +163,7 @@ public class LossCreateView extends VerticalLayout {
 
     private Button getAddProductButton() {
         return new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE), clickEvent -> {
+            productSelectModal.clearForm();
             productSelectModal.open();
         });
     }
@@ -244,11 +240,10 @@ public class LossCreateView extends VerticalLayout {
         lossDto.setWarehouseId(warehouseSelect.getValue().getId());
         lossDto.setIsSent(isSent.getValue());
         lossDto.setIsPrint(isPrint.getValue());
-        clearForm();
         return lossService.create(lossDto);
     }
 
-    private void clearForm() {
+    public void clearForm() {
         dateTimePicker.clear();
         companySelect.clear();
         warehouseSelect.clear();
