@@ -12,6 +12,7 @@ import com.vaadin.flow.data.event.SortEvent;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableComparator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,15 @@ public class GridPaginator<T> extends HorizontalLayout {
      */
     public GridPaginator(Grid<T> grid, List<T> data) {
         this(grid, data, 10);
+    }
+
+    /**
+     * Creates a Paginator with 10 items per page without content
+     *
+     * @param grid grid for paginator
+     */
+    public GridPaginator(Grid<T> grid) {
+        this(grid, new ArrayList<>());
     }
 
     private void configureButton() {
@@ -190,6 +200,35 @@ public class GridPaginator<T> extends HorizontalLayout {
      */
     public void setData(List<T> data) {
         setData(data, false);
+    }
+
+    /**
+     * Returns all data from paginator
+     * @return paginator data
+     */
+    public List<T> getData() {
+        return data;
+    }
+
+    /**
+     * Adds new elements to paginator.
+     * Also set current page to 1 and reload grid.
+     *
+     * @param dataElements data which will be added
+     */
+    @SafeVarargs
+    public final void addData(T ... dataElements) {
+        data.addAll(List.of(dataElements));
+        setData(data);
+    }
+
+    /**
+     *
+     * @param elem element for check
+     * @return whether paginator contain the specified element
+     */
+    public boolean contains(T elem) {
+        return data.contains(elem);
     }
 
 

@@ -2,6 +2,7 @@ package com.trade_accounting.components.sells;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
@@ -117,7 +118,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private final Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<InvoiceProductDto> paginator;
-    private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
+    private final ProductSelectModal productSelectModal;
 
     private final Editor<InvoiceProductDto> editor = grid.getEditor();
     private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
@@ -133,9 +134,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                                       InvoiceService invoiceService,
                                       InvoicesStatusService invoicesStatusService, InvoiceProductService invoiceProductService,
                                       Notifications notifications,
-                                      SalesChooseGoodsModalWin salesChooseGoodsModalWin,
                                       TypeOfPriceService typeOfPriceService,
-                                      UnitService unitService, ProductPriceService productPriceService) {
+                                      UnitService unitService, ProductPriceService productPriceService,
+                                      ProductSelectModal productSelectModal) {
         this.productService = productService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -144,19 +145,18 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.invoicesStatusService = invoicesStatusService;
         this.invoiceProductService = invoiceProductService;
         this.notifications = notifications;
-        this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
+        this.productSelectModal = productSelectModal;
         this.typeOfPriceService = typeOfPriceService;
         this.unitService = unitService;
         this.productPriceService = productPriceService;
 
         configureRecalculateDialog();
         configureCloseViewDialog();
-
-        salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
-            if (salesChooseGoodsModalWin.isFormValid()) {
-                addProduct(salesChooseGoodsModalWin.getInvoiceProductDto());
+        productSelectModal.addDetachListener(detachEvent -> {
+            if (productSelectModal.isFormValid()) {
+                addProduct(productSelectModal.getInvoiceProductDto());
             }
-            salesChooseGoodsModalWin.clearForm();
+            productSelectModal.clearForm();
         });
 
         binderInvoiceDtoContractorValueChangeListener.forField(contractorSelect)
@@ -482,8 +482,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private Button buttonAddProduct() {
         Button buttonAddSale = new Button("Добавить продукт",  new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonAddSale.addClickListener(event -> {
-            salesChooseGoodsModalWin.updateProductList();
-            salesChooseGoodsModalWin.open();
+            productSelectModal.updateProductList();
+            productSelectModal.open();
         });
         return buttonAddSale;
 

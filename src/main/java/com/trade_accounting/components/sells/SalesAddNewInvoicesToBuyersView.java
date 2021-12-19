@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
@@ -77,7 +78,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private String typeOfInvoice = "RECEIPT";
     private final Dialog dialogOnCloseView = new Dialog();
 
-    private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
+    private final ProductSelectModal productSelectModal;
 
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
@@ -97,7 +98,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
                                            ContractService contractService,
                                            ContractorService contractorService,
                                            SupplierAccountService supplierAccountService,
-                                           SalesChooseGoodsModalWin salesChooseGoodsModalWin,
+                                           ProductSelectModal productSelectModal,
                                            @Lazy Notifications notifications) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
@@ -105,7 +106,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         this.contractorService = contractorService;
         this.supplierAccountService = supplierAccountService;
         this.notifications = notifications;
-        this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
+        this.productSelectModal = productSelectModal;
 
         invoiceBuyerField = new TextField();
         configureInvoiceBuyerField();
@@ -211,8 +212,8 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(buttonClickEvent -> {
 
-            salesChooseGoodsModalWin.updateProductList();
-            salesChooseGoodsModalWin.open();
+            productSelectModal.updateProductList();
+            productSelectModal.open();
         });
         return button;
     }

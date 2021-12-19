@@ -1,5 +1,6 @@
 package com.trade_accounting.components.sells;
 
+import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.goods.InternalOrderModalView;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
@@ -43,7 +44,6 @@ public class InvoiceProductDtoAddModalView extends Dialog {
     private final WarehouseService warehouseService;
     private final InvoiceService invoiceService;
     private final Notifications notifications;
-    private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
     private final TypeOfPriceService typeOfPriceService;
     private final UnitService unitService;
     private final ProductPriceService productPriceService;
@@ -58,7 +58,7 @@ public class InvoiceProductDtoAddModalView extends Dialog {
                                           ProductService productService, InvoiceProductService invoiceProductService,
                                           ContractorService contractorService, CompanyService companyService,
                                           WarehouseService warehouseService, InvoiceService invoiceService,
-                                          Notifications notifications, SalesChooseGoodsModalWin salesChooseGoodsModalWin,
+                                          Notifications notifications,
                                           TypeOfPriceService typeOfPriceService, UnitService unitService,
                                           ProductPriceService productPriceService) {
         this.tempInvoiceProductDtoList = tempInvoiceProductDtoList;
@@ -69,7 +69,6 @@ public class InvoiceProductDtoAddModalView extends Dialog {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.notifications = notifications;
-        this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
         this.typeOfPriceService = typeOfPriceService;
         this.unitService = unitService;
         this.productPriceService = productPriceService;
