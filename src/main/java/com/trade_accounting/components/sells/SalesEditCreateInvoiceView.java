@@ -10,7 +10,9 @@ import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.InvoicesStatusDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -120,6 +122,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private final GridPaginator<InvoiceProductDto> paginator;
     private final ProductSelectModal productSelectModal;
 
+    private final SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView; //add field
+
     private final Editor<InvoiceProductDto> editor = grid.getEditor();
     private final Binder<InvoiceProductDto> binderInvoiceProductDto = new Binder<>(InvoiceProductDto.class);
     private final Binder<InvoiceDto> binderInvoiceDto = new Binder<>(InvoiceDto.class);
@@ -149,6 +153,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.typeOfPriceService = typeOfPriceService;
         this.unitService = unitService;
         this.productPriceService = productPriceService;
+        this.salesAddNewInvoicesToBuyersView = salesAddNewInvoicesToBuyersView;
 
         configureRecalculateDialog();
         configureCloseViewDialog();
@@ -282,7 +287,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     private HorizontalLayout upperButtonsLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonSave(), configureDeleteButton(), buttonClose(), buttonAddProduct());
+        upper.add(buttonQuestion(), title(), buttonSave(), configureDeleteButton(), buttonClose(), buttonAddProduct(), buttonAddInvoiceToBuyer());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -489,8 +494,44 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
 
     }
 
-    public void addProduct(InvoiceProductDto invoiceProductDto) {
-        if (!isProductInList(invoiceProductDto)) {
+    private Button buttonAddInvoiceToBuyer() {
+        Button buttonInvoiceToBuyer = new Button("Сформировать счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
+        buttonInvoiceToBuyer.addClickListener(event -> {
+            SupplierAccountDto invoiceToBuyers = new SupplierAccountDto();
+            if (!invoiceIdField.getValue().equals("")) {
+                invoiceToBuyers.setId(Long.parseLong(invoiceIdField.getValue()));
+            }
+            invoiceToBuyers.setDate(dateField.getValue().toString());
+            invoiceToBuyers.setCompanyId(companySelectComboBox.getValue().getId());
+            invoiceToBuyers.setContractorId(contractorSelect.getValue().getId());
+            invoiceToBuyers.setContractId(1L);
+            invoiceToBuyers.setWarehouseId(warehouseSelect.getValue().getId());
+            invoiceToBuyers.setIsSpend(isSpend.getValue());
+            invoiceToBuyers.setComment(commentTextField.getValue());
+            invoiceToBuyers.setPlannedDatePayment("2021-08-16");
+            salesAddNewInvoicesToBuyersView.setSupplierDataForEdit(invoiceToBuyers);
+            salesAddNewInvoicesToBuyersView.setUpdateState(true);
+            salesAddNewInvoicesToBuyersView.setLocation("sells");
+            UI.getCurrent().navigate("sells/add-new-invoices-to-buyers");
+        });
+
+        return buttonInvoiceToBuyer;
+    }
+
+    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto) {
+        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
+        invoiceProductDto.setProductId(productDto.getId());
+        invoiceProductDto.setAmount(BigDecimal.ONE);
+        invoiceProductDto.setPrice(
+                productPriceDto.getValue()
+                /*getPriceFromProductPriceByTypeOfPriceId(productDto.getProductPriceIds().stream()
+                                .map(productPriceService::getById)
+                                .collect(Collectors.toList()),
+                        typeOfPriceService.getById(contractorSelect.getValue().getTypeOfPriceId()).getId()
+                        //contractorSelect.getValue().getTypeOfPriceDto().getId()
+                )*/
+        );
+        if (!isProductInList(productDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
             setTotalPrice();
