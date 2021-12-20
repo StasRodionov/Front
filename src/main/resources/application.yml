@@ -90,6 +90,8 @@ buyersReturn_url: api/buyersreturn
 
 invoice_product_url: api/invoice/product
 
+invoice_to_buyer_list_products_url: api/invoice/tobuyerlistproducts
+
 authentication_url: login
 
 project_url: api/project

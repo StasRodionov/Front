@@ -15,7 +15,9 @@ import java.math.BigDecimal;
 public class InvoiceToBuyerListProductsDto {
     private Long id;
 
-    private ProductDto productDto;
+    private Long SupplierAccountId;
+
+    private Long ProductId;
 
     private BigDecimal amount;
 

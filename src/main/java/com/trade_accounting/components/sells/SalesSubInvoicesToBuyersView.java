@@ -12,6 +12,7 @@ import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
+import com.trade_accounting.services.interfaces.InvoiceToBuyerListProductsService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
@@ -56,7 +57,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
     private final SupplierAccountService supplierAccountService;
-    private final InvoiceProductService invoiceProductService;
+    private final InvoiceToBuyerListProductsService invoiceToBuyerListProductsService;
 
     private final SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView;
 
@@ -81,7 +82,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     @Autowired
     public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService,
                                         ContractorService contractorService,
-                                        InvoiceProductService invoiceProductService,
+                                        InvoiceToBuyerListProductsService invoiceToBuyerListProductsService,
                                         @Lazy Notifications notifications,
                                         @Lazy SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView,
                                         SupplierAccountService supplierAccountService) {
@@ -89,7 +90,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.supplierAccountService = supplierAccountService;
-        this.invoiceProductService = invoiceProductService;
+        this.invoiceToBuyerListProductsService = invoiceToBuyerListProductsService;
         this.salesAddNewInvoicesToBuyersView = salesAddNewInvoicesToBuyersView;
         this.notifications = notifications;
         this.data = getData();
@@ -270,8 +271,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
 
     private String getTotalPrice(Long id) {
-        var totalPrice = invoiceProductService.getByInvoiceId(id).stream()
-                .map(ipdto -> ipdto.getPrice().multiply(ipdto.getAmount()))
+        var totalPrice = invoiceToBuyerListProductsService.getBySupplierId(id).stream()
+                .map(idto -> idto.getPrice().multiply(idto.getAmount()).add(idto.getNds()))
                 .reduce(BigDecimal.valueOf(0.0), BigDecimal::add);
         return String.format("%.2f", totalPrice);
     }
