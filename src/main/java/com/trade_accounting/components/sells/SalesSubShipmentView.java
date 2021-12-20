@@ -1,17 +1,14 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.purchases.ReturnToSupplierModalView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.ReturnToSupplierDto;
 import com.trade_accounting.models.dto.ShipmentDto;
 import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.ProjectService;
 import com.trade_accounting.services.interfaces.ShipmentProductService;
@@ -23,7 +20,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -60,7 +57,6 @@ public class SalesSubShipmentView extends VerticalLayout {
     Notifications notifications;
     UnitService unitService;
 
-
     private final WarehouseService warehouseService;
     private final ShipmentService invoiceService;
     private final ContractorService contractorService;
@@ -72,7 +68,13 @@ public class SalesSubShipmentView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<ShipmentDto> grid;
     private GridPaginator<ShipmentDto> paginator;
-    SalesEditShipmentView modalView;
+
+    private final String textForQuestionButton = "<div><p>Отгрузки фиксируют отпуск товаров покупателям и влияют на остатки по складам в разделе Товары → Остатки.</p>" +
+            "<p>Товары отпускаются с указанного в документе склада." +
+            "Если товары отпускаются с двух разных складов, то для каждого создается отдельная отгрузка.</p>" +
+            "<p>Отгрузку можно распечатать в виде расходной накладной, ТОРГ-12 или Товарно-транспортной накладной." +
+            "На основе отгрузки создаются и печатаются счета-фактуры.</p>" +
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Отгрузка товаров</a></p></div>";
 
 //    private final String typeOfInvoice = "RECEIPT";
 
@@ -104,7 +106,7 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions.add(Buttons.buttonQuestion(textForQuestionButton, "400px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
     }
@@ -157,12 +159,6 @@ public class SalesSubShipmentView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
-    }
-
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
@@ -212,9 +208,10 @@ public class SalesSubShipmentView extends VerticalLayout {
         return textField;
     }
 
-    private H2 title() {
-        H2 title = new H2("Отгрузки");
+    private H4 title() {
+        H4 title = new H4("Отгрузки");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
     }
 

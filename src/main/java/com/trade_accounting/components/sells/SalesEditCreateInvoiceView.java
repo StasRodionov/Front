@@ -531,11 +531,11 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                         //contractorSelect.getValue().getTypeOfPriceDto().getId()
                 )*/
         );
-        if (!isProductInList(productDto)) {
-            tempInvoiceProductDtoList.add(invoiceProductDto);
-            paginator.setData(tempInvoiceProductDtoList);
-            setTotalPrice();
-        }
+//        if (!isProductInList(productDto)) {
+//            tempInvoiceProductDtoList.add(invoiceProductDto);
+//            paginator.setData(tempInvoiceProductDtoList);
+//            setTotalPrice();
+//        }
     }
 
     private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
