@@ -25,13 +25,17 @@ import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -40,15 +44,19 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -67,6 +75,8 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final EmployeeService employeeService;
     private final PositionService positionService;
     private final RetailStoreService retailStoreService;
+    private final MenuItem print;
+    private final MenuBar selectXlsTemplateButton = new MenuBar();
 
     private Grid<ContractorDto> gridCostumers = new Grid<>(ContractorDto.class, false);
     private Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
@@ -87,6 +97,9 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final GridFilter<InvoiceProductDto> productsFilter;
     private final GridFilter<ContractorDto> costumersFilter;
 
+    private final String pathForSaveXlsTemplate =
+            "src/main/resources/xls_templates/profitability_templates/";
+
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService,
                                      InvoiceProductService invoiceProductService,
@@ -106,6 +119,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         this.employeeService = employeeService;
         this.positionService = positionService;
         this.retailStoreService = retailStoreService;
+        print = selectXlsTemplateButton.addItem("Печать");
 
         this.contractorDtos = getContractorDtos();
         this.invoiceProductDtos = getInvoiceProductDtos();
@@ -142,6 +156,49 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 gridEmployees, paginatorEmployees);
 
         getCashiersIdsRevenues();
+        configureSelectXlsTemplateButton();
+    }
+
+    private void configureSelectXlsTemplateButton() {
+        SubMenu printSubMenu = print.getSubMenu();
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
+
+    }
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+    }
+
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        cashiersIdsTotalRevenues = getCashiersIdsTotalRevenues();
+        if (templateName.contains("product")) {
+            PrintSalesSubProfitabilityByProduct printSalesSubProfitabilityByProduct =
+                    new PrintSalesSubProfitabilityByProduct(file.getPath(), invoiceProductDtos,
+                            productService, returnAmountByProductService);
+            return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByProduct::createReport), templateName);
+        } else if (templateName.contains("employee")) {
+            PrintSalesSubProfitabilityByEmpolyee printSalesSubProfitabilityByEmpolyee =
+                    new PrintSalesSubProfitabilityByEmpolyee(file.getPath(), employeeDtos, contractorService,
+                            positionService, retailStoreService, cashiersIdsTotalRevenues);
+            return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByEmpolyee::createReport), templateName);
+
+        } else if (templateName.contains("costumers")) {
+
+            PrintSalesSubProfitabilityByCostumers printSalesSubProfitabilityByCostumers =
+                    new PrintSalesSubProfitabilityByCostumers(file.getPath(), contractorDtos, contractorService,
+                            invoiceDtos, invoiceProductDtos, productDtos, buyersReturnService);
+            return new Anchor(new StreamResource(templateName, printSalesSubProfitabilityByCostumers::createReport), templateName);
+        }
+        return null;
     }
 
     private void configureEmployeeGrid(boolean refreshing) {
@@ -180,27 +237,31 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private List<List<Long>> ids = new ArrayList<>();
     private Map<Long, BigDecimal> cashiersIdsTotalRevenues;
 
+    public Map<Long, BigDecimal> getCashiersIdsTotalRevenues() {
+        return cashiersIdsTotalRevenues;
+    }
+
     private void getCashiersIdsRevenues() {
         for (RetailStoreDto rs : retailStoreDtos) {
             revs.add(rs.getRevenue());
             ids.add(rs.getCashiersIds());
         }
         Map<Long, BigDecimal> result = new HashMap<>();
-        for (int i = 1 ; i <= revs.size() ; i++) {
-            if (ids.get(i-1).size() > 1) {
-                List<Long> list = new ArrayList<>(ids.get(i-1));
+        for (int i = 1; i <= revs.size(); i++) {
+            if (ids.get(i - 1).size() > 1) {
+                List<Long> list = new ArrayList<>(ids.get(i - 1));
                 for (int a = 0; a < list.size(); a++) {
                     if (result.containsKey(list.get(a))) {
-                        result.put(list.get(a), revs.get(i-1).divide(new BigDecimal(list.size())).add(result.get(list.get(a))));
+                        result.put(list.get(a), revs.get(i - 1).divide(new BigDecimal(list.size())).add(result.get(list.get(a))));
                     } else {
-                        result.put(list.get(a), revs.get(i-1).divide(new BigDecimal(list.size())));
+                        result.put(list.get(a), revs.get(i - 1).divide(new BigDecimal(list.size())));
                     }
                 }
             } else {
-                if (result.containsKey(ids.get(i-1).get(0))) {
-                    result.put(ids.get(i-1).get(0), revs.get(i-1).add(result.get(ids.get(i-1).get(0))));
+                if (result.containsKey(ids.get(i - 1).get(0))) {
+                    result.put(ids.get(i - 1).get(0), revs.get(i - 1).add(result.get(ids.get(i - 1).get(0))));
                 } else {
-                    result.put(ids.get(i-1).get(0), revs.get(i-1));
+                    result.put(ids.get(i - 1).get(0), revs.get(i - 1));
                 }
             }
         }
@@ -364,7 +425,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         if (query.containsKey("profit")) {
             result = result.stream()
                     .filter(e -> {
-                        if (cashiersIdsTotalRevenues.get(e.getId())!=null) {
+                        if (cashiersIdsTotalRevenues.get(e.getId()) != null) {
                             if (cashiersIdsTotalRevenues.get(e.getId()).equals(new BigDecimal(query.get("profit")))) {
                                 return true;
                             } else return false;
@@ -474,7 +535,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), getPrint(), buttonGraph());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
