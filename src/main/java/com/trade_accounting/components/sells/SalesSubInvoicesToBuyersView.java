@@ -4,7 +4,10 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
@@ -131,6 +134,9 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName, warehouseService.getAll());
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
             map.put("typeOfInvoice", typeOfInvoice);

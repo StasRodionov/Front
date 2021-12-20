@@ -5,7 +5,10 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -126,11 +129,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.addColumn(SupplierAccountDto::getDate).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
         grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName()).setWidth("200px")
-                .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyId")
+                .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
-                .setKey("warehouseId").setId("На склад");
+                .setKey("warehouseDto").setId("На склад");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Оплачено")
                 .setId("Оплачено");
@@ -167,6 +170,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
         filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
     }
