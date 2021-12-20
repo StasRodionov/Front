@@ -6,15 +6,12 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.PurchaseControlDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.SupplierAccountService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.services.interfaces.ProductPriceService;
+import com.trade_accounting.services.interfaces.PurchaseControlService;
+import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -33,7 +30,6 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -45,9 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,51 +52,42 @@ import java.util.List;
 public class PurchasesSubPurchasingManagement extends VerticalLayout implements AfterNavigationObserver {
 
 
-    private final SupplierAccountService supplierAccountService;
-    private final WarehouseService warehouseService;
-    private final CompanyService companyService;
-    private final ContractorService contractorService;
-    private final ContractService contractService;
+    private final PurchaseControlService purchaseControlService;
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
-    private PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
-    private final ProductService productService;
-    private final InvoiceService invoiceService;
-    private final InvoiceProductService invoiceProductService;
+    private final ProductPriceService productPriceService;
+    private final PurchaseHistoryOfSalesService purchaseHistoryOfSalesService;
 
-    private List<SupplierAccountDto> supplierAccount;
+
+    private List<PurchaseControlDto> purchaseControl;
+
 
     private HorizontalLayout actions;
-    private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
-    private GridPaginator<SupplierAccountDto> paginator;
-    private final GridFilter<SupplierAccountDto> filter;
+    private final Grid<PurchaseControlDto> grid = new Grid<>(PurchaseControlDto.class, false);
+    private GridPaginator<PurchaseControlDto> paginator;
+    private final GridFilter<PurchaseControlDto> filter;
 
-    private final String textForQuestionButton = "<div><p>Счета поставщиков помогают планировать оплату товаров." +
-            "Счета не меняют количество товара на складе — для этого нужно создать приемку, а чтобы учесть оплату — платеж.</p>" +
-            "<p>Дату оплаты можно запланировать. Не оплаченные вовремя счета отображаются в разделе Показатели.</p>" +
-            "<p>Счета можно создавать сразу из заказа поставщику.</p>"+
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Счета поставщиков</a></p></div>";
+    private final String textForQuestionButton = "<div><p>Раздел позволяет проанализировать продажи и на основе этих " +
+            "данных сформировать заказ поставщику.</p>" +
+            "<p>Общий заказ создается без указания поставщика — добавить его" +
+            "можно позже. Если разбить заказы по поставщикам, будет создано" +
+            "несколько заказов на поставщиков, указанных в карточках" +
+            "товаров.</p></div>";
 
     @Autowired
-    public PurchasesSubPurchasingManagement(SupplierAccountService supplierAccountService,
-                                      WarehouseService warehouseService, CompanyService companyService,
-                                      ContractorService contractorService, ContractService contractService,
-                                      @Lazy Notifications notifications,
-                                      SupplierAccountModalView modalView,
-                                      ProductService productService,
-                                      InvoiceService invoiceService,
-                                      InvoiceProductService invoiceProductService) {
-        this.supplierAccountService = supplierAccountService;
-        this.warehouseService = warehouseService;
-        this.companyService = companyService;
-        this.contractorService = contractorService;
-        this.contractService = contractService;
+    public PurchasesSubPurchasingManagement(PurchaseControlService purchaseControlService,
+                                            @Lazy Notifications notifications,
+                                            SupplierAccountModalView modalView,
+                                            ProductPriceService productPriceService,
+                                            PurchaseHistoryOfSalesService purchaseHistoryOfSalesService
+    ) {
+        this.purchaseControlService = purchaseControlService;
         this.notifications = notifications;
         this.modalView = modalView;
-        this.productService = productService;
-        this.invoiceService = invoiceService;
-        this.invoiceProductService = invoiceProductService;
+        this.productPriceService = productPriceService;
+        this.purchaseHistoryOfSalesService = purchaseHistoryOfSalesService;
+
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -113,116 +97,76 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         add(actions, filter, grid, paginator);
     }
 
-    private List<SupplierAccountDto> loadSupplierAccounts() {
-        supplierAccount = supplierAccountService.getAll();
-        return supplierAccount;
+    private List<PurchaseControlDto> loadSupplierAccounts() {
+        purchaseControl = purchaseControlService.getAll();
+        return purchaseControl;
     }
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(Buttons.buttonQuestion(textForQuestionButton,"300px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
+        actions.add(Buttons.buttonQuestion(textForQuestionButton, "300px"), title(), buttonRefresh(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
     }
 
-    private Grid<SupplierAccountDto> configureGrid() {
+    private Grid<PurchaseControlDto> configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+
         grid.addColumn("id").setWidth("20px").setHeader("№").setId("№");
-        grid.addColumn(SupplierAccountDto::getDate).setKey("date").setSortable(true)
-                .setId("Дата");
-        grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName()).setWidth("200px")
-                .setKey("contractorId").setId("Контрагент");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setKey("companyId")
-                .setId("Компания");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).
-                setKey("warehouseId").setId("На склад");
-        grid.addColumn(this::getTotalPrice).setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend")
-                .setId("Оплачено");
-        grid.addColumn("comment").setId("Комментарий");
+        grid.addColumn(PurchaseControlDto::getProductName).setHeader("Наименование").setKey("product_name").setSortable(true)
+                .setId("Наименование");
+        grid.addColumn(PurchaseControlDto::getArticleNumber).setHeader("Артикул").setKey("article_number").setSortable(true)
+                .setId("Артикул");
+        grid.addColumn(PurchaseControlDto::getProductMeasure).setHeader("Единица измерения").setKey("product_measure").setSortable(true)
+                .setId("Единица_измерения");
+        grid.addColumn(PurchaseControlDto::getProductQuantity).setHeader("Количество").setKey("product_quantity").setSortable(true)
+                .setId("Количество");
 
+        grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getSumOfProducts())
+                .setHeader("Сумма").setKey("sum_of_products").setId("Сумма");
+        grid.addColumn(dto -> productPriceService.getById(dto.getHistoryOfSalesId()).getValue())
+                .setHeader("Себестоимость").setKey("product_price").setId("Себестоимость");
+        grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductMargin())
+                .setHeader("Прибыль").setKey("product_margin").setId("Прибыль");
+        grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductProfitMargin())
+                .setHeader("Рентабельность").setKey("product_profit_margin").setId("Рентабельность");
+        grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductSalesPerDay())
+                .setHeader("Продаж в день").setKey("product_sales_per_day").setId("Продаж в день");
 
-         HeaderRow groupingHeader = grid.prependHeaderRow();
+        HeaderRow groupingHeader2 = grid.prependHeaderRow();
 
-
-
-        groupingHeader.
+        groupingHeader2.
                 join(
-                        groupingHeader.getCell(grid.getColumnByKey("id")),
-                        groupingHeader.getCell(grid.getColumnByKey("date")),
-                        groupingHeader.getCell(grid.getColumnByKey("contractorId")),
-                        groupingHeader.getCell(grid.getColumnByKey("companyId")),
-                        groupingHeader.getCell(grid.getColumnByKey("warehouseId")))
-                .setComponent(new Label("group 2"));
-
-
-
-//        groupingHeader.join(
-//                        groupingHeader.getCell(grid.getColumnByKey("id")),
-//                        groupingHeader.getCell(grid.getColumnByKey("date")),
-//                        groupingHeader.getCell(grid.getColumnByKey("contractorId")),
-//                        groupingHeader.getCell(grid.getColumnByKey("companyId")))
-//                .setComponent(new Label("group 1")
-//                );
-//
-//        groupingHeader.join(
-//                        groupingHeader.getCell(grid.getColumnByKey("warehouseId")),
-//                        groupingHeader.getCell(grid.getColumnByKey("sum")),
-//                        groupingHeader.getCell(grid.getColumnByKey("isSpend")),
-//                        groupingHeader.getCell(grid.getColumnByKey("comment")))
-//                .setComponent(new Label("group 2"));
-
-
-
+                        groupingHeader2.getCell(grid.getColumnByKey("sum_of_products")),
+                        groupingHeader2.getCell(grid.getColumnByKey("product_price")),
+                        groupingHeader2.getCell(grid.getColumnByKey("product_margin")),
+                        groupingHeader2.getCell(grid.getColumnByKey("product_profit_margin")),
+                        groupingHeader2.getCell(grid.getColumnByKey("product_sales_per_day"))
+                )
+                .setComponent(new Label("История продаж"));
 
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(event -> {
-            SupplierAccountDto editSupplierAccounts = event.getItem();
-            SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
-                    supplierAccountService,
-                    companyService,
-                    warehouseService,
-                    contractorService,
-                    contractService,
-                    notifications,
-                    purchasesChooseGoodsModalWin,
-                    productService,
-                    invoiceService,
-                    invoiceProductService);
-            supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
-            supplierAccountModalView.open();
 
-
-
-
-
-        });
         return grid;
-
-
     }
 
-//    private void configureHeaderRow() {
-//
-//    }
-
     private void configurePaginator() {
-        paginator = new GridPaginator<>(grid, supplierAccount, 100);
-        //setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+        paginator = new GridPaginator<>(grid, purchaseControl, 100);
+        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
     }
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
-        filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
+        filter.onSearchClick(e -> paginator.setData(purchaseControlService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(purchaseControlService.getAll()));
     }
 
     private H4 title() {
-        H4 title = new H4("Счета поставщиков");
+        H4 title = new H4("Управление закупками");
         title.setHeight("2.2em");
-        title.setWidth("80px");
+        title.setWidth("100px");
         return title;
     }
 
@@ -233,11 +177,11 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return buttonRefresh;
     }
 
-    private Button buttonUnit() {
-        Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(e -> modalView.open());
-        return buttonUnit;
-    }
+//    private Button buttonUnit() {
+//        Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
+//        buttonUnit.addClickListener(e -> modalView.open());
+//        return buttonUnit;
+//    }
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
@@ -246,7 +190,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private TextField filterTextField() {
-
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -257,10 +200,10 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public void updateList(String nameFilter) {
-        if(!(textField.getValue().equals(""))) {
-            grid.setItems(supplierAccountService.searchByString(nameFilter));
+        if (!(textField.getValue().equals(""))) {
+
         } else {
-            grid.setItems(supplierAccountService.searchByString("null"));
+
         }
     }
 
@@ -318,17 +261,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return new Button(new Icon(VaadinIcon.COG_O));
     }
 
-    private TextField textField() {
-        TextField textField = new TextField("", "1-1 из 1");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return textField;
-    }
-
-    private String formatDate(String stringDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
-        return formatDateTime.format(formatter);
-    }
 
     private Component getIsCheckedIcon(SupplierAccountDto supplierAccountDto) {
         if (supplierAccountDto.getIsSpend()) {
@@ -341,31 +273,18 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private void updateList() {
-        grid.setItems(supplierAccountService.getAll());
+        grid.setItems(purchaseControlService.getAll());
     }
 
-    private String getTotalPrice(SupplierAccountDto invoice) {
-
-//        InvoiceProductDto invoiceProductDtoList = supplierAccountsModalView
-//                .getListOfInvoiceProductByInvoice(invoice.getInvoiceProductDto());
-//        List<InvoiceProductDto> getTotal = new ArrayList<>();
-//        getTotal.add(invoiceProductDtoList);
-        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-//        for (InvoiceProductDto invoiceProductDto : getTotal) {
-//            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-//                    .multiply(invoiceProductDto.getAmount()));
-//        }
-        return String.format("%.2f", totalPrice);
-    }
 
     public void deleteSelectedInvoices() {
-        if(!grid.getSelectedItems().isEmpty()) {
-            for(SupplierAccountDto supp : grid.getSelectedItems()) {
-                supplierAccountService.deleteById(supp.getId());
-                notifications.infoNotification("Выбранные счета поставщиков успешно удалены");
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (PurchaseControlDto supp : grid.getSelectedItems()) {
+                purchaseControlService.deleteById(supp.getId());
+                notifications.infoNotification("");
             }
         } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
+            notifications.errorNotification("");
         }
     }
 
