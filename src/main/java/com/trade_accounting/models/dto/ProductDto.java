@@ -39,6 +39,8 @@ public class ProductDto {
 
     private List<ImageDto> imageDtos;
 
+    private List<FileDto> fileDtos;
+
     private Long productGroupId;
 
     private Long attributeOfCalculationObjectId;
@@ -50,5 +52,7 @@ public class ProductDto {
     private String saleTax;
 
     private int minimumBalance;
+
+
 
 }

@@ -3,6 +3,7 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.sells.InformationView;
 import com.trade_accounting.models.dto.AttributeOfCalculationObjectDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.FileDto;
 import com.trade_accounting.models.dto.ImageDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductGroupDto;
@@ -12,6 +13,8 @@ import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.FileService;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.ProductGroupService;
 import com.trade_accounting.services.interfaces.ProductPriceService;
@@ -25,6 +28,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -40,6 +44,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
@@ -51,12 +56,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -74,6 +82,7 @@ public class GoodsModalWindow extends Dialog {
     private final ProductGroupService productGroupService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
+    private final EmployeeService employeeService;
     private final TextField nameTextField = new TextField();
     private final TextField descriptionField = new TextField();
     private final TextField countryOriginField = new TextField();
@@ -99,6 +108,11 @@ public class GoodsModalWindow extends Dialog {
     private final Binder<ProductDto> productDtoBinder = new Binder<>(ProductDto.class);
     private final Binder<ProductPriceDto> priceDtoBinder = new Binder<>(ProductPriceDto.class);
 
+    private final Grid<FileDto> fileGrid = new Grid<>(FileDto.class, false);
+    private List<FileDto> fileDtoList;
+    private List<FileDto> fileDtoListForRemove;
+    private final FileService fileService;
+
     private ProductDto productDto;
 
     @Autowired
@@ -109,7 +123,9 @@ public class GoodsModalWindow extends Dialog {
                             ImageService imageService,
                             ProductGroupService productGroupService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
-                            TypeOfPriceService typeOfPriceService) {
+                            TypeOfPriceService typeOfPriceService,
+                            EmployeeService employeeService,
+                            FileService fileService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
@@ -119,6 +135,8 @@ public class GoodsModalWindow extends Dialog {
         this.productGroupService = productGroupService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
+        this.employeeService = employeeService;
+        this.fileService = fileService;
 
 
         setCloseOnOutsideClick(true);
@@ -221,6 +239,26 @@ public class GoodsModalWindow extends Dialog {
         add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
 
         add(getHorizontalLayout("Типы цен", typeOfPriceLayout));
+
+        fileGrid.addColumn(FileDto::getName).setHeader("Наименование")
+                .setAutoWidth(true);
+        fileGrid.addColumn(fileDto -> String.format("%.2f",((double) fileDto.getContent().length)/Math.pow(1024,2)))
+                .setHeader("Размер, Мб")
+                .setAutoWidth(true);
+        fileGrid.addColumn(fileDto -> fileDto.getUploadDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")))
+                .setHeader("Дата добавления")
+                .setAutoWidth(true);
+        fileGrid.addColumn(FileDto::getEmployee)
+                .setHeader("Сотрудник")
+                .setAutoWidth(true);
+        fileGrid.addColumn(new ComponentRenderer<>(Button::new, (button, fileDto) -> {
+            button.setIcon(new Icon(VaadinIcon.CLOSE_CIRCLE_O));
+            button.addClickListener(event -> this.removeFile(fileDto));
+        })).setAutoWidth(true);
+        fileGrid.setHeightByRows(true);
+        add(fileGrid);
+        add(getFileButton());
+
         footer.getStyle().set("padding-bottom", "30px");
         footer.getStyle().set("padding-top", "30px");
         add(footer);
@@ -261,6 +299,8 @@ public class GoodsModalWindow extends Dialog {
         attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
                 .getById(productDto.getAttributeOfCalculationObjectId()));
         imageDtoList = productDto.getImageDtos();
+        fileDtoList = productDto.getFileDtos();
+        fileGrid.setItems(fileDtoList);
         for (ImageDto imageDto : imageDtoList) {
             StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
             Image image = new Image(resource, "image");
@@ -289,12 +329,16 @@ public class GoodsModalWindow extends Dialog {
         bigDecimalFields = new HashMap<>();
         imageDtoList = new ArrayList<>();
         imageDtoListForRemove = new ArrayList<>();
+        fileDtoList= new ArrayList<>();
+        fileDtoListForRemove = new ArrayList<>();
+        fileGrid.setItems(fileDtoList);
         unitDtoComboBox.setItems(unitService.getAll());
         contractorDtoComboBox.setItems(contractorService.getAll());//изменил
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
         typeOfPriceLayout.add(getTypeOfPriceForm(typeOfPriceService.getAll()));
+        productDto = new ProductDto();
     }
 
     private Component getHeader() {
@@ -317,6 +361,7 @@ public class GoodsModalWindow extends Dialog {
         horizontalLayout.add(new Button("Закрыть", event -> close()));
         horizontalLayout.setMargin(false);
         horizontalLayout.setWidth("100%");
+
         return horizontalLayout;
     }
 
@@ -387,6 +432,36 @@ public class GoodsModalWindow extends Dialog {
         return imageButton;
     }
 
+    private Component getFileButton() {
+        Button fileButton = new Button("Добавить файл");
+        Dialog dialog = new Dialog();
+        MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
+        Upload upload = new Upload(memoryBuffer);
+
+        upload.addFinishedListener(event -> {
+            try {
+                FileDto fileDto = new FileDto();
+                String fileName = event.getFileName();
+                fileDto.setName(fileName);
+                String[] splitFileName = fileName.split("\\.");
+                fileDto.setExtension("." + splitFileName[splitFileName.length-1]);
+                fileDto.setKey(UUID.randomUUID().toString());
+                fileDto.setContent(memoryBuffer.getInputStream(fileName).readAllBytes());
+                fileDto.setEmployee(employeeService.getPrincipal().getFirstName());
+                fileDto.setUploadDateTime(LocalDateTime.now());
+                fileDtoList.add(fileDto);
+                fileGrid.setItems(fileDtoList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dialog.close();
+        });
+        fileButton.addClickListener(click -> dialog.open());
+        dialog.add(upload);
+
+        return fileButton;
+    }
+
     private Button getAddButton() {
         return new Button("Добавить", event -> {
             ProductDto productDto = new ProductDto();
@@ -424,24 +499,23 @@ public class GoodsModalWindow extends Dialog {
         return deleteButton;
     }
 
+    private void removeFile(FileDto fileDto) {
+        if (fileDto == null){
+            return;
+        }
+        fileDtoList.remove(fileDto);
+        fileDtoListForRemove.add(fileDto);
+        fileGrid.setItems(fileDtoList);
+    }
+
     private Button getUpdateButton(ProductDto productDto) {
         return new Button("Изменить", event -> {
             if (checkAllFields()){
 
                 updateProductDto(productDto);
-                List<ProductPriceDto> list = new ArrayList<>();
-                for (Long l : productDto.getProductPriceIds()){
-                    list.add(productPriceService.getById(l));
-                }
                 productService.update(productDto);
-
-                for (ProductPriceDto dto : list){
-                    TypeOfPriceDto typeOfPriceDto = typeOfPriceService.getById(dto.getTypeOfPriceId());
-                    productPriceService.update(dto);
-                    typeOfPriceService.update(typeOfPriceDto);
-                }
-
                 imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
+                fileDtoListForRemove.forEach(fileDto -> fileService.deleteById(fileDto.getId()));
 
                 Notification.show(String.format("Товар %s изменен", productDto.getName()));
                 close();
@@ -450,7 +524,6 @@ public class GoodsModalWindow extends Dialog {
                 com.trade_accounting.components.sells.InformationView informationView =
                         new InformationView("Одно или несколько полей не заполнены");
                 informationView.open();
-                return;
             }
 
         });
@@ -473,16 +546,20 @@ public class GoodsModalWindow extends Dialog {
         productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         productDto.setImageDtos(imageDtoList);
 
+
         if (productDto.getProductPriceIds() == null) {
             productDto.setProductPriceIds(new ArrayList<>());
         }
         productDto.getProductPriceIds().clear();
         bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
 
-            List<ProductPriceDto> list = productPriceService.getAll().stream()
-                    .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
-                    .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
-                    .collect(Collectors.toList());
+            List<Long> list = new ArrayList<>();
+            if (productDto.getId() != null) {
+                List<Long> productPriceIds = productService.getById(productDto.getId()).getProductPriceIds();
+                list = productService.getById(productDto.getId()).getProductPriceIds().stream()
+                        .filter(x -> productPriceService.getById(x).getTypeOfPriceId().equals(typeOfPriceDto.getId()))
+                        .collect(Collectors.toList());
+            }
 
             if (list.size() == 0){
                 // создаем цену
@@ -496,15 +573,17 @@ public class GoodsModalWindow extends Dialog {
                         .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
                         .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
                         .findFirst();
-                if (id.isPresent()){
-                    productDto.getProductPriceIds().add(id.get().getId());
-                }
+                id.ifPresent(priceDto -> productDto.getProductPriceIds().add(priceDto.getId()));
 
             } else {
-                productDto.getProductPriceIds().add(list.get(0).getId());
+                ProductPriceDto priceDto = productPriceService.getById(list.get(0));
+                priceDto.setValue(bigDecimalField.getValue());
+                productPriceService.update(priceDto);
+
+                productDto.getProductPriceIds().add(list.get(0));
             }
         });
-
+        productDto.setFileDtos(fileDtoList);
     }
 
     private boolean checkAllFields(){
