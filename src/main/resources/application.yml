@@ -132,6 +132,8 @@ correction_product_url: api/correction/product
 
 price_list_url: api/priceList
 
+purchase_control_url: /api/purchasecontrol
+
 moneySubCashFlowUrl_url: api/money
 
 moneySubMutualSettlementsUrl_url: api/mutualSettlements
@@ -160,6 +162,8 @@ moneySubProfitLoss_url: /api/moneysubprofitloss
 
 productprice_url: /api/productprice
 
+purchase_history_of_sales_url: /api/purchasehistory
+
 returns_url: api/returns
 
 retail_points_url: api/operation_with_points
@@ -179,4 +183,5 @@ stage_production_url: api/stagesproduction
 technical_process_url: api/technical/process
 
 file_url: /api/file
+
 #debug: true

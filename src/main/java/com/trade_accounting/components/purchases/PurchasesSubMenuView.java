@@ -28,19 +28,22 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
     private final PurchasesSubReturnToSuppliers purchasesSubReturnToSuppliers;
     private final PurchasesSubMenuInvoicesReceived purchasesSubMenuInvoicesReceived;
     private final PurchasesSubAcceptances purchasesSubAcceptances;
+    private final PurchasesSubPurchasingManagement purchasesSubPurchasingManagement;
 
     @Autowired
     public PurchasesSubMenuView(InvoiceService invoiceService,
                                 @Lazy PurchasesSubSuppliersOrders purchasesSubSuppliersOrders,
                                 @Lazy PurchasesSubVendorAccounts purchasesSubVendorAccounts, PurchasesSubReturnToSuppliers purchasesSubReturnToSuppliers,
                                 PurchasesSubMenuInvoicesReceived purchasesSubMenuInvoicesReceived,
-                                PurchasesSubAcceptances purchasesSubAcceptances) {
+                                PurchasesSubAcceptances purchasesSubAcceptances,
+                                PurchasesSubPurchasingManagement purchasesSubPurchasingManagement) {
         this.invoiceService = invoiceService;
         this.purchasesSubSuppliersOrders = purchasesSubSuppliersOrders;
         this.purchasesSubVendorAccounts = purchasesSubVendorAccounts;
         this.purchasesSubReturnToSuppliers = purchasesSubReturnToSuppliers;
         this.purchasesSubMenuInvoicesReceived = purchasesSubMenuInvoicesReceived;
         this.purchasesSubAcceptances = purchasesSubAcceptances;
+        this.purchasesSubPurchasingManagement = purchasesSubPurchasingManagement;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -93,6 +96,9 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
             } else if (admissionsLayout.equals(tab)){
                 div.removeAll();
                 div.add(purchasesSubAcceptances);
+            }else if (purchasingManagementLayout.equals(tab)) {
+                div.removeAll();
+                div.add(purchasesSubPurchasingManagement);
             }
         });
         return tabs;
