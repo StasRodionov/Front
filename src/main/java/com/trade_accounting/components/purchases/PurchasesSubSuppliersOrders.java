@@ -1,7 +1,11 @@
 package com.trade_accounting.components.purchases;
 
 
+import com.groupdocs.conversion.Converter;
+import com.groupdocs.conversion.filetypes.FileType;
+import com.groupdocs.conversion.options.convert.ConvertOptions;
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -50,7 +54,6 @@ import org.springframework.context.annotation.Lazy;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -71,6 +74,7 @@ import java.util.stream.Collectors;
 @UIScope
 public class PurchasesSubSuppliersOrders extends VerticalLayout implements AfterNavigationObserver {
 
+
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final InvoiceService invoiceService;
@@ -86,7 +90,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
-    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/invoices_templates/";
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices";
 
     @Autowired
     public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService, InvoiceService invoiceService,
@@ -172,7 +176,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private H4 title() {
         H4 title = new H4("Заказы поставщикам");
         title.setHeight("2.2em");
-        title.setWidth("80px");
+        title.setWidth("60px");
         return title;
     }
 
@@ -250,7 +254,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
-        status.setWidth("110px");
+        status.setWidth("130px");
         return status;
     }
 
@@ -258,18 +262,23 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         Select<String> create = new Select<>();
         create.setItems("Создать");
         create.setValue("Создать");
-        create.setWidth("110px");
+        create.setWidth("130px");
         return create;
     }
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
+        print.setItems("Печать","Добавить шаблон");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
         uploadXlsMenuItem(print);
-        print.setWidth("110px");
+        print.setWidth("130px");
         return print;
+    }
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
     }
 
     private void uploadXlsMenuItem(Select<String> print) {
@@ -309,11 +318,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         });
     }
 
-    private List<File> getXlsFiles() {
-        File dir = new File(pathForSaveXlsTemplate);
-        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
-                .contains(".xls")).collect(Collectors.toList());
-    }
+
 
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
@@ -323,7 +328,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             sumList.add(getTotalPrice(inc));
         }
         PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), contractorService, companyService, sumList, employeeService);
-        return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
+       StreamResource streamResource = new StreamResource(templateName, printInvoicesXls::createReport);
+        Anchor anchor = new Anchor(streamResource, templateName);
+        System.out.println(anchor);
+
+        return anchor;
     }
 
     private void getInfoNotification(String message) {
