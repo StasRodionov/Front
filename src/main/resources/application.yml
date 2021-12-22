@@ -138,6 +138,8 @@ moneySubCashFlowUrl_url: api/money
 
 moneySubMutualSettlementsUrl_url: api/mutualSettlements
 
+salesSubGoodsForSaleUrl_url: api/goodsForSale
+
 balance_adjustment_url: api/balanceAdjustment
 
 inventarization_url: api/inventarization

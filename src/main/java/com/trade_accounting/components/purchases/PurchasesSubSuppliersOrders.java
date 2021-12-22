@@ -378,7 +378,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
-
     }
 
     protected String getTotalPrice(InvoiceDto invoiceDto) {
