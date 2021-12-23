@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
+import com.trade_accounting.services.interfaces.SalesSubGoodsForSaleService;
 import com.trade_accounting.services.interfaces.ShipmentProductService;
 import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -50,10 +51,12 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final PositionService positionService;
     private final RetailStoreService retailStoreService;
 
+    private final SalesSubGoodsForSaleService salesSubGoodsForSaleService;
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
     private final SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView;
     private final CommissionAgentReportModalView commissionAgentReportModalView;
+    private final SalesSubGoodsForSaleView salesSubGoodsForSaleView;
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
     private final Notifications notifications;
     private final ShipmentService shipmentService;
@@ -68,9 +71,11 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             InvoiceProductService invoiceProductService,
                             IssuedInvoiceService issuedInvoiceService,
                             PaymentService paymentService,
+                            SalesSubGoodsForSaleService salesSubGoodsForSaleService,
                             @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
+                            @Lazy SalesSubGoodsForSaleView salesSubGoodsForSaleView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
                             ReturnBuyersReturnModalView returnBuyersReturnModalView,
                             Notifications notifications, ProductService productService,
@@ -87,6 +92,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.issuedInvoiceService = issuedInvoiceService;
         this.paymentService = paymentService;
         this.salesSubCustomersOrdersView = salesSubCustomersOrdersView;
+        this.salesSubGoodsForSaleView = salesSubGoodsForSaleView;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -96,6 +102,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.salesSubInvoicesToBuyersView = salesSubInvoicesToBuyersView;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.returnBuyersReturnModalView = returnBuyersReturnModalView;
+        this.salesSubGoodsForSaleService = salesSubGoodsForSaleService;
         this.notifications = notifications;
         this.productService = productService;
         this.returnAmountByProductService = returnAmountByProductService;
@@ -165,7 +172,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             productService,
                             shipmentService,
                             shipmentProductService
-                            ));
+                    ));
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
@@ -187,7 +194,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Товары на реализации":
                     div.removeAll();
-                    div.add("SalesSubGoodsForSaleView");
+                    div.add(new SalesSubGoodsForSaleView(salesSubGoodsForSaleService));
                     break;
                 case "Воронка продаж":
                     div.removeAll();
