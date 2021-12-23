@@ -6,6 +6,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.InvoiceToBuyerListProductsDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
@@ -14,6 +15,7 @@ import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceToBuyerListProductsService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
@@ -53,6 +55,7 @@ import org.springframework.context.annotation.Lazy;
 import retrofit2.Response;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -449,6 +452,23 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         setTotalPrice();
     }
 
+    public void setDataForEditCreateInvoice(SupplierAccountDto supplierAccountDto, InvoiceProductService invoiceProductService) {
+        invoiceBuyerField.setValue(supplierAccountDto.getId().toString());
+        dateTimePickerField.setValue(LocalDateTime.parse(supplierAccountDto.getDate()));
+        companySelectField.setValue(companyService.getById(supplierAccountDto.getCompanyId()));
+        contractorSelectField.setValue(contractorService.getById(supplierAccountDto.getContractorId()));
+        isSpend.setValue(supplierAccountDto.getIsSpend());
+        warehouseSelectField.setValue(warehouseService.getById(supplierAccountDto.getWarehouseId()));
+        contractSelectField.setValue(contractService.getById(supplierAccountDto.getContractId()));
+        plannedDatePaymentField.setValue(LocalDate.parse(supplierAccountDto.getPlannedDatePayment()));
+
+        tempInvoiceToBuyerListProductsDto = convertInvoiceProductToInvoiceToBuyer(invoiceProductService.getByInvoiceId(supplierAccountDto.getId()), supplierAccountDto);
+        supplierInvoiceToBuyerListProductsDto = convertInvoiceProductToInvoiceToBuyer(invoiceProductService.getByInvoiceId(supplierAccountDto.getId()), supplierAccountDto);
+        paginator.setData(tempInvoiceToBuyerListProductsDto);
+        setTotalNDS();
+        setTotalPrice();
+    }
+
     private SupplierAccountDto saveInvoice(String typeOfInvoice) {
         SupplierAccountDto supplierAccountDto = new SupplierAccountDto();
         if (!invoiceBuyerField.getValue().equals("")) {
@@ -567,6 +587,23 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
 
     public List<InvoiceToBuyerListProductsDto> getListOfInvoiceToBuyerListProductsDto(SupplierAccountDto supplierAccountDto) {
         return invoiceToBuyerListProductsService.getBySupplierId(supplierAccountDto.getId());
+    }
+
+    private List<InvoiceToBuyerListProductsDto> convertInvoiceProductToInvoiceToBuyer(List<InvoiceProductDto> invoiceProductDtoList, SupplierAccountDto supplierAccountDto) {
+        List<InvoiceToBuyerListProductsDto> resultList = new ArrayList<>();
+        for(InvoiceProductDto invoiceProductDto: invoiceProductDtoList) {
+            InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto = new InvoiceToBuyerListProductsDto();
+            invoiceToBuyerListProductsDto.setProductId(invoiceProductDto.getProductId());
+            invoiceToBuyerListProductsDto.setSupplierAccountId(supplierAccountDto.getId());
+            invoiceToBuyerListProductsDto.setAmount(invoiceProductDto.getAmount());
+            invoiceToBuyerListProductsDto.setPrice(invoiceProductDto.getPrice());
+            invoiceToBuyerListProductsDto.setSum(invoiceToBuyerListProductsDto.getAmount().multiply(invoiceToBuyerListProductsDto.getPrice()).setScale(2, RoundingMode.DOWN));
+            invoiceToBuyerListProductsDto.setPercentNds("20");
+            invoiceToBuyerListProductsDto.setNds(invoiceToBuyerListProductsDto.getSum().multiply(BigDecimal.valueOf(0.20)).setScale(2, RoundingMode.DOWN));
+            invoiceToBuyerListProductsDto.setTotal(invoiceToBuyerListProductsDto.getSum().add(invoiceToBuyerListProductsDto.getNds()).setScale(2, RoundingMode.DOWN));
+            resultList.add(invoiceToBuyerListProductsDto);
+        }
+        return resultList;
     }
 }
 

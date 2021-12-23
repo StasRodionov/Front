@@ -497,19 +497,19 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     private Button buttonAddInvoiceToBuyer() {
         Button buttonInvoiceToBuyer = new Button("Сформировать счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonInvoiceToBuyer.addClickListener(event -> {
-            SupplierAccountDto invoiceToBuyers = new SupplierAccountDto();
+            SupplierAccountDto supplierAccountDto = new SupplierAccountDto();
             if (!invoiceIdField.getValue().equals("")) {
-                invoiceToBuyers.setId(Long.parseLong(invoiceIdField.getValue()));
+                supplierAccountDto.setId(Long.parseLong(invoiceIdField.getValue()));
             }
-            invoiceToBuyers.setDate(dateField.getValue().toString());
-            invoiceToBuyers.setCompanyId(companySelectComboBox.getValue().getId());
-            invoiceToBuyers.setContractorId(contractorSelect.getValue().getId());
-            invoiceToBuyers.setContractId(1L);
-            invoiceToBuyers.setWarehouseId(warehouseSelect.getValue().getId());
-            invoiceToBuyers.setIsSpend(isSpend.getValue());
-            invoiceToBuyers.setComment(commentTextField.getValue());
-            invoiceToBuyers.setPlannedDatePayment("2021-08-16");
-            salesAddNewInvoicesToBuyersView.setSupplierDataForEdit(invoiceToBuyers);
+            supplierAccountDto.setDate(dateField.getValue().toString());
+            supplierAccountDto.setCompanyId(companySelectComboBox.getValue().getId());
+            supplierAccountDto.setContractorId(contractorSelect.getValue().getId());
+            supplierAccountDto.setContractId(1L);
+            supplierAccountDto.setWarehouseId(warehouseSelect.getValue().getId());
+            supplierAccountDto.setIsSpend(isSpend.getValue());
+            supplierAccountDto.setComment(commentTextField.getValue());
+            supplierAccountDto.setPlannedDatePayment("2021-08-16");
+            salesAddNewInvoicesToBuyersView.setDataForEditCreateInvoice(supplierAccountDto, invoiceProductService);
             salesAddNewInvoicesToBuyersView.setUpdateState(true);
             salesAddNewInvoicesToBuyersView.setLocation("sells");
             UI.getCurrent().navigate("sells/add-new-invoices-to-buyers");
