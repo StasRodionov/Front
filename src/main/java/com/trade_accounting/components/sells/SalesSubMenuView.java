@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Lazy;
 @UIScope
 public class SalesSubMenuView extends Div implements AfterNavigationObserver {//некорректно задаётся id при добавлении
 
-    private final Div div;
+
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -61,6 +61,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final Notifications notifications;
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
+    private final SalesSubBuyersReturnsView salesSubBuyersReturnsView;
+    private final Div div;
 
     @Autowired
     public SalesSubMenuView(InvoiceService invoiceService,
@@ -76,6 +78,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
                             @Lazy SalesSubGoodsForSaleView salesSubGoodsForSaleView,
+                            @Lazy SalesSubBuyersReturnsView salesSubBuyersReturnsView,
                             CommissionAgentReportModalView commissionAgentReportModalView,
                             ReturnBuyersReturnModalView returnBuyersReturnModalView,
                             Notifications notifications, ProductService productService,
@@ -84,7 +87,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             PositionService positionService,
                             RetailStoreService retailStoreService,
                             ShipmentService shipmentService,
-                            ShipmentProductService shipmentProductService) {
+                            ShipmentProductService shipmentProductService
+                            ) {
 
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
@@ -109,6 +113,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.employeeService = employeeService;
         this.positionService = positionService;
         this.retailStoreService = retailStoreService;
+        this.salesSubBuyersReturnsView = salesSubBuyersReturnsView;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -124,8 +129,10 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         });
         getUI().ifPresent(ui -> {
             div.removeAll();
-            div.add(salesSubCustomersOrdersView);
+            salesSubBuyersReturnsView.updateData();
+            div.add(salesSubBuyersReturnsView);
         });
+        configurationSubMenu();
     }
 
 
@@ -164,15 +171,9 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();
-                    div.add(new SalesSubBuyersReturnsView(buyersReturnService,
-                            contractorService,
-                            companyService,
-                            warehouseService,
-                            notifications,
-                            productService,
-                            shipmentService,
-                            shipmentProductService
-                    ));
+                    salesSubBuyersReturnsView.updateData();
+
+                    div.add(salesSubBuyersReturnsView);
                     break;
                 case "Счета-фактуры выданные":
                     div.removeAll();
