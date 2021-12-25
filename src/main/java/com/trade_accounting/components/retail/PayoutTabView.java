@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.PayoutDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -12,6 +13,7 @@ import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
@@ -57,8 +59,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "PayoutTabView", layout = AppView.class)
@@ -104,7 +108,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         configureFilter();
 
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(),filter, grid, paginator);
+        add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureGrid() {
@@ -118,11 +122,11 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
                 .setSortable(true).setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getRevenue()).setHeader("Сумма")
                 .setSortable(true).setKey("retailSumDto").setId("Сумма");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
                 .setSortable(true).setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
                 .setSortable(true).setId("Напечатано");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.getColumnByKey("id").setWidth("15px");
         grid.addItemDoubleClickListener(event -> {
@@ -132,6 +136,27 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         GridSortOrder<PayoutDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("retailDto", RetailStoreDto::getName, retailStoreService.getAll());
+        filter.setFieldToComboBox("whoWasPaid",
+                s -> s,
+                payoutService.getAll().stream()
+                        .map(PayoutDto::getWhoWasPaid)
+                        .distinct()
+                        .collect(Collectors.toList()));
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToCheckBox("print");
+        filter.setFieldToCheckBox("send");
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfInvoice", typeOfInvoice);
+            paginator.setData(payoutService.searchByFilter(map));
+        });
+        filter.onClearClick(e -> paginator.setData(payoutService.getAll()));
     }
 
     private Component getIsCheckedSend(PayoutDto dto) {
@@ -201,9 +226,9 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
-        return buttonFilter;
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField filterTextField() {
@@ -221,20 +246,6 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
             paginator.setData(payoutService.getAll());
         } else paginator.setData(payoutService
                 .findBySearchAndTypeOfPayout(search, typeOfInvoice));
-    }
-
-    private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.setFieldToDatePicker("date");
-        filter.setFieldToComboBox("print", Boolean.TRUE,Boolean.FALSE);
-        filter.setFieldToComboBox("send", Boolean.TRUE, Boolean.FALSE);
-
-        filter.onSearchClick(e -> {
-            Map<String, String> map = filter.getFilterData();
-            map.put("typeOfInvoice", typeOfInvoice);
-            paginator.setData(payoutService.searchByFilter(map));
-        });
-        filter.onClearClick(e -> paginator.setData(payoutService.getAll()));
     }
 
     private TextField textField() {
