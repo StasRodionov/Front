@@ -220,7 +220,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         if(!(textField.getValue().equals(""))) {
             grid.setItems(supplierAccountService.searchByString(nameFilter));
         } else {
-            grid.setItems(supplierAccountService.searchByString("null"));
+            grid.setItems(supplierAccountService.getAll(typeOfInvoice));
         }
     }
 
