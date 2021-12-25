@@ -7,6 +7,9 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -100,10 +103,11 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         this.data = getData();
         this.addFromDirectModalWin = addFromDirectModalWin;
         paginator = new GridPaginator<>(grid, data, 50);
-        this.filter = new GridFilter<>(grid);
-        add(configureActions(), filter, grid, paginator);
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
         setSizeFull();
+        add(configureActions(), filter, grid, paginator);
     }
 
     private List<AcceptanceDto> getData() { return acceptanceService.getAll(); }
@@ -152,6 +156,16 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.onSearchClick(e -> paginator.setData(acceptanceService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(acceptanceService.getAll()));
+    }
+
     private H4 title() {
         H4 title = new H4("Приемки");
         title.setHeight("2.2em");
@@ -173,8 +187,9 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     }
 
     private Button buttonFilter() {
-        Button button = new Button("Фильтр");
-        return button;
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField filterTextField() {
