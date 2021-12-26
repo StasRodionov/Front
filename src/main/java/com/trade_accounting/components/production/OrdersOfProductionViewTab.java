@@ -1,6 +1,7 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -258,24 +260,18 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>Технологическая карта описывает состав изделия — с комплектующими, сырьем и материалами. " +
-                "Технологическая карта может использоваться как в базовом, так и в расширенном способе производства</p>" +
-                "<p>Читать инструкцию: </p><p><a href=\"#\" target=\"_blank\">Учет производственных операций</a></p>" +
-                "<p>Видео: </p><p><a href=\"#\" target=\"_blank\">Базовый способ</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("300px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new VerticalLayout(
+                        new Text("Технологическая карта описывает состав изделия — с комплектующими, сырьем и материалами. " +
+                                "Технологическая карта может использоваться как в базовом, так и в расширенном способе производства"),
+                        new Div(
+                                new Text("Читать инструкцию: "),
+                                new Anchor("#", "Учет производственных операций")),
+                        new Div(
+                                new Text("Видео: "),
+                                new Anchor("#", "Базовый способ"))
+                )
+        );
     }
 
         private Button buttonRefresh () {

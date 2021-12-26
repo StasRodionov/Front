@@ -13,11 +13,13 @@ import com.trade_accounting.services.interfaces.PurchaseControlService;
 import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
@@ -68,13 +70,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private GridPaginator<PurchaseControlDto> paginator;
     private final GridFilter<PurchaseControlDto> filter;
 
-    private final String textForQuestionButton = "<div><p>Раздел позволяет проанализировать продажи и на основе этих " +
-            "данных сформировать заказ поставщику.</p>" +
-            "<p>Общий заказ создается без указания поставщика — добавить его" +
-            "можно позже. Если разбить заказы по поставщикам, будет создано" +
-            "несколько заказов на поставщиков, указанных в карточках" +
-            "товаров.</p></div>";
-
     @Autowired
     public PurchasesSubPurchasingManagement(PurchaseControlService purchaseControlService,
                                             @Lazy Notifications notifications,
@@ -104,9 +99,18 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(Buttons.buttonQuestion(textForQuestionButton, "300px"), title(), buttonRefresh(), buttonFilter(), filterTextField(),
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion("Раздел позволяет проанализировать продажи и на основе этих " +
+                "данных сформировать заказ поставщику. " +
+                "Общий заказ создается без указания поставщика — добавить его " +
+                "можно позже. Если разбить заказы по поставщикам, будет создано " +
+                "несколько заказов на поставщиков, указанных в карточках " +
+                "товаров.");
     }
 
     private Grid<PurchaseControlDto> configureGrid() {

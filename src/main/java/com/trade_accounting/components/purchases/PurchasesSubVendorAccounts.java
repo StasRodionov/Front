@@ -18,10 +18,12 @@ import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -78,12 +80,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
 
-    private final String textForQuestionButton = "<div><p>Счета поставщиков помогают планировать оплату товаров." +
-            "Счета не меняют количество товара на складе — для этого нужно создать приемку, а чтобы учесть оплату — платеж.</p>" +
-            "<p>Дату оплаты можно запланировать. Не оплаченные вовремя счета отображаются в разделе Показатели.</p>" +
-            "<p>Счета можно создавать сразу из заказа поставщику.</p>"+
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Счета поставщиков</a></p></div>";
-
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
@@ -119,9 +115,19 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(Buttons.buttonQuestion(textForQuestionButton,"300px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Счета поставщиков помогают планировать оплату товаров. " +
+                        "Счета не меняют количество товара на складе — для этого нужно создать приемку, а чтобы учесть оплату — платеж. " +
+                        "Дату оплаты можно запланировать. Не оплаченные вовремя счета отображаются в разделе Показатели. " +
+                        "Счета можно создавать сразу из заказа поставщику. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Счета поставщиков"));
     }
 
     private Grid<SupplierAccountDto> configureGrid() {

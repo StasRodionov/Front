@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.InvoiceDto;
@@ -107,22 +108,10 @@ public class RevenueView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-        String notificationText = "В разделе представлены приход и расход товаров за определенный "+
-                "временной промежуток. Можно посмотреть статистику по складу, поставщику, проекту и так далее.\n" +
-                "\n" +
+        return Buttons.buttonQuestion("В разделе представлены приход и расход товаров за определенный "+
+                "временной промежуток. Можно посмотреть статистику по складу, поставщику, проекту и так далее. " +
                 "Нажмите на строку с товаром — откроется список всех документов, " +
-                "которые повлияли на оборот по данному товару.";
-
-
-        var notification = new Notification(
-                notificationText, 3000, Notification.Position.BOTTOM_START);
-
-        buttonQuestion.addClickListener(event -> notification.open());
-
-        return buttonQuestion;
+                "которые повлияли на оборот по данному товару.");
     }
 
     private Button buttonRefresh() {

@@ -14,6 +14,7 @@ import com.trade_accounting.components.purchases.AcceptanceModalView;
 import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
@@ -387,28 +388,16 @@ public class OperationsView extends VerticalLayout {
 
     private Component getUpperLayout(){
         HorizontalLayout mainLayout = new HorizontalLayout();
-        mainLayout.add(buttonQuestion(),title(), buttonRefresh(), configSubMenu(), buttonFilter(),
+        mainLayout.add(buttonQuestion(), title(), buttonRefresh(), configSubMenu(), buttonFilter(),
                 textField(), numberField(), valueSelect(), valuePrint());
         mainLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return mainLayout;
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлены файлы, добавленные за всё время." +
-                " Здесь удобно искать конкретные файлы с помощью фильтров и удалять файлы, " +
-                "чтобы освободить место в хранилище."));
-        dialog.setWidth("500px");
-        dialog.setHeight("300px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе представлены файлы, добавленные за всё время. " +
+                "Здесь удобно искать конкретные файлы с помощью фильтров и удалять файлы, " +
+                "чтобы освободить место в хранилище.");
     }
     private H2 title() {
         H2 textCompany = new H2("Документы");

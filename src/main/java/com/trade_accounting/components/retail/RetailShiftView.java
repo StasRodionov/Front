@@ -1,6 +1,7 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.BankAccountDto;
@@ -17,12 +18,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -150,26 +153,14 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>В отчете можно увидеть все продажи и возвраты за смену," +
-                " а также задолженность банка по безналичной оплате. Розничные смены создаются автоматически " +
-                "при совершении первой продажи.</p>" +
-                "<p>Читать инструкции:</p> " +
-                "<a href=\"https://support.moysklad.ru/hc/ru/articles/115004375987\" target=\"_blank\">Открыть и закрыть смену в кассе</a>" +
-                "<p><a href=\"https://support.moysklad.ru/hc/ru/articles/203325423\" target=\"_blank\">Розница</a></p></div> ");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("290px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new Text("В отчете можно увидеть все продажи и возвраты за смену, " +
+                        "а также задолженность банка по безналичной оплате. Розничные смены создаются автоматически " +
+                        "при совершении первой продажи. " +
+                        "Читать инструкции: "),
+                new Anchor("https://support.moysklad.ru/hc/ru/articles/115004375987", "Открыть и закрыть смену в кассе"),
+                new Text(", "),
+                new Anchor("https://support.moysklad.ru/hc/ru/articles/203325423", "Розница"));
     }
 
     private Button buttonRefresh() {

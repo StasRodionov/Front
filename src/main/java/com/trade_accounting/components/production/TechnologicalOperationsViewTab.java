@@ -2,6 +2,7 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.PrintInvoicesXls;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -157,24 +158,18 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>Технологические операции позволяют регистрировать в системе операции по сборке и производству." +
-                " В результате списываются материалы и добавляются готовые изделия.</p>" +
-                "<p>Читать инструкцию: </p><p><a href=\"#\" target=\"_blank\">Сборочные и производственные операции</a></p>" +
-                "<p>Видео: </p><p><a href=\"#\" target=\"_blank\">Возможности для производства</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("300px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new VerticalLayout(
+                        new Text("Технологические операции позволяют регистрировать в системе операции по сборке и производству. " +
+                                "В результате списываются материалы и добавляются готовые изделия."),
+                        new Div(
+                                new Text("Читать инструкцию: "),
+                                new Anchor("#", "Сборочные и производственные операции")),
+                        new Div(
+                                new Text("Видео: "),
+                                new Anchor("#", "Возможности для производства"))
+                )
+        );
     }
 
     private Button buttonRefresh() {

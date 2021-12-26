@@ -19,11 +19,13 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
@@ -78,9 +80,6 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private final TextField textField = new TextField();
 
-    private  final String textForQuestionButton = "<div><p>Возврат поставщику можно создать на основе приемки или вручную.</p>"+
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Возврат поставщику</a></p></div>";
-
     @Autowired
     public PurchasesSubReturnToSuppliers(ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
                                          CompanyService companyService, ContractorService contractorService, ContractService contractService,
@@ -103,12 +102,19 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
 
     private HorizontalLayout configureActions() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(Buttons.buttonQuestion(textForQuestionButton, "150px"),
+        horizontalLayout.add(buttonQuestion(),
                 title(), buttonRefresh(), buttonAdd(),
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Возврат поставщику можно создать на основе приемки или вручную. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Возврат поставщику"));
     }
 
     private Grid<ReturnToSupplierDto> configureGrid() {

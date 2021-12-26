@@ -17,6 +17,7 @@ import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.InvoicesStatusService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -93,11 +94,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private final String typeOfInvoice = "RECEIPT";
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/sales_templates/";
-
-    private final String textForQuestionButton = "<div><p>Заказы покупателей позволяют планировать продажи." +
-            "Они не влияют на остатки по складам — для этого нужно создать отгрузку." +
-            "На основе заказов можно формировать резервы и выставлять счета.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Заказы покупателей</a></p></div>";
 
     @Autowired
     public SalesSubCustomersOrdersView(CompanyService companyService, ContractorService contractorService, InvoiceService invoiceService,
@@ -177,10 +173,19 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(Buttons.buttonQuestion(textForQuestionButton, "200px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Заказы покупателей позволяют планировать продажи. " +
+                        "Они не влияют на остатки по складам — для этого нужно создать отгрузку. " +
+                        "На основе заказов можно формировать резервы и выставлять счета. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Заказы покупателей"));
     }
 
     private Button buttonRefresh() {

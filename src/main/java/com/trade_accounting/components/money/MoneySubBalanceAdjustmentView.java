@@ -1,6 +1,7 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -158,10 +159,8 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         return title;
     }
 
-    private com.vaadin.flow.component.button.Button buttonQuestion() {
-        com.vaadin.flow.component.button.Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
     private Button buttonRefresh() {
