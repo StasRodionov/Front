@@ -65,7 +65,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
-    private PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
+    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
     private final ProductService productService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
@@ -90,7 +90,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       ContractorService contractorService, ContractService contractService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView modalView,
-                                      ProductService productService,
+                                      PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin, ProductService productService,
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService) {
         this.supplierAccountService = supplierAccountService;
@@ -100,6 +100,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
+        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
         this.productService = productService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
