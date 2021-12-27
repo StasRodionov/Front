@@ -86,9 +86,6 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private List<InvoiceReceivedDto> getData() {
-        for(InvoiceReceivedDto invoiceReceivedDto : invoiceReceivedService.getAll()){
-            System.out.println(invoiceReceivedDto.getId());
-        }
         return invoiceReceivedService.getAll();
     }
 
@@ -148,8 +145,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private Button buttonFilter() {
-        Button button = new Button("Фильтр");
-        return button;
+        return new Button("Фильтр");
     }
 
     private TextField filterTextField() {
