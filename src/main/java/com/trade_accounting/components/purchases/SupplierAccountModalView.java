@@ -183,7 +183,6 @@ public class SupplierAccountModalView extends Dialog {
 
     public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, BigDecimal amount) {
         SupplierAccountProductsListDto supplierAccountProductsListDto = new SupplierAccountProductsListDto();
-        supplierAccountProductsListDto.setSupplierAccountId(Long.parseLong(supplierNumber.getValue()));
         supplierAccountProductsListDto.setProductId(productDto.getId());
         supplierAccountProductsListDto.setAmount(amount);
         supplierAccountProductsListDto.setPrice(productPriceDto.getValue());
@@ -300,7 +299,6 @@ public class SupplierAccountModalView extends Dialog {
         supplierAccountDto.setIsSpend(isSpend.getValue());
         supplierAccountDto.setIsRecyclebin(false);
         supplierAccountDto.setComment(commentConfig.getValue());
-        supplierAccountDto.setPlannedDatePayment(dt.getValue().toString());
         Response<SupplierAccountDto> supplierAccountDtoResponse = supplierAccountService.create(supplierAccountDto);
         return supplierAccountDtoResponse.body();
     }
