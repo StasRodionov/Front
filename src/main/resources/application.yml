@@ -186,4 +186,6 @@ technical_process_url: api/technical/process
 
 file_url: /api/file
 
+supplier_account_products_list_url: /api/supplier-account-products-list
+
 #debug: true
