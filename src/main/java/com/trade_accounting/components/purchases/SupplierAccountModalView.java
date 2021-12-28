@@ -36,7 +36,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -50,6 +49,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import retrofit2.Response;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +73,7 @@ public class SupplierAccountModalView extends Dialog {
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
-    private final DatePicker dt = new DatePicker();
+    private final DatePicker paymentDatePicker = new DatePicker();
     private final DatePicker dt1 = new DatePicker();
     private final TextField text = new TextField();
     private final Checkbox isSpend = new Checkbox("Проведено");
@@ -121,6 +121,7 @@ public class SupplierAccountModalView extends Dialog {
             if (purchasesChooseGoodsModalWin.productSelect.getValue() != null
                     && purchasesChooseGoodsModalWin.priceSelect.getValue() != null
                     && purchasesChooseGoodsModalWin.amoSelect.getValue() != null) {
+
                 addProduct(purchasesChooseGoodsModalWin.productSelect.getValue(),
                         purchasesChooseGoodsModalWin.priceSelect.getValue(),
                         purchasesChooseGoodsModalWin.amoSelect.getValue());
@@ -204,7 +205,7 @@ public class SupplierAccountModalView extends Dialog {
         invoiceSelectField.setValue(null);
         configureInvoiceSelectField();
         dateTimePicker.setValue(null);
-        dt.setValue(null);
+        paymentDatePicker.setValue(null);
         dt1.setValue(null);
         text.setValue("");
         isSpend.setValue(false);
@@ -219,6 +220,7 @@ public class SupplierAccountModalView extends Dialog {
         this.saveSupplier = editSupplierAccounts;
         supplierNumber.setValue(saveSupplier.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(saveSupplier.getDate()));
+        paymentDatePicker.setValue(LocalDate.parse(saveSupplier.getPlannedDatePayment()));
         commentConfig.setValue(saveSupplier.getComment());
         companyDtoComboBox.setValue(companyService.getById(saveSupplier.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(saveSupplier.getWarehouseId()));
@@ -258,6 +260,7 @@ public class SupplierAccountModalView extends Dialog {
         SupplierAccountDto supplierAccountDto = new SupplierAccountDto();
         supplierAccountDto.setId(Long.parseLong(supplierNumber.getValue()));
         supplierAccountDto.setDate(dateTimePicker.getValue().toString());
+        supplierAccountDto.setPlannedDatePayment(paymentDatePicker.getValue().toString());
         supplierAccountDto.setCompanyId(companyDtoComboBox.getValue().getId());
         supplierAccountDto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
         supplierAccountDto.setContractId(contractDtoComboBox.getValue().getId());
@@ -418,8 +421,11 @@ public class SupplierAccountModalView extends Dialog {
 
         Label label = new Label("План. дата оплаты");
         label.setWidth("150px");
-        dt.setWidth("150px");
-        horizontal.add(label, dt);
+        paymentDatePicker.setWidth("150px");
+        supplierAccountDtoBinder.forField(paymentDatePicker)
+                .asRequired(TEXT_FOR_REQUEST_FIELD)
+                .bind(SupplierAccountDto::getPaymentDateValid, SupplierAccountDto::setPaymentDateValid);
+        horizontal.add(label, paymentDatePicker);
         return horizontal;
     }
 
@@ -452,12 +458,8 @@ public class SupplierAccountModalView extends Dialog {
             dialogOnCloseView.close();
             close();
         });
-        Button cancelButton = new Button("Отменить", event -> {
-            dialogOnCloseView.close();
-        });
-        Shortcuts.addShortcutListener(dialogOnCloseView, () -> {
-            dialogOnCloseView.close();
-        }, Key.ESCAPE);
+        Button cancelButton = new Button("Отменить", event -> dialogOnCloseView.close());
+        Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
         dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
@@ -466,6 +468,7 @@ public class SupplierAccountModalView extends Dialog {
         for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
             if (invoiceProductDto.getProductId().equals(productDto.getId())) {
                 isExists = true;
+                break;
             }
         }
         return isExists;

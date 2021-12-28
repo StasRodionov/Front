@@ -1,11 +1,16 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.InvoicesStatusDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
@@ -21,7 +26,7 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -89,6 +94,11 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final String typeOfInvoice = "RECEIPT";
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/sales_templates/";
 
+    private final String textForQuestionButton = "<div><p>Заказы покупателей позволяют планировать продажи." +
+            "Они не влияют на остатки по складам — для этого нужно создать отгрузку." +
+            "На основе заказов можно формировать резервы и выставлять счета.</p>" +
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Заказы покупателей</a></p></div>";
+
     @Autowired
     public SalesSubCustomersOrdersView(CompanyService companyService, ContractorService contractorService, InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
@@ -143,6 +153,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("invoicesStatusDto", InvoicesStatusDto::getStatusName, invoicesStatusService.getAll());
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
@@ -164,16 +177,10 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        upper.add(Buttons.buttonQuestion(textForQuestionButton, "200px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {
@@ -221,9 +228,10 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         return textField;
     }
 
-    private H2 title() {
-        H2 title = new H2("Заказы покупателей");
+    private H4 title() {
+        H4 title = new H4("Заказы покупателей");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
     }
 

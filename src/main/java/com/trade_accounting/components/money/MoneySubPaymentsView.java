@@ -4,7 +4,10 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.PaymentDto;
+import com.trade_accounting.models.dto.ProjectDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -116,7 +119,9 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 "RENTAL",
                 "SALARY",
                 "MARKETING");
-        filter.setFieldToIntegerField("contractDto");
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("projectDto", ProjectDto::getName, projectService.getAll());
         filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(getDate()));
     }

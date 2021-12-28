@@ -14,7 +14,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
@@ -29,7 +28,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @UIScope
@@ -131,7 +129,8 @@ public class ReturnBuyersReturnModalView extends Dialog {
         } else {
             buyersReturnService.update(buyersReturnDto);
         }
-        UI.getCurrent().navigate("buyersReturns");
+        UI.getCurrent().navigate("sells");
+
         close();
     }
 

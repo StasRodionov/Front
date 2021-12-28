@@ -5,7 +5,10 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
@@ -62,12 +65,13 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
-    private PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
+    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
     private final ProductService productService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
 
     private List<SupplierAccountDto> supplierAccount;
+    private final String typeOfInvoice = "EXPENSE";
 
     private HorizontalLayout actions;
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
@@ -86,7 +90,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       ContractorService contractorService, ContractService contractService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView modalView,
-                                      ProductService productService,
+                                      PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin, ProductService productService,
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService) {
         this.supplierAccountService = supplierAccountService;
@@ -96,6 +100,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
+        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
         this.productService = productService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
@@ -109,7 +114,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private List<SupplierAccountDto> loadSupplierAccounts() {
-        supplierAccount = supplierAccountService.getAll();
+        supplierAccount = supplierAccountService.getAll(typeOfInvoice);
         return supplierAccount;
     }
 
@@ -126,11 +131,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.addColumn(SupplierAccountDto::getDate).setKey("date").setHeader("Время").setSortable(true)
                 .setId("Дата");
         grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName()).setWidth("200px")
-                .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyId")
+                .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
-                .setKey("warehouseId").setId("На склад");
+                .setKey("warehouseDto").setId("На склад");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Оплачено")
                 .setId("Оплачено");
@@ -167,8 +172,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
         filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll()));
+        filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll(typeOfInvoice)));
     }
 
     private H4 title() {
@@ -293,7 +302,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private void updateList() {
-        grid.setItems(supplierAccountService.getAll());
+        grid.setItems(supplierAccountService.getAll(typeOfInvoice));
     }
 
     private String getTotalPrice(SupplierAccountDto invoice) {

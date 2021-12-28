@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.IssuedInvoiceDto;
@@ -14,7 +15,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -57,6 +58,9 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
     private final GridFilter<IssuedInvoiceDto> filter;
     private final Grid<IssuedInvoiceDto> grid = new Grid<>(IssuedInvoiceDto.class, false);
     private final GridPaginator<IssuedInvoiceDto> paginator;
+
+    private  final String textForQuestionButton = "<div><p>Выданные счета-фактуры создаются на основе отгрузки.</p>" +
+            "<p>Счета-фактуры можно распечатывать или отправлять покупателям в виде файлов.</p></div>";
 
     public SalesSubIssuedInvoicesView(IssuedInvoiceService issuedInvoiceService, CompanyService companyService, ContractorService contractorService, PaymentService paymentService) {
         this.issuedInvoiceService = issuedInvoiceService;
@@ -119,21 +123,16 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), textField(), numberField(), getSelect(), getStatus(),getPrint(),buttonSettings());
+        upper.add(Buttons.buttonQuestion(textForQuestionButton,"200px"), title(), buttonRefresh(), buttonFilter(), textField(), numberField(), getSelect(), getStatus(),getPrint(),buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
 
-    private H2 title() {
-        H2 title = new H2("Счета-фактуры выданные");
+    private H4 title() {
+        H4 title = new H4("Счета-фактуры выданные");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {

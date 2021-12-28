@@ -1,11 +1,22 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.*;
-import com.trade_accounting.services.interfaces.*;
+import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.WarehouseDto;
+import com.trade_accounting.services.interfaces.BuyersReturnService;
+import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
+import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.ShipmentProductService;
+import com.trade_accounting.services.interfaces.ShipmentService;
+import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -16,7 +27,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -50,7 +61,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -76,6 +91,12 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
+    private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
+
+    private  final String textForQuestionButton = "<div><p>Возврат можно создать на основании отгрузки или без основания — это удобно," +
+            "если нужно сделать возврат сразу на несколько отгрузок.</p>" +
+            "<p>Возвраты влияют на остатки по складам в разделе Товары → Остатки.</p>" +
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Возвраты покупателей</a></p></div>";
 
     @Autowired
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
@@ -85,7 +106,8 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
                                      Notifications notifications,
                                      ProductService productService,
                                      ShipmentService shipmentService,
-                                     ShipmentProductService shipmentProductService) {
+                                     ShipmentProductService shipmentProductService,
+                                     ReturnBuyersReturnModalView returnBuyersReturnModalView) {
         this.buyersReturnService = buyersReturnService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
@@ -94,6 +116,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         this.productService = productService;
         this.shipmentService = shipmentService;
         this.notifications = notifications;
+        this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         print = selectXlsTemplateButton.addItem("Печать");
 
         List<BuyersReturnDto> data = getData();
@@ -231,15 +254,16 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), selectXlsTemplateButton, textField(),
+        toolbar.add(Buttons.buttonQuestion(textForQuestionButton, "250px"), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), selectXlsTemplateButton, textField(),
                 numberField(), getSelect(), getStatus(), buttonSettings());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return toolbar;
     }
 
-    private H2 title() {
-        H2 title = new H2("Возвраты покупателей");
+    private H4 title() {
+        H4 title = new H4("Возвраты покупателей");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
     }
 
@@ -259,7 +283,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
                     shipmentProductService,
                     contractService);
             view.setReturnEdit(buyersReturnDto);
-            view.open();
+            returnBuyersReturnModalView.open();
         });
         return buttonUnit;
     }
@@ -278,15 +302,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
         return buttonRefresh;
     }
-
-    private Button getButtonQuestion() {
-        final Button buttonQuestion = new Button();
-        Icon question = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
-        buttonQuestion.setIcon(question);
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
-    }
-
 
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)
@@ -357,7 +372,12 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         return buyersReturnService.getAll();
     }
 
+    public void updateData() {
+        paginator.setData(getData(), false);
+    }
+
     private void updateList() {
+
         grid.setItems(buyersReturnService.getAll());
     }
 

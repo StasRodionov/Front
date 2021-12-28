@@ -1,10 +1,14 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
@@ -16,6 +20,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -66,6 +71,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private final String typeOfInvoice = "RECEIPT";
 
+    private  final String textForQuestionButton = "<div><p>Счет является основанием для получения оплаты и проведения отгрузки.</p>" +
+            "<p>Счет можно создать на основе заказа покупателя или вручную." +
+            "Несколько счетов можно объединить: отметьте нужные счета флажками, нажмите справа вверху Изменить → Объединить." +
+            "Исходные счета также сохранятся.</p>" +
+            "<p>Счета можно распечатывать или отправлять покупателям в виде файлов.</p>"+
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Счета покупателям</a></p></div>";
+
     @Autowired
     public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService,
                                         ContractorService contractorService,
@@ -94,7 +106,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions.add(Buttons.buttonQuestion(textForQuestionButton, "350px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
     }
@@ -131,19 +143,15 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName, warehouseService.getAll());
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
             map.put("typeOfInvoice", typeOfInvoice);
             paginator.setData(supplierAccountService.searchByFilter(map));
         });
         filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll(typeOfInvoice)));
-    }
-
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {
@@ -195,9 +203,10 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         grid.setItems(supplierAccountService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
     }
 
-    private H2 title() {
-        H2 title = new H2("Счета покупателям");
+    private H4 title() {
+        H4 title = new H4("Счета покупателям");
         title.setHeight("2.2em");
+        title.setWidth("80px");
         return title;
     }
 

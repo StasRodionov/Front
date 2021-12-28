@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.BuyersReturnDto;
@@ -18,8 +19,8 @@ import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
 import com.trade_accounting.services.interfaces.RetailStoreService;
+import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
@@ -32,7 +33,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -99,6 +100,16 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private final String pathForSaveXlsTemplate =
             "src/main/resources/xls_templates/profitability_templates/";
+
+    private  final String textForQuestionButton = "<div><p>В разделе представлена прибыль от реализации товаров и услуг." +
+            "Здесь отображаются товары и услуги из документов розничной продажи и отгрузок за указанный период." +
+            "Если период не задать, будет показана прибыльность за последний месяц.</p>" +
+            "<p>Отчет позволяет оценить рентабельность продукции." +
+            "Он может быть сформирован по товарам, сотрудникам и покупателям.</p>" +
+            "<p>Отчет по сотрудникам позволяет отслеживать работу каждого конкретного сотрудника и рассчитывать вознаграждение по результатам продаж.</p>" +
+            "<p>По каждому товару можно увидеть список отгрузок, розничных продаж и возвратов." +
+            "Продажи в минус выделяются красным.</p>" +
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Прибыльность</a></p></div>";
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService,
@@ -535,7 +546,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
+        upper.add(Buttons.buttonQuestion(textForQuestionButton, "500px"), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -694,36 +705,10 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return String.format("%.2f", totalPrice);
     }
 
-    private H2 title() {
-        H2 title = new H2("Прибыльность");
+    private H4 title() {
+        H4 title = new H4("Прибыльность");
         title.setHeight("2.2em");
         return title;
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлена прибыль от реализации товаров и услуг. Здесь отображаются товары и услуги из документов " +
-                "\n" +
-                "розничной продажи и отгрузок за указанный период. Если период не задать, будет показана прибыльность за последний месяц.\n" +
-                "\n" +
-                "Отчет позволяет оценить рентабельность продукции. Он может быть сформирован по товарам, сотрудникам и покупателям.\n" +
-                "\n" +
-                "Отчет по сотрудникам позволяет отслеживать работу каждого конкретного сотрудника и рассчитывать вознаграждение по результатам продаж.\n" +
-                "\n" +
-                "По каждому товару можно увидеть список отгрузок, розничных продаж и возвратов. Продажи в минус выделяются красным.\n" +
-                "\n" +
-                "Читать инструкцию: Прибыльность"));
-        dialog.setWidth("500px");
-        dialog.setHeight("300px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {

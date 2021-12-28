@@ -3,7 +3,10 @@ package com.trade_accounting.components.retail;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.CurrencyDto;
+import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RetailCloudCheckDto;
+import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.RetailCloudCheckService;
@@ -32,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "RetailCloudCheckView", layout = AppView.class)
@@ -52,45 +56,67 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
 
     public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService) {
         this.retailCloudCheckService = retailCloudCheckService;
-        this.data = retailCloudCheckService.getAll();
+        this.data = getData();
         this.currencyService = currencyService;
         this.retailStoreService = retailStoreService;
         this.employeeService = employeeService;
-        this.filter = new GridFilter<>(grid);
-        add(upperLayout(), filter);
         this.paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
-        add(grid, paginator);
+        add(upperLayout(), filter, grid, paginator);
+    }
+
+    private void configureFilter() {
+
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("retailStoreDto", RetailStoreDto::getName, retailStoreService.getAll());
+        filter.setFieldToComboBox("fiscalPoint", RetailStoreDto::getName, retailStoreService.getAll());
+        filter.setFieldToComboBox("cashierDto", EmployeeDto::getFirstName, employeeService.getAll());
+        filter.setFieldToComboBox("currencyDto", CurrencyDto::getShortName, currencyService.getAll());
+
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData2();
+            paginator.setData(retailCloudCheckService.search(map));
+        });
+        filter.onClearClick(e -> paginator.setData(getData()));
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("date");
+        grid.addColumn("id").setWidth("30px").setHeader("№").setId("id");
+        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("Дата");
         grid.addColumn(retailCloudCheckDto -> retailStoreService.getById(retailCloudCheckDto.getInitiatorId())
-                .getName()).setHeader("Инициатор").setId("initiator");
+                .getName()).setKey("retailStoreDto").setHeader("Инициатор").setId("Инициатор");
         grid.addColumn(retailCloudCheckDto -> retailStoreService.getById(retailCloudCheckDto.getFiscalizationPointId())
-                .getName()).setFlexGrow(10).setHeader("Точка фискализации").setId("fiscalizationPoint");
-        grid.addColumn("status").setFlexGrow(5).setHeader("Статус").setId("status");
-        grid.addColumn("cheskStatus").setFlexGrow(5).setHeader("Статус чека").setId("cheskStatus");
-        grid.addColumn("total").setFlexGrow(5).setHeader("Итого").setId("total");
+                .getName()).setKey("fiscalPoint").setFlexGrow(10).setHeader("Точка фискализации").setId("Точка фискализации");
+        grid.addColumn("status").setFlexGrow(5).setHeader("Статус").setId("Статус");
+        grid.addColumn("cheskStatus").setFlexGrow(5).setHeader("Статус чека").setId("Статус чека");
+        grid.addColumn("total").setFlexGrow(5).setHeader("Итого").setId("Итого");
 
         grid.addColumn(retailCloudCheckDto -> currencyService.getById(retailCloudCheckDto.getCurrencyId())
-                .getLetterCode()).setHeader("Валюта").setId("currency");
+                .getLetterCode()).setKey("currencyDto").setHeader("Валюта").setId("Валюта");
 
         grid.addColumn(retailCloudCheckDto -> employeeService.getById(retailCloudCheckDto.getCashierId())
-                .getFirstName()).setHeader("Кассир").setId("cashier");
+                .getFirstName()).setKey("cashierDto").setHeader("Кассир").setId("Кассир");
 
         GridSortOrder<RetailCloudCheckDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
     }
 
+    private List<RetailCloudCheckDto> getData() {
+        return retailCloudCheckService.getAll();
+    }
+
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), buttonCancel(), buttonEventLog(), textField(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(),
+                buttonCancel(), buttonEventLog(), textField(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
