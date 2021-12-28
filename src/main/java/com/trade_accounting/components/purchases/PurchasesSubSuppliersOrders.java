@@ -1,9 +1,6 @@
 package com.trade_accounting.components.purchases;
 
 
-import com.groupdocs.conversion.Converter;
-import com.groupdocs.conversion.filetypes.FileType;
-import com.groupdocs.conversion.options.convert.ConvertOptions;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
@@ -328,11 +325,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             sumList.add(getTotalPrice(inc));
         }
         PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), contractorService, companyService, sumList, employeeService);
-       StreamResource streamResource = new StreamResource(templateName, printInvoicesXls::createReport);
-        Anchor anchor = new Anchor(streamResource, templateName);
-        System.out.println(anchor);
-
-        return anchor;
+        return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
     }
 
     private void getInfoNotification(String message) {

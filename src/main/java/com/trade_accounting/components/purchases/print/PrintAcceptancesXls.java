@@ -69,10 +69,18 @@ public class PrintAcceptancesXls extends PrintExcelDocument<AcceptanceDto> {
                 }
                 break;
             case ("<send>"):
-                editCell.setCellValue(model.getIsSent());
+                if (model.getIsSent()) {
+                    editCell.setCellValue("+");
+                } else {
+                    editCell.setCellValue("-");
+                }
                 break;
             case ("<print>"):
-                editCell.setCellValue(model.getIsPrint());
+                if (model.getIsPrint()) {
+                    editCell.setCellValue("+");
+                } else {
+                    editCell.setCellValue("-");
+                }
                 break;
             case ("<comment>"):
                 editCell.setCellValue(model.getComment());

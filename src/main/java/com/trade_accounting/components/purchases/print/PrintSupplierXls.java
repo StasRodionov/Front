@@ -58,7 +58,7 @@ public class PrintSupplierXls extends PrintExcelDocument<SupplierAccountDto> {
             case ("<company>"):
                 editCell.setCellValue(companyService.getById(model.getCompanyId()).getName());
                 break;
-                case ("<warehouse>"):
+            case ("<warehouse>"):
                 editCell.setCellValue(warehouseService.getById(model.getWarehouseId()).getName());
                 break;
             case ("<sum>"):
@@ -68,7 +68,11 @@ public class PrintSupplierXls extends PrintExcelDocument<SupplierAccountDto> {
                 }
                 break;
             case ("<isSpend>"):
-                editCell.setCellValue(String.valueOf(model.getIsSpend()));
+                if (model.getIsSpend()) {
+                    editCell.setCellValue("+");
+                } else {
+                    editCell.setCellValue("-");
+                }
                 break;
             case ("<comment>"):
                 editCell.setCellValue(model.getComment());

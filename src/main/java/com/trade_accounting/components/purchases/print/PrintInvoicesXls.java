@@ -1,8 +1,5 @@
 package com.trade_accounting.components.purchases.print;
 
-import com.groupdocs.conversion.Converter;
-import com.groupdocs.conversion.filetypes.FileType;
-import com.groupdocs.conversion.options.convert.ConvertOptions;
 import com.trade_accounting.components.util.PrintExcelDocument;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -60,7 +57,11 @@ public class PrintInvoicesXls extends PrintExcelDocument<InvoiceDto> {
                 editCell.setCellValue(companyService.getById(model.getCompanyId()).getName());
                 break;
             case ("<isSpend>"):
-                editCell.setCellValue(String.valueOf(model.getIsSpend()));
+                if (model.getIsSpend()) {
+                    editCell.setCellValue("+");
+                } else {
+                    editCell.setCellValue("-");
+                }
                 break;
             case ("<sum>"):
                 editCell.setCellValue(sumList.get(lengthOfsumList++));
