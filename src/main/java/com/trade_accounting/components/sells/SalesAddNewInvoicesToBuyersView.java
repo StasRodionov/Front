@@ -1,16 +1,25 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
 import com.trade_accounting.models.dto.InvoiceToBuyerListProductsDto;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.InvoiceProductService;
+import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.services.interfaces.InvoiceToBuyerListProductsService;
+import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Key;
@@ -34,6 +43,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
@@ -46,8 +56,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import retrofit2.Response;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,6 +81,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private final ComboBox<ContractDto> contractSelectField = new ComboBox<>();
     private final DatePicker plannedDatePaymentField;
     private final Grid<InvoiceToBuyerListProductsDto> grid;
+    private final GridPaginator<InvoiceToBuyerListProductsDto> paginator;
     private final TextField commentTextField;
     private final H4 totalPriceField;
     private final H4 ndsPriceField;
@@ -76,8 +90,12 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private static final String FIELD_WIDTH = "350px";
     private String typeOfInvoice = "RECEIPT";
     private final Dialog dialogOnCloseView = new Dialog();
+    private final ComboBox<InvoiceDto> invoiceSelectField = new ComboBox<>();
 
     private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
+
+    private List<InvoiceToBuyerListProductsDto> tempInvoiceToBuyerListProductsDto = new ArrayList<>();
+    private List<InvoiceToBuyerListProductsDto> supplierInvoiceToBuyerListProductsDto = new ArrayList<>();
 
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
@@ -85,6 +103,10 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private final ContractorService contractorService;
     private final Notifications notifications;
     private final SupplierAccountService supplierAccountService;
+    private final InvoiceToBuyerListProductsService invoiceToBuyerListProductsService;
+    private final ProductService productService;
+    private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
 
     private final Binder<SupplierAccountDto> supplierAccountDtoBinder = new Binder<>(SupplierAccountDto.class);
     private final Button buttonDelete = new Button("Удалить", new Icon(VaadinIcon.TRASH));
@@ -98,7 +120,11 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
                                            ContractorService contractorService,
                                            SupplierAccountService supplierAccountService,
                                            SalesChooseGoodsModalWin salesChooseGoodsModalWin,
-                                           @Lazy Notifications notifications) {
+                                           @Lazy Notifications notifications,
+                                           InvoiceToBuyerListProductsService invoiceToBuyerListProductsService,
+                                           ProductService productService,
+                                           InvoiceService invoiceService,
+                                           InvoiceProductService invoiceProductService) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractService = contractService;
@@ -106,6 +132,10 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         this.supplierAccountService = supplierAccountService;
         this.notifications = notifications;
         this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
+        this.invoiceToBuyerListProductsService = invoiceToBuyerListProductsService;
+        this.productService = productService;
+        this.invoiceService = invoiceService;
+        this.invoiceProductService = invoiceProductService;
 
         invoiceBuyerField = new TextField();
         configureInvoiceBuyerField();
@@ -118,9 +148,11 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         configureContractorSelectField();
         configureContractSelectField();
         configureCloseViewDialog();
+        configureInvoiceSelectField();
 
         plannedDatePaymentField = new DatePicker();
         grid = new Grid<>(InvoiceToBuyerListProductsDto.class, false);
+        paginator = new GridPaginator<>(grid, tempInvoiceToBuyerListProductsDto);
         configureGrid();
         commentTextField = new TextField();
         configureCommentTextField();
@@ -129,6 +161,14 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         ndsPriceField = new H4();
         configureNdsPriceField();
 
+        salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
+            if (salesChooseGoodsModalWin.productSelect.getValue() != null
+                    && salesChooseGoodsModalWin.priceSelect.getValue() != null) {
+                addProduct(salesChooseGoodsModalWin.productSelect.getValue(),
+                        salesChooseGoodsModalWin.priceSelect.getValue(),
+                        salesChooseGoodsModalWin.amountField);
+            }
+        });
 
         add(upperMenu(),
                 formLayout(),
@@ -141,6 +181,12 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         Button button = new Button("Сохранить");
         button.addClickListener(buttonClickEvent -> {
 
+            if (tempInvoiceToBuyerListProductsDto.isEmpty()){
+                InformationView informationView = new InformationView("Вы не добавили ни одного продукта");
+                informationView.open();
+                return;
+            }
+
             if (!supplierAccountDtoBinder.validate().isOk()) {
                 supplierAccountDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
@@ -148,13 +194,10 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
                 if (dateTimePickerField.getValue() == null) {
                     dateTimePickerField.setValue(LocalDateTime.now());
                 }
-                SupplierAccountDto supplierAccountDto = saveInvoice(typeOfInvoice);
+                SupplierAccountDto supplierAccountDto = saveInvoice(typeOfInvoice); //Сохранение счёта
+                deleteRemovedProducts();
+                addInvoiceProductToInvoicedDto(supplierAccountDto); //Сохранение товаров из счёта
 
-                /*deleteAllInvoiceProductByInvoice(
-                        getListOfInvoiceProductByInvoice(invoiceDto)
-                );
-
-                addInvoiceProductToInvoicedDto(invoiceDto);*/ //добавление продуктов в счет
                 UI.getCurrent().navigate(location);
                 notifications.infoNotification(String.format("Счет № %s сохранен", supplierAccountDto.getId()));
             }
@@ -179,7 +222,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         return buttonDelete;
     }
 
-    //Диалоговое окно закрытия
+        //Диалоговое окно закрытия
         private void configureCloseViewDialog() {
         dialogOnCloseView.add(new Text("Вы уверены? Несохраненные данные будут потеряны!!!"));
         dialogOnCloseView.setCloseOnEsc(false);
@@ -193,7 +236,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         Button cancelButton = new Button("Отменить", event -> {
             dialogOnCloseView.close();
         });
-// Cancel action on ESC press
+        // Cancel action on ESC press
         Shortcuts.addShortcutListener(dialogOnCloseView, () -> {
             dialogOnCloseView.close();
         }, Key.ESCAPE);
@@ -222,7 +265,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         title.setHeight("2.0em");
-        horizontalLayout.add(title, buttonSave(), configureDeleteButton(), buttonClose(), buttonAddFromDirectory());
+        horizontalLayout.add(title, buttonSave(), configureDeleteButton(), buttonClose(), buttonAddFromDirectory(), invoiceSelectField, buttonFillInOrder());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
     }
@@ -358,13 +401,21 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn(InvoiceToBuyerListProductsDto::getProductDto).setHeader("Наименование").setSortable(true).setKey("productName").setId("Наименование");
+        grid.setItems(tempInvoiceToBuyerListProductsDto);
+        grid.addColumn(product -> productService.getById(product.getProductId()).getName()).setHeader("Наименование").setSortable(true).setKey("productName").setId("Наименование");
         grid.addColumn(InvoiceToBuyerListProductsDto::getAmount).setHeader("Количество").setSortable(true).setKey("productAmount").setId("Количество");
         grid.addColumn(InvoiceToBuyerListProductsDto::getPrice).setHeader("Цена").setSortable(true).setKey("productPrice").setId("Цена");
         grid.addColumn(InvoiceToBuyerListProductsDto::getSum).setHeader("Сумма").setSortable(true).setKey("productSum").setId("Сумма");
         grid.addColumn(InvoiceToBuyerListProductsDto::getPercentNds).setHeader("% НДС").setSortable(true).setKey("productPercentNds").setId("% НДС");
         grid.addColumn(InvoiceToBuyerListProductsDto::getNds).setHeader("НДС").setSortable(true).setKey("productNds").setId("НДС");
         grid.addColumn(InvoiceToBuyerListProductsDto::getTotal).setHeader("Всего").setSortable(true).setKey("productTotal").setId("Всего");
+
+        grid.addComponentColumn(column -> {
+            Button edit = new Button(new Icon(VaadinIcon.TRASH));
+            edit.addClassName("delete");
+            edit.addClickListener(e -> deleteProduct(column.getId()));
+            return edit;
+        });
     }
 
     private void configureCommentTextField() {
@@ -401,7 +452,6 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     }
 
     public void setSupplierDataForEdit(SupplierAccountDto supplierAccountDto) {
-
         invoiceBuyerField.setValue(supplierAccountDto.getId().toString());
         dateTimePickerField.setValue(LocalDateTime.parse(supplierAccountDto.getDate()));
         companySelectField.setValue(companyService.getById(supplierAccountDto.getCompanyId()));
@@ -410,7 +460,26 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         warehouseSelectField.setValue(warehouseService.getById(supplierAccountDto.getWarehouseId()));
         contractSelectField.setValue(contractService.getById(supplierAccountDto.getContractId()));
         plannedDatePaymentField.setValue(LocalDate.parse(supplierAccountDto.getPlannedDatePayment()));
+        tempInvoiceToBuyerListProductsDto = invoiceToBuyerListProductsService.getBySupplierId(Long.parseLong(invoiceBuyerField.getValue()));
+        supplierInvoiceToBuyerListProductsDto = invoiceToBuyerListProductsService.getBySupplierId(Long.parseLong(invoiceBuyerField.getValue()));
+        paginator.setData(tempInvoiceToBuyerListProductsDto);
+        setTotalNDS();
+        setTotalPrice();
+    }
 
+    public void setSupplierDataForEdit(SupplierAccountDto supplierAccountDto, List<InvoiceProductDto> invoiceProductDtoList) {
+        invoiceBuyerField.setValue(supplierAccountDto.getId().toString());
+        dateTimePickerField.setValue(LocalDateTime.parse(supplierAccountDto.getDate()));
+        companySelectField.setValue(companyService.getById(supplierAccountDto.getCompanyId()));
+        contractorSelectField.setValue(contractorService.getById(supplierAccountDto.getContractorId()));
+        isSpend.setValue(supplierAccountDto.getIsSpend());
+        warehouseSelectField.setValue(warehouseService.getById(supplierAccountDto.getWarehouseId()));
+        contractSelectField.setValue(contractService.getById(supplierAccountDto.getContractId()));
+        plannedDatePaymentField.setValue(LocalDate.parse(supplierAccountDto.getPlannedDatePayment()));
+        tempInvoiceToBuyerListProductsDto = convertInvoiceProductToInvoiceToBuyer(invoiceProductDtoList);
+        paginator.setData(tempInvoiceToBuyerListProductsDto);
+        setTotalNDS();
+        setTotalPrice();
     }
 
     private SupplierAccountDto saveInvoice(String typeOfInvoice) {
@@ -439,5 +508,146 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     public void setLocation(String location) {
         this.location = location;
     }
+
+    private void deleteProduct(Long id) {
+        InvoiceToBuyerListProductsDto found = new InvoiceToBuyerListProductsDto();
+        for (InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto : tempInvoiceToBuyerListProductsDto) {
+            if (invoiceToBuyerListProductsDto.getId() == id) {
+                found = invoiceToBuyerListProductsDto;
+                break;
+            }
+        }
+        tempInvoiceToBuyerListProductsDto.remove(found);
+        paginator.setData(tempInvoiceToBuyerListProductsDto);
+        setTotalPrice();
+    }
+
+    private void deleteRemovedProducts() {
+        for (InvoiceToBuyerListProductsDto remove : supplierInvoiceToBuyerListProductsDto) {
+            if(!tempInvoiceToBuyerListProductsDto.contains(remove)) {
+                invoiceToBuyerListProductsService.deleteById(remove.getId());
+            }
+        }
+    }
+
+    private void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, BigDecimalField amount) {
+        InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto = new InvoiceToBuyerListProductsDto();
+        invoiceToBuyerListProductsDto.setProductId(productDto.getId());
+        invoiceToBuyerListProductsDto.setAmount(amount.getValue());
+        invoiceToBuyerListProductsDto.setPrice(productPriceDto.getValue());
+        invoiceToBuyerListProductsDto.setSum(invoiceToBuyerListProductsDto.getPrice().multiply(invoiceToBuyerListProductsDto.getAmount()));
+        invoiceToBuyerListProductsDto.setPercentNds("20");
+        invoiceToBuyerListProductsDto.setNds(invoiceToBuyerListProductsDto.getSum().multiply(BigDecimal.valueOf(0.2)));
+        invoiceToBuyerListProductsDto.setTotal(invoiceToBuyerListProductsDto.getSum().add(invoiceToBuyerListProductsDto.getNds()));
+        if (!isProductInList(productDto)) {
+            tempInvoiceToBuyerListProductsDto.add(invoiceToBuyerListProductsDto);
+            paginator.setData(tempInvoiceToBuyerListProductsDto);
+            setTotalPrice();
+            setTotalNDS();
+        }
+    }
+
+    private boolean isProductInList(ProductDto productDto) {
+        boolean isExists = false;
+        for (InvoiceToBuyerListProductsDto invoiceProductDto : tempInvoiceToBuyerListProductsDto) {
+            if (invoiceProductDto.getProductId() == (productDto.getId())) {
+                isExists = true;
+            }
+        }
+        return isExists;
+    }
+
+    private void addInvoiceProductToInvoicedDto(SupplierAccountDto invoiceDto) {
+        for (InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto : tempInvoiceToBuyerListProductsDto) {
+            invoiceToBuyerListProductsDto.setSupplierAccountId(invoiceDto.getId());
+            invoiceToBuyerListProductsDto.setProductId(invoiceToBuyerListProductsDto.getProductId());
+            invoiceToBuyerListProductsDto.setAmount(invoiceToBuyerListProductsDto.getAmount());
+            invoiceToBuyerListProductsDto.setPrice(invoiceToBuyerListProductsDto.getPrice());
+            invoiceToBuyerListProductsDto.setSum(invoiceToBuyerListProductsDto.getSum());
+            invoiceToBuyerListProductsDto.setPercentNds(invoiceToBuyerListProductsDto.getPercentNds());
+            invoiceToBuyerListProductsDto.setNds(invoiceToBuyerListProductsDto.getNds());
+            invoiceToBuyerListProductsDto.setTotal(invoiceToBuyerListProductsDto.getTotal());
+            invoiceToBuyerListProductsService.create(invoiceToBuyerListProductsDto);
+        }
+    }
+
+    public BigDecimal getTotalPrice() {
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+        for (InvoiceToBuyerListProductsDto invoiceProductDto : tempInvoiceToBuyerListProductsDto) {
+            totalPrice = totalPrice.add(invoiceProductDto.getTotal());
+        }
+        return totalPrice;
+    }
+
+    private void setTotalPrice() {
+        totalPriceField.setText(
+                String.format("%.2f", getTotalPrice())
+        );
+    }
+
+    private BigDecimal getTotalNDS() {
+        BigDecimal totalNDS = BigDecimal.valueOf(0.0);
+        for (InvoiceToBuyerListProductsDto invoiceProductDto : tempInvoiceToBuyerListProductsDto) {
+            totalNDS = totalNDS.add(invoiceProductDto.getNds());
+        }
+        return totalNDS;
+    }
+
+    private void setTotalNDS() {
+        ndsPriceField.setText(String.format("%.2f", getTotalNDS()));
+    }
+
+    private Button buttonFillInOrder() {
+        Button button = new Button("Заполнить по...");
+        button.addClickListener(buttonClickEvent -> {
+            companySelectField.setValue(companyService.getById(invoiceSelectField.getValue().getCompanyId()));
+            contractorSelectField.setValue(contractorService.getById(invoiceSelectField.getValue().getContractorId()));
+            warehouseSelectField.setValue(warehouseService.getById(invoiceSelectField.getValue().getWarehouseId()));
+            isSpend.setValue(invoiceSelectField.getValue().getIsSpend());
+            tempInvoiceToBuyerListProductsDto = convertInvoiceProductToInvoiceToBuyer(invoiceProductService.getByInvoiceId(invoiceSelectField.getValue().getId()));
+            paginator.setData(tempInvoiceToBuyerListProductsDto);
+            setTotalNDS();
+            setTotalPrice();
+        });
+        return button;
+    }
+
+    private void configureInvoiceSelectField() {
+        List<InvoiceDto> invoices = invoiceService.getAll(typeOfInvoice);
+        if (invoices != null) {
+            invoiceSelectField.setItems(invoices);
+        }
+        invoiceSelectField.setWidth("500px");
+        invoiceSelectField.setPlaceholder("Заказ");
+        invoiceSelectField.setItemLabelGenerator(e -> "Id: " + e.getId() +
+                ", Контрагент: " + contractorService.getById(e.getContractorId()).getName() +
+                ", Компания: " + companyService.getById(e.getCompanyId()).getName()  +
+                ", на сумму: " + getTotalPriceForSelectFild(e));
+    }
+
+    public BigDecimal getTotalPriceForSelectFild(InvoiceDto invoiceDto) {
+        BigDecimal totalPriceForSelectFild = BigDecimal.valueOf(0);
+        for (InvoiceProductDto iDto : invoiceProductService.getByInvoiceId(invoiceDto.getId())) {
+            totalPriceForSelectFild = totalPriceForSelectFild.add(iDto.getPrice().multiply(iDto.getAmount()));
+        }
+        return totalPriceForSelectFild;
+    }
+
+    private List<InvoiceToBuyerListProductsDto> convertInvoiceProductToInvoiceToBuyer(List<InvoiceProductDto> invoiceProductDtoList) {
+        List<InvoiceToBuyerListProductsDto> resultList = new ArrayList<>();
+        for(InvoiceProductDto invoiceProductDto: invoiceProductDtoList) {
+            InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto = new InvoiceToBuyerListProductsDto();
+            invoiceToBuyerListProductsDto.setProductId(invoiceProductDto.getProductId());
+            invoiceToBuyerListProductsDto.setAmount(invoiceProductDto.getAmount());
+            invoiceToBuyerListProductsDto.setPrice(invoiceProductDto.getPrice());
+            invoiceToBuyerListProductsDto.setSum(invoiceToBuyerListProductsDto.getAmount().multiply(invoiceToBuyerListProductsDto.getPrice()).setScale(2, RoundingMode.DOWN));
+            invoiceToBuyerListProductsDto.setPercentNds("20");
+            invoiceToBuyerListProductsDto.setNds(invoiceToBuyerListProductsDto.getSum().multiply(BigDecimal.valueOf(0.20)).setScale(2, RoundingMode.DOWN));
+            invoiceToBuyerListProductsDto.setTotal(invoiceToBuyerListProductsDto.getSum().add(invoiceToBuyerListProductsDto.getNds()).setScale(2, RoundingMode.DOWN));
+            resultList.add(invoiceToBuyerListProductsDto);
+        }
+        return resultList;
+    }
+
 }
 

@@ -509,7 +509,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
             invoiceToBuyers.setIsSpend(isSpend.getValue());
             invoiceToBuyers.setComment(commentTextField.getValue());
             invoiceToBuyers.setPlannedDatePayment("2021-08-16");
-            salesAddNewInvoicesToBuyersView.setSupplierDataForEdit(invoiceToBuyers);
+            salesAddNewInvoicesToBuyersView.setSupplierDataForEdit(invoiceToBuyers, tempInvoiceProductDtoList);
             salesAddNewInvoicesToBuyersView.setUpdateState(true);
             salesAddNewInvoicesToBuyersView.setLocation("sells");
             UI.getCurrent().navigate("sells/add-new-invoices-to-buyers");

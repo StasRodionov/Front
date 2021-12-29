@@ -186,4 +186,5 @@ technical_process_url: api/technical/process
 
 file_url: /api/file
 
+invoice_to_buyer_list_products_url: api/invoice/tobuyerlistproducts
 #debug: true
