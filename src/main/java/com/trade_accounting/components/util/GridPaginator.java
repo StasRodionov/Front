@@ -105,9 +105,9 @@ public class GridPaginator<T> extends HorizontalLayout {
     }
 
     private void calculateNumberOfPages() {
-        if (data.size() == 0) {
+        if (data.isEmpty()) {
             this.numberOfPages = 1;
-        }else {
+        } else {
             this.numberOfPages = (int) Math.ceil((float) data.size() / itemsPerPage);
         }
     }
