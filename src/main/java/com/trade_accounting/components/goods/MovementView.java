@@ -1,10 +1,13 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.models.dto.MovementProductDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.MovementProductService;
 import com.trade_accounting.services.interfaces.MovementService;
@@ -63,6 +66,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
     private final GridPaginator<MovementDto> paginator;
+    private final GridFilter<MovementDto> filter;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
@@ -85,8 +89,10 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(configureActions(), grid, paginator);
+        add(configureActions(), filter, grid, paginator);
     }
 
     private void configureGrid() {
@@ -94,17 +100,17 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(MovementDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
         grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseId())
-                .getName()).setKey("warehouseFrom").setHeader("Со Склада").setId("Со Склада");
+                .getName()).setKey("warehouseDto").setHeader("Со Склада").setId("Со Склада");
         grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseToId())
-                .getName()).setKey("warehouseTo").setHeader("На Склад").setId("На Склад");
+                .getName()).setKey("warehouseToDto").setHeader("На Склад").setId("На Склад");
         grid.addColumn(movementDto -> companyService.getById(movementDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Организация").setId("Организация");
+                .getName()).setKey("companyDto").setHeader("Организация").setId("Организация");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setMaxWidth("100%");
         grid.setColumnReorderingAllowed(true);
@@ -124,6 +130,18 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
             modalView.setMovementForEdit(dto);
             modalView.open();
         });
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
+        filter.setFieldToComboBox("warehouseToDto", WarehouseDto::getName, warehouseService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToCheckBox("sent");
+        filter.setFieldToCheckBox("print");
+        filter.onSearchClick(e -> paginator.setData(movementService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(movementService.getAll()));
     }
 
     private List<MovementDto> getData() {
@@ -240,7 +258,9 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField text() {
