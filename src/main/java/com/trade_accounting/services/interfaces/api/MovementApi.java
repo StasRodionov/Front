@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.MovementDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -9,8 +10,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MovementApi {
     @Headers("Accept: application/json")
@@ -36,6 +39,11 @@ public interface MovementApi {
     @Headers("Accept: application/json")
     @PUT("{url}/moveToIsRecyclebin/{id}")
     Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/queryMovement")
+    Call<List<MovementDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                                  @QueryMap Map<String, String> queryMovement);
 
     @Headers("Accept: application/json")
     @PUT("{url}/restoreFromIsRecyclebin/{id}")

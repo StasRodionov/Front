@@ -92,6 +92,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
+    private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
 
     @Autowired
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
@@ -101,7 +102,8 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
                                      Notifications notifications,
                                      ProductService productService,
                                      ShipmentService shipmentService,
-                                     ShipmentProductService shipmentProductService) {
+                                     ShipmentProductService shipmentProductService,
+                                     ReturnBuyersReturnModalView returnBuyersReturnModalView) {
         this.buyersReturnService = buyersReturnService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
@@ -110,6 +112,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         this.productService = productService;
         this.shipmentService = shipmentService;
         this.notifications = notifications;
+        this.returnBuyersReturnModalView = returnBuyersReturnModalView;
         print = selectXlsTemplateButton.addItem("Печать");
 
         List<BuyersReturnDto> data = getData();
@@ -285,7 +288,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
                     shipmentProductService,
                     contractService);
             view.setReturnEdit(buyersReturnDto);
-            view.open();
+            returnBuyersReturnModalView.open();
         });
         return buttonUnit;
     }
@@ -374,7 +377,12 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         return buyersReturnService.getAll();
     }
 
+    public void updateData() {
+        paginator.setData(getData(), false);
+    }
+
     private void updateList() {
+
         grid.setItems(buyersReturnService.getAll());
     }
 

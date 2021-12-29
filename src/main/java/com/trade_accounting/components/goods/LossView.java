@@ -37,6 +37,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -59,7 +60,8 @@ public class LossView extends VerticalLayout {
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private List<LossDto> data;
-    private final LossModalWindow modalWindow;
+    private final LossCreateView lossCreateView;
+    private final LossModalWindow lossModalWindow;
 
     @Autowired
     public LossView(LossService lossService,
@@ -67,13 +69,15 @@ public class LossView extends VerticalLayout {
                     CompanyService companyService,
                     LossProductService lossProductService,
                     Notifications notifications,
-                    LossModalWindow modalWindow) {
+                    @Lazy LossCreateView lossCreateView,
+                    LossModalWindow lossModalWindow) {
         this.lossService = lossService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.lossProductService = lossProductService;
         this.notifications = notifications;
-        this.modalWindow = modalWindow;
+        this.lossCreateView = lossCreateView;
+        this.lossModalWindow = lossModalWindow;
         data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -102,11 +106,11 @@ public class LossView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
-        grid.addItemDoubleClickListener(e-> {
-            LossDto dto = e.getItem();
-            modalWindow.setLossEdit(dto);
-            modalWindow.open();
-        });
+//        grid.addItemDoubleClickListener(e-> {
+//            LossDto dto = e.getItem();
+//            modalWindow.setLossEdit(dto);
+//            modalWindow.open();
+//        });
     }
 
     private List<LossDto> getData() {
@@ -194,7 +198,11 @@ public class LossView extends VerticalLayout {
 
     private Button buttonUnit() {
         Button button = new Button("Списание", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(e -> modalWindow.open());
+        button.addClickListener(e -> {
+            lossCreateView.clearForm();
+            lossCreateView.setParentLocation("lossView");
+            button.getUI().ifPresent(ui -> ui.navigate("goods/loss-create"));
+        });
         updateList();
         return button;
     }
