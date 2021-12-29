@@ -2,12 +2,15 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.SupplierAccountModalView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.CorrectionProductDto;
 import com.trade_accounting.models.dto.InventarizationDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CorrectionProductService;
 import com.trade_accounting.services.interfaces.CorrectionService;
@@ -62,6 +65,7 @@ public class PostingTabView extends VerticalLayout {
 
     private final Grid<CorrectionDto> grid = new Grid<>(CorrectionDto.class, false);
     private GridPaginator<CorrectionDto> paginator;
+    private final GridFilter<CorrectionDto> filter;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
@@ -83,18 +87,20 @@ public class PostingTabView extends VerticalLayout {
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(configureActions(), grid, paginator);
+        add(configureActions(), filter, grid, paginator);
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(CorrectionDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
+        grid.addColumn(CorrectionDto::getDate).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
         grid.addColumn(correctionDto -> warehouseService.getById(correctionDto.getWarehouseId())
-                .getName()).setKey("warehouse").setHeader("Склад").setId("Склад");
+                .getName()).setKey("warehouseDto").setHeader("Склад").setId("Склад");
         grid.addColumn(correctionDto -> companyService.getById(correctionDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Компания").setId("Компания");
+                .getName()).setKey("companyDto").setHeader("Компания").setId("Компания");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
@@ -115,6 +121,17 @@ public class PostingTabView extends VerticalLayout {
             postingModal.setPostingEdit(correctionDto);
             postingModal.open();
         });
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
+        filter.setFieldToCheckBox("sent");
+        filter.setFieldToCheckBox("print");
+        filter.onSearchClick(e -> paginator.setData(correctionService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(correctionService.getAll()));
     }
 
     private List<CorrectionDto> getData() {
@@ -228,8 +245,7 @@ public class PostingTabView extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр", e -> filter.setVisible(!filter.isVisible()));
     }
 
     private TextField text() {
