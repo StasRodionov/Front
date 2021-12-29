@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -65,7 +66,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
-    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
+    private final ProductSelectModal productSelectModal;
     private final ProductService productService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
@@ -90,7 +91,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       ContractorService contractorService, ContractService contractService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView modalView,
-                                      PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin, ProductService productService,
+                                      ProductSelectModal productSelectModal, ProductService productService,
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService) {
         this.supplierAccountService = supplierAccountService;
@@ -100,7 +101,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
-        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
+        this.productSelectModal = productSelectModal;
         this.productService = productService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
@@ -153,7 +154,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                     contractorService,
                     contractService,
                     notifications,
-                    purchasesChooseGoodsModalWin,
+                    productSelectModal,
                     productService,
                     invoiceService,
                     invoiceProductService);

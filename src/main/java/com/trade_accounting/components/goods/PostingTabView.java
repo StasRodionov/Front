@@ -102,11 +102,11 @@ public class PostingTabView extends VerticalLayout {
         grid.addColumn(correctionDto -> companyService.getById(correctionDto.getCompanyId())
                 .getName()).setKey("companyDto").setHeader("Компания").setId("Компания");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
@@ -128,8 +128,6 @@ public class PostingTabView extends VerticalLayout {
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
-        filter.setFieldToCheckBox("sent");
-        filter.setFieldToCheckBox("print");
         filter.onSearchClick(e -> paginator.setData(correctionService.search(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(correctionService.getAll()));
     }

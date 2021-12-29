@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
@@ -85,7 +86,7 @@ public class SupplierAccountModalView extends Dialog {
     private final Dialog dialogOnCloseView = new Dialog();
     private Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
     private final GridPaginator<InvoiceProductDto> paginator;
-    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
+    private final ProductSelectModal productSelectModal;
     private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
     private final H4 totalPrice = new H4();
     private final ComboBox<InvoiceDto> invoiceSelectField = new ComboBox<>();
@@ -96,7 +97,7 @@ public class SupplierAccountModalView extends Dialog {
                                     ContractorService contractorService,
                                     ContractService contractService,
                                     Notifications notifications,
-                                    PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin,
+                                    ProductSelectModal productSelectModal,
                                     ProductService productService,
                                     InvoiceService invoiceService,
                                     InvoiceProductService invoiceProductService) {
@@ -106,7 +107,7 @@ public class SupplierAccountModalView extends Dialog {
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.notifications = notifications;
-        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
+        this.productSelectModal = productSelectModal;
         this.productService = productService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
@@ -117,18 +118,11 @@ public class SupplierAccountModalView extends Dialog {
         setSizeFull();
         configureDateTimePickerField();
         add(upperButtonInModalView(), formToAddSupplerAccount(), grid);
-        purchasesChooseGoodsModalWin.addDetachListener(detachEvent -> {
-            if (purchasesChooseGoodsModalWin.productSelect.getValue() != null
-                    && purchasesChooseGoodsModalWin.priceSelect.getValue() != null
-                    && purchasesChooseGoodsModalWin.amoSelect.getValue() != null) {
-
-                addProduct(purchasesChooseGoodsModalWin.productSelect.getValue(),
-                        purchasesChooseGoodsModalWin.priceSelect.getValue(),
-                        purchasesChooseGoodsModalWin.amoSelect.getValue());
-                purchasesChooseGoodsModalWin.productSelect.setValue(null);
-                purchasesChooseGoodsModalWin.priceSelect.setValue(null);
-                purchasesChooseGoodsModalWin.amoSelect.setValue("");
+        productSelectModal.addDetachListener(detachEvent -> {
+            if (productSelectModal.isFormValid()) {
+                addProduct(productSelectModal.getInvoiceProductDto());
             }
+            productSelectModal.clearForm();
         });
     }
 
@@ -172,12 +166,8 @@ public class SupplierAccountModalView extends Dialog {
         return totalPriceForSelectFild;
     }
 
-    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, String amo) {
-        InvoiceProductDto invoiceProductDto = new InvoiceProductDto();
-        invoiceProductDto.setProductId(productDto.getId());
-        invoiceProductDto.setAmount(new BigDecimal(amo));
-        invoiceProductDto.setPrice(productPriceDto.getValue());
-        if (!isProductInList(productDto)) {
+    public void addProduct(InvoiceProductDto invoiceProductDto) {
+        if (!isProductInList(invoiceProductDto)) {
             tempInvoiceProductDtoList.add(invoiceProductDto);
             paginator.setData(tempInvoiceProductDtoList);
             setTotalPrice();
@@ -281,8 +271,8 @@ public class SupplierAccountModalView extends Dialog {
     private Button addProductButton() {
         Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(buttonClickEvent -> {
-            purchasesChooseGoodsModalWin.updateProductList();
-            purchasesChooseGoodsModalWin.open();
+            productSelectModal.updateProductList();
+            productSelectModal.open();
         });
         return button;
     }
@@ -463,15 +453,9 @@ public class SupplierAccountModalView extends Dialog {
         dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
-    private boolean isProductInList(ProductDto productDto) {
-        boolean isExists = false;
-        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            if (invoiceProductDto.getProductId().equals(productDto.getId())) {
-                isExists = true;
-                break;
-            }
-        }
-        return isExists;
+    private boolean isProductInList(InvoiceProductDto invoiceProductDto) {
+        return tempInvoiceProductDtoList.stream()
+                .anyMatch(invoiceProductDtoElem -> invoiceProductDtoElem.getProductId().equals(invoiceProductDto.getProductId()));
     }
 
     public BigDecimal getTotalPrice() {
