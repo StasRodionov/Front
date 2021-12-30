@@ -2,6 +2,7 @@ package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.MovementDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.MovementService;
 import com.trade_accounting.services.interfaces.api.MovementApi;
@@ -22,9 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -76,6 +79,19 @@ public class MovementServiceImpl implements MovementService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на обновление экземпляра MovementDto - {}", e);
         }
+    }
+
+    @Override
+    public List<MovementDto> searchByFilter(Map<String, String> queryMovement) {
+        List<MovementDto> movementDtoList = new ArrayList<>();
+        Call<List<MovementDto>> callSupplier = movementApi.searchByFilter(movementUrl, queryMovement);
+        try {
+            movementDtoList = callSupplier.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение перемещений по фильтру {}", movementDtoList);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение перемещений {IOException}", e);
+        }
+        return movementDtoList;
     }
 
     @Override

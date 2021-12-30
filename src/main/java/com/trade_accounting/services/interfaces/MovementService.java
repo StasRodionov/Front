@@ -2,9 +2,11 @@ package com.trade_accounting.services.interfaces;
 
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.MovementDto;
+import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MovementService {
     List<MovementDto> getAll();
@@ -12,6 +14,8 @@ public interface MovementService {
     MovementDto getById(Long id);
 
     MovementDto create(MovementDto movementDto);
+
+    List<MovementDto> searchByFilter(Map<String, String> queryMovement);
 
     void update(MovementDto movementDto);
 
