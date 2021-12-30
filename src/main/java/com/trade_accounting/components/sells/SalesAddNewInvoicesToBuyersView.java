@@ -1,6 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
@@ -92,7 +93,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private final Dialog dialogOnCloseView = new Dialog();
     private final ComboBox<InvoiceDto> invoiceSelectField = new ComboBox<>();
 
-    private final SalesChooseGoodsModalWin salesChooseGoodsModalWin;
+    private final ProductSelectModal productSelectModal;
 
     private List<InvoiceToBuyerListProductsDto> tempInvoiceToBuyerListProductsDto = new ArrayList<>();
     private List<InvoiceToBuyerListProductsDto> supplierInvoiceToBuyerListProductsDto = new ArrayList<>();
@@ -119,7 +120,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
                                            ContractService contractService,
                                            ContractorService contractorService,
                                            SupplierAccountService supplierAccountService,
-                                           SalesChooseGoodsModalWin salesChooseGoodsModalWin,
+                                           ProductSelectModal productSelectModal,
                                            @Lazy Notifications notifications,
                                            InvoiceToBuyerListProductsService invoiceToBuyerListProductsService,
                                            ProductService productService,
@@ -131,7 +132,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         this.contractorService = contractorService;
         this.supplierAccountService = supplierAccountService;
         this.notifications = notifications;
-        this.salesChooseGoodsModalWin = salesChooseGoodsModalWin;
+        this.productSelectModal = productSelectModal;
         this.invoiceToBuyerListProductsService = invoiceToBuyerListProductsService;
         this.productService = productService;
         this.invoiceService = invoiceService;
@@ -161,12 +162,9 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         ndsPriceField = new H4();
         configureNdsPriceField();
 
-        salesChooseGoodsModalWin.addDetachListener(detachEvent -> {
-            if (salesChooseGoodsModalWin.productSelect.getValue() != null
-                    && salesChooseGoodsModalWin.priceSelect.getValue() != null) {
-                addProduct(salesChooseGoodsModalWin.productSelect.getValue(),
-                        salesChooseGoodsModalWin.priceSelect.getValue(),
-                        salesChooseGoodsModalWin.amountField);
+        productSelectModal.addDetachListener(detachEvent -> {
+            if (productSelectModal.isFormValid()) {
+                addProduct(productSelectModal.getInvoiceToBuyerListProductDto());
             }
         });
 
@@ -253,9 +251,9 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private Button buttonAddFromDirectory() {
         Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(buttonClickEvent -> {
-
-            salesChooseGoodsModalWin.updateProductList();
-            salesChooseGoodsModalWin.open();
+            productSelectModal.clearForm();
+            productSelectModal.updateProductList();
+            productSelectModal.open();
         });
         return button;
     }
@@ -530,16 +528,8 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         }
     }
 
-    private void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, BigDecimalField amount) {
-        InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto = new InvoiceToBuyerListProductsDto();
-        invoiceToBuyerListProductsDto.setProductId(productDto.getId());
-        invoiceToBuyerListProductsDto.setAmount(amount.getValue());
-        invoiceToBuyerListProductsDto.setPrice(productPriceDto.getValue());
-        invoiceToBuyerListProductsDto.setSum(invoiceToBuyerListProductsDto.getPrice().multiply(invoiceToBuyerListProductsDto.getAmount()));
-        invoiceToBuyerListProductsDto.setPercentNds("20");
-        invoiceToBuyerListProductsDto.setNds(invoiceToBuyerListProductsDto.getSum().multiply(BigDecimal.valueOf(0.2)));
-        invoiceToBuyerListProductsDto.setTotal(invoiceToBuyerListProductsDto.getSum().add(invoiceToBuyerListProductsDto.getNds()));
-        if (!isProductInList(productDto)) {
+    private void addProduct(InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto) {
+        if (!isProductInList(invoiceToBuyerListProductsDto)) {
             tempInvoiceToBuyerListProductsDto.add(invoiceToBuyerListProductsDto);
             paginator.setData(tempInvoiceToBuyerListProductsDto);
             setTotalPrice();
@@ -547,14 +537,9 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
         }
     }
 
-    private boolean isProductInList(ProductDto productDto) {
-        boolean isExists = false;
-        for (InvoiceToBuyerListProductsDto invoiceProductDto : tempInvoiceToBuyerListProductsDto) {
-            if (invoiceProductDto.getProductId() == (productDto.getId())) {
-                isExists = true;
-            }
-        }
-        return isExists;
+    private boolean isProductInList(InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto) {
+        return tempInvoiceToBuyerListProductsDto.stream()
+                .anyMatch(invoiceProductDtoElem -> invoiceProductDtoElem.getProductId().equals(invoiceToBuyerListProductsDto.getProductId()));
     }
 
     private void addInvoiceProductToInvoicedDto(SupplierAccountDto invoiceDto) {

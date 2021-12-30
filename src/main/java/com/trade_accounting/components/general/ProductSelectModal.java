@@ -1,6 +1,7 @@
 package com.trade_accounting.components.general;
 
 import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.InvoiceToBuyerListProductsDto;
 import com.trade_accounting.models.dto.LossProductDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
@@ -147,6 +148,18 @@ public class ProductSelectModal extends Dialog {
         lossProductDto.setPrice(priceSelect.getValue().getValue());
         lossProductDto.setAmount(amountField.getValue());
         return lossProductDto;
+    }
+
+    public InvoiceToBuyerListProductsDto getInvoiceToBuyerListProductDto() {
+        InvoiceToBuyerListProductsDto invoiceToBuyerListProductsDto = new InvoiceToBuyerListProductsDto();
+        invoiceToBuyerListProductsDto.setProductId(productSelect.getValue().getId());
+        invoiceToBuyerListProductsDto.setPrice(priceSelect.getValue().getValue());
+        invoiceToBuyerListProductsDto.setAmount(amountField.getValue());
+        invoiceToBuyerListProductsDto.setSum(invoiceToBuyerListProductsDto.getPrice().multiply(invoiceToBuyerListProductsDto.getAmount()));
+        invoiceToBuyerListProductsDto.setPercentNds("20");
+        invoiceToBuyerListProductsDto.setNds(invoiceToBuyerListProductsDto.getSum().multiply(BigDecimal.valueOf(0.2)));
+        invoiceToBuyerListProductsDto.setTotal(invoiceToBuyerListProductsDto.getSum().add(invoiceToBuyerListProductsDto.getNds()));
+        return invoiceToBuyerListProductsDto;
     }
 
     private void updateSaveButtonEnable() {
