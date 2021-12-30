@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -26,6 +28,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -230,24 +233,11 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлены все ваши товары, услуги и комплекты.\n" +
-                "Для удобства товары и услуги можно группировать. Различать товары с одинаковым " +
-                "артикулом по характеристикам (например, размеру или цвету) удобно с помощью модификаций. " +
-                "Несколько единиц одного товара можно продавать упаковками. А комплекты позволяют продавать " +
-                "наборы разных товаров и услуг как единое целое.\n" +
-                "Каталог товаров можно импортировать и экспортировать."));
-        dialog.setWidth("500px");
-        dialog.setHeight("300px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе представлены все ваши товары, услуги и комплекты. " +
+                        "артикулом по характеристикам (например, размеру или цвету) удобно с помощью модификаций. " +
+                        "Несколько единиц одного товара можно продавать упаковками. А комплекты позволяют продавать " +
+                        "наборы разных товаров и услуг как единое целое. " +
+                        "Каталог товаров можно импортировать и экспортировать.");
     }
 
     private Button buttonRefresh() {

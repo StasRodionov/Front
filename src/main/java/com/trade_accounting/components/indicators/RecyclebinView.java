@@ -14,6 +14,7 @@ import com.trade_accounting.components.purchases.AcceptanceModalView;
 import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
@@ -357,20 +358,9 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе хранятся удаленные документы — их можно восстановить в течение 7 дней после удаления." +
-                " По истечении этого срока документы окончательно стираются."));
-        dialog.setWidth("500px");
-        dialog.setHeight("300px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе хранятся удаленные документы — " +
+                "их можно восстановить в течение 7 дней после удаления. " +
+                "По истечении этого срока документы окончательно стираются.");
     }
 
     private H2 title() {

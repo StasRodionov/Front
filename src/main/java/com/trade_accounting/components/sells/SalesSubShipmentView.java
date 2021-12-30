@@ -16,10 +16,12 @@ import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -69,13 +71,6 @@ public class SalesSubShipmentView extends VerticalLayout {
     private Grid<ShipmentDto> grid;
     private GridPaginator<ShipmentDto> paginator;
 
-    private final String textForQuestionButton = "<div><p>Отгрузки фиксируют отпуск товаров покупателям и влияют на остатки по складам в разделе Товары → Остатки.</p>" +
-            "<p>Товары отпускаются с указанного в документе склада." +
-            "Если товары отпускаются с двух разных складов, то для каждого создается отдельная отгрузка.</p>" +
-            "<p>Отгрузку можно распечатать в виде расходной накладной, ТОРГ-12 или Товарно-транспортной накладной." +
-            "На основе отгрузки создаются и печатаются счета-фактуры.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Отгрузка товаров</a></p></div>";
-
 //    private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
@@ -106,9 +101,20 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(Buttons.buttonQuestion(textForQuestionButton, "400px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Отгрузки фиксируют отпуск товаров покупателям и влияют на остатки по складам в разделе Товары → Остатки. " +
+                        "Товары отпускаются с указанного в документе склада. " +
+                        "Если товары отпускаются с двух разных складов, то для каждого создается отдельная отгрузка. " +
+                        "Отгрузку можно распечатать в виде расходной накладной, ТОРГ-12 или Товарно-транспортной накладной. " +
+                        "На основе отгрузки создаются и печатаются счета-фактуры. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Отгрузка товаров"));
     }
 
     private void configureGrid() {

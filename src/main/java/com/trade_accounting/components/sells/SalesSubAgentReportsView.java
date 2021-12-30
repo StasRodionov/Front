@@ -13,10 +13,12 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -68,13 +70,6 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
     private final String typeOfInvoice = "RECEIPT";
 
-    private final String textForQuestionButton = "<div><p>В разделе представлены выданные и полученные отчеты комиссионера." +
-            "В отчетах указываются проданные товары, сумма продажи, вознаграждение комиссионера." +
-            "На основе отчетов формируется долг комиссионера перед комитентом.</p>" +
-            "<p>Выданные отчеты создает комиссионер. Полученные — комитент.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Комиссионная торговля. Комиссионеру</a></p>" +
-            "<a href=\"#\" target=\"_blank\">Комиссионная торговля. Комитенту</a></p></div>";
-
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
                                     CompanyService companyService,
@@ -114,10 +109,22 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
     private HorizontalLayout configureActions() {
         HorizontalLayout actions1 = new HorizontalLayout();
-        actions1.add(Buttons.buttonQuestion(textForQuestionButton, "350px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions1.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions1.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return actions1;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("В разделе представлены выданные и полученные отчеты комиссионера. " +
+                        "В отчетах указываются проданные товары, сумма продажи, вознаграждение комиссионера. " +
+                        "На основе отчетов формируется долг комиссионера перед комитентом. " +
+                        "Выданные отчеты создает комиссионер. Полученные — комитент. " +
+                        "Читать инструкции: "),
+                new Anchor("#", "Комиссионная торговля. Комиссионеру"),
+                new Text(", "),
+                new Anchor("#", "Комиссионная торговля. Комитенту"));
     }
 
     private void configureGrid() {

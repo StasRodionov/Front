@@ -12,10 +12,12 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceReceivedService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -65,8 +67,6 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private final TextField textField = new TextField();
 
-    private  final String textForQuestionButton = "<div><p>Входящие счета-фактуры создаются на основе приемки.</p>";
-
     @Autowired
     public PurchasesSubMenuInvoicesReceived(InvoiceReceivedService invoiceReceivedService,
                                             CompanyService companyService,
@@ -91,11 +91,15 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private HorizontalLayout configureActions() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(Buttons.buttonQuestion(textForQuestionButton,"120px"), title(), buttonRefresh(),
+        horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(),
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion("Входящие счета-фактуры создаются на основе приемки.");
     }
 
     private Grid<InvoiceReceivedDto> configureGrid() {

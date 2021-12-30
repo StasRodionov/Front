@@ -1,6 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -217,23 +218,10 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        com.vaadin.flow.component.dialog.Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлен список ваших поставщиков и покупателей." +
-                " Для них можно настраивать индивидуальные цены и скидки, также" +
-                " можно им звонить и отправлять документы прямо из МоегоСклада." +
-                " Список контрагентов можно импортировать и экспортировать."));
-        dialog.setWidth("560px");
-        dialog.setHeight("190px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.setModal(false);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе представлен список ваших поставщиков и покупателей. " +
+                "Для них можно настраивать индивидуальные цены и скидки, также " +
+                "можно им звонить и отправлять документы прямо из МоегоСклада. " +
+                "Список контрагентов можно импортировать и экспортировать.");
     }
 
     private Button buttonRefresh() {

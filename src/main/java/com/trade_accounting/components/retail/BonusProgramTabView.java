@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.BonusProgramDto;
 import com.trade_accounting.services.interfaces.BonusProgramService;
@@ -10,12 +11,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -162,25 +165,10 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
 
     // Здесь кнопка вопроса Розница -- бонусная программа
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div>" +
-                "<p>" +
-                "Создание, управление и настройка бонусных программ, в которых может участвовать пользователь. \n" +
-                "</p>" +
-                "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Бонусная программа</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("200px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new Text("Создание, управление и настройка бонусных программ, в которых может участвовать пользователь. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Бонусная программа"));
     }
 
     private Button buttonRefresh() {
