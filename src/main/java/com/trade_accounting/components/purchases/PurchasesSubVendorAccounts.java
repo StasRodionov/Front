@@ -8,6 +8,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.SupplierAccountProductsListDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
@@ -15,6 +16,7 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.SupplierAccountProductsListService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -63,14 +65,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final ContractorService contractorService;
-    private final ContractService contractService;
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
-    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
-    private final ProductService productService;
-    private final InvoiceService invoiceService;
-    private final InvoiceProductService invoiceProductService;
+    private final SupplierAccountModalView supplierAccountModalView;
+    private final SupplierAccountProductsListService supplierAccountProductsListService;
 
     private List<SupplierAccountDto> supplierAccount;
     private final String typeOfInvoice = "EXPENSE";
@@ -83,23 +82,19 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     @Autowired
     public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
-                                      ContractorService contractorService, ContractService contractService,
+                                      ContractorService contractorService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView modalView,
-                                      PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin, ProductService productService,
-                                      InvoiceService invoiceService,
-                                      InvoiceProductService invoiceProductService) {
+                                      SupplierAccountModalView supplierAccountModalView,
+                                      SupplierAccountProductsListService supplierAccountProductsListService) {
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.contractorService = contractorService;
-        this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
-        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
-        this.productService = productService;
-        this.invoiceService = invoiceService;
-        this.invoiceProductService = invoiceProductService;
+        this.supplierAccountModalView = supplierAccountModalView;
+        this.supplierAccountProductsListService = supplierAccountProductsListService;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -152,17 +147,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             SupplierAccountDto editSupplierAccounts = event.getItem();
-            SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
+            /*SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
                     supplierAccountService,
                     companyService,
                     warehouseService,
                     contractorService,
-                    contractService,
-                    notifications,
-                    purchasesChooseGoodsModalWin,
-                    productService,
-                    invoiceService,
-                    invoiceProductService);
+                    notifications);*/
             supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
             supplierAccountModalView.open();
 
@@ -312,16 +302,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private String getTotalPrice(SupplierAccountDto invoice) {
-
-//        InvoiceProductDto invoiceProductDtoList = supplierAccountsModalView
-//                .getListOfInvoiceProductByInvoice(invoice.getInvoiceProductDto());
-//        List<InvoiceProductDto> getTotal = new ArrayList<>();
-//        getTotal.add(invoiceProductDtoList);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-//        for (InvoiceProductDto invoiceProductDto : getTotal) {
-//            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-//                    .multiply(invoiceProductDto.getAmount()));
-//        }
+        for(SupplierAccountProductsListDto supplierAccountProductsListDto: supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
+            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
+        }
         return String.format("%.2f", totalPrice);
     }
 
