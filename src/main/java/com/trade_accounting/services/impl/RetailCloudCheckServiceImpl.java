@@ -1,5 +1,6 @@
 package com.trade_accounting.services.impl;
 
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.RetailCloudCheckDto;
 import com.trade_accounting.services.interfaces.RetailCloudCheckService;
 import com.trade_accounting.services.interfaces.api.RetailCloudCheckApi;
@@ -10,7 +11,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -42,8 +45,22 @@ public class RetailCloudCheckServiceImpl implements RetailCloudCheckService {
     public RetailCloudCheckDto getById(Long id) {
         Call<RetailCloudCheckDto> retailCloudCheckDtoCall = retailCloudCheckApi.getById(retailCloudCheckUrl, id);
         return dtoCallExecuteService.callExecuteBodyById(retailCloudCheckDtoCall, RetailCloudCheckDto.class, id);
-
     }
+
+    @Override
+    public List<RetailCloudCheckDto> search(Map<String, String> query) {
+        List<RetailCloudCheckDto> retailCloudCheckDtoList = new ArrayList<>();
+        Call<List<RetailCloudCheckDto>> retailCloudCheckDtoListCall = retailCloudCheckApi.search(retailCloudCheckUrl, query);
+        try {
+            retailCloudCheckDtoList = retailCloudCheckDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice -{}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return retailCloudCheckDtoList;
+    }
+
+
 
     @Override
     public void create(RetailCloudCheckDto retailCloudCheckDto) {

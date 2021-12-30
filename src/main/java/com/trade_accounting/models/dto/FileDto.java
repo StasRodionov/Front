@@ -33,4 +33,6 @@ public class FileDto {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime uploadDateTime;
+
+    private long productId;
 }

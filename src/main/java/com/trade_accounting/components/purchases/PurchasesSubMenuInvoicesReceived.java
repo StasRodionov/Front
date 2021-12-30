@@ -3,6 +3,7 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintInvoiceReceivedXls;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -22,6 +23,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -85,6 +87,8 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private final TextField textField = new TextField();
 
+    private  final String textForQuestionButton = "<div><p>Входящие счета-фактуры создаются на основе приемки.</p>";
+
     @Autowired
     public PurchasesSubMenuInvoicesReceived(EmployeeService employeeService, InvoiceReceivedService invoiceReceivedService,
                                             CompanyService companyService,
@@ -113,7 +117,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private HorizontalLayout configureActions() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(),
+        horizontalLayout.add(Buttons.buttonQuestion(textForQuestionButton,"120px"), title(), buttonRefresh(),
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings());
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -152,17 +156,11 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         return formatDateTime.format(formatter);
     }
 
-    private H3 title() {
-        H3 title = new H3("Счета-фактуры полученные");
+    private H4 title() {
+        H4 title = new H4("Счета-фактуры полученные");
         title.setHeight("2.2em");
-        title.setWidth("180px");
+        title.setWidth("80px");
         return title;
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
     }
 
     private Button buttonRefresh() {
@@ -173,8 +171,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private Button buttonFilter() {
-        Button button = new Button("Фильтр");
-        return button;
+        return new Button("Фильтр");
     }
 
     private TextField filterTextField() {

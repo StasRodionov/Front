@@ -4,6 +4,7 @@ package com.trade_accounting.components.purchases;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -14,6 +15,9 @@ import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -89,6 +93,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final GridFilter<InvoiceDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices";
 
+    private  final String textForQuestionButton = "<div><p>Заказы поставщикам позволяют планировать закупки товаров и услуг." +
+            " Они не меняют количество товара на складе — для этого нужно создать приемку." +
+            " Товары из заказов поставщику можно поставить в ожидание.</p>" +
+            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Заказы поставщикам</a></p></div>";
+
     @Autowired
     public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService, InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
@@ -110,7 +119,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private HorizontalLayout configureActions() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        upper.add(Buttons.buttonQuestion(textForQuestionButton,"230px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
@@ -162,12 +171,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             paginator.setData(invoiceService.search(map));
         });
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
-    }
-
-    private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
     }
 
     private H4 title() {
@@ -377,7 +380,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private void updateList() {
         grid.setItems(invoiceService.getAll(typeOfInvoice));
-
     }
 
     protected String getTotalPrice(InvoiceDto invoiceDto) {

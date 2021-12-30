@@ -3,9 +3,14 @@ package com.trade_accounting.components.tasks;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.TaskDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.TaskCommentService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.Component;
@@ -20,6 +25,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -31,10 +37,12 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringComponent
@@ -45,8 +53,10 @@ import java.util.List;
 public class TasksView extends VerticalLayout implements AfterNavigationObserver {
 
     private final TaskService taskService;
+    private final InvoiceService invoiceService;
     private final Grid<TaskDto> grid = new Grid<>(TaskDto.class, false);
     private final GridFilter<TaskDto> filter;
+    private final Notifications notifications;
     private final EmployeeService employeeService;
     private final ContractorService contractorService;
     private final TaskCommentService taskCommentService;
@@ -55,12 +65,14 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
     private final TaskDto taskDto;
 
     @Autowired
-    public TasksView(TaskService taskService, EmployeeService employeeService,
-                     ContractorService contractorService, TaskCommentService taskCommentService) {
+    public TasksView(TaskService taskService, InvoiceService invoiceService, EmployeeService employeeService,
+                     ContractorService contractorService, @Lazy Notifications notifications, TaskCommentService taskCommentService) {
         this.taskService = taskService;
         this.employeeService = employeeService;
         this.contractorService = contractorService;
         this.taskCommentService = taskCommentService;
+        this.notifications = notifications;
+        this.invoiceService = invoiceService;
         this.taskDto = new TaskDto();
         paginator = getPaginator();
         configureGrid();
@@ -103,13 +115,51 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
         grid.setSortableColumns("id", "description", "completed", "contractorId", "employeeId", "deadLineDateTime", "creationDateTime");
     }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("employeeId", EmployeeDto::getLastName, employeeService.getAll());
+        filter.onSearchClick(e -> paginator.setData(taskService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(taskService.getAll()));
+    }
+
     private HorizontalLayout getToolBar() {
         var toolbar = new HorizontalLayout();
         toolbar.add(getButtonQuestion(), getTextTask(), getButtonRefresh(),
-                getButtonCreateTask(), getButtonFilter(), getTextField());
+                getButtonCreateTask(), getButtonFilter(), getTextField(),valueSelect());
 
         toolbar.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return toolbar;
+    }
+
+    private Select<String> valueSelect() {
+        Select<String> select = new Select<>();
+        List<String> listItems = new ArrayList<>();
+        listItems.add("Изменить");
+        listItems.add("Удалить");
+        select.setItems(listItems);
+        select.setValue("Изменить");
+        select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedInvoices();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
+        return select;
+    }
+
+    private void deleteSelectedInvoices() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (TaskDto taskDto : grid.getSelectedItems()) {
+                taskService.deleteById(taskDto.getId());
+                notifications.infoNotification("Выбранные задачи успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные задачи");
+        }
     }
 
     private Button getButtonQuestion() {
@@ -129,12 +179,6 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
         buttonQuestion.addClickListener(event -> notification.open());
 
         return buttonQuestion;
-    }
-
-    private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.onSearchClick(e -> paginator.setData(taskService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(taskService.getAll()));
     }
 
     private H2 getTextTask() {
