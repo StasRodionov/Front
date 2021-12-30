@@ -1,6 +1,7 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.RetailSalesDto;
@@ -12,12 +13,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -158,24 +161,13 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>В разделе представлен список розничных продаж — так фиксируется реализация товаров." +
-                " Для того чтобы создать розничную продажу, необходимо открыть точку продаж.</p>" +
-                "<p>Читать инструкцию: </p><p><a href=\"#\" target=\"_blank\">Продажа в кассе</a></p>" +
-                "<p><a href=\"#\" target=\"_blank\">Розница</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("300px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new Text("В разделе представлен список розничных продаж — так фиксируется реализация товаров. " +
+                        "Для того чтобы создать розничную продажу, необходимо открыть точку продаж. " +
+                        "Читать инструкции: "),
+                new Anchor("#", "Продажа в кассе"),
+                new Text(", "),
+                new Anchor("#", "Розница"));
     }
 
     private Button buttonRefresh() {

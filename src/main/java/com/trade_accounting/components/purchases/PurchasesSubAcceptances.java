@@ -102,6 +102,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
             "<p>Приемку можно создать вручную или импортировать, в том числе из систем ЭДО.</p>"+
             "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Приемка товаров</a></p></div>";
 
+
     public PurchasesSubAcceptances(EmployeeService employeeService, CompanyService companyService, AcceptanceService acceptanceService,
                                    WarehouseService warehouseService,
                                    ContractorService contractorService,
@@ -137,11 +138,23 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
 
     private HorizontalLayout configureActions() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(Buttons.buttonQuestion(textForQuestionButton, "450px"), title(), buttonRefresh(), buttonAdd(),
+        horizontalLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonAdd(),
                 buttonFilter(), filterTextField(), numberField(), valueSelect(),
                 valueStatus(), valuePrint(), buttonSettings(), selectXlsTemplateButton);
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Приемки позволяют учитывать закупки товаров. " +
+                        "Приемку создают, когда покупают новый товар. " +
+                        "Если товар уже лежит у вас на складе или вы не хотите указывать поставщиков, лучше воспользоваться оприходованием. " +
+                        "В результате приемки увеличиваются остатки товаров в разделе Товары → Остатки и фиксируется долг перед поставщиком в разделе Деньги → Взаиморасчеты. " +
+                        "Также на основе приемки формируется себестоимость товара. " +
+                        "Приемку можно создать вручную или импортировать, в том числе из систем ЭДО. "+
+                        "Читать инструкцию: "),
+                new Anchor("#", "Приемка товаров"));
     }
 
     private void configureGrid() {

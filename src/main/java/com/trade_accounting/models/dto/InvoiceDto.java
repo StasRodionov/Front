@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +23,8 @@ public class InvoiceDto {
     private Long contractorId;
 
     private Long warehouseId;
+
+    private List<Long> invoiceProductsIds;
 
     private Boolean isSpend;
 

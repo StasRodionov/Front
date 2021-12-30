@@ -9,6 +9,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.SupplierAccountProductsListDto;
 import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
@@ -17,9 +18,11 @@ import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.services.interfaces.SupplierAccountProductsListService;
 import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -29,6 +32,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -82,14 +86,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final ContractorService contractorService;
-    private final ContractService contractService;
     private final Notifications notifications;
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
-    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
-    private final ProductService productService;
-    private final InvoiceService invoiceService;
-    private final InvoiceProductService invoiceProductService;
+    private final SupplierAccountModalView supplierAccountModalView;
+    private final SupplierAccountProductsListService supplierAccountProductsListService;
 
     private List<SupplierAccountDto> supplierAccount;
     private final String typeOfInvoice = "EXPENSE";
@@ -100,18 +101,14 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final GridFilter<SupplierAccountDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/supplier";
 
-    private final String textForQuestionButton = "<div><p>Счета поставщиков помогают планировать оплату товаров." +
-            "Счета не меняют количество товара на складе — для этого нужно создать приемку, а чтобы учесть оплату — платеж.</p>" +
-            "<p>Дату оплаты можно запланировать. Не оплаченные вовремя счета отображаются в разделе Показатели.</p>" +
-            "<p>Счета можно создавать сразу из заказа поставщику.</p>"+
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Счета поставщиков</a></p></div>";
-
     @Autowired
     public PurchasesSubVendorAccounts(EmployeeService employeeService, SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
-                                      ContractorService contractorService, ContractService contractService,
+                                      ContractorService contractorService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView modalView,
+                                      SupplierAccountModalView supplierAccountModalView,
+                                      SupplierAccountProductsListService supplierAccountProductsListService) {
                                       PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin, ProductService productService,
                                       InvoiceService invoiceService,
                                       InvoiceProductService invoiceProductService) {
@@ -120,13 +117,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.contractorService = contractorService;
-        this.contractService = contractService;
         this.notifications = notifications;
         this.modalView = modalView;
-        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
-        this.productService = productService;
-        this.invoiceService = invoiceService;
-        this.invoiceProductService = invoiceProductService;
+        this.supplierAccountModalView = supplierAccountModalView;
+        this.supplierAccountProductsListService = supplierAccountProductsListService;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -143,9 +137,19 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(Buttons.buttonQuestion(textForQuestionButton,"300px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Счета поставщиков помогают планировать оплату товаров. " +
+                        "Счета не меняют количество товара на складе — для этого нужно создать приемку, а чтобы учесть оплату — платеж. " +
+                        "Дату оплаты можно запланировать. Не оплаченные вовремя счета отображаются в разделе Показатели. " +
+                        "Счета можно создавать сразу из заказа поставщику. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Счета поставщиков"));
     }
 
     private Grid<SupplierAccountDto> configureGrid() {
@@ -169,17 +173,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             SupplierAccountDto editSupplierAccounts = event.getItem();
-            SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
+            /*SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
                     supplierAccountService,
                     companyService,
                     warehouseService,
                     contractorService,
-                    contractService,
-                    notifications,
-                    purchasesChooseGoodsModalWin,
-                    productService,
-                    invoiceService,
-                    invoiceProductService);
+                    notifications);*/
             supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
             supplierAccountModalView.open();
 
@@ -409,16 +408,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     }
 
     private String getTotalPrice(SupplierAccountDto invoice) {
-
-//        InvoiceProductDto invoiceProductDtoList = supplierAccountsModalView
-//                .getListOfInvoiceProductByInvoice(invoice.getInvoiceProductDto());
-//        List<InvoiceProductDto> getTotal = new ArrayList<>();
-//        getTotal.add(invoiceProductDtoList);
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-//        for (InvoiceProductDto invoiceProductDto : getTotal) {
-//            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-//                    .multiply(invoiceProductDto.getAmount()));
-//        }
+        for(SupplierAccountProductsListDto supplierAccountProductsListDto: supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
+            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
+        }
         return String.format("%.2f", totalPrice);
     }
 

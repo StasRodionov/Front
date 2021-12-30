@@ -2,9 +2,9 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.RevenueDto;
 import com.trade_accounting.services.interfaces.RevenueService;
 import com.vaadin.flow.component.UI;
@@ -28,6 +28,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
+import java.util.Map;
 
 @SpringComponent
 @PageTitle("Обороты")
@@ -45,14 +46,27 @@ public class RevenueView extends VerticalLayout {
 
     public RevenueView(RevenueService revenueService, @Lazy RevenueModalWindow revenueModalWindow) {
         this.revenueService = revenueService;
-        this.filter = new GridFilter<>(grid);
         this.data = getData();
         this.revenueModalWindow = revenueModalWindow;
         this.paginator = new GridPaginator<>(grid, data, 100);
         setSizeFull();
         configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(upperLayout(), filter, grid, paginator);
+    }
+
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToComboBox("description", RevenueDto::getDescription, revenueService.getAll());
+        filter.setFieldToComboBox("unitShortName", RevenueDto::getUnitShortName, revenueService.getAll());
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData2();
+            paginator.setData(revenueService.search(map));
+        });
+        filter.onClearClick(e -> paginator.setData(getData()));
     }
 
     private void configureGrid() {
@@ -107,22 +121,10 @@ public class RevenueView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-        String notificationText = "В разделе представлены приход и расход товаров за определенный "+
-                "временной промежуток. Можно посмотреть статистику по складу, поставщику, проекту и так далее.\n" +
-                "\n" +
+        return Buttons.buttonQuestion("В разделе представлены приход и расход товаров за определенный "+
+                "временной промежуток. Можно посмотреть статистику по складу, поставщику, проекту и так далее. " +
                 "Нажмите на строку с товаром — откроется список всех документов, " +
-                "которые повлияли на оборот по данному товару.";
-
-
-        var notification = new Notification(
-                notificationText, 3000, Notification.Position.BOTTOM_START);
-
-        buttonQuestion.addClickListener(event -> notification.open());
-
-        return buttonQuestion;
+                "которые повлияли на оборот по данному товару.");
     }
 
     private Button buttonRefresh() {
@@ -135,6 +137,7 @@ public class RevenueView extends VerticalLayout {
 
     private Button buttonFilter() {
         Button filterButton = new Button("Фильтр");
+        filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return filterButton;
     }
 
@@ -167,5 +170,4 @@ public class RevenueView extends VerticalLayout {
     private List<RevenueDto> getData() {
         return revenueService.getAll();
     }
-
 }

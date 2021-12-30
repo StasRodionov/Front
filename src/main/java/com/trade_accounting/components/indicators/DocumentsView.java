@@ -1,6 +1,7 @@
 package com.trade_accounting.components.indicators;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
@@ -146,21 +147,9 @@ public class DocumentsView extends VerticalLayout {
 
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлены файлы, добавленные за всё время." +
-                " Здесь удобно искать конкретные файлы с помощью фильтров и удалять файлы, " +
-                "чтобы освободить место в хранилище."));
-        dialog.setWidth("500px");
-        dialog.setHeight("300px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе представлены файлы, добавленные за всё время. " +
+                "Здесь удобно искать конкретные файлы с помощью фильтров и удалять файлы, " +
+                "чтобы освободить место в хранилище.");
     }
 
 

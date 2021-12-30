@@ -8,11 +8,13 @@ import com.trade_accounting.models.dto.MoneySubMutualSettlementsDto;
 import com.trade_accounting.models.dto.SalesSubGoodsForSaleDto;
 import com.trade_accounting.services.interfaces.MoneySubMutualSettlementsService;
 import com.trade_accounting.services.interfaces.SalesSubGoodsForSaleService;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -44,10 +46,6 @@ public class SalesSubGoodsForSaleView extends VerticalLayout {
     //    private final GridFilter<SalesSubGoodsForSaleDto> filter;
 //    GridPaginator<SalesSubGoodsForSaleDto> paginator;
 
-    private final String textForQuestionButton = "<div><p>В разделе представлены товары, переданные и принятые на реализацию по договору комиссии." +
-            "Здесь можно создать возврат на весь нереализованный остаток товаров и выданный отчет комиссионера по всем проданным товарам, по которым вы еще не отчитались.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Товары на реализации</a></p></div>";
-
     public SalesSubGoodsForSaleView(SalesSubGoodsForSaleService salesSubGoodsForSaleService) {
 //        this.salesSubGoodsForSaleService = salesSubGoodsForSaleService;
         configureGrid();
@@ -64,10 +62,19 @@ public class SalesSubGoodsForSaleView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(Buttons.buttonQuestion(textForQuestionButton, "250px"), title(), buttonRefresh(),
+        upper.add(buttonQuestion(), title(), buttonRefresh(),
                 configurationSubMenu(), buttonFilter(), valuePrint());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("В разделе представлены товары, переданные и принятые на реализацию по договору комиссии." +
+                        "Здесь можно создать возврат на весь нереализованный остаток товаров и выданный отчет " +
+                        "комиссионера по всем проданным товарам, по которым вы еще не отчитались." +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Товары на реализации"));
     }
 
     private H4 title() {

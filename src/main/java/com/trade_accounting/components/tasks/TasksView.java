@@ -1,6 +1,7 @@
 package com.trade_accounting.components.tasks;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.ContractorDto;
@@ -14,10 +15,13 @@ import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.TaskCommentService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -163,22 +167,19 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
     }
 
     private Button getButtonQuestion() {
-        var buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-        String notificationText = "Задачи помогают организовать работу. Их можно" +
-                " ставить себе или другим сотрудникам, выполнение отслеживается по уведомлениям.\n" +
-                "\nЗадачу можно создать из любого документа. Также можно настроить" +
-                " автоматическое создание задач в рамках сценариев. Например, если" +
-                " покупатель в течение недели не оплачивает счет, можно поставить " +
-                "менеджеру задачу связаться с ним.\n\nЧитать инструкцию: Задачи";
-
-        var notification = new Notification(
-                notificationText, 3000, Notification.Position.BOTTOM_START);
-
-        buttonQuestion.addClickListener(event -> notification.open());
-
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new VerticalLayout(
+                        new Text("Задачи помогают организовать работу. Их можно " +
+                                "ставить себе или другим сотрудникам, выполнение отслеживается по уведомлениям. " +
+                                "Задачу можно создать из любого документа. Также можно настроить " +
+                                "автоматическое создание задач в рамках сценариев. Например, если " +
+                                "покупатель в течение недели не оплачивает счет, можно поставить " +
+                                "менеджеру задачу связаться с ним."),
+                        new Div(
+                                new Text("Читать инструкцию: "),
+                                new Anchor("#", "Задачи"))
+                )
+        );
     }
 
     private H2 getTextTask() {

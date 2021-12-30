@@ -18,6 +18,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -93,11 +94,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final GridFilter<InvoiceDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices";
 
-    private  final String textForQuestionButton = "<div><p>Заказы поставщикам позволяют планировать закупки товаров и услуг." +
-            " Они не меняют количество товара на складе — для этого нужно создать приемку." +
-            " Товары из заказов поставщику можно поставить в ожидание.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Заказы поставщикам</a></p></div>";
-
     @Autowired
     public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService, InvoiceService invoiceService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
@@ -119,10 +115,19 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private HorizontalLayout configureActions() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(Buttons.buttonQuestion(textForQuestionButton,"230px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Заказы поставщикам позволяют планировать закупки товаров и услуг. " +
+                        "Они не меняют количество товара на складе — для этого нужно создать приемку. " +
+                        "Товары из заказов поставщику можно поставить в ожидание. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Заказы поставщикам"));
     }
 
     private Grid<InvoiceDto> configureGrid() {

@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces;
 import com.trade_accounting.models.dto.RevenueDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RevenueService {
 
@@ -15,4 +16,6 @@ public interface RevenueService {
     void update(RevenueDto revenueDto);
 
     void deleteById(Long id);
+
+    List<RevenueDto> search(Map<String, String> query);
 }

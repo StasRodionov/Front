@@ -1,6 +1,7 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.models.dto.RetailStoreDto;
@@ -129,22 +130,10 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        com.vaadin.flow.component.dialog.Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Для каждой точки продаж можно назначить отдельный склад, " +
+        return Buttons.buttonQuestion("Для каждой точки продаж можно назначить отдельный склад, " +
                 "тип цен и указать кассиров, которые получат к ней доступ. " +
                 "В карточке точки продаж отображаются данные о кассе, " +
-                "фискальном накопителе и активности."));
-        dialog.setWidth("500px");
-        dialog.setHeight("200px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+                "фискальном накопителе и активности.");
     }
 
     private Button buttonRefresh() {

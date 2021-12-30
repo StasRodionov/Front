@@ -101,16 +101,6 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final String pathForSaveXlsTemplate =
             "src/main/resources/xls_templates/profitability_templates/";
 
-    private  final String textForQuestionButton = "<div><p>В разделе представлена прибыль от реализации товаров и услуг." +
-            "Здесь отображаются товары и услуги из документов розничной продажи и отгрузок за указанный период." +
-            "Если период не задать, будет показана прибыльность за последний месяц.</p>" +
-            "<p>Отчет позволяет оценить рентабельность продукции." +
-            "Он может быть сформирован по товарам, сотрудникам и покупателям.</p>" +
-            "<p>Отчет по сотрудникам позволяет отслеживать работу каждого конкретного сотрудника и рассчитывать вознаграждение по результатам продаж.</p>" +
-            "<p>По каждому товару можно увидеть список отгрузок, розничных продаж и возвратов." +
-            "Продажи в минус выделяются красным.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Прибыльность</a></p></div>";
-
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService,
                                      InvoiceProductService invoiceProductService,
@@ -546,9 +536,23 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(Buttons.buttonQuestion(textForQuestionButton, "500px"), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("В разделе представлена прибыль от реализации товаров и услуг. " +
+                        "Здесь отображаются товары и услуги из документов розничной продажи и отгрузок за указанный период. " +
+                        "Если период не задать, будет показана прибыльность за последний месяц. " +
+                        "Отчет позволяет оценить рентабельность продукции. " +
+                        "Он может быть сформирован по товарам, сотрудникам и покупателям. " +
+                        "<p>Отчет по сотрудникам позволяет отслеживать работу каждого конкретного сотрудника и рассчитывать вознаграждение по результатам продаж. " +
+                        "<p>По каждому товару можно увидеть список отгрузок, розничных продаж и возвратов. " +
+                        "Продажи в минус выделяются красным. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Прибыльность"));
     }
 
     private void refreshData() {

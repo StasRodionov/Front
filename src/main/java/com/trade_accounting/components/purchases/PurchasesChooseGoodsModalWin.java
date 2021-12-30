@@ -9,10 +9,15 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.apache.poi.hpsf.Decimal;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +31,7 @@ public class PurchasesChooseGoodsModalWin extends Dialog {
     private final ProductService productService;
     private final ProductPriceService productPriceService;
 
-    public TextField amoSelect = new TextField();
+    public BigDecimalField amoSelect = new BigDecimalField();
 
     private List<ProductDto> productDtos;
 
@@ -115,7 +120,7 @@ public class PurchasesChooseGoodsModalWin extends Dialog {
         return new Button("Закрыть", event -> {
             productSelect.setValue(null);
             priceSelect.setValue(null);
-            amoSelect.setValue("");
+            amoSelect.setValue(BigDecimal.valueOf(0.0));
             close();
         });
     }
