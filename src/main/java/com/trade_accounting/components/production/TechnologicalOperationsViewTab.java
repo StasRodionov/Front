@@ -1,7 +1,7 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.purchases.PrintInvoicesXls;
+//import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -14,6 +14,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;

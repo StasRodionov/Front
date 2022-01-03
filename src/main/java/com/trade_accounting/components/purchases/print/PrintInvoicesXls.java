@@ -69,6 +69,9 @@ public class PrintInvoicesXls extends PrintExcelDocument<InvoiceDto> {
                     lengthOfsumList = 0;
                 }
                 break;
+            case ("<comment>"):
+                editCell.setCellValue(model.getComment());
+                break;
         }
     }
 }

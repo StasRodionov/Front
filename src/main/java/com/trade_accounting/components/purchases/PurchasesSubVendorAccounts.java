@@ -109,9 +109,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       SupplierAccountModalView modalView,
                                       SupplierAccountModalView supplierAccountModalView,
                                       SupplierAccountProductsListService supplierAccountProductsListService) {
-                                      PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin, ProductService productService,
-                                      InvoiceService invoiceService,
-                                      InvoiceProductService invoiceProductService) {
         this.employeeService = employeeService;
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
@@ -409,9 +406,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private String getTotalPrice(SupplierAccountDto invoice) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for(SupplierAccountProductsListDto supplierAccountProductsListDto: supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
-            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
-        }
+//        for(SupplierAccountProductsListDto supplierAccountProductsListDto: supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
+//            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
+//        }
         return String.format("%.2f", totalPrice);
     }
 
