@@ -9,6 +9,7 @@ import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.WarehouseService;
@@ -60,7 +61,7 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
     private final WarehouseService warehouseService;
     private final List<InvoiceDto> data;
     private final Notifications notifications;
-
+    private final ContractService contractService;
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
@@ -75,13 +76,14 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
                                     CompanyService companyService,
                                     WarehouseService warehouseService,
                                     CommissionAgentReportModalView commissionAgentReportModalView,
-                                    Notifications notifications) {
+                                    Notifications notifications, ContractService contractService) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.notifications = notifications;
+        this.contractService = contractService;
 
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -147,8 +149,13 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
 
         grid.addItemDoubleClickListener(event -> {
-//            InvoiceDto editInvoice = event.getItem();
-//            salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
+            InvoiceDto editInvoice = event.getItem();
+            CommissionAgentReportModalView commissionAgentReportModalView = new CommissionAgentReportModalView(
+                    contractorService,
+                    contractService,
+                    companyService);
+            commissionAgentReportModalView.setReturnEdit(editInvoice);
+            commissionAgentReportModalView.open();
 //            salesEditCreateInvoiceView.setUpdateState(true);
 //            salesEditCreateInvoiceView.setType("RECEIPT");
 //            salesEditCreateInvoiceView.setLocation("sells");
