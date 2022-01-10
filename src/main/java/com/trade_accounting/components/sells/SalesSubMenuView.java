@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
+import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
@@ -36,7 +37,7 @@ import org.springframework.context.annotation.Lazy;
 @UIScope
 public class SalesSubMenuView extends Div implements AfterNavigationObserver {//некорректно задаётся id при добавлении
 
-
+    private final ContractService contractService;
     private final InvoiceService invoiceService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -50,7 +51,6 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final EmployeeService employeeService;
     private final PositionService positionService;
     private final RetailStoreService retailStoreService;
-
     private final SalesSubGoodsForSaleService salesSubGoodsForSaleService;
     private final SalesSubCustomersOrdersView salesSubCustomersOrdersView;
     private final SalesSubShipmentView salesSubShipmentView;
@@ -65,7 +65,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final Div div;
 
     @Autowired
-    public SalesSubMenuView(InvoiceService invoiceService,
+    public SalesSubMenuView(ContractService contractService, InvoiceService invoiceService,
                             ContractorService contractorService,
                             CompanyService companyService,
                             WarehouseService warehouseService,
@@ -88,8 +88,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             RetailStoreService retailStoreService,
                             ShipmentService shipmentService,
                             ShipmentProductService shipmentProductService
-                            ) {
-
+    ) {
+        this.contractService = contractService;
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
         this.invoiceProductService = invoiceProductService;
@@ -167,7 +167,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Отчеты комиссионера":
                     div.removeAll();
-                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService, commissionAgentReportModalView, notifications));
+                    div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService, commissionAgentReportModalView, notifications, contractService));
                     break;
                 case "Возвраты покупателей":
                     div.removeAll();

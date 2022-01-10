@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.print.PrintSupplierXls;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -13,6 +14,7 @@ import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.trade_accounting.services.interfaces.ProductService;
@@ -21,38 +23,56 @@ import com.trade_accounting.services.interfaces.SupplierAccountService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Route(value = "suppliersInvoices", layout = AppView.class)
@@ -61,6 +81,7 @@ import java.util.List;
 @UIScope
 public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterNavigationObserver {
 
+    private final EmployeeService employeeService;
     private final SupplierAccountService supplierAccountService;
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
@@ -78,15 +99,17 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/supplier";
 
     @Autowired
-    public PurchasesSubVendorAccounts(SupplierAccountService supplierAccountService,
+    public PurchasesSubVendorAccounts(EmployeeService employeeService, SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
                                       ContractorService contractorService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView modalView,
                                       SupplierAccountModalView supplierAccountModalView,
                                       SupplierAccountProductsListService supplierAccountProductsListService) {
+        this.employeeService = employeeService;
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -265,10 +288,90 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать");
+        print.setItems("Печать","Добавить шаблон");
         print.setValue("Печать");
+        getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+        uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
+    }
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+    private void uploadXlsMenuItem(Select<String> print) {
+        Dialog dialog = new Dialog();
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        configureUploadFinishedListener(upload, buffer, dialog, print);
+        dialog.add(upload);
+        print.addValueChangeListener(x -> {
+            if (print.getValue().equals("Добавить шаблон")) {
+                dialog.open();
+            }
+        });
+    }
+
+    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog,
+                                                 Select<String> print) {
+        upload.addFinishedListener(event -> {
+            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
+                getErrorNotification("Файл с таким именем уже существует");
+            } else {
+                File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
+                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
+                    fos.write(buffer.getInputStream().readAllBytes());
+                    getInfoNotification("Файл успешно загружен");
+                    log.info("xls шаблон успешно загружен");
+                    print.removeAll();
+                    getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+
+                } catch (IOException e) {
+                    getErrorNotification("При загрузке шаблона произошла ошибка");
+                    log.error("при загрузке xls шаблона произошла ошибка");
+                }
+                print.setValue("Печать");
+                dialog.close();
+            }
+        });
+    }
+
+
+
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        List<String> sumList = new ArrayList<>();
+        List<SupplierAccountDto> list1 = supplierAccountService.getAll();
+        for (SupplierAccountDto sad : list1) {
+            sumList.add(getTotalPrice(sad));
+        }
+        PrintSupplierXls printSupplierXls = new PrintSupplierXls(file.getPath(), supplierAccountService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
+        return new Anchor(new StreamResource(templateName, printSupplierXls::createReport), templateName);
+
+    }
+
+    private void getInfoNotification(String message) {
+        Notification notification = new Notification(message, 5000);
+        notification.open();
+    }
+
+    private void getErrorNotification(String message) {
+        Div content = new Div();
+        content.addClassName("my-style");
+        content.setText(message);
+        Notification notification = new Notification(content);
+        notification.setDuration(5000);
+        String styles = ".my-style { color: red; }";
+        StreamRegistration resource = UI.getCurrent().getSession()
+                .getResourceRegistry()
+                .registerResource(new StreamResource("styles.css", () ->
+                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
+        UI.getCurrent().getPage().addStyleSheet(
+                "base://" + resource.getResourceUri().toString());
+        notification.open();
     }
 
     private Button buttonSettings() {
@@ -303,9 +406,9 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private String getTotalPrice(SupplierAccountDto invoice) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for(SupplierAccountProductsListDto supplierAccountProductsListDto: supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
-            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
-        }
+//        for(SupplierAccountProductsListDto supplierAccountProductsListDto: supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
+//            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
+//        }
         return String.format("%.2f", totalPrice);
     }
 

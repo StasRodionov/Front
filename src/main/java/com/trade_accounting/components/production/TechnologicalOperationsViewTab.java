@@ -1,13 +1,11 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.purchases.PrintInvoicesXls;
+//import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
@@ -37,8 +35,6 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
