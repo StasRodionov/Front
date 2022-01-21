@@ -164,7 +164,11 @@ moneySubProfitLoss_url: /api/moneysubprofitloss
 
 productprice_url: /api/productprice
 
+purchase_current_balance_url: /api/purchase_current_balance
+
 purchase_history_of_sales_url: /api/purchasehistory
+
+purchase_forecast_url: /api/purchase_forecast
 
 returns_url: api/returns
 
