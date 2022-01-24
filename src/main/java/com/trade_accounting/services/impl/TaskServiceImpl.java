@@ -55,12 +55,25 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskDto> searchByFilter(Map<String, String> query) {
         List<TaskDto> taskDtoList = new ArrayList<>();
+        List<TaskDto> taskDtoCreationAndDeadLineFilterList = new ArrayList<>();
         Call<List<TaskDto>> taskDtoListCall = taskApi.searchByFilter(taskUrl, query);
         try {
             taskDtoList = taskDtoListCall.execute().body();
             log.info("Успешно выполнен запрос на получение списка по условию: {} из TaskDto", query);
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на получение списка по условию: {} из TaskDto: {}", query, e);
+        }
+        if (taskDtoList != null) {
+            for (TaskDto dtoForFilter : taskDtoList) {
+                if (dtoForFilter.getDeadlineDateTime().equals(query.get("deadLineDateTime"))
+                        || dtoForFilter.getCreationDateTime().equals(query.get("creationDateTime")))
+                {
+                    taskDtoCreationAndDeadLineFilterList.add(dtoForFilter);
+                }
+            }
+        }
+        if (query.containsKey("deadLineDateTime") || query.containsKey("creationDateTime")) {
+            return taskDtoCreationAndDeadLineFilterList;
         }
         return taskDtoList;
     }
