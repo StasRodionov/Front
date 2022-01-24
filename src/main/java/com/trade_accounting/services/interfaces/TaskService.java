@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.controllers.dto.TaskDto;
 
 import java.util.List;
 import java.util.Map;

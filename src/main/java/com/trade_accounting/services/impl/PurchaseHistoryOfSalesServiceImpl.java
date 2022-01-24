@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.PurchaseHistoryOfSalesDto;
+import com.trade_accounting.controllers.dto.PurchaseHistoryOfSalesDto;
 import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
 import com.trade_accounting.services.interfaces.api.PurchaseHistoryOfSalesApi;
 import lombok.extern.slf4j.Slf4j;

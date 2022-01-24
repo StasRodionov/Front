@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.PaymentDto;
+import com.trade_accounting.controllers.dto.PaymentDto;
 import com.trade_accounting.services.interfaces.PaymentService;
 import com.trade_accounting.services.interfaces.api.PaymentApi;
 import lombok.extern.slf4j.Slf4j;

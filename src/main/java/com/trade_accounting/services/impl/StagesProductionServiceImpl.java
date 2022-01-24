@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.StagesProductionDto;
+import com.trade_accounting.controllers.dto.StagesProductionDto;
 import com.trade_accounting.services.interfaces.StagesProductionService;
 import com.trade_accounting.services.interfaces.api.StagesProductionApi;
 import lombok.extern.slf4j.Slf4j;

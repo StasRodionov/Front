@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CurrencyDto;
+import com.trade_accounting.controllers.dto.CurrencyDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.trade_accounting.services.interfaces.api.CurrencyApi;
 import lombok.extern.slf4j.Slf4j;

@@ -3,7 +3,7 @@ package com.trade_accounting.components.money;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.MoneySubProfitLossDto;
+import com.trade_accounting.controllers.dto.MoneySubProfitLossDto;
 import com.trade_accounting.services.interfaces.MoneySubProfitLossService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

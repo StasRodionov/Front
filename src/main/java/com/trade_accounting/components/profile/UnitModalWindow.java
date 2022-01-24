@@ -1,7 +1,7 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.util.ValidTextField;
-import com.trade_accounting.models.dto.UnitDto;
+import com.trade_accounting.controllers.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;

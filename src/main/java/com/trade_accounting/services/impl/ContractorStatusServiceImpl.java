@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.ContractorStatusDto;
+import com.trade_accounting.controllers.dto.ContractorStatusDto;
 import com.trade_accounting.services.interfaces.ContractorStatusService;
 import com.trade_accounting.services.interfaces.api.ContractorStatusApi;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j

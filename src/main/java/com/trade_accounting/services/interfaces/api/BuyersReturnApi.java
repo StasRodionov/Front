@@ -1,7 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.controllers.dto.BuyersReturnDto;
 import retrofit2.Call;
 import retrofit2.http.*;
 

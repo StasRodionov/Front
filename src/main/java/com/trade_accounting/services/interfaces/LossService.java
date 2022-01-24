@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.LossDto;
+import com.trade_accounting.controllers.dto.LossDto;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.PriceListDto;
+import com.trade_accounting.controllers.dto.PriceListDto;
 import com.trade_accounting.services.interfaces.PriceListService;
 import com.trade_accounting.services.interfaces.api.PriceListApi;
 import lombok.extern.slf4j.Slf4j;

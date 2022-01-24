@@ -1,6 +1,6 @@
 package com.trade_accounting.components.util;
 
-import com.trade_accounting.models.dto.PageDto;
+import com.trade_accounting.controllers.dto.PageDto;
 import com.trade_accounting.services.interfaces.PageableService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;

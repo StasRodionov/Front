@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.PrepayoutDto;
+import com.trade_accounting.controllers.dto.PrepayoutDto;
 import retrofit2.Call;
 import retrofit2.http.*;
 

@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.TaskCommentDto;
-import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.controllers.dto.TaskCommentDto;
 import com.trade_accounting.services.interfaces.TaskCommentService;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.trade_accounting.services.interfaces.api.TaskCommentApi;

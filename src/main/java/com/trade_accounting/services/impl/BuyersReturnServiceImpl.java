@@ -1,9 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.InternalOrderDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.MovementDto;
+import com.trade_accounting.controllers.dto.BuyersReturnDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.api.BuyersReturnApi;
 import lombok.extern.slf4j.Slf4j;

@@ -1,10 +1,10 @@
 package com.trade_accounting.components.tasks;
 
 
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.TaskCommentDto;
-import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.controllers.dto.ContractorDto;
+import com.trade_accounting.controllers.dto.EmployeeDto;
+import com.trade_accounting.controllers.dto.TaskCommentDto;
+import com.trade_accounting.controllers.dto.TaskDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.TaskCommentService;

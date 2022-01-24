@@ -1,13 +1,10 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.CorrectionProductDto;
-import com.trade_accounting.models.dto.InventarizationDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.controllers.dto.CorrectionDto;
+import com.trade_accounting.controllers.dto.CorrectionProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CorrectionProductService;
 import com.trade_accounting.services.interfaces.CorrectionService;

@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.controllers.dto.AcceptanceDto;
 import retrofit2.Response;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public interface AcceptanceService {
 
     List<AcceptanceDto> searchByFilter(Map<String, String> queryAcceptance);
 
-    List<AcceptanceDto> searchByString(String nameFilter);
+    List<AcceptanceDto> search(String search);
 
     void moveToIsRecyclebin(Long id);
 

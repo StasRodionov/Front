@@ -1,9 +1,9 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.PrepaymentReturnDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
+import com.trade_accounting.controllers.dto.CompanyDto;
+import com.trade_accounting.controllers.dto.ContractorDto;
+import com.trade_accounting.controllers.dto.PrepaymentReturnDto;
+import com.trade_accounting.controllers.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.PrepaymentReturnService;
@@ -12,7 +12,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -27,7 +26,6 @@ import com.vaadin.flow.data.binder.ErrorLevel;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Objects;
 
 public class PrepaymentReturnModalWindow extends Dialog {

@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.TechnicalCardProductionDto;
+import com.trade_accounting.controllers.dto.TechnicalCardProductionDto;
 
 import java.util.List;
 

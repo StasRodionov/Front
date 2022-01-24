@@ -1,13 +1,11 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.models.dto.WarehouseDto;
+import com.trade_accounting.controllers.dto.CompanyDto;
+import com.trade_accounting.controllers.dto.MovementDto;
+import com.trade_accounting.controllers.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.MovementService;
 import com.trade_accounting.services.interfaces.api.MovementApi;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -20,12 +18,10 @@ import retrofit2.Retrofit;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 

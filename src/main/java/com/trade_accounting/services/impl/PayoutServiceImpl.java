@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.PayoutDto;
+import com.trade_accounting.controllers.dto.PayoutDto;
 import com.trade_accounting.services.interfaces.PayoutService;
 import com.trade_accounting.services.interfaces.api.PayoutApi;
 import lombok.extern.slf4j.Slf4j;

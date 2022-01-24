@@ -1,7 +1,12 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.*;
+import com.trade_accounting.controllers.dto.BuyersReturnDto;
+import com.trade_accounting.controllers.dto.CompanyDto;
+import com.trade_accounting.controllers.dto.ContractorDto;
+import com.trade_accounting.controllers.dto.ShipmentDto;
+import com.trade_accounting.controllers.dto.WarehouseDto;
+//import com.trade_accounting.models.dto.*;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;

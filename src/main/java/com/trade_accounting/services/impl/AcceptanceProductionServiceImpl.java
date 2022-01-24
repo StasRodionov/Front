@@ -1,7 +1,7 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.AcceptanceDto;
-import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.controllers.dto.AcceptanceProductionDto;
+import com.trade_accounting.controllers.dto.RetailShiftDto;
 import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.api.AcceptanceProductionApi;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +12,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -20,7 +21,7 @@ public class AcceptanceProductionServiceImpl implements AcceptanceProductionServ
     private final AcceptanceProductionApi acceptanceProductionApi;
     private final String acceptanceProductUrl;
     private final CallExecuteService<AcceptanceProductionDto> callExecuteService;
-    private AcceptanceProductionDto acceptanceProductionDto;
+    private List<AcceptanceProductionDto> acceptanceProductionDtoList = new ArrayList<>();
 
     public AcceptanceProductionServiceImpl(Retrofit retrofit, @Value("${acceptance_product_url}") String acceptanceProductUrl,
                                            CallExecuteService<AcceptanceProductionDto> callExecuteService) {
@@ -62,5 +63,17 @@ public class AcceptanceProductionServiceImpl implements AcceptanceProductionServ
     @Override
     public void deleteById(Long id) {
 
+    }
+
+    @Override
+    public List<AcceptanceProductionDto> search(String query) {
+        Call<List<AcceptanceProductionDto>> retailShiftDtoListCall = acceptanceProductionApi.search(acceptanceProductUrl, query);
+        try {
+            acceptanceProductionDtoList = retailShiftDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка AcceptanceProductionDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка AcceptanceProductionDto - ", e);
+        }
+        return acceptanceProductionDtoList;
     }
 }

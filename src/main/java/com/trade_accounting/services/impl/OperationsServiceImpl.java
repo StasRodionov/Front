@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.models.dto.OperationsDto;
+import com.trade_accounting.controllers.dto.OperationsDto;
 import com.trade_accounting.services.interfaces.OperationsService;
 import com.trade_accounting.services.interfaces.api.OperationsApi;
 import lombok.extern.slf4j.Slf4j;

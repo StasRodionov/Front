@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.InternalOrderDto;
+import com.trade_accounting.controllers.dto.InternalOrderDto;
 import com.trade_accounting.services.interfaces.InternalOrderService;
 import com.trade_accounting.services.interfaces.api.InternalOrderApi;
 import lombok.extern.slf4j.Slf4j;

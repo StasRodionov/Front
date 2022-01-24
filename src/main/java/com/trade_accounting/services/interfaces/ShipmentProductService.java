@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.ShipmentProductDto;
+import com.trade_accounting.controllers.dto.ShipmentProductDto;
 
 import java.util.List;
 

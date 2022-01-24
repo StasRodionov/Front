@@ -1,8 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.OrdersOfProductionDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
+import com.trade_accounting.controllers.dto.OrdersOfProductionDto;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.api.OrdersOfProductionApi;
 import lombok.extern.slf4j.Slf4j;

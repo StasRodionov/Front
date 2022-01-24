@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.AcceptanceDto;
-import com.trade_accounting.models.dto.MovementDto;
+import com.trade_accounting.controllers.dto.AcceptanceDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.api.AcceptanceApi;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +22,11 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     private final AcceptanceApi acceptanceApi;
     private final String acceptanceUrl;
     private final CallExecuteService<AcceptanceDto> callExecuteService;
-    private AcceptanceDto acceptanceDto;
+//    private AcceptanceDto acceptanceDto;
 
     public AcceptanceServiceImpl(Retrofit retrofit, @Value("${acceptance_url}") String acceptanceUrl,
                                  CallExecuteService<AcceptanceDto> callExecuteService) {
-        acceptanceApi = retrofit.create(AcceptanceApi.class);
+        this.acceptanceApi = retrofit.create(AcceptanceApi.class);
         this.acceptanceUrl = acceptanceUrl;
         this.callExecuteService = callExecuteService;
     }
@@ -89,12 +88,12 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     }
 
     @Override
-    public List<AcceptanceDto> searchByString(String nameFilter) {
+    public List<AcceptanceDto> search(String search) {
         List<AcceptanceDto> acceptanceDtoList = new ArrayList<>();
-        Call<List<AcceptanceDto>> callListAcceptance = acceptanceApi.searchByString(acceptanceUrl, nameFilter);
+        Call<List<AcceptanceDto>> callListAcceptance = acceptanceApi.search(acceptanceUrl, search);
         try {
             acceptanceDtoList = callListAcceptance.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение приемки по фильтру {}", nameFilter);
+            log.info("Успешно выполнен запрос на поиск и получение приемки по фильтру {}", search);
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение приемки {IOException}", e);
         }

@@ -1,10 +1,10 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.DepartmentDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.StagesProductionDto;
-import com.trade_accounting.models.dto.TechnicalProcessDto;
+import com.trade_accounting.controllers.dto.DepartmentDto;
+import com.trade_accounting.controllers.dto.EmployeeDto;
+import com.trade_accounting.controllers.dto.StagesProductionDto;
+import com.trade_accounting.controllers.dto.TechnicalProcessDto;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.StagesProductionService;

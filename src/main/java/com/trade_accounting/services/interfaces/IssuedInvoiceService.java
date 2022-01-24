@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.IssuedInvoiceDto;
+import com.trade_accounting.controllers.dto.IssuedInvoiceDto;
 
 import java.util.List;
 

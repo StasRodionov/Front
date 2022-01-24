@@ -1,10 +1,10 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.LossDto;
-import com.trade_accounting.models.dto.LossProductDto;
-import com.trade_accounting.models.dto.WarehouseDto;
+import com.trade_accounting.controllers.dto.CompanyDto;
+import com.trade_accounting.controllers.dto.LossDto;
+import com.trade_accounting.controllers.dto.LossProductDto;
+import com.trade_accounting.controllers.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.LossProductService;
 import com.trade_accounting.services.interfaces.LossService;
@@ -26,9 +26,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.time.LocalDateTime;

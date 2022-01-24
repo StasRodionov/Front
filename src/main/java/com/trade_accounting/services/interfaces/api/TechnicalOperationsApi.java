@@ -1,7 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
+import com.trade_accounting.controllers.dto.TechnicalOperationsDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;

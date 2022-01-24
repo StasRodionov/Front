@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.TechnicalProcessDto;
+import com.trade_accounting.controllers.dto.TechnicalProcessDto;
 import com.trade_accounting.services.interfaces.TechnicalProcessService;
 import com.trade_accounting.services.interfaces.api.TechnicalProcessApi;
 import lombok.extern.slf4j.Slf4j;

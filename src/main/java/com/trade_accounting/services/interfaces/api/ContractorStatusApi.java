@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.ContractorStatusDto;
+import com.trade_accounting.controllers.dto.ContractorStatusDto;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;

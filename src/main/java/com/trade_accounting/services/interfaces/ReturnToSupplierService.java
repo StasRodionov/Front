@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.ReturnToSupplierDto;
+import com.trade_accounting.controllers.dto.ReturnToSupplierDto;
 import retrofit2.Response;
 
 import java.util.List;

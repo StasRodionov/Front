@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.controllers.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.LegalDetailService;
 import com.trade_accounting.services.interfaces.api.LegalDetailApi;
 import lombok.extern.slf4j.Slf4j;

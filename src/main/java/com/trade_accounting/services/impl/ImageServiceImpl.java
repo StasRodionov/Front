@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.controllers.dto.ImageDto;
 import com.trade_accounting.services.interfaces.ImageService;
 import com.trade_accounting.services.interfaces.api.ImageApi;
 import lombok.extern.slf4j.Slf4j;

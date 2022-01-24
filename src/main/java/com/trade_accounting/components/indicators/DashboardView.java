@@ -2,8 +2,8 @@ package com.trade_accounting.components.indicators;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.LineChart;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.controllers.dto.InvoiceDto;
+import com.trade_accounting.controllers.dto.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.InvoiceProductService;
 import com.trade_accounting.services.interfaces.InvoiceService;
 import com.vaadin.flow.component.Component;

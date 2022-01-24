@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.BonusProgramDto;
+import com.trade_accounting.controllers.dto.BonusProgramDto;
 
 import java.util.List;
 

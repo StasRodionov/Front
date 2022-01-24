@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.TaskDto;
+import com.trade_accounting.controllers.dto.TaskDto;
 import com.trade_accounting.services.interfaces.TaskService;
 import com.trade_accounting.services.interfaces.api.TaskApi;
 import lombok.extern.slf4j.Slf4j;

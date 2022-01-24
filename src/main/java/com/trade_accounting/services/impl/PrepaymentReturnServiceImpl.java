@@ -1,11 +1,8 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.PrepaymentReturnDto;
-import com.trade_accounting.models.dto.PrepayoutDto;
+import com.trade_accounting.controllers.dto.PrepaymentReturnDto;
 import com.trade_accounting.services.interfaces.PrepaymentReturnService;
-import com.trade_accounting.services.interfaces.PrepayoutService;
 import com.trade_accounting.services.interfaces.api.PrepaymentReturnApi;
-import com.trade_accounting.services.interfaces.api.PrepayoutApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

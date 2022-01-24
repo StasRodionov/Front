@@ -1,9 +1,8 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.models.dto.WarehouseDto;
+import com.trade_accounting.controllers.dto.CompanyDto;
+import com.trade_accounting.controllers.dto.MovementDto;
+import com.trade_accounting.controllers.dto.WarehouseDto;
 
 import java.util.List;
 import java.util.Map;

@@ -1,9 +1,7 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.TechnicalCardGroupDto;
-import com.trade_accounting.models.dto.TechnicalCardProductionDto;
+import com.trade_accounting.controllers.dto.TechnicalCardProductionDto;
 import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
-import com.trade_accounting.services.interfaces.api.TechnicalCardGroupApi;
 import com.trade_accounting.services.interfaces.api.TechnicalCardProductionApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

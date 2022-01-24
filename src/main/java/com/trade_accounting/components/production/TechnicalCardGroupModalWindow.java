@@ -1,6 +1,6 @@
 package com.trade_accounting.components.production;
 
-import com.trade_accounting.models.dto.TechnicalCardGroupDto;
+import com.trade_accounting.controllers.dto.TechnicalCardGroupDto;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;

@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.RemainDto;
+import com.trade_accounting.controllers.dto.RemainDto;
 import com.trade_accounting.services.interfaces.RemainService;
 import com.trade_accounting.services.interfaces.api.RemainApi;
 import lombok.extern.slf4j.Slf4j;

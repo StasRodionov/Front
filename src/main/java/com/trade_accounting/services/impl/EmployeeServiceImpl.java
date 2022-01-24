@@ -1,8 +1,7 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.PageDto;
+import com.trade_accounting.controllers.dto.EmployeeDto;
+import com.trade_accounting.controllers.dto.PageDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.api.EmployeeApi;
 import lombok.extern.slf4j.Slf4j;

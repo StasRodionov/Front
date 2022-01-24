@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.MoneySubCashFlowDto;
+import com.trade_accounting.controllers.dto.MoneySubCashFlowDto;
 import com.trade_accounting.services.interfaces.MoneySubCashFlowService;
 import com.trade_accounting.services.interfaces.api.MoneySubCashFlowApi;
 import lombok.extern.slf4j.Slf4j;

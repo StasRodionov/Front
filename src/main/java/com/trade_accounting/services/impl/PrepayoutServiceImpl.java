@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.PrepayoutDto;
+import com.trade_accounting.controllers.dto.PrepayoutDto;
 import com.trade_accounting.services.interfaces.PrepayoutService;
 import com.trade_accounting.services.interfaces.api.PrepayoutApi;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.PaymentDto;
+import com.trade_accounting.controllers.dto.PaymentDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;

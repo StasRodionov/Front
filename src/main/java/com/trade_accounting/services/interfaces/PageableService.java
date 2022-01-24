@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.PageDto;
+import com.trade_accounting.controllers.dto.PageDto;
 
 import java.util.Map;
 

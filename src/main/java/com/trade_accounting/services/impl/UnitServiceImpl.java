@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.UnitDto;
+import com.trade_accounting.controllers.dto.UnitDto;
 import com.trade_accounting.services.interfaces.UnitService;
 import com.trade_accounting.services.interfaces.api.UnitApi;
 import lombok.extern.slf4j.Slf4j;
