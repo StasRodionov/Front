@@ -273,9 +273,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать","Добавить шаблон");
+        print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -334,6 +335,16 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         }
         PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), contractorService, companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
+    }
+
+    private Anchor getLinkToPDFTemplate(File file) {
+        List<String> sumList = new ArrayList<>();
+        List<InvoiceDto> list1 = invoiceService.getAll(typeOfInvoice);
+        for (InvoiceDto inc : list1) {
+            sumList.add(getTotalPrice(inc));
+        }
+        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), contractorService, companyService, sumList, employeeService);
+        return new Anchor(new StreamResource("invoices.pdf", printInvoicesXls::createReportPDF), "invoices.pdf");
     }
 
     private void getInfoNotification(String message) {
