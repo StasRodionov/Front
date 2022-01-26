@@ -1,12 +1,10 @@
 package com.trade_accounting.components.purchases.print;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.models.dto.InvoiceReceivedDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.WarehouseService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.time.LocalDate;

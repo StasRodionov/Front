@@ -20,8 +20,6 @@ import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.trade_accounting.services.interfaces.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -366,12 +364,15 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         grid.setItems(acceptanceService.getAll());
     }
 
-    public void updateList(String nameFilter) {
-        if (!(textField.getValue().equals(""))) {
-            grid.setItems(acceptanceService.searchByString(nameFilter));
-        } else {
-            grid.setItems(acceptanceService.searchByString("null"));
-        }
+    public void updateList(String search) {
+//        if (!(textField.getValue().equals(""))) {
+//            grid.setItems(acceptanceService.search(search));
+//        } else {
+//            grid.setItems(acceptanceService.search("null"));
+//        }
+        if (search.isEmpty()) {
+            paginator.setData(acceptanceService.getAll());
+        } else paginator.setData(acceptanceService.search(search));
     }
 
     private String getTotalPrice(AcceptanceDto dto) {

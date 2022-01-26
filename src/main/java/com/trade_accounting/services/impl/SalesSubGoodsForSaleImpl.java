@@ -1,9 +1,7 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.MoneySubMutualSettlementsDto;
 import com.trade_accounting.models.dto.SalesSubGoodsForSaleDto;
 import com.trade_accounting.services.interfaces.SalesSubGoodsForSaleService;
-import com.trade_accounting.services.interfaces.api.MoneySubMutualSettlementsApi;
 import com.trade_accounting.services.interfaces.api.SalesSubGoodsForSaleApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

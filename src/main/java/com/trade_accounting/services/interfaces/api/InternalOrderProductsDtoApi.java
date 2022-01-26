@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.InternalOrderProductsDto;
 import retrofit2.Call;
 import retrofit2.http.Body;

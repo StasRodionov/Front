@@ -1,8 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.InventarizationDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.InventarizationService;
 import com.trade_accounting.services.interfaces.api.InventarizationApi;
 import lombok.extern.slf4j.Slf4j;

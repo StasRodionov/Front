@@ -1,7 +1,5 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
 import com.trade_accounting.services.interfaces.api.TechnicalOperationsApi;

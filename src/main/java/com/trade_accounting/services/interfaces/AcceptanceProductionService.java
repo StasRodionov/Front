@@ -16,4 +16,6 @@ public interface AcceptanceProductionService {
     void update(AcceptanceProductionDto acceptanceProductionDto);
 
     void deleteById(Long id);
+
+    List<AcceptanceProductionDto> search(String query);
 }

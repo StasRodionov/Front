@@ -1,6 +1,5 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.InvoiceDto;
 import com.trade_accounting.models.dto.RetailCloudCheckDto;
 import com.trade_accounting.services.interfaces.RetailCloudCheckService;
 import com.trade_accounting.services.interfaces.api.RetailCloudCheckApi;

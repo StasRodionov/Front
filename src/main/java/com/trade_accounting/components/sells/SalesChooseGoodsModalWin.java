@@ -1,7 +1,6 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.models.dto.LossDto;
 import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.services.interfaces.ProductPriceService;

@@ -1,8 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.ShipmentDto;
-import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.ShipmentService;
 import com.trade_accounting.services.interfaces.api.ShipmentApi;
 import lombok.extern.slf4j.Slf4j;

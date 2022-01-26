@@ -38,12 +38,12 @@ public interface AcceptanceApi {
     @Headers("Accept: application/json")
     @GET("{url}/queryAcceptance")
     Call<List<AcceptanceDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
-                                                   @QueryMap Map<String, String> queryAcceptance);
+                                             @QueryMap Map<String, String> queryAcceptance);
 
     @Headers("Accept: application/json")
-    @GET("{url}/search/{nameFilter}")
-    Call<List<AcceptanceDto>> searchByString(@Path(value = "url", encoded = true) String url,
-                                                   @Path(value = "nameFilter", encoded = true) String nameFilter);
+    @GET("{url}/search/{search}")
+    Call<List<AcceptanceDto>> search(@Path(value = "url", encoded = true) String url,
+                                     @Path(value = "search", encoded = true) String search);
 
     @Headers("Accept: application/json")
     @PUT("{url}/moveToIsRecyclebin/{id}")

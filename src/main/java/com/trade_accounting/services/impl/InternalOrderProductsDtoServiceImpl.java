@@ -1,9 +1,7 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.InternalOrderProductsDto;
 import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
-import com.trade_accounting.services.interfaces.api.InternalOrderApi;
 import com.trade_accounting.services.interfaces.api.InternalOrderProductsDtoApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

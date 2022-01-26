@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.InternalOrderDto;
 import com.trade_accounting.models.dto.InternalOrderProductsDto;
 
 import java.util.List;

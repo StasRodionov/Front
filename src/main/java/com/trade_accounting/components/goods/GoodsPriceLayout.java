@@ -2,7 +2,6 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
-import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.PriceListDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.PriceListService;

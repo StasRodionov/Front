@@ -20,7 +20,7 @@ public interface AcceptanceService {
 
     List<AcceptanceDto> searchByFilter(Map<String, String> queryAcceptance);
 
-    List<AcceptanceDto> searchByString(String nameFilter);
+    List<AcceptanceDto> search(String search);
 
     void moveToIsRecyclebin(Long id);
 

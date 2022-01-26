@@ -1,10 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.RetailSalesDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
 
 import java.util.List;
 import java.util.Map;

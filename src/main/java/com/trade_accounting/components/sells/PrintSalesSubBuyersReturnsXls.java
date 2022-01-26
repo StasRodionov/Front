@@ -5,7 +5,6 @@ import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.RichTextString;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
 import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
