@@ -262,6 +262,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -319,6 +320,16 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         }
         PrintReturnToSupplierXml printReturnToSupplierXml = new PrintReturnToSupplierXml(file.getPath(), returnToSupplierService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printReturnToSupplierXml::createReport), templateName);
+    }
+
+    private Anchor getLinkToPDFTemplate(File file) {
+        List<String> sumList = new ArrayList<>();
+        List<ReturnToSupplierDto> list1 = returnToSupplierService.getAll();
+        for (ReturnToSupplierDto returnDto : list1) {
+            sumList.add(getTotalPrice(returnDto));
+        }
+        PrintReturnToSupplierXml printReturnToSupplierXml = new PrintReturnToSupplierXml(file.getPath(), returnToSupplierService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
+        return new Anchor(new StreamResource("returnToSupplier.pdf", printReturnToSupplierXml::createReportPDF), "returnToSupplier.pdf");
     }
 
     private void getInfoNotification(String message) {

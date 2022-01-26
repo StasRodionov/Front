@@ -212,9 +212,10 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить");
+        print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -273,6 +274,17 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         }
         PrintInvoiceReceivedXls printInvoiceReceivedXls = new PrintInvoiceReceivedXls(file.getPath(), invoiceReceivedService.getAll(), contractorService, companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printInvoiceReceivedXls::createReport), templateName);
+    }
+
+    private Anchor getLinkToPDFTemplate(File file) {
+        String templateName = file.getName();
+        List<String> sumList = new ArrayList<>();
+        List<InvoiceReceivedDto> list1 = invoiceReceivedService.getAll();
+        for (InvoiceReceivedDto invoiceDto : list1) {
+            sumList.add(getTotalPrice(invoiceDto));
+        }
+        PrintInvoiceReceivedXls printInvoiceReceivedXls = new PrintInvoiceReceivedXls(file.getPath(), invoiceReceivedService.getAll(), contractorService, companyService, sumList, employeeService);
+        return new Anchor(new StreamResource("invoiceReceived.pdf", printInvoiceReceivedXls::createReportPDF), "invoiceReceived.pdf");
     }
 
     private void getInfoNotification(String message) {

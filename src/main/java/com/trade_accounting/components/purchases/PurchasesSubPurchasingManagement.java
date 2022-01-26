@@ -318,9 +318,10 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить");
+        print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -381,6 +382,11 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReport), templateName);
     }
 
+    private Anchor getLinkToPDFTemplate(File file) {
+        String templateName = file.getName();
+        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(), purchaseControlService.getAll(), employeeService,productPriceService,purchaseHistoryOfSalesService);
+        return new Anchor(new StreamResource("purchases.pdf", printPurchasingManagementXls::createReportPDF), "purchases.pdf");
+    }
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
         notification.open();
