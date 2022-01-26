@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.controllers.dto.AttributeOfCalculationObjectDto;
+import com.trade_accounting.models.dto.AttributeOfCalculationObjectDto;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.controllers.dto.RetailMakingDto;
+import com.trade_accounting.models.dto.RetailMakingDto;
 
 import java.util.List;
 

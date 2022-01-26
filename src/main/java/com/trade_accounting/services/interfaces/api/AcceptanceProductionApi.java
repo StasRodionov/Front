@@ -1,7 +1,6 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.controllers.dto.AcceptanceProductionDto;
-import com.trade_accounting.controllers.dto.RetailShiftDto;
+import com.trade_accounting.models.dto.AcceptanceProductionDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;

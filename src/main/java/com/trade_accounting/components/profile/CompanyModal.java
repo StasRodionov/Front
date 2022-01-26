@@ -1,11 +1,11 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.AddressDto;
-import com.trade_accounting.controllers.dto.BankAccountDto;
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.LegalDetailDto;
-import com.trade_accounting.controllers.dto.TypeOfContractorDto;
+import com.trade_accounting.models.dto.AddressDto;
+import com.trade_accounting.models.dto.BankAccountDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
+import com.trade_accounting.models.dto.TypeOfContractorDto;
 import com.trade_accounting.services.interfaces.AddressService;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;

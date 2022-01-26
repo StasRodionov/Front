@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.LossProductDto;
+import com.trade_accounting.models.dto.LossProductDto;
 import com.trade_accounting.services.interfaces.LossProductService;
 import com.trade_accounting.services.interfaces.api.LossProductApi;
 import lombok.extern.slf4j.Slf4j;

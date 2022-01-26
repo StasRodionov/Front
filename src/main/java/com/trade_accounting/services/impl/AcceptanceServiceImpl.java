@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.api.AcceptanceApi;
 import lombok.extern.slf4j.Slf4j;

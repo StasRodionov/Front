@@ -4,7 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.controllers.dto.PrepayoutDto;
+import com.trade_accounting.models.dto.PrepayoutDto;
 import com.trade_accounting.services.interfaces.PrepayoutService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;

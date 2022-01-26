@@ -1,8 +1,8 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.InternalOrderProductsDto;
-import com.trade_accounting.controllers.dto.ProductDto;
+import com.trade_accounting.models.dto.InternalOrderProductsDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
 import com.trade_accounting.services.interfaces.InternalOrderService;

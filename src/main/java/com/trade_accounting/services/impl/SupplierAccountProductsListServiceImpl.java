@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.SupplierAccountProductsListDto;
+import com.trade_accounting.models.dto.SupplierAccountProductsListDto;
 import com.trade_accounting.services.interfaces.SupplierAccountProductsListService;
 import com.trade_accounting.services.interfaces.api.SupplierAccountProductsListApi;
 import lombok.extern.slf4j.Slf4j;

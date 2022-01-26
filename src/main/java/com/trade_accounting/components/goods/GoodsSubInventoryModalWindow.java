@@ -1,9 +1,9 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.InventarizationDto;
-import com.trade_accounting.controllers.dto.WarehouseDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.InventarizationDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InventarizationService;
 import com.trade_accounting.services.interfaces.WarehouseService;

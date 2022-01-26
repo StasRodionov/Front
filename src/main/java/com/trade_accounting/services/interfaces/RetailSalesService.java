@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.controllers.dto.RetailSalesDto;
+import com.trade_accounting.models.dto.RetailSalesDto;
 
 import java.util.List;
 import java.util.Map;

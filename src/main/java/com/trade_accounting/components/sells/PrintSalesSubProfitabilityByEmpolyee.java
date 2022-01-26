@@ -1,7 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.controllers.dto.EmployeeDto;
+import com.trade_accounting.models.dto.EmployeeDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.RetailStoreService;

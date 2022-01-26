@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.RetailPointsDto;
+import com.trade_accounting.models.dto.RetailPointsDto;
 import com.trade_accounting.services.interfaces.RetailPointsService;
 import com.trade_accounting.services.interfaces.api.RetailPointsApi;
 import lombok.extern.slf4j.Slf4j;

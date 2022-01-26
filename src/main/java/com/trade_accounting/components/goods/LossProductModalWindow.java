@@ -1,8 +1,8 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.LossProductDto;
-import com.trade_accounting.controllers.dto.ProductDto;
+import com.trade_accounting.models.dto.LossProductDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.LossProductService;
 import com.trade_accounting.services.interfaces.LossService;

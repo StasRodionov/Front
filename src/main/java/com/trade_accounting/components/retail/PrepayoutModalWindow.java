@@ -1,9 +1,9 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.PrepayoutDto;
-import com.trade_accounting.controllers.dto.RetailStoreDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.PrepayoutDto;
+import com.trade_accounting.models.dto.RetailStoreDto;
 //import com.trade_accounting.models.dto.*;
 import com.trade_accounting.services.interfaces.PrepayoutService;
 import com.vaadin.flow.component.Component;

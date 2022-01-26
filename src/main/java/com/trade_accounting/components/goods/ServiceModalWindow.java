@@ -1,14 +1,14 @@
 package com.trade_accounting.components.goods;
 
-import com.trade_accounting.controllers.dto.AttributeOfCalculationObjectDto;
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.ImageDto;
-import com.trade_accounting.controllers.dto.ProductDto;
-import com.trade_accounting.controllers.dto.ProductGroupDto;
-import com.trade_accounting.controllers.dto.ProductPriceDto;
-import com.trade_accounting.controllers.dto.TaxSystemDto;
-import com.trade_accounting.controllers.dto.TypeOfPriceDto;
-import com.trade_accounting.controllers.dto.UnitDto;
+import com.trade_accounting.models.dto.AttributeOfCalculationObjectDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductGroupDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
+import com.trade_accounting.models.dto.TaxSystemDto;
+import com.trade_accounting.models.dto.TypeOfPriceDto;
+import com.trade_accounting.models.dto.UnitDto;
 import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.ImageService;

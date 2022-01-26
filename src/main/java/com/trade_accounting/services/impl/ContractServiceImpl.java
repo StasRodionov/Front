@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.ContractDto;
+import com.trade_accounting.models.dto.ContractDto;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.api.ContractApi;
 import lombok.extern.slf4j.Slf4j;

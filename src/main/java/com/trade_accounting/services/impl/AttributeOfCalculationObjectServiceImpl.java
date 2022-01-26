@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.AttributeOfCalculationObjectDto;
+import com.trade_accounting.models.dto.AttributeOfCalculationObjectDto;
 import com.trade_accounting.services.interfaces.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.api.AttributeOfCalculationObjectApi;
 import lombok.extern.slf4j.Slf4j;

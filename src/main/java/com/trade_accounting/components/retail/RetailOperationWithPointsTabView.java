@@ -4,7 +4,7 @@ package com.trade_accounting.components.retail;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.controllers.dto.RetailOperationWithPointsDto;
+import com.trade_accounting.models.dto.RetailOperationWithPointsDto;
 import com.trade_accounting.services.interfaces.BonusProgramService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.RetailOperationWithPointsService;

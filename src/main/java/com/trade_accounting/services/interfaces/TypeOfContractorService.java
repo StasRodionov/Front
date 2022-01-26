@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.controllers.dto.TypeOfContractorDto;
+import com.trade_accounting.models.dto.TypeOfContractorDto;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.InvoiceDto;
-import com.trade_accounting.controllers.dto.InvoiceProductDto;
-import com.trade_accounting.controllers.dto.ProductDto;
+import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.InvoiceProductService;

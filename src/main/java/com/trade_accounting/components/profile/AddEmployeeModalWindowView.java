@@ -2,11 +2,11 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.ValidTextField;
-import com.trade_accounting.controllers.dto.DepartmentDto;
-import com.trade_accounting.controllers.dto.EmployeeDto;
-import com.trade_accounting.controllers.dto.ImageDto;
-import com.trade_accounting.controllers.dto.PositionDto;
-import com.trade_accounting.controllers.dto.RoleDto;
+import com.trade_accounting.models.dto.DepartmentDto;
+import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.models.dto.ImageDto;
+import com.trade_accounting.models.dto.PositionDto;
+import com.trade_accounting.models.dto.RoleDto;
 import com.trade_accounting.services.interfaces.DepartmentService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ImageService;

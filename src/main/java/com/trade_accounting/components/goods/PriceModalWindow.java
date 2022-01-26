@@ -1,7 +1,7 @@
 package com.trade_accounting.components.goods;
 
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.PriceListDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.PriceListDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.PriceListService;
 import com.vaadin.flow.component.Component;

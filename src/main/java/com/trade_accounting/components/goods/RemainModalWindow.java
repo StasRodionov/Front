@@ -1,6 +1,6 @@
 package com.trade_accounting.components.goods;
 
-import com.trade_accounting.controllers.dto.RemainDto;
+import com.trade_accounting.models.dto.RemainDto;
 import com.trade_accounting.services.interfaces.RemainService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;

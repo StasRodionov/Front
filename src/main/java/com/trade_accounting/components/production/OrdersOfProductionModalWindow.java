@@ -1,9 +1,9 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.OrdersOfProductionDto;
-import com.trade_accounting.controllers.dto.TechnicalCardDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.OrdersOfProductionDto;
+import com.trade_accounting.models.dto.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;

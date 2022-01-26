@@ -3,11 +3,11 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.goods.GoodsModalWindow;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.ContractDto;
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.ReturnToSupplierDto;
-import com.trade_accounting.controllers.dto.WarehouseDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.ReturnToSupplierDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;
 import com.trade_accounting.services.interfaces.ContractorService;

@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.RetailCloudCheckDto;
+import com.trade_accounting.models.dto.RetailCloudCheckDto;
 import com.trade_accounting.services.interfaces.RetailCloudCheckService;
 import com.trade_accounting.services.interfaces.api.RetailCloudCheckApi;
 import lombok.extern.slf4j.Slf4j;

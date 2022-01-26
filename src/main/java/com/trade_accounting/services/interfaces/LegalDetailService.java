@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.controllers.dto.LegalDetailDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
 
 import java.util.List;
 
