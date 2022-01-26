@@ -1,6 +1,5 @@
 package com.trade_accounting.components.purchases;
 
-
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
 import com.trade_accounting.components.util.Buttons;
@@ -12,6 +11,8 @@ import com.trade_accounting.models.dto.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.PurchaseControlService;
+import com.trade_accounting.services.interfaces.PurchaseCurrentBalanceService;
+import com.trade_accounting.services.interfaces.PurchaseForecastService;
 import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
 
 import com.vaadin.flow.component.Component;
@@ -77,6 +78,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final TextField textField = new TextField();
     private final ProductPriceService productPriceService;
     private final PurchaseHistoryOfSalesService purchaseHistoryOfSalesService;
+    private final PurchaseCurrentBalanceService purchaseCurrentBalanceService;
+    private final PurchaseForecastService purchaseForecastService;
 
 
     private List<PurchaseControlDto> purchaseControl;
@@ -93,7 +96,9 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             @Lazy Notifications notifications,
                                             SupplierAccountModalView modalView,
                                             ProductPriceService productPriceService,
-                                            PurchaseHistoryOfSalesService purchaseHistoryOfSalesService
+                                            PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
+                                            PurchaseCurrentBalanceService purchaseCurrentBalanceService,
+                                            PurchaseForecastService purchaseForecastService
     ) {
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
@@ -101,6 +106,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.modalView = modalView;
         this.productPriceService = productPriceService;
         this.purchaseHistoryOfSalesService = purchaseHistoryOfSalesService;
+        this.purchaseCurrentBalanceService = purchaseCurrentBalanceService;
+        this.purchaseForecastService = purchaseForecastService;
 
         loadSupplierAccounts();
         configureActions();
@@ -156,6 +163,24 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductSalesPerDay())
                 .setHeader("Продаж в день").setKey("product_sales_per_day").setId("Продаж в день");
 
+        grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getRestOfTheWarehouse())
+                .setHeader("Остаток на складе").setKey("rest_of_the_warehouse").setId("Остаток на складе");
+        grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsReserve())
+                .setHeader("Резерв товара").setKey("products_reserve").setId("Резерв товара");
+        grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsAwaiting())
+                .setHeader("Товар в ожидании").setKey("products_awaiting").setId("Товар в ожидании");
+        grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsAvailableForOrder())
+                .setHeader("Товара доступно для заказа").setKey("products_available_for_order").setId("Товара доступно для заказа");
+        grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getDaysStoreOnTheWarehouse())
+                .setHeader("Дни хранения на складе").setKey("days_store_on_the_warehouse").setId("Дни хранения на складе");
+
+        grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getReservedDays())
+                .setHeader("Дней в запасе").setKey("reserved_days").setId("Дней в запасе");
+        grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getReservedProducts())
+                .setHeader("Запас товара").setKey("reserved_products").setId("Запас товара");
+        grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getOrdered())
+                .setHeader("Заказано(да\\нет)").setKey("ordered").setId("Заказано(да\\нет)");
+
         HeaderRow groupingHeader2 = grid.prependHeaderRow();
 
         groupingHeader2.
@@ -167,6 +192,25 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                         groupingHeader2.getCell(grid.getColumnByKey("product_sales_per_day"))
                 )
                 .setComponent(new Label("История продаж"));
+
+        groupingHeader2.
+                join(
+                        groupingHeader2.getCell(grid.getColumnByKey("rest_of_the_warehouse")),
+                        groupingHeader2.getCell(grid.getColumnByKey("products_reserve")),
+                        groupingHeader2.getCell(grid.getColumnByKey("products_awaiting")),
+                        groupingHeader2.getCell(grid.getColumnByKey("products_available_for_order")),
+                        groupingHeader2.getCell(grid.getColumnByKey("days_store_on_the_warehouse"))
+                )
+                .setComponent(new Label("Текущий остаток"));
+
+        groupingHeader2.
+                join(
+                        groupingHeader2.getCell(grid.getColumnByKey("reserved_days")),
+                        groupingHeader2.getCell(grid.getColumnByKey("reserved_products")),
+                        groupingHeader2.getCell(grid.getColumnByKey("ordered"))
+                )
+                .setComponent(new Label("Прогноз"));
+
 
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
