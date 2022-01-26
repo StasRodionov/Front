@@ -3,7 +3,6 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.models.dto.MoneySubCashFlowDto;
 import com.trade_accounting.services.interfaces.MoneySubCashFlowService;
 import com.trade_accounting.services.interfaces.api.MoneySubCashFlowApi;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Slf4j
 public class MoneySubCashFlowServiceImpl implements MoneySubCashFlowService {
 
     private final MoneySubCashFlowApi moneySubCashFlowApi;

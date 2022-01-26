@@ -128,5 +128,4 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
 
     }
 
-
 }

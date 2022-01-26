@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface MoneySubProfitLossService {
-    List<MoneySubProfitLossDto> getAll();
+    MoneySubProfitLossDto getAll();
 
     void update(MoneySubProfitLossDto moneySubProfitLossDto);
 

@@ -160,7 +160,7 @@ movement_url:  /api/movement
 
 movement_product_url:  /api/movement/product
 
-moneySubProfitLoss_url: /api/moneysubprofitloss
+moneySubProfitLoss_url: /api/profitloss
 
 productprice_url: /api/productprice
 
