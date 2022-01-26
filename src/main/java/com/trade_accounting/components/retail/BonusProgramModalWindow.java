@@ -1,7 +1,7 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.controllers.dto.BonusProgramDto;
-import com.trade_accounting.controllers.dto.ContractorGroupDto;
+import com.trade_accounting.models.dto.BonusProgramDto;
+import com.trade_accounting.models.dto.ContractorGroupDto;
 import com.trade_accounting.services.interfaces.BonusProgramService;
 import com.trade_accounting.services.interfaces.ContractorGroupService;
 import com.vaadin.flow.component.Component;

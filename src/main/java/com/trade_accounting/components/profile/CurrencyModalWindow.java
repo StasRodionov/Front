@@ -1,6 +1,6 @@
 package com.trade_accounting.components.profile;
 
-import com.trade_accounting.controllers.dto.CurrencyDto;
+import com.trade_accounting.models.dto.CurrencyDto;
 import com.trade_accounting.services.interfaces.CurrencyService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;

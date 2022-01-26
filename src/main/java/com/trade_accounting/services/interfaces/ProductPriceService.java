@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.controllers.dto.ProductPriceDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
 
 import java.util.List;
 

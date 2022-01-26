@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.ReturnAmountByProductDto;
+import com.trade_accounting.models.dto.ReturnAmountByProductDto;
 import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
 import com.trade_accounting.services.interfaces.api.ReturnAmountByProductApi;
 import org.springframework.beans.factory.annotation.Value;

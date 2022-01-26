@@ -6,7 +6,7 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.TechnicalOperationsDto;
+import com.trade_accounting.models.dto.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.TechnicalCardService;
 import com.trade_accounting.services.interfaces.TechnicalOperationsService;
 import com.trade_accounting.services.interfaces.WarehouseService;

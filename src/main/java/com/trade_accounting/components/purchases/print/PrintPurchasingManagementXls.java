@@ -1,7 +1,7 @@
 package com.trade_accounting.components.purchases.print;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.controllers.dto.PurchaseControlDto;
+import com.trade_accounting.models.dto.PurchaseControlDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;

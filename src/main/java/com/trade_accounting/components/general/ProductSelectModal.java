@@ -1,9 +1,9 @@
 package com.trade_accounting.components.general;
 
-import com.trade_accounting.controllers.dto.InvoiceProductDto;
-import com.trade_accounting.controllers.dto.LossProductDto;
-import com.trade_accounting.controllers.dto.ProductDto;
-import com.trade_accounting.controllers.dto.ProductPriceDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.LossProductDto;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.ProductPriceDto;
 import com.trade_accounting.services.interfaces.ProductPriceService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;

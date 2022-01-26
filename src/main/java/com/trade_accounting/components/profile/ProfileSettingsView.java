@@ -2,8 +2,8 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.ValidTextField;
-import com.trade_accounting.controllers.dto.EmployeeDto;
-import com.trade_accounting.controllers.dto.PositionDto;
+import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.models.dto.PositionDto;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.vaadin.flow.component.Component;

@@ -1,9 +1,9 @@
 package com.trade_accounting.components.production;
 
-import com.trade_accounting.controllers.dto.ProductDto;
-import com.trade_accounting.controllers.dto.TechnicalCardDto;
-import com.trade_accounting.controllers.dto.TechnicalCardGroupDto;
-import com.trade_accounting.controllers.dto.TechnicalCardProductionDto;
+import com.trade_accounting.models.dto.ProductDto;
+import com.trade_accounting.models.dto.TechnicalCardDto;
+import com.trade_accounting.models.dto.TechnicalCardGroupDto;
+import com.trade_accounting.models.dto.TechnicalCardProductionDto;
 import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.TechnicalCardService;

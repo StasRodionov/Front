@@ -1,7 +1,7 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.RetailPointsDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.RetailPointsDto;
 import com.trade_accounting.services.interfaces.RetailPointsService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;

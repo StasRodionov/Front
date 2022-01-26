@@ -2,9 +2,9 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.BuyersReturnDto;
-import com.trade_accounting.controllers.dto.ShipmentDto;
-import com.trade_accounting.controllers.dto.ShipmentProductDto;
+import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.ShipmentDto;
+import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;

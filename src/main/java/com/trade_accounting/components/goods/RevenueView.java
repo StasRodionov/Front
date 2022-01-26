@@ -5,7 +5,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.controllers.dto.RevenueDto;
+import com.trade_accounting.models.dto.RevenueDto;
 import com.trade_accounting.services.interfaces.RevenueService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

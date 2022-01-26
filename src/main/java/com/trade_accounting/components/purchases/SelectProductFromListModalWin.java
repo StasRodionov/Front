@@ -1,7 +1,7 @@
 package com.trade_accounting.components.purchases;
 
-import com.trade_accounting.controllers.dto.AcceptanceProductionDto;
-import com.trade_accounting.controllers.dto.ProductDto;
+import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.ProductService;
 import com.vaadin.flow.component.button.Button;

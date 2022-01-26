@@ -3,7 +3,7 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.InventarizationDto;
+import com.trade_accounting.models.dto.InventarizationDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.InventarizationService;
 import com.trade_accounting.services.interfaces.WarehouseService;

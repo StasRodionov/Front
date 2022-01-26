@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.BalanceAdjustmentDto;
+import com.trade_accounting.models.dto.BalanceAdjustmentDto;
 import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
 import com.trade_accounting.services.interfaces.api.BalanceAdjustmentApi;
 import lombok.extern.slf4j.Slf4j;

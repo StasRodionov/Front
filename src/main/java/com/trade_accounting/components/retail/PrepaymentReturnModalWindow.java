@@ -1,9 +1,9 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.PrepaymentReturnDto;
-import com.trade_accounting.controllers.dto.RetailStoreDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.PrepaymentReturnDto;
+import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.PrepaymentReturnService;

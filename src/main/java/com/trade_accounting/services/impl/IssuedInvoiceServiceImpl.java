@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.IssuedInvoiceDto;
+import com.trade_accounting.models.dto.IssuedInvoiceDto;
 import com.trade_accounting.services.interfaces.IssuedInvoiceService;
 import com.trade_accounting.services.interfaces.api.IssuedInvoiceApi;
 import lombok.extern.slf4j.Slf4j;

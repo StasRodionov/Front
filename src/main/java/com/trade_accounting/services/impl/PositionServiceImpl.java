@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.PositionDto;
+import com.trade_accounting.models.dto.PositionDto;
 import com.trade_accounting.services.interfaces.PositionService;
 import com.trade_accounting.services.interfaces.api.PositionApi;
 import lombok.extern.slf4j.Slf4j;

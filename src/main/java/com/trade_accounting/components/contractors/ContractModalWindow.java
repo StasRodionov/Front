@@ -1,11 +1,11 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.ValidTextField;
-import com.trade_accounting.controllers.dto.BankAccountDto;
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.ContractDto;
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.LegalDetailDto;
+import com.trade_accounting.models.dto.BankAccountDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.LegalDetailDto;
 import com.trade_accounting.services.interfaces.BankAccountService;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractService;

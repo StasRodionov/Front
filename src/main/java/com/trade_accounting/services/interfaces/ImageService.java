@@ -1,6 +1,6 @@
 package com.trade_accounting.services.interfaces;
 
-import com.trade_accounting.controllers.dto.ImageDto;
+import com.trade_accounting.models.dto.ImageDto;
 
 import java.util.List;
 

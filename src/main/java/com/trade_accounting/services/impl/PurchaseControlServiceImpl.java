@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.PurchaseControlDto;
+import com.trade_accounting.models.dto.PurchaseControlDto;
 import com.trade_accounting.services.interfaces.PurchaseControlService;
 import com.trade_accounting.services.interfaces.api.PurchaseControlApi;
 import lombok.extern.slf4j.Slf4j;

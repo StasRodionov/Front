@@ -1,8 +1,8 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.EmployeeDto;
-import com.trade_accounting.controllers.dto.RetailStoreDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.EmployeeDto;
+import com.trade_accounting.models.dto.RetailStoreDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.EmployeeService;
 import com.trade_accounting.services.interfaces.PositionService;

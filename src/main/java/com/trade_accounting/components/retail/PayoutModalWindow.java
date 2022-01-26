@@ -1,8 +1,8 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.controllers.dto.CompanyDto;
-import com.trade_accounting.controllers.dto.PayoutDto;
-import com.trade_accounting.controllers.dto.RetailStoreDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.PayoutDto;
+import com.trade_accounting.models.dto.RetailStoreDto;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.trade_accounting.services.interfaces.PayoutService;

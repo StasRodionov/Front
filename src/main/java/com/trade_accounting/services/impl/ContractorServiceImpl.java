@@ -1,7 +1,7 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.FiasModelDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.FiasModelDto;
 import com.trade_accounting.services.interfaces.ContractorService;
 import com.trade_accounting.services.interfaces.api.ContractorApi;
 import lombok.extern.slf4j.Slf4j;

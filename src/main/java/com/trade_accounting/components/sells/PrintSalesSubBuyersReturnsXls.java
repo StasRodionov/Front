@@ -1,7 +1,7 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.controllers.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.BuyersReturnDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import org.apache.poi.ss.usermodel.Cell;

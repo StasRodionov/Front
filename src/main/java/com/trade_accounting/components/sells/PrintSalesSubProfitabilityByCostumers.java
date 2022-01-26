@@ -1,11 +1,11 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.controllers.dto.BuyersReturnDto;
-import com.trade_accounting.controllers.dto.ContractorDto;
-import com.trade_accounting.controllers.dto.InvoiceDto;
-import com.trade_accounting.controllers.dto.InvoiceProductDto;
-import com.trade_accounting.controllers.dto.ProductDto;
+import com.trade_accounting.models.dto.BuyersReturnDto;
+import com.trade_accounting.models.dto.ContractorDto;
+import com.trade_accounting.models.dto.InvoiceDto;
+import com.trade_accounting.models.dto.InvoiceProductDto;
+import com.trade_accounting.models.dto.ProductDto;
 import com.trade_accounting.services.interfaces.BuyersReturnService;
 import com.trade_accounting.services.interfaces.ContractorService;
 import org.apache.poi.ss.usermodel.Cell;

@@ -1,6 +1,6 @@
 package com.trade_accounting.services.impl;
 
-import com.trade_accounting.controllers.dto.TypeOfPriceDto;
+import com.trade_accounting.models.dto.TypeOfPriceDto;
 import com.trade_accounting.services.interfaces.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.api.TypeOfPriceApi;
 import lombok.extern.slf4j.Slf4j;

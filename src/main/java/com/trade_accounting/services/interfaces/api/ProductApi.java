@@ -1,7 +1,7 @@
 package com.trade_accounting.services.interfaces.api;
 
-import com.trade_accounting.controllers.dto.PageDto;
-import com.trade_accounting.controllers.dto.ProductDto;
+import com.trade_accounting.models.dto.PageDto;
+import com.trade_accounting.models.dto.ProductDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;

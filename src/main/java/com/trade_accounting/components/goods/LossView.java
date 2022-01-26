@@ -4,7 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.controllers.dto.LossDto;
+import com.trade_accounting.models.dto.LossDto;
 import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.LossProductService;
 import com.trade_accounting.services.interfaces.LossService;
