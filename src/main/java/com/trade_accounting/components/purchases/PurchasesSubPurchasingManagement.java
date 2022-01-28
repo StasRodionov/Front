@@ -91,7 +91,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final Grid<PurchaseControlDto> grid = new Grid<>(PurchaseControlDto.class, false);
     private GridPaginator<PurchaseControlDto> paginator;
     private final GridFilter<PurchaseControlDto> filter;
-    private HeaderRow groupingHeader2;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchasesManagement/";
 
     @Autowired
