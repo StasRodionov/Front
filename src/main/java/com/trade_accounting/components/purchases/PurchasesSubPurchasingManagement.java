@@ -14,11 +14,13 @@ import com.trade_accounting.services.interfaces.PurchaseControlService;
 import com.trade_accounting.services.interfaces.PurchaseCurrentBalanceService;
 import com.trade_accounting.services.interfaces.PurchaseForecastService;
 import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -89,6 +91,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final Grid<PurchaseControlDto> grid = new Grid<>(PurchaseControlDto.class, false);
     private GridPaginator<PurchaseControlDto> paginator;
     private final GridFilter<PurchaseControlDto> filter;
+    private HeaderRow groupingHeader2;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchasesManagement/";
 
     @Autowired
@@ -377,7 +380,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 //        for (InvoiceReceivedDto invoiceDto : list1) {
 //            sumList.add(getTotalPrice(invoiceDto));
 //        }
-        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(), purchaseControlService.getAll(), employeeService,productPriceService,purchaseHistoryOfSalesService);
+        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(), purchaseControlService.getAll(), employeeService, productPriceService, purchaseHistoryOfSalesService);
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReport), templateName);
     }
 
@@ -403,7 +406,24 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private Button buttonSettings() {
-        return new Button(new Icon(VaadinIcon.COG_O));
+        Button button = new Button(new Icon(VaadinIcon.COG_O));
+        button.addClickListener(enotEvent -> {
+            ContextMenu contextMenu = new ContextMenu();
+            contextMenu.setTarget(button);
+            contextMenu.setOpenOnClick(true);
+            List<Grid.Column<PurchaseControlDto>> stringList = grid.getColumns();
+            CheckboxGroup<Grid.Column<PurchaseControlDto>> checkboxGroup = new CheckboxGroup<>();
+            checkboxGroup.addThemeVariants(CheckboxGroupVariant.MATERIAL_VERTICAL);
+            checkboxGroup.setItems(stringList);
+            checkboxGroup.setItemLabelGenerator(column -> column.getId().orElse(""));
+            contextMenu.add(checkboxGroup);
+            checkboxGroup.setValue(stringList.stream().filter(Component::isVisible).collect(Collectors.toSet()));
+            checkboxGroup.addSelectionListener(selection -> {
+                selection.getAddedSelection().forEach(i -> i.setVisible(true));
+                selection.getRemovedSelection().forEach(i -> i.setVisible(false));
+            });
+        });
+        return button;
     }
 
 
