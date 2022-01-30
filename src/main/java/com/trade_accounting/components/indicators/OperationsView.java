@@ -15,9 +15,12 @@ import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
+import com.trade_accounting.models.dto.CompanyDto;
+import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.CorrectionProductDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
@@ -34,6 +37,7 @@ import com.trade_accounting.models.dto.PaymentDto;
 import com.trade_accounting.models.dto.ShipmentDto;
 import com.trade_accounting.models.dto.ShipmentProductDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
+import com.trade_accounting.models.dto.WarehouseDto;
 import com.trade_accounting.services.interfaces.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.AcceptanceService;
 import com.trade_accounting.services.interfaces.CompanyService;
@@ -86,12 +90,12 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.sl.draw.geom.GuideIf;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @Slf4j
 @SpringComponent
@@ -138,7 +142,8 @@ public class OperationsView extends VerticalLayout {
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
     private final GridPaginator<OperationsDto> paginator;
-
+    private final GridFilter<OperationsDto> filter;
+    private final TextField textField = new TextField();
     private List<Long> movementsIds;
     private List<Long> lossIds;
     private List<Long> internalOrdersIds;
@@ -214,8 +219,10 @@ public class OperationsView extends VerticalLayout {
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER);
-        add(getUpperLayout(), grid, paginator);
+        add(getUpperLayout(), filter, grid, paginator);
         movementsIds = getMovementsIds();
         lossIds = getLossIds();
         internalOrdersIds = getInternalOrdersIds();
@@ -229,9 +236,6 @@ public class OperationsView extends VerticalLayout {
 
     }
 
-
-
-
     private List<OperationsDto> getData() {
         return operationsService.getAll().stream()
                 .filter(operationsDto -> !operationsDto.getIsRecyclebin())
@@ -240,19 +244,16 @@ public class OperationsView extends VerticalLayout {
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("5px").setHeader("ID").setResizable(true).setId("ID");
-        grid.addColumn(this::getType).setHeader("Тип документа").setResizable(true).setSortable(true);
-        grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
-        grid.addColumn(operationsDto->companyService.getById(operationsDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Организация").setId("Организация");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада").setSortable(true);
-        grid.addColumn(this::getDWarehouseTo).setHeader("На склад").setSortable(true);
-        grid.addColumn(this::getContractor).setHeader("Контрагент").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
-                .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
-                .setId("Напечатано");
+        grid.addColumn("id").setWidth("40px").setHeader("ID").setResizable(true).setId("ID");
+        grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
+        grid.addColumn(operationsDto->companyService.getById(operationsDto.getCompanyId()).getName()).setKey("company").setHeader("Организация").setResizable(true).setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено").setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано").setId("Напечатано");
+        grid.addColumn(this::getType).setHeader("Тип документа").setResizable(true).setSortable(true).setId("Тип документа");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true).setId("Сумма");
+        grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада").setSortable(true).setId("Со склада");
+        grid.addColumn(this::getDWarehouseTo).setHeader("На склад").setSortable(true).setId("На склад");
+        grid.addColumn(this::getContractor).setHeader("Контрагент").setResizable(true).setSortable(true).setId("Контрагент");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -260,7 +261,21 @@ public class OperationsView extends VerticalLayout {
             OperationsDto dto = e.getItem();
             openModalWindow(dto);
         });
+    }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll()); // Организация
+        // filter.setFieldToComboBox ("typeOfOperation"); // Тип документа
+        // filter.setFieldToComboBox ("price"); // Сумма
+        // filter.setFieldToComboBox("from", WarehouseDto::getName, warehouseService.getAll()); // Со склада
+        // filter.setFieldToComboBox("to", WarehouseDto::getName, warehouseService.getAll()); // На склад
+        // filter.setFieldToComboBox("contactor", ContractorDto::getName, contractorService.getAll()); // Контрагент
+        filter.setFieldToCheckBox("sent");
+        filter.setFieldToCheckBox("print");
+        filter.onSearchClick(e -> paginator.setData(operationsService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(operationsService.getAll()));
     }
 
     private void openModalWindow(OperationsDto dto) {
@@ -300,8 +315,6 @@ public class OperationsView extends VerticalLayout {
             acceptanceModalView.open();
         }
     }
-
-//    invoiceIds = getInvoiceIds();
 
     private String getDWarehouseFrom(OperationsDto operationsDto) {
         String warehouseFrom;
@@ -385,7 +398,6 @@ public class OperationsView extends VerticalLayout {
         }
     }
 
-
     private Component getUpperLayout(){
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.add(buttonQuestion(), title(), buttonRefresh(), configSubMenu(), buttonFilter(),
@@ -413,22 +425,23 @@ public class OperationsView extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-       //реализовать
-        return buttonFilter;
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField textField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Номер, компания или комментарий");
+        textField.setPlaceholder("Номер ID или Организация");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.addValueChangeListener(event -> updateList(textField.getValue()));
+        textField.addValueChangeListener(event -> updateListQsearch(textField.getValue()));
         return textField;
     }
 
-    private void updateList(String value) {
+    private void updateListQsearch(String text) {
+        grid.setItems(operationsService.quickSearch(text));
     }
 
     private NumberField numberField() {
@@ -437,7 +450,6 @@ public class OperationsView extends VerticalLayout {
         numberField.setWidth("45px");
         return numberField;
     }
-
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
@@ -496,7 +508,6 @@ public class OperationsView extends VerticalLayout {
         print.setWidth("130px");
         return print;
     }
-
 
     private void updateList() {
         grid.setItems(getData());
@@ -652,24 +663,10 @@ public class OperationsView extends VerticalLayout {
                 totalPrice = totalPrice.add(shipmentProductDto.getAmount().multiply(shipmentProductDto.getPrice()));
             }
             return String.format("%.2f", totalPrice);
-        }
-
-
-//        else if (acceptanceIds.contains(operationsDto.getId())) {
-//            AcceptanceDto acceptanceDto = acceptanceService.getById(operationsDto.getId());
-//            for (Long id : acceptanceDto.getAcceptanceProductIds()) {
-//                AcceptanceProductionDto acceptanceProductionDto = acceptanceProductionService.getById(id);
-//                totalPrice = totalPrice.add(acceptanceProductionDto.getAmount().multiply(acceptanceProductionDto.getPrice()));
-//            }
-//            return String.format("%.2f", totalPrice);
-//        }
-        else {
+        } else {
             return String.valueOf(0.00);
         }
     }
-
-
-
 
     private Component getIsPrintIcon(OperationsDto operationsDto) {
         if (operationsDto.getIsPrint()) {
@@ -726,8 +723,6 @@ public class OperationsView extends VerticalLayout {
         }
     }
 
-
-
     //меню добавления документов
     private HorizontalLayout configSubMenu() {
         MenuBar menuBar = new MenuBar();
@@ -779,10 +774,5 @@ public class OperationsView extends VerticalLayout {
                 .ifPresent(ui -> ui.navigate("ordersOfProductionModal")));
         //  "Производственное задание"
         return operations;
-
-
-
-
     }
-
 }
