@@ -9,8 +9,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InventarizationApi {
     @Headers("Accept: application/json")
@@ -32,6 +34,16 @@ public interface InventarizationApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByFilter")
+    Call<List<InventarizationDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                                  @QueryMap Map<String, String> queryInventarization);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search/{search}")
+    Call<List<InventarizationDto>> search(@Path(value = "url", encoded = true) String url,
+                                          @Path(value = "search", encoded = true) String search);
 
     @Headers("Accept: application/json")
     @PUT("{url}/moveToIsRecyclebin/{id}")
