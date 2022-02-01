@@ -78,7 +78,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
 //        filter.setFieldToIntegerField("sum");
 //        filter.setFieldToIntegerField("number");
 //        filter.onSearchClick(e -> paginator.setData(paymentService.filter(filter.getFilterData())));
-//        filter.onClearClick(e -> paginator.setData(paymentService.getAll()));
+        filter.onClearClick(e -> paginator.setData(data));
     }
 
     private Grid getGrid() {
@@ -99,7 +99,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
 
     private void updateList() {
         GridPaginator<MoneySubCashFlowDto> paginatorUpdateList
-                = new GridPaginator<>(grid, moneySubCashFlowService.getAll(), 100);
+                = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
         add(getToolbar(), grid, paginator);
