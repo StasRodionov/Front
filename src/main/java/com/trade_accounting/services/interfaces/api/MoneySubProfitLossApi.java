@@ -15,7 +15,7 @@ import java.util.Map;
 public interface MoneySubProfitLossApi {
     @Headers("Accept: application/json")
     @GET("{url}")
-    Call<List<MoneySubProfitLossDto>> getAll(@Path(value = "url", encoded = true) String url);
+    Call<MoneySubProfitLossDto> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
     @PUT("{url}")

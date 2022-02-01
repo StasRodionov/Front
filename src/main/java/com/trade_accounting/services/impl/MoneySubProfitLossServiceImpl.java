@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +30,9 @@ public class MoneySubProfitLossServiceImpl implements MoneySubProfitLossService 
     }
 
     @Override
-    public List<MoneySubProfitLossDto> getAll() {
-        Call<List<MoneySubProfitLossDto>> profitLossDtoList = moneySubProfitLossApi.getAll(moneySubProfitLossUrl);
-        return dtoCallExecuteService.callExecuteBodyList(profitLossDtoList, MoneySubProfitLossDto.class);
+    public MoneySubProfitLossDto getAll() {
+        Call<MoneySubProfitLossDto> profitLossDto = moneySubProfitLossApi.getAll(moneySubProfitLossUrl);
+        return dtoCallExecuteService.callExecuteBody(profitLossDto, MoneySubProfitLossDto.class);
     }
 
     @Override
