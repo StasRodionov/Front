@@ -122,7 +122,7 @@ public class ContractorsTabView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(upperLayout(), filter, grid, paginator);
         configureSelectXlsTemplateButton();
-//        updateList();
+        updateList();
     }
 
 
@@ -134,12 +134,15 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
         grid.addColumn("email").setHeader("email").setId("email");
-        grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setId("Адрес");
-        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setId("комментарий к адресу");
-        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setId("комментарий");
-        grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы").setId("Группы");
-        grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setId("Скидки и цены");
-        grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setId("Реквизиты");
+        grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setKey("address")
+                .setId("Адрес");
+        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setKey("commentToAddress")
+                .setId("комментарий к адресу");
+        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setKey("comment").setId("комментарий");
+        grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы")
+                .setKey("contractorGroupDto").setId("Группы");
+        grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setKey("typeOfPriceDto").setId("Скидки и цены");
+        grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setKey("legalDetailDto").setId("Реквизиты");
         grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);

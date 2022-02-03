@@ -24,21 +24,38 @@ public class AddressDto {
     private static final String ABB_APARTMENT = "кв.";
 
 
+//    private String[] getArrayAddress() {
+//        return new String[]{index, country, region, city, street, ABB_HOUSE + house, ABB_APARTMENT + apartment};
+//    }
+//
+//    public String getAnother() {
+//        StringBuilder result = new StringBuilder();
+//        final String[] arrayAddress = getArrayAddress();
+//        for (int i = 0; i < arrayAddress.length; i++) {
+//            String s = arrayAddress[i];
+//            if (s != null && !s.equals("") && !s.equals(ABB_HOUSE) && !s.equals(ABB_APARTMENT)) {
+//                result.append(arrayAddress[i]);
+//                if (i != arrayAddress.length - 1) {
+//                    result.append(", ");
+//                }
+//            }
+//        }
+//        return result.toString();
+//    }
+
     private String[] getArrayAddress() {
-        return new String[]{index, country, region, city, street, ABB_HOUSE + house, ABB_APARTMENT + apartment};
+        return new String[]{index, country, region, city, street, house, apartment};
     }
 
     public String getAnother() {
         StringBuilder result = new StringBuilder();
         final String[] arrayAddress = getArrayAddress();
         for (int i = 0; i < arrayAddress.length; i++) {
-            String s = arrayAddress[i];
-            if (s != null && !s.equals("") && !s.equals(ABB_HOUSE) && !s.equals(ABB_APARTMENT)) {
-                result.append(arrayAddress[i]);
-                if (i != arrayAddress.length - 1) {
-                    result.append(", ");
-                }
+            result.append(arrayAddress[i]);
+            if (i != arrayAddress.length - 1) {
+                result.append(", ");
             }
+
         }
         return result.toString();
     }
