@@ -127,7 +127,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Внесения":
                     div.removeAll();
-                    div.add(new RetailMakingView(retailMakingService));
+                    div.add(new RetailMakingView(retailMakingService, retailStoreService, companyService, notifications));
                     break;
                 case "Выплаты":
                     div.removeAll();
