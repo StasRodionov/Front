@@ -284,7 +284,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -347,16 +347,16 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     }
 
-    private Anchor getLinkToPDFTemplate(File file) {
-        List<String> sumList = new ArrayList<>();
-        List<SupplierAccountDto> list1 = supplierAccountService.getAll();
-        for (SupplierAccountDto sad : list1) {
-            sumList.add(getTotalPrice(sad));
-        }
-        PrintSupplierXls printSupplierXls = new PrintSupplierXls(file.getPath(), supplierAccountService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
-        return new Anchor(new StreamResource("supplierInvoices.pdf", printSupplierXls::createReportPDF), "supplierInvoices.pdf");
-
-    }
+//    private Anchor getLinkToPDFTemplate(File file) {
+//        List<String> sumList = new ArrayList<>();
+//        List<SupplierAccountDto> list1 = supplierAccountService.getAll();
+//        for (SupplierAccountDto sad : list1) {
+//            sumList.add(getTotalPrice(sad));
+//        }
+//        PrintSupplierXls printSupplierXls = new PrintSupplierXls(file.getPath(), supplierAccountService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
+//        return new Anchor(new StreamResource("supplierInvoices.pdf", printSupplierXls::createReportPDF), "supplierInvoices.pdf");
+//
+//    }
 
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);

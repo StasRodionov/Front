@@ -5,6 +5,7 @@ import com.trade_accounting.components.purchases.print.PrintPurchasingManagement
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.MenuBarIcon;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.PurchaseControlDto;
 import com.trade_accounting.models.dto.SupplierAccountDto;
@@ -14,6 +15,7 @@ import com.trade_accounting.services.interfaces.PurchaseControlService;
 import com.trade_accounting.services.interfaces.PurchaseCurrentBalanceService;
 import com.trade_accounting.services.interfaces.PurchaseForecastService;
 import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -21,17 +23,20 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -42,7 +47,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -51,7 +55,9 @@ import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
@@ -60,7 +66,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -127,8 +132,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), filterTextField(),
-                numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(),valuePrint(), orderSupplier(),
+                createLabel("Прогноз на"), numberField(), createLabel("дней"), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
     }
 
@@ -144,44 +149,157 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private Grid<PurchaseControlDto> configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
-        grid.addColumn("id").setWidth("20px").setHeader("№").setId("№");
-        grid.addColumn(PurchaseControlDto::getProductName).setHeader("Наименование").setKey("product_name").setSortable(true)
+//        grid.addColumn("buttonSetting")         /*смотри в классе PurchaseControlDto*/
+//                .setHeader(buttonSettings())
+//                .setSortable(false)
+//                .setWidth("50px")
+//                .setTextAlign(ColumnTextAlign.START)
+//                .setFrozen(true);
+
+        grid.addColumn("id")   /*колонка не соответствует оригинальному сайту*/
+                .setHeader("№")
+                .setWidth("1px")
+                .setId("№");
+
+        grid.addColumn(PurchaseControlDto::getProductName)
+                .setHeader("Наименование")
+                .setKey("product_name")
+                .setResizable(true)
+                .setSortable(true)
                 .setId("Наименование");
-        grid.addColumn(PurchaseControlDto::getArticleNumber).setHeader("Артикул").setKey("article_number").setSortable(true)
+
+        grid.addColumn(PurchaseControlDto::getProductCode)
+                .setHeader("Код")
+                .setKey("product_code")
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Код");
+
+        grid.addColumn(PurchaseControlDto::getArticleNumber)
+                .setHeader("Артикул")
+                .setKey("article_number")
+                .setResizable(true)
+                .setSortable(true)
                 .setId("Артикул");
-        grid.addColumn(PurchaseControlDto::getProductMeasure).setHeader("Единица измерения").setKey("product_measure").setSortable(true)
+
+        grid.addColumn(PurchaseControlDto::getProductMeasure)
+                .setHeader("Ед. изм.")
+                .setKey("product_measure")
+                .setResizable(true)
+                .setSortable(true)
                 .setId("Единица_измерения");
-        grid.addColumn(PurchaseControlDto::getProductQuantity).setHeader("Количество").setKey("product_quantity").setSortable(true)
+
+        grid.addColumn(PurchaseControlDto::getProductQuantity)
+                .setHeader("Кол-во")
+                .setKey("product_quantity")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
                 .setId("Количество");
 
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getSumOfProducts())
-                .setHeader("Сумма").setKey("sum_of_products").setId("Сумма");
+                .setHeader("Сумма")
+                .setKey("sum_of_products")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Сумма");
+
         grid.addColumn(dto -> productPriceService.getById(dto.getHistoryOfSalesId()).getValue())
-                .setHeader("Себестоимость").setKey("product_price").setId("Себестоимость");
+                .setHeader("Себестоимость")
+                .setKey("product_price")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Себестоимость");
+
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductMargin())
-                .setHeader("Прибыль").setKey("product_margin").setId("Прибыль");
+                .setHeader("Прибыль")
+                .setKey("product_margin")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Прибыль");
+
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductProfitMargin())
-                .setHeader("Рентабельность").setKey("product_profit_margin").setId("Рентабельность");
+                .setHeader("Рентабельность")
+                .setKey("product_profit_margin")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Рентабельность");
+
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductSalesPerDay())
-                .setHeader("Продаж в день").setKey("product_sales_per_day").setId("Продаж в день");
+                .setHeader("Продаж в день")
+                .setKey("product_sales_per_day")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Продаж в день");
 
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getRestOfTheWarehouse())
-                .setHeader("Остаток на складе").setKey("rest_of_the_warehouse").setId("Остаток на складе");
+                .setHeader("Остаток")
+                .setKey("rest_of_the_warehouse")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Остаток на складе");
+
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsReserve())
-                .setHeader("Резерв товара").setKey("products_reserve").setId("Резерв товара");
+                .setHeader("Резерв")
+                .setKey("products_reserve")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Резерв товара");
+
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsAwaiting())
-                .setHeader("Товар в ожидании").setKey("products_awaiting").setId("Товар в ожидании");
+                .setHeader("Ожидание")
+                .setKey("products_awaiting")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Товар в ожидании");
+
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsAvailableForOrder())
-                .setHeader("Товара доступно для заказа").setKey("products_available_for_order").setId("Товара доступно для заказа");
+                .setHeader("Доступно")
+                .setKey("products_available_for_order")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Товара доступно для заказа");
+
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getDaysStoreOnTheWarehouse())
-                .setHeader("Дни хранения на складе").setKey("days_store_on_the_warehouse").setId("Дни хранения на складе");
+                .setHeader("Дней на складе")
+                .setKey("days_store_on_the_warehouse")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Дни хранения на складе");
 
         grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getReservedDays())
-                .setHeader("Дней в запасе").setKey("reserved_days").setId("Дней в запасе");
+                .setHeader("Дней запаса")
+                .setKey("reserved_days")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Дней в запасе");
+
         grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getReservedProducts())
-                .setHeader("Запас товара").setKey("reserved_products").setId("Запас товара");
+                .setHeader("Запас")
+                .setKey("reserved_products")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Запас товара");
+
         grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getOrdered())
-                .setHeader("Заказано(да\\нет)").setKey("ordered").setId("Заказано(да\\нет)");
+                .setHeader("Заказать")
+                .setKey("ordered")
+                .setTextAlign(ColumnTextAlign.END)
+                .setResizable(true)
+                .setSortable(true)
+                .setId("Заказанть");
 
         HeaderRow groupingHeader2 = grid.prependHeaderRow();
 
@@ -216,7 +334,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.setSelectionMode(Grid.SelectionMode.NONE);
 
         return grid;
     }
@@ -232,11 +350,15 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         filter.onClearClick(e -> paginator.setData(purchaseControlService.getAll()));
     }
 
-    private H4 title() {
-        H4 title = new H4("Управление закупками");
-        title.setHeight("2.2em");
-        title.setWidth("100px");
-        return title;
+    private Label title() {
+        Label label = new Label("Управление закупками");
+        label.getStyle().set("font-weight", "bold").set("font-size", "22px").set("margin-bottom", "5px");
+        return label;
+    }
+
+    private Label createLabel(String text) {
+        Label label = new Label(text);
+        return label;
     }
 
     private Button buttonRefresh() {
@@ -258,15 +380,15 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return buttonFilter;
     }
 
-    private TextField filterTextField() {
-        textField.setPlaceholder("Номер или комментарий");
-        textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
-        textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.setClearButtonVisible(true);
-        textField.addValueChangeListener(e -> updateList(textField.getValue()));
-        textField.setWidth("300px");
-        return textField;
-    }
+//    private TextField filterTextField() {
+//        textField.setPlaceholder("Номер или комментарий");
+//        textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
+//        textField.setValueChangeMode(ValueChangeMode.EAGER);
+//        textField.setClearButtonVisible(true);
+//        textField.addValueChangeListener(e -> updateList(textField.getValue()));
+//        textField.setWidth("300px");
+//        return textField;
+//    }
 
     public void updateList(String nameFilter) {
         if (!(textField.getValue().equals(""))) {
@@ -279,55 +401,42 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private NumberField numberField() {
         final NumberField numberField = new NumberField();
         numberField.setPlaceholder("0");
-        numberField.setWidth("45px");
+        numberField.setWidth("75px");
+        numberField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
         return numberField;
     }
 
-    private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> stringList = new ArrayList<>();
-        stringList.add("Изменить");
-        stringList.add("Удалить");
-        select.setItems(stringList);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedInvoices();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(loadSupplierAccounts());
-            }
-        });
-        return select;
+    private MenuBar orderSupplier() {
+        MenuBar menuBar = new MenuBar();
+
+        MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PLUS_CIRCLE, "Заказ поставщику", null);
+        SubMenu orderSub = supplierOrder.getSubMenu();
+        orderSub.addItem("Общий");                   /*Заглушка: требует реализации*/
+        orderSub.addItem("Разбить по поставщикам");  /*Заглушка: требует реализации*/
+
+        return menuBar;
     }
 
-    private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+    private MenuBar valuePrint() {
+        MenuBar menuBar = new MenuBar();
+
+        MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PRINT, "Печать", null);
+        SubMenu orderSub = supplierOrder.getSubMenu();
+        orderSub.addItem("Управление закупками");    /*Заглушка: требует реализации*/
+        orderSub.addItem("Настроить...");            /*Заглушка: требует реализации*/
+        return menuBar;
     }
 
-    private Select<String> valueCreate() {
-        Select<String> create = new Select<>();
-        create.setItems("Создать");
-        create.setValue("Создать");
-        create.setWidth("130px");
-        return create;
-    }
-
-    private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать","Добавить");
-        print.setValue("Печать");
-        getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
-        uploadXlsMenuItem(print);
-        print.setWidth("130px");
-        return print;
-    }
+//    private Select<String> valuePrint() {
+//        Select<String> print = new Select<>();
+//        print.setItems("Печать","Добавить");
+//        print.setValue("Печать");
+//        getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
+//        uploadXlsMenuItem(print);
+//        print.setWidth("130px");
+//        return print;
+//    }
 
     private List<File> getXlsFiles() {
         File dir = new File(pathForSaveXlsTemplate);
@@ -372,7 +481,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         });
     }
 
-
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
 //        List<String> sumList = new ArrayList<>();
@@ -384,11 +492,12 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReport), templateName);
     }
 
-    private Anchor getLinkToPDFTemplate(File file) {
-        String templateName = file.getName();
-        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(), purchaseControlService.getAll(), employeeService,productPriceService,purchaseHistoryOfSalesService);
-        return new Anchor(new StreamResource("purchases.pdf", printPurchasingManagementXls::createReportPDF), "purchases.pdf");
-    }
+//    private Anchor getLinkToPDFTemplate(File file) {
+//        String templateName = file.getName();
+//        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(), purchaseControlService.getAll(), employeeService,productPriceService,purchaseHistoryOfSalesService);
+//        return new Anchor(new StreamResource("purchases.pdf", printPurchasingManagementXls::createReportPDF), "purchases.pdf");
+//    }
+
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
         notification.open();
@@ -411,7 +520,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private Button buttonSettings() {
-        Button button = new Button(new Icon(VaadinIcon.COG_O));
+        Button button = new Button(new Icon(VaadinIcon.COG));
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         button.addClickListener(enotEvent -> {
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.setTarget(button);
@@ -431,7 +541,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return button;
     }
 
-
     private Component getIsCheckedIcon(SupplierAccountDto supplierAccountDto) {
         if (supplierAccountDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -445,7 +554,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private void updateList() {
         grid.setItems(purchaseControlService.getAll());
     }
-
 
     public void deleteSelectedInvoices() {
         if (!grid.getSelectedItems().isEmpty()) {
@@ -463,7 +571,3 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         updateList();
     }
 }
-
-
-
-

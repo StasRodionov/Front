@@ -124,11 +124,11 @@
             <version>3.0.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.aspose</groupId>
-            <artifactId>aspose-cells</artifactId>
-            <version>20.7</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.aspose</groupId>-->
+<!--            <artifactId>aspose-cells</artifactId>-->
+<!--            <version>20.7</version>-->
+<!--        </dependency>-->
 
 
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
@@ -178,11 +178,11 @@
             <url>https://repo.spring.io/milestone</url>
         </repository>
 
-        <repository>
-            <id>AsposeJavaAPI</id>
-            <name>Aspose Java API</name>
-            <url>https://repository.aspose.com/repo/</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>AsposeJavaAPI</id>-->
+<!--            <name>Aspose Java API</name>-->
+<!--            <url>https://repository.aspose.com/repo/</url>-->
+<!--        </repository>-->
 
         <repository>
             <id>spring-snapshots</id>

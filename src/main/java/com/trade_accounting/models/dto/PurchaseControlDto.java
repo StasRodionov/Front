@@ -41,4 +41,6 @@ public class PurchaseControlDto {
     @NotNull
     private Long forecastId;
 
+//    private String buttonSetting;   /*Заглушка для кнопки настроек грида*/
+
 }

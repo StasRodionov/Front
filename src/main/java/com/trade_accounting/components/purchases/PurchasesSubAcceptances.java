@@ -275,7 +275,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -336,15 +336,15 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         return new Anchor(new StreamResource(templateName, printAcceptancesXls::createReport), templateName);
     }
 
-    private Anchor getLinkToPDFTemplate(File file) {
-        List<String> sumList = new ArrayList<>();
-        List<AcceptanceDto> list1 = acceptanceService.getAll();
-        for (AcceptanceDto aDto : list1) {
-            sumList.add(getTotalPrice(aDto));
-        }
-        PrintAcceptancesXls printAcceptancesXls = new PrintAcceptancesXls(file.getPath(), acceptanceService.getAll(), contractorService, warehouseService, companyService, sumList, employeeService);
-        return new Anchor(new StreamResource("purchases.pdf", printAcceptancesXls::createReportPDF), "purchases.pdf");
-    }
+//    private Anchor getLinkToPDFTemplate(File file) {
+//        List<String> sumList = new ArrayList<>();
+//        List<AcceptanceDto> list1 = acceptanceService.getAll();
+//        for (AcceptanceDto aDto : list1) {
+//            sumList.add(getTotalPrice(aDto));
+//        }
+//        PrintAcceptancesXls printAcceptancesXls = new PrintAcceptancesXls(file.getPath(), acceptanceService.getAll(), contractorService, warehouseService, companyService, sumList, employeeService);
+//        return new Anchor(new StreamResource("purchases.pdf", printAcceptancesXls::createReportPDF), "purchases.pdf");
+//    }
 
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
