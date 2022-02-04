@@ -1,5 +1,6 @@
 package com.trade_accounting.components.goods;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.InventarizationDto;
@@ -12,6 +13,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -21,6 +23,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -30,10 +33,11 @@ import java.util.List;
 
 @UIScope
 @SpringComponent
+//@Route(value = "inventory", layout = AppView.class)
 public class GoodsSubInventoryModalWindow extends Dialog {
 
     private final InventarizationService inventarizationService;
-    private InventarizationDto inventarizationDto;
+    private InventarizationDto inventarizationDto = new InventarizationDto();
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final Notifications notifications;
@@ -44,6 +48,8 @@ public class GoodsSubInventoryModalWindow extends Dialog {
     private final Checkbox checkboxIsSent = new Checkbox("Отправленно");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
+
+    private final Grid<InventarizationDto> grid = new Grid<>(InventarizationDto.class, false);
 
     private final Binder<InventarizationDto> inventarizationBinder =
             new Binder<>(InventarizationDto.class);

@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -25,7 +28,6 @@ public class InventarizationServiceImpl implements InventarizationService {
         this.inventarizationUrl = inventarizationUrl;
         this.callExecuteService = callExecuteService;
     }
-
 
     @Override
     public List<InventarizationDto> getAll() {
@@ -58,6 +60,32 @@ public class InventarizationServiceImpl implements InventarizationService {
     }
 
     @Override
+    public List<InventarizationDto> searchByFilter(Map<String, String> queryInventarization) {
+        List<InventarizationDto> inventarizationDtoList = new ArrayList<>();
+        Call<List<InventarizationDto>> callListInventarization = inventarizationApi.searchByFilter(inventarizationUrl, queryInventarization);
+        try {
+            inventarizationDtoList = callListInventarization.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение приемки по фильтру {}", queryInventarization);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск иполучение приемок {IOException}", e);
+        }
+        return inventarizationDtoList;
+    }
+
+    @Override
+    public List<InventarizationDto> search(String search) {
+        List<InventarizationDto> inventarizationDtoList = new ArrayList<>();
+        Call<List<InventarizationDto>> callListInventarization = inventarizationApi.search(inventarizationUrl, search);
+        try {
+            inventarizationDtoList = callListInventarization.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение инвентаризации по быстрому поиску {}", search);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение инвентаризации по быстрому поиску {IOException}", e);
+        }
+        return inventarizationDtoList;
+    }
+
+    @Override
     public void moveToIsRecyclebin(Long id) {
         Call<Void> dtoCall = inventarizationApi.moveToIsRecyclebin(inventarizationUrl, id);
         callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, InventarizationDto.class, id);
@@ -67,6 +95,5 @@ public class InventarizationServiceImpl implements InventarizationService {
     public void restoreFromIsRecyclebin(Long id) {
         Call<Void> dtoCall = inventarizationApi.restoreFromIsRecyclebin(inventarizationUrl, id);
         callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, InventarizationDto.class, id);
-
     }
 }

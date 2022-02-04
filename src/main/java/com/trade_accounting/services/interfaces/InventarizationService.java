@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces;
 import com.trade_accounting.models.dto.InventarizationDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InventarizationService {
 
@@ -15,6 +16,10 @@ public interface InventarizationService {
     void update(InventarizationDto dto);
 
     void deleteById(Long id);
+
+    List<InventarizationDto> searchByFilter(Map<String, String> queryInventarization);
+
+    List<InventarizationDto> search(String search);
 
     void moveToIsRecyclebin(Long id);
 
