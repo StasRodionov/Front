@@ -257,7 +257,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
 
     private TextField text() {
         textField.setWidth("300px");
-        textField.setPlaceholder("Организация, склад или комментарий");
+        textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
