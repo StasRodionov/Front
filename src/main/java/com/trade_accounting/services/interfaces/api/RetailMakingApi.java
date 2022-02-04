@@ -9,8 +9,11 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RetailMakingApi {
 
@@ -33,4 +36,14 @@ public interface RetailMakingApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByFilter")
+    Call<List<RetailMakingDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                               @QueryMap Map<String, String> queryRetailMaking);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search/{search}")
+    Call<List<RetailMakingDto>> search(@Path(value = "url", encoded = true) String url,
+                                       @Path(value = "search", encoded = true) String search);
 }

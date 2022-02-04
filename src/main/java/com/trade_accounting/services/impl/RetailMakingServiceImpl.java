@@ -10,7 +10,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -80,4 +82,31 @@ public class RetailMakingServiceImpl implements RetailMakingService {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра RetailMakingDto по id= {} - {}", id, e);
         }
     }
+
+    @Override
+    public List<RetailMakingDto> searchByFilter(Map<String, String> queryRetailMaking) {
+        List<RetailMakingDto> retailMakingDtoList = new ArrayList<>();
+        Call<List<RetailMakingDto>> callListRetailMaking = retailMakingApi.searchByFilter(retailMakingUrl, queryRetailMaking);
+        try {
+            retailMakingDtoList = callListRetailMaking.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение внесений по фильтру {}", queryRetailMaking);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение внесений по фильтру {IOException}", e);
+        }
+        return retailMakingDtoList;
+    }
+
+    @Override
+    public List<RetailMakingDto> search(String search) {
+        List<RetailMakingDto> retailMakingDtoList = new ArrayList<>();
+        Call<List<RetailMakingDto>> callListRetailMaking = retailMakingApi.search(retailMakingUrl, search);
+        try {
+            retailMakingDtoList = callListRetailMaking.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение внесений по быстрому поиску {}", search);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение внесений по быстрому поиску {IOException}", e);
+        }
+        return retailMakingDtoList;
+    }
+
 }
