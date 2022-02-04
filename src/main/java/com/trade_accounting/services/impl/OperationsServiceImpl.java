@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -64,6 +65,21 @@ public class OperationsServiceImpl implements OperationsService {
             log.info("Успешно выполнен запрос на поиск и получение списка документов");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка документов: ", e);
+        }
+        return operationsDtoList;
+    }
+
+    @Override
+    public List<OperationsDto> quickSearchRecycle(String search) {
+        List<OperationsDto> operationsDtoList = new ArrayList<>();
+        Call<List<OperationsDto>> operationsDtoListCall = operationsApi
+                .quickSearch(operationsUrl, search.toLowerCase());
+
+        try {
+            operationsDtoList = operationsDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка документов в корзине");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка документов в корзине: ", e);
         }
         return operationsDtoList;
     }

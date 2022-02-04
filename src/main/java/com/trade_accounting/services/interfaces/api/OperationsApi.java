@@ -29,4 +29,10 @@ public interface OperationsApi {
     @GET("{url}/quickSearch")
     Call<List<OperationsDto>> quickSearch(@Path(value = "url", encoded = true) String url,
                                        @Query("search") String text);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/quickSearchRecycle")
+    Call<List<OperationsDto>> quickSearchRecycle(@Path(value = "url", encoded = true) String url,
+                                          @Query("searchDeleted") String text);
+
 }

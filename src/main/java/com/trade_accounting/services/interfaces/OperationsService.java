@@ -14,4 +14,6 @@ public interface OperationsService {
     List<OperationsDto> searchByFilter(Map<String, String> queryOperations);
 
     List<OperationsDto> quickSearch(String search);
+
+    List<OperationsDto> quickSearchRecycle(String search);
 }

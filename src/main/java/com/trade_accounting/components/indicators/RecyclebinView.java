@@ -15,10 +15,12 @@ import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.AcceptanceDto;
 import com.trade_accounting.models.dto.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.CorrectionDto;
 import com.trade_accounting.models.dto.CorrectionProductDto;
 import com.trade_accounting.models.dto.InternalOrderDto;
@@ -132,6 +134,8 @@ public class RecyclebinView extends VerticalLayout {
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
     private final GridPaginator<OperationsDto> paginator;
+    private final GridFilter<OperationsDto> filter;
+    private final TextField textField = new TextField();
 
     private List<Long> movementsIds;
     private List<Long> lossIds;
@@ -208,8 +212,10 @@ public class RecyclebinView extends VerticalLayout {
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER);
-        add(getUpperLayout(), grid, paginator);
+        add(getUpperLayout(), filter, grid, paginator);
         movementsIds = getMovementsIds();
         lossIds = getLossIds();
         internalOrdersIds = getInternalOrdersIds();
@@ -225,33 +231,49 @@ public class RecyclebinView extends VerticalLayout {
 
     private List<OperationsDto> getData() {
         return operationsService.getAll().stream()
-                .filter(operationsDto -> operationsDto.getIsRecyclebin())
+                .filter(OperationsDto::getIsRecyclebin)
+                .collect(Collectors.toList());
+    }
+
+    private List<OperationsDto> filterDeletedOperations(List<OperationsDto> operations) {
+        return operations.stream()
+                .filter(OperationsDto::getIsRecyclebin)
                 .collect(Collectors.toList());
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("5px").setHeader("ID").setResizable(true).setId("ID");
-        grid.addColumn(this::getType).setHeader("Тип документа").setSortable(true);
+        grid.addColumn("id").setWidth("40px").setHeader("ID").setResizable(true).setId("ID");
         grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
-        grid.addColumn(operationsDto->companyService.getById(operationsDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Организация").setId("Организация");
-//        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(operationsDto -> companyService.getById(operationsDto.getCompanyId()).getName()).setKey("company").setHeader("Организация").setResizable(true).setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено").setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано").setId("Напечатано");
+        grid.addColumn(this::getType).setHeader("Тип документа").setSortable(true);
+        // grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада").setSortable(true);
         grid.addColumn(this::getDWarehouseTo).setHeader("На склад").setSortable(true);
         grid.addColumn(this::getContractor).setHeader("Контрагент").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
-                .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
-                .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(e-> {
+        grid.addItemDoubleClickListener(e -> {
             OperationsDto dto = e.getItem();
             openModalWindow(dto);
         });
-
+    }
+        private void configureFilter() {
+            filter.setFieldToIntegerField("id");
+            filter.setFieldToDatePicker("date");
+            filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll()); // Организация
+            // filter.setFieldToComboBox ("typeOfOperation"); // Тип документа
+            // filter.setFieldToComboBox ("price"); // Сумма
+            // filter.setFieldToComboBox("from", WarehouseDto::getName, warehouseService.getAll()); // Со склада
+            // filter.setFieldToComboBox("to", WarehouseDto::getName, warehouseService.getAll()); // На склад
+            // filter.setFieldToComboBox("contactor", ContractorDto::getName, contractorService.getAll()); // Контрагент
+            filter.setFieldToCheckBox("sent");
+            filter.setFieldToCheckBox("print");
+            filter.onSearchClick(e -> paginator.setData(filterDeletedOperations(operationsService.searchByFilter(filter.getFilterData()))));
+            filter.onClearClick(e -> paginator.setData(filterDeletedOperations(operationsService.getAll())));
     }
 
     private void openModalWindow(OperationsDto dto) {
@@ -369,22 +391,25 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        //реализовать
-        return buttonFilter;
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField textField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Номер, компания или комментарий");
+        textField.setPlaceholder("Номер ID или Организация");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.addValueChangeListener(event -> updateList(textField.getValue()));
+        textField.addValueChangeListener(event -> updateListQsearch(textField.getValue()));
         return textField;
     }
 
-    private void updateList(String value) {
+    public void updateListQsearch(String text) {
+        if (text.isEmpty()) {
+            paginator.setData(filterDeletedOperations(operationsService.getAll()));
+        } else grid.setItems(operationsService.quickSearchRecycle(text));
     }
 
     private NumberField numberField() {
@@ -393,7 +418,6 @@ public class RecyclebinView extends VerticalLayout {
         numberField.setWidth("45px");
         return numberField;
     }
-
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
