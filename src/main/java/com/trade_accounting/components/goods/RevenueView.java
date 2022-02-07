@@ -30,13 +30,12 @@ import java.util.List;
 import java.util.Map;
 
 @SpringComponent
-@PageTitle("Обороты")
 @Route(value = "revenueView", layout = AppView.class)
+@PageTitle("Обороты")
 @UIScope
 public class RevenueView extends VerticalLayout {
 
     private final RevenueService revenueService;
-
     private final Grid<RevenueDto> grid = new Grid<>(RevenueDto.class, false);
     private final GridFilter<RevenueDto> filter;
     private final GridPaginator<RevenueDto> paginator;
@@ -87,10 +86,14 @@ public class RevenueView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
+
         grid.addItemDoubleClickListener(event -> {
-            RevenueDto edit = event.getItem();
-            //revenueModalWindow.setInvoiceDataForEdit(edit); //добавляет сущность в модальное окно, раскоментировать после реализации модального окна
-            UI.getCurrent().navigate("goods/revenue-edit");
+            RevenueDto dto = event.getItem();
+            RevenueModalWindow revenueModalWindow = new RevenueModalWindow(
+                    revenueService
+            );
+            revenueModalWindow.setRevenueForEdit(dto);
+            revenueModalWindow.open();
         });
     }
 
