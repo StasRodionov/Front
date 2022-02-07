@@ -119,11 +119,11 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
                 .setSortable(true).setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getRevenue()).setHeader("Сумма")
                 .setSortable(true).setKey("retailSumDto").setId("Сумма");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
                 .setSortable(true).setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
                 .setSortable(true).setId("Напечатано");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.getColumnByKey("id").setWidth("15px");
         grid.addItemDoubleClickListener(event -> {
@@ -234,7 +234,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     }
 
     private TextField textField() {
-        textFieldUpdateTextField.setPlaceholder("Кому или комментарий");
+        textFieldUpdateTextField.setPlaceholder("Номер или комментарий");
         textFieldUpdateTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textFieldUpdateTextField.setWidth("300px");
         textFieldUpdateTextField.setValueChangeMode(ValueChangeMode.EAGER);
