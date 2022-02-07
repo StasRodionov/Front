@@ -10,8 +10,10 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RetailShiftApi {
 
@@ -38,4 +40,9 @@ public interface RetailShiftApi {
     @Headers("Accept: application/json")
     @GET("{url}/search")
     Call<List<RetailShiftDto>> search(@Path(value = "url", encoded = true) String url, @Query("query") String query);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByFilter")
+    Call<List<RetailShiftDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                              @QueryMap Map<String, String> query);
 }

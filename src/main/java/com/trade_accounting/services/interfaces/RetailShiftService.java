@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces;
 import com.trade_accounting.models.dto.RetailShiftDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RetailShiftService {
 
@@ -17,5 +18,7 @@ public interface RetailShiftService {
     void deleteById(Long id);
 
     List<RetailShiftDto> search(String query);
+
+    List<RetailShiftDto> searchByFilter(Map<String, String> query);
 
 }
