@@ -44,6 +44,8 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -86,31 +88,47 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
         grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn("dataOpen").setFlexGrow(10).setHeader("Дата открытия").setId("Дата открытия");
-        grid.addColumn("dataClose").setFlexGrow(10).setHeader("Дата закрытия").setId("Дата закрытия");
-        grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getName()).setFlexGrow(5).setHeader("Точка продаж").setKey("retailStoreDto").setId("Точка продаж");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(5).setHeader("Склад").setKey("warehouseDto").setId("Склад");
-        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(5).setHeader("Организация").setKey("companyDto").setId("Организация");
+        grid.addColumn(dto -> formatDate(dto.getDataOpen())).setKey("dataOpen").setFlexGrow(10).setHeader("Дата открытия")
+                .setSortable(true).setId("Дата открытия");
+        grid.addColumn(dto -> formatDate(dto.getDataClose())).setKey("dataClose").setFlexGrow(10).setHeader("Дата закрытия")
+                .setSortable(true).setId("Дата закрытия");
+//        grid.addColumn("dataOpen").setFlexGrow(10).setHeader("Дата открытия").setId("Дата открытия");
+//        grid.addColumn("dataClose").setFlexGrow(10).setHeader("Дата закрытия").setId("Дата закрытия");
+        grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getName()).setFlexGrow(5)
+                .setHeader("Точка продаж").setKey("retailStoreDto").setId("Точка продаж");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(5)
+                .setHeader("Склад").setKey("warehouseDto").setId("Склад");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(5)
+                .setHeader("Организация").setKey("companyDto").setId("Организация");
         grid.addColumn("bank").setFlexGrow(5).setHeader("Банк-эквайер").setId("Банк-эквайер");
         grid.addColumn("revenuePerShift").setFlexGrow(5).setHeader("Выручка за смену").setId("Выручка за смену");
         grid.addColumn("received").setFlexGrow(5).setHeader("Поступило").setId("Поступило");
         grid.addColumn("amountOfDiscounts").setFlexGrow(5).setHeader("Сумма скидок").setId("Сумма скидок");
         grid.addColumn("commission_amount").setFlexGrow(5).setHeader("Сумма комиссии").setId("Сумма комиссии");
-        grid.addColumn("comment").setFlexGrow(5).setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("sent")
-                .setHeader("Отправлена").setId("Отправлена");
+                .setHeader("Отправлено").setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("printed")
-                .setHeader("Напечатана").setId("Напечатана");
+                .setHeader("Напечатано").setId("Напечатано");
+        grid.addColumn("comment").setFlexGrow(5).setHeader("Комментарий").setId("Комментарий");
         GridSortOrder<RetailShiftDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
+        grid.setHeight("66vh");
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("dataOpen");
+        filter.setFieldToDatePicker("dataClose");
         filter.setFieldToComboBox("retailStoreDto", RetailStoreDto::getName, retailStoreService.getAll());
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
-        filter.setFieldToComboBox("bank", BankAccountDto::getBank, bankAccountService.getAll());
+//        filter.setFieldToComboBox("bank", BankAccountDto::getBank, bankAccountService.getAll());
+        filter.setFieldToCheckBox("sent");
+        filter.setFieldToCheckBox("printed");
+        filter.onSearchClick(e -> paginator.setData(retailShiftService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(retailShiftService.getAll()));
     }
 
     private Component isSentCheckedIcon(RetailShiftDto retailShiftDto) {
@@ -133,9 +151,19 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
         }
     }
 
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
+    }
+
+    private List<RetailShiftDto> getData() {
+        return retailShiftService.getAll();
+    }
+
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), numberField(), textField(), getSelect(), getStatus(), getPrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -164,7 +192,6 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
         return buttonRefresh;
     }
 
-
     private Button buttonFilter() {
         Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
@@ -180,7 +207,6 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
         removeAll();
         add(upperLayout(), grid, paginatorUpdateList);
     }
-
 
     private Button buttonSettings() {
         Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
@@ -228,7 +254,6 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
         status.setWidth("130px");
         return status;
     }
-
 
     private Select<String> getPrint() {
         Select<String> print = new Select<>();

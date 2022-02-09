@@ -12,6 +12,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -63,13 +64,26 @@ public class RetailShiftServiceImpl implements RetailShiftService {
     }
 
     @Override
-    public List<RetailShiftDto> search(String query){
+    public List<RetailShiftDto> search(String query) {
         Call<List<RetailShiftDto>> retailShiftDtoListCall = retailShiftApi.search(retailShiftUrl, query);
         try {
             retailShiftDtoList = retailShiftDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка RetailShiftDto");
+            log.info("Успешно выполнен запрос на поиск и получение списка RetailShiftDto по быстрому поиску");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка RetailShiftDto - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка RetailShiftDto по быстрому поиску - ", e);
+        }
+        return retailShiftDtoList;
+    }
+
+    @Override
+    public List<RetailShiftDto> searchByFilter(Map<String, String> query) {
+        List<RetailShiftDto> retailShiftDtoList = new ArrayList<>();
+        Call<List<RetailShiftDto>> retailShiftDtoListCall = retailShiftApi.searchByFilter(retailShiftUrl, query);
+        try {
+            retailShiftDtoList = retailShiftDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение смен RetailShiftDto по фильтру {}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение смен RetailShiftDto по фильтру - ", e);
         }
         return retailShiftDtoList;
     }
