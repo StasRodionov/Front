@@ -1,14 +1,14 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.MovementProductDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.MovementProductService;
-import com.trade_accounting.services.interfaces.MovementService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.UnitService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.warehouse.MovementProductDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
+import com.trade_accounting.services.interfaces.warehouse.MovementService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.units.UnitService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;

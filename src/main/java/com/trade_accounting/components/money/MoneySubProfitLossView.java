@@ -2,15 +2,9 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.MoneyArticleProfitLossDto;
-import com.trade_accounting.models.dto.MoneySubProfitLossDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.MoneySubProfitLossService;
-import com.trade_accounting.services.interfaces.ProjectService;
+import com.trade_accounting.models.dto.finance.MoneyArticleProfitLossDto;
+import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
+import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
