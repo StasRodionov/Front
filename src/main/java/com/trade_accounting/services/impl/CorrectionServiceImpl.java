@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl;
 
 import com.trade_accounting.models.dto.CorrectionDto;
+import com.trade_accounting.models.dto.LossDto;
 import com.trade_accounting.models.dto.MovementDto;
 import com.trade_accounting.services.interfaces.CorrectionService;
 import com.trade_accounting.services.interfaces.api.CorrectionApi;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -20,7 +22,9 @@ public class CorrectionServiceImpl implements CorrectionService {
     private final String correctionUrl;
     private final CallExecuteService<CorrectionDto> callExecuteService;
 
-    public CorrectionServiceImpl(Retrofit retrofit, @Value("${correction_url}") String correctionUrl, CallExecuteService<CorrectionDto> callExecuteService) {
+    public CorrectionServiceImpl(Retrofit retrofit,
+                                 @Value("${correction_url}") String correctionUrl,
+                                 CallExecuteService<CorrectionDto> callExecuteService) {
         correctionApi = retrofit.create(CorrectionApi.class);
         this.correctionUrl = correctionUrl;
         this.callExecuteService = callExecuteService;
@@ -42,7 +46,16 @@ public class CorrectionServiceImpl implements CorrectionService {
 
     @Override
     public CorrectionDto create(CorrectionDto correctionDto) {
-        return null;
+        Call<CorrectionDto> correctionDtoCall = correctionApi.create(correctionUrl, correctionDto);
+
+        try {
+            correctionDto = correctionDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание Correction");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение Correction - {}", e);
+        }
+
+        return correctionDto;
     }
 
     @Override
