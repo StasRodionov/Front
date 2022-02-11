@@ -3,10 +3,7 @@ package com.trade_accounting.components.purchases;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.goods.GoodsModalWindow;
 import com.trade_accounting.components.purchases.print.PrintReturnToSupplierXml;
-import com.trade_accounting.components.util.Buttons;
-import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.*;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
@@ -321,6 +318,21 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         PrintReturnToSupplierXml printReturnToSupplierXml = new PrintReturnToSupplierXml(file.getPath(), returnToSupplierService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printReturnToSupplierXml::createReport), templateName);
     }
+
+
+
+    // Это класс для отладки библиотеки JXLS. Сейчас нерабочий. Нужно доделать.
+
+//    private Anchor getLinkToXlsTemplate(File file) {
+//        String templateName = file.getName();
+//        List<String> sumList = new ArrayList<>();
+//        List<ReturnToSupplierDto> list1 = returnToSupplierService.getAll();
+//        for (ReturnToSupplierDto returnDto : list1) {
+//            sumList.add(getTotalPrice(returnDto));
+//        }
+//        PrintTestServiceJXLS printTestServiceJXLS = new PrintTestServiceJXLS();
+//        return new Anchor(new StreamResource(templateName, printTestServiceJXLS::createClientReport), templateName);
+//    }
 
 //    private Anchor getLinkToPDFTemplate(File file) {
 //        List<String> sumList = new ArrayList<>();
