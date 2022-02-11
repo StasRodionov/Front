@@ -3,10 +3,7 @@ package com.trade_accounting.components.purchases;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.goods.GoodsModalWindow;
 import com.trade_accounting.components.purchases.print.PrintReturnToSupplierXml;
-import com.trade_accounting.components.util.Buttons;
-import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.*;
 import com.trade_accounting.models.dto.CompanyDto;
 import com.trade_accounting.models.dto.ContractorDto;
 import com.trade_accounting.models.dto.ReturnToSupplierDto;
@@ -91,7 +88,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final Grid<ReturnToSupplierDto> grid = new Grid<>(ReturnToSupplierDto.class, false);
     private GridPaginator<ReturnToSupplierDto> paginator;
     private final GridFilter<ReturnToSupplierDto> filter;
-    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/return/";
+    private final String pathForSaveXlsTemplate = "E:\\1javaeblya\\1_Prohect\\Project\\2_Prohect_front\\src\\main\\resources\\xls_templates\\purchases_templates\\return";
 
     private final TextField textField = new TextField();
 
@@ -262,7 +259,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -310,7 +307,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
             }
         });
     }
-
+//
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
         List<String> sumList = new ArrayList<>();
@@ -321,6 +318,23 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         PrintReturnToSupplierXml printReturnToSupplierXml = new PrintReturnToSupplierXml(file.getPath(), returnToSupplierService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printReturnToSupplierXml::createReport), templateName);
     }
+
+
+
+   // Этот метод тестовый, для проверки работы кода из файла PrintTestServiceJXLS.
+    //Если получится реализовать, то лучше переделать всю печать через эту библиотеку. Особенно ТОРГ-13.
+
+//    private Anchor getLinkToXlsTemplateFromJXLS(File file) {
+//        String templateNamee = file.getName();
+//        List<String> sumList = new ArrayList<>();
+//        List<ReturnToSupplierDto> list1 = returnToSupplierService.getAll();
+//        for (ReturnToSupplierDto returnDto : list1) {
+//            sumList.add(getTotalPrice(returnDto));
+//        }
+//        PrintTestService printTestService = new PrintTestService();
+//        return new Anchor(new StreamResource(templateNamee, printTestService::createClientReport), templateNamee);
+////
+//    }
 
     private Anchor getLinkToPDFTemplate(File file) {
         List<String> sumList = new ArrayList<>();

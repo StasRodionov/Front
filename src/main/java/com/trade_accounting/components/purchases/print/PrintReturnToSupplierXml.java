@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class PrintReturnToSupplierXml extends PrintExcelDocument<ReturnToSupplierDto> {
+
         private final ContractorService contractorService;
         private final WarehouseService warehouseService;
         private final CompanyService companyService;
@@ -40,6 +41,7 @@ public class PrintReturnToSupplierXml extends PrintExcelDocument<ReturnToSupplie
                 case ("<authorName>"):
                     editCell.setCellValue(employeeService.getPrincipal().getEmail());
                     break;
+
             }
         }
 
@@ -52,6 +54,7 @@ public class PrintReturnToSupplierXml extends PrintExcelDocument<ReturnToSupplie
                 case ("<date>"):
                     editCell.setCellValue(model.getDate());
                     break;
+
                 case ("<warehouse>"):
                     editCell.setCellValue(warehouseService.getById(model.getWarehouseId()).getName());
                     break;
