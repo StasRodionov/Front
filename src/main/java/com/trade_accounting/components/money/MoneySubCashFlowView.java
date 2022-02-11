@@ -6,7 +6,10 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.finance.MoneySubCashFlowDto;
+import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
