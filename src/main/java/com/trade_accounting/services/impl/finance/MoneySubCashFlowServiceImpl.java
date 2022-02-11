@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +39,8 @@ public class MoneySubCashFlowServiceImpl implements MoneySubCashFlowService {
     }
 
     @Override
-    public List<MoneySubCashFlowDto> filter(Map<String, String> query) {
-        return null;
+    public List<MoneySubCashFlowDto> filter(LocalDate startDatePeriod, LocalDate endDatePeriod, Long projectId, Long companyId, Long contractorId) {
+        Call<List<MoneySubCashFlowDto>> paymentDtoListCall = moneySubCashFlowApi.filter(moneySubCashFlowUrl, startDatePeriod, endDatePeriod, projectId, companyId, contractorId);
+        return dtoCallExecuteService.callExecuteBodyList(paymentDtoListCall, MoneySubCashFlowDto.class);
     }
 }

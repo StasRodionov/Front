@@ -89,7 +89,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.outgoingPaymentModal = outgoingPaymentModal;
 
 
-        getGrid();
+        configureGrid();
         configureScroller();
         this.paginator = new GridPaginator<>(grid, data, 10);
         this.filter = new GridFilter<>(grid);
@@ -127,8 +127,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         filter.onClearClick(e -> paginator.setData(getDate()));
     }
 
-    //TODO Rename to configureGrid
-    private Grid getGrid() {
+    private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setItems(data);
         grid.addColumn("typeOfDocument").setWidth("11em").setFlexGrow(0).setHeader("Тип документа").setId("Тип документа");
@@ -213,9 +212,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 expenseOrderModal.setPaymentDataForEdit(editPaymentDto);
                 expenseOrderModal.open();
             }
-
         });
-        return grid;
     }
 
     private void updateList() {

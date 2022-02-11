@@ -7,10 +7,10 @@ import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
-import retrofit2.http.QueryMap;
+import retrofit2.http.Query;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 public interface MoneySubCashFlowApi {
 
@@ -24,6 +24,6 @@ public interface MoneySubCashFlowApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/filter")
-    Call<List<MoneySubCashFlowDto>> filter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> filterData);
+    Call<List<MoneySubCashFlowDto>> filter(@Path(value = "url", encoded = true) String url, @Query("startDatePeriod") LocalDate startDatePeriod, @Query("endDatePeriod") LocalDate endDatePeriod, @Query("projectId") Long projectId, @Query("companyId") Long companyId, @Query("contractorId") Long contractorId);
 
 }
