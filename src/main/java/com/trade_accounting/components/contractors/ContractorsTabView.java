@@ -5,21 +5,18 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.services.interfaces.AddressService;
-import com.trade_accounting.services.interfaces.BankAccountService;
-import com.trade_accounting.services.interfaces.ContactService;
-import com.trade_accounting.services.interfaces.ContractorGroupService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.ContractorStatusService;
-import com.trade_accounting.services.interfaces.DepartmentService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.TypeOfContractorService;
-import com.trade_accounting.services.interfaces.TypeOfPriceService;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.services.interfaces.company.AddressService;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.company.ContactService;
+import com.trade_accounting.services.interfaces.company.ContractorGroupService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.company.ContractorStatusService;
+import com.trade_accounting.services.interfaces.client.DepartmentService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
+import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -122,7 +119,7 @@ public class ContractorsTabView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(upperLayout(), filter, grid, paginator);
         configureSelectXlsTemplateButton();
-//        updateList();
+        updateList();
     }
 
 
@@ -134,12 +131,15 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
         grid.addColumn("email").setHeader("email").setId("email");
-        grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setId("Адрес");
-        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setId("комментарий к адресу");
-        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setId("комментарий");
-        grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы").setId("Группы");
-        grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setId("Скидки и цены");
-        grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setId("Реквизиты");
+        grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setKey("address")
+                .setId("Адрес");
+        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setKey("commentToAddress")
+                .setId("комментарий к адресу");
+        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setKey("comment").setId("комментарий");
+        grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы")
+                .setKey("contractorGroupDto").setId("Группы");
+        grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setKey("typeOfPriceDto").setId("Скидки и цены");
+        grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setKey("legalDetailDto").setId("Реквизиты");
         grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);

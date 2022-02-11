@@ -1,12 +1,15 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InventarizationDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.InventarizationService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.warehouse.InventarizationDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.warehouse.InventarizationService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -30,6 +33,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -39,12 +44,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Slf4j
 @Route(value = "inventory", layout = AppView.class)
 @PageTitle("Инвентаризации")
 @SpringComponent
 @UIScope
-public class GoodsSubInventory extends VerticalLayout {
+public class GoodsSubInventory extends VerticalLayout implements AfterNavigationObserver {
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
@@ -55,21 +61,24 @@ public class GoodsSubInventory extends VerticalLayout {
     private final GridPaginator<InventarizationDto> paginator;
     private final Notifications notifications;
     private final GoodsSubInventoryModalWindow modalWindow;
+    private final GridFilter<InventarizationDto> filter;
+    private final List<InventarizationDto> data;
 
     @Autowired
     public GoodsSubInventory(WarehouseService warehouseService,
-                             CompanyService companyService,
-                             InventarizationService inventarizationService,
+                             CompanyService companyService, InventarizationService inventarizationService,
                              Notifications notifications, GoodsSubInventoryModalWindow modalWindow) {
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.inventarizationService = inventarizationService;
-        this.modalWindow = modalWindow;
-        List<InventarizationDto> data = getData();
-        paginator = new GridPaginator<>(grid, data, 50);
         this.notifications = notifications;
-        add(configureActions(), grid, paginator);
+        this.modalWindow = modalWindow;
+        this.data = getData();
+        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+        add(configureActions(), filter, grid, paginator);
         setSizeFull();
     }
 
@@ -107,8 +116,8 @@ public class GoodsSubInventory extends VerticalLayout {
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
-        buttonRefresh.addClickListener(ev -> updateList());
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
@@ -125,7 +134,9 @@ public class GoodsSubInventory extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField text() {
@@ -134,8 +145,15 @@ public class GoodsSubInventory extends VerticalLayout {
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateList(textField.getValue()));
         setSizeFull();
         return textField;
+    }
+
+    public void updateList(String search) {
+        if (search.isEmpty()) {
+            paginator.setData(inventarizationService.getAll());
+        } else paginator.setData(inventarizationService.search(search));
     }
 
     private NumberField numberField() {
@@ -193,34 +211,58 @@ public class GoodsSubInventory extends VerticalLayout {
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(InventarizationDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
+        grid.addColumn("id").setWidth("1px").setHeader("№").setId("№");
+        grid.addColumn(InventarizationDto::getDate).setKey("date").setWidth("1px").setHeader("Время").setSortable(true).setId("Дата");
         grid.addColumn(inventarizationDto -> warehouseService.getById(inventarizationDto.getWarehouseId())
-                .getName()).setKey("warehouse").setHeader("Склад").setId("Склад");
+                .getName()).setKey("warehouseId").setWidth("1px").setHeader("Со склада").setId("Со склада");
         grid.addColumn(inventarizationDto -> companyService.getById(inventarizationDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Компания").setId("Компания");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
+                .getName()).setKey("companyId").setHeader("Организация").setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setWidth("1px").setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setWidth("1px").setKey("print").setHeader("Напечатано")
+                .setId("Напечатано");
+        grid.addColumn("comment").setWidth("1px").setHeader("Комментарий").setId("Комментарий");
+
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.addItemDoubleClickListener(e -> {
-            InventarizationDto dto = e.getItem();
+            InventarizationDto inventarizationDto = e.getItem();
             GoodsSubInventoryModalWindow modalWindow = new GoodsSubInventoryModalWindow(
                     inventarizationService,
                     warehouseService,
                     companyService,
                     notifications
             );
-            modalWindow.setInventarizationEdit(dto);
+            modalWindow.setInventarizationEdit(inventarizationDto);
             modalWindow.open();
         });
     }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName, warehouseService.getAll());
+        filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
+        filter.onSearchClick(e -> paginator.setData(inventarizationService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(inventarizationService.getAll()));
+    }
+
     private Component getIsSentIcon(InventarizationDto inventarizationDto) {
+        if (inventarizationDto.getStatus()) {
+            Icon icon = new Icon(VaadinIcon.CHECK);
+            icon.setColor("green");
+            return icon;
+        } else {
+            return new Span("");
+        }
+    }
+
+    private Component getIsPrintIcon(InventarizationDto inventarizationDto) {
         if (inventarizationDto.getStatus()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
@@ -240,4 +282,10 @@ public class GoodsSubInventory extends VerticalLayout {
             notifications.errorNotification("Сначала отметьте галочками нужные заказы");
         }
     }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
+    }
+
 }

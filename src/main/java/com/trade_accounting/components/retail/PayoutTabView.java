@@ -5,18 +5,14 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.PayoutDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.PayoutService;
-import com.trade_accounting.services.interfaces.RetailStoreService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.finance.PayoutDto;
+import com.trade_accounting.models.dto.retail.RetailStoreDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.finance.PayoutService;
+import com.trade_accounting.services.interfaces.retail.RetailStoreService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.ItemLabelGenerator;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -61,7 +57,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -124,11 +119,11 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
                 .setSortable(true).setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getRevenue()).setHeader("Сумма")
                 .setSortable(true).setKey("retailSumDto").setId("Сумма");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
                 .setSortable(true).setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
                 .setSortable(true).setId("Напечатано");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.getColumnByKey("id").setWidth("15px");
         grid.addItemDoubleClickListener(event -> {
@@ -239,7 +234,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     }
 
     private TextField textField() {
-        textFieldUpdateTextField.setPlaceholder("Кому или комментарий");
+        textFieldUpdateTextField.setPlaceholder("Номер или комментарий");
         textFieldUpdateTextField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textFieldUpdateTextField.setWidth("300px");
         textFieldUpdateTextField.setValueChangeMode(ValueChangeMode.EAGER);

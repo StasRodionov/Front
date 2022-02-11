@@ -6,21 +6,16 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.models.dto.SupplierAccountProductsListDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.SupplierAccountProductsListService;
-import com.trade_accounting.services.interfaces.SupplierAccountService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.warehouse.SupplierAccountProductsListService;
+import com.trade_accounting.services.interfaces.company.SupplierAccountService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -31,8 +26,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -288,9 +281,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать","Добавить шаблон");
+        print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -352,6 +346,17 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         return new Anchor(new StreamResource(templateName, printSupplierXls::createReport), templateName);
 
     }
+
+//    private Anchor getLinkToPDFTemplate(File file) {
+//        List<String> sumList = new ArrayList<>();
+//        List<SupplierAccountDto> list1 = supplierAccountService.getAll();
+//        for (SupplierAccountDto sad : list1) {
+//            sumList.add(getTotalPrice(sad));
+//        }
+//        PrintSupplierXls printSupplierXls = new PrintSupplierXls(file.getPath(), supplierAccountService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
+//        return new Anchor(new StreamResource("supplierInvoices.pdf", printSupplierXls::createReportPDF), "supplierInvoices.pdf");
+//
+//    }
 
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);

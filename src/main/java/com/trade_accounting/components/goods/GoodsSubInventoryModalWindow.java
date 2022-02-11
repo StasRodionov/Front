@@ -1,20 +1,18 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.InventarizationDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.InventarizationService;
-import com.trade_accounting.services.interfaces.WarehouseService;
-import com.vaadin.flow.component.UI;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.warehouse.InventarizationDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.warehouse.InventarizationService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -33,10 +31,11 @@ import java.util.List;
 
 @UIScope
 @SpringComponent
+//@Route(value = "inventory", layout = AppView.class)
 public class GoodsSubInventoryModalWindow extends Dialog {
 
     private final InventarizationService inventarizationService;
-    private InventarizationDto inventarizationDto;
+    private InventarizationDto inventarizationDto = new InventarizationDto();
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final Notifications notifications;
@@ -47,6 +46,8 @@ public class GoodsSubInventoryModalWindow extends Dialog {
     private final Checkbox checkboxIsSent = new Checkbox("Отправленно");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
+
+    private final Grid<InventarizationDto> grid = new Grid<>(InventarizationDto.class, false);
 
     private final Binder<InventarizationDto> inventarizationBinder =
             new Binder<>(InventarizationDto.class);

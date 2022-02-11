@@ -1,7 +1,7 @@
 package com.trade_accounting.components.profile;
 
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;

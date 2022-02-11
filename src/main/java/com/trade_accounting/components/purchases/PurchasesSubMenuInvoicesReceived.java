@@ -7,15 +7,14 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceReceivedDto;
-import com.trade_accounting.services.interfaces.AcceptanceService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.InvoiceReceivedService;
+import com.trade_accounting.models.dto.invoice.InvoiceReceivedDto;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceReceivedService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -23,8 +22,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -215,9 +212,10 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить");
+        print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -277,6 +275,17 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         PrintInvoiceReceivedXls printInvoiceReceivedXls = new PrintInvoiceReceivedXls(file.getPath(), invoiceReceivedService.getAll(), contractorService, companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printInvoiceReceivedXls::createReport), templateName);
     }
+
+//    private Anchor getLinkToPDFTemplate(File file) {
+//        String templateName = file.getName();
+//        List<String> sumList = new ArrayList<>();
+//        List<InvoiceReceivedDto> list1 = invoiceReceivedService.getAll();
+//        for (InvoiceReceivedDto invoiceDto : list1) {
+//            sumList.add(getTotalPrice(invoiceDto));
+//        }
+//        PrintInvoiceReceivedXls printInvoiceReceivedXls = new PrintInvoiceReceivedXls(file.getPath(), invoiceReceivedService.getAll(), contractorService, companyService, sumList, employeeService);
+//        return new Anchor(new StreamResource("invoiceReceived.pdf", printInvoiceReceivedXls::createReportPDF), "invoiceReceived.pdf");
+//    }
 
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);

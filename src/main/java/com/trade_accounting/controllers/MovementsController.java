@@ -1,6 +1,6 @@
 package com.trade_accounting.controllers;
 
-import com.trade_accounting.services.interfaces.EmailService;
+import com.trade_accounting.services.interfaces.util.EmailService;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.xmlbeans.SystemProperties;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;

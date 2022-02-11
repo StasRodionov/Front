@@ -2,12 +2,8 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
-import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.MoneySubMutualSettlementsDto;
-import com.trade_accounting.models.dto.SalesSubGoodsForSaleDto;
-import com.trade_accounting.services.interfaces.MoneySubMutualSettlementsService;
-import com.trade_accounting.services.interfaces.SalesSubGoodsForSaleService;
+import com.trade_accounting.models.dto.warehouse.SalesSubGoodsForSaleDto;
+import com.trade_accounting.services.interfaces.warehouse.SalesSubGoodsForSaleService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,9 +24,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 @Slf4j
 @Route(value = "goodsForSale", layout = AppView.class)

@@ -1,7 +1,11 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.models.dto.*;
-import com.trade_accounting.services.interfaces.PrepayoutService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.finance.PrepayoutDto;
+import com.trade_accounting.models.dto.retail.RetailStoreDto;
+//import com.trade_accounting.models.dto.*;
+import com.trade_accounting.services.interfaces.finance.PrepayoutService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

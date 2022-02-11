@@ -160,11 +160,15 @@ movement_url:  /api/movement
 
 movement_product_url:  /api/movement/product
 
-moneySubProfitLoss_url: /api/moneysubprofitloss
+moneySubProfitLoss_url: /api/profitloss
 
 productprice_url: /api/productprice
 
+purchase_current_balance_url: /api/purchase_current_balance
+
 purchase_history_of_sales_url: /api/purchasehistory
+
+purchase_forecast_url: /api/purchase_forecast
 
 returns_url: api/returns
 

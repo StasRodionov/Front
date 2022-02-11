@@ -6,22 +6,20 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.AcceptanceDto;
-import com.trade_accounting.models.dto.AcceptanceProductionDto;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.AcceptanceProductionService;
-import com.trade_accounting.services.interfaces.AcceptanceService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
+import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -274,9 +272,10 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
+        print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         print.setWidth("130px");
         return print;
@@ -337,6 +336,16 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         return new Anchor(new StreamResource(templateName, printAcceptancesXls::createReport), templateName);
     }
 
+//    private Anchor getLinkToPDFTemplate(File file) {
+//        List<String> sumList = new ArrayList<>();
+//        List<AcceptanceDto> list1 = acceptanceService.getAll();
+//        for (AcceptanceDto aDto : list1) {
+//            sumList.add(getTotalPrice(aDto));
+//        }
+//        PrintAcceptancesXls printAcceptancesXls = new PrintAcceptancesXls(file.getPath(), acceptanceService.getAll(), contractorService, warehouseService, companyService, sumList, employeeService);
+//        return new Anchor(new StreamResource("purchases.pdf", printAcceptancesXls::createReportPDF), "purchases.pdf");
+//    }
+
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
         notification.open();
@@ -366,12 +375,15 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         grid.setItems(acceptanceService.getAll());
     }
 
-    public void updateList(String nameFilter) {
-        if (!(textField.getValue().equals(""))) {
-            grid.setItems(acceptanceService.searchByString(nameFilter));
-        } else {
-            grid.setItems(acceptanceService.searchByString("null"));
-        }
+    public void updateList(String search) {
+//        if (!(textField.getValue().equals(""))) {
+//            grid.setItems(acceptanceService.search(search));
+//        } else {
+//            grid.setItems(acceptanceService.search("null"));
+//        }
+        if (search.isEmpty()) {
+            paginator.setData(acceptanceService.getAll());
+        } else paginator.setData(acceptanceService.search(search));
     }
 
     private String getTotalPrice(AcceptanceDto dto) {

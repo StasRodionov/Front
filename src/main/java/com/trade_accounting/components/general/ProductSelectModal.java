@@ -1,11 +1,11 @@
 package com.trade_accounting.components.general;
 
-import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.models.dto.LossProductDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.ProductPriceDto;
-import com.trade_accounting.services.interfaces.ProductPriceService;
-import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
+import com.trade_accounting.models.dto.finance.LossProductDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
+import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -14,12 +14,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

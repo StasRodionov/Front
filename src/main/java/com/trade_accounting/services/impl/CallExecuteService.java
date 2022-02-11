@@ -25,6 +25,17 @@ public class CallExecuteService<T> {
         return list;
     }
 
+
+    public T callExecuteBody(Call<T> call, Class<T> tClass) {
+        try {
+            object = Objects.requireNonNull(call.execute().body());
+            log.info("Успешно выполнен запрос на получение списка " + tClass.getSimpleName());
+        } catch (IOException e) {
+            log.error("Произошла ошибка при получении списка " + tClass.getSimpleName() + e);
+        }
+        return object;
+    }
+
     /**
      * @param call
      * @param tClass класс дя г

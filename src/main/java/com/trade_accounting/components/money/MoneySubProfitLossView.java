@@ -2,9 +2,9 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.MoneySubProfitLossDto;
-import com.trade_accounting.services.interfaces.MoneySubProfitLossService;
+import com.trade_accounting.models.dto.finance.MoneyArticleProfitLossDto;
+import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
+import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -19,6 +19,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Route(value = "MoneySubProfitLossView", layout = AppView.class)
@@ -27,11 +28,18 @@ public class MoneySubProfitLossView extends VerticalLayout {
 
 
     private final MoneySubProfitLossService moneySubProfitLossService;
+//    private final CompanyService companyService;
+//    private final ContractorService contractorService;
+//    private final ProjectService projectService;
+//    private final ContractService contractService;
+//    private final Notifications notifications;
 
-    private final List<MoneySubProfitLossDto> data;
-    private final Grid<MoneySubProfitLossDto> grid = new Grid<>(MoneySubProfitLossDto.class, false);
-    private final GridFilter<MoneySubProfitLossDto> filter;
+    private final MoneySubProfitLossDto data;
+    List<MoneyArticleProfitLossDto> listDataView = new ArrayList<>();
+    private final Grid<MoneyArticleProfitLossDto> grid = new Grid<>(MoneyArticleProfitLossDto.class, false);
     private final CreditOrderModal creditOrderModal;
+   // private final GridPaginator<MoneySubProfitLossDto> paginator;
+    private final GridFilter<MoneyArticleProfitLossDto> filter;
 
     private H2 title() {
         H2 title = new H2("Прибыли и убытки");
@@ -43,10 +51,17 @@ public class MoneySubProfitLossView extends VerticalLayout {
                                   CreditOrderModal creditOrderModal) {
         this.moneySubProfitLossService = moneySubProfitLossService;
         this.data = moneySubProfitLossService.getAll();
+//        this.companyService = companyService;
+//        this.contractorService = contractorService;
+//        this.projectService = projectService;
+//        this.contractService = contractService;
+//        this.notifications = notifications;
         this.creditOrderModal = creditOrderModal;
-        getGrid();
+        configureListDataView();
+        configureGrid();
         this.filter = new GridFilter<>(grid);
-//        configureFilter();
+        //this.paginator = new GridPaginator<>(grid, data, 100);
+        //configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(getToolbar(), filter, grid);
     }
@@ -55,22 +70,34 @@ public class MoneySubProfitLossView extends VerticalLayout {
 //        filter.setFieldToDatePicker("itemsList");
 //    }
 
-    //TODO Rename to configureGrid
-    private Grid getGrid() {
+    private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setItems(data);
-        grid.addColumn("itemsList").setFlexGrow(3).setHeader("Статья").setId("Статья");
-        grid.addColumn("profitLoss").setFlexGrow(3).setHeader("Прибыль/Убытки").setId("Прибыль/Убытки");
-        return grid;
+        grid.setItems(listDataView);
+        grid.addColumn("article").setFlexGrow(11).setHeader("Статья").setId("Статья");
+        grid.addColumn("profitLoss").setFlexGrow(11).setHeader("Прибыль(убытки)").setId("Прибыль(убытки)");
     }
 
-    private void updateList() {
-        GridPaginator<MoneySubProfitLossDto> paginatorUpdateList
-                = new GridPaginator<>(grid, moneySubProfitLossService.getAll(), 100);
-        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
-        removeAll();
-        add(getToolbar(), grid);
+    private void configureListDataView() {
+        listDataView.add(new MoneyArticleProfitLossDto("Выручка", data.getRevenue()));
+        listDataView.add(new MoneyArticleProfitLossDto("Себестоимость", data.getCostPrice()));
+        listDataView.add(new MoneyArticleProfitLossDto("Валовая прибыль", data.getGrossProfit()));
+        listDataView.add(new MoneyArticleProfitLossDto("Операционные расходы", data.getOperatingExpenses()));
+        listDataView.add(new MoneyArticleProfitLossDto("Списания", data.getWriteOffs()));
+        listDataView.add(new MoneyArticleProfitLossDto("Аренда", data.getRental()));
+        listDataView.add(new MoneyArticleProfitLossDto("Зарплата", data.getSalary()));
+        listDataView.add(new MoneyArticleProfitLossDto("Маркетинг и реклама", data.getMarketing()));
+        listDataView.add(new MoneyArticleProfitLossDto("Операционная прибыль", data.getOperatingProfit()));
+        listDataView.add(new MoneyArticleProfitLossDto("Налоги и сборы", data.getTaxesAndFees()));
+        listDataView.add(new MoneyArticleProfitLossDto("Чистая прибыль", data.getNetProfit()));
     }
+
+//    private void updateList() {
+//        GridPaginator<MoneySubProfitLossDto> paginatorUpdateList
+//                = new GridPaginator<>(grid, moneySubProfitLossService.getAll(), 100);
+//        setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
+//        removeAll();
+//        add(getToolbar(), grid, paginator);
+//    }
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();

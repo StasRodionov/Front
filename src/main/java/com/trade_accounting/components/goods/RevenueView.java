@@ -5,8 +5,8 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.RevenueDto;
-import com.trade_accounting.services.interfaces.RevenueService;
+import com.trade_accounting.models.dto.warehouse.RevenueDto;
+import com.trade_accounting.services.interfaces.warehouse.RevenueService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,7 +15,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,13 +30,12 @@ import java.util.List;
 import java.util.Map;
 
 @SpringComponent
-@PageTitle("Обороты")
 @Route(value = "revenueView", layout = AppView.class)
+@PageTitle("Обороты")
 @UIScope
 public class RevenueView extends VerticalLayout {
 
     private final RevenueService revenueService;
-
     private final Grid<RevenueDto> grid = new Grid<>(RevenueDto.class, false);
     private final GridFilter<RevenueDto> filter;
     private final GridPaginator<RevenueDto> paginator;
@@ -88,10 +86,14 @@ public class RevenueView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
+
         grid.addItemDoubleClickListener(event -> {
-            RevenueDto edit = event.getItem();
-            //revenueModalWindow.setInvoiceDataForEdit(edit); //добавляет сущность в модальное окно, раскоментировать после реализации модального окна
-            UI.getCurrent().navigate("goods/revenue-edit");
+            RevenueDto dto = event.getItem();
+            RevenueModalWindow revenueModalWindow = new RevenueModalWindow(
+                    revenueService
+            );
+            revenueModalWindow.setRevenueForEdit(dto);
+            revenueModalWindow.open();
         });
     }
 
