@@ -1,9 +1,9 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.util.List;

@@ -1,11 +1,11 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.PaymentDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.ProjectService;
+import com.trade_accounting.models.dto.finance.PaymentDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.time.LocalDateTime;

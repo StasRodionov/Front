@@ -1,10 +1,10 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.PositionService;
-import com.trade_accounting.services.interfaces.RetailStoreService;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.client.PositionService;
+import com.trade_accounting.services.interfaces.retail.RetailStoreService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.math.BigDecimal;

@@ -4,14 +4,18 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.RetailMakingDto;
-import com.trade_accounting.services.interfaces.RetailMakingService;
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.retail.RetailMakingDto;
+import com.trade_accounting.models.dto.retail.RetailStoreDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.retail.RetailMakingService;
+import com.trade_accounting.services.interfaces.retail.RetailStoreService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
@@ -25,8 +29,8 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -35,7 +39,8 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -46,46 +51,78 @@ import java.util.List;
 public class RetailMakingView extends VerticalLayout implements AfterNavigationObserver {
 
     private final RetailMakingService retailMakingService;
-    private List<RetailMakingDto> data;
+    private final RetailStoreService retailStoreService;
+    private final CompanyService companyService;
 
-    private final GridFilter<RetailMakingDto> filter;
     private final Grid<RetailMakingDto> grid = new Grid<>(RetailMakingDto.class, false);
     private final GridPaginator<RetailMakingDto> paginator;
+    private final Notifications notifications;
 
-    public RetailMakingView(RetailMakingService retailMakingService) {
+    private final List<RetailMakingDto> data;
+
+    private final TextField textFieldUpdateTextField = new TextField();
+
+    private final GridFilter<RetailMakingDto> filter;
+
+    private final TextField textField = new TextField();
+
+
+    public RetailMakingView(RetailMakingService retailMakingService, RetailStoreService retailStoreService,
+                            CompanyService companyService, Notifications notifications) {
         this.retailMakingService = retailMakingService;
+        this.retailStoreService = retailStoreService;
+        this.companyService = companyService;
         this.data = retailMakingService.getAll();
-        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("Время");
-        grid.addColumn("retailStoreId").setFlexGrow(5).setHeader("Точка продаж").setId("Точка продаж");
-        grid.addColumn("fromWhom").setFlexGrow(5).setHeader("От кого").setId("От кого");
-        grid.addColumn("companyId").setFlexGrow(5).setHeader("Организация").setId("Организация");
-        grid.addColumn("sum").setFlexGrow(5).setHeader("Сумма").setId("Сумма");
-        this.filter = new GridFilter<>(grid);
-        add(upperLayout(), filter);
+        this.notifications = notifications;
+
         this.paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
-        add(grid, paginator);
+
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("date");
-        grid.addColumn("retailStoreId").setFlexGrow(5).setHeader("Точка продаж").setId("retailStoreId");
-        grid.addColumn("fromWhom").setFlexGrow(5).setHeader("От кого").setId("fromWhom");
-        grid.addColumn("companyId").setFlexGrow(5).setHeader("Организация").setId("companyId");
-        grid.addColumn("sum").setFlexGrow(5).setHeader("Сумма").setId("sum");
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("sent")
-                .setHeader("Отправлена").setId("Отправлена");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("printed")
-                .setHeader("Напечатана").setId("Напечатана");
-        grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("comment");
 
-        GridSortOrder<RetailMakingDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
-        grid.sort(Arrays.asList(order));
+        grid.addColumn("id").setWidth("5%").setHeader("№").setId("№");
+        grid.addColumn(retailMakingDto -> formatDate(retailMakingDto.getDate()))
+                .setKey("date").setWidth("12%").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addColumn(retailMakingDto -> retailStoreService.getById(retailMakingDto.getRetailStoreId())
+                        .getName()).setKey("retail_store_id").setWidth("10%").setHeader("Точка продаж")
+                .setSortable(true).setId("Точка продаж");
+        grid.addColumn("fromWhom").setWidth("10%").setHeader("От кого").setId("От кого");
+        grid.addColumn(retailMakingDto -> companyService.getById(retailMakingDto.getCompanyId())
+                        .getName()).setKey("company_id").setWidth("15%").setHeader("Организация")
+                .setSortable(true).setId("Организация");
+        grid.addColumn("sum").setWidth("10%").setHeader("Сумма").setId("Сумма");
+        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setWidth("10%").setKey("sent")
+                .setHeader("Отправлено").setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setWidth("10%").setKey("print")
+                .setHeader("Напечатано").setId("Напечатано");
+        grid.addColumn("comment").setWidth("18%").setHeader("Комментарий").setId("Комментарий");
+
+        grid.setHeight("66vh");
+        grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("retail_store_id", RetailStoreDto::getName, retailStoreService.getAll());
+//    filter.setFieldToComboBox("fromWhom", RetailMakingDto::getFromWhom, retailMakingService.getAll()); // разкомментить в случае необходимости выборки по ComboBox
+        filter.setFieldToComboBox("company_id", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToIntegerField("sum");
+        filter.setFieldToCheckBox("sent");
+        filter.setFieldToCheckBox("print");
+        filter.onSearchClick(e -> paginator.setData(retailMakingService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(retailMakingService.getAll()));
     }
 
     private Component isSentCheckedIcon(RetailMakingDto retailMakingDto) {
@@ -108,9 +145,15 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
         }
     }
 
+    private String formatDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        return formatDateTime.format(formatter);
+    }
+
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), numberField(), textField(), getSelect(),getStatus(), getPrint(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), numberField(), textField(), getSelect(), getStatus(), getPrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
@@ -135,27 +178,24 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
         return buttonRefresh;
     }
 
-
     private Button buttonFilter() {
         Button filterButton = new Button("Фильтр");
         filterButton.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return filterButton;
     }
 
-    private void updateList() {
-        GridPaginator<RetailMakingDto> paginatorUpdateList
-                = new GridPaginator<>(grid, retailMakingService.getAll(), 100);
-        GridSortOrder<RetailMakingDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
-        grid.sort(Arrays.asList(order));
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginatorUpdateList);
-        removeAll();
-        add(upperLayout(), grid, paginatorUpdateList);
+    private void updateList(String search) {
+        if (search.isEmpty()) {
+            paginator.setData(retailMakingService.getAll());
+        } else paginator.setData(retailMakingService.search(search));
     }
 
+    public void updateList() {
+        grid.setItems(retailMakingService.getAll());
+    }
 
     private Button buttonSettings() {
-        Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
-        return buttonSettings;
+        return new Button(new Icon(VaadinIcon.COG_O));
     }
 
     private NumberField numberField() {
@@ -166,13 +206,15 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
     }
 
     private TextField textField() {
-        final TextField textField = new TextField();
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
+        textField.setClearButtonVisible(true);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(e -> updateList(textField.getValue()));
+        setSizeFull();
         return textField;
     }
-
 
     private Select<String> getSelect() {
         Select<String> select = new Select<>();
@@ -189,7 +231,6 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
         status.setWidth("130px");
         return status;
     }
-
 
     private Select<String> getPrint() {
         Select<String> print = new Select<>();

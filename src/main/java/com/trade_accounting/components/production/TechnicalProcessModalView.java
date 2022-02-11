@@ -1,14 +1,14 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.DepartmentDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.StagesProductionDto;
-import com.trade_accounting.models.dto.TechnicalProcessDto;
-import com.trade_accounting.services.interfaces.DepartmentService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.StagesProductionService;
-import com.trade_accounting.services.interfaces.TechnicalProcessService;
+import com.trade_accounting.models.dto.client.DepartmentDto;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.models.dto.production.StagesProductionDto;
+import com.trade_accounting.models.dto.production.TechnicalProcessDto;
+import com.trade_accounting.services.interfaces.client.DepartmentService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.production.StagesProductionService;
+import com.trade_accounting.services.interfaces.production.TechnicalProcessService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
