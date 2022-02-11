@@ -3,7 +3,7 @@ package com.trade_accounting.services.impl;
 import com.trade_accounting.components.authentication.LoginRequest;
 import com.trade_accounting.components.authentication.LoginResponse;
 import com.trade_accounting.services.interfaces.AuthenticationService;
-import com.trade_accounting.services.interfaces.api.AuthenticationApi;
+import com.trade_accounting.services.api.AuthenticationApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

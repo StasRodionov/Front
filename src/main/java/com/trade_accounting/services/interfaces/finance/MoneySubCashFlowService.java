@@ -1,0 +1,15 @@
+package com.trade_accounting.services.interfaces.finance;
+
+import com.trade_accounting.models.dto.finance.MoneySubCashFlowDto;
+
+import java.util.List;
+import java.util.Map;
+
+public interface MoneySubCashFlowService {
+
+    List<MoneySubCashFlowDto> getAll();
+
+    void update(MoneySubCashFlowDto moneySubCashFlowDto);
+
+    List<MoneySubCashFlowDto> filter(Map<String, String> query);
+}

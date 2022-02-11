@@ -1,12 +1,12 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.BalanceAdjustmentDto;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.models.dto.finance.BalanceAdjustmentDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.services.interfaces.finance.BalanceAdjustmentService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;

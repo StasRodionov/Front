@@ -1,9 +1,9 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.services.interfaces.AddressService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.services.interfaces.company.AddressService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,12 +1,12 @@
 package com.trade_accounting.components.production;
 
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalCardGroupDto;
-import com.trade_accounting.models.dto.TechnicalCardProductionDto;
-import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
-import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
-import com.trade_accounting.services.interfaces.TechnicalCardService;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.models.dto.production.TechnicalCardDto;
+import com.trade_accounting.models.dto.production.TechnicalCardGroupDto;
+import com.trade_accounting.models.dto.production.TechnicalCardProductionDto;
+import com.trade_accounting.services.interfaces.production.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.production.TechnicalCardProductionService;
+import com.trade_accounting.services.interfaces.production.TechnicalCardService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;

@@ -1,14 +1,14 @@
 package com.trade_accounting.components.tasks;
 
 
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.TaskCommentDto;
-import com.trade_accounting.models.dto.TaskDto;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.TaskCommentService;
-import com.trade_accounting.services.interfaces.TaskService;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.models.dto.util.TaskCommentDto;
+import com.trade_accounting.models.dto.util.TaskDto;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.util.TaskCommentService;
+import com.trade_accounting.services.interfaces.util.TaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

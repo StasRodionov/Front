@@ -7,23 +7,21 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.MenuBarIcon;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.PurchaseControlDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.models.dto.TemplateDto;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.ProductPriceService;
-import com.trade_accounting.services.interfaces.PurchaseControlService;
-import com.trade_accounting.services.interfaces.PurchaseCurrentBalanceService;
-import com.trade_accounting.services.interfaces.PurchaseForecastService;
-import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
+
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseControlService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseCurrentBalanceService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseForecastService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSalesService;
+import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -49,7 +47,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -58,7 +55,9 @@ import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
@@ -423,75 +422,11 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
         MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PRINT, "Печать", null);
         SubMenu orderSub = supplierOrder.getSubMenu();
-
-        orderSub.addItem("Управление закупками", menuItemClickEvent -> getProcurementManagementDialog().open());
-        orderSub.addItem("Настроить...", menuItemClickEvent -> getSettingDialog().open());
-
+        orderSub.addItem("Управление закупками");    /*Заглушка: требует реализации*/
+        orderSub.addItem("Настроить...");            /*Заглушка: требует реализации*/
         return menuBar;
     }
 
-    private Dialog getProcurementManagementDialog() {
-        Dialog dialog = new Dialog();
-        VerticalLayout verticalLayout = new VerticalLayout();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        HorizontalLayout horizontalLayout1 = new HorizontalLayout();
-        Checkbox checkbox = new Checkbox();
-        Label rememberChoice = new Label("Запомнить выбор");
-        Label creatingPrintedForm = new Label("Создание печатной формы");
-        Label creatingFormTemplate = new Label("Создать печатную форму по шаблону 'Управление закупками'?");
-        ComboBox<String> comboBox = new ComboBox<>();
-        Button yes = new Button("Да");
-        Button no = new Button("Нет");
-        Label empty = new Label("    ");
-
-        comboBox.setAllowCustomValue(true);
-        horizontalLayout1.setWidth("97%");
-        horizontalLayout1.setAlignItems(Alignment.END);
-        add(comboBox);
-        horizontalLayout1.add(yes, no);
-        horizontalLayout.add(checkbox,rememberChoice);
-        verticalLayout.add(creatingPrintedForm,creatingFormTemplate,comboBox,horizontalLayout, empty,horizontalLayout1);
-        dialog.add(verticalLayout);
-
-        return dialog;
-    }
-
-    private Dialog getSettingDialog() {
-        Dialog dialoh = new Dialog();
-        VerticalLayout verticalLayout = new VerticalLayout();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Icon icon = new Icon((VaadinIcon.QUESTION_CIRCLE_O));
-        Button button = new Button(" Добавить шаблон");
-        Label configureTemplateLabel = new Label("Настройка шаблонов");
-        Label procurementManagementLabel = new Label("Управление закупками");
-
-        dialoh.setHeight("99%");
-        dialoh.setWidth("33%");
-        verticalLayout.add(horizontalLayout, procurementManagementLabel,createTemplateGrid(), button);
-        horizontalLayout.add(icon, configureTemplateLabel);
-        dialoh.setCloseOnEsc(true);
-        dialoh.setCloseOnOutsideClick(true);
-        dialoh.add(verticalLayout);
-
-
-        return dialoh;
-    }
-
-    private Grid<TemplateDto> createTemplateGrid() {
-        Grid<TemplateDto> gridTemplate = new Grid<>();
-        gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> new Checkbox()))
-                .setHeader("Видимость")
-                .setWidth("5px");
-        gridTemplate.addColumn(TemplateDto::getNameOfProduct)
-                .setHeader("Наименование")
-                .setWidth("100px");
-        gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> new Button("Скачать")))
-                .setWidth("20px");
-        gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> new Button("Авто")))
-                .setWidth("10px");
-        gridTemplate.setItems(new TemplateDto(1L, "Управление закупками"));
-        return gridTemplate;
-    }
 //    private Select<String> valuePrint() {
 //        Select<String> print = new Select<>();
 //        print.setItems("Печать","Добавить");
