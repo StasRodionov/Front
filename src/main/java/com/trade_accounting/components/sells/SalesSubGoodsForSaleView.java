@@ -2,8 +2,8 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
-import com.trade_accounting.models.dto.SalesSubGoodsForSaleDto;
-import com.trade_accounting.services.interfaces.SalesSubGoodsForSaleService;
+import com.trade_accounting.models.dto.warehouse.SalesSubGoodsForSaleDto;
+import com.trade_accounting.services.interfaces.warehouse.SalesSubGoodsForSaleService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

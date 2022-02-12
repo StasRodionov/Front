@@ -1,9 +1,9 @@
 package com.trade_accounting.components.purchases;
 
-import com.trade_accounting.models.dto.AcceptanceProductionDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.services.interfaces.AcceptanceProductionService;
-import com.trade_accounting.services.interfaces.ProductService;
+import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;

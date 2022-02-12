@@ -1,11 +1,11 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.PayoutDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.finance.PayoutDto;
+import com.trade_accounting.models.dto.retail.RetailStoreDto;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.trade_accounting.services.interfaces.PayoutService;
+import com.trade_accounting.services.interfaces.finance.PayoutService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;

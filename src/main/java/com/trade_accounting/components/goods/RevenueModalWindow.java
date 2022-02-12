@@ -1,8 +1,8 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.models.dto.RevenueDto;
-import com.trade_accounting.services.interfaces.RevenueService;
+import com.trade_accounting.models.dto.warehouse.RevenueDto;
+import com.trade_accounting.services.interfaces.warehouse.RevenueService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -10,6 +10,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -28,12 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 @SpringComponent
 @UIScope
 public class RevenueModalWindow extends Dialog {
-    private final String fieldWidth = "400px";
-    private final String labelWidth = "200px";
+    private final String fieldWidth = "500px";
+    private final String labelWidth = "300px";
 
     private static final TextField description = new TextField();
     private static final NumberField productId = new NumberField();
-    private final NumberField unitShortName = new NumberField();
+    private final TextField unitShortName = new TextField();
     private final NumberField startOfPeriodAmount = new NumberField();
     private final NumberField startOfPeriodSumOfPrice = new NumberField();
     private final NumberField comingAmount = new NumberField();
@@ -43,6 +45,8 @@ public class RevenueModalWindow extends Dialog {
     private final NumberField endOfPeriodAmount = new NumberField();
     private final NumberField endOfPeriodSumOfPrice = new NumberField();
     private final RevenueService revenueService;
+
+    private RevenueDto revenueDtoModal;
     private RevenueDto revenueDtoToEdit = new RevenueDto();
     private Binder<RevenueDto> revenueDtoBinder = new Binder<>(RevenueDto.class);
 
@@ -196,11 +200,20 @@ public class RevenueModalWindow extends Dialog {
     }
 
     private Button getCloseButton() {
-        return new Button("Закрыть", event -> {
+        return new Button("Закрыть", new Icon(VaadinIcon.CLOSE),
+                event -> {
             clearAll();
             close();
         });
     }
+
+//    private Button getDeleteButton() {
+//        return new Button("Удалить", event -> {
+//            revenueService.deleteById(revenueDtoToEdit.getId());
+//            clearAll();
+//            close();
+//        });
+//    }
 
     public void clearAll() {
         description.clear();
@@ -214,5 +227,20 @@ public class RevenueModalWindow extends Dialog {
         spendingSumOfPrice.clear();
         endOfPeriodAmount.clear();
         endOfPeriodSumOfPrice.clear();
+    }
+
+    public void setRevenueForEdit(RevenueDto edit) {
+        this.revenueDtoModal = edit;
+        description.setValue(edit.getDescription());
+        productId.setValue(Double.valueOf(edit.getProductId().toString()));
+        unitShortName.setValue(edit.getUnitShortName());
+        startOfPeriodAmount.setValue(Double.valueOf(edit.getStartOfPeriodAmount().toString()));
+        startOfPeriodSumOfPrice.setValue(Double.valueOf(edit.getStartOfPeriodSumOfPrice().toString()));
+        comingAmount.setValue(Double.valueOf(edit.getComingAmount().toString()));
+        comingSumOfPrice.setValue(Double.valueOf(edit.getComingSumOfPrice().toString()));
+        spendingAmount.setValue(Double.valueOf(edit.getSpendingAmount().toString()));
+        spendingSumOfPrice.setValue(Double.valueOf(edit.getComingSumOfPrice().toString()));
+        endOfPeriodAmount.setValue(Double.valueOf(edit.getEndOfPeriodAmount().toString()));
+        endOfPeriodSumOfPrice.setValue(Double.valueOf(edit.getEndOfPeriodSumOfPrice().toString()));
     }
 }

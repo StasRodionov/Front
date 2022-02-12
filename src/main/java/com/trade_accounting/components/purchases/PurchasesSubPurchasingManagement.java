@@ -8,23 +8,21 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.MenuBarIcon;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.PurchaseControlDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.models.dto.TemplateDto;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.ProductPriceService;
-import com.trade_accounting.services.interfaces.PurchaseControlService;
-import com.trade_accounting.services.interfaces.PurchaseCurrentBalanceService;
-import com.trade_accounting.services.interfaces.PurchaseForecastService;
-import com.trade_accounting.services.interfaces.PurchaseHistoryOfSalesService;
+
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseControlService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseCurrentBalanceService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseForecastService;
+import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSalesService;
+import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -52,7 +50,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -61,7 +58,9 @@ import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
@@ -426,10 +425,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
         MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PRINT, "Печать", null);
         SubMenu orderSub = supplierOrder.getSubMenu();
-
-        orderSub.addItem("Управление закупками", menuItemClickEvent -> getProcurementManagementDialog().open());
-        orderSub.addItem("Настроить...", menuItemClickEvent -> getSettingDialog().open());
-
+        orderSub.addItem("Управление закупками");    /*Заглушка: требует реализации*/
+        orderSub.addItem("Настроить...");            /*Заглушка: требует реализации*/
         return menuBar;
     }
 

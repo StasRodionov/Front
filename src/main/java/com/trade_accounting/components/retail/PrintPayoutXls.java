@@ -1,8 +1,8 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.PayoutDto;
-import com.trade_accounting.services.interfaces.EmployeeService;
+import com.trade_accounting.models.dto.finance.PayoutDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.time.LocalDateTime;
