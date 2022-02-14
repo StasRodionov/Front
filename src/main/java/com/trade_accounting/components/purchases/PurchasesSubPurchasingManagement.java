@@ -1,6 +1,7 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.money.PaymentPrintModal;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
@@ -42,6 +43,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
@@ -427,12 +430,158 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return menuBar;
     }
 
+    private Dialog getProcurementManagementDialog() {
+        Dialog dialog = new Dialog();
+        VerticalLayout verticalLayout = new VerticalLayout();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        HorizontalLayout horizontalLayout1 = new HorizontalLayout();
+        Checkbox checkbox = new Checkbox();
+        Label rememberChoice = new Label("Запомнить выбор");
+        Label creatingPrintedForm = new Label("Создание печатной формы");
+        Label creatingFormTemplate = new Label("Создать печатную форму по шаблону 'Управление закупками'?");
+        ComboBox<String> comboBox = new ComboBox<>();
+        Button yes = new Button("Да");
+        Button no = new Button("Нет", e -> dialog.close());
+        Label empty = new Label("    ");
+
+        comboBox.setWidth("300px");
+        comboBox.setItems("Открыть в браузере", "Скачать в формате Excel", "Скачать в формате PDF", "Скачать в формате Open Office Calc");
+        comboBox.setValue("Открыть в браузере");
+        creatingPrintedForm.getStyle().set("font-weight", "bold").set("font-size", "22px");
+        comboBox.setAllowCustomValue(true);
+        horizontalLayout1.setWidth("97%");
+        horizontalLayout1.setAlignItems(Alignment.END);
+        add(comboBox);
+        horizontalLayout1.add(yes, no);
+        horizontalLayout.add(checkbox,rememberChoice);
+        verticalLayout.add(creatingPrintedForm,creatingFormTemplate,comboBox,horizontalLayout, empty,horizontalLayout1);
+        dialog.add(verticalLayout);
+
+        return dialog;
+    }
+
+    private Dialog getSettingDialog() {
+        Dialog dialoh = new Dialog();
+        VerticalLayout verticalLayout = new VerticalLayout();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Icon icon = new Icon((VaadinIcon.QUESTION_CIRCLE_O));
+        Button button = new Button(" Добавить шаблон");
+        Label configureTemplateLabel = new Label("Настройка шаблонов");
+        Label procurementManagementLabel = new Label("Управление закупками");
+
+        button.addClickListener(e -> addTemplate().open());
+        configureTemplateLabel.getStyle().set("font-size", "22px");
+        procurementManagementLabel.getStyle().set("font-weight", "bold");
+        dialoh.setHeight("99%");
+        dialoh.setWidth("33%");
+        verticalLayout.add(horizontalLayout, procurementManagementLabel,createTemplateGrid(), button);
+        horizontalLayout.add(icon, configureTemplateLabel);
+        dialoh.setCloseOnEsc(true);
+        dialoh.setCloseOnOutsideClick(true);
+        dialoh.add(verticalLayout);
+
+
+        return dialoh;
+    }
+
+    private Dialog addTemplate() {
+        Dialog dialog = new Dialog();
+        VerticalLayout verticalLayout = new VerticalLayout();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label limitation = new Label("Ограничение подписки");
+        Label tariffPlan = new Label("Ваш тарифный план не позволяет загружать собственные шаблоны");
+        Label empty = new Label("  ");
+        Button changeSubscription = new Button("Изменить подписку");
+        Button close = new Button("Закрыть", e -> dialog.close());
+
+        changeSubscription.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        limitation.getStyle().set("font-weight", "bold").set("font-size", "22px");
+        horizontalLayout.add(changeSubscription, close);
+        verticalLayout.add(limitation, tariffPlan, empty,horizontalLayout);
+        dialog.add(verticalLayout);
+        return dialog;
+    }
+
+    private Grid<TemplateDto> createTemplateGrid() {
+        Grid<TemplateDto> gridTemplate = new Grid<>();
+        Button button = new Button("Авто");
+        gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> new Checkbox()))
+                .setHeader("Видимость")
+                .setWidth("5px");
+        gridTemplate.addColumn(TemplateDto::getNameOfProduct)
+                .setHeader("Наименование")
+                .setWidth("100px");
+        gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> print()))
+                .setWidth("20px");
+        gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> button))
+                .setWidth("10px");
+        gridTemplate.setItems(new TemplateDto(1L, "Управление закупками"));
+        button.addClickListener(e -> purchasingManagementDialog().open());
+//        downloadButton.addClickListener(e -> getLinkToXlsTemplate(getXlsFiles()));
+        return gridTemplate;
+    }
+    private Button print() {
+        Button button = new Button("Скачать");
+//        button.addClickListener(e -> getLinkToXlsTemplate(getXlsFiles()));
+        return button;
+    }
+
+
+    private Dialog purchasingManagementDialog() {
+        Dialog dialog = new Dialog();
+        VerticalLayout verticalLayout = new VerticalLayout();
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        HorizontalLayout horizontalLayout2 = new HorizontalLayout();
+        HorizontalLayout horizontalLayout3 = new HorizontalLayout();
+        Label label = new Label("Управление закупками");
+        Label label2 =  new Label("Автоматически формировать отчет");
+        Label label3 = new Label("Время формирования:");
+        Label label4 = new Label("Email получателя:");
+        Checkbox checkbox = new Checkbox();
+        TextField center = new TextField();
+        IntegerField integerField = new IntegerField();
+        IntegerField integerField2 = new IntegerField();
+        EmailField emailField = new EmailField();
+        Button templateCustomization = new Button("<- Настройка шаблонов", e -> dialog.close());
+        Span confirmed = new Span("\t\n" +
+                "Максимальное количество строк в документе — 65435 " +
+                " Если документ содержит больше строк, добавьте в" +
+                " шаблон печатной формы фильтры. Создать такой" +
+                " шаблон помогут в службе поддержки.");
+
+        confirmed.getStyle().set("font-size", "12px");
+        confirmed.getElement().getThemeList().add("badge success");
+        add(confirmed);
+        dialog.setHeight("99%");
+        dialog.setWidth("33%");
+        label.getStyle().set("font-size", "22px");
+        integerField.setMin(0);
+        integerField.setMax(23);
+        integerField.setValue(0);
+        integerField.setHasControls(true);
+        add(integerField);
+        integerField2.setMin(0);
+        integerField2.setMax(23);
+        integerField2.setValue(0);
+        integerField2.setHasControls(true);
+        add(integerField2);
+        center.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
+        horizontalLayout.add(checkbox, label2);
+        horizontalLayout2.add(label3, integerField, integerField2);
+        horizontalLayout3.add(label4, emailField);
+        verticalLayout.add(templateCustomization, label, horizontalLayout, horizontalLayout2, horizontalLayout3, confirmed);
+        dialog.add(verticalLayout);
+        return dialog;
+    }
+
+
+
 //    private Select<String> valuePrint() {
 //        Select<String> print = new Select<>();
-//        print.setItems("Печать","Добавить");
-//        print.setValue("Печать");
+////        print.setItems("Печать","Добавить");
+////        print.setValue("Печать");
 //        getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
+////        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
 //        uploadXlsMenuItem(print);
 //        print.setWidth("130px");
 //        return print;
