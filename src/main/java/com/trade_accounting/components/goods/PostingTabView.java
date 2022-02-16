@@ -52,6 +52,7 @@ public class PostingTabView extends VerticalLayout {
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final CorrectionProductService correctionProductService;
+    private final PostingCreateView postingCreateView;
     private Notifications notifications;
     private final PostingModal modalWindow;
 
@@ -68,12 +69,14 @@ public class PostingTabView extends VerticalLayout {
                           WarehouseService warehouseService,
                           CompanyService companyService,
                           CorrectionProductService correctionProductService,
+                          PostingCreateView postingCreateView,
                           Notifications notifications,
                           PostingModal modalWindow) {
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.correctionProductService = correctionProductService;
+        this.postingCreateView = postingCreateView;
         this.notifications = notifications;
         this.modalWindow = modalWindow;
         this.data = getData();
@@ -219,7 +222,11 @@ public class PostingTabView extends VerticalLayout {
     private Button buttonUnit() {
 
         Button button = new Button("Оприходование", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(e -> modalWindow.open());
+        button.addClickListener(e -> {
+            postingCreateView.clearForm();
+            postingCreateView.setParentLocation("positingTab");
+            button.getUI().ifPresent(ui -> ui.navigate("goods/posting-create"));
+        });
         updateList();
         return button;
     }

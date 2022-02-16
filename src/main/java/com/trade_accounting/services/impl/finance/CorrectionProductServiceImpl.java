@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -39,7 +40,16 @@ public class CorrectionProductServiceImpl implements CorrectionProductService {
 
     @Override
     public CorrectionProductDto create(CorrectionProductDto correctionProductDto) {
-        return null;
+        Call<CorrectionProductDto> correctionProductDtoCall = correctionProductApi.create(correctionProductUrl, correctionProductDto);
+
+        try {
+            correctionProductDto = correctionProductDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание CorrectionProduct");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение CorrectionProduct - {}", e);
+        }
+
+        return correctionProductDto;
     }
 
     @Override
