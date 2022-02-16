@@ -1,5 +1,6 @@
 package com.trade_accounting.components.general;
 
+import com.trade_accounting.models.dto.finance.CorrectionProductDto;
 import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
 import com.trade_accounting.models.dto.finance.LossProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
@@ -144,6 +145,14 @@ public class ProductSelectModal extends Dialog {
         lossProductDto.setPrice(priceSelect.getValue().getValue());
         lossProductDto.setAmount(amountField.getValue());
         return lossProductDto;
+    }
+
+    public CorrectionProductDto getCorrectionProductDto() {
+        CorrectionProductDto correctionProductDto = new CorrectionProductDto();
+        correctionProductDto.setProductId(productSelect.getValue().getId());
+        correctionProductDto.setPrice(priceSelect.getValue().getValue());
+        correctionProductDto.setAmount(amountField.getValue());
+        return correctionProductDto;
     }
 
     private void updateSaveButtonEnable() {
