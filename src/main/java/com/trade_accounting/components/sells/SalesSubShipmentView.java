@@ -2,11 +2,16 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
@@ -46,6 +51,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Route(value = "shipment", layout = AppView.class)
@@ -59,6 +65,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     Notifications notifications;
     UnitService unitService;
 
+    private final TextField textField = new TextField();
     private final WarehouseService warehouseService;
     private final ShipmentService invoiceService;
     private final ContractorService contractorService;
@@ -70,8 +77,9 @@ public class SalesSubShipmentView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<ShipmentDto> grid;
     private GridPaginator<ShipmentDto> paginator;
+    private final GridFilter<ShipmentDto> filter;
 
-//    private final String typeOfInvoice = "RECEIPT";
+    private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
     public SalesSubShipmentView(WarehouseService warehouseService,
@@ -96,7 +104,10 @@ public class SalesSubShipmentView extends VerticalLayout {
         configureGrid();
         configurePaginator();
 
-        add(actions, grid, paginator);
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
+        add(actions, filter, grid, paginator);
     }
 
     private void configureActions() {
@@ -124,7 +135,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
-                .setKey("typeOfInvoiceDTO").setId("Склад");
+                .setKey("warehouseId").setId("Склад");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
@@ -149,7 +160,20 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
     }
-
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName,warehouseService.getAll());
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfInvoice", typeOfInvoice);
+            paginator.setData(invoiceService.searchByFilter(map));
+        });
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
+    }
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -184,6 +208,7 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
@@ -209,7 +234,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         textField.setPlaceholder("Номер, склад или организация");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.addValueChangeListener(event -> updateList());
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         textField.setWidth("300px");
         return textField;
     }
@@ -263,18 +288,16 @@ public class SalesSubShipmentView extends VerticalLayout {
         return String.format("%.2f", totalPrice);
     }
 
-//    private void updateList() {
-//        grid.setItems(invoiceService.getAll(typeOfInvoice));
-//        System.out.println("Обновлен");
-//    }
-
-//    private void updateList(String text) {
-//        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
-//    }
-
-    private void updateList(){
+    private void updateList(String text) {
         grid.setItems(shipmentService.getAll());
+        grid.setItems(shipmentService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
+        System.out.println("Обновлен");
     }
+
+
+//    private void updateList(){
+//        grid.setItems(shipmentService.getAll());
+//    }
 
     private List<ShipmentDto> getData() {
         return shipmentService.getAll();
