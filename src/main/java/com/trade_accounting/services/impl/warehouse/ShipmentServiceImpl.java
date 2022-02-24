@@ -100,14 +100,14 @@ public class ShipmentServiceImpl implements ShipmentService {
     }
 
     @Override
-    public List<ShipmentDto> findBySearchAndTypeOfInvoice(String search, String typeOfInvoice) {
+    public List<ShipmentDto> searchByString(String nameFilter) {
         List<ShipmentDto> shipmentDtoList = new ArrayList<>();
-        Call<List<ShipmentDto>> callShipmen = shipmentApi.search(shipmentUrl, search.toLowerCase(), typeOfInvoice);
+        Call<List<ShipmentDto>> getShipmentByNameFilter = shipmentApi.searchByString(shipmentUrl, nameFilter);
         try {
-            shipmentDtoList = callShipmen.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка отгрузок");
+            shipmentDtoList = getShipmentByNameFilter.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение счета поставщика  по фильтру {}", nameFilter);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск иполучение счета поставщика {IOException}", e);
         }
         return shipmentDtoList;
     }

@@ -167,11 +167,8 @@ public class SalesSubShipmentView extends VerticalLayout {
         filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
         filter.setFieldToComboBox("warehouseId", WarehouseDto::getName,warehouseService.getAll());
         filter.setFieldToIntegerField("id");
-        filter.onSearchClick(e -> {
-            Map<String, String> map = filter.getFilterData();
-            map.put("typeOfInvoice", typeOfInvoice);
-            paginator.setData(invoiceService.searchByFilter(map));
-        });
+        filter.onSearchClick(e -> paginator
+                .setData(invoiceService.searchByFilter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
@@ -192,6 +189,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
@@ -288,16 +286,17 @@ public class SalesSubShipmentView extends VerticalLayout {
         return String.format("%.2f", totalPrice);
     }
 
-    private void updateList(String text) {
-        grid.setItems(shipmentService.getAll());
-        grid.setItems(shipmentService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
-        System.out.println("Обновлен");
+    public void updateList(String nameFilter) {
+        if(!(textField.getValue().equals(""))) {
+            grid.setItems(shipmentService.searchByString(nameFilter));
+        } else {
+            grid.setItems(shipmentService.getAll("null"));
+        }
     }
 
-
-//    private void updateList(){
-//        grid.setItems(shipmentService.getAll());
-//    }
+    private void updateList(){
+        grid.setItems(shipmentService.getAll());
+    }
 
     private List<ShipmentDto> getData() {
         return shipmentService.getAll();

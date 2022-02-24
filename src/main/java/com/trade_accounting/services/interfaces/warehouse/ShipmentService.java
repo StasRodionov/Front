@@ -1,6 +1,5 @@
 package com.trade_accounting.services.interfaces.warehouse;
 
-import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
 
 import java.util.List;
@@ -25,5 +24,5 @@ public interface ShipmentService {
 
     List<ShipmentDto> searchByFilter(Map<String,String> queryShipment);
 
-    List<ShipmentDto> findBySearchAndTypeOfInvoice(String search, String typeOfInvoice);
+    List<ShipmentDto> searchByString(String nameFilter);
 }

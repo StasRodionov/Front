@@ -50,9 +50,14 @@ public interface ShipmentApi {
     Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
-    @GET("{url}/querySupplier")
+    @GET("{url}/queryShipment")
     Call<List<ShipmentDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
-                                                  @QueryMap Map<String, String> querySupplier);
+                                                  @QueryMap Map<String, String> queryShipment);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search/{nameFilter}")
+    Call<List<ShipmentDto>> searchByString(@Path(value = "url", encoded = true) String url,
+                                                  @Path(value = "nameFilter", encoded = true) String nameFilter);
 
     @Headers("Accept: application/json")
     @GET("{url}/searchByString")
