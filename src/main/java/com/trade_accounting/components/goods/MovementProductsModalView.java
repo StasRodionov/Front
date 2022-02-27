@@ -3,6 +3,7 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
 import com.trade_accounting.services.interfaces.warehouse.MovementService;
@@ -35,6 +36,7 @@ public class MovementProductsModalView extends Dialog {
     private final WarehouseService warehouseService;
     private final MovementService movementService;
     private final UnitService unitService;
+    private final EmployeeService employeeService;
 
     private final ComboBox<ProductDto> productDtoComboBox = new ComboBox<>();
     private final BigDecimalField priceField = new BigDecimalField();
@@ -53,13 +55,14 @@ public class MovementProductsModalView extends Dialog {
                                      WarehouseService warehouseService,
                                      MovementService movementService,
                                      UnitService unitService,
-                                     Notifications notifications) {
+                                     EmployeeService employeeService, Notifications notifications) {
         this.movementProductService = movementProductService;
         this.productService = productService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.movementService = movementService;
         this.unitService = unitService;
+        this.employeeService = employeeService;
         this.notifications = notifications;
 
         titleForСreate = new TitleForModal("Добавление внутреннего заказа");
@@ -109,7 +112,7 @@ public class MovementProductsModalView extends Dialog {
                         companyService,
                         notifications,
                         unitService,
-                        movementProductService);
+                        movementProductService, employeeService);
                 modalView.open();
 
             }
