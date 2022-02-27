@@ -9,6 +9,7 @@ import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.warehouse.MovementDto;
 import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
@@ -61,6 +62,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     private final MovementViewModalWindow view;
     private final UnitService unitService;
     private final ProductService productService;
+    private final EmployeeService employeeService;
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
 
@@ -76,7 +78,13 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                         WarehouseService warehouseService,
                         CompanyService companyService,
                         MovementProductService movementProductService,
-                        Notifications notifications, MovementViewModalWindow view, UnitService unitService, ProductService productService, LegalDetailService legalDetailService, BankAccountService bankAccountService) {
+                        EmployeeService employeeService,
+                        Notifications notifications,
+                        MovementViewModalWindow view,
+                        UnitService unitService,
+                        ProductService productService,
+                        LegalDetailService legalDetailService,
+                        BankAccountService bankAccountService) {
         this.movementService = movementService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -85,6 +93,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
         this.view = view;
         this.unitService = unitService;
         this.productService = productService;
+        this.employeeService = employeeService;
         this.legalDetailService = legalDetailService;
         this.bankAccountService = bankAccountService;
         List<MovementDto> data = getData();
@@ -129,6 +138,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     notifications,
                     unitService,
                     movementProductService,
+                    employeeService,
                     legalDetailService,
                     bankAccountService);
             modalView.setMovementForEdit(dto);
@@ -244,6 +254,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     notifications,
                     unitService,
                     movementProductService,
+                    employeeService,
                     legalDetailService,
                     bankAccountService);
             modalView.open();

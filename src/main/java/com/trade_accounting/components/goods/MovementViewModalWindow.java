@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.warehouse.MovementDto;
 import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.units.UnitService;
@@ -86,6 +87,7 @@ public class MovementViewModalWindow extends Dialog {
     private final MovementProductService movementProductService;
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
+    private final EmployeeService employeeService;
 
     private final ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseComboBox = new ComboBox<>();
@@ -122,7 +124,8 @@ public class MovementViewModalWindow extends Dialog {
                                    UnitService unitService,
                                    MovementProductService movementProductService,
                                    LegalDetailService legalDetailService,
-                                   BankAccountService bankAccountService) {
+                                   BankAccountService bankAccountService,
+                                   EmployeeService employeeService) {
         this.productService = productService;
         this.movementService = movementService;
         this.warehouseService = warehouseService;
@@ -130,6 +133,7 @@ public class MovementViewModalWindow extends Dialog {
         this.notifications = notifications;
         this.unitService = unitService;
         this.movementProductService = movementProductService;
+        this.employeeService = employeeService;
         this.legalDetailService = legalDetailService;
         this.bankAccountService = bankAccountService;
 
@@ -287,6 +291,18 @@ public class MovementViewModalWindow extends Dialog {
         contextMenu.addItem("Комплект . . .");
     }
 
+    private String calculateEmail() {
+        var email = companyComboBox.getValue().getEmail();
+
+        if (email == null) {
+            email = employeeService.getPrincipal().getEmail();
+        } else {
+            throw new IllegalStateException("Не найден email");
+        }
+
+        return email;
+    }
+
     private HorizontalLayout headerLayout() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(
@@ -389,9 +405,10 @@ public class MovementViewModalWindow extends Dialog {
                     warehouseService,
                     movementService,
                     unitService,
+                    employeeService,
+                    notifications,
                     legalDetailService,
-                    bankAccountService,
-                    notifications);
+                    bankAccountService);
             modalView.open();
         });
         return button;

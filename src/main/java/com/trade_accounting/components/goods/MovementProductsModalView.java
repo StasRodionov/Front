@@ -3,6 +3,7 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
@@ -37,6 +38,7 @@ public class MovementProductsModalView extends Dialog {
     private final WarehouseService warehouseService;
     private final MovementService movementService;
     private final UnitService unitService;
+    private final EmployeeService employeeService;
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
 
@@ -57,15 +59,17 @@ public class MovementProductsModalView extends Dialog {
                                      WarehouseService warehouseService,
                                      MovementService movementService,
                                      UnitService unitService,
+                                     EmployeeService employeeService,
+                                     Notifications notifications,
                                      LegalDetailService legalDetailService,
-                                     BankAccountService bankAccountService,
-                                     Notifications notifications) {
+                                     BankAccountService bankAccountService) {
         this.movementProductService = movementProductService;
         this.productService = productService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.movementService = movementService;
         this.unitService = unitService;
+        this.employeeService = employeeService;
         this.notifications = notifications;
         this.legalDetailService = legalDetailService;
         this.bankAccountService = bankAccountService;
@@ -117,6 +121,8 @@ public class MovementProductsModalView extends Dialog {
                         companyService,
                         notifications,
                         unitService,
+                        movementProductService,
+                        employeeService,
                         movementProductService,
                         legalDetailService,
                         bankAccountService);
