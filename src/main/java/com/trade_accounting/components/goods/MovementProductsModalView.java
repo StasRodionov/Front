@@ -3,7 +3,9 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
 import com.trade_accounting.services.interfaces.warehouse.MovementService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
@@ -35,6 +37,8 @@ public class MovementProductsModalView extends Dialog {
     private final WarehouseService warehouseService;
     private final MovementService movementService;
     private final UnitService unitService;
+    private final LegalDetailService legalDetailService;
+    private final BankAccountService bankAccountService;
 
     private final ComboBox<ProductDto> productDtoComboBox = new ComboBox<>();
     private final BigDecimalField priceField = new BigDecimalField();
@@ -53,6 +57,8 @@ public class MovementProductsModalView extends Dialog {
                                      WarehouseService warehouseService,
                                      MovementService movementService,
                                      UnitService unitService,
+                                     LegalDetailService legalDetailService,
+                                     BankAccountService bankAccountService,
                                      Notifications notifications) {
         this.movementProductService = movementProductService;
         this.productService = productService;
@@ -61,6 +67,8 @@ public class MovementProductsModalView extends Dialog {
         this.movementService = movementService;
         this.unitService = unitService;
         this.notifications = notifications;
+        this.legalDetailService = legalDetailService;
+        this.bankAccountService = bankAccountService;
 
         titleForСreate = new TitleForModal("Добавление внутреннего заказа");
         setSizeFull();
@@ -109,7 +117,9 @@ public class MovementProductsModalView extends Dialog {
                         companyService,
                         notifications,
                         unitService,
-                        movementProductService);
+                        movementProductService,
+                        legalDetailService,
+                        bankAccountService);
                 modalView.open();
 
             }
