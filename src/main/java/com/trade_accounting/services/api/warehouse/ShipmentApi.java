@@ -1,6 +1,5 @@
 package com.trade_accounting.services.api.warehouse;
 
-import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -55,13 +54,8 @@ public interface ShipmentApi {
                                                   @QueryMap Map<String, String> queryShipment);
 
     @Headers("Accept: application/json")
-    @GET("{url}/search/{nameFilter}")
+    @GET("{url}/search/{search}")
     Call<List<ShipmentDto>> searchByString(@Path(value = "url", encoded = true) String url,
-                                                  @Path(value = "nameFilter", encoded = true) String nameFilter);
+                                           @Path(value = "search", encoded = true) String search);
 
-    @Headers("Accept: application/json")
-    @GET("{url}/searchByString")
-    Call<List<ShipmentDto>> search(@Path(value = "url", encoded = true) String url,
-                                          @Query("search") String search,
-                                          @Query("typeOfInvoice") String typeOfInvoice);
 }

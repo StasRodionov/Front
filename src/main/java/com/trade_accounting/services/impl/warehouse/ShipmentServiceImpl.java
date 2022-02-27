@@ -1,8 +1,6 @@
 package com.trade_accounting.services.impl.warehouse;
 
-import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
-import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.warehouse.ShipmentService;
 import com.trade_accounting.services.api.warehouse.ShipmentApi;
@@ -46,7 +44,7 @@ public class ShipmentServiceImpl implements ShipmentService {
             invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
             log.info("Успешно выполнен запрос на получение списка ShipmentDto");
         } catch (IOException | NullPointerException e) {
-            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Попытка перехода на страницу /purchases не авторизованного пользователя  - {NullPointerException}", e);
             log.error("Произошла ошибка при выполнении запроса на получение списка ShipmentDto - {IOException}", e);
         }
         return invoiceDtoList;
@@ -105,9 +103,9 @@ public class ShipmentServiceImpl implements ShipmentService {
         Call<List<ShipmentDto>> getShipmentByNameFilter = shipmentApi.searchByString(shipmentUrl, nameFilter);
         try {
             shipmentDtoList = getShipmentByNameFilter.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение счета поставщика  по фильтру {}", nameFilter);
+            log.info("Успешно выполнен запрос на поиск и получение отгрузки по фильтру {}", nameFilter);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск иполучение счета поставщика {IOException}", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение отгрузки {IOException}", e);
         }
         return shipmentDtoList;
     }

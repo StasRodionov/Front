@@ -7,7 +7,6 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
-import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
@@ -51,7 +50,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Route(value = "shipment", layout = AppView.class)
@@ -139,7 +137,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
-                .setKey("companyId").setId("Компания");
+                .setKey("companyId").setId("Организация");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addItemDoubleClickListener(e -> {
             ShipmentDto dto = e.getItem();
@@ -212,7 +210,7 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     private Button buttonSettings() {
@@ -287,10 +285,10 @@ public class SalesSubShipmentView extends VerticalLayout {
     }
 
     public void updateList(String nameFilter) {
-        if(!(textField.getValue().equals(""))) {
-            grid.setItems(shipmentService.searchByString(nameFilter));
+        if (nameFilter.isEmpty()) {
+            grid.setItems(shipmentService.getAll());
         } else {
-            grid.setItems(shipmentService.getAll("null"));
+            grid.setItems(shipmentService.searchByString(nameFilter));
         }
     }
 
