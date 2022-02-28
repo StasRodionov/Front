@@ -26,6 +26,7 @@ import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import retrofit2.Retrofit;
 
 import java.util.List;
 
