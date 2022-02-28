@@ -145,7 +145,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
 
     public ComboBox<ContractorDto> getComboBoxContractor(){
         ComboBox<ContractorDto> contractorComboBox = new ComboBox();
-        contractorComboBox.setLabel("Выберете контръагента");
+        contractorComboBox.setLabel("Выберете контрагента");
         contractorComboBox.setItems(contractorService.getAll());
         contractorComboBox.setItemLabelGenerator(ContractorDto::getName);
         contractorComboBox.addValueChangeListener(event -> contractorId = event.getValue().getId());

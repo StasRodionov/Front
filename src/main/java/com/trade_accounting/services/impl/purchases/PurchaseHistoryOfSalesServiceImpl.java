@@ -83,7 +83,7 @@ public class PurchaseHistoryOfSalesServiceImpl implements PurchaseHistoryOfSales
             historyOfSalesDto = getHistoryOfSalesByNameFilter.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение PurchaseHistoryOfSalesDto по фильтру -{}", query);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск иполучение PurchaseHistoryOfSalesDto -{IOException}", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение PurchaseHistoryOfSalesDto -{IOException}", e);
         }
         return historyOfSalesDto;
     }
