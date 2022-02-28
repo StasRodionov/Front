@@ -73,6 +73,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>com.squareup.retrofit2</groupId>
             <artifactId>retrofit</artifactId>
@@ -131,7 +132,6 @@
 <!--            <artifactId>aspose-cells</artifactId>-->
 <!--            <version>20.7</version>-->
 <!--        </dependency>-->
-
 
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
         <dependency>
