@@ -179,6 +179,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         textField.setClearButtonVisible(true);
         textField.setWidth("300px");
         return textField;
@@ -314,6 +315,15 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private void updateList() {
         grid.setItems(invoiceReceivedService.getAll());
+    }
+
+    private void updateList(String search) {
+        grid.setItems(invoiceReceivedService.getAll());
+        if(!(textField.getValue().equals(""))) {
+            grid.setItems(invoiceReceivedService.searchByString(search));
+        } else {
+            grid.setItems(invoiceReceivedService.getAll());
+        }
     }
 
     private String getTotalPrice(InvoiceReceivedDto dto) {
