@@ -103,6 +103,7 @@ public class MovementViewModalWindow extends Dialog {
     private final Binder<MovementDto> movementDtoBinder =
             new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
+    private final String EMAIL_URL = "http://localhost:4445/api/movements/files/send/torg13/xls?calcalculateEmail=";
 
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,
@@ -223,8 +224,9 @@ public class MovementViewModalWindow extends Dialog {
                 movementService.update(movementDto);
                 HttpClient httpClient = HttpClient.newHttpClient();
                 HttpRequest httpRequest = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:4445/api/movements/files/send/torg13/xls?calcalculateEmail=" + calculateEmail()))
+                        .uri(URI.create(EMAIL_URL + calculateEmail()))
                         .build();
+
                 httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
                         .thenApply(HttpResponse::statusCode)
                         .thenAccept(integer -> {
@@ -248,8 +250,9 @@ public class MovementViewModalWindow extends Dialog {
 
         if (email == null) {
             email = employeeService.getPrincipal().getEmail();
-        } else {
-            throw new IllegalStateException("Не найден email");
+            if (email == null) {
+                throw new IllegalStateException("Не найден email");
+            }
         }
 
         return email;
