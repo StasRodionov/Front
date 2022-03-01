@@ -7,6 +7,7 @@ import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Modals;
 
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
 import com.trade_accounting.models.dto.finance.CorrectionProductDto;
@@ -46,6 +47,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
 @Slf4j
 @Route(value = "goods/posting-create", layout = AppView.class)
 @PageTitle("Добавить оприходование")
@@ -75,21 +78,23 @@ public class PostingCreateView extends VerticalLayout {
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
-    private String parentLocation = "";
+    private String parentLocation = "positingTab";
+
+    private final Notifications notifications;
 
     @Autowired
     public PostingCreateView(CompanyService companyService, CorrectionProductService correctionProductService,
                              CorrectionService correctionService,
                              WarehouseService warehouseService, ProductSelectModal productSelectModal,
-                             ProductService productService, UnitService unitService) {
+                             ProductService productService, UnitService unitService, Notifications notifications) {
         this.companyService = companyService;
         this.correctionProductService = correctionProductService;
-        //this.correctionService = correctionService;
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
         this.productSelectModal = productSelectModal;
         this.productService = productService;
         this.unitService = unitService;
+        this.notifications = notifications;
 
         configureGrid();
         paginator = new GridPaginator<>(grid);
@@ -145,10 +150,12 @@ public class PostingCreateView extends VerticalLayout {
         return new Button("Сохранить", clickEvent -> {
             if (isCorrectionFormValid()) {
                 if (dateTimePicker.isEmpty()) {
-                    dateTimePicker.setValue(LocalDateTime.now());
+                    dateTimePicker.setValue(LocalDateTime.parse(LocalDateTime.now().format(ISO_LOCAL_DATE_TIME)));
                 }
                 saveCorrection();
                 UI.getCurrent().navigate(parentLocation);
+                clearForm();
+                notifications.infoNotification(String.format("Оприходование сохранено"));
             } else {
                 Modals.infoModal("Заполните все поля, чтобы добавить опр!").open();
             }
@@ -243,7 +250,7 @@ public class PostingCreateView extends VerticalLayout {
         correctionDto.setWarehouseId(warehouseSelect.getValue().getId());
         correctionDto.setIsSent(isSent.getValue());
         correctionDto.setIsPrint(isPrint.getValue());
-        //return correctionDto;
+
         return correctionService.create(correctionDto);
     }
 
