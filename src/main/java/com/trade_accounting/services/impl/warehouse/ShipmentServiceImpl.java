@@ -10,7 +10,11 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -32,6 +36,20 @@ public class ShipmentServiceImpl implements ShipmentService {
         return callExecuteService.callExecuteBodyList(shipmentDtoListCall, ShipmentDto.class);
     }
 
+    @Override
+    public List<ShipmentDto> getAll(String typeOfInvoice) {
+        List<ShipmentDto> invoiceDtoList = new ArrayList<>();
+        Call<List<ShipmentDto>> invoiceDtoListCall = shipmentApi.getAll(shipmentUrl, typeOfInvoice);
+        try {
+            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка ShipmentDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка ShipmentDto - {IOException}", e);
+        }
+        return invoiceDtoList;
+
+    }
     @Override
     public ShipmentDto getById(Long id) {
         Call<ShipmentDto> shipmentDtoCall = shipmentApi.getById(shipmentUrl, id);
@@ -66,4 +84,29 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     }
 
+    @Override
+    public List<ShipmentDto> searchByFilter(Map<String, String> queryShipment) {
+        List<ShipmentDto> shipmentDtoList = new ArrayList<>();
+        Call<List<ShipmentDto>> callShipment = shipmentApi.searchByFilter(shipmentUrl,queryShipment);
+        try {
+            shipmentDtoList = callShipment.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение отгрузки по фильтру {}",queryShipment);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение отгрузки {IOException}", e);
+        }
+        return shipmentDtoList;
+    }
+
+    @Override
+    public List<ShipmentDto> searchByString(String nameFilter) {
+        List<ShipmentDto> shipmentDtoList = new ArrayList<>();
+        Call<List<ShipmentDto>> getShipmentByNameFilter = shipmentApi.searchByString(shipmentUrl, nameFilter);
+        try {
+            shipmentDtoList = getShipmentByNameFilter.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение отгрузки по фильтру {}", nameFilter);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение отгрузки {IOException}", e);
+        }
+        return shipmentDtoList;
+    }
 }

@@ -1,4 +1,4 @@
-package com.trade_accounting.controllers;
+package com.trade_accounting.components.general.controllers;
 
 import com.trade_accounting.services.interfaces.util.EmailService;
 import lombok.RequiredArgsConstructor;

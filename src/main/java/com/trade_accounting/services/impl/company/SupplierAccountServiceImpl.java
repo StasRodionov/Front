@@ -122,7 +122,6 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
         } catch (IOException e) {
             log.error("Произошла ошибка при отправке запроса на удаление SupplierAccount {} - {}",id, e);
         }
-
     }
 
     @Override
@@ -133,7 +132,7 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
             supplierAccountDtoList = callSupplier.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение счета поставщика  по фильтру {}",querySupplier);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск иполучение счета поставщика {IOException}", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение счета поставщика {IOException}", e);
         }
         return supplierAccountDtoList;
     }
