@@ -7,9 +7,11 @@ import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Modals;
 
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
 import com.trade_accounting.models.dto.finance.CorrectionProductDto;
+import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
@@ -34,6 +36,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
@@ -70,26 +74,33 @@ public class PostingCreateView extends VerticalLayout {
     private final TextArea commentField = new TextArea();
     private final Checkbox isSent = new Checkbox();
     private final Checkbox isPrint = new Checkbox();
+    private final Checkbox isRecyclebin = new Checkbox();
+    private final Checkbox writeOffProduct = new Checkbox();
+    private final TextField returnNumber = new TextField();
     private final Grid<CorrectionProductDto> grid = new Grid<>(CorrectionProductDto.class, false);
     private final GridPaginator<CorrectionProductDto> paginator;
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
-    private String parentLocation = "";
+    private String parentLocation = "positingTab";
+
+    private final Binder<CorrectionDto> postingBinder = new Binder<>(CorrectionDto.class);
+
+    private final Notifications notifications;
 
     @Autowired
     public PostingCreateView(CompanyService companyService, CorrectionProductService correctionProductService,
                              CorrectionService correctionService,
                              WarehouseService warehouseService, ProductSelectModal productSelectModal,
-                             ProductService productService, UnitService unitService) {
+                             ProductService productService, UnitService unitService, Notifications notifications) {
         this.companyService = companyService;
         this.correctionProductService = correctionProductService;
-        //this.correctionService = correctionService;
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
         this.productSelectModal = productSelectModal;
         this.productService = productService;
         this.unitService = unitService;
+        this.notifications = notifications;
 
         configureGrid();
         paginator = new GridPaginator<>(grid);
@@ -121,7 +132,7 @@ public class PostingCreateView extends VerticalLayout {
 
     private HorizontalLayout getUpperLayout() {
         HorizontalLayout layout = new HorizontalLayout();
-        layout.add(getQuestionButton(), getTitle(), getSaveButton(), getCloseButton(), getAddProductButton());
+        layout.add(getQuestionButton(), getTitle(), saveButton(), getCloseButton(), getAddProductButton());
         layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return layout;
     }
@@ -141,19 +152,6 @@ public class PostingCreateView extends VerticalLayout {
         return questionButton;
     }
 
-    private Button getSaveButton() {
-        return new Button("Сохранить", clickEvent -> {
-            if (isCorrectionFormValid()) {
-                if (dateTimePicker.isEmpty()) {
-                    dateTimePicker.setValue(LocalDateTime.now());
-                }
-                saveCorrection();
-                UI.getCurrent().navigate(parentLocation);
-            } else {
-                Modals.infoModal("Заполните все поля, чтобы добавить опр!").open();
-            }
-        });
-    }
 
     private Button getCloseButton() {
         return new Button("Закрыть", new Icon(VaadinIcon.CLOSE), clickEvent -> {
@@ -172,11 +170,22 @@ public class PostingCreateView extends VerticalLayout {
     }
 
     private HorizontalLayout getFormLine1() {
-        return new HorizontalLayout(getDateField(), getCompanyField(), getWarehouseField());
+        return new HorizontalLayout(getNumberConfigure(),  getDateField(), getCompanyField(), getWarehouseField());
     }
 
     private HorizontalLayout getFormLine2() {
         return new HorizontalLayout(getCommentField(), getCheckboxFields());
+    }
+
+    private HorizontalLayout getNumberConfigure() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        Label label = new Label("Оприходование №");
+        label.setWidth("150px");
+        returnNumber.setWidth("50px");
+        horizontalLayout.add(label, returnNumber);
+        postingBinder.forField(returnNumber)
+                .asRequired("Обязательное поле");
+        return horizontalLayout;
     }
 
     private HorizontalLayout getDateField() {
@@ -232,19 +241,31 @@ public class PostingCreateView extends VerticalLayout {
                 && !warehouseSelect.isEmpty();
     }
 
-    private CorrectionDto saveCorrection() {
-        CorrectionDto correctionDto = new CorrectionDto();
-        correctionDto.setDate(dateTimePicker.getValue().toString());
-        correctionDto.setCorrectionProductIds(paginator.getData().stream()
-                .map(correctionProductDto -> correctionProductService.create(correctionProductDto).getId())
-                .collect(Collectors.toList()));
-        correctionDto.setComment(commentField.getValue());
-        correctionDto.setCompanyId(companySelect.getValue().getId());
-        correctionDto.setWarehouseId(warehouseSelect.getValue().getId());
-        correctionDto.setIsSent(isSent.getValue());
-        correctionDto.setIsPrint(isPrint.getValue());
-        //return correctionDto;
-        return correctionService.create(correctionDto);
+    private Button saveButton(){
+    return new Button("Сохранить", clickEvent -> {
+        if(isCorrectionFormValid()) {
+            if (dateTimePicker.isEmpty()) {
+                dateTimePicker.setValue(LocalDateTime.now());
+            }
+            CorrectionDto correctionDt = new CorrectionDto();
+            correctionDt.setId(Long.parseLong(returnNumber.getValue()));
+            correctionDt.setDate(dateTimePicker.getValue().toString());
+            correctionDt.setCorrectionProductIds(paginator.getData().stream()
+                    .map(correctionProductDto -> correctionProductService.create(correctionProductDto).getId())
+                    .collect(Collectors.toList()));
+            correctionDt.setComment(commentField.getValue());
+            correctionDt.setCompanyId(companySelect.getValue().getId());
+            correctionDt.setWarehouseId(warehouseSelect.getValue().getId());
+            correctionDt.setIsSent(isSent.getValue());
+            correctionDt.setIsPrint(isPrint.getValue());
+            correctionService.create(correctionDt);
+
+            UI.getCurrent().navigate(parentLocation);
+            notifications.infoNotification(String.format("Оприходование № %s сохранен", correctionDt.getId()));
+        } else {
+            Modals.infoModal("Заполните все поля, чтобы добавить опр!").open();
+        }
+    });
     }
 
     public void clearForm() {
