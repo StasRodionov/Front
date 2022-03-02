@@ -81,7 +81,7 @@ public abstract class PrintExcelDocument<T> {
         } catch (FileNotFoundException e) {
             log.error("Xls шаблон с таким именем не найден");
         } catch (IOException ex) {
-            log.error("произошла ошабка при созании или записи нового xls отчета");
+            log.error("произошла ошибка при созании или записи нового xls отчета: " + ex.getMessage());
         }
         return null;
     }
