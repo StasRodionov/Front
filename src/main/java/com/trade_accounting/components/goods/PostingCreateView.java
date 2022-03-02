@@ -269,6 +269,7 @@ public class PostingCreateView extends VerticalLayout {
     }
 
     public void clearForm() {
+        returnNumber.clear();
         dateTimePicker.clear();
         companySelect.clear();
         warehouseSelect.clear();
