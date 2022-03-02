@@ -32,6 +32,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -46,7 +48,7 @@ import java.util.List;
 @PageTitle("Оприходования")
 @Route(value = "positingTab", layout = AppView.class)
 @UIScope
-public class PostingTabView extends VerticalLayout {
+public class PostingTabView extends VerticalLayout  implements AfterNavigationObserver {
 
     private final CorrectionService correctionService;
     private final WarehouseService warehouseService;
@@ -134,7 +136,7 @@ public class PostingTabView extends VerticalLayout {
 
     private HorizontalLayout configureActions() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(),
+        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(), text(),
                 numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
@@ -216,7 +218,7 @@ public class PostingTabView extends VerticalLayout {
     }
 
     public void updateList() {
-
+        grid.setItems(correctionService.getAll());
     }
 
     private Button buttonUnit() {
@@ -238,7 +240,7 @@ public class PostingTabView extends VerticalLayout {
 
     private TextField text() {
         textField.setWidth("300px");
-        textField.setPlaceholder("Наименование или комментарий");
+        textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -290,5 +292,10 @@ public class PostingTabView extends VerticalLayout {
         print.setValue("Печать");
         print.setWidth("110px");
         return print;
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }
