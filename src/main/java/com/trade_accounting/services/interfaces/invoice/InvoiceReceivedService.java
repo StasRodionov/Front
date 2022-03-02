@@ -15,4 +15,6 @@ public interface InvoiceReceivedService {
     void update(InvoiceReceivedDto invoiceReceivedDto);
 
     void deleteById(Long id);
+
+    List<InvoiceReceivedDto> searchByString(String nameFilter);
 }

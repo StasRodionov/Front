@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -58,5 +60,19 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
     public void deleteById(Long id) {
         Call<Void> voidCall = invoiceReceivedApi.deleteById(invoiceReceivedUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(voidCall, InvoiceReceivedDto.class, id);
+    }
+
+    @Override
+    public List<InvoiceReceivedDto> searchByString(String search) {
+        List<InvoiceReceivedDto> invoiceReceivedDtoListDtoList = new ArrayList<>();
+        Call<List<InvoiceReceivedDto>> invoiceReceivedDtoCall = invoiceReceivedApi.searchByString(invoiceReceivedUrl, search);
+        System.out.println(invoiceReceivedUrl+search);
+        try {
+            invoiceReceivedDtoListDtoList = invoiceReceivedDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение счетов-фактур полученные по фильтру {}", search);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение счетов-фактур полученные {IOException}", e);
+        }
+        return invoiceReceivedDtoListDtoList;
     }
 }
