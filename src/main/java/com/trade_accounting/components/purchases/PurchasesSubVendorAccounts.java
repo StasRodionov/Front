@@ -254,7 +254,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         select.setWidth("130px");
         select.addValueChangeListener(event -> {
             if (select.getValue().equals("Удалить")) {
-                deleteSelectedInvoices();
+                moveToRecycleBinSelectedInvoices();
                 grid.deselectAll();
                 select.setValue("Изменить");
                 paginator.setData(loadSupplierAccounts());
@@ -338,11 +338,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
         List<String> sumList = new ArrayList<>();
-        List<SupplierAccountDto> list1 = supplierAccountService.getAll();
+        List<SupplierAccountDto> list1 = supplierAccountService.getAll(typeOfInvoice);
         for (SupplierAccountDto sad : list1) {
             sumList.add(getTotalPrice(sad));
         }
-        PrintSupplierXls printSupplierXls = new PrintSupplierXls(file.getPath(), supplierAccountService.getAll(), contractorService,warehouseService ,companyService, sumList, employeeService);
+        PrintSupplierXls printSupplierXls = new PrintSupplierXls(file.getPath(), supplierAccountService.getAll(typeOfInvoice), contractorService,warehouseService ,companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printSupplierXls::createReport), templateName);
 
     }
@@ -417,15 +417,19 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         return String.format("%.2f", totalPrice);
     }
 
-    public void deleteSelectedInvoices() {
+    public List<SupplierAccountDto> moveToRecycleBinSelectedInvoices() {
+        List<SupplierAccountDto> moved = new ArrayList<>();
         if(!grid.getSelectedItems().isEmpty()) {
             for(SupplierAccountDto supp : grid.getSelectedItems()) {
-                supplierAccountService.deleteById(supp.getId());
-                notifications.infoNotification("Выбранные счета поставщиков успешно удалены");
+             moved.add(supplierAccountService.getById(supp.getId()));
+            supplierAccountService.moveToIsRecyclebin(supp.getId());
+                notifications.infoNotification("Выбранные счета поставщиков помещены в корзину");
             }
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные контрагенты");
         }
+
+        return moved;
     }
 
     @Override
