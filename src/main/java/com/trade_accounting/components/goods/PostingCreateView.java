@@ -48,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -87,6 +88,7 @@ public class PostingCreateView extends VerticalLayout {
     private final Binder<CorrectionDto> postingBinder = new Binder<>(CorrectionDto.class);
 
     private final Notifications notifications;
+    private List<Long> listItems = new ArrayList<>();
 
     @Autowired
     public PostingCreateView(CompanyService companyService, CorrectionProductService correctionProductService,
@@ -182,9 +184,9 @@ public class PostingCreateView extends VerticalLayout {
         Label label = new Label("Оприходование №");
         label.setWidth("150px");
         returnNumber.setWidth("50px");
+        postingBinder.forField(returnNumber);
+        returnNumber.setEnabled(false);
         horizontalLayout.add(label, returnNumber);
-        postingBinder.forField(returnNumber)
-                .asRequired("Обязательное поле");
         return horizontalLayout;
     }
 
@@ -244,11 +246,11 @@ public class PostingCreateView extends VerticalLayout {
     private Button saveButton(){
     return new Button("Сохранить", clickEvent -> {
         if(isCorrectionFormValid()) {
-            if (dateTimePicker.isEmpty()) {
-                dateTimePicker.setValue(LocalDateTime.now());
-            }
+//            if (dateTimePicker.isEmpty()) {
+//                dateTimePicker.setValue(LocalDateTime.now());
+//            }
+
             CorrectionDto correctionDt = new CorrectionDto();
-            correctionDt.setId(Long.parseLong(returnNumber.getValue()));
             correctionDt.setDate(dateTimePicker.getValue().toString());
             correctionDt.setCorrectionProductIds(paginator.getData().stream()
                     .map(correctionProductDto -> correctionProductService.create(correctionProductDto).getId())
@@ -261,7 +263,8 @@ public class PostingCreateView extends VerticalLayout {
             correctionService.create(correctionDt);
 
             UI.getCurrent().navigate(parentLocation);
-            notifications.infoNotification(String.format("Оприходование № %s сохранен", correctionDt.getId()));
+            correctionService.getAll().stream().forEach(i->listItems.add(i.getId()));
+            notifications.infoNotification(String.format("Оприходование № %s сохранен", listItems.get(listItems.size()-1)));
         } else {
             Modals.infoModal("Заполните все поля, чтобы добавить опр!").open();
         }
@@ -269,7 +272,7 @@ public class PostingCreateView extends VerticalLayout {
     }
 
     public void clearForm() {
-        dateTimePicker.clear();
+        dateTimePicker.setValue(LocalDateTime.now());
         companySelect.clear();
         warehouseSelect.clear();
         commentField.clear();
