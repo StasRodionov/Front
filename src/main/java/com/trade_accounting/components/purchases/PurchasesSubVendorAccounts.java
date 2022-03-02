@@ -64,6 +64,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -188,7 +189,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
-        filter.onSearchClick(e -> paginator.setData(supplierAccountService.searchByFilter(filter.getFilterData())));
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterData();
+            map.put("typeOfInvoice", typeOfInvoice);
+            paginator.setData(supplierAccountService.searchByFilter(map));
+        });
         filter.onClearClick(e -> paginator.setData(supplierAccountService.getAll(typeOfInvoice)));
     }
 
