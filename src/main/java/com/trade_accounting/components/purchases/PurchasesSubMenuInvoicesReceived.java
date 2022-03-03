@@ -177,6 +177,11 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         return formatDateTime.format(formatter);
     }
 
+    /*private static String formatDate(String date) {
+        return LocalDateTime.parse(date)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }*/
+
     private H4 title() {
         H4 title = new H4("Счета-фактуры полученные");
         title.setHeight("2.2em");

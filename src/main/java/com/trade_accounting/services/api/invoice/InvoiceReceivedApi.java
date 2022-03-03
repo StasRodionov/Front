@@ -22,7 +22,7 @@ public interface InvoiceReceivedApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/queryInvoice")
-    Call<List<InvoiceReceivedApi>> searchByFilter(@Path(value = "url", encoded = true) String url,
+    Call<List<InvoiceReceivedDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
                                            @QueryMap Map<String, String> queryInvoice);
 
     /*@Headers("Accept: application/json")
@@ -51,4 +51,5 @@ public interface InvoiceReceivedApi {
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
+    Call<List<InvoiceReceivedDto>> getAll(String invoiceReceivedUrl, String typeOfInvoice);
 }

@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -38,20 +41,55 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
 
     @Override
     public List<InvoiceReceivedDto> getAll(String typeOfInvoice) {
-        return null;
+        List<InvoiceReceivedDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceReceivedDto>> invoiceDtoListCall = invoiceReceivedApi.getAll(invoiceReceivedUrl, typeOfInvoice);
+        try {
+            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            log.info("Успешно выполнен запрос на получение списка ShipmentDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases не авторизованного пользователя  - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка ShipmentDto - {IOException}", e);
+        }
+        return invoiceDtoList;
     }
+
+    /*@Override
+    public List<InvoiceReceivedDto> searchByFilter(Map<String, String> queryInvoiceReceived) {
+        //написать метод
+        return null;
+    }*/
 
     @Override
     public List<InvoiceReceivedDto> searchByFilter(Map<String, String> queryInvoiceReceived) {
         //написать метод
-        return null;
+        List<InvoiceReceivedDto> invoiceReceivedDtoList = new ArrayList<>();
+        Call<List<InvoiceReceivedDto>> callInvoiceReceived = invoiceReceivedApi.searchByFilter(invoiceReceivedUrl, queryInvoiceReceived);
+        try {
+            invoiceReceivedDtoList = callInvoiceReceived.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение счета фактуры полученные по фильтру {}", queryInvoiceReceived);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение счета фактуры полученные {IOException}", e);
+        }
+        return invoiceReceivedDtoList;
     }
 
     @Override
     public List<InvoiceReceivedDto> searchByString(String nameFilter) {
-        return null;
+        List<InvoiceReceivedDto> invoiceReceivedDtoList = new ArrayList<>();
+        Call<List<InvoiceReceivedDto>> getInvoiceReceivedByNameFilter = invoiceReceivedApi.searchByString(invoiceReceivedUrl, nameFilter);
+        try {
+            invoiceReceivedDtoList = getInvoiceReceivedByNameFilter.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение отгрузки по фильтру {}", nameFilter);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение отгрузки {IOException}", e);
+        }
+        return invoiceReceivedDtoList;
     }
 
+    /*@Override
+    public List<InvoiceReceivedDto> searchByString(String nameFilter) {
+        return null;
+    }*/
     @Override
     public InvoiceReceivedDto getById(Long id) {
         Call<InvoiceReceivedDto> invoiceReceivedDtoCall = invoiceReceivedApi.getById(invoiceReceivedUrl, id);
