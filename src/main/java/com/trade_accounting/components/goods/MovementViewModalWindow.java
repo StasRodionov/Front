@@ -60,10 +60,12 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -193,10 +195,9 @@ public class MovementViewModalWindow extends Dialog {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setTarget(buttonPrint);
         contextMenu.setOpenOnClick(true);
-
         SubMenu subMenuTorg13 = contextMenu.addItem(new Div(new Text("ТОРГ-13"))).getSubMenu();
         subMenuTorg13.addItem("Открыть в браузере");
-        subMenuTorg13.addItem(getLinkToXlsTemplate(getXlsFileTorg13()));
+        getXlsFiles().forEach(x -> subMenuTorg13.addItem(getLinkToXlsTemplate(x)));
         subMenuTorg13.addItem("Скачать в формате PDF");
         subMenuTorg13.addItem("Скачать в формате Open Office Calc");
 
@@ -232,8 +233,10 @@ public class MovementViewModalWindow extends Dialog {
         return params;
     }
 
-    private File getXlsFileTorg13() {
-        return new File(pathForSaveXlsTemplate);
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
     }
 
     private void configureSendButton(MovementDto movementDto) {
