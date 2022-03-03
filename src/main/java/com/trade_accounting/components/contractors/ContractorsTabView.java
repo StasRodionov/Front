@@ -314,12 +314,15 @@ public class ContractorsTabView extends VerticalLayout {
     private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.removeAll();
-        templatesXlsMenuItems(printSubMenu);
+        templatesMenuItems(printSubMenu);
         uploadXlsMenuItem(printSubMenu);
     }
 
-    private void templatesXlsMenuItems(SubMenu subMenu) {
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+    private void templatesMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> {
+            subMenu.addItem(getLinkToXlsTemplate(x));
+            subMenu.addItem(getLinkToPdfTemplate(x));
+        });
     }
 
     private List<File> getXlsFiles() {
@@ -332,6 +335,12 @@ public class ContractorsTabView extends VerticalLayout {
         String templateName = file.getName();
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), templateName);
+    }
+
+    private Anchor getLinkToPdfTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReportPDF), templateName);
     }
 
     private void getInfoNotification(String message) {

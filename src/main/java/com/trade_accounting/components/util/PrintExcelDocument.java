@@ -1,6 +1,6 @@
 package com.trade_accounting.components.util;
 
-//import com.aspose.cells.SaveFormat;
+import com.aspose.cells.SaveFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -28,7 +28,6 @@ import java.util.List;
 public abstract class PrintExcelDocument<T> {
 
     private final List<T> list;
-
     private final String pathToXlsTemplate;
 
     protected PrintExcelDocument(String pathToXlsTemplate, List<T> list) {
@@ -36,34 +35,32 @@ public abstract class PrintExcelDocument<T> {
         this.list = list;
     }
 
+    public InputStream createReportPDF() {
+        try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-//    public InputStream createReportPDF(){
-//        try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
-//             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-//
-//            Workbook workbook = WorkbookFactory.create(fiz);
-//            fiz.close();
-//
-//            printExcelWorkBook(workbook);
-//            workbook.write(outputStream);
-//            workbook.close();
-//
-//            ByteArrayInputStream inStream = new  ByteArrayInputStream(outputStream.toByteArray());
-//            final com.aspose.cells.Workbook doc = new com.aspose.cells.Workbook(inStream);
-//            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            doc.save(baos, SaveFormat.PDF);
-//            return  new ByteArrayInputStream(baos.toByteArray());
-//
-//        } catch (FileNotFoundException e) {
-//            log.error("PDF шаблон с таким именем не найден");
-//        } catch (IOException ex) {
-//            log.error("произошла ошабка при создании или записи нового PDF отчета");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//
-//    }
+            Workbook workbook = WorkbookFactory.create(fiz);
+            fiz.close();
+
+            printExcelWorkBook(workbook);
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream inStream = new  ByteArrayInputStream(outputStream.toByteArray());
+            final com.aspose.cells.Workbook doc = new com.aspose.cells.Workbook(inStream);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            doc.save(baos, SaveFormat.PDF);
+            return new ByteArrayInputStream(baos.toByteArray());
+
+        } catch (FileNotFoundException e) {
+            log.error("PDF шаблон с таким именем не найден");
+        } catch (IOException ex) {
+            log.error("произошла ошабка при создании или записи нового PDF отчета");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public InputStream createReport() {
         try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
@@ -99,7 +96,6 @@ public abstract class PrintExcelDocument<T> {
             }
         }
     }
-
 
     private boolean printRow(Row row) {
         for (int i = 0; i <= row.getLastCellNum(); i++) {

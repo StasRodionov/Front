@@ -126,12 +126,12 @@
             <version>3.0.2</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.aspose</groupId>-->
-<!--            <artifactId>aspose-cells</artifactId>-->
-<!--            <version>20.7</version>-->
-<!--        </dependency>-->
-
+        <!-- https://mvnrepository.com/artifact/com.aspose/aspose-cells -->
+        <dependency>
+            <groupId>com.aspose</groupId>
+            <artifactId>aspose-cells</artifactId>
+            <version>21.12</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -139,22 +139,18 @@
             <version>5.1.0</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.jxls</groupId>
             <artifactId>jxls-poi</artifactId>
             <version> 2.9.0 </version>
         </dependency>
 
-
-
-
-
+<!--        <dependency>-->
+<!--            <groupId>e-iceblue</groupId>-->
+<!--            <artifactId>spire.xls.free</artifactId>-->
+<!--            <version>3.9.1</version>-->
+<!--        </dependency>-->
     </dependencies>
-
-
-
-
 
     <dependencyManagement>
         <dependencies>
@@ -165,7 +161,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -185,6 +180,11 @@
     </build>
 
     <repositories>
+<!--        <repository>-->
+<!--            <id>com.e-iceblue</id>-->
+<!--            <name>e-iceblue</name>-->
+<!--            <url>http://repo.e-iceblue.com/nexus/content/groups/public/</url>-->
+<!--        </repository>-->
         <repository>
             <id>vaadin-addons</id>
             <url>https://maven.vaadin.com/vaadin-addons</url>
@@ -195,11 +195,11 @@
             <url>https://repo.spring.io/milestone</url>
         </repository>
 
-<!--        <repository>-->
-<!--            <id>AsposeJavaAPI</id>-->
-<!--            <name>Aspose Java API</name>-->
-<!--            <url>https://repository.aspose.com/repo/</url>-->
-<!--        </repository>-->
+        <repository>
+            <id>AsposeJavaAPI</id>
+            <name>Aspose Java API</name>
+            <url>https://repository.aspose.com/repo/</url>
+        </repository>
 
         <repository>
             <id>spring-snapshots</id>
