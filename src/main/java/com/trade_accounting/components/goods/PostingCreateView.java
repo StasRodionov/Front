@@ -11,7 +11,6 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
 import com.trade_accounting.models.dto.finance.CorrectionProductDto;
-import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
@@ -265,7 +264,9 @@ public class PostingCreateView extends VerticalLayout {
                         Modals.infoModal(String.format("Оприходование с таким № %s уже существует", returnNumber.getValue())).open();
                     }
                 }
-            }
+            } else {
+            Modals.infoModal("Заполните все поля, чтобы добавить оприходование!").open();
+        }
         });
     }
 

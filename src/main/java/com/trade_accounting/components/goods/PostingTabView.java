@@ -229,7 +229,7 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
             postingCreateView.setParentLocation("positingTab");
             button.getUI().ifPresent(ui -> ui.navigate("goods/posting-create"));
         });
-        updateList();
+
         return button;
     }
 
