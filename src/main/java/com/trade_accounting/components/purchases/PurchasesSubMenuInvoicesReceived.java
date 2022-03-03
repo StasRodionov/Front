@@ -1,13 +1,15 @@
 package com.trade_accounting.components.purchases;
 
-
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintInvoiceReceivedXls;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceReceivedDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -83,6 +85,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     private GridPaginator<InvoiceReceivedDto> paginator;
     private final GridFilter<InvoiceReceivedDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices_received/";
+    private final String typeOfInvoice = "RECEIPT";
 
     private final TextField textField = new TextField();
 
@@ -99,9 +102,15 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         this.contractorService = contractorService;
         this.notifications = notifications;
         this.data = getData();
-        this.filter = new GridFilter<>(grid);
-        paginator = new GridPaginator<>(grid, data, 50);
+
+        configureActions();
         configureGrid();
+
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
+        paginator = new GridPaginator<>(grid, data, 50);
+
         add(configureActions(), filter, grid, paginator);
     }
 
@@ -151,6 +160,17 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         return grid;
     }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("data");
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> paginator
+                .setData(invoiceReceivedService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(invoiceReceivedService.getAll()));
+    }
+
     private String formatDate(String stringDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
@@ -172,7 +192,9 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e->filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
     }
 
     private TextField filterTextField() {
@@ -315,6 +337,14 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     private void updateList() {
         grid.setItems(invoiceReceivedService.getAll());
     }
+
+    /*public void updateList(String nameFilter) {
+        if (nameFilter.isEmpty()) {
+            grid.setItems(invoiceReceivedService.getAll());
+        } else {
+            grid.setItems(invoiceReceivedService.searchByString(nameFilter));
+        }
+    }*/
 
     private String getTotalPrice(InvoiceReceivedDto dto) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);

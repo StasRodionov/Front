@@ -11,6 +11,7 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -33,6 +34,22 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
     public List<InvoiceReceivedDto> getAll() {
         Call<List<InvoiceReceivedDto>> listCall = invoiceReceivedApi.getAll(invoiceReceivedUrl);
         return dtoCallExecuteService.callExecuteBodyList(listCall, InvoiceReceivedDto.class);
+    }
+
+    @Override
+    public List<InvoiceReceivedDto> getAll(String typeOfInvoice) {
+        return null;
+    }
+
+    @Override
+    public List<InvoiceReceivedDto> searchByFilter(Map<String, String> queryInvoiceReceived) {
+        //написать метод
+        return null;
+    }
+
+    @Override
+    public List<InvoiceReceivedDto> searchByString(String nameFilter) {
+        return null;
     }
 
     @Override
@@ -59,4 +76,6 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
         Call<Void> voidCall = invoiceReceivedApi.deleteById(invoiceReceivedUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(voidCall, InvoiceReceivedDto.class, id);
     }
+
+
 }
