@@ -122,10 +122,9 @@ public class MovementProductsModalView extends Dialog {
                         notifications,
                         unitService,
                         movementProductService,
-                        employeeService,
-                        movementProductService,
                         legalDetailService,
-                        bankAccountService);
+                        bankAccountService,
+                        employeeService);
                 modalView.open();
 
             }

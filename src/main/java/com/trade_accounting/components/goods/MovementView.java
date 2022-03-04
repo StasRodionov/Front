@@ -138,9 +138,9 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     notifications,
                     unitService,
                     movementProductService,
-                    employeeService,
                     legalDetailService,
-                    bankAccountService);
+                    bankAccountService,
+                    employeeService);
             modalView.setMovementForEdit(dto);
             modalView.open();
         });
@@ -254,9 +254,9 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     notifications,
                     unitService,
                     movementProductService,
-                    employeeService,
                     legalDetailService,
-                    bankAccountService);
+                    bankAccountService,
+                    employeeService);
             modalView.open();
         });
         return buttonUnit;
