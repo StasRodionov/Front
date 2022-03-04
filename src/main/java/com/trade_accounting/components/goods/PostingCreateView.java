@@ -11,7 +11,6 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
 import com.trade_accounting.models.dto.finance.CorrectionProductDto;
-import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
@@ -48,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -87,6 +87,7 @@ public class PostingCreateView extends VerticalLayout {
     private final Binder<CorrectionDto> postingBinder = new Binder<>(CorrectionDto.class);
 
     private final Notifications notifications;
+    private List<Long> listItems = new ArrayList<>();
 
     @Autowired
     public PostingCreateView(CompanyService companyService, CorrectionProductService correctionProductService,
@@ -182,9 +183,9 @@ public class PostingCreateView extends VerticalLayout {
         Label label = new Label("Оприходование №");
         label.setWidth("150px");
         returnNumber.setWidth("50px");
+        postingBinder.forField(returnNumber);
+        returnNumber.setEnabled(true);
         horizontalLayout.add(label, returnNumber);
-        postingBinder.forField(returnNumber)
-                .asRequired("Обязательное поле");
         return horizontalLayout;
     }
 
@@ -241,36 +242,52 @@ public class PostingCreateView extends VerticalLayout {
                 && !warehouseSelect.isEmpty();
     }
 
-    private Button saveButton(){
-    return new Button("Сохранить", clickEvent -> {
-        if(isCorrectionFormValid()) {
-            if (dateTimePicker.isEmpty()) {
-                dateTimePicker.setValue(LocalDateTime.now());
-            }
-            CorrectionDto correctionDt = new CorrectionDto();
-            correctionDt.setId(Long.parseLong(returnNumber.getValue()));
-            correctionDt.setDate(dateTimePicker.getValue().toString());
-            correctionDt.setCorrectionProductIds(paginator.getData().stream()
-                    .map(correctionProductDto -> correctionProductService.create(correctionProductDto).getId())
-                    .collect(Collectors.toList()));
-            correctionDt.setComment(commentField.getValue());
-            correctionDt.setCompanyId(companySelect.getValue().getId());
-            correctionDt.setWarehouseId(warehouseSelect.getValue().getId());
-            correctionDt.setIsSent(isSent.getValue());
-            correctionDt.setIsPrint(isPrint.getValue());
-            correctionService.create(correctionDt);
+    private Button saveButton() {
+        return new Button("Сохранить", clickEvent -> {
+            correctionService.getAll().stream().forEach(i -> listItems.add(i.getId()));
+            CorrectionDto correctionDto = new CorrectionDto();
 
-            UI.getCurrent().navigate(parentLocation);
-            notifications.infoNotification(String.format("Оприходование № %s сохранен", correctionDt.getId()));
-        } else {
-            Modals.infoModal("Заполните все поля, чтобы добавить опр!").open();
+            if (isCorrectionFormValid()) {
+
+                if (returnNumber.getValue() == "") {
+                    returnNumber.setValue(Long.toString(listItems.get(listItems.size() - 1) + 1));
+                    createCorrectionDto(correctionDto);
+                    UI.getCurrent().navigate(parentLocation);
+                    notifications.infoNotification(String.format("Оприходование № %s сохранен", returnNumber.getValue()));
+                } else {
+                    if (listItems.stream().filter(id -> id == Long.parseLong(returnNumber.getValue())).
+                            findAny().orElse(null) == null) {
+                        createCorrectionDto(correctionDto);
+                        UI.getCurrent().navigate(parentLocation);
+                        notifications.infoNotification(String.format("Оприходование № %s сохранен", returnNumber.getValue()));
+                    } else {
+                        Modals.infoModal(String.format("Оприходование с таким № %s уже существует", returnNumber.getValue())).open();
+                    }
+                }
+            } else {
+            Modals.infoModal("Заполните все поля, чтобы добавить оприходование!").open();
         }
-    });
+        });
+    }
+
+    private CorrectionDto createCorrectionDto(CorrectionDto correctionDto) {
+        correctionDto.setId(Long.parseLong(returnNumber.getValue()));
+        correctionDto.setDate(dateTimePicker.getValue().toString());
+        correctionDto.setCorrectionProductIds(paginator.getData().stream()
+                .map(correctionProductDto -> correctionProductService.create(correctionProductDto).getId())
+                .collect(Collectors.toList()));
+        correctionDto.setComment(commentField.getValue());
+        correctionDto.setCompanyId(companySelect.getValue().getId());
+        correctionDto.setWarehouseId(warehouseSelect.getValue().getId());
+        correctionDto.setIsSent(isSent.getValue());
+        correctionDto.setIsPrint(isPrint.getValue());
+
+        return correctionService.create(correctionDto);
     }
 
     public void clearForm() {
         returnNumber.clear();
-        dateTimePicker.clear();
+        dateTimePicker.setValue(LocalDateTime.now());
         companySelect.clear();
         warehouseSelect.clear();
         commentField.clear();
