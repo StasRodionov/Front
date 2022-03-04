@@ -9,7 +9,6 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceReceivedDto;
-import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -81,7 +80,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
 
     private final List<InvoiceReceivedDto> data;
 
-    private final Grid<InvoiceReceivedDto> grid = new Grid<>(InvoiceReceivedDto.class, false);
+    private Grid<InvoiceReceivedDto> grid = new Grid<>(InvoiceReceivedDto.class, false);
     private GridPaginator<InvoiceReceivedDto> paginator;
     private final GridFilter<InvoiceReceivedDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices_received/";
@@ -135,6 +134,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private Grid<InvoiceReceivedDto> configureGrid() {
+        grid = new Grid<>(InvoiceReceivedDto.class, false);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(dto -> formatDate(dto.getData())).setKey("data").setHeader("Время").setSortable(true).setId("Дата");
@@ -172,12 +172,12 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private String formatDate(String stringDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
         return formatDateTime.format(formatter);
     }
 
-    /*private static String formatDate(String date) {
+   /* private static String formatDate(String date) {
         return LocalDateTime.parse(date)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }*/
