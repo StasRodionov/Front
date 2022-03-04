@@ -16,6 +16,8 @@ import com.trade_accounting.services.interfaces.finance.PaymentService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -266,7 +268,6 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         }
     }
 
-
     private List<File> getXlsFiles() {
         File dir = new File(pathForSaveXlsTemplate);
         return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
@@ -274,14 +275,11 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     }
 
     private Anchor getLinkToXlsTemplate(File file) {
-
         String paymentsTemplate = file.getName();
         PrintPaymentsXls printPaymentsXls = new PrintPaymentsXls(
                 file.getPath(), paymentService.getAll(), companyService, contractorService, contractService, projectService);
-        return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport),
-                "Печать xls файла");
+        return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport), "Скачать в формате Excel");
     }
-
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
