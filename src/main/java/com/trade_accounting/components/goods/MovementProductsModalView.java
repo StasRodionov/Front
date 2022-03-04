@@ -5,6 +5,7 @@ import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
@@ -59,10 +60,10 @@ public class MovementProductsModalView extends Dialog {
                                      WarehouseService warehouseService,
                                      MovementService movementService,
                                      UnitService unitService,
-                                     EmployeeService employeeService,
-                                     Notifications notifications,
                                      LegalDetailService legalDetailService,
-                                     BankAccountService bankAccountService) {
+                                     BankAccountService bankAccountService,
+                                     EmployeeService employeeService,
+                                     Notifications notifications) {
         this.movementProductService = movementProductService;
         this.productService = productService;
         this.companyService = companyService;

@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.units.UnitService;
@@ -134,9 +135,9 @@ public class MovementViewModalWindow extends Dialog {
         this.notifications = notifications;
         this.unitService = unitService;
         this.movementProductService = movementProductService;
-        this.employeeService = employeeService;
         this.legalDetailService = legalDetailService;
         this.bankAccountService = bankAccountService;
+        this.employeeService = employeeService;
 
         this.tempMovementProductDtoList = new ArrayList<>();
         paginator = new GridPaginator<>(grid, tempMovementProductDtoList, 50);
@@ -408,10 +409,10 @@ public class MovementViewModalWindow extends Dialog {
                     warehouseService,
                     movementService,
                     unitService,
-                    employeeService,
-                    notifications,
                     legalDetailService,
-                    bankAccountService);
+                    bankAccountService,
+                    employeeService,
+                    notifications);
             modalView.open();
         });
         return button;
