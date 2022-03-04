@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.retail.RetailStoreDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -48,6 +49,7 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
 
     private final Grid<RetailStoreDto> grid = new Grid<>(RetailStoreDto.class, false);
     private final GridPaginator<RetailStoreDto> paginator;
+    private final GridFilter<RetailStoreDto> filter;
 
     public RetailStoresTabView(RetailStoreService retailStoreService,
                                CompanyService companyService, EmployeeService employeeService,
@@ -58,36 +60,40 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         this.employeeService = employeeService;
         this.positionService = positionService;
         this.retailStoreModalWindow = new RetailStoreModalWindow(retailStoreService, companyService, employeeService,
-                                    positionService);
+                positionService);
         configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(), grid, paginator);
+        add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.removeAllColumns();
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(new ComponentRenderer<>(this::isActiveCheckedIcon)).setKey("isActive").setHeader("Включена")
                 .setId("Включена");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("activityStatus").setHeader("Активность").setId("Активность");
-        grid.addColumn(unused -> "Мой склад").setHeader("Тип");
         grid.addColumn("revenue").setHeader("Выручка").setId("Выручка");
         grid.addColumn(unused -> "0").setHeader("Чеки").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Средний чек").setWidth("20px");
         grid.addColumn(unused -> "0,00").setHeader("Денег в кассе").setWidth("20px");
+        grid.addColumn(s -> "Мой склад").setHeader("Тип").setId("Тип");
+
         grid.addColumn(unused -> (unused.getCashiersIds().stream()
                         .map(map -> employeeService.getById(map).getFirstName())
                         .collect(Collectors.toSet())))
-                        .setWidth("100px").setHeader("Кассиры").setId("Кассиры");
+                .setWidth("100px").setHeader("Кассиры").setId("Кассиры");
         grid.addColumn(unused -> "-").setHeader("Синхронизация");
         grid.addColumn(unused -> "Нет").setHeader("ФН").setWidth("20px");
         grid.setHeight("66vh");
-        grid.getColumnByKey("id").setWidth("15px");
-        grid.getColumnByKey("isActive").setWidth("30px");
-        grid.getColumnByKey("name").setWidth("150px");
-        grid.getColumnByKey("activityStatus").setWidth("150px");
+//        grid.getColumnByKey("id").setWidth("15px");
+//        grid.getColumnByKey("isActive").setWidth("30px");
+//        grid.getColumnByKey("name").setWidth("150px");
+//        grid.getColumnByKey("activityStatus").setWidth("150px");
         grid.addItemDoubleClickListener(event -> {
             RetailStoreDto retailStore = event.getItem();
             retailStoreModalWindow.setRetailStoreDataEdit(retailStore);
@@ -97,6 +103,15 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         GridSortOrder<RetailStoreDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> {
+            paginator.setData(retailStoreService.searchRetailStoreByFilter(filter.getFilterData()));
+        });
+        filter.onClearClick(e ->
+                paginator.setData(retailStoreService.getAll()));
     }
 
     private Component isActiveCheckedIcon(RetailStoreDto retailStoreDto) {
@@ -148,8 +163,11 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         return createRetailStoreButton;
     }
 
+
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return buttonFilter;
     }
 
     private void updateList() {
@@ -166,5 +184,4 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         updateList();
     }
-
 }
