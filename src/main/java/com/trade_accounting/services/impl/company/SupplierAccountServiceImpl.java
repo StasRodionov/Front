@@ -1,6 +1,8 @@
 package com.trade_accounting.services.impl.company;
 
+import com.trade_accounting.components.indicators.RecyclebinView;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.util.OperationsDto;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.company.SupplierAccountService;
 import com.trade_accounting.services.api.company.SupplierAccountApi;
@@ -26,10 +28,12 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
     private final CallExecuteService<SupplierAccountDto> callExecuteService;
 
 
+
     public SupplierAccountServiceImpl(@Value("${supplier_account_url}") String supplierUrl, Retrofit retrofit, CallExecuteService<SupplierAccountDto> callExecuteService) {
         supplier = retrofit.create(SupplierAccountApi.class);
         this.supplierUrl = supplierUrl;
         this.callExecuteService = callExecuteService;
+
     }
 
     @Override
@@ -50,7 +54,6 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
     public List<SupplierAccountDto> getAll(String typeOfInvoice) {
         List<SupplierAccountDto> invoiceDtoList = new ArrayList<>();
         Call<List<SupplierAccountDto>> invoiceDtoListCall = supplier.getAll(supplierUrl, typeOfInvoice);
-
         try {
             invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
             log.info("Успешно выполнен запрос на получение списка SupplierAccountDto");
@@ -58,6 +61,7 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
             log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя  - {NullPointerException}", e);
             log.error("Произошла ошибка при выполнении запроса на получение списка SupplierAccountDto - {IOException}", e);
         }
+        invoiceDtoList.removeIf(supp -> Boolean.TRUE.equals(supp.getIsRecyclebin()));
         return invoiceDtoList;
 
     }
@@ -134,6 +138,7 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение счета поставщика {IOException}", e);
         }
+        supplierAccountDtoList.removeIf(supp -> Boolean.TRUE.equals(supp.getIsRecyclebin()));
         return supplierAccountDtoList;
     }
 
@@ -156,6 +161,7 @@ public class SupplierAccountServiceImpl implements SupplierAccountService {
     public void moveToIsRecyclebin(Long id) {
         Call<Void> dtoCall = supplier.moveToIsRecyclebin(supplierUrl, id);
         callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, SupplierAccountDto.class, id);
+
     }
 
     @Override

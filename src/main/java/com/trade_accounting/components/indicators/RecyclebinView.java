@@ -277,7 +277,44 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private void openModalWindow(OperationsDto dto) {
-        // реализовать
+        if (lossIds.contains(dto.getId())) {
+            LossDto lossDto = lossService.getById(dto.getId());
+            lossModalWindow.setLossEdit(lossDto);
+            lossModalWindow.open();
+        } else if (movementsIds.contains(dto.getId())) {
+            MovementDto movementDto = movementService.getById(dto.getId());
+            movementViewModalWindow.setMovementForEdit(movementDto);
+            movementViewModalWindow.open();
+        } else if (inventarizationsIds.contains(dto.getId())) {
+            InventarizationDto inventarizationDto = inventarizationService.getById(dto.getId());
+            goodsSubInventoryModalWindow.setInventarizationEdit(inventarizationDto);
+            goodsSubInventoryModalWindow.open();
+        } else if (internalOrdersIds.contains(dto.getId())) {
+            InternalOrderDto internalOrderDto = internalOrderService.getById(dto.getId());
+            internalOrderModalView.setInternalOrderForEdit(internalOrderDto);
+            internalOrderModalView.open();
+        } else if (paymentsIds.contains(dto.getId())) {
+            PaymentDto paymentDto = paymentService.getById(dto.getId());
+            if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
+                incomingPaymentModal.setPaymentDataForEdit(paymentDto);
+                incomingPaymentModal.open();
+            } else {
+                outgoingPaymentModal.setPaymentDataForEdit(paymentDto);
+                outgoingPaymentModal.open();
+            }
+        } else if (correctionIds.contains(dto.getId())) {
+            CorrectionDto correctionDto = correctionService.getById(dto.getId());
+            postingModal.setPostingEdit(correctionDto);
+            postingModal.open();
+        } else if (acceptanceIds.contains(dto.getId())) {
+            AcceptanceDto acceptanceDto = acceptanceService.getById(dto.getId());
+            acceptanceModalView.setAcceptanceForEdit(acceptanceDto);
+            acceptanceModalView.open();
+        } else if (supplierAccountIds.contains(dto.getId())) {
+            SupplierAccountDto supplierAccountDto = supplierAccountService.getById(dto.getId());
+            supplierAccountModalView.setSupplierAccountsForEdit(supplierAccountDto);
+            supplierAccountModalView.open();
+        }
     }
 
     private String getDWarehouseFrom(OperationsDto operationsDto) {

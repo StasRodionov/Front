@@ -9,7 +9,11 @@ import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.warehouse.MovementDto;
 import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
 import com.trade_accounting.services.interfaces.warehouse.MovementService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
@@ -59,6 +63,9 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     private final MovementViewModalWindow view;
     private final UnitService unitService;
     private final ProductService productService;
+    private final LegalDetailService legalDetailService;
+    private final BankAccountService bankAccountService;
+    private final EmployeeService employeeService;
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
     private final GridPaginator<MovementDto> paginator;
@@ -72,7 +79,13 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                         WarehouseService warehouseService,
                         CompanyService companyService,
                         MovementProductService movementProductService,
-                        Notifications notifications, MovementViewModalWindow view, UnitService unitService, ProductService productService) {
+                        Notifications notifications,
+                        MovementViewModalWindow view,
+                        UnitService unitService,
+                        ProductService productService,
+                        LegalDetailService legalDetailService,
+                        BankAccountService bankAccountService,
+                        EmployeeService employeeService) {
         this.movementService = movementService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -81,6 +94,9 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
         this.view = view;
         this.unitService = unitService;
         this.productService = productService;
+        this.legalDetailService = legalDetailService;
+        this.bankAccountService = bankAccountService;
+        this.employeeService = employeeService;
         List<MovementDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -122,7 +138,10 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     companyService,
                     notifications,
                     unitService,
-                    movementProductService);
+                    movementProductService,
+                    legalDetailService,
+                    bankAccountService,
+                    employeeService);
             modalView.setMovementForEdit(dto);
             modalView.open();
         });
@@ -235,7 +254,10 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     companyService,
                     notifications,
                     unitService,
-                    movementProductService);
+                    movementProductService,
+                    legalDetailService,
+                    bankAccountService,
+                    employeeService);
             modalView.open();
         });
         return buttonUnit;
