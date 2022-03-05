@@ -10,6 +10,8 @@ import com.trade_accounting.models.dto.warehouse.MovementDto;
 import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.units.UnitService;
@@ -86,6 +88,7 @@ public class MovementViewModalWindow extends Dialog {
     private final MovementProductService movementProductService;
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
+    private final EmployeeService employeeService;
 
     private final ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseComboBox = new ComboBox<>();
@@ -122,7 +125,8 @@ public class MovementViewModalWindow extends Dialog {
                                    UnitService unitService,
                                    MovementProductService movementProductService,
                                    LegalDetailService legalDetailService,
-                                   BankAccountService bankAccountService) {
+                                   BankAccountService bankAccountService,
+                                   EmployeeService employeeService) {
         this.productService = productService;
         this.movementService = movementService;
         this.warehouseService = warehouseService;
@@ -132,6 +136,7 @@ public class MovementViewModalWindow extends Dialog {
         this.movementProductService = movementProductService;
         this.legalDetailService = legalDetailService;
         this.bankAccountService = bankAccountService;
+        this.employeeService = employeeService;
 
         this.tempMovementProductDtoList = new ArrayList<>();
         paginator = new GridPaginator<>(grid, tempMovementProductDtoList, 50);
@@ -315,8 +320,9 @@ public class MovementViewModalWindow extends Dialog {
 
                 HttpClient httpClient = HttpClient.newHttpClient();
                 HttpRequest httpRequest = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:4445/api/movements/files/send/torg13/xls"))
+                        .uri(URI.create(EMAIL_URL + calculateEmail()))
                         .build();
+
                 httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
                         .thenApply(HttpResponse::statusCode)
                         .thenAccept(integer -> {
@@ -334,6 +340,19 @@ public class MovementViewModalWindow extends Dialog {
             }
         });
         contextMenu.addItem("Комплект . . .");
+    }
+
+    private String calculateEmail() {
+        var email = companyComboBox.getValue().getEmail();
+
+        if (email == null) {
+            email = employeeService.getPrincipal().getEmail();
+            if (email == null) {
+                throw new IllegalStateException("Не найден email");
+            }
+        }
+
+        return email;
     }
 
     private HorizontalLayout headerLayout() {
@@ -440,6 +459,7 @@ public class MovementViewModalWindow extends Dialog {
                     unitService,
                     legalDetailService,
                     bankAccountService,
+                    employeeService,
                     notifications);
             modalView.open();
         });
