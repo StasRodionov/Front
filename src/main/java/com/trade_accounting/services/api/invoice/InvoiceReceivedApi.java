@@ -21,14 +21,10 @@ public interface InvoiceReceivedApi {
     Call<List<InvoiceReceivedDto>> getAll(@Path(value = "url", encoded = true) String url);
 
     @Headers("Accept: application/json")
-    @GET("{url}/queryInvoice")
+    @GET("{url}/queryInvoiceReceived")
     Call<List<InvoiceReceivedDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
-                                           @QueryMap Map<String, String> queryInvoice);
+                                           @QueryMap Map<String, String> queryInvoiceReceived);
 
-    /*@Headers("Accept: application/json")
-    @GET("{url}/queryInvoice")
-    Call<List<InvoiceReceivedDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
-                                           @QueryMap Map<String, String> queryInvoice);*/
 
     @Headers("Accept: application/json")
     @GET("{url}/search/{search}")

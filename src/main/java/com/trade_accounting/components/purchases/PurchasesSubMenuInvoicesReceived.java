@@ -172,15 +172,10 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private String formatDate(String stringDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
         return formatDateTime.format(formatter);
     }
-
-   /* private static String formatDate(String date) {
-        return LocalDateTime.parse(date)
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }*/
 
     private H4 title() {
         H4 title = new H4("Счета-фактуры полученные");
@@ -342,14 +337,6 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     private void updateList() {
         grid.setItems(invoiceReceivedService.getAll());
     }
-
-    /*public void updateList(String nameFilter) {
-        if (nameFilter.isEmpty()) {
-            grid.setItems(invoiceReceivedService.getAll());
-        } else {
-            grid.setItems(invoiceReceivedService.searchByString(nameFilter));
-        }
-    }*/
 
     private String getTotalPrice(InvoiceReceivedDto dto) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);

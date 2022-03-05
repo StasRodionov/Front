@@ -53,15 +53,8 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
         return invoiceDtoList;
     }
 
-    /*@Override
-    public List<InvoiceReceivedDto> searchByFilter(Map<String, String> queryInvoiceReceived) {
-        //написать метод
-        return null;
-    }*/
-
     @Override
     public List<InvoiceReceivedDto> searchByFilter(Map<String, String> queryInvoiceReceived) {
-        //написать метод
         List<InvoiceReceivedDto> invoiceReceivedDtoList = new ArrayList<>();
         Call<List<InvoiceReceivedDto>> callInvoiceReceived = invoiceReceivedApi.searchByFilter(invoiceReceivedUrl, queryInvoiceReceived);
         try {
@@ -86,10 +79,6 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
         return invoiceReceivedDtoList;
     }
 
-    /*@Override
-    public List<InvoiceReceivedDto> searchByString(String nameFilter) {
-        return null;
-    }*/
     @Override
     public InvoiceReceivedDto getById(Long id) {
         Call<InvoiceReceivedDto> invoiceReceivedDtoCall = invoiceReceivedApi.getById(invoiceReceivedUrl, id);
