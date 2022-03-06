@@ -28,6 +28,7 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
@@ -61,10 +62,12 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -114,7 +117,7 @@ public class MovementViewModalWindow extends Dialog {
     private final Binder<MovementDto> movementDtoBinder =
             new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
-    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/goods_templates/movement/torg13.xls";
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/goods_templates/movement/";
 
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,
@@ -190,22 +193,54 @@ public class MovementViewModalWindow extends Dialog {
 
     }
 
+    private File getFiles() {
+        return new File(pathForSaveXlsTemplate);
+    }
+
     private void configurePrintButtonContextMenu(MovementDto movementDto) {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setTarget(buttonPrint);
         contextMenu.setOpenOnClick(true);
         SubMenu subMenuTorg13 = contextMenu.addItem(new Div(new Text("ТОРГ-13"))).getSubMenu();
-        subMenuTorg13.addItem("Открыть в браузере");
-        subMenuTorg13.addItem("Скачать в Excel", event -> {
-            final StreamRegistration registration = VaadinSession.getCurrent()
-                    .getResourceRegistry()
-                    .registerResource(getLinkToXlsTemplate(getXlsFileTorg13()));
-            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
 
+        subMenuTorg13.addItem("Открыть в браузере", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToHtmlTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
         });
-        subMenuTorg13.addItem("Скачать в формате PDF");
-        subMenuTorg13.addItem("Скачать в формате Open Office Calc");
+
+        subMenuTorg13.addItem("Скачать в формате Excel", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToXlsTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
+        });
+
+        subMenuTorg13.addItem("Скачать в формате PDF", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToPdfTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
+        });
+
+        subMenuTorg13.addItem("Скачать в формате Office Calc", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToOdsTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
+        });
+
         contextMenu.addItem("...");
+    }
+
+    private StreamResource getLinkToHtmlTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".html";
+        List<MovementProductDto> products = movementDto.getMovementProductsIds().stream()
+                .map(movementProductService::getById)
+                .collect(Collectors.toList());
+        PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
+        return new StreamResource(templateName, printMovementTorg13Xls::createReportHTML);
     }
 
     private StreamResource getLinkToXlsTemplate(File file) {
@@ -215,7 +250,24 @@ public class MovementViewModalWindow extends Dialog {
                 .collect(Collectors.toList());
         PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
         return new StreamResource(templateName, printMovementTorg13Xls::createReport);
+    }
 
+    private StreamResource getLinkToPdfTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        List<MovementProductDto> products = movementDto.getMovementProductsIds().stream()
+                .map(movementProductService::getById)
+                .collect(Collectors.toList());
+        PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
+        return new StreamResource(templateName, printMovementTorg13Xls::createReportPDF);
+    }
+
+    private StreamResource getLinkToOdsTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
+        List<MovementProductDto> products = movementDto.getMovementProductsIds().stream()
+                .map(movementProductService::getById)
+                .collect(Collectors.toList());
+        PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
+        return new StreamResource(templateName, printMovementTorg13Xls::createReportODS);
     }
 
     private Map<String, String> getParamsForTemplate(List<MovementProductDto> productDtos) {
@@ -238,12 +290,7 @@ public class MovementViewModalWindow extends Dialog {
         return params;
     }
 
-    private File getXlsFileTorg13() {
-        return new File(pathForSaveXlsTemplate);
-    }
-
     private void configureSendButton(MovementDto movementDto) {
-
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setTarget(buttonSend);
         contextMenu.setOpenOnClick(true);
@@ -260,6 +307,8 @@ public class MovementViewModalWindow extends Dialog {
         contextMenu.addItem(container, event -> {
             if (Boolean.FALSE.equals(movementDto.getIsSent())) {
                 //TODO movementDto should be updated before call updateTorg13
+                movementService.update(movementDto);
+
                 movementService.updateTorg13(movementDto,
                         companyService.getById(movementDto.getCompanyId()),
                         warehouseService.getById(movementDto.getWarehouseToId()));
@@ -276,6 +325,7 @@ public class MovementViewModalWindow extends Dialog {
                             movementDto.setIsSent(true);
 
                         }).join();
+
                 if (Boolean.TRUE.equals(movementDto.getIsSent())) {
                     container.add(new Span(" отправлено"));
                     movementService.update(movementDto);

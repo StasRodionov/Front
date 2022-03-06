@@ -7,9 +7,15 @@ import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.warehouse.MovementService;
 import com.trade_accounting.services.api.warehouse.MovementApi;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.helpers.HSSFRowShifter;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.xmlbeans.SystemProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,6 +39,8 @@ public class MovementServiceImpl implements MovementService {
     private final MovementApi movementApi;
     private final String movementUrl;
     private final CallExecuteService<MovementDto> callExecuteService;
+    private final String torg13Path = SystemProperties.getProperty("user.dir") + "\\src\\main\\resources\\files\\torg13.xls";
+    private final String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
 
     public MovementServiceImpl(Retrofit retrofit, @Value("${movement_url}") String movementUrl, CallExecuteService<MovementDto> callExecuteService) {
         movementApi = retrofit.create(MovementApi.class);
@@ -112,22 +120,23 @@ public class MovementServiceImpl implements MovementService {
 
     @Override
     public void updateTorg13(MovementDto movementDto, CompanyDto companyDto, WarehouseDto warehouseDto) {
-        String torg13Path = SystemProperties.getProperty("user.dir") + "\\src\\main\\resources\\files\\torg13.xls";
-        String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-
-        try (Workbook workbook = WorkbookFactory.create(new FileInputStream(torg13Path))) {
-            Sheet sheet = workbook.getSheetAt(0);
+        try (FileInputStream fileInputStream = new FileInputStream(torg13Path)) {
+            XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
+            XSSFSheet sheet = workbook.getSheetAt(0);
 
             sheet.getRow(15).getCell(0).setCellValue(companyDto.getName());
             sheet.getRow(15).getCell(3).setCellValue(warehouseDto.getName());
             sheet.getRow(10).getCell(6).setCellValue(movementDto.getId());
             sheet.getRow(10).getCell(7).setCellValue(date);
+            fileInputStream.close();
 
-            try (OutputStream outputStream = new FileOutputStream(torg13Path)) {
-                workbook.write(outputStream);
-            }
+            FileOutputStream outputStream = new FileOutputStream(torg13Path);
+            workbook.write(outputStream);
+            outputStream.close();
 
-        } catch (IOException e) {
+        } catch (IOException ex) {
+            log.error("Произошла ошибка при обновлении ТОРГ-13");
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
