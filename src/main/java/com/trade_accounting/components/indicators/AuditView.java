@@ -175,7 +175,7 @@ public class AuditView extends VerticalLayout {
                 notifications.infoNotification("Выбранные события успешно удалены");
             }
         } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные заказы");
+            notifications.errorNotification("Сначала отметьте галочками нужные события");
         }
     }
 
