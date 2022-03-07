@@ -1,5 +1,6 @@
 package com.trade_accounting.components.general.controllers;
 
+import com.trade_accounting.components.goods.MovementViewModalWindow;
 import com.trade_accounting.services.interfaces.util.EmailService;
 import lombok.RequiredArgsConstructor;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -57,11 +59,12 @@ public class MovementsController {
     @GetMapping(value = "/{send}/{file-name}/{file-extension}")
     public ResponseEntity<String> sendFileToEmail(
             @PathVariable(name = "file-name") String fileName,
-            @PathVariable(name = "file-extension") String fileExtension) {
+            @PathVariable(name = "file-extension") String fileExtension,
+            @RequestParam(name = "calculateEmail") String calculateEmail) {
 
         emailService.sendMessageWithAttachment(
                 //TODO Add email of current company or authenticated user
-                "trade_test42@mail.ru",
+                calculateEmail,
                 "Invoice : torg-13",
                 "Torg 13 report",
                 SystemProperties.getProperty("user.dir")

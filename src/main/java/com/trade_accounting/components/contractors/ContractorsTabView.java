@@ -314,7 +314,7 @@ public class ContractorsTabView extends VerticalLayout {
     private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.removeAll();
-        templatesXlsMenuItems(printSubMenu);
+        templatesMenuItems(printSubMenu);
         uploadXlsMenuItem(printSubMenu);
     }
 
@@ -346,6 +346,12 @@ public class ContractorsTabView extends VerticalLayout {
         String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReportODS), "Скачать в формате Office Calc");
+    }
+
+    private Anchor getLinkToPdfTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReportPDF), templateName);
     }
 
     private void getInfoNotification(String message) {
