@@ -35,41 +35,6 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public AuditDto getById(Long id) {
-        Call<AuditDto> call = auditApi.getById(auditUrl, id);
-        return callExecuteService.callExecuteBodyById(call, AuditDto.class, id);
-    }
-
-    @Override
-    public AuditDto create(AuditDto auditDto) {
-        Call<AuditDto> call = auditApi.create(auditUrl, auditDto);
-        try {
-            auditDto = call.execute().body();
-            log.info("Успешно выполнен запрос на создание Audit");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на получение AuditDto - {}", e);
-        }
-        return auditDto;
-    }
-
-    @Override
-    public void update(AuditDto auditDto) {
-        Call<Void> call = auditApi.update(auditUrl, auditDto);
-        try{
-            call.execute();
-            log.info("Успешно выполнен запрос на обновление экземпляра Audit");
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра AuditDto - {}", e);
-        }
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        Call<Void> call = auditApi.deleteById(auditUrl, id);
-        callExecuteService.callExecuteBodyDelete(call, AuditDto.class, id);
-    }
-
-    @Override
     public List<AuditDto> quickSearch(String text) {
         List<AuditDto> auditDtos = new ArrayList<>();
         Call<List<AuditDto>> call = auditApi

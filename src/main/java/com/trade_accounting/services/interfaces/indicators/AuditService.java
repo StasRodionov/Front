@@ -8,14 +8,6 @@ import java.util.Map;
 public interface AuditService {
     List<AuditDto> getAll();
 
-    AuditDto getById(Long id);
-
-    AuditDto create(AuditDto auditDto);
-
-    void update(AuditDto AuditDto);
-
-    void deleteById(Long id);
-
     List<AuditDto> quickSearch(String text);
 
     List<AuditDto> searchByFilter(Map<String, String> queryOperations);

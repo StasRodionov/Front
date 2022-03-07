@@ -30,7 +30,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,41 +63,28 @@ public class AuditView extends VerticalLayout {
     }
 
     private List<AuditDto> getData() {
-//        return auditService.getAll();
-        return List.of(
-          new AuditDto().builder().id(1L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build(),
-          new AuditDto().builder().id(2L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build(),
-          new AuditDto().builder().id(3L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build(),
-          new AuditDto().builder().id(4L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build(),
-          new AuditDto().builder().id(5L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build(),
-          new AuditDto().builder().id(6L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build(),
-          new AuditDto().builder().id(7L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build(),
-          new AuditDto().builder().id(8L).date(LocalDateTime.now()).employeeDto(employeeService.getPrincipal()).description("Oga").build()
-        );
+        return auditService.getAll();
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn(AuditDto::getDate).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
-        grid.addColumn(AuditDto::getEmployeeDto).setKey("employee").setHeader("Сотрудник").setSortable(true).setId("Сотрудник");
+        grid.addColumn(auditDto -> employeeService.getById(auditDto.getEmployeeId())).setKey("employee").setHeader("Сотрудник").setSortable(true).setId("Сотрудник");
         grid.addColumn(AuditDto::getDescription).setKey("description").setHeader("Событие").setSortable(true).setId("Событие");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
-
-
     private Component getUpperLayout(){
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(),
-                textField(), numberField(), valueSelect(), valuePrint());
+                textField(), numberField(), valuePrint());
         mainLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return mainLayout;
     }
 
     private Button buttonQuestion() {
-        return Buttons.buttonQuestion("В разделе фиксируются все события с момента появления аккаунта. Удалять события нельзя." +
-                " По умолчанию доступ имеют только администраторы, при необходимости можно настроить соответствующие права и для других сотрудников\n");
+        return Buttons.buttonQuestion("В разделе фиксируются все события с момента появления аккаунта. Удалять события нельзя. По умолчанию доступ имеют только администраторы");
     }
     private H2 title() {
         H2 textCompany = new H2("Аудит");
@@ -147,38 +133,6 @@ public class AuditView extends VerticalLayout {
         numberField.setWidth("45px");
         return numberField;
     }
-
-    private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(e -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedAudits();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                updateList();
-            }
-        });
-        return select;
-    }
-
-
-    private void deleteSelectedAudits() {
-        if (!grid.getSelectedItems().isEmpty()) {
-            for (AuditDto auditDto : grid.getSelectedItems()) {
-                auditService.deleteById(auditDto.getId());
-                notifications.infoNotification("Выбранные события успешно удалены");
-            }
-        } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные события");
-        }
-    }
-
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
