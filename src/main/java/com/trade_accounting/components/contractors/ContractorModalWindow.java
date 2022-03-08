@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
     private final TextArea nameField = new TextArea();
+    private final TextArea shortnameField = new TextArea();
     private final TextField sortNumberField = new TextField();
     private final TextField phoneField = new TextField();
     private final TextField faxField = new TextField();
@@ -187,6 +188,7 @@ public class ContractorModalWindow extends Dialog {
         setCloseOnEsc(true);
 
         idField.setValue(getFieldValueNotNull(String.valueOf(contractorDto.getId())));
+        shortnameField.setValue(getFieldValueNotNull(contractorDto.getShortname()));
         nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
         sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
         phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
@@ -220,13 +222,15 @@ public class ContractorModalWindow extends Dialog {
 //                        null
 //                        : Supplier<AddressDto> addressService.getById(
 //                        contractorDto.getLegalDetailDto().getAddressDtoId()));
-        TextField labelField = new TextField();
-        contractorDtoBinder.forField(labelField)
-                .asRequired("Не заполнено!");
-        labelField.setPlaceholder("Наименование");
-        labelField.setWidth("585px");
-        labelField.setRequired(true);
-        add(header(), new Text(""), labelField, contractorsAccordion());
+//        TextField labelField = new TextField();
+//        contractorDtoBinder.forField(labelField)
+//                .asRequired("Не заполнено!");
+//       // labelField.setPlaceholder("Наименование");
+//        labelField.setValue(shortname);
+//        labelField.setWidth("585px");
+//        labelField.setRequired(true);
+        shortnameField.setWidth("585px");
+        add(header(), new Text(""), shortnameField, contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 
@@ -963,20 +967,25 @@ public class ContractorModalWindow extends Dialog {
             legalDetailDto = new LegalDetailDto();
             return new Button("Добавить", event -> {
                 boolean allBindersValidated = true;
+                System.out.println("1+++++++++++++++++++++++++++++++++");
                 if (!contractorDtoBinder.validate().isOk()) {
+                    System.out.println("2+++++++++++++++++++++++++++++++++");
                     contractorDtoBinder.validate().notifyBindingValidationStatusHandlers();
                     allBindersValidated = false;
                 }
                 if (!legalDetailDtoBinder.validate().isOk()) {
+                    System.out.println("3+++++++++++++++++++++++++++++++++");
                     legalDetailDtoBinder.validate().notifyBindingValidationStatusHandlers();
                     allBindersValidated = false;
                 }
                 if (allBindersValidated) {
+                    System.out.println("4+++++++++++++++++++++++++++++++++");
                     saveFieldsCreate(legalDetailDto);
                     saveFields(contractorDto);
                     contractorService.create(contractorDto);
                     if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
                             .matches("^([0-9]{10}|[0-9]{12})$")) {
+                        System.out.println("5+++++++++++++++++++++++++++++++++");
                         close();
                         Notification.show(String.format("Контрагент %s добавлен", contractorDto.getName()));
                     }
@@ -1036,6 +1045,7 @@ public class ContractorModalWindow extends Dialog {
 
     private void saveFields(ContractorDto contractorDto) {
         contractorDto.setName(nameField.getValue());
+        contractorDto.setShortname(shortnameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());
