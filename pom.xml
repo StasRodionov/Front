@@ -132,6 +132,9 @@
             <artifactId>aspose-cells</artifactId>
             <version>21.12</version>
         </dependency>
+
+
+
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -146,15 +149,14 @@
             <version> 2.9.0 </version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/e-iceblue/spire.pdf.free -->
+        <dependency>
+            <groupId>e-iceblue</groupId>
+            <artifactId>spire.xls.free</artifactId>
+            <version>3.9.1</version>
+        </dependency>
 
-
-
-
-    </dependencies>
-
-
-
-
+   </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -185,6 +187,11 @@
     </build>
 
     <repositories>
+        <repository>
+            <id>com.e-iceblue</id>
+            <name>e-iceblue</name>
+            <url>http://repo.e-iceblue.com/nexus/content/groups/public/</url>
+        </repository>
         <repository>
             <id>vaadin-addons</id>
             <url>https://maven.vaadin.com/vaadin-addons</url>

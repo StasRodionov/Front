@@ -1,5 +1,6 @@
 package com.trade_accounting.components.util;
 
+import com.aspose.cells.PdfCompliance;
 import com.aspose.cells.SaveFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -35,33 +36,6 @@ public abstract class PrintExcelDocument<T> {
         this.list = list;
     }
 
-    public InputStream createReportPDF() {
-        try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
-             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-            Workbook workbook = WorkbookFactory.create(fiz);
-            fiz.close();
-
-            printExcelWorkBook(workbook);
-            workbook.write(outputStream);
-            workbook.close();
-
-            ByteArrayInputStream inStream = new  ByteArrayInputStream(outputStream.toByteArray());
-            final com.aspose.cells.Workbook doc = new com.aspose.cells.Workbook(inStream);
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            doc.save(baos, SaveFormat.PDF);
-            return new ByteArrayInputStream(baos.toByteArray());
-
-        } catch (FileNotFoundException e) {
-            log.error("PDF шаблон с таким именем не найден");
-        } catch (IOException ex) {
-            log.error("произошла ошабка при создании или записи нового PDF отчета");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public InputStream createReport() {
         try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -76,10 +50,100 @@ public abstract class PrintExcelDocument<T> {
 
             return new ByteArrayInputStream(outputStream.toByteArray());
         } catch (FileNotFoundException e) {
-            log.error("Xls шаблон с таким именем не найден");
+            log.error("XLS шаблон с таким именем не найден");
         } catch (IOException ex) {
-            log.error("произошла ошибка при созании или записи нового xls отчета: " + ex.getMessage());
+            log.error("произошла ошибка при создании или записи нового XLS отчета: " + ex.getMessage());
         }
+
+        return null;
+    }
+
+    public InputStream createReportPDF(){
+        try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            Workbook workbook = WorkbookFactory.create(fiz);
+            fiz.close();
+
+            printExcelWorkBook(workbook);
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream inStream = new  ByteArrayInputStream(outputStream.toByteArray());
+            final com.aspose.cells.Workbook doc = new com.aspose.cells.Workbook(inStream);
+            final com.aspose.cells.PdfSaveOptions options = new com.aspose.cells.PdfSaveOptions();
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            options.setOnePagePerSheet(true);
+            doc.save(baos, options);
+
+            return  new ByteArrayInputStream(baos.toByteArray());
+
+        } catch (FileNotFoundException e) {
+            log.error("PDF шаблон с таким именем не найден");
+        } catch (IOException ex) {
+            log.error("Произошла ошибка при создании или записи нового PDF отчета");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public InputStream createReportODS() {
+        try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            Workbook workbook = WorkbookFactory.create(fiz);
+            fiz.close();
+
+            printExcelWorkBook(workbook);
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream inStream = new  ByteArrayInputStream(outputStream.toByteArray());
+            final com.aspose.cells.Workbook doc = new com.aspose.cells.Workbook(inStream);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            doc.save(baos, SaveFormat.ODS);
+
+            return  new ByteArrayInputStream(baos.toByteArray());
+
+        } catch (FileNotFoundException e) {
+            log.error("ODS шаблон с таким именем не найден");
+        } catch (IOException ex) {
+            log.error("Произошла ошибка при создании или записи нового ODS отчета");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public InputStream createReportHTML() {
+        try (FileInputStream fiz = new FileInputStream(pathToXlsTemplate);
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            Workbook workbook = WorkbookFactory.create(fiz);
+            fiz.close();
+
+            printExcelWorkBook(workbook);
+            workbook.write(outputStream);
+            workbook.close();
+
+            ByteArrayInputStream inStream = new  ByteArrayInputStream(outputStream.toByteArray());
+            final com.aspose.cells.Workbook doc = new com.aspose.cells.Workbook(inStream);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            doc.save(baos, SaveFormat.HTML);
+
+            return  new ByteArrayInputStream(baos.toByteArray());
+
+        } catch (FileNotFoundException e) {
+            log.error("ODS шаблон с таким именем не найден");
+        } catch (IOException ex) {
+            log.error("Произошла ошибка при создании или записи нового ODS отчета");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
