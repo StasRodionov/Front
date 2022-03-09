@@ -77,6 +77,9 @@ public class OperationsServiceImpl implements OperationsService {
 
         try {
             operationsDtoList = operationsDtoListCall.execute().body();
+            if (operationsDtoList != null) {
+                operationsDtoList.removeIf(operationsDto -> !operationsDto.getIsRecyclebin());
+            }
             log.info("Успешно выполнен запрос на поиск и получение списка документов в корзине");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка документов в корзине: ", e);
