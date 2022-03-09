@@ -9,14 +9,27 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InvoiceReceivedApi {
 
     @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<InvoiceReceivedDto>> getAll(@Path(value = "url", encoded = true) String url);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/queryInvoiceReceived")
+    Call<List<InvoiceReceivedDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                           @QueryMap Map<String, String> queryInvoiceReceived);
+
+
+    @Headers("Accept: application/json")
+    @GET("{url}/search/{search}")
+    Call<List<InvoiceReceivedDto>> searchByString(@Path(value = "url", encoded = true) String url,
+                                                  @Path(value = "search", encoded = true) String search);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
