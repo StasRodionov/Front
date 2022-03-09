@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
     private final TextArea nameField = new TextArea();
-    private final TextArea shortnameField = new TextArea();
+    private final TextField shortnameField = new TextField();
     private final TextField sortNumberField = new TextField();
     private final TextField phoneField = new TextField();
     private final TextField faxField = new TextField();
@@ -229,8 +229,11 @@ public class ContractorModalWindow extends Dialog {
 //        labelField.setValue(shortname);
 //        labelField.setWidth("585px");
 //        labelField.setRequired(true);
+        shortnameField.setLabel("Краткое наименование");
+        shortnameField.setPlaceholder("Введите краткое наименование");
         shortnameField.setWidth("585px");
-        add(header(), new Text(""), shortnameField, contractorsAccordion());
+        shortnameField.setRequired(true);
+        add(header(), shortnameField, contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 
