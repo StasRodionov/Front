@@ -2,6 +2,8 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.services.interfaces.company.ContractorStatusService;
+import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
 import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
@@ -63,6 +65,9 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final ShipmentProductService shipmentProductService;
     private final SalesSubBuyersReturnsView salesSubBuyersReturnsView;
     private final Div div;
+    private final InvoicesStatusService invoicesStatusService;
+    private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    private final ContractorStatusService contractorStatusService;
 
     @Autowired
     public SalesSubMenuView(ContractService contractService, InvoiceService invoiceService,
@@ -87,8 +92,8 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             PositionService positionService,
                             RetailStoreService retailStoreService,
                             ShipmentService shipmentService,
-                            ShipmentProductService shipmentProductService
-    ) {
+                            ShipmentProductService shipmentProductService,
+                            InvoicesStatusService invoicesStatusService, SalesEditCreateInvoiceView salesEditCreateInvoiceView, ContractorStatusService contractorStatusService) {
         this.contractService = contractService;
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
@@ -114,6 +119,10 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.positionService = positionService;
         this.retailStoreService = retailStoreService;
         this.salesSubBuyersReturnsView = salesSubBuyersReturnsView;
+        this.invoicesStatusService = invoicesStatusService;
+        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        this.contractorStatusService = contractorStatusService;
+
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -199,7 +208,9 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Воронка продаж":
                     div.removeAll();
-                    div.add("SalesSubSalesFunnelView");
+                    div.add(new SalesSubSalesFunnelView(contractorService,
+                            invoiceService, invoicesStatusService,
+                            invoiceProductService, notifications, contractorStatusService));
                     break;
             }
         });

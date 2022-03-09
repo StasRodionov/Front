@@ -318,11 +318,10 @@ public class ContractorsTabView extends VerticalLayout {
         uploadXlsMenuItem(printSubMenu);
     }
 
-    private void templatesMenuItems(SubMenu subMenu) {
-        getXlsFiles().forEach(x -> {
-            subMenu.addItem(getLinkToXlsTemplate(x));
-            subMenu.addItem(getLinkToPdfTemplate(x));
-        });
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToPdfTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToOdsTemplate(x)));
     }
 
     private List<File> getXlsFiles() {
@@ -334,7 +333,19 @@ public class ContractorsTabView extends VerticalLayout {
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
-        return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), templateName);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), "Скачать в формате Excel");
+    }
+
+    private Anchor getLinkToPdfTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReportPDF), "Скачать в формате PDF");
+    }
+
+    private Anchor getLinkToOdsTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReportODS), "Скачать в формате Office Calc");
     }
 
     private Anchor getLinkToPdfTemplate(File file) {
