@@ -42,7 +42,7 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
     @Override
     public List<InvoiceReceivedDto> getAll(String typeOfInvoice) {
         List<InvoiceReceivedDto> invoiceDtoList = new ArrayList<>();
-        Call<List<InvoiceReceivedDto>> invoiceDtoListCall = invoiceReceivedApi.getAll(invoiceReceivedUrl, typeOfInvoice);
+        Call<List<InvoiceReceivedDto>> invoiceDtoListCall = invoiceReceivedApi.getAll(invoiceReceivedUrl);
         try {
             invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
             log.info("Успешно выполнен запрос на получение списка ShipmentDto");
@@ -104,17 +104,4 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
         dtoCallExecuteService.callExecuteBodyDelete(voidCall, InvoiceReceivedDto.class, id);
     }
 
-    @Override
-    public List<InvoiceReceivedDto> searchByString(String search) {
-        List<InvoiceReceivedDto> invoiceReceivedDtoListDtoList = new ArrayList<>();
-        Call<List<InvoiceReceivedDto>> invoiceReceivedDtoCall = invoiceReceivedApi.searchByString(invoiceReceivedUrl, search);
-        System.out.println(invoiceReceivedUrl+search);
-        try {
-            invoiceReceivedDtoListDtoList = invoiceReceivedDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение счетов-фактур полученные по фильтру {}", search);
-        } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение счетов-фактур полученные {IOException}", e);
-        }
-        return invoiceReceivedDtoListDtoList;
-    }
 }

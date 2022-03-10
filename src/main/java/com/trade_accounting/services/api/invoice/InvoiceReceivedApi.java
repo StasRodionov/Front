@@ -47,9 +47,4 @@ public interface InvoiceReceivedApi {
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
-    @Headers("Accept: application/json")
-    @GET("{url}/search/{search}")
-    Call<List<InvoiceReceivedDto>> searchByString(@Path(value = "url", encoded = true) String url,
-                                                  @Path(value = "search", encoded = true) String search);
-
 }
