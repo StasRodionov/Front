@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.math3.stat.descriptive.summary.Product;
 
 import java.math.BigDecimal;
 
@@ -12,13 +13,18 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SalesSubGoodsForSaleDto {
-    private String name;
+
+    private Long id;
+
+    private Long productId;
 
     private Long code;
 
     private Long vendorCode;
 
     private Integer transferred;
+
+    private Integer accepted;
 
     private Long amount;
 
@@ -27,4 +33,12 @@ public class SalesSubGoodsForSaleDto {
     private Long returned;
 
     private BigDecimal remainder;
+
+    private Long reportAmount;
+
+    private BigDecimal reportSum;
+
+    private Long notReportAmount;
+
+    private BigDecimal notReportSum;
 }
