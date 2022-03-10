@@ -960,25 +960,20 @@ public class ContractorModalWindow extends Dialog {
             legalDetailDto = new LegalDetailDto();
             return new Button("Добавить", event -> {
                 boolean allBindersValidated = true;
-                System.out.println("1+++++++++++++++++++++++++++++++++");
                 if (!contractorDtoBinder.validate().isOk()) {
-                    System.out.println("2+++++++++++++++++++++++++++++++++");
                     contractorDtoBinder.validate().notifyBindingValidationStatusHandlers();
                     allBindersValidated = false;
                 }
                 if (!legalDetailDtoBinder.validate().isOk()) {
-                    System.out.println("3+++++++++++++++++++++++++++++++++");
                     legalDetailDtoBinder.validate().notifyBindingValidationStatusHandlers();
                     allBindersValidated = false;
                 }
                 if (allBindersValidated) {
-                    System.out.println("4+++++++++++++++++++++++++++++++++");
                     saveFieldsCreate(legalDetailDto);
                     saveFields(contractorDto);
                     contractorService.create(contractorDto);
                     if (!innLegalDetailField.isEmpty() && innLegalDetailField.getValue()
                             .matches("^([0-9]{10}|[0-9]{12})$")) {
-                        System.out.println("5+++++++++++++++++++++++++++++++++");
                         close();
                         Notification.show(String.format("Контрагент %s добавлен", contractorDto.getName()));
                     }
