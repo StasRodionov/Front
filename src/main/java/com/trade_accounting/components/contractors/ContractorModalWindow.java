@@ -217,20 +217,10 @@ public class ContractorModalWindow extends Dialog {
                     legalDetailDto.getAddressDtoId());
             legalAddressBlock = new AddressBlock(supplierAddressDto);
         }
-//        legalAddressBlock = new AddressBlock(
-//                contractorDto.getLegalDetailDto() == null ?
-//                        null
-//                        : Supplier<AddressDto> addressService.getById(
-//                        contractorDto.getLegalDetailDto().getAddressDtoId()));
-//        TextField labelField = new TextField();
-//        contractorDtoBinder.forField(labelField)
-//                .asRequired("Не заполнено!");
-//       // labelField.setPlaceholder("Наименование");
-//        labelField.setValue(shortname);
-//        labelField.setWidth("585px");
-//        labelField.setRequired(true);
-        shortnameField.setLabel("Краткое наименование");
+        contractorDtoBinder.forField(shortnameField)
+                .asRequired("Не заполнено!");
         shortnameField.setPlaceholder("Введите краткое наименование");
+        shortnameField.setLabel("Краткое наименование");
         shortnameField.setWidth("585px");
         shortnameField.setRequired(true);
         add(header(), shortnameField, contractorsAccordion());
