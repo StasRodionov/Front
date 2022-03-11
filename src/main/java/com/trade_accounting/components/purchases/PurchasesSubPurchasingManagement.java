@@ -1,7 +1,6 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.money.PaymentPrintModal;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
@@ -54,6 +53,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -94,11 +94,11 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final PurchaseHistoryOfSalesService purchaseHistoryOfSalesService;
     private final PurchaseCurrentBalanceService purchaseCurrentBalanceService;
     private final PurchaseForecastService purchaseForecastService;
+    private final MenuItem print;
+    private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-
+    private Select<String> print1;
     private List<PurchaseControlDto> purchaseControl;
-
-
     private HorizontalLayout actions;
     private final Grid<PurchaseControlDto> grid = new Grid<>(PurchaseControlDto.class, false);
     private GridPaginator<PurchaseControlDto> paginator;
@@ -112,8 +112,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             ProductPriceService productPriceService,
                                             PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
                                             PurchaseCurrentBalanceService purchaseCurrentBalanceService,
-                                            PurchaseForecastService purchaseForecastService
-    ) {
+                                            PurchaseForecastService purchaseForecastService) {
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
         this.notifications = notifications;
@@ -122,6 +121,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.purchaseHistoryOfSalesService = purchaseHistoryOfSalesService;
         this.purchaseCurrentBalanceService = purchaseCurrentBalanceService;
         this.purchaseForecastService = purchaseForecastService;
+        print = selectXlsTemplateButton.addItem("Печать");
 
         loadSupplierAccounts();
         configureActions();
@@ -130,6 +130,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.filter = new GridFilter<>(grid);
         configureFilter();
         add(actions, filter, grid, paginator);
+        configureSelectXlsTemplateButton();
     }
 
     private List<PurchaseControlDto> loadSupplierAccounts() {
@@ -139,8 +140,18 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(),valuePrint(), orderSupplier(),
-                createLabel("Прогноз на"), numberField(), createLabel("дней"), buttonSettings());
+        actions.add(buttonQuestion(),
+                title(),
+                buttonRefresh(),
+                buttonFilter(),
+                orderSupplier(),
+                createLabel("Прогноз на"),
+                numberField(),
+                createLabel("дней"),
+//                valuePrint(),
+                selectXlsTemplateButton,
+                buttonSettings()
+        );
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
     }
 
@@ -420,19 +431,18 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         SubMenu orderSub = supplierOrder.getSubMenu();
         orderSub.addItem("Общий");                   /*Заглушка: требует реализации*/
         orderSub.addItem("Разбить по поставщикам");  /*Заглушка: требует реализации*/
-
         return menuBar;
     }
 
-    private MenuBar valuePrint() {
-        MenuBar menuBar = new MenuBar();
-
-        MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PRINT, "Печать", null);
-        SubMenu orderSub = supplierOrder.getSubMenu();
-        orderSub.addItem("Управление закупками");    /*Заглушка: требует реализации*/
-        orderSub.addItem("Настроить...");            /*Заглушка: требует реализации*/
-        return menuBar;
-    }
+//    private MenuBar valuePrint() {
+//        MenuBar menuBar = new MenuBar();
+//
+//        MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PRINT, "Печать", null);
+//        SubMenu orderSub = supplierOrder.getSubMenu();
+//        orderSub.addItem("Управление закупками");    /*Заглушка: требует реализации*/
+//        orderSub.addItem("Настроить...");            /*Заглушка: требует реализации*/
+//        return menuBar;
+//    }
 
     private Dialog getProcurementManagementDialog() {
         Dialog dialog = new Dialog();
@@ -478,7 +488,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         procurementManagementLabel.getStyle().set("font-weight", "bold");
         dialoh.setHeight("99%");
         dialoh.setWidth("33%");
-        verticalLayout.add(horizontalLayout, procurementManagementLabel,createTemplateGrid(), button);
+        verticalLayout.add(horizontalLayout, procurementManagementLabel, createTemplateGrid(), button);
         horizontalLayout.add(icon, configureTemplateLabel);
         dialoh.setCloseOnEsc(true);
         dialoh.setCloseOnOutsideClick(true);
@@ -515,7 +525,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         gridTemplate.addColumn(TemplateDto::getNameOfProduct)
                 .setHeader("Наименование")
                 .setWidth("100px");
-        gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> print()))
+      gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> print()))
                 .setWidth("20px");
         gridTemplate.addColumn(new ComponentRenderer<>(templateDto -> button))
                 .setWidth("10px");
@@ -524,6 +534,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 //        downloadButton.addClickListener(e -> getLinkToXlsTemplate(getXlsFiles()));
         return gridTemplate;
     }
+
     private Button print() {
         Button button = new Button("Скачать");
 //        button.addClickListener(e -> getLinkToXlsTemplate(getXlsFiles()));
@@ -578,40 +589,31 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return dialog;
     }
 
-
-
-//    private Select<String> valuePrint() {
-//        Select<String> print = new Select<>();
-////        print.setItems("Печать","Добавить");
-////        print.setValue("Печать");
-//        getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-////        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
-//        uploadXlsMenuItem(print);
-//        print.setWidth("130px");
-//        return print;
-//    }
-
-    private List<File> getXlsFiles() {
-        File dir = new File(pathForSaveXlsTemplate);
-        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
-                .contains(".xls")).collect(Collectors.toList());
+    private void configureSelectXlsTemplateButton() {
+        SubMenu printSubMenu = print.getSubMenu();
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
+        uploadXlsMenuItem(printSubMenu);
     }
 
-    private void uploadXlsMenuItem(Select<String> print) {
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToHtmlTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToPdfTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToOdsTemplate(x)));
+    }
+
+    private void uploadXlsMenuItem(SubMenu subMenu) {
+        MenuItem menuItem = subMenu.addItem("Добавить шаблон");
         Dialog dialog = new Dialog();
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
-        configureUploadFinishedListener(upload, buffer, dialog, print);
+        configureUploadFinishedListener(upload, buffer, dialog, print1);
         dialog.add(upload);
-        print.addValueChangeListener(x -> {
-            if (print.getValue().equals("Добавить шаблон")) {
-                dialog.open();
-            }
-        });
+        menuItem.addClickListener(x -> dialog.open());
     }
 
-    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog,
-                                                 Select<String> print) {
+    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog, Select<String> print1) {
         upload.addFinishedListener(event -> {
             if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
                 getErrorNotification("Файл с таким именем уже существует");
@@ -619,37 +621,71 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
                 try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
                     fos.write(buffer.getInputStream().readAllBytes());
+                    configureSelectXlsTemplateButton();
                     getInfoNotification("Файл успешно загружен");
-                    log.info("xls шаблон успешно загружен");
-                    print.removeAll();
-                    getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-
+                    log.info("Excel шаблон успешно загружен");
                 } catch (IOException e) {
                     getErrorNotification("При загрузке шаблона произошла ошибка");
-                    log.error("при загрузке xls шаблона произошла ошибка");
+                    log.error("При загрузке Excel шаблона произошла ошибка");
                 }
-                print.setValue("Печать");
                 dialog.close();
             }
         });
     }
 
-    private Anchor getLinkToXlsTemplate(File file) {
-        String templateName = file.getName();
-//        List<String> sumList = new ArrayList<>();
-//        List<InvoiceReceivedDto> list1 = invoiceReceivedService.getAll();
-//        for (InvoiceReceivedDto invoiceDto : list1) {
-//            sumList.add(getTotalPrice(invoiceDto));
-//        }
-        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(), purchaseControlService.getAll(), employeeService, productPriceService, purchaseHistoryOfSalesService);
-        return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReport), templateName);
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
     }
 
-//    private Anchor getLinkToPDFTemplate(File file) {
-//        String templateName = file.getName();
-//        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(), purchaseControlService.getAll(), employeeService,productPriceService,purchaseHistoryOfSalesService);
-//        return new Anchor(new StreamResource("purchases.pdf", printPurchasingManagementXls::createReportPDF), "purchases.pdf");
-//    }
+    private Anchor getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        List<PurchaseControlDto> products = purchaseControlService.getAll();
+        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(),
+                products,
+                employeeService,
+                productPriceService,
+                purchaseHistoryOfSalesService
+        );
+        return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReport), "Печать в формате Excel: " + templateName);
+    }
+
+    private Anchor getLinkToPdfTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        List<PurchaseControlDto> products = purchaseControlService.getAll();
+        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(),
+                products,
+                employeeService,
+                productPriceService,
+                purchaseHistoryOfSalesService
+        );
+        return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportPDF), "Печать в формате PDF: " + templateName);
+    }
+
+    private Anchor getLinkToOdsTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
+        List<PurchaseControlDto> products = purchaseControlService.getAll();
+        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(),
+                products,
+                employeeService,
+                productPriceService,
+                purchaseHistoryOfSalesService
+        );
+        return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportODS), "Печать в формате Office Calc: " + templateName);
+    }
+
+    private Anchor getLinkToHtmlTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".html";
+        List<PurchaseControlDto> products = purchaseControlService.getAll();
+        PrintPurchasingManagementXls printPurchasingManagementXls = new PrintPurchasingManagementXls(file.getPath(),
+                products,
+                employeeService,
+                productPriceService,
+                purchaseHistoryOfSalesService
+        );
+        return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportHTML), "Открыть в браузере: " + templateName);
+    }
 
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
