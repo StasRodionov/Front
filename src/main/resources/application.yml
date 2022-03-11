@@ -195,5 +195,7 @@ file_url: /api/file
 
 supplier_account_products_list_url: /api/supplier-account-products-list
 
+audit_url: /api/audit
+
 funnel_url: /api/funnel
 #debug: true
