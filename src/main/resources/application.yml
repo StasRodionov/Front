@@ -16,6 +16,9 @@ spring:
       mail.smtp.auth : true
       mail.smtp.starttls : true
 
+vaadin:
+  whitelisted-packages: com/trade_accounting/components
+
 invoice_received_url: api/invoice_received
 
 issued_invoice_url: api/issuedInvoice

@@ -22,6 +22,7 @@ import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -43,6 +44,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
@@ -109,14 +111,14 @@ public class MovementViewModalWindow extends Dialog {
     private final Button buttonPrint = new Button("Печать", new Icon(VaadinIcon.PRINT));
     private final Button buttonSend = new Button("Отправить", new Icon(VaadinIcon.ENVELOPE_OPEN_O));
 
-    private final Dialog dialogOnCloseView = new Dialog();
+    private final Dialog closeView = new Dialog();
     private String location = null;
     private final Grid<MovementProductDto> grid = new Grid<>(MovementProductDto.class, false);
     private final GridPaginator<MovementProductDto> paginator;
 
-    private final Binder<MovementDto> movementDtoBinder =
-            new Binder<>(MovementDto.class);
+    private final Binder<MovementDto> movementDtoBinder = new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
+    private final String EMAIL_URL = "http://localhost:4445/api/movements/files/send/torg13/xls?calcalculateEmail=";
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/goods_templates/movement/";
 
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
@@ -154,7 +156,7 @@ public class MovementViewModalWindow extends Dialog {
                 .setKey("productDtoName").setId("Название");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание")
                 .setKey("productDtoDescr").setId("Описание");
-        Grid.Column<MovementProductDto> firstNameColumn = grid.addColumn("amount").setHeader("Количество");
+        grid.addColumn("amount").setHeader("Количество");
         grid.addColumn(inPrDto -> unitService.getById(productService.getById(inPrDto.getProductId()).getUnitId()).getFullName()).setHeader("Единицы")
                 .setKey("productDtoUnit").setId("Единицы");
         grid.addColumn("price").setHeader("Цена").setSortable(true).setId("Цена");
@@ -163,7 +165,6 @@ public class MovementViewModalWindow extends Dialog {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
-
     }
 
 //    private Button buttonRefresh() {
@@ -186,9 +187,10 @@ public class MovementViewModalWindow extends Dialog {
         warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
         movementProductsIdComboBox.setValue(new HashSet<>(movementDto.getMovementProductsIds()));
 
+
         configureDeleteButton(editDto.getId());
-        configurePrintButtonContextMenu(editDto);
-        configureSendButton(editDto);
+        configurePrintButtonContextMenu();
+        configureSendButton();
 
         getData();
 
@@ -198,7 +200,7 @@ public class MovementViewModalWindow extends Dialog {
         return new File(pathForSaveXlsTemplate);
     }
 
-    private void configurePrintButtonContextMenu(MovementDto movementDto) {
+    private void configurePrintButtonContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setTarget(buttonPrint);
         contextMenu.setOpenOnClick(true);
@@ -291,29 +293,17 @@ public class MovementViewModalWindow extends Dialog {
         return params;
     }
 
-    private File getXlsFileTorg13() {
-        return new File(pathForSaveXlsTemplate);
-    }
-
-    private void configureSendButton(MovementDto movementDto) {
+    private void configureSendButton() {
         ContextMenu contextMenu = new ContextMenu();
+
         contextMenu.setTarget(buttonSend);
         contextMenu.setOpenOnClick(true);
 
-        Div container = new Div();
-        container.setWidth("160px");
-        container.setId("containerTorg13");
-        container.add(new Span("TОРГ-13"));
+        SubMenu sendTorg13 = contextMenu.addItem(new Div(new Text("ТОРГ-13"))).getSubMenu();
 
-        if (Boolean.TRUE.equals(movementDto.getIsSent())) {
-            container.add(new Span(" отправлено"));
-        }
-
-        contextMenu.addItem(container, event -> {
-            if (Boolean.FALSE.equals(movementDto.getIsSent())) {
-                //TODO movementDto should be updated before call updateTorg13
+        sendTorg13.addItem("В формате Excel", event -> {
+            if (movementDto.getIsSent()) {
                 movementService.update(movementDto);
-
                 movementService.updateTorg13(movementDto,
                         companyService.getById(movementDto.getCompanyId()),
                         warehouseService.getById(movementDto.getWarehouseToId()));
@@ -326,17 +316,15 @@ public class MovementViewModalWindow extends Dialog {
                 httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
                         .thenApply(HttpResponse::statusCode)
                         .thenAccept(integer -> {
-                            System.out.println("200 ОК : Документ успешно отправлен на почту");
                             movementDto.setIsSent(true);
-
                         }).join();
 
-                if (Boolean.TRUE.equals(movementDto.getIsSent())) {
-                    container.add(new Span(" отправлено"));
-                    movementService.update(movementDto);
-                    checkboxIsSent.setValue(true);
-                    //TODO Add new modal window with message info to.. subject.. text.. etc
-                }
+                notifications.infoNotification(String.format("Документ успешно отправлен на почту %s", calculateEmail()));
+            } else {
+                notifications.errorNotification(String.format("Ошибка при отправке сообщения!" +
+                        "Проверть корректность введенных данных и повторите попытку"));
+                movementService.update(movementDto);
+                checkboxIsSent.setValue(true);
             }
         });
         contextMenu.addItem("Комплект . . .");
@@ -352,7 +340,7 @@ public class MovementViewModalWindow extends Dialog {
             }
         }
 
-        return email;
+       return email;
     }
 
     private HorizontalLayout headerLayout() {
@@ -531,7 +519,6 @@ public class MovementViewModalWindow extends Dialog {
         horizontalLayout.add(label, returnNumber);
         movementDtoBinder.forField(returnNumber)
                 .asRequired(TEXT_FOR_REQUEST_FIELD);
-        //
         return horizontalLayout;
     }
 
