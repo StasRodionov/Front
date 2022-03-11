@@ -119,7 +119,7 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
                 .setKey("contractorDto").setId("Контрагент");
         grid.addColumn("account").setHeader("Счет").setId("Счет");
         grid.addColumn("cashOffice").setHeader("Касса").setId("Касса");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(this::getTotalPrice).setKey("sum").setHeader("Сумма").setSortable(true).setId("Сумма");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn("dateChanged").setHeader("Когда изменен").setId("Когда изменен");
         grid.addColumn("whoChanged").setHeader("Кто изменил").setId("Кто изменил");
