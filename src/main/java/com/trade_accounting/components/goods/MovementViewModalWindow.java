@@ -118,6 +118,7 @@ public class MovementViewModalWindow extends Dialog {
             new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/goods_templates/movement/";
+    private final String EMAIL_URL = "http://localhost:4445/api/movements/files/send/torg13/xls?calcalculateEmail=";
 
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,

@@ -10,20 +10,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FunnelDto {
 
-    String statusName;
+    private Long id;
 
-    Long count;
+    private String statusName;
 
-    String time;
+    private Long count;
 
-    String conversion;
+    private String time;
 
-    String price;
+    private String conversion;
 
-    Long invoiceId;
-
-    Long invoiceStatusId;
-
+    private String price;
 
     //Конструктор для listOrdersDataView
     public FunnelDto(String statusName, Long count, String time, String conversion, String price) {

@@ -314,7 +314,7 @@ public class ContractorsTabView extends VerticalLayout {
     private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.removeAll();
-        templatesMenuItems(printSubMenu);
+        templatesXlsMenuItems(printSubMenu);
         uploadXlsMenuItem(printSubMenu);
     }
 
@@ -337,21 +337,15 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Anchor getLinkToPdfTemplate(File file) {
-        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReportPDF), "Скачать в формате PDF");
     }
 
     private Anchor getLinkToOdsTemplate(File file) {
-        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".ods";
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReportODS), "Скачать в формате Office Calc");
-    }
-
-    private Anchor getLinkToPdfTemplate(File file) {
-        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
-        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
-        return new Anchor(new StreamResource(templateName, printContractorsXls::createReportPDF), templateName);
     }
 
     private void getInfoNotification(String message) {
