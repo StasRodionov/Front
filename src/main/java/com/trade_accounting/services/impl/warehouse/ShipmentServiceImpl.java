@@ -68,7 +68,8 @@ public class ShipmentServiceImpl implements ShipmentService {
 
     @Override
     public void deleteById(Long id) {
-
+        Call<Void> shipmentDtoCall = shipmentApi.deleteById(shipmentUrl, id);
+        callExecuteService.callExecuteBodyDelete(shipmentDtoCall, ShipmentDto.class, id);
     }
 
     @Override
