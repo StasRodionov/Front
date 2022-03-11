@@ -23,5 +23,4 @@ public interface InvoiceReceivedService {
 
     void deleteById(Long id);
 
-    List<InvoiceReceivedDto> searchByString(String nameFilter);
 }
