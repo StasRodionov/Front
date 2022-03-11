@@ -30,6 +30,7 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
@@ -63,10 +64,12 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -117,7 +120,8 @@ public class MovementViewModalWindow extends Dialog {
     private final Binder<MovementDto> movementDtoBinder =
             new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
-    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/goods_templates/movement/";
+    private final String EMAIL_URL = "http://localhost:4445/api/movements/files/send/torg13/xls?calcalculateEmail=";
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/goods_templates/movement/torg13.xls";
 
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,
@@ -185,6 +189,7 @@ public class MovementViewModalWindow extends Dialog {
         companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseComboBoxOne.setValue(warehouseService.getById(editDto.getWarehouseToId()));
         movementProductsIdComboBox.setValue(new HashSet<>(movementDto.getMovementProductsIds()));
+
 
         configureDeleteButton(editDto.getId());
         configurePrintButtonContextMenu(editDto);
@@ -291,10 +296,6 @@ public class MovementViewModalWindow extends Dialog {
         return params;
     }
 
-    private File getXlsFileTorg13() {
-        return new File(pathForSaveXlsTemplate);
-    }
-
     private void configureSendButton(MovementDto movementDto) {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setTarget(buttonSend);
@@ -318,6 +319,7 @@ public class MovementViewModalWindow extends Dialog {
                         companyService.getById(movementDto.getCompanyId()),
                         warehouseService.getById(movementDto.getWarehouseToId()));
 
+                movementService.update(movementDto);
                 HttpClient httpClient = HttpClient.newHttpClient();
                 HttpRequest httpRequest = HttpRequest.newBuilder()
                         .uri(URI.create(EMAIL_URL + calculateEmail()))
