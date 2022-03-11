@@ -44,11 +44,13 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -60,7 +62,6 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private final ProductService productService;
     ProjectService projectService;
-    Notifications notifications;
     UnitService unitService;
 
     private final TextField textField = new TextField();
@@ -76,7 +77,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     private Grid<ShipmentDto> grid;
     private GridPaginator<ShipmentDto> paginator;
     private final GridFilter<ShipmentDto> filter;
-
+    private final Notifications notifications;
     private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
@@ -87,7 +88,8 @@ public class SalesSubShipmentView extends VerticalLayout {
                                 SalesEditShipmentView salesEditShipmentView,
                                 ShipmentService shipmentService,
                                 ShipmentProductService shipmentProductService,
-                                ProductService productService) {
+                                ProductService productService,
+                                @Lazy Notifications notifications) {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
@@ -96,6 +98,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
         this.productService = productService;
+        this.notifications = notifications;
         this.data = getData();
 
         configureActions();
@@ -158,17 +161,19 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
     }
+
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
-        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName,warehouseService.getAll());
+        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToIntegerField("id");
         filter.onSearchClick(e -> paginator
                 .setData(invoiceService.searchByFilter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -244,10 +249,32 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Изменить");
+        stringList.add("Удалить");
+        select.setItems(stringList);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedCorrections();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
+    }
+
+    private void deleteSelectedCorrections() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ShipmentDto shipmentDto : grid.getSelectedItems()) {
+                shipmentService.deleteById(shipmentDto.getId());
+                notifications.infoNotification("Выбранные счета-фактуры успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные счета-фактуры");
+        }
     }
 
     private Select<String> valueStatus() {
@@ -292,7 +319,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         }
     }
 
-    private void updateList(){
+    private void updateList() {
         grid.setItems(shipmentService.getAll());
     }
 
