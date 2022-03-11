@@ -22,4 +22,5 @@ public interface InvoiceReceivedService {
     void update(InvoiceReceivedDto invoiceReceivedDto);
 
     void deleteById(Long id);
+
 }

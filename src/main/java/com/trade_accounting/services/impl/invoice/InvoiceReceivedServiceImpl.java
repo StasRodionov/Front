@@ -42,7 +42,7 @@ public class InvoiceReceivedServiceImpl implements InvoiceReceivedService {
     @Override
     public List<InvoiceReceivedDto> getAll(String typeOfInvoice) {
         List<InvoiceReceivedDto> invoiceDtoList = new ArrayList<>();
-        Call<List<InvoiceReceivedDto>> invoiceDtoListCall = invoiceReceivedApi.getAll(invoiceReceivedUrl, typeOfInvoice);
+        Call<List<InvoiceReceivedDto>> invoiceDtoListCall = invoiceReceivedApi.getAll(invoiceReceivedUrl);
         try {
             invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
             log.info("Успешно выполнен запрос на получение списка ShipmentDto");
