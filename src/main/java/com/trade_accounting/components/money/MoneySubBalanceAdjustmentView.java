@@ -1,21 +1,23 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.BalanceAdjustmentDto;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.PaymentDto;
-import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.PaymentService;
-import com.trade_accounting.services.interfaces.ProjectService;
+import com.trade_accounting.models.dto.finance.BalanceAdjustmentDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.services.interfaces.finance.BalanceAdjustmentService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -117,7 +119,7 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
                 .setKey("contractorDto").setId("Контрагент");
         grid.addColumn("account").setHeader("Счет").setId("Счет");
         grid.addColumn("cashOffice").setHeader("Касса").setId("Касса");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(this::getTotalPrice).setKey("sum").setHeader("Сумма").setSortable(true).setId("Сумма");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn("dateChanged").setHeader("Когда изменен").setId("Когда изменен");
         grid.addColumn("whoChanged").setHeader("Кто изменил").setId("Кто изменил");
@@ -158,10 +160,8 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         return title;
     }
 
-    private com.vaadin.flow.component.button.Button buttonQuestion() {
-        com.vaadin.flow.component.button.Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
     private Button buttonRefresh() {
@@ -268,7 +268,6 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         }
     }
 
-
     private List<File> getXlsFiles() {
         File dir = new File(pathForSaveXlsTemplate);
         return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
@@ -276,14 +275,11 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     }
 
     private Anchor getLinkToXlsTemplate(File file) {
-
         String paymentsTemplate = file.getName();
         PrintPaymentsXls printPaymentsXls = new PrintPaymentsXls(
                 file.getPath(), paymentService.getAll(), companyService, contractorService, contractService, projectService);
-        return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport),
-                "Печать xls файла");
+        return new Anchor(new StreamResource(paymentsTemplate, printPaymentsXls::createReport), "Скачать в формате Excel");
     }
-
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {

@@ -4,35 +4,31 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
-import com.trade_accounting.services.interfaces.BuyersReturnService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.PositionService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.RetailStoreService;
-import com.trade_accounting.services.interfaces.ReturnAmountByProductService;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
+import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.models.dto.retail.RetailStoreDto;
+import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.client.PositionService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.retail.RetailStoreService;
+import com.trade_accounting.services.interfaces.finance.ReturnAmountByProductService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -100,16 +96,6 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private final String pathForSaveXlsTemplate =
             "src/main/resources/xls_templates/profitability_templates/";
-
-    private  final String textForQuestionButton = "<div><p>В разделе представлена прибыль от реализации товаров и услуг." +
-            "Здесь отображаются товары и услуги из документов розничной продажи и отгрузок за указанный период." +
-            "Если период не задать, будет показана прибыльность за последний месяц.</p>" +
-            "<p>Отчет позволяет оценить рентабельность продукции." +
-            "Он может быть сформирован по товарам, сотрудникам и покупателям.</p>" +
-            "<p>Отчет по сотрудникам позволяет отслеживать работу каждого конкретного сотрудника и рассчитывать вознаграждение по результатам продаж.</p>" +
-            "<p>По каждому товару можно увидеть список отгрузок, розничных продаж и возвратов." +
-            "Продажи в минус выделяются красным.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Прибыльность</a></p></div>";
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService,
@@ -546,9 +532,23 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(Buttons.buttonQuestion(textForQuestionButton, "500px"), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton, buttonGraph());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("В разделе представлена прибыль от реализации товаров и услуг. " +
+                        "Здесь отображаются товары и услуги из документов розничной продажи и отгрузок за указанный период. " +
+                        "Если период не задать, будет показана прибыльность за последний месяц. " +
+                        "Отчет позволяет оценить рентабельность продукции. " +
+                        "Он может быть сформирован по товарам, сотрудникам и покупателям. " +
+                        "<p>Отчет по сотрудникам позволяет отслеживать работу каждого конкретного сотрудника и рассчитывать вознаграждение по результатам продаж. " +
+                        "<p>По каждому товару можно увидеть список отгрузок, розничных продаж и возвратов. " +
+                        "Продажи в минус выделяются красным. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Прибыльность"));
     }
 
     private void refreshData() {

@@ -1,18 +1,24 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.goods.print.PrintMovementTorg13Xls;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.models.dto.MovementProductDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.MovementProductService;
-import com.trade_accounting.services.interfaces.MovementService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.UnitService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.BankAccountDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.warehouse.MovementDto;
+import com.trade_accounting.models.dto.warehouse.MovementProductDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.units.UnitService;
+import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
+import com.trade_accounting.services.interfaces.warehouse.MovementService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -24,6 +30,7 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
@@ -40,11 +47,15 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -53,8 +64,13 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -73,6 +89,9 @@ public class MovementViewModalWindow extends Dialog {
     private final UnitService unitService;
     private MovementDto movementDto;
     private final MovementProductService movementProductService;
+    private final LegalDetailService legalDetailService;
+    private final BankAccountService bankAccountService;
+    private final EmployeeService employeeService;
 
     private final ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseComboBox = new ComboBox<>();
@@ -101,12 +120,17 @@ public class MovementViewModalWindow extends Dialog {
     private final Binder<MovementDto> movementDtoBinder =
             new Binder<>(MovementDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
+    private final String EMAIL_URL = "http://localhost:4445/api/movements/files/send/torg13/xls?calcalculateEmail=";
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/goods_templates/movement/torg13.xls";
 
     public MovementViewModalWindow(ProductService productService, MovementService movementService, WarehouseService warehouseService,
                                    CompanyService companyService,
                                    Notifications notifications,
                                    UnitService unitService,
-                                   MovementProductService movementProductService) {
+                                   MovementProductService movementProductService,
+                                   LegalDetailService legalDetailService,
+                                   BankAccountService bankAccountService,
+                                   EmployeeService employeeService) {
         this.productService = productService;
         this.movementService = movementService;
         this.warehouseService = warehouseService;
@@ -114,6 +138,9 @@ public class MovementViewModalWindow extends Dialog {
         this.notifications = notifications;
         this.unitService = unitService;
         this.movementProductService = movementProductService;
+        this.legalDetailService = legalDetailService;
+        this.bankAccountService = bankAccountService;
+        this.employeeService = employeeService;
 
         this.tempMovementProductDtoList = new ArrayList<>();
         paginator = new GridPaginator<>(grid, tempMovementProductDtoList, 50);
@@ -172,31 +199,104 @@ public class MovementViewModalWindow extends Dialog {
 
     }
 
+    private File getFiles() {
+        return new File(pathForSaveXlsTemplate);
+    }
+
     private void configurePrintButtonContextMenu(MovementDto movementDto) {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setTarget(buttonPrint);
         contextMenu.setOpenOnClick(true);
-
         SubMenu subMenuTorg13 = contextMenu.addItem(new Div(new Text("ТОРГ-13"))).getSubMenu();
-        subMenuTorg13.addItem("Открыть в браузере");
-        subMenuTorg13.addItem("Скачать в формате Excel", event -> {
 
-            //TODO movementDto should be updated before call updateTorg13
-            movementService.updateTorg13(movementDto,
-                    companyService.getById(movementDto.getCompanyId()),
-                    warehouseService.getById(movementDto.getWarehouseToId()));
-
-            UI.getCurrent().getPage()
-                    .open("http://localhost:4445/api/movements/files/torg13/xls", "print");
+        subMenuTorg13.addItem("Открыть в браузере", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToHtmlTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
         });
-        subMenuTorg13.addItem("Скачать в формате PDF");
-        subMenuTorg13.addItem("Скачать в формате Open Office Calc");
+
+        subMenuTorg13.addItem("Скачать в формате Excel", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToXlsTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
+        });
+
+        subMenuTorg13.addItem("Скачать в формате PDF", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToPdfTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
+        });
+
+        subMenuTorg13.addItem("Скачать в формате Office Calc", event -> {
+            StreamRegistration registration = VaadinSession.getCurrent()
+                    .getResourceRegistry()
+                    .registerResource(getLinkToOdsTemplate(getFiles()));
+            UI.getCurrent().getPage().setLocation(registration.getResourceUri());
+        });
 
         contextMenu.addItem("...");
     }
 
-    private void configureSendButton(MovementDto movementDto) {
+    private StreamResource getLinkToHtmlTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".html";
+        List<MovementProductDto> products = movementDto.getMovementProductsIds().stream()
+                .map(movementProductService::getById)
+                .collect(Collectors.toList());
+        PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
+        return new StreamResource(templateName, printMovementTorg13Xls::createReportHTML);
+    }
 
+    private StreamResource getLinkToXlsTemplate(File file) {
+        String templateName = file.getName();
+        List<MovementProductDto> products = movementDto.getMovementProductsIds().stream()
+                .map(movementProductService::getById)
+                .collect(Collectors.toList());
+        PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
+        return new StreamResource(templateName, printMovementTorg13Xls::createReport);
+    }
+
+    private StreamResource getLinkToPdfTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        List<MovementProductDto> products = movementDto.getMovementProductsIds().stream()
+                .map(movementProductService::getById)
+                .collect(Collectors.toList());
+        PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
+        return new StreamResource(templateName, printMovementTorg13Xls::createReportPDF);
+    }
+
+    private StreamResource getLinkToOdsTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
+        List<MovementProductDto> products = movementDto.getMovementProductsIds().stream()
+                .map(movementProductService::getById)
+                .collect(Collectors.toList());
+        PrintMovementTorg13Xls printMovementTorg13Xls = new PrintMovementTorg13Xls(file.getPath(), products, getParamsForTemplate(products), productService, unitService);
+        return new StreamResource(templateName, printMovementTorg13Xls::createReportODS);
+    }
+
+    private Map<String, String> getParamsForTemplate(List<MovementProductDto> productDtos) {
+        HashMap params = new HashMap();
+        CompanyDto companyDto = companyComboBox.getValue();
+        WarehouseDto warehouseDtoFrom = warehouseComboBox.getValue();
+        WarehouseDto warehouseDtoTo = warehouseComboBoxOne.getValue();
+        List<Long> bankAccountDtoIds = companyDto.getBankAccountDtoIds();  //todo сделать поле bankAccountDtoIds Non Null
+        List<BankAccountDto> bankAccountDtos = bankAccountDtoIds != null ?
+                bankAccountDtoIds.stream().map(bankAccountService::getById).collect(Collectors.toList()) :
+                null;
+        params.put("organization", companyDto.getName());
+        params.put("okpo", legalDetailService.getById(companyDto.getLegalDetailDtoId()).getOkpo());
+        params.put("id", companyDto.getId().toString());
+        params.put("receiver", warehouseDtoFrom.getName());
+        params.put("recipient", warehouseDtoTo.getName());
+        params.put("correspondentAccount", bankAccountDtos != null ? bankAccountDtos.get(0) : "");
+        params.put("resultAmount", productDtos.stream().map(MovementProductDto::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add).toPlainString());
+        params.put("resultSum", labelSum.getText());
+        return params;
+    }
+
+    private void configureSendButton(MovementDto movementDto) {
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.setTarget(buttonSend);
         contextMenu.setOpenOnClick(true);
@@ -213,6 +313,8 @@ public class MovementViewModalWindow extends Dialog {
         contextMenu.addItem(container, event -> {
             if (Boolean.FALSE.equals(movementDto.getIsSent())) {
                 //TODO movementDto should be updated before call updateTorg13
+                movementService.update(movementDto);
+
                 movementService.updateTorg13(movementDto,
                         companyService.getById(movementDto.getCompanyId()),
                         warehouseService.getById(movementDto.getWarehouseToId()));
@@ -220,8 +322,9 @@ public class MovementViewModalWindow extends Dialog {
                 movementService.update(movementDto);
                 HttpClient httpClient = HttpClient.newHttpClient();
                 HttpRequest httpRequest = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:4445/api/movements/files/send/torg13/xls"))
+                        .uri(URI.create(EMAIL_URL + calculateEmail()))
                         .build();
+
                 httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
                         .thenApply(HttpResponse::statusCode)
                         .thenAccept(integer -> {
@@ -229,6 +332,7 @@ public class MovementViewModalWindow extends Dialog {
                             movementDto.setIsSent(true);
 
                         }).join();
+
                 if (Boolean.TRUE.equals(movementDto.getIsSent())) {
                     container.add(new Span(" отправлено"));
                     movementService.update(movementDto);
@@ -238,6 +342,19 @@ public class MovementViewModalWindow extends Dialog {
             }
         });
         contextMenu.addItem("Комплект . . .");
+    }
+
+    private String calculateEmail() {
+        var email = companyComboBox.getValue().getEmail();
+
+        if (email == null) {
+            email = employeeService.getPrincipal().getEmail();
+            if (email == null) {
+                throw new IllegalStateException("Не найден email");
+            }
+        }
+
+        return email;
     }
 
     private HorizontalLayout headerLayout() {
@@ -342,6 +459,9 @@ public class MovementViewModalWindow extends Dialog {
                     warehouseService,
                     movementService,
                     unitService,
+                    legalDetailService,
+                    bankAccountService,
+                    employeeService,
                     notifications);
             modalView.open();
         });

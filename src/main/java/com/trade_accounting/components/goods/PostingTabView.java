@@ -15,6 +15,12 @@ import com.trade_accounting.services.interfaces.CompanyService;
 import com.trade_accounting.services.interfaces.CorrectionProductService;
 import com.trade_accounting.services.interfaces.CorrectionService;
 import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.finance.CorrectionDto;
+import com.trade_accounting.models.dto.finance.CorrectionProductDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
+import com.trade_accounting.services.interfaces.finance.CorrectionService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -38,6 +44,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -52,12 +60,13 @@ import java.util.List;
 @PageTitle("Оприходования")
 @Route(value = "positingTab", layout = AppView.class)
 @UIScope
-public class PostingTabView extends VerticalLayout {
+public class PostingTabView extends VerticalLayout  implements AfterNavigationObserver {
 
     private final CorrectionService correctionService;
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final CorrectionProductService correctionProductService;
+    private final PostingCreateView postingCreateView;
     private Notifications notifications;
     private final PostingModal modalWindow;
 
@@ -75,12 +84,14 @@ public class PostingTabView extends VerticalLayout {
                           WarehouseService warehouseService,
                           CompanyService companyService,
                           CorrectionProductService correctionProductService,
+                          PostingCreateView postingCreateView,
                           Notifications notifications,
                           PostingModal modalWindow) {
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.correctionProductService = correctionProductService;
+        this.postingCreateView = postingCreateView;
         this.notifications = notifications;
         this.modalWindow = modalWindow;
         this.data = getData();
@@ -149,7 +160,7 @@ public class PostingTabView extends VerticalLayout {
 
     private HorizontalLayout configureActions() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(),
+        upper.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(), buttonFilter(), text(),
                 numberField(), valueSelect(), valueStatus(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
@@ -231,14 +242,18 @@ public class PostingTabView extends VerticalLayout {
     }
 
     public void updateList() {
-
+        grid.setItems(correctionService.getAll());
     }
 
     private Button buttonUnit() {
 
         Button button = new Button("Оприходование", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(e -> modalWindow.open());
-        updateList();
+        button.addClickListener(e -> {
+            postingCreateView.clearForm();
+            postingCreateView.setParentLocation("positingTab");
+            button.getUI().ifPresent(ui -> ui.navigate("goods/posting-create"));
+        });
+
         return button;
     }
 
@@ -248,7 +263,7 @@ public class PostingTabView extends VerticalLayout {
 
     private TextField text() {
         textField.setWidth("300px");
-        textField.setPlaceholder("Наименование или комментарий");
+        textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -300,5 +315,10 @@ public class PostingTabView extends VerticalLayout {
         print.setValue("Печать");
         print.setWidth("110px");
         return print;
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }

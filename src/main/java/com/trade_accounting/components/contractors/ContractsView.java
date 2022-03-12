@@ -1,15 +1,16 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.services.interfaces.BankAccountService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
+import com.trade_accounting.models.dto.company.ContractDto;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -232,11 +233,7 @@ public class ContractsView extends VerticalLayout {
     }
 
     private Button getButtonQuestion() {
-        final Button buttonQuestion = new Button();
-        Icon question = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
-        buttonQuestion.setIcon(question);
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
     private Select<String> getSelect() {

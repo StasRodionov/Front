@@ -1,15 +1,15 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.LossDto;
-import com.trade_accounting.models.dto.LossProductDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.LossProductService;
-import com.trade_accounting.services.interfaces.LossService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.finance.LossDto;
+import com.trade_accounting.models.dto.finance.LossProductDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.finance.LossProductService;
+import com.trade_accounting.services.interfaces.finance.LossService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -26,9 +26,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.time.LocalDateTime;

@@ -2,21 +2,20 @@ package com.trade_accounting.components.purchases;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.InvoiceService;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -54,7 +53,6 @@ import org.springframework.context.annotation.Lazy;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -75,6 +73,7 @@ import java.util.stream.Collectors;
 @UIScope
 public class PurchasesSubSuppliersOrders extends VerticalLayout implements AfterNavigationObserver {
 
+
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final InvoiceService invoiceService;
@@ -90,12 +89,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
-    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/invoices_templates/";
+    private final TextField textField = new TextField();
 
-    private  final String textForQuestionButton = "<div><p>Заказы поставщикам позволяют планировать закупки товаров и услуг." +
-            " Они не меняют количество товара на складе — для этого нужно создать приемку." +
-            " Товары из заказов поставщику можно поставить в ожидание.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Заказы поставщикам</a></p></div>";
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices";
 
     @Autowired
     public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService, InvoiceService invoiceService,
@@ -118,10 +114,19 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private HorizontalLayout configureActions() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(Buttons.buttonQuestion(textForQuestionButton,"230px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Заказы поставщикам позволяют планировать закупки товаров и услуг. " +
+                        "Они не меняют количество товара на складе — для этого нужно создать приемку. " +
+                        "Товары из заказов поставщику можно поставить в ожидание. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Заказы поставщикам"));
     }
 
     private Grid<InvoiceDto> configureGrid() {
@@ -175,7 +180,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private H4 title() {
         H4 title = new H4("Заказы поставщикам");
         title.setHeight("2.2em");
-        title.setWidth("80px");
+        title.setWidth("60px");
         return title;
     }
 
@@ -205,7 +210,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     }
 
     private TextField filterTextField() {
-        final TextField textField = new TextField();
         textField.setPlaceholder("Номер или комментарий");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -253,7 +257,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         Select<String> status = new Select<>();
         status.setItems("Статус");
         status.setValue("Статус");
-        status.setWidth("110px");
+        status.setWidth("130px");
         return status;
     }
 
@@ -261,18 +265,24 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         Select<String> create = new Select<>();
         create.setItems("Создать");
         create.setValue("Создать");
-        create.setWidth("110px");
+        create.setWidth("130px");
         return create;
     }
 
     private Select<String> valuePrint() {
         Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
+        print.setItems("Печать","Добавить");
         print.setValue("Печать");
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
+//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
-        print.setWidth("110px");
+        print.setWidth("130px");
         return print;
+    }
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
     }
 
     private void uploadXlsMenuItem(Select<String> print) {
@@ -312,11 +322,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         });
     }
 
-    private List<File> getXlsFiles() {
-        File dir = new File(pathForSaveXlsTemplate);
-        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
-                .contains(".xls")).collect(Collectors.toList());
-    }
+
 
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
@@ -328,6 +334,16 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), contractorService, companyService, sumList, employeeService);
         return new Anchor(new StreamResource(templateName, printInvoicesXls::createReport), templateName);
     }
+
+//    private Anchor getLinkToPDFTemplate(File file) {
+//        List<String> sumList = new ArrayList<>();
+//        List<InvoiceDto> list1 = invoiceService.getAll(typeOfInvoice);
+//        for (InvoiceDto inc : list1) {
+//            sumList.add(getTotalPrice(inc));
+//        }
+//        PrintInvoicesXls printInvoicesXls = new PrintInvoicesXls(file.getPath(), invoiceService.getAll(typeOfInvoice), contractorService, companyService, sumList, employeeService);
+//        return new Anchor(new StreamResource("invoices.pdf", printInvoicesXls::createReportPDF), "invoices.pdf");
+//    }
 
     private void getInfoNotification(String message) {
         Notification notification = new Notification(message, 5000);
@@ -352,12 +368,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
 
     private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
-    }
-
-    private TextField textField() {
-        TextField textField = new TextField("", "1-1 из 1");
-        textField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-        return textField;
     }
 
     private String formatDate(String stringDate) {

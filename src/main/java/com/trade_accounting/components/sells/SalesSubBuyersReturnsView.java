@@ -5,18 +5,19 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.BuyersReturnService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.ShipmentProductService;
-import com.trade_accounting.services.interfaces.ShipmentService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.ShipmentProductService;
+import com.trade_accounting.services.interfaces.warehouse.ShipmentService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -92,11 +93,6 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final ShipmentProductService shipmentProductService;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
-
-    private  final String textForQuestionButton = "<div><p>Возврат можно создать на основании отгрузки или без основания — это удобно," +
-            "если нужно сделать возврат сразу на несколько отгрузок.</p>" +
-            "<p>Возвраты влияют на остатки по складам в разделе Товары → Остатки.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Возвраты покупателей</a></p></div>";
 
     @Autowired
     public SalesSubBuyersReturnsView(BuyersReturnService buyersReturnService,
@@ -254,10 +250,19 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(Buttons.buttonQuestion(textForQuestionButton, "250px"), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), selectXlsTemplateButton, textField(),
+        toolbar.add(buttonQuestion(), title(), getButtonRefresh(), buttonUnit(), getButtonFilter(), selectXlsTemplateButton, textField(),
                 numberField(), getSelect(), getStatus(), buttonSettings());
         toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return toolbar;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Возврат можно создать на основании отгрузки или без основания — это удобно, " +
+                        "если нужно сделать возврат сразу на несколько отгрузок. " +
+                        "Возвраты влияют на остатки по складам в разделе Товары → Остатки. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Возвраты покупателей"));
     }
 
     private H4 title() {

@@ -1,23 +1,19 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.LossDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.LossProductService;
-import com.trade_accounting.services.interfaces.LossService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.finance.LossDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.finance.LossProductService;
+import com.trade_accounting.services.interfaces.finance.LossService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -180,19 +176,7 @@ public class LossView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Списание  - добавить текст"));
-        dialog.setWidth("450px");
-        dialog.setHeight("250px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Списание  - добавить текст");
     }
 
     private Button buttonRefresh() {

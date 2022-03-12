@@ -1,24 +1,21 @@
 package com.trade_accounting.components.indicators;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.FileDto;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.FileService;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.models.dto.util.FileDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.util.FileService;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -146,21 +143,9 @@ public class DocumentsView extends VerticalLayout {
 
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлены файлы, добавленные за всё время." +
-                " Здесь удобно искать конкретные файлы с помощью фильтров и удалять файлы, " +
-                "чтобы освободить место в хранилище."));
-        dialog.setWidth("500px");
-        dialog.setHeight("300px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе представлены файлы, добавленные за всё время. " +
+                "Здесь удобно искать конкретные файлы с помощью фильтров и удалять файлы, " +
+                "чтобы освободить место в хранилище.");
     }
 
 

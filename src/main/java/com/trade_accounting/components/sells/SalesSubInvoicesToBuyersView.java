@@ -5,21 +5,21 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.SupplierAccountService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
+import com.trade_accounting.services.interfaces.company.SupplierAccountService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -71,13 +71,6 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private final String typeOfInvoice = "RECEIPT";
 
-    private  final String textForQuestionButton = "<div><p>Счет является основанием для получения оплаты и проведения отгрузки.</p>" +
-            "<p>Счет можно создать на основе заказа покупателя или вручную." +
-            "Несколько счетов можно объединить: отметьте нужные счета флажками, нажмите справа вверху Изменить → Объединить." +
-            "Исходные счета также сохранятся.</p>" +
-            "<p>Счета можно распечатывать или отправлять покупателям в виде файлов.</p>"+
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Счета покупателям</a></p></div>";
-
     @Autowired
     public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService,
                                         ContractorService contractorService,
@@ -106,9 +99,20 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(Buttons.buttonQuestion(textForQuestionButton, "350px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Счет является основанием для получения оплаты и проведения отгрузки. " +
+                        "Счет можно создать на основе заказа покупателя или вручную. " +
+                        "Несколько счетов можно объединить: отметьте нужные счета флажками, нажмите справа вверху Изменить → Объединить. " +
+                        "Исходные счета также сохранятся. " +
+                        "Счета можно распечатывать или отправлять покупателям в виде файлов. "+
+                        "Читать инструкцию: "),
+                new Anchor("#", "Счета покупателям"));
     }
 
     private void configureGrid() {

@@ -5,18 +5,21 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -58,7 +61,7 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
     private final WarehouseService warehouseService;
     private final List<InvoiceDto> data;
     private final Notifications notifications;
-
+    private final ContractService contractService;
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
@@ -68,25 +71,19 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
     private final String typeOfInvoice = "RECEIPT";
 
-    private final String textForQuestionButton = "<div><p>В разделе представлены выданные и полученные отчеты комиссионера." +
-            "В отчетах указываются проданные товары, сумма продажи, вознаграждение комиссионера." +
-            "На основе отчетов формируется долг комиссионера перед комитентом.</p>" +
-            "<p>Выданные отчеты создает комиссионер. Полученные — комитент.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Комиссионная торговля. Комиссионеру</a></p>" +
-            "<a href=\"#\" target=\"_blank\">Комиссионная торговля. Комитенту</a></p></div>";
-
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
                                     CompanyService companyService,
                                     WarehouseService warehouseService,
                                     CommissionAgentReportModalView commissionAgentReportModalView,
-                                    Notifications notifications) {
+                                    Notifications notifications, ContractService contractService) {
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.commissionAgentReportModalView = commissionAgentReportModalView;
         this.notifications = notifications;
+        this.contractService = contractService;
 
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -114,10 +111,22 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
     private HorizontalLayout configureActions() {
         HorizontalLayout actions1 = new HorizontalLayout();
-        actions1.add(Buttons.buttonQuestion(textForQuestionButton, "350px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions1.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions1.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return actions1;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("В разделе представлены выданные и полученные отчеты комиссионера. " +
+                        "В отчетах указываются проданные товары, сумма продажи, вознаграждение комиссионера. " +
+                        "На основе отчетов формируется долг комиссионера перед комитентом. " +
+                        "Выданные отчеты создает комиссионер. Полученные — комитент. " +
+                        "Читать инструкции: "),
+                new Anchor("#", "Комиссионная торговля. Комиссионеру"),
+                new Text(", "),
+                new Anchor("#", "Комиссионная торговля. Комитенту"));
     }
 
     private void configureGrid() {
@@ -140,8 +149,13 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
 
 
         grid.addItemDoubleClickListener(event -> {
-//            InvoiceDto editInvoice = event.getItem();
-//            salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
+            InvoiceDto editInvoice = event.getItem();
+            CommissionAgentReportModalView commissionAgentReportModalView = new CommissionAgentReportModalView(
+                    contractorService,
+                    contractService,
+                    companyService);
+            commissionAgentReportModalView.setReturnEdit(editInvoice);
+            commissionAgentReportModalView.open();
 //            salesEditCreateInvoiceView.setUpdateState(true);
 //            salesEditCreateInvoiceView.setType("RECEIPT");
 //            salesEditCreateInvoiceView.setLocation("sells");

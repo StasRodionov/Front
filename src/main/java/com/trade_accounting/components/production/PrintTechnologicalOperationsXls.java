@@ -1,9 +1,9 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
-import com.trade_accounting.services.interfaces.TechnicalCardService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.production.TechnicalOperationsDto;
+import com.trade_accounting.services.interfaces.production.TechnicalCardService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.util.List;

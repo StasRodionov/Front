@@ -2,24 +2,30 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.ShipmentDto;
-import com.trade_accounting.models.dto.ShipmentProductDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.ProjectService;
-import com.trade_accounting.services.interfaces.ShipmentProductService;
-import com.trade_accounting.services.interfaces.ShipmentService;
-import com.trade_accounting.services.interfaces.UnitService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.warehouse.ShipmentDto;
+import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
+import com.trade_accounting.services.interfaces.warehouse.ShipmentProductService;
+import com.trade_accounting.services.interfaces.warehouse.ShipmentService;
+import com.trade_accounting.services.interfaces.units.UnitService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -38,11 +44,13 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -54,9 +62,9 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private final ProductService productService;
     ProjectService projectService;
-    Notifications notifications;
     UnitService unitService;
 
+    private final TextField textField = new TextField();
     private final WarehouseService warehouseService;
     private final ShipmentService invoiceService;
     private final ContractorService contractorService;
@@ -68,15 +76,9 @@ public class SalesSubShipmentView extends VerticalLayout {
     private HorizontalLayout actions;
     private Grid<ShipmentDto> grid;
     private GridPaginator<ShipmentDto> paginator;
-
-    private final String textForQuestionButton = "<div><p>Отгрузки фиксируют отпуск товаров покупателям и влияют на остатки по складам в разделе Товары → Остатки.</p>" +
-            "<p>Товары отпускаются с указанного в документе склада." +
-            "Если товары отпускаются с двух разных складов, то для каждого создается отдельная отгрузка.</p>" +
-            "<p>Отгрузку можно распечатать в виде расходной накладной, ТОРГ-12 или Товарно-транспортной накладной." +
-            "На основе отгрузки создаются и печатаются счета-фактуры.</p>" +
-            "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Отгрузка товаров</a></p></div>";
-
-//    private final String typeOfInvoice = "RECEIPT";
+    private final GridFilter<ShipmentDto> filter;
+    private final Notifications notifications;
+    private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
     public SalesSubShipmentView(WarehouseService warehouseService,
@@ -86,7 +88,8 @@ public class SalesSubShipmentView extends VerticalLayout {
                                 SalesEditShipmentView salesEditShipmentView,
                                 ShipmentService shipmentService,
                                 ShipmentProductService shipmentProductService,
-                                ProductService productService) {
+                                ProductService productService,
+                                @Lazy Notifications notifications) {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
@@ -95,20 +98,35 @@ public class SalesSubShipmentView extends VerticalLayout {
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
         this.productService = productService;
+        this.notifications = notifications;
         this.data = getData();
 
         configureActions();
         configureGrid();
         configurePaginator();
 
-        add(actions, grid, paginator);
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
+        add(actions, filter, grid, paginator);
     }
 
     private void configureActions() {
         actions = new HorizontalLayout();
-        actions.add(Buttons.buttonQuestion(textForQuestionButton, "400px"), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
+        actions.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), textField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
         actions.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion(
+                new Text("Отгрузки фиксируют отпуск товаров покупателям и влияют на остатки по складам в разделе Товары → Остатки. " +
+                        "Товары отпускаются с указанного в документе склада. " +
+                        "Если товары отпускаются с двух разных складов, то для каждого создается отдельная отгрузка. " +
+                        "Отгрузку можно распечатать в виде расходной накладной, ТОРГ-12 или Товарно-транспортной накладной. " +
+                        "На основе отгрузки создаются и печатаются счета-фактуры. " +
+                        "Читать инструкцию: "),
+                new Anchor("#", "Отгрузка товаров"));
     }
 
     private void configureGrid() {
@@ -118,11 +136,11 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
                 .setKey("date").setId("Дата");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
-                .setKey("typeOfInvoiceDTO").setId("Склад");
+                .setKey("warehouseId").setId("Склад");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
-                .setKey("companyId").setId("Компания");
+                .setKey("companyId").setId("Организация");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addItemDoubleClickListener(e -> {
             ShipmentDto dto = e.getItem();
@@ -144,6 +162,18 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     }
 
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName, warehouseService.getAll());
+        filter.setFieldToIntegerField("id");
+        filter.onSearchClick(e -> paginator
+                .setData(invoiceService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
+    }
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -162,6 +192,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
@@ -178,12 +209,13 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
+        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
         return buttonFilter;
     }
 
     private static String formatDate(String date) {
         return LocalDateTime.parse(date)
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     private Button buttonSettings() {
@@ -203,7 +235,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         textField.setPlaceholder("Номер, склад или организация");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.addValueChangeListener(event -> updateList());
+        textField.addValueChangeListener(event -> updateList(textField.getValue()));
         textField.setWidth("300px");
         return textField;
     }
@@ -217,10 +249,32 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();
-        select.setItems("Изменить");
+        List<String> stringList = new ArrayList<>();
+        stringList.add("Изменить");
+        stringList.add("Удалить");
+        select.setItems(stringList);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedCorrections();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
+    }
+
+    private void deleteSelectedCorrections() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ShipmentDto shipmentDto : grid.getSelectedItems()) {
+                shipmentService.deleteById(shipmentDto.getId());
+                notifications.infoNotification("Выбранные счета-фактуры успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные счета-фактуры");
+        }
     }
 
     private Select<String> valueStatus() {
@@ -257,16 +311,15 @@ public class SalesSubShipmentView extends VerticalLayout {
         return String.format("%.2f", totalPrice);
     }
 
-//    private void updateList() {
-//        grid.setItems(invoiceService.getAll(typeOfInvoice));
-//        System.out.println("Обновлен");
-//    }
+    public void updateList(String nameFilter) {
+        if (nameFilter.isEmpty()) {
+            grid.setItems(shipmentService.getAll());
+        } else {
+            grid.setItems(shipmentService.searchByString(nameFilter));
+        }
+    }
 
-//    private void updateList(String text) {
-//        grid.setItems(invoiceService.findBySearchAndTypeOfInvoice(text, typeOfInvoice));
-//    }
-
-    private void updateList(){
+    private void updateList() {
         grid.setItems(shipmentService.getAll());
     }
 

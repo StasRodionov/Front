@@ -2,21 +2,17 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.RemainDto;
-import com.trade_accounting.services.interfaces.RemainService;
-import com.trade_accounting.services.interfaces.UnitService;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
+import com.trade_accounting.models.dto.warehouse.RemainDto;
+import com.trade_accounting.services.interfaces.warehouse.RemainService;
+import com.trade_accounting.services.interfaces.units.UnitService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -146,19 +142,7 @@ public class RemainView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Остатки  - добавить текст"));
-        dialog.setWidth("450px");
-        dialog.setHeight("250px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Остатки  - добавить текст");
     }
 
     private Button buttonRefresh() {

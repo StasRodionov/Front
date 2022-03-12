@@ -1,14 +1,13 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.PrintExcelDocument;
-import com.trade_accounting.models.dto.BuyersReturnDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.services.interfaces.BuyersReturnService;
-import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.math.BigDecimal;

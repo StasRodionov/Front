@@ -1,18 +1,19 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.PaymentDto;
-import com.trade_accounting.models.dto.ProjectDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.PaymentService;
-import com.trade_accounting.services.interfaces.ProjectService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.finance.PaymentDto;
+import com.trade_accounting.models.dto.util.ProjectDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -88,7 +89,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.outgoingPaymentModal = outgoingPaymentModal;
 
 
-        getGrid();
+        configureGrid();
         configureScroller();
         this.paginator = new GridPaginator<>(grid, data, 10);
         this.filter = new GridFilter<>(grid);
@@ -126,8 +127,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         filter.onClearClick(e -> paginator.setData(getDate()));
     }
 
-    //TODO Rename to configureGrid
-    private Grid getGrid() {
+    private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setItems(data);
         grid.addColumn("typeOfDocument").setWidth("11em").setFlexGrow(0).setHeader("Тип документа").setId("Тип документа");
@@ -212,9 +212,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 expenseOrderModal.setPaymentDataForEdit(editPaymentDto);
                 expenseOrderModal.open();
             }
-
         });
-        return grid;
     }
 
     private void updateList() {
@@ -310,11 +308,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     /*Кнопка Вопрос*/
     private Button getButtonQuestion() {
-        final Button buttonQuestion = new Button();
-        Icon question = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
-        buttonQuestion.setIcon(question);
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
     /*Меню Изменить*/

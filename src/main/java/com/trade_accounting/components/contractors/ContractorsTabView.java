@@ -1,24 +1,22 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.services.interfaces.AddressService;
-import com.trade_accounting.services.interfaces.BankAccountService;
-import com.trade_accounting.services.interfaces.ContactService;
-import com.trade_accounting.services.interfaces.ContractorGroupService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.ContractorStatusService;
-import com.trade_accounting.services.interfaces.DepartmentService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.TypeOfContractorService;
-import com.trade_accounting.services.interfaces.TypeOfPriceService;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.services.interfaces.company.AddressService;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.company.ContactService;
+import com.trade_accounting.services.interfaces.company.ContractorGroupService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.company.ContractorStatusService;
+import com.trade_accounting.services.interfaces.client.DepartmentService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
+import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -121,7 +119,7 @@ public class ContractorsTabView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(upperLayout(), filter, grid, paginator);
         configureSelectXlsTemplateButton();
-//        updateList();
+        updateList();
     }
 
 
@@ -129,16 +127,20 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
+        grid.addColumn("shortname").setHeader("Краткое наименование").setId("Краткое наименование");
         grid.addColumn("sortNumber").setHeader("номер").setId("номер");
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
         grid.addColumn("email").setHeader("email").setId("email");
-        grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setId("Адрес");
-        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setId("комментарий к адресу");
-        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setId("комментарий");
-        grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы").setId("Группы");
-        grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setId("Скидки и цены");
-        grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setId("Реквизиты");
+        grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setKey("address")
+                .setId("Адрес");
+        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setKey("commentToAddress")
+                .setId("комментарий к адресу");
+        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setKey("comment").setId("комментарий");
+        grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы")
+                .setKey("contractorGroupDto").setId("Группы");
+        grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setKey("typeOfPriceDto").setId("Скидки и цены");
+        grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setKey("legalDetailDto").setId("Реквизиты");
         grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -217,23 +219,10 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        com.vaadin.flow.component.dialog.Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе представлен список ваших поставщиков и покупателей." +
-                " Для них можно настраивать индивидуальные цены и скидки, также" +
-                " можно им звонить и отправлять документы прямо из МоегоСклада." +
-                " Список контрагентов можно импортировать и экспортировать."));
-        dialog.setWidth("560px");
-        dialog.setHeight("190px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.setModal(false);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе представлен список ваших поставщиков и покупателей. " +
+                "Для них можно настраивать индивидуальные цены и скидки, также " +
+                "можно им звонить и отправлять документы прямо из МоегоСклада. " +
+                "Список контрагентов можно импортировать и экспортировать.");
     }
 
     private Button buttonRefresh() {
@@ -332,6 +321,8 @@ public class ContractorsTabView extends VerticalLayout {
 
     private void templatesXlsMenuItems(SubMenu subMenu) {
         getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToPdfTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToOdsTemplate(x)));
     }
 
     private List<File> getXlsFiles() {
@@ -343,7 +334,19 @@ public class ContractorsTabView extends VerticalLayout {
     private Anchor getLinkToXlsTemplate(File file) {
         String templateName = file.getName();
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
-        return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), templateName);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReport), "Скачать в формате Excel");
+    }
+
+    private Anchor getLinkToPdfTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReportPDF), "Скачать в формате PDF");
+    }
+
+    private Anchor getLinkToOdsTemplate(File file) {
+        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
+        PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
+        return new Anchor(new StreamResource(templateName, printContractorsXls::createReportODS), "Скачать в формате Office Calc");
     }
 
     private void getInfoNotification(String message) {

@@ -1,22 +1,21 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.TechnicalProcessDto;
-import com.trade_accounting.services.interfaces.DepartmentService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.StagesProductionService;
-import com.trade_accounting.services.interfaces.TechnicalProcessService;
+import com.trade_accounting.models.dto.production.TechnicalProcessDto;
+import com.trade_accounting.services.interfaces.client.DepartmentService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.production.StagesProductionService;
+import com.trade_accounting.services.interfaces.production.TechnicalProcessService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -110,24 +109,15 @@ public class TechnicalProcessViewTab extends VerticalLayout implements AfterNavi
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>Технологический процесс — последовательность этапов, " +
-                "которые необходимо выполнить для получения готовой продукции.</p> \n" +
-                "\n" +
-                "<p>Читать инструкцию: </p><p><a href =\"#\" target=\"_blank\"> Расширенный учет производственных операций</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setWidth("300px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new VerticalLayout(
+                        new Text("Технологический процесс — последовательность этапов, " +
+                                "которые необходимо выполнить для получения готовой продукции."),
+                        new Div(
+                                new Text("Читать инструкцию: "),
+                                new Anchor("#", "Расширенный учет производственных операций"))
+                )
+        );
     }
 
     private Button buttonRefresh() {

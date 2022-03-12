@@ -2,15 +2,16 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.services.interfaces.BalanceAdjustmentService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.MoneySubCashFlowService;
-import com.trade_accounting.services.interfaces.MoneySubMutualSettlementsService;
-import com.trade_accounting.services.interfaces.MoneySubProfitLossService;
-import com.trade_accounting.services.interfaces.PaymentService;
-import com.trade_accounting.services.interfaces.ProjectService;
+import com.trade_accounting.services.interfaces.finance.BalanceAdjustmentService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.finance.MoneySubCashFlowService;
+import com.trade_accounting.services.interfaces.finance.MoneySubMutualSettlementsService;
+import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
+import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -127,6 +128,5 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         return tabs;
 
     }
-
 
 }

@@ -1,12 +1,12 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.TechnicalCardService;
-import com.trade_accounting.services.interfaces.TechnicalOperationsService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.production.TechnicalCardDto;
+import com.trade_accounting.models.dto.production.TechnicalOperationsDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.production.TechnicalCardService;
+import com.trade_accounting.services.interfaces.production.TechnicalOperationsService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;

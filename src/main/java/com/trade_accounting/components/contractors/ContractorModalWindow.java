@@ -1,29 +1,28 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.ValidTextField;
-import com.trade_accounting.models.dto.AddressDto;
-import com.trade_accounting.models.dto.BankAccountDto;
-import com.trade_accounting.models.dto.ContactDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.ContractorGroupDto;
-import com.trade_accounting.models.dto.ContractorStatusDto;
-import com.trade_accounting.models.dto.DepartmentDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.FiasModelDto;
-import com.trade_accounting.models.dto.LegalDetailDto;
-import com.trade_accounting.models.dto.TypeOfContractorDto;
-import com.trade_accounting.models.dto.TypeOfPriceDto;
-import com.trade_accounting.services.interfaces.AddressService;
-import com.trade_accounting.services.interfaces.BankAccountService;
-import com.trade_accounting.services.interfaces.ContactService;
-import com.trade_accounting.services.interfaces.ContractorGroupService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.ContractorStatusService;
-import com.trade_accounting.services.interfaces.DepartmentService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.TypeOfContractorService;
-import com.trade_accounting.services.interfaces.TypeOfPriceService;
+import com.trade_accounting.models.dto.company.AddressDto;
+import com.trade_accounting.models.dto.company.BankAccountDto;
+import com.trade_accounting.models.dto.company.ContactDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.company.ContractorGroupDto;
+import com.trade_accounting.models.dto.company.ContractorStatusDto;
+import com.trade_accounting.models.dto.client.DepartmentDto;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.models.dto.company.LegalDetailDto;
+import com.trade_accounting.models.dto.company.TypeOfContractorDto;
+import com.trade_accounting.models.dto.company.TypeOfPriceDto;
+import com.trade_accounting.services.interfaces.company.AddressService;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.company.ContactService;
+import com.trade_accounting.services.interfaces.company.ContractorGroupService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.company.ContractorStatusService;
+import com.trade_accounting.services.interfaces.client.DepartmentService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
+import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -56,7 +55,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -65,6 +63,7 @@ import java.util.stream.Collectors;
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
     private final TextArea nameField = new TextArea();
+    private final TextField shortnameField = new TextField();
     private final TextField sortNumberField = new TextField();
     private final TextField phoneField = new TextField();
     private final TextField faxField = new TextField();
@@ -189,6 +188,7 @@ public class ContractorModalWindow extends Dialog {
         setCloseOnEsc(true);
 
         idField.setValue(getFieldValueNotNull(String.valueOf(contractorDto.getId())));
+        shortnameField.setValue(getFieldValueNotNull(contractorDto.getShortname()));
         nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
         sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
         phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
@@ -217,18 +217,13 @@ public class ContractorModalWindow extends Dialog {
                     legalDetailDto.getAddressDtoId());
             legalAddressBlock = new AddressBlock(supplierAddressDto);
         }
-//        legalAddressBlock = new AddressBlock(
-//                contractorDto.getLegalDetailDto() == null ?
-//                        null
-//                        : Supplier<AddressDto> addressService.getById(
-//                        contractorDto.getLegalDetailDto().getAddressDtoId()));
-        TextField labelField = new TextField();
-        contractorDtoBinder.forField(labelField)
+        contractorDtoBinder.forField(shortnameField)
                 .asRequired("Не заполнено!");
-        labelField.setPlaceholder("Наименование");
-        labelField.setWidth("585px");
-        labelField.setRequired(true);
-        add(header(), new Text(""), labelField, contractorsAccordion());
+        shortnameField.setPlaceholder("Введите краткое наименование");
+        shortnameField.setLabel("Краткое наименование");
+        shortnameField.setWidth("585px");
+        shortnameField.setRequired(true);
+        add(header(), shortnameField, contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 
@@ -1038,6 +1033,7 @@ public class ContractorModalWindow extends Dialog {
 
     private void saveFields(ContractorDto contractorDto) {
         contractorDto.setName(nameField.getValue());
+        contractorDto.setShortname(shortnameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());

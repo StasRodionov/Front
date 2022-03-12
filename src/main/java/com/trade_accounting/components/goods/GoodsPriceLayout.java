@@ -1,10 +1,10 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.PriceListDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.PriceListService;
+import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.models.dto.company.PriceListDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -88,9 +88,7 @@ public class GoodsPriceLayout extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
     private Button buttonRefresh() {

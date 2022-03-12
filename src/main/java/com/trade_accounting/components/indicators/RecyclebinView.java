@@ -14,65 +14,60 @@ import com.trade_accounting.components.purchases.AcceptanceModalView;
 import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
+import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.AcceptanceDto;
-import com.trade_accounting.models.dto.AcceptanceProductionDto;
-import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.CorrectionProductDto;
-import com.trade_accounting.models.dto.InternalOrderDto;
-import com.trade_accounting.models.dto.InternalOrderProductsDto;
-import com.trade_accounting.models.dto.InventarizationDto;
-import com.trade_accounting.models.dto.InventarizationProductDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.LossDto;
-import com.trade_accounting.models.dto.LossProductDto;
-import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.models.dto.MovementProductDto;
-import com.trade_accounting.models.dto.OperationsDto;
-import com.trade_accounting.models.dto.PaymentDto;
-import com.trade_accounting.models.dto.ShipmentDto;
-import com.trade_accounting.models.dto.ShipmentProductDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.services.interfaces.AcceptanceProductionService;
-import com.trade_accounting.services.interfaces.AcceptanceService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.CorrectionProductService;
-import com.trade_accounting.services.interfaces.CorrectionService;
-import com.trade_accounting.services.interfaces.InternalOrderProductsDtoService;
-import com.trade_accounting.services.interfaces.InternalOrderService;
-import com.trade_accounting.services.interfaces.InventarizationProductService;
-import com.trade_accounting.services.interfaces.InventarizationService;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.LossProductService;
-import com.trade_accounting.services.interfaces.LossService;
-import com.trade_accounting.services.interfaces.MovementProductService;
-import com.trade_accounting.services.interfaces.MovementService;
-import com.trade_accounting.services.interfaces.OperationsService;
-import com.trade_accounting.services.interfaces.PaymentService;
-import com.trade_accounting.services.interfaces.ShipmentProductService;
-import com.trade_accounting.services.interfaces.ShipmentService;
-import com.trade_accounting.services.interfaces.SupplierAccountService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
+import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.finance.CorrectionDto;
+import com.trade_accounting.models.dto.finance.CorrectionProductDto;
+import com.trade_accounting.models.dto.invoice.InternalOrderDto;
+import com.trade_accounting.models.dto.invoice.InternalOrderProductsDto;
+import com.trade_accounting.models.dto.warehouse.InventarizationDto;
+import com.trade_accounting.models.dto.warehouse.InventarizationProductDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.finance.LossDto;
+import com.trade_accounting.models.dto.finance.LossProductDto;
+import com.trade_accounting.models.dto.warehouse.MovementDto;
+import com.trade_accounting.models.dto.warehouse.MovementProductDto;
+import com.trade_accounting.models.dto.util.OperationsDto;
+import com.trade_accounting.models.dto.finance.PaymentDto;
+import com.trade_accounting.models.dto.warehouse.ShipmentDto;
+import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
+import com.trade_accounting.services.interfaces.finance.CorrectionService;
+import com.trade_accounting.services.interfaces.invoice.InternalOrderProductsDtoService;
+import com.trade_accounting.services.interfaces.invoice.InternalOrderService;
+import com.trade_accounting.services.interfaces.warehouse.InventarizationProductService;
+import com.trade_accounting.services.interfaces.warehouse.InventarizationService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.finance.LossProductService;
+import com.trade_accounting.services.interfaces.finance.LossService;
+import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
+import com.trade_accounting.services.interfaces.warehouse.MovementService;
+import com.trade_accounting.services.interfaces.util.OperationsService;
+import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.warehouse.ShipmentProductService;
+import com.trade_accounting.services.interfaces.warehouse.ShipmentService;
+import com.trade_accounting.services.interfaces.company.SupplierAccountService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -139,6 +134,8 @@ public class RecyclebinView extends VerticalLayout {
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
     private final GridPaginator<OperationsDto> paginator;
+    private final GridFilter<OperationsDto> filter;
+    private final TextField textField = new TextField();
 
     private List<Long> movementsIds;
     private List<Long> lossIds;
@@ -215,8 +212,10 @@ public class RecyclebinView extends VerticalLayout {
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER);
-        add(getUpperLayout(), grid, paginator);
+        add(getUpperLayout(), filter, grid, paginator);
         movementsIds = getMovementsIds();
         lossIds = getLossIds();
         internalOrdersIds = getInternalOrdersIds();
@@ -232,37 +231,90 @@ public class RecyclebinView extends VerticalLayout {
 
     private List<OperationsDto> getData() {
         return operationsService.getAll().stream()
-                .filter(operationsDto -> operationsDto.getIsRecyclebin())
+                .filter(OperationsDto::getIsRecyclebin)
+                .collect(Collectors.toList());
+    }
+
+    private List<OperationsDto> filterDeletedOperations(List<OperationsDto> operations) {
+        return operations.stream()
+                .filter(OperationsDto::getIsRecyclebin)
                 .collect(Collectors.toList());
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("5px").setHeader("ID").setResizable(true).setId("ID");
-        grid.addColumn(this::getType).setHeader("Тип документа").setSortable(true);
+        grid.addColumn("id").setWidth("40px").setHeader("ID").setResizable(true).setId("ID");
         grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
-        grid.addColumn(operationsDto->companyService.getById(operationsDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Организация").setId("Организация");
-//        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn(operationsDto -> companyService.getById(operationsDto.getCompanyId()).getName()).setKey("company").setHeader("Организация").setResizable(true).setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено").setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано").setId("Напечатано");
+        grid.addColumn(this::getType).setHeader("Тип документа").setSortable(true);
+        // grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада").setSortable(true);
         grid.addColumn(this::getDWarehouseTo).setHeader("На склад").setSortable(true);
         grid.addColumn(this::getContractor).setHeader("Контрагент").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
-                .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
-                .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(e-> {
+        grid.addItemDoubleClickListener(e -> {
             OperationsDto dto = e.getItem();
             openModalWindow(dto);
         });
-
+    }
+        private void configureFilter() {
+            filter.setFieldToIntegerField("id");
+            filter.setFieldToDatePicker("date");
+            filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll()); // Организация
+            // filter.setFieldToComboBox ("typeOfOperation"); // Тип документа
+            // filter.setFieldToComboBox ("price"); // Сумма
+            // filter.setFieldToComboBox("from", WarehouseDto::getName, warehouseService.getAll()); // Со склада
+            // filter.setFieldToComboBox("to", WarehouseDto::getName, warehouseService.getAll()); // На склад
+            // filter.setFieldToComboBox("contactor", ContractorDto::getName, contractorService.getAll()); // Контрагент
+            filter.setFieldToCheckBox("sent");
+            filter.setFieldToCheckBox("print");
+            filter.onSearchClick(e -> paginator.setData(filterDeletedOperations(operationsService.searchByFilter(filter.getFilterData()))));
+            filter.onClearClick(e -> paginator.setData(filterDeletedOperations(operationsService.getAll())));
     }
 
     private void openModalWindow(OperationsDto dto) {
-        // реализовать
+        if (lossIds.contains(dto.getId())) {
+            LossDto lossDto = lossService.getById(dto.getId());
+            lossModalWindow.setLossEdit(lossDto);
+            lossModalWindow.open();
+        } else if (movementsIds.contains(dto.getId())) {
+            MovementDto movementDto = movementService.getById(dto.getId());
+            movementViewModalWindow.setMovementForEdit(movementDto);
+            movementViewModalWindow.open();
+        } else if (inventarizationsIds.contains(dto.getId())) {
+            InventarizationDto inventarizationDto = inventarizationService.getById(dto.getId());
+            goodsSubInventoryModalWindow.setInventarizationEdit(inventarizationDto);
+            goodsSubInventoryModalWindow.open();
+        } else if (internalOrdersIds.contains(dto.getId())) {
+            InternalOrderDto internalOrderDto = internalOrderService.getById(dto.getId());
+            internalOrderModalView.setInternalOrderForEdit(internalOrderDto);
+            internalOrderModalView.open();
+        } else if (paymentsIds.contains(dto.getId())) {
+            PaymentDto paymentDto = paymentService.getById(dto.getId());
+            if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
+                incomingPaymentModal.setPaymentDataForEdit(paymentDto);
+                incomingPaymentModal.open();
+            } else {
+                outgoingPaymentModal.setPaymentDataForEdit(paymentDto);
+                outgoingPaymentModal.open();
+            }
+        } else if (correctionIds.contains(dto.getId())) {
+            CorrectionDto correctionDto = correctionService.getById(dto.getId());
+            postingModal.setPostingEdit(correctionDto);
+            postingModal.open();
+        } else if (acceptanceIds.contains(dto.getId())) {
+            AcceptanceDto acceptanceDto = acceptanceService.getById(dto.getId());
+            acceptanceModalView.setAcceptanceForEdit(acceptanceDto);
+            acceptanceModalView.open();
+        } else if (supplierAccountIds.contains(dto.getId())) {
+            SupplierAccountDto supplierAccountDto = supplierAccountService.getById(dto.getId());
+            supplierAccountModalView.setSupplierAccountsForEdit(supplierAccountDto);
+            supplierAccountModalView.open();
+        }
     }
 
     private String getDWarehouseFrom(OperationsDto operationsDto) {
@@ -357,20 +409,9 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("В разделе хранятся удаленные документы — их можно восстановить в течение 7 дней после удаления." +
-                " По истечении этого срока документы окончательно стираются."));
-        dialog.setWidth("500px");
-        dialog.setHeight("300px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("В разделе хранятся удаленные документы — " +
+                "их можно восстановить в течение 7 дней после удаления. " +
+                "По истечении этого срока документы окончательно стираются.");
     }
 
     private H2 title() {
@@ -387,22 +428,25 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        //реализовать
-        return buttonFilter;
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField textField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Номер, компания или комментарий");
+        textField.setPlaceholder("Номер ID или Организация");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
         textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.addValueChangeListener(event -> updateList(textField.getValue()));
+        textField.addValueChangeListener(event -> updateListQsearch(textField.getValue()));
         return textField;
     }
 
-    private void updateList(String value) {
+    public void updateListQsearch(String text) {
+        if (text.isEmpty()) {
+            paginator.setData(filterDeletedOperations(operationsService.getAll()));
+        } else grid.setItems(operationsService.quickSearchRecycle(text));
     }
 
     private NumberField numberField() {
@@ -411,7 +455,6 @@ public class RecyclebinView extends VerticalLayout {
         numberField.setWidth("45px");
         return numberField;
     }
-
 
     private Select<String> valueSelect() {
         Select<String> select = new Select<>();

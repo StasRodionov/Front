@@ -4,11 +4,11 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.IssuedInvoiceDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.IssuedInvoiceService;
-import com.trade_accounting.services.interfaces.PaymentService;
+import com.trade_accounting.models.dto.invoice.IssuedInvoiceDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.invoice.IssuedInvoiceService;
+import com.trade_accounting.services.interfaces.finance.PaymentService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -58,9 +58,6 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
     private final GridFilter<IssuedInvoiceDto> filter;
     private final Grid<IssuedInvoiceDto> grid = new Grid<>(IssuedInvoiceDto.class, false);
     private final GridPaginator<IssuedInvoiceDto> paginator;
-
-    private  final String textForQuestionButton = "<div><p>Выданные счета-фактуры создаются на основе отгрузки.</p>" +
-            "<p>Счета-фактуры можно распечатывать или отправлять покупателям в виде файлов.</p></div>";
 
     public SalesSubIssuedInvoicesView(IssuedInvoiceService issuedInvoiceService, CompanyService companyService, ContractorService contractorService, PaymentService paymentService) {
         this.issuedInvoiceService = issuedInvoiceService;
@@ -123,9 +120,14 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(Buttons.buttonQuestion(textForQuestionButton,"200px"), title(), buttonRefresh(), buttonFilter(), textField(), numberField(), getSelect(), getStatus(),getPrint(),buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), textField(), numberField(), getSelect(), getStatus(),getPrint(),buttonSettings());
         upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
+    }
+
+    private Button buttonQuestion() {
+        return Buttons.buttonQuestion("Выданные счета-фактуры создаются на основе отгрузки. " +
+                "Счета-фактуры можно распечатывать или отправлять покупателям в виде файлов.");
     }
 
     private H4 title() {

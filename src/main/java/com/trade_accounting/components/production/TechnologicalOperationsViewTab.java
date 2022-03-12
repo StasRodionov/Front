@@ -1,26 +1,21 @@
 package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.purchases.PrintInvoicesXls;
+//import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalOperationsDto;
-import com.trade_accounting.services.interfaces.TechnicalCardService;
-import com.trade_accounting.services.interfaces.TechnicalOperationsService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.production.TechnicalOperationsDto;
+import com.trade_accounting.services.interfaces.production.TechnicalCardService;
+import com.trade_accounting.services.interfaces.production.TechnicalOperationsService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -36,8 +31,6 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -157,24 +150,18 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>Технологические операции позволяют регистрировать в системе операции по сборке и производству." +
-                " В результате списываются материалы и добавляются готовые изделия.</p>" +
-                "<p>Читать инструкцию: </p><p><a href=\"#\" target=\"_blank\">Сборочные и производственные операции</a></p>" +
-                "<p>Видео: </p><p><a href=\"#\" target=\"_blank\">Возможности для производства</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("300px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new VerticalLayout(
+                        new Text("Технологические операции позволяют регистрировать в системе операции по сборке и производству. " +
+                                "В результате списываются материалы и добавляются готовые изделия."),
+                        new Div(
+                                new Text("Читать инструкцию: "),
+                                new Anchor("#", "Сборочные и производственные операции")),
+                        new Div(
+                                new Text("Видео: "),
+                                new Anchor("#", "Возможности для производства"))
+                )
+        );
     }
 
     private Button buttonRefresh() {

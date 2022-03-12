@@ -1,16 +1,17 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.CurrencyDto;
-import com.trade_accounting.models.dto.EmployeeDto;
-import com.trade_accounting.models.dto.RetailCloudCheckDto;
-import com.trade_accounting.models.dto.RetailStoreDto;
-import com.trade_accounting.services.interfaces.CurrencyService;
-import com.trade_accounting.services.interfaces.EmployeeService;
-import com.trade_accounting.services.interfaces.RetailCloudCheckService;
-import com.trade_accounting.services.interfaces.RetailStoreService;
+import com.trade_accounting.models.dto.units.CurrencyDto;
+import com.trade_accounting.models.dto.client.EmployeeDto;
+import com.trade_accounting.models.dto.retail.RetailCloudCheckDto;
+import com.trade_accounting.models.dto.retail.RetailStoreDto;
+import com.trade_accounting.services.interfaces.units.CurrencyService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.retail.RetailCloudCheckService;
+import com.trade_accounting.services.interfaces.retail.RetailStoreService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -128,9 +129,7 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
     private Button buttonRefresh() {

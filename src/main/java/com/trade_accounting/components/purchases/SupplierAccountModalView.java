@@ -1,26 +1,27 @@
 package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.InvoiceDto;
-import com.trade_accounting.models.dto.InvoiceProductDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.ProductPriceDto;
-import com.trade_accounting.models.dto.SupplierAccountDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
-import com.trade_accounting.services.interfaces.InvoiceProductService;
-import com.trade_accounting.services.interfaces.InvoiceService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.SupplierAccountService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.warehouse.SupplierAccountProductsListDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.SupplierAccountProductsListService;
+import com.trade_accounting.services.interfaces.company.SupplierAccountService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
@@ -50,6 +51,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import retrofit2.Response;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -68,6 +70,7 @@ public class SupplierAccountModalView extends Dialog {
     private final ContractService contractService;
     private final InvoiceService invoiceService;
     private final InvoiceProductService invoiceProductService;
+    private final SupplierAccountProductsListService supplierAccountProductsListService;
     private SupplierAccountDto saveSupplier = new SupplierAccountDto();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
@@ -84,10 +87,11 @@ public class SupplierAccountModalView extends Dialog {
     private final Binder<SupplierAccountDto> supplierAccountDtoBinder = new Binder<>(SupplierAccountDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private final Dialog dialogOnCloseView = new Dialog();
-    private Grid<InvoiceProductDto> grid = new Grid<>(InvoiceProductDto.class, false);
-    private final GridPaginator<InvoiceProductDto> paginator;
-    private final ProductSelectModal productSelectModal;
-    private List<InvoiceProductDto> tempInvoiceProductDtoList = new ArrayList<>();
+    private Grid<SupplierAccountProductsListDto> grid = new Grid<>(SupplierAccountProductsListDto.class, false);
+    private final GridPaginator<SupplierAccountProductsListDto> paginator;
+    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
+    private List<SupplierAccountProductsListDto> tempSupplierAccountProductsListDtos = new ArrayList<>();
+    private List<SupplierAccountProductsListDto> supplierAccountProductsListDtoList = new ArrayList<>();
     private final H4 totalPrice = new H4();
     private final ComboBox<InvoiceDto> invoiceSelectField = new ComboBox<>();
 
@@ -97,32 +101,41 @@ public class SupplierAccountModalView extends Dialog {
                                     ContractorService contractorService,
                                     ContractService contractService,
                                     Notifications notifications,
-                                    ProductSelectModal productSelectModal,
+                                    PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin,
                                     ProductService productService,
                                     InvoiceService invoiceService,
-                                    InvoiceProductService invoiceProductService) {
+                                    InvoiceProductService invoiceProductService,
+                                    SupplierAccountProductsListService supplierAccountProductsListService) {
         this.supplierAccountService = supplierAccountService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.notifications = notifications;
-        this.productSelectModal = productSelectModal;
+        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
         this.productService = productService;
         this.invoiceService = invoiceService;
         this.invoiceProductService = invoiceProductService;
+        this.supplierAccountProductsListService = supplierAccountProductsListService;
         configureGrid();
         configureInvoiceSelectField();
-        paginator = new GridPaginator<>(grid, tempInvoiceProductDtoList, 50);
+        paginator = new GridPaginator<>(grid, tempSupplierAccountProductsListDtos, 50);
         configureCloseViewDialog();
         setSizeFull();
         configureDateTimePickerField();
         add(upperButtonInModalView(), formToAddSupplerAccount(), grid);
-        productSelectModal.addDetachListener(detachEvent -> {
-            if (productSelectModal.isFormValid()) {
-                addProduct(productSelectModal.getInvoiceProductDto());
+        purchasesChooseGoodsModalWin.addDetachListener(detachEvent -> {
+            if (purchasesChooseGoodsModalWin.productSelect.getValue() != null
+                    && purchasesChooseGoodsModalWin.priceSelect.getValue() != null
+                    && purchasesChooseGoodsModalWin.amoSelect.getValue() != null) {
+
+                addProduct(purchasesChooseGoodsModalWin.productSelect.getValue(),
+                        purchasesChooseGoodsModalWin.priceSelect.getValue(),
+                        purchasesChooseGoodsModalWin.amoSelect.getValue());
+                purchasesChooseGoodsModalWin.productSelect.setValue(null);
+                purchasesChooseGoodsModalWin.priceSelect.setValue(null);
+                purchasesChooseGoodsModalWin.amoSelect.setValue(BigDecimal.valueOf(0.0));
             }
-            productSelectModal.clearForm();
         });
     }
 
@@ -130,15 +143,14 @@ public class SupplierAccountModalView extends Dialog {
     private Button buttonFillInOrder() {
         Button button = new Button("Заполнить по...");
         button.addClickListener(buttonClickEvent -> {
-            supplierNumber.setValue(invoiceSelectField.getValue().getId().toString());
             dateTimePicker.setValue(LocalDateTime.parse(invoiceSelectField.getValue().getDate()));
             commentConfig.setValue(invoiceSelectField.getValue().getComment());
             companyDtoComboBox.setValue(companyService.getById(invoiceSelectField.getValue().getCompanyId()));
             contractorDtoComboBox.setValue(contractorService.getById(invoiceSelectField.getValue().getContractorId()));
             warehouseDtoComboBox.setValue(warehouseService.getById(invoiceSelectField.getValue().getWarehouseId()));
             isSpend.setValue(invoiceSelectField.getValue().getIsSpend());
-            tempInvoiceProductDtoList = invoiceProductService.getByInvoiceId(invoiceSelectField.getValue().getId());
-            paginator.setData(tempInvoiceProductDtoList);
+            tempSupplierAccountProductsListDtos = convertInvoiceProdToSupplier(invoiceProductService.getByInvoiceId(invoiceSelectField.getValue().getId()));
+            paginator.setData(tempSupplierAccountProductsListDtos);
             setTotalPrice();
         });
         return button;
@@ -166,10 +178,18 @@ public class SupplierAccountModalView extends Dialog {
         return totalPriceForSelectFild;
     }
 
-    public void addProduct(InvoiceProductDto invoiceProductDto) {
-        if (!isProductInList(invoiceProductDto)) {
-            tempInvoiceProductDtoList.add(invoiceProductDto);
-            paginator.setData(tempInvoiceProductDtoList);
+    public void addProduct(ProductDto productDto, ProductPriceDto productPriceDto, BigDecimal amount) {
+        SupplierAccountProductsListDto supplierAccountProductsListDto = new SupplierAccountProductsListDto();
+        supplierAccountProductsListDto.setProductId(productDto.getId());
+        supplierAccountProductsListDto.setAmount(amount);
+        supplierAccountProductsListDto.setPrice(productPriceDto.getValue());
+        supplierAccountProductsListDto.setSum(supplierAccountProductsListDto.getAmount().multiply(supplierAccountProductsListDto.getPrice()).setScale(2, RoundingMode.DOWN));
+        supplierAccountProductsListDto.setPercentNds("20");
+        supplierAccountProductsListDto.setNds(supplierAccountProductsListDto.getSum().multiply(BigDecimal.valueOf(0.2)).setScale(2, RoundingMode.DOWN));
+        supplierAccountProductsListDto.setTotal(supplierAccountProductsListDto.getSum().add(supplierAccountProductsListDto.getNds()));
+        if (!isProductInList(productDto)) {
+            tempSupplierAccountProductsListDtos.add(supplierAccountProductsListDto);
+            paginator.setData(tempSupplierAccountProductsListDtos);
             setTotalPrice();
         }
     }
@@ -177,14 +197,23 @@ public class SupplierAccountModalView extends Dialog {
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.removeAllColumns();
-        grid.setItems(tempInvoiceProductDtoList);
-        grid.addColumn(inPrDto -> tempInvoiceProductDtoList.indexOf(inPrDto) + 1).setHeader("№");
+        grid.setItems(tempSupplierAccountProductsListDtos);
+        grid.addColumn(inPrDto -> tempSupplierAccountProductsListDtos.indexOf(inPrDto) + 1).setHeader("№");
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getName()).setHeader("Название").setSortable(true);
         grid.addColumn(inPrDto -> productService.getById(inPrDto.getProductId()).getDescription()).setHeader("Описание");
-        grid.addColumn(InvoiceProductDto::getAmount).setHeader("Количество").setSortable(true);
-        grid.addColumn(InvoiceProductDto::getPrice).setHeader("Цена").setSortable(true);
-        grid.setHeight("36vh");
-        grid.setColumnReorderingAllowed(true);
+        grid.addColumn(SupplierAccountProductsListDto::getAmount).setHeader("Количество").setSortable(true).setKey("productAmount").setId("Количество");
+        grid.addColumn(SupplierAccountProductsListDto::getPrice).setHeader("Цена").setSortable(true).setKey("productPrice").setId("Цена");
+        grid.addColumn(SupplierAccountProductsListDto::getSum).setHeader("Сумма").setSortable(true).setKey("productSum").setId("Сумма");
+        grid.addColumn(SupplierAccountProductsListDto::getPercentNds).setHeader("% НДС").setSortable(true).setKey("productPercentNds").setId("% НДС");
+        grid.addColumn(SupplierAccountProductsListDto::getNds).setHeader("НДС").setSortable(true).setKey("productNds").setId("НДС");
+        grid.addColumn(SupplierAccountProductsListDto::getTotal).setHeader("Всего").setSortable(true).setKey("productTotal").setId("Всего");
+
+        grid.addComponentColumn(column -> {
+            Button edit = new Button(new Icon(VaadinIcon.TRASH));
+            edit.addClassName("delete");
+            edit.addClickListener(e -> deleteProduct(column.getId()));
+            return edit;
+        });
     }
 
     public void clearField() {
@@ -202,7 +231,7 @@ public class SupplierAccountModalView extends Dialog {
         supplierNumber.setValue("");
         commentConfig.setValue("");
         totalPrice.setText("");
-        tempInvoiceProductDtoList = new ArrayList<>();
+        tempSupplierAccountProductsListDtos = new ArrayList<>();
         configureGrid();
     }
 
@@ -217,6 +246,10 @@ public class SupplierAccountModalView extends Dialog {
         contractDtoComboBox.setValue(contractService.getById(saveSupplier.getContractId()));
         contractorDtoComboBox.setValue(contractorService.getById(saveSupplier.getContractorId()));
         isSpend.setValue(saveSupplier.getIsSpend());
+        tempSupplierAccountProductsListDtos = supplierAccountProductsListService.getBySupplierId(saveSupplier.getId());
+        supplierAccountProductsListDtoList = supplierAccountProductsListService.getBySupplierId(saveSupplier.getId());
+        paginator.setData(tempSupplierAccountProductsListDtos);
+        setTotalPrice();
     }
 
     private HorizontalLayout upperButtonInModalView() {
@@ -238,6 +271,8 @@ public class SupplierAccountModalView extends Dialog {
                 supplierAccountDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
                 SupplierAccountDto supplierAccountDto = updateSupplier();
+                deleteRemovedProducts();
+                saveProducts(supplierAccountDto);
                 clearField();
                 close();
                 UI.getCurrent().navigate("purchases");
@@ -248,7 +283,9 @@ public class SupplierAccountModalView extends Dialog {
 
     private SupplierAccountDto updateSupplier() {
         SupplierAccountDto supplierAccountDto = new SupplierAccountDto();
-        supplierAccountDto.setId(Long.parseLong(supplierNumber.getValue()));
+        if (!supplierNumber.getValue().equals("")) {
+            supplierAccountDto.setId(Long.parseLong(supplierNumber.getValue()));
+        }
         supplierAccountDto.setDate(dateTimePicker.getValue().toString());
         supplierAccountDto.setPlannedDatePayment(paymentDatePicker.getValue().toString());
         supplierAccountDto.setCompanyId(companyDtoComboBox.getValue().getId());
@@ -257,6 +294,7 @@ public class SupplierAccountModalView extends Dialog {
         supplierAccountDto.setTypeOfInvoice("EXPENSE");
         supplierAccountDto.setContractorId(contractorDtoComboBox.getValue().getId());
         supplierAccountDto.setIsSpend(isSpend.getValue());
+        supplierAccountDto.setIsRecyclebin(false);
         supplierAccountDto.setComment(commentConfig.getValue());
         Response<SupplierAccountDto> supplierAccountDtoResponse = supplierAccountService.create(supplierAccountDto);
         return supplierAccountDtoResponse.body();
@@ -271,8 +309,8 @@ public class SupplierAccountModalView extends Dialog {
     private Button addProductButton() {
         Button button = new Button("Добавить из справочника", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(buttonClickEvent -> {
-            productSelectModal.updateProductList();
-            productSelectModal.open();
+            purchasesChooseGoodsModalWin.updateProductList();
+            purchasesChooseGoodsModalWin.open();
         });
         return button;
     }
@@ -307,13 +345,14 @@ public class SupplierAccountModalView extends Dialog {
         Label label = new Label("Счет поставщика №");
         label.setWidth("150px");
 
-        supplierNumber.setAutofocus(true);
+//        supplierNumber.setAutofocus(true);
         supplierNumber.setWidth("50px");
-        supplierNumber.setRequired(true);
-        supplierNumber.setRequiredIndicatorVisible(true);
-        supplierAccountDtoBinder.forField(supplierNumber)
-                .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(SupplierAccountDto::getIdValid, SupplierAccountDto::setIdValid);
+        supplierNumber.setEnabled(false);
+//        supplierNumber.setRequired(true);
+//        supplierNumber.setRequiredIndicatorVisible(true);
+//        supplierAccountDtoBinder.forField(supplierNumber)
+//                .asRequired(TEXT_FOR_REQUEST_FIELD)
+//                .bind(SupplierAccountDto::getIdValid, SupplierAccountDto::setIdValid);
         Label label2 = new Label("от");
         dateTimePicker.setWidth("350px");
         dateTimePicker.setRequiredIndicatorVisible(true);
@@ -453,16 +492,21 @@ public class SupplierAccountModalView extends Dialog {
         dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
-    private boolean isProductInList(InvoiceProductDto invoiceProductDto) {
-        return tempInvoiceProductDtoList.stream()
-                .anyMatch(invoiceProductDtoElem -> invoiceProductDtoElem.getProductId().equals(invoiceProductDto.getProductId()));
+    private boolean isProductInList(ProductDto productDto) {
+        boolean isExists = false;
+        for (SupplierAccountProductsListDto supplierAccountProductsListDto : tempSupplierAccountProductsListDtos) {
+            if (supplierAccountProductsListDto.getProductId().equals(productDto.getId())) {
+                isExists = true;
+                break;
+            }
+        }
+        return isExists;
     }
 
     public BigDecimal getTotalPrice() {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for (InvoiceProductDto invoiceProductDto : tempInvoiceProductDtoList) {
-            totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-                    .multiply(invoiceProductDto.getAmount()));
+        for (SupplierAccountProductsListDto supplierAccountProductsListDto : tempSupplierAccountProductsListDtos) {
+            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
         }
         return totalPrice;
     }
@@ -480,5 +524,48 @@ public class SupplierAccountModalView extends Dialog {
 
     private void configureDateTimePickerField() {
         dateTimePicker.setValue(LocalDateTime.now());
+    }
+
+    private void saveProducts(SupplierAccountDto supplierAccountDto) {
+        for (SupplierAccountProductsListDto supplierAccountProductsListDto: tempSupplierAccountProductsListDtos) {
+            supplierAccountProductsListDto.setSupplierAccountId(supplierAccountDto.getId());
+            supplierAccountProductsListService.create(supplierAccountProductsListDto);
+        }
+    }
+
+    private void deleteProduct(Long id) {
+        SupplierAccountProductsListDto found = new SupplierAccountProductsListDto();
+        for (SupplierAccountProductsListDto supplierAccountProductsListDto : tempSupplierAccountProductsListDtos) {
+            if (supplierAccountProductsListDto.getId() == id) {
+                found = supplierAccountProductsListDto;
+                break;
+            }
+        }
+        tempSupplierAccountProductsListDtos.remove(found);
+        paginator.setData(tempSupplierAccountProductsListDtos);
+        setTotalPrice();
+    }
+
+    private List<SupplierAccountProductsListDto> convertInvoiceProdToSupplier(List<InvoiceProductDto> invoiceProductDto) {
+        List<SupplierAccountProductsListDto> supplierAccountProductsListDtos = new ArrayList<>();
+        for (InvoiceProductDto iPDto: invoiceProductDto) {
+            SupplierAccountProductsListDto supplierAccountProductsListDto = new SupplierAccountProductsListDto();
+            supplierAccountProductsListDto.setProductId(iPDto.getProductId());
+            supplierAccountProductsListDto.setAmount(iPDto.getAmount());
+            supplierAccountProductsListDto.setPrice(iPDto.getPrice());
+            supplierAccountProductsListDto.setSum(supplierAccountProductsListDto.getAmount().multiply(supplierAccountProductsListDto.getPrice()).setScale(2, RoundingMode.DOWN));
+            supplierAccountProductsListDto.setPercentNds("20");
+            supplierAccountProductsListDto.setNds(supplierAccountProductsListDto.getSum().multiply(BigDecimal.valueOf(0.2)).setScale(2, RoundingMode.DOWN));
+            supplierAccountProductsListDto.setTotal(supplierAccountProductsListDto.getSum().add(supplierAccountProductsListDto.getNds()));
+            supplierAccountProductsListDtos.add(supplierAccountProductsListDto);
+        }
+        return supplierAccountProductsListDtos;
+    }
+    private void deleteRemovedProducts() {
+        for (SupplierAccountProductsListDto removed : supplierAccountProductsListDtoList) {
+            if(!tempSupplierAccountProductsListDtos.contains(removed)) {
+                supplierAccountProductsListService.deleteById(removed.getId());
+            }
+        }
     }
 }

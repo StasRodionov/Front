@@ -1,29 +1,29 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.models.dto.MovementProductDto;
-import com.trade_accounting.models.dto.WarehouseDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.MovementProductService;
-import com.trade_accounting.services.interfaces.MovementService;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.UnitService;
-import com.trade_accounting.services.interfaces.WarehouseService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.warehouse.MovementDto;
+import com.trade_accounting.models.dto.warehouse.MovementProductDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
+import com.trade_accounting.services.interfaces.warehouse.MovementService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.units.UnitService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -63,6 +63,9 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     private final MovementViewModalWindow view;
     private final UnitService unitService;
     private final ProductService productService;
+    private final LegalDetailService legalDetailService;
+    private final BankAccountService bankAccountService;
+    private final EmployeeService employeeService;
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
     private final GridPaginator<MovementDto> paginator;
@@ -76,7 +79,13 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                         WarehouseService warehouseService,
                         CompanyService companyService,
                         MovementProductService movementProductService,
-                        Notifications notifications, MovementViewModalWindow view, UnitService unitService, ProductService productService) {
+                        Notifications notifications,
+                        MovementViewModalWindow view,
+                        UnitService unitService,
+                        ProductService productService,
+                        LegalDetailService legalDetailService,
+                        BankAccountService bankAccountService,
+                        EmployeeService employeeService) {
         this.movementService = movementService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -85,6 +94,9 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
         this.view = view;
         this.unitService = unitService;
         this.productService = productService;
+        this.legalDetailService = legalDetailService;
+        this.bankAccountService = bankAccountService;
+        this.employeeService = employeeService;
         List<MovementDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -126,7 +138,10 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     companyService,
                     notifications,
                     unitService,
-                    movementProductService);
+                    movementProductService,
+                    legalDetailService,
+                    bankAccountService,
+                    employeeService);
             modalView.setMovementForEdit(dto);
             modalView.open();
         });
@@ -214,19 +229,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog dialog = new Dialog();
-        Button cancelButton = new Button("Закрыть", event -> dialog.close());
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Перемещение  - добавить текст"));
-        dialog.setWidth("450px");
-        dialog.setHeight("250px");
-        buttonQuestion.addClickListener(event -> dialog.open());
-        Shortcuts.addShortcutListener(dialog, dialog::close, Key.ESCAPE);
-        dialog.add(new Div(cancelButton));
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Перемещение  - добавить текст");
     }
 
     private Button buttonRefresh() {
@@ -251,7 +254,10 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                     companyService,
                     notifications,
                     unitService,
-                    movementProductService);
+                    movementProductService,
+                    legalDetailService,
+                    bankAccountService,
+                    employeeService);
             modalView.open();
         });
         return buttonUnit;

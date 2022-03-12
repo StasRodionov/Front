@@ -1,18 +1,18 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.AddressDto;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.LegalDetailDto;
-import com.trade_accounting.services.interfaces.AddressService;
-import com.trade_accounting.services.interfaces.BankAccountService;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.LegalDetailService;
-import com.trade_accounting.services.interfaces.TypeOfContractorService;
+import com.trade_accounting.models.dto.company.AddressDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.LegalDetailDto;
+import com.trade_accounting.services.interfaces.company.AddressService;
+import com.trade_accounting.services.interfaces.company.BankAccountService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -246,11 +246,7 @@ public class CompanyView extends VerticalLayout {
     }
 
     private Button getButtonQuestion() {
-        final Button buttonQuestion = new Button();
-        Icon question = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
-        buttonQuestion.setIcon(question);
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
     private Select<String> getSelect() {

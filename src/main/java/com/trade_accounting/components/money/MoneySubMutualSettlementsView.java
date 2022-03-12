@@ -1,10 +1,11 @@
 package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.models.dto.MoneySubMutualSettlementsDto;
-import com.trade_accounting.services.interfaces.MoneySubMutualSettlementsService;
+import com.trade_accounting.models.dto.finance.MoneySubMutualSettlementsDto;
+import com.trade_accounting.services.interfaces.finance.MoneySubMutualSettlementsService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -153,11 +154,7 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
     }
 
     private Button getButtonQuestion() {
-        final Button buttonQuestion = new Button();
-        Icon question = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
-        buttonQuestion.setIcon(question);
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return buttonQuestion;
+        return Buttons.buttonQuestion("Добавьте описание");
     }
 
 

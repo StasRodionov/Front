@@ -1,11 +1,12 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.ContractDto;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.services.interfaces.CompanyService;
-import com.trade_accounting.services.interfaces.ContractService;
-import com.trade_accounting.services.interfaces.ContractorService;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @UIScope
@@ -30,7 +32,9 @@ public class CommissionAgentReportModalView extends Dialog {
     private final ContractorService contractorService;
     private final ContractService contractService;
     private final CompanyService companyService;
-
+//    private InvoiceDto invoiceDto;
+//    private final InvoiceService invoiceService;
+//    private final Notifications notifications;
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     public  final  ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
@@ -51,6 +55,7 @@ public class CommissionAgentReportModalView extends Dialog {
         this.contractorService = contractorService;
         this.contractService = contractService;
         this.companyService = companyService;
+
         setSizeFull();
         add(topButtons(), formToAddCommissionAgent());
     }
@@ -68,11 +73,31 @@ public class CommissionAgentReportModalView extends Dialog {
         Button button = new Button("Сохранить");
         button.addClickListener(e -> {
             close();
+//            updateSupplier();
+//            notifications.infoNotification(String.format(" № %s сохранен", invoiceDto.getId()));
 
         });
         return button;
     }
 
+    public void setReturnEdit(InvoiceDto editDto) {
+        if (editDto.getId() != null) {
+            textReport.setValue(editDto.getId().toString());
+        }
+
+        if (editDto.getContractorId() != null) {
+            contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
+        }
+        if (editDto.getComment() != null) {
+            commentConfig.setValue(editDto.getComment());
+        }
+        if (editDto.getDate() != null) {
+            dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate()));
+        }
+        if (editDto.getCompanyId() != null) {
+            companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
+        }
+    }
     private Button closeButton() {
         Button button = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
         button.addClickListener(e -> {
@@ -138,6 +163,11 @@ public class CommissionAgentReportModalView extends Dialog {
         hLay3.add(contractorConfigure(), contractConfigure());
         return hLay3;
     }
+//    private HorizontalLayout horizontalLayout5() {
+//        HorizontalLayout hLay5 = new HorizontalLayout();
+//        hLay5.add(invoicesReceivedConfigure());
+//        return hLay5;
+//    }
 
     private HorizontalLayout contractorConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -152,6 +182,19 @@ public class CommissionAgentReportModalView extends Dialog {
         horizontalLayout.add(label, contractorDtoComboBox);
         return horizontalLayout;
     }
+//    private HorizontalLayout invoicesReceivedConfigure() {
+//        HorizontalLayout horizontalLayout = new HorizontalLayout();
+//        List<ContractorDto> contractorDtos = contractorService.getAll();
+//        if(contractorDtos != null) {
+//            contractorDtoComboBox.setItems(contractorDtos);
+//        }
+//        contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
+//        contractorDtoComboBox.setWidth("350px");
+//        Label label = new Label("Счет-фактура");
+//        label.setWidth("100px");
+//        horizontalLayout.add(label, contractorDtoComboBox);
+//        return horizontalLayout;
+//    }
 
     private HorizontalLayout contractConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -203,6 +246,24 @@ public class CommissionAgentReportModalView extends Dialog {
         horizontalLayout.add(label,chooseReward);
         return horizontalLayout;
     }
-
-
+//    private void updateSupplier() {
+//        invoiceDto.setId(Long.parseLong(textReport.getValue()));
+//        invoiceDto.setDate(dateTimePicker.getValue().toString());
+////        buyersReturnDto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+//       invoiceDto.setCompanyId(companyDtoComboBox.getValue().getId());
+//       invoiceDto.setContractorId(contractorDtoComboBox.getValue().getId());
+//        invoiceDto.setComment(commentConfig.getValue());
+//
+////        buyersReturnDto.setSum(new BigDecimal(summConfig.getValue()));
+//        invoiceDto.setIsSent(isSpend.getValue());
+////        buyersReturnDto.setIsPrint(checkboxIsPrint.getValue());
+//        if (Boolean.TRUE.equals(invoiceDto.getIsSpend())){
+//            invoiceService.create(invoiceDto);
+//        } else {
+//            invoiceService.update(invoiceDto);
+//        }
+////        UI.getCurrent().navigate("sells");
+//
+//        close();
+//    }
 }

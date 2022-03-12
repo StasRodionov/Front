@@ -2,26 +2,23 @@ package com.trade_accounting.components.production;
 
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.contractors.ContractorModalWindow;
+import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.ContractorDto;
-import com.trade_accounting.models.dto.ProductDto;
-import com.trade_accounting.models.dto.TechnicalCardDto;
-import com.trade_accounting.models.dto.TechnicalCardGroupDto;
-import com.trade_accounting.services.interfaces.ProductService;
-import com.trade_accounting.services.interfaces.TechnicalCardGroupService;
-import com.trade_accounting.services.interfaces.TechnicalCardProductionService;
-import com.trade_accounting.services.interfaces.TechnicalCardService;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.models.dto.production.TechnicalCardDto;
+import com.trade_accounting.models.dto.production.TechnicalCardGroupDto;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.production.TechnicalCardGroupService;
+import com.trade_accounting.services.interfaces.production.TechnicalCardProductionService;
+import com.trade_accounting.services.interfaces.production.TechnicalCardService;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
@@ -118,24 +115,18 @@ public class FlowchartsViewTab extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        Button buttonQuestion = new Button(new Icon(VaadinIcon.QUESTION_CIRCLE_O));
-        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Dialog modal = new Dialog();
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Html content = new Html("<div><p>Технологическая карта описывает состав изделия — с комплектующими, сырьем и материалами. " +
-                "Технологическая карта может использоваться как в базовом, так и в расширенном способе производства</p>" +
-                "<p>Читать инструкцию: </p><p><a href=\"#\" target=\"_blank\">Учет производственных операций</a></p>" +
-                "<p>Видео: </p><p><a href=\"#\" target=\"_blank\">Базовый способ</a></p></div>");
-        Button close = new Button(new Icon(VaadinIcon.CLOSE));
-        close.setWidth("30px");
-        close.addClickListener(e -> modal.close());
-        horizontalLayout.add(content, new Div(close));
-        modal.add(horizontalLayout);
-        modal.setWidth("500px");
-        modal.setHeight("300px");
-        buttonQuestion.addClickListener(e -> modal.open());
-        Shortcuts.addShortcutListener(modal, modal::close, Key.ESCAPE);
-        return buttonQuestion;
+        return Buttons.buttonQuestion(
+                new VerticalLayout(
+                        new Text("Технологическая карта описывает состав изделия — с комплектующими, сырьем и материалами. " +
+                                "Технологическая карта может использоваться как в базовом, так и в расширенном способе производства"),
+                        new Div(
+                                new Text("Читать инструкцию: "),
+                                new Anchor("#", "Учет производственных операций")),
+                        new Div(
+                                new Text("Видео: "),
+                                new Anchor("#", "Базовый способ"))
+                )
+        );
     }
 
     private H2 title() {
