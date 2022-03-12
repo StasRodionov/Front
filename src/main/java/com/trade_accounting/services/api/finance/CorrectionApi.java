@@ -1,8 +1,6 @@
 package com.trade_accounting.services.api.finance;
 
 import com.trade_accounting.models.dto.finance.CorrectionDto;
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.CorrectionDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;

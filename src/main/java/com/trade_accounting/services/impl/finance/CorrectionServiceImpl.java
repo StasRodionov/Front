@@ -1,10 +1,5 @@
 package com.trade_accounting.services.impl.finance;
 
-import com.trade_accounting.models.dto.CompanyDto;
-import com.trade_accounting.models.dto.CorrectionDto;
-import com.trade_accounting.models.dto.MovementDto;
-import com.trade_accounting.services.interfaces.CorrectionService;
-import com.trade_accounting.services.interfaces.api.CorrectionApi;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.finance.CorrectionService;
