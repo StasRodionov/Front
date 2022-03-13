@@ -222,7 +222,26 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         select.setItems(stringList);
         select.setValue("Изменить");
         select.setWidth("130px");
+        select.addValueChangeListener(event -> {
+            if (select.getValue().equals("Удалить")) {
+                deleteSelectedCorrections();
+                grid.deselectAll();
+                select.setValue("Изменить");
+                paginator.setData(getData());
+            }
+        });
         return select;
+    }
+
+    private void deleteSelectedCorrections() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (InvoiceReceivedDto invoiceReceivedDto : grid.getSelectedItems()) {
+                invoiceReceivedService.deleteById(invoiceReceivedDto.getId());
+                notifications.infoNotification("Выбранные счета-фактуры успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные счета-фактуры");
+        }
     }
 
     private Select<String> valueStatus() {

@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
     private final TextArea nameField = new TextArea();
+    private final TextField shortnameField = new TextField();
     private final TextField sortNumberField = new TextField();
     private final TextField phoneField = new TextField();
     private final TextField faxField = new TextField();
@@ -187,6 +188,7 @@ public class ContractorModalWindow extends Dialog {
         setCloseOnEsc(true);
 
         idField.setValue(getFieldValueNotNull(String.valueOf(contractorDto.getId())));
+        shortnameField.setValue(getFieldValueNotNull(contractorDto.getShortname()));
         nameField.setValue(getFieldValueNotNull(contractorDto.getName()));
         sortNumberField.setValue(getFieldValueNotNull(contractorDto.getSortNumber()));
         phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
@@ -215,18 +217,13 @@ public class ContractorModalWindow extends Dialog {
                     legalDetailDto.getAddressDtoId());
             legalAddressBlock = new AddressBlock(supplierAddressDto);
         }
-//        legalAddressBlock = new AddressBlock(
-//                contractorDto.getLegalDetailDto() == null ?
-//                        null
-//                        : Supplier<AddressDto> addressService.getById(
-//                        contractorDto.getLegalDetailDto().getAddressDtoId()));
-        TextField labelField = new TextField();
-        contractorDtoBinder.forField(labelField)
+        contractorDtoBinder.forField(shortnameField)
                 .asRequired("Не заполнено!");
-        labelField.setPlaceholder("Наименование");
-        labelField.setWidth("585px");
-        labelField.setRequired(true);
-        add(header(), new Text(""), labelField, contractorsAccordion());
+        shortnameField.setPlaceholder("Введите краткое наименование");
+        shortnameField.setLabel("Краткое наименование");
+        shortnameField.setWidth("585px");
+        shortnameField.setRequired(true);
+        add(header(), shortnameField, contractorsAccordion());
         setWidth(MODAL_WINDOW_WIDTH);
     }
 
@@ -1036,6 +1033,7 @@ public class ContractorModalWindow extends Dialog {
 
     private void saveFields(ContractorDto contractorDto) {
         contractorDto.setName(nameField.getValue());
+        contractorDto.setShortname(shortnameField.getValue());
         contractorDto.setPhone(phoneField.getValue());
         contractorDto.setFax(faxField.getValue());
         contractorDto.setEmail(emailField.getValue());

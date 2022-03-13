@@ -16,6 +16,7 @@ public class ContractorDto {
 
     private Long id;
     private String name;
+    private String shortname;
     private String sortNumber;
     private String phone;
     private String fax;

@@ -210,7 +210,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Товары на реализации":
                     div.removeAll();
-                    div.add(new SalesSubGoodsForSaleView(salesSubGoodsForSaleService));
+                    div.add(new SalesSubGoodsForSaleView(salesSubGoodsForSaleService, productService));
                     break;
                 case "Воронка продаж":
                     div.removeAll();
