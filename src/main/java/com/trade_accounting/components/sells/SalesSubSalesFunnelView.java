@@ -19,7 +19,6 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -27,6 +26,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SalesSubSalesFunnelView extends VerticalLayout {
     private final ContractorStatusService contractorStatusService;
@@ -34,73 +34,81 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private final FunnelService funnelService;
 
 
-    List<FunnelDto> listOrdersDataView = new ArrayList<>();
+    List<FunnelDto> listInvoiceDataView = new ArrayList<>();
     List<FunnelDto> listContractorsDataView = new ArrayList<>();
-    private final List<FunnelDto> data;
-    private final Grid<FunnelDto> grid = new Grid<>(FunnelDto.class, false);
-    private final GridPaginator<FunnelDto> paginator;
-    private final GridFilter<FunnelDto> filter;
-
-    private final String statusName = "statusName";
-    private final String count = "count";
-    private final String status = "Статус";
-    private final String value = "Количество";
-    private final String time = "Время";
-    private final String conversion = "Конверсия";
-    private final String price = "price";
-    private final Tab orders = new Tab("По заказам");
+    private final List<FunnelDto> innvoiceData;
+    private final List<FunnelDto> contractorData;
+    private final Grid<FunnelDto> invoiceGrid = new Grid<>(FunnelDto.class, false);
+    private final Grid<FunnelDto> contractorGrid = new Grid<>(FunnelDto.class, false);
+    private final GridPaginator<FunnelDto> invoicePaginator;
+    private final GridPaginator<FunnelDto> contractorPaginator;
+    private final GridFilter<FunnelDto> invoiceFilter;
+    private final GridFilter<FunnelDto> contractorFilter;
+    private final List<String> contractorStatuses;
+    private final List<String> invoiceStatuses;
+    private final Tab invoices = new Tab("По заказам");
     private final Tab contractors = new Tab("По контрагентам");
-    private final Tabs tabs = new Tabs(orders, contractors);
+    private final Tabs tabs = new Tabs(invoices, contractors);
 
-    private List<FunnelDto> getData() {
-        return funnelService.getAll();
-    }
 
     public SalesSubSalesFunnelView(ContractorStatusService contractorStatusService, InvoicesStatusService invoicesStatusService, FunnelService funnelService) {
         this.contractorStatusService = contractorStatusService;
         this.invoicesStatusService = invoicesStatusService;
         this.funnelService = funnelService;
-        this.data = getData();
+        this.contractorStatuses = contractorStatusService.getAll().stream().map(ContractorStatusDto::getName).collect(Collectors.toList());
+        this.invoiceStatuses = invoicesStatusService.getAll().stream().map(InvoicesStatusDto::getStatusName).collect(Collectors.toList());
+        this.innvoiceData = funnelService.getAllByType("invoice");
+        this.contractorData = funnelService.getAllByType("contractor");
         configureListDataView();
-        paginator = new GridPaginator<>(grid, data, 50);
-        configureGrid();
-        this.filter = new GridFilter<>(grid);
-        configureFilter();
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(upperLayout(), filter, grid, paginator);
+        invoicePaginator = new GridPaginator<>(invoiceGrid, innvoiceData, 50);
+        contractorPaginator = new GridPaginator<>(contractorGrid, contractorData, 50);
+        configureInvoiceGrid();
+        configureContractorGrid();
+        this.invoiceFilter = new GridFilter<>(invoiceGrid);
+        this.contractorFilter = new GridFilter<>(contractorGrid);
+        configureInvoiceFilter();
+        configureConractorFilter();
+//        setHorizontalComponentAlignment(Alignment.CENTER, invoicePaginator);
+        add(upperLayout(), invoiceFilter, invoiceGrid, invoicePaginator);
     }
 
-    private void configureFilter() {
-        filter.setFieldToComboBox(statusName, FunnelDto::getStatusName, funnelService.getAll());
-        filter.setFieldToIntegerField(count);
-        filter.setFieldToIntegerField("time");
-        filter.setFieldToIntegerField("conversion");
-        filter.setFieldToIntegerField(price);
-        filter.onSearchClick(e -> paginator
-                .setData(funnelService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> updateList());
+    private void configureInvoiceFilter() {
+
+        invoiceFilter.setFieldToComboBox("statusName", FunnelDto::getStatusName, funnelService.getAllByType("invoice"));
+        invoiceFilter.setFieldToIntegerField("count");
+        invoiceFilter.setFieldToIntegerField("conversion");
+        invoiceFilter.setFieldToIntegerField("price");
+        invoiceFilter.onSearchClick(e -> invoicePaginator.setData(funnelService.searchByFilter(invoiceFilter.getFilterData())
+                .stream().filter(this::isInvoiceFunnelDto).sorted().collect(Collectors.toList())));
+        invoiceFilter.onClearClick(e -> updateList());
     }
 
-    private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        configListOrders();
+    private void configureConractorFilter() {
+
+        contractorFilter.setFieldToComboBox("statusName", FunnelDto::getStatusName, funnelService.getAllByType("contractor"));
+        contractorFilter.setFieldToIntegerField("count");
+        contractorFilter.setFieldToIntegerField("conversion");
+        contractorFilter.onSearchClick(e -> contractorPaginator.setData(funnelService.searchByFilter(contractorFilter.getFilterData())
+                        .stream().filter(this::isContractorFunnelDto).collect(Collectors.toList())));
+        contractorFilter.onClearClick(e -> updateList());
     }
 
-    private void configureListDataView() {
-        listOrdersDataView.add(getData().get(0));
-        listOrdersDataView.add(getData().get(1));
-        listOrdersDataView.add(getData().get(2));
-        listOrdersDataView.add(getData().get(3));
-        listContractorsDataView.add(getData().get(4));
-        listContractorsDataView.add(getData().get(5));
-        listContractorsDataView.add(getData().get(6));
-        listContractorsDataView.add(getData().get(7));
-        listContractorsDataView.add(getData().get(8));
+    private boolean isInvoiceFunnelDto(FunnelDto funnelDto) {
+        return /*invoicesStatusService.getAll()
+                .stream()
+                .anyMatch(e -> funnelDto.getStatusName().equals(e)) || */funnelDto.getType().equals("invoice");
     }
+
+    private boolean isContractorFunnelDto(FunnelDto funnelDto) {
+        return /*contractorStatusService.getAll()
+                .stream()
+                .anyMatch(e -> funnelDto.getStatusName().equals(e)) || */funnelDto.getType().equals("contractor");
+    }
+
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
     }
@@ -109,30 +117,67 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
             if ("По заказам".equals(tabName)) {
-                configListOrders();
+                removeAll();
+                configureListDataView();
+                configureInvoiceGrid();
+                configureInvoiceFilter();
+                setHorizontalComponentAlignment(Alignment.CENTER, invoicePaginator);
+                add(upperLayout(), invoiceFilter, invoiceGrid, invoicePaginator);
             } else if ("По контрагентам".equals(tabName)) {
-                configListContractors();
+                removeAll();
+                configureListDataView();
+                configureContractorGrid();
+                configureConractorFilter();
+                setHorizontalComponentAlignment(Alignment.CENTER, contractorPaginator);
+                add(upperLayout(), contractorFilter, contractorGrid, contractorPaginator);
             }
         });
         return tabs;
     }
 
-    private void configListOrders() {
-        grid.removeAllColumns();
-        grid.setItems(listOrdersDataView);
-        grid.addColumn(statusName).setFlexGrow(11).setHeader(status).setId(status);
-        grid.addColumn(count).setFlexGrow(11).setHeader(value).setId(value);
-        grid.addColumn("time").setFlexGrow(11).setHeader(time).setId(time);
-        grid.addColumn("conversion").setFlexGrow(11).setHeader(conversion).setId(conversion);
-        grid.addColumn(price).setFlexGrow(11).setHeader("Сумма").setId("Сумма");
+    private void configureListDataView() {
+        if (listInvoiceDataView.size() != invoiceStatuses.size()) {
+            listInvoiceDataView.add(funnelService.getById(1L));
+            listInvoiceDataView.add(funnelService.getById(2L));
+            listInvoiceDataView.add(funnelService.getById(3L));
+            listInvoiceDataView.add(funnelService.getById(4L));
+        }
+        if (listContractorsDataView.size() != contractorStatuses.size()) {
+            listContractorsDataView.add(funnelService.getById(5L));
+            listContractorsDataView.add(funnelService.getById(6L));
+            listContractorsDataView.add(funnelService.getById(7L));
+            listContractorsDataView.add(funnelService.getById(8L));
+            listContractorsDataView.add(funnelService.getById(9L));
+        }
+    }
+
+    private void configListInvoices() {
+        invoiceGrid.removeAllColumns();
+        invoiceGrid.setItems(listInvoiceDataView);
+        invoiceGrid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
+        invoiceGrid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
+        invoiceGrid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
+        invoiceGrid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
+        invoiceGrid.addColumn("price").setFlexGrow(11).setHeader("Сумма").setId("Сумма");
     }
 
     private void configListContractors() {
-        grid.removeAllColumns();
-        grid.setItems(listContractorsDataView);
-        grid.addColumn(statusName).setFlexGrow(11).setHeader(status).setId(status);
-        grid.addColumn(count).setFlexGrow(11).setHeader(value).setId(value);
-        grid.addColumn("conversion").setFlexGrow(11).setHeader(conversion).setId(conversion);
+        contractorGrid.removeAllColumns();
+        contractorGrid.setItems(listContractorsDataView);
+        contractorGrid.setItems();
+        contractorGrid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
+        contractorGrid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
+        contractorGrid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
+    }
+
+    private void configureInvoiceGrid() {
+        contractorGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        configListInvoices();
+    }
+
+    private void configureContractorGrid() {
+        contractorGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        configListContractors();
     }
 
     private Button buttonQuestion() {
@@ -156,7 +201,8 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        buttonFilter.addClickListener(e -> invoiceFilter.setVisible(!invoiceFilter.isVisible()));
+        buttonFilter.addClickListener(e -> contractorFilter.setVisible(!contractorFilter.isVisible()));
         return buttonFilter;
     }
 
@@ -172,22 +218,10 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     }
 
     private void updateList() {
-        if (orders.isSelected()) {
-            configListOrders();
+        if (invoices.isSelected()) {
+            configListInvoices();
         } else if (contractors.isSelected()) {
             configListContractors();
         }
     }
-
-    private void configOrderGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
-        grid.setItems(listOrdersDataView);
-        grid.addColumn(statusName).setFlexGrow(11).setHeader(status).setId(status);
-        grid.addColumn(count).setFlexGrow(11).setHeader(value).setId(value);
-        grid.addColumn("time").setFlexGrow(11).setHeader(time).setId(time);
-        grid.addColumn(conversion).setFlexGrow(11).setHeader(conversion).setId(conversion);
-        grid.addColumn(price).setFlexGrow(11).setHeader("Сумма").setId("Сумма");
-    }
-
 }

@@ -2,7 +2,6 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.finance.FunnelDto;
 import com.trade_accounting.services.interfaces.company.ContractorStatusService;
 import com.trade_accounting.services.interfaces.finance.FunnelService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
@@ -34,8 +33,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-
-import java.util.List;
 
 @Route(value = "sells", layout = AppView.class)
 @PageTitle("Продажи")

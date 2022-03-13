@@ -63,12 +63,17 @@ public class FunnelServiceImpl implements FunnelService {
     }
 
     @Override
+    public List<FunnelDto> getAllByType(String type) {
+        List<FunnelDto> list = getAll();
+        list.removeIf(funnelDto -> !Objects.equals(funnelDto.getType(), type));
+        return list;
+    }
+
+    @Override
     public FunnelDto getById(Long id) {
         Call<FunnelDto> funnelDtoCall = funnelApi.getById(funnelUrl, id);
         return dtoCallExecuteService.callExecuteBodyById(funnelDtoCall, FunnelDto.class, id);
     }
-
-    }
-
+}
 
 
