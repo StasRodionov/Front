@@ -27,6 +27,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -42,7 +44,7 @@ import java.util.List;
 @UIScope
 @Route(value = "contracts", layout = AppView.class)
 @PageTitle("Договоры")
-public class ContractsView extends VerticalLayout {
+public class ContractsView extends VerticalLayout implements AfterNavigationObserver {
 
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
@@ -138,11 +140,6 @@ public class ContractsView extends VerticalLayout {
         });
         grid.setHeight("66vh");
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
-        grid.addItemDoubleClickListener(event -> {
-            ContractDto editContract = event.getItem();
-            contractModalWindow.configure(editContract);
-            contractModalWindow.open();
-        });
     }
 
     private void reloadGrid() {
@@ -264,5 +261,10 @@ public class ContractsView extends VerticalLayout {
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные контракты");
         }
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        reloadGrid();
     }
 }

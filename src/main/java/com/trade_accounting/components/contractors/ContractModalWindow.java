@@ -13,6 +13,7 @@ import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.stream.Stream;
+import java.time.LocalDate;
 
 @SpringComponent
 @UIScope
@@ -60,6 +62,8 @@ public class ContractModalWindow extends Dialog {
     private final CompanyService companyService;
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
+
+    private String parentLocation = "contracts";
 
     @Autowired
     public ContractModalWindow(ContractService contractService, ContractorService contractorService,
@@ -106,13 +110,16 @@ public class ContractModalWindow extends Dialog {
     }
 
     public void setContractDataForEdit(ContractDto contractDto) {
-//        dateField.setValue(LocalDate.parse(contractDto.getDate().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        setHeader("Редактирование");
+        dateField.setValue(LocalDate.parse(contractDto.getContractDate()));
         amountField.setValue(contractDto.getAmount().toString());
         archiveField.setValue(contractDto.getArchive());
         commentField.setValue(contractDto.getComment());
         numberField.setValue(contractDto.getNumber());
         selectContractor.setValue(contractorService.getById(contractDto.getContractorId()));
         selectCompany.setValue(companyService.getById(contractDto.getCompanyId()));
+        selectLegalDetail.setValue(legalDetailService.getById(contractDto.getLegalDetailId()));
+        selectBankAccount.setValue(bankAccountService.getById(contractDto.getBankAccountId()));
     }
 
     private HorizontalLayout header(String titleText) {
@@ -190,6 +197,7 @@ public class ContractModalWindow extends Dialog {
 
     private HorizontalLayout configureBankAccount() {
         selectBankAccount.setWidth(FIELD_WIDTH);
+        selectBankAccount.setItems(bankAccountService.getAll());
         selectBankAccount.setItemLabelGenerator(
                 bankAccountDto -> bankAccountDto.getBank() + " " + bankAccountDto.getAccount());
         return getHorizontalLayout("Банковский аккаунт", selectBankAccount);
@@ -197,6 +205,7 @@ public class ContractModalWindow extends Dialog {
 
     private HorizontalLayout configureLegalDetails() {
         selectLegalDetail.setWidth(FIELD_WIDTH);
+        selectLegalDetail.setItems(legalDetailService.getAll());
         selectLegalDetail.setItemLabelGenerator(
                 legalDetailDto -> legalDetailDto.getLastName() + " "
                         + legalDetailDto.getFirstName() + " "
@@ -257,6 +266,8 @@ public class ContractModalWindow extends Dialog {
             }
             clearAllFields();
             close();
+            UI.getCurrent().navigate(parentLocation);
+            contractService.getAll();
         });
     }
 
@@ -279,10 +290,6 @@ public class ContractModalWindow extends Dialog {
         setHeader("Добавление");
     }
 
-    public void configure(ContractDto contractDto) {
-        setHeader("Редактирование");
-        setFields(contractDto);
-    }
 
     private void clearAllFields() {
         dateField.clear();
