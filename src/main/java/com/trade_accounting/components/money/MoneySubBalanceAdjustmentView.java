@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.finance.BalanceAdjustmentDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
@@ -202,31 +204,16 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> stringList = new ArrayList<>();
-        stringList.add("Изменить");
-        stringList.add("Удалить");
-        stringList.add("Массовое редактирование");
-        select.setItems(stringList);
-        select.setValue("Изменить");
-        select.setWidth("150px");
-        select.addValueChangeListener(e -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectBalanceAdjustments();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(loadBalanceAdjustments());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectBalanceAdjustments();
+            grid.deselectAll();
+            paginator.setData(loadBalanceAdjustments());
         });
-        return select;
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать");
-        print.setValue("Печать");
+        Select<String> print = SelectConfigurer.configurePrintSelect();
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-        print.setWidth("150px");
         return print;
     }
 

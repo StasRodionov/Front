@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.finance.PrepaymentReturnDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -219,22 +220,11 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
 
 
     private Select<String> getSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedInvoices();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(prepaymentReturnService.getAll());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedInvoices();
+            grid.deselectAll();
+            paginator.setData(prepaymentReturnService.getAll());
         });
-        return select;
     }
 
     private void deleteSelectedInvoices() {
@@ -246,20 +236,13 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
     }
 
     private Select<String> getStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус", "Настроить...");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
 
     private Select<String> getPrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Список выплат", "Комплект...", "Настроить...");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
+//        print.setItems("Печать", "Список выплат", "Комплект...", "Настроить...");
     }
 
     @Override
