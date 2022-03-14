@@ -4,6 +4,8 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.invoice.InternalOrderDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
@@ -284,28 +286,21 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> stringList = new ArrayList<>();
-        stringList.add("Выберите действие");
-        stringList.add("Удалить");
-        stringList.add("Массовое редактирование");
-        select.setItems(stringList);
-        select.setValue("Выберите действие");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedInternalOrders();
-                grid.deselectAll();
-                select.setValue("Выберите действие");
-                paginator.setData(getData());
-            } else if (select.getValue().equals("Массовое редактирование")) {
-                editSelectedInternalOrders();
-                grid.deselectAll();
-                select.setValue("Выберите действие");
-                paginator.setData(getData());
-            }
-        });
-        return select;
+        Action onBulkEdit = () -> {
+            editSelectedInternalOrders();
+            grid.deselectAll();
+            paginator.setData(getData());
+        };
+        Action onDelete = () -> {
+            deleteSelectedInternalOrders();
+            grid.deselectAll();
+            paginator.setData(getData());
+        };
+        return SelectConfigurer.configureBulkEditAndDeleteSelect(
+                onBulkEdit,
+                onDelete
+        );
+
     }
 
     private Button buttonSettings() {
@@ -313,19 +308,11 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private H2 getTextOrder() {

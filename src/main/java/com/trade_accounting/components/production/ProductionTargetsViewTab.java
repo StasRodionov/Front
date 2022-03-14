@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.production.ProductionTargetsDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.production.ProductionTargetsService;
@@ -221,22 +223,11 @@ public class ProductionTargetsViewTab extends VerticalLayout implements AfterNav
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        List<String> list = new ArrayList<>();
-        list.add("Изменить");
-        list.add("Удалить");
-        valueSelect.setItems(list);
-        valueSelect.setValue("Изменить");
-        valueSelect.setWidth("120px");
-        valueSelect.addValueChangeListener(event -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedTechnicalOperations();
-                grid.deselectAll();
-                valueSelect.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedTechnicalOperations();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return valueSelect;
     }
 
     private void deleteSelectedTechnicalOperations() {
@@ -255,19 +246,11 @@ public class ProductionTargetsViewTab extends VerticalLayout implements AfterNav
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private Button buttonSettings() {

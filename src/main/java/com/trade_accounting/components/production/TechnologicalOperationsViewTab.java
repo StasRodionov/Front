@@ -6,6 +6,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.production.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.production.TechnicalCardService;
 import com.trade_accounting.services.interfaces.production.TechnicalOperationsService;
@@ -226,22 +228,11 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        List<String> list = new ArrayList<>();
-        list.add("Изменить");
-        list.add("Удалить");
-        valueSelect.setItems(list);
-        valueSelect.setValue("Изменить");
-        valueSelect.setWidth("120px");
-        valueSelect.addValueChangeListener(event -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedTechnicalOperations();
-                grid.deselectAll();
-                valueSelect.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedTechnicalOperations();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return valueSelect;
     }
 
     private void deleteSelectedTechnicalOperations() {
@@ -264,11 +255,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private void valuePrint() {

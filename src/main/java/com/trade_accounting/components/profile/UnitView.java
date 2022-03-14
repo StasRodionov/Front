@@ -4,6 +4,8 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.units.UnitDto;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.vaadin.flow.component.button.Button;
@@ -131,11 +133,11 @@ public class UnitView extends VerticalLayout {
     }
 
     private Select<String> getSelect() {
-        final Select<String> selector = new Select<>();
-        selector.setItems("Изменить");
-        selector.setValue("Изменить");
-        selector.setWidth("130px");
-        return selector;
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.CHANGE_SELECT_ITEM)
+                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 
     private void configureFilter() {

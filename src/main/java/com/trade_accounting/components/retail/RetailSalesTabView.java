@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.retail.RetailSalesDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -229,36 +230,18 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
         }
     }
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                grid.removeAllColumns();
-                select.setValue("Изменить");
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            grid.removeAllColumns();
         });
-        return select;
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус", "Настроить");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Список продаж", "Товарный чек", "Комплект", "Настроить");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
+//        print.setItems("Печать", "Список продаж", "Товарный чек", "Комплект", "Настроить");
     }
 
     @Override

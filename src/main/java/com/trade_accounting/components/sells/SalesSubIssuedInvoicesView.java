@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.invoice.IssuedInvoiceDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -181,27 +182,18 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
     }
 
     private Select<String> getSelect() {
-        Select<String> select = new Select<>();
-        select.setItems("Изменить", "Удалить", "Массовое редактирование", "Провести", "Снять проведение");
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        return select;
+        return SelectConfigurer.configureBulkEditAndDeleteSelect();
+        //select.setItems("Изменить", "Удалить", "Массовое редактирование", "Провести", "Снять проведение");
     }
 
     private Select<String> getStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус", "Настроить");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
+//        status.setItems("Статус", "Настроить");
     }
 
     private Select<String> getPrint() {
-        Select getPrint = new Select();
-        getPrint.setWidth("130px");
-        getPrint.setItems("Печать", "Взаиморасчеты");
-        getPrint.setValue("Печать");
-        return getPrint;
+//        getPrint.setItems("Печать", "Взаиморасчеты");
+        return SelectConfigurer.configurePrintSelect();
     }
 
     @Override
