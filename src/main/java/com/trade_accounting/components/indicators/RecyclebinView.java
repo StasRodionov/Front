@@ -467,7 +467,12 @@ public class RecyclebinView extends VerticalLayout {
             paginator.setData(getData());
             updateList();
         };
-        Action onDelete = ;
+        Action onDelete = () -> {
+            deleteOperation(grid.getSelectedItems());
+            grid.deselectAll();
+            paginator.setData(getData());
+            updateList();
+        };
         return new SelectExt.SelectBuilder<String>()
                 .item(SelectConstants.CHANGE_SELECT_ITEM)
                 .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
