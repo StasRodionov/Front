@@ -8,6 +8,10 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -235,48 +239,30 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedInvoices();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedInvoices();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return select;
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valueCreate() {
-        Select<String> create = new Select<>();
-        create.setItems("Создать");
-        create.setValue("Создать");
-        create.setWidth("130px");
-        return create;
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.CREATE_SELECT_ITEM)
+                .defaultValue(SelectConstants.CREATE_SELECT_ITEM)
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать","Добавить");
-        print.setValue("Печать");
+        Select<String> print = SelectConfigurer.configurePrintSelect();
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
 //        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
-        print.setWidth("130px");
         return print;
     }
     private List<File> getXlsFiles() {

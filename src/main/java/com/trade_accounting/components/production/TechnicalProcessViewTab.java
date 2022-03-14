@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.production.TechnicalProcessDto;
 import com.trade_accounting.services.interfaces.client.DepartmentService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
@@ -180,22 +182,11 @@ public class TechnicalProcessViewTab extends VerticalLayout implements AfterNavi
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        List<String> list = new ArrayList<>();
-        list.add("Изменить");
-        list.add("Удалить");
-        valueSelect.setItems(list);
-        valueSelect.setValue("Изменить");
-        valueSelect.setWidth("120px");
-        valueSelect.addValueChangeListener(e -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedTechnicalProcess();
-                grid.deselectAll();
-                valueSelect.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedTechnicalProcess();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return valueSelect;
     }
 
     private H2 getTextOrder() {

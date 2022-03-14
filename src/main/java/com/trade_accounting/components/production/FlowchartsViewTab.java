@@ -6,13 +6,14 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.production.TechnicalCardDto;
 import com.trade_accounting.models.dto.production.TechnicalCardGroupDto;
-import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.services.interfaces.production.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.production.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.production.TechnicalCardService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -36,7 +37,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringComponent
@@ -194,22 +194,11 @@ public class FlowchartsViewTab extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        List<String> list = new ArrayList<>();
-        list.add("Изменить");
-        list.add("Удалить");
-        valueSelect.setItems(list);
-        valueSelect.setValue("Изменить");
-        valueSelect.setWidth("120px");
-        valueSelect.addValueChangeListener(event -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedInternalOrders();
-                grid.deselectAll();
-                valueSelect.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedInternalOrders();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return valueSelect;
     }
 
 

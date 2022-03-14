@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.util.TaskDto;
@@ -135,22 +136,11 @@ public class TasksView extends VerticalLayout implements AfterNavigationObserver
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedInvoices();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedInvoices();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return select;
     }
 
     private void deleteSelectedInvoices() {

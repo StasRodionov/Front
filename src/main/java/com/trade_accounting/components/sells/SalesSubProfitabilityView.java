@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.client.EmployeeDto;
@@ -754,11 +755,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private Select<String> getPrint() {
-        Select getPrint = new Select();
-        getPrint.setWidth("130px");
-        getPrint.setItems("Печать");
-        getPrint.setValue("Печать");
-        return getPrint;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private Button buttonGraph() {

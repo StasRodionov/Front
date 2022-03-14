@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.production.OrdersOfProductionDto;
 import com.trade_accounting.models.dto.production.TechnicalCardDto;
@@ -332,22 +334,11 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     }
 
         private Select<String> valueSelect () {
-            Select<String> valueSelect = new Select<>();
-            List<String> list = new ArrayList<>();
-            list.add("Изменить");
-            list.add("Удалить");
-            valueSelect.setItems(list);
-            valueSelect.setValue("Изменить");
-            valueSelect.setWidth("120px");
-            valueSelect.addValueChangeListener(event -> {
-                if (valueSelect.getValue().equals("Удалить")) {
-                    deleteSelectedOrdersOfProduction();
-                    grid.deselectAll();
-                    valueSelect.setValue("Изменить");
-                    paginator.setData(getData());
-                }
+            return SelectConfigurer.configureDeleteSelect(() -> {
+                deleteSelectedOrdersOfProduction();
+                grid.deselectAll();
+                paginator.setData(getData());
             });
-            return valueSelect;
     }
 
     private void deleteSelectedOrdersOfProduction() {
@@ -366,19 +357,11 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     }
 
         private Select<String> valueStatus () {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
         private Select<String> valuePrint () {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
         private H2 getTextOrder () {

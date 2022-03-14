@@ -5,13 +5,14 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.util.ImageDto;
 import com.trade_accounting.services.interfaces.client.DepartmentService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
-import com.trade_accounting.services.interfaces.util.ImageService;
 import com.trade_accounting.services.interfaces.client.PositionService;
 import com.trade_accounting.services.interfaces.client.RoleService;
+import com.trade_accounting.services.interfaces.util.ImageService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -216,22 +217,11 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        valueSelect.setItems("Выберите действие", "Удалить");
-        valueSelect.setValue("Выберите действие");
-        valueSelect.addValueChangeListener(event -> {
-
-        if (valueSelect.getValue().equals("Удалить")) {
+        return SelectConfigurer.configureDeleteSelect(() -> {
             deleteSelectedEmployees();
             grid.deselectAll();
-            valueSelect.setValue("Выберите действие");
             paginator.setData(getData());
-            valueSelect.setPlaceholder("");
-        }
         });
-
-        valueSelect.setWidth("130px");
-        return valueSelect;
     }
 
     private void deleteSelectedEmployees() {
