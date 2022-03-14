@@ -64,13 +64,13 @@ public class PriceModalWindow extends Dialog {
         setCloseOnEsc(true);
 
     }
-    public void setPostingEdit(PriceListDto editDto) {
-        this.priceListDto = editDto;
-        dateTimePicker.setValue(LocalDateTime.parse(editDto.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-        companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
-        checkboxIsSent.setValue(editDto.getSent());
-        checkboxIsPrint.setValue(editDto.getPrinted());
-        comment.setValue(editDto.getCommentary());
+    public void setPostingEdit(PriceListDto createDto) {
+        this.priceListDto = createDto;
+        dateTimePicker.setValue(LocalDateTime.parse(createDto.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        companyComboBox.setValue(companyService.getById(createDto.getCompanyId()));
+        checkboxIsSent.setValue(createDto.getSent());
+        checkboxIsPrint.setValue(createDto.getPrinted());
+        comment.setValue(createDto.getCommentary());
     }
 
 

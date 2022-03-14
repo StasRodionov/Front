@@ -106,7 +106,7 @@ public class PriceModalEditWindow extends Dialog {
                 priceListDto.setCommentary(comment.getValue());
                 priceListDto.setNumber("123");
                 if (priceListDtoBinder.validate().isOk()) {
-                    priceListService.update(priceListDtoToEdit);
+                    priceListService.update(priceListDto);
                     clearAll();
                     close();
                     UI.getCurrent().navigate(parentLocation);
