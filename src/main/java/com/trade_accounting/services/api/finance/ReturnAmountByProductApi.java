@@ -8,6 +8,9 @@ import retrofit2.http.Headers;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 public interface ReturnAmountByProductApi {
 
     @Headers("Accept: application/json")
@@ -16,4 +19,9 @@ public interface ReturnAmountByProductApi {
             @Path(value = "url", encoded = true) String url,
             @Query(value = "productId") Long productId,
             @Query(value = "invoiceId") Long invoiceId);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/getByAmount{amount}")
+    Call<List<ReturnAmountByProductDto>> getByAmount(@Path(value = "url", encoded = true)
+                                                          String url, @Path("amount")BigDecimal amount);
 }

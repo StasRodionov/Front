@@ -82,7 +82,8 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
                 .getName()).setFlexGrow(10).setHeader("Контрагент").setId("contractor");
         grid.addColumn(issuedInvoiceDto -> companyService.getById(issuedInvoiceDto.getCompanyId())
                 .getName()).setHeader("Организация").setId("company");
-        grid.addColumn((issuedInvoiceDto -> paymentService.getById(issuedInvoiceDto.getPaymentId()).getSum())).setHeader("Сумма").setId("sum");
+        grid.addColumn(issuedInvoiceDto -> paymentService.getById(issuedInvoiceDto.getPaymentId()).
+                getSum()).setHeader("Сумма").setId("sum");
         grid.addColumn(new ComponentRenderer<>(this::isSendCheckedIcon)).setFlexGrow(5).setWidth("25px").setKey("send")
                 .setHeader("Отправлено").setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::isPrintCheckedIcon)).setFlexGrow(5).setWidth("25px").setKey("print")

@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.finance.ReturnAmountByProductDto;
 import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.client.EmployeeDto;
@@ -304,13 +305,19 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .setKey("totalCostPrice")
                 .setId("Сумма себестоимости");
 
-        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getProductId(), iDto.getInvoiceId()))
+//        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getProductId(), iDto.getInvoiceId()))
+//                .setHeader("Сумма возвратов")
+//                .setKey("totalReturnPrice")
+//                .setSortable(true)
+//                .setId("Сумма возвратов");
+//
+        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getAmount()))
                 .setHeader("Сумма возвратов")
                 .setKey("totalReturnPrice")
                 .setSortable(true)
                 .setId("Сумма возвратов");
 
-        gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId(), iDto.getProductId(), iDto.getInvoiceId()))
+        gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId(), iDto.getAmount()))
                 .setHeader("Прибыль")
                 .setKey("profit")
                 .setSortable(true)
@@ -442,12 +449,12 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         List<InvoiceProductDto> result = inputList;
         if (query.containsKey("profit")) {
             result = result.stream()
-                    .filter(e -> getProfitByProducts(e.getId(), e.getProductId(), e.getInvoiceId()).equals(query.get("profit")))
+                    .filter(e -> getProfitByProducts(e.getId(), e.getAmount()).equals(query.get("profit")))
                     .collect(Collectors.toList());
         }
         if (query.containsKey("totalReturnPrice")) {
             result = result.stream()
-                    .filter(e -> getTotalReturnPriceForProducts(e.getProductId(), e.getInvoiceId()).equals(query.get("totalReturnPrice")))
+                    .filter(e -> getTotalReturnPriceForProducts(e.getAmount()).equals(query.get("totalReturnPrice")))
                     .collect(Collectors.toList());
         }
         if (query.containsKey("totalCostPrice")) {
@@ -601,12 +608,12 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return tabs;
     }
 
-    private String getProfitByProducts(Long id, Long productId, Long invoiceId) {
+    private String getProfitByProducts(Long id, BigDecimal amount) {
         BigDecimal profit;
 
         String buyerBuying = getTotalPriceForProducts(id);
         buyerBuying = buyerBuying.replace(',', '.');
-        String buyersReturn = getTotalReturnPriceForProducts(productId, invoiceId);
+        String buyersReturn = getTotalReturnPriceForProducts(amount);
         buyersReturn = buyersReturn.replace(',', '.');
         String costPrice = getTotalCostPriceForProducts(id);
         costPrice = costPrice.replace(',', '.');
@@ -615,11 +622,34 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return String.format("%.2f", profit);
     }
 
-    private String getTotalReturnPriceForProducts(Long productId, Long invoiceId) {
-        return String.format("%.2f", returnAmountByProductService
-                .getTotalReturnAmountByProduct(productId, invoiceId)
-                .getAmount());
+//    private String getTotalReturnPriceForProducts(Long productId, Long invoiceId) {
+//        return String.format("%.2f", returnAmountByProductService
+//                .getTotalReturnAmountByProduct(productId, invoiceId)
+//                .getAmount());
+//    }
+
+    private String getTotalReturnPriceForProducts(BigDecimal amount) {
+
+        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+
+        List<ReturnAmountByProductDto> list = returnAmountByProductService.getByAmount(amount);
+
+        for (ReturnAmountByProductDto dto : list) {
+            totalPrice = totalPrice.add(dto.getAmount());
+        }
+        return String.format("%.2f", totalPrice);
     }
+
+//    private String getReturnsTotalPrice(Long id) {
+//        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
+//
+//        List<BuyersReturnDto> list = buyersReturnService.getByContractorId(id);
+//
+//        for (BuyersReturnDto dto : list) {
+//            totalPrice = totalPrice.add(dto.getSum());
+//        }
+//        return String.format("%.2f", totalPrice);
+//    }
 
     private String getTotalCostPriceForProducts(Long id) {
         BigDecimal totalPrice;
