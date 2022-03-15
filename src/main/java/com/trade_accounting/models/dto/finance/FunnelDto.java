@@ -1,12 +1,8 @@
 package com.trade_accounting.models.dto.finance;
 
-import com.trade_accounting.models.dto.company.ContractorDto;
-import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 
 @Data
@@ -27,10 +23,6 @@ public class FunnelDto {
     private String price;
 
     private String type;
-
-    private List<ContractorDto> contractorDtoList;
-
-    private List<InvoiceDto> invoiceDtoList;
 
     //Конструктор для listOrdersDataView
     public FunnelDto(String statusName, Long count, String time, String conversion, String price) {
