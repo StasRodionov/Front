@@ -44,4 +44,9 @@ public interface InvoiceProductApi {
         Call<List<InvoiceProductDto>> search(@Path(value = "url", encoded = true) String url,
                                              @QueryMap Map<String, String> query);
 
+        @Headers("Accept: application/json")
+        @GET("{url}/product/{id}")
+        Call<List<InvoiceProductDto>> getByProductId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+
 }

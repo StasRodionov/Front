@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.client.EmployeeDto;
@@ -304,7 +305,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .setKey("totalCostPrice")
                 .setId("Сумма себестоимости");
 
-        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getProductId(), iDto.getInvoiceId()))
+        gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getId()))
                 .setHeader("Сумма возвратов")
                 .setKey("totalReturnPrice")
                 .setSortable(true)
@@ -447,7 +448,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         }
         if (query.containsKey("totalReturnPrice")) {
             result = result.stream()
-                    .filter(e -> getTotalReturnPriceForProducts(e.getProductId(), e.getInvoiceId()).equals(query.get("totalReturnPrice")))
+                    .filter(e -> getTotalReturnPriceForProducts(e.getProductId()).equals(query.get("totalReturnPrice")))
                     .collect(Collectors.toList());
         }
         if (query.containsKey("totalCostPrice")) {
@@ -606,7 +607,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
         String buyerBuying = getTotalPriceForProducts(id);
         buyerBuying = buyerBuying.replace(',', '.');
-        String buyersReturn = getTotalReturnPriceForProducts(productId, invoiceId);
+        String buyersReturn = getTotalReturnPriceForProducts(productId);
         buyersReturn = buyersReturn.replace(',', '.');
         String costPrice = getTotalCostPriceForProducts(id);
         costPrice = costPrice.replace(',', '.');
@@ -615,10 +616,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         return String.format("%.2f", profit);
     }
 
-    private String getTotalReturnPriceForProducts(Long productId, Long invoiceId) {
-        return String.format("%.2f", returnAmountByProductService
-                .getTotalReturnAmountByProduct(productId, invoiceId)
-                .getAmount());
+    private String getTotalReturnPriceForProducts(Long productId) {
+        return String.format("%.2f", invoiceProductService.getByProductId(productId).stream()
+                .map(InvoiceProductDto::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+        );
     }
 
     private String getTotalCostPriceForProducts(Long id) {
@@ -753,11 +755,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private Select<String> getPrint() {
-        Select getPrint = new Select();
-        getPrint.setWidth("130px");
-        getPrint.setItems("Печать");
-        getPrint.setValue("Печать");
-        return getPrint;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private Button buttonGraph() {

@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.services.interfaces.company.AddressService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
@@ -256,22 +258,11 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Удалить");
-        valueSelect.setItems(listItems);
-        valueSelect.setPlaceholder("Изменить");
-        valueSelect.setWidth("130px");
-        valueSelect.addValueChangeListener(event -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedContractors();
-                grid.deselectAll();
-                valueSelect.setValue("Изменить");
-                paginator.setData(getData());
-            }
-        });
-
-        return valueSelect;
+        return SelectConfigurer.configureDeleteSelect(() -> {
+                    deleteSelectedContractors();
+                    grid.deselectAll();
+                }
+        );
     }
 
     private void updateList() {

@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.indicators.AuditDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
@@ -135,11 +136,7 @@ public class AuditView extends VerticalLayout {
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private void updateList() {

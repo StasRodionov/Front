@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.finance.MoneySubMutualSettlementsDto;
 import com.trade_accounting.services.interfaces.finance.MoneySubMutualSettlementsService;
 import com.vaadin.flow.component.button.Button;
@@ -159,11 +160,7 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
 
 
     private Select<String> getPrint() {
-        Select getPrint = new Select();
-        getPrint.setWidth("130px");
-        getPrint.setItems("Печать", "Взаиморасчеты");
-        getPrint.setValue("Печать");
-        return getPrint;
+        return SelectConfigurer.configurePrintSelect();
     }
 
 }

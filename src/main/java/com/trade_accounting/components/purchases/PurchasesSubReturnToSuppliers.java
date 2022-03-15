@@ -4,6 +4,10 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.goods.GoodsModalWindow;
 import com.trade_accounting.components.purchases.print.PrintReturnToSupplierXml;
 import com.trade_accounting.components.util.*;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
@@ -225,43 +229,31 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> stringList = new ArrayList<>();
-        stringList.add("Изменить");
-        stringList.add("Массовое редактирование");
-        stringList.add("Провести");
-        stringList.add("Снять проведение");
-        stringList.add("Удалить");
-        select.setItems(stringList);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(e -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectReturnToSuppliers();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(loadReturnToSuppliers());
-            }
-        });
-        return select;
+        Action onDelete = () -> {
+            deleteSelectReturnToSuppliers();
+            grid.deselectAll();
+            paginator.setData(loadReturnToSuppliers());
+        };
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.SELECT_ACTION_SELECT_ITEM)
+                .defaultValue(SelectConstants.SELECT_ACTION_SELECT_ITEM)
+                .item(SelectConstants.BULK_EDIT_SELECT_ITEM)
+                .item("Провести")
+                .item("Снять проведение")
+                .itemWithAction(SelectConstants.DELETE_SELECT_ITEM, onDelete)
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать","Добавить");
-        print.setValue("Печать");
+        Select<String> print = SelectConfigurer.configurePrintSelect();
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
 //        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
-        print.setWidth("130px");
         return print;
     }
 

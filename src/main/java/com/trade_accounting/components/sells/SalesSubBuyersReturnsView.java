@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
@@ -339,27 +340,16 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     }
 
     private Select<String> getSelect() {
-        Select<String> select = new Select<>();
-        select.setItems("Изменить", "Удалить", "Массовое редактирование", "Провести", "Снять проведение");
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedBuyersReturn();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedBuyersReturn();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return select;
+//        select.setItems("Изменить", "Удалить", "Массовое редактирование", "Провести", "Снять проведение");
     }
 
     private Select<String> getStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус", "Настроить");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private void deleteSelectedBuyersReturn() {

@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.ContractDto;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -27,6 +29,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -42,7 +46,7 @@ import java.util.List;
 @UIScope
 @Route(value = "contracts", layout = AppView.class)
 @PageTitle("Договоры")
-public class ContractsView extends VerticalLayout {
+public class ContractsView extends VerticalLayout implements AfterNavigationObserver {
 
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
@@ -108,8 +112,8 @@ public class ContractsView extends VerticalLayout {
         })).setHeader("Архив").setKey("archive").setId("Архив");
 
         grid.addColumn(contractDto -> legalDetailService.getById(contractDto.getLegalDetailId()).getLastName() + " " +
-                        legalDetailService.getById(contractDto.getLegalDetailId()).getFirstName() + " " +
-                        legalDetailService.getById(contractDto.getLegalDetailId()).getMiddleName())
+                legalDetailService.getById(contractDto.getLegalDetailId()).getFirstName() + " " +
+                legalDetailService.getById(contractDto.getLegalDetailId()).getMiddleName())
                 .setHeader("Юридические детали").setKey("legalDetails").setId("Юридические детали");
 
         grid.setColumnOrder(
@@ -138,11 +142,6 @@ public class ContractsView extends VerticalLayout {
         });
         grid.setHeight("66vh");
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
-        grid.addItemDoubleClickListener(event -> {
-            ContractDto editContract = event.getItem();
-            contractModalWindow.configure(editContract);
-            contractModalWindow.open();
-        });
     }
 
     private void reloadGrid() {
@@ -237,22 +236,11 @@ public class ContractsView extends VerticalLayout {
     }
 
     private Select<String> getSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedInvoices();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(contractService.getAll());
-            }
-        });
-        return select;
+        return SelectConfigurer.configureDeleteSelect(() -> {
+                    deleteSelectedInvoices();
+                    grid.deselectAll();
+                }
+        );
     }
 
     private void deleteSelectedInvoices() {
@@ -264,5 +252,10 @@ public class ContractsView extends VerticalLayout {
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные контракты");
         }
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        reloadGrid();
     }
 }

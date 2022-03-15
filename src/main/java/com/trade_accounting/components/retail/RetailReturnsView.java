@@ -4,6 +4,9 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.retail.RetailReturnsDto;
 import com.trade_accounting.services.interfaces.retail.RetailReturnsService;
 import com.vaadin.flow.component.Component;
@@ -194,28 +197,20 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
 
 
     private Select<String> getSelect() {
-        Select<String> select = new Select<>();
-        select.setItems("Изменить");
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        return select;
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.CHANGE_SELECT_ITEM)
+                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 
     private Select<String> getStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
 
     private Select<String> getPrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     @Override

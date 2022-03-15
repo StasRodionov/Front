@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.SalesSubGoodsForSaleDto;
@@ -102,12 +103,9 @@ public class SalesSubGoodsForSaleView extends VerticalLayout {
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
+        Select<String> print = SelectConfigurer.configurePrintSelect();
 //        getXlsFile().forEach(x -> print.add(getLinkToSalesXls(x)));
 //        uploadXlsTemplates(print);
-        print.setWidth("130px");
         return print;
     }
 

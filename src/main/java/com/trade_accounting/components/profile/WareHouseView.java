@@ -4,6 +4,8 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.button.Button;
@@ -114,11 +116,11 @@ public class WareHouseView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        valueSelect.setItems("Изменить");
-        valueSelect.setValue("Изменить");
-        valueSelect.setWidth("130px");
-        return valueSelect;
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.CHANGE_SELECT_ITEM)
+                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 
     private Button buttonSettings() {

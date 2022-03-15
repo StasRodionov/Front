@@ -85,4 +85,17 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         }
         return invoiceProductDtoList;
     }
+
+    @Override
+    public List<InvoiceProductDto> getByProductId(Long id) {
+        List<InvoiceProductDto> invoiceProductDtoList = null;
+        Call<List<InvoiceProductDto>> invoiceProductDtoCall = invoiceProductApi.getByProductId(invoiceProductUrl, id);
+        try{
+            invoiceProductDtoList = invoiceProductDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка InvoiceProductDto с productId = {}", id);
+        } catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceProductDto по productId= {} - {}", id, e);
+        }
+        return invoiceProductDtoList;
+    }
 }

@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
@@ -130,11 +131,7 @@ public class GoodsPriceLayout extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        select.setItems("Изменить", "Удалить");
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        return select;
+        return SelectConfigurer.configureDeleteSelect();
     }
 
     private Button buttonSettings() {
@@ -142,19 +139,11 @@ public class GoodsPriceLayout extends VerticalLayout {
             }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private H2 getTextOrder() {
