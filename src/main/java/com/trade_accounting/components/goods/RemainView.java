@@ -6,6 +6,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.RemainDto;
 import com.trade_accounting.services.interfaces.warehouse.RemainService;
 import com.trade_accounting.services.interfaces.units.UnitService;
@@ -200,22 +202,11 @@ public class RemainView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedRemains();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedRemains();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return select;
     }
 
     private Button buttonSettings() {
@@ -223,18 +214,10 @@ public class RemainView extends VerticalLayout {
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 }

@@ -2,7 +2,9 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.finance.FunnelDto;
 import com.trade_accounting.services.interfaces.company.ContractorStatusService;
+import com.trade_accounting.services.interfaces.finance.FunnelService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
 import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -32,6 +34,8 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+
+import java.util.List;
 
 @Route(value = "sells", layout = AppView.class)
 @PageTitle("Продажи")
@@ -68,6 +72,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
     private final InvoicesStatusService invoicesStatusService;
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
     private final ContractorStatusService contractorStatusService;
+    private final FunnelService funnelService;
 
     @Autowired
     public SalesSubMenuView(ContractService contractService, InvoiceService invoiceService,
@@ -93,7 +98,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             RetailStoreService retailStoreService,
                             ShipmentService shipmentService,
                             ShipmentProductService shipmentProductService,
-                            InvoicesStatusService invoicesStatusService, SalesEditCreateInvoiceView salesEditCreateInvoiceView, ContractorStatusService contractorStatusService) {
+                            InvoicesStatusService invoicesStatusService, SalesEditCreateInvoiceView salesEditCreateInvoiceView, ContractorStatusService contractorStatusService, FunnelService funnelService) {
         this.contractService = contractService;
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
@@ -122,6 +127,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.invoicesStatusService = invoicesStatusService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.contractorStatusService = contractorStatusService;
+        this.funnelService = funnelService;
 
 
         div = new Div();
@@ -208,9 +214,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                     break;
                 case "Воронка продаж":
                     div.removeAll();
-                    div.add(new SalesSubSalesFunnelView(contractorService,
-                            invoiceService, invoicesStatusService,
-                            invoiceProductService, notifications, contractorStatusService));
+                    div.add(new SalesSubSalesFunnelView(contractorStatusService, invoicesStatusService, funnelService));
                     break;
             }
         });

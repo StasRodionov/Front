@@ -11,7 +11,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -27,6 +29,20 @@ public class CorrectionServiceImpl implements CorrectionService {
         this.callExecuteService = callExecuteService;
     }
 
+    @Override
+    public List<CorrectionDto> search(Map<String, String> query) {
+        List<CorrectionDto> correctionDtoList = new ArrayList<>();
+        Call<List<CorrectionDto>> correctionDtoListCall = correctionApi.search(correctionUrl, query);
+
+        try {
+            correctionDtoList = correctionDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка CorrectionDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка CorrectionDto - ", e);
+        }
+
+        return correctionDtoList;
+    }
 
     @Override
     public List<CorrectionDto> getAll() {

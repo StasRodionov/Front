@@ -18,6 +18,10 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
@@ -457,30 +461,25 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Восстановить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(e -> {
-            if (select.getValue().equals("Восстановить")) {
-                restoreOperation(grid.getSelectedItems());
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-                updateList();
-            } else if (select.getValue().equals("Удалить")) {
-                deleteOperation(grid.getSelectedItems());
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-                updateList();
-            }
-        });
-        return select;
+        Action onRestore = () -> {
+            restoreOperation(grid.getSelectedItems());
+            grid.deselectAll();
+            paginator.setData(getData());
+            updateList();
+        };
+        Action onDelete = () -> {
+            deleteOperation(grid.getSelectedItems());
+            grid.deselectAll();
+            paginator.setData(getData());
+            updateList();
+        };
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.CHANGE_SELECT_ITEM)
+                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
+                .itemWithAction(SelectConstants.RESTORE_SELECT_ITEM, onRestore)
+                .itemWithAction(SelectConstants.DELETE_SELECT_ITEM, onDelete)
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 
     private void restoreOperation(Set<OperationsDto> set) {
@@ -556,11 +555,7 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
 

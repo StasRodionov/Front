@@ -7,6 +7,10 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductGroupDto;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
@@ -49,8 +53,6 @@ import java.util.Optional;
 @Route(value = "customersProducts", layout = AppView.class)
 @UIScope
 public class GoodsView extends VerticalLayout {
-
-    private static final String VALUE_SELECT_WIDTH = "120px";
 
     private final Grid<ProductDto> grid;
     private final ProductService productService;
@@ -300,22 +302,11 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedGoods();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedGoods();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return select;
     }
 
     private void deleteSelectedGoods() {
@@ -330,9 +321,7 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Select<String> valueSelectPrint() {
-        Select<String> valueSelect = new Select<>();
-        valueSelect.setWidth(VALUE_SELECT_WIDTH);
-        valueSelect.setPlaceholder("Печать");
+        Select<String> valueSelect = SelectConfigurer.configurePrintSelect();
         Anchor anchor = new Anchor(new StreamResource("goods.xls",
                 this::buildXlsTable), "Список товаров");
         valueSelect.add(anchor);
@@ -340,19 +329,19 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Select<String> valueSelectImport() {
-        Select<String> valueSelect = new Select<>();
-        valueSelect.setWidth(VALUE_SELECT_WIDTH);
-        valueSelect.setItems("Импорт");
-        valueSelect.setValue("Импорт");
-        return valueSelect;
+        return new SelectExt.SelectBuilder<String>()
+                .item("Импорт")
+                .defaultValue("Импорт")
+                .width(SelectConstants.SELECT_WIDTH_120PX)
+                .build();
     }
 
     private Select<String> valueSelectExport() {
-        Select<String> valueSelect = new Select<>();
-        valueSelect.setWidth(VALUE_SELECT_WIDTH);
-        valueSelect.setItems("Экспорт");
-        valueSelect.setValue("Экспорт");
-        return valueSelect;
+        return new SelectExt.SelectBuilder<String>()
+                .item("Экспорт")
+                .defaultValue("Экспорт")
+                .width(SelectConstants.SELECT_WIDTH_120PX)
+                .build();
     }
 
     private InputStream buildXlsTable() {

@@ -4,6 +4,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.retail.RetailPointsDto;
 import com.trade_accounting.services.interfaces.util.BonusProgramService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -153,11 +154,8 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        select.setItems("Изменить", "Удалить", "Копировать", "Массовое удаление");
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        return select;
+        return SelectConfigurer.configureBulkEditAndDeleteSelect();
+        //select.setItems("Изменить", "Удалить", "Копировать", "Массовое удаление");
     }
 
 

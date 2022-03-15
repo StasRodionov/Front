@@ -5,6 +5,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.RevenueDto;
 import com.trade_accounting.services.interfaces.warehouse.RevenueService;
 import com.vaadin.flow.component.UI;
@@ -162,11 +163,7 @@ public class RevenueView extends VerticalLayout {
 
 
     private Select<String> getPrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private List<RevenueDto> getData() {

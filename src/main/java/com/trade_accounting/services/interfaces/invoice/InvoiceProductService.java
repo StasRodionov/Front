@@ -20,4 +20,6 @@ public interface InvoiceProductService {
     void deleteById(Long id);
 
     List<InvoiceProductDto> search(Map<String, String> query);
+
+    List<InvoiceProductDto> getByProductId(Long id);
 }

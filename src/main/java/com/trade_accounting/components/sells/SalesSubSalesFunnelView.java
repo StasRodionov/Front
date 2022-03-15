@@ -3,15 +3,12 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.company.ContractorStatusDto;
 import com.trade_accounting.models.dto.finance.FunnelDto;
-import com.trade_accounting.models.dto.invoice.InvoiceDto;
-import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
-import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.models.dto.invoice.InvoicesStatusDto;
 import com.trade_accounting.services.interfaces.company.ContractorStatusService;
-import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
-import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.finance.FunnelService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -27,192 +24,116 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import org.springframework.context.annotation.Lazy;
 
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class SalesSubSalesFunnelView extends VerticalLayout {
-
-    private final Notifications notifications;
-    private final InvoiceProductService invoiceProductService;
-    private final InvoiceService invoiceService;
-    private final InvoicesStatusService invoicesStatusService;
-    private final ContractorService contractorService;
     private final ContractorStatusService contractorStatusService;
+    private final InvoicesStatusService invoicesStatusService;
+    private final FunnelService funnelService;
+
 
     List<FunnelDto> listOrdersDataView = new ArrayList<>();
     List<FunnelDto> listContractorsDataView = new ArrayList<>();
-    private final List<InvoiceDto> data;
+    private final List<FunnelDto> data;
     private final Grid<FunnelDto> grid = new Grid<>(FunnelDto.class, false);
-    //    private final GridPaginator<InvoiceDto> paginator;
+    private final GridPaginator<FunnelDto> paginator;
     private final GridFilter<FunnelDto> filter;
-    private final String typeOfInvoice = "RECEIPT";
 
-    public SalesSubSalesFunnelView(ContractorService contractorService, InvoiceService invoiceService,
-                                   InvoicesStatusService invoicesStatusService, InvoiceProductService invoiceProductService,
-                                   @Lazy Notifications notifications, ContractorStatusService contractorStatusService) {
-        this.contractorService = contractorService;
+    private final String statusName = "statusName";
+    private final String count = "count";
+    private final String status = "Статус";
+    private final String value = "Количество";
+    private final String time = "Время";
+    private final String conversion = "Конверсия";
+    private final String price = "price";
+    private final Tab orders = new Tab("По заказам");
+    private final Tab contractors = new Tab("По контрагентам");
+    private final Tabs tabs = new Tabs(orders, contractors);
 
-        this.invoiceService = invoiceService;
-        this.invoicesStatusService = invoicesStatusService;
-        this.notifications = notifications;
-        this.invoiceProductService = invoiceProductService;
-        this.data = invoiceService.getAll(typeOfInvoice);
+    private List<FunnelDto> getData() {
+        return funnelService.getAll();
+    }
+
+    public SalesSubSalesFunnelView(ContractorStatusService contractorStatusService, InvoicesStatusService invoicesStatusService, FunnelService funnelService) {
         this.contractorStatusService = contractorStatusService;
-//        paginator = new GridPaginator<>(grid, this.data, 50);
-        configureGrid();
+        this.invoicesStatusService = invoicesStatusService;
+        this.funnelService = funnelService;
+        this.data = getData();
         configureListDataView();
+        paginator = new GridPaginator<>(grid, data, 50);
+        configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
-        add(upperLayout(), filter, grid);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+        add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureFilter() {
+        filter.setFieldToComboBox(statusName, FunnelDto::getStatusName, funnelService.getAll());
+        filter.setFieldToIntegerField(count);
+        filter.setFieldToIntegerField("time");
+        filter.setFieldToIntegerField("conversion");
+        filter.setFieldToIntegerField(price);
+        filter.onSearchClick(e -> paginator
+                .setData(funnelService.searchByFilter(filter.getFilterData())));
+        filter.onClearClick(e -> updateList());
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setItems(listOrdersDataView);
-        grid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-        grid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-        grid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
-        grid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
-        grid.addColumn("price").setFlexGrow(11).setHeader("Сумма").setId("Сумма");
-
+        configListOrders();
     }
 
     private void configureListDataView() {
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(1L).getStatusName(), countByInvoiceStatusId(1L), getOrdersTime(1L), "", getPrice(1L)));
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(2L).getStatusName(), countByInvoiceStatusId(2L), getOrdersTime(2L), calcOrdersConversion(2L), getPrice(2L)));
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(3L).getStatusName(), countByInvoiceStatusId(3L), getOrdersTime(3L), calcOrdersConversion(3L), getPrice(3L)));
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(4L).getStatusName(), countByInvoiceStatusId(4L), getOrdersTime(4L), calcOrdersConversion(4L), getPrice(4L)));
-
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(1L).getName(), countByContractorStatusId(1L), ""));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(2L).getName(), countByContractorStatusId(1L), calcContractorsConversion(2L)));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(3L).getName(), countByContractorStatusId(1L), calcContractorsConversion(3L)));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(4L).getName(), countByContractorStatusId(1L), calcContractorsConversion(4L)));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(5L).getName(), countByContractorStatusId(1L), calcContractorsConversion(5L)));
-
+        listOrdersDataView.add(getData().get(0));
+        listOrdersDataView.add(getData().get(1));
+        listOrdersDataView.add(getData().get(2));
+        listOrdersDataView.add(getData().get(3));
+        listContractorsDataView.add(getData().get(4));
+        listContractorsDataView.add(getData().get(5));
+        listContractorsDataView.add(getData().get(6));
+        listContractorsDataView.add(getData().get(7));
+        listContractorsDataView.add(getData().get(8));
     }
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(),configurationSubMenu(), buttonFilter(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), buttonSettings());
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
     }
 
     private Tabs configurationSubMenu() {
-        Tab orders = new Tab("По заказам");
-        Tab contractors = new Tab("По контрагентам");
-        Tabs tabs = new Tabs(orders, contractors);
-
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
             if ("По заказам".equals(tabName)) {
-                grid.removeAllColumns();
-                grid.setItems(listOrdersDataView);
-                grid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-                grid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-                grid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
-                grid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
-                grid.addColumn("price").setFlexGrow(11).setHeader("Сумма").setId("Сумма");
+                configListOrders();
             } else if ("По контрагентам".equals(tabName)) {
-                grid.removeAllColumns();
-                grid.setItems(listContractorsDataView);
-                grid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-                grid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-//                grid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
-                grid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
+                configListContractors();
             }
         });
         return tabs;
     }
 
-    public Long countByInvoiceStatusId(Long statusId) {
-        Long i = 0L;
-        for (InvoiceDto dto : invoiceService.getAll(typeOfInvoice)) {
-            if (Objects.equals(dto.getInvoicesStatusId(), statusId)) {
-                i++;
-            }
-        }
-        return i;
+    private void configListOrders() {
+        grid.removeAllColumns();
+        grid.setItems(listOrdersDataView);
+        grid.addColumn(statusName).setFlexGrow(11).setHeader(status).setId(status);
+        grid.addColumn(count).setFlexGrow(11).setHeader(value).setId(value);
+        grid.addColumn("time").setFlexGrow(11).setHeader(time).setId(time);
+        grid.addColumn("conversion").setFlexGrow(11).setHeader(conversion).setId(conversion);
+        grid.addColumn(price).setFlexGrow(11).setHeader("Сумма").setId("Сумма");
     }
 
-    public Long countByContractorStatusId(Long statusId) {
-        Long i = 0L;
-        for (ContractorDto dto : contractorService.getAll()) {
-            if (Objects.equals(dto.getContractorStatusId(), statusId)) {
-                i++;
-            }
-        }
-        return i;
+    private void configListContractors() {
+        grid.removeAllColumns();
+        grid.setItems(listContractorsDataView);
+        grid.addColumn(statusName).setFlexGrow(11).setHeader(status).setId(status);
+        grid.addColumn(count).setFlexGrow(11).setHeader(value).setId(value);
+        grid.addColumn("conversion").setFlexGrow(11).setHeader(conversion).setId(conversion);
     }
-
-    public String calcOrdersConversion(Long statusId) {
-        double res = 0;
-        if (statusId == 1L) {
-            return "";
-        } else if (statusId > 1L && countByInvoiceStatusId(statusId) > 0) {
-            res = ((double) countByInvoiceStatusId(statusId) / (double) countByInvoiceStatusId(statusId - 1) * 100);
-        }
-        return String.format("%s%%", res);
-    }
-
-    public String calcContractorsConversion(Long statusId) {
-        double res = 0;
-        if (statusId == 1L) {
-            return "";
-        } else if (statusId > 1L && countByContractorStatusId(statusId) > 0) {
-            res = ((double) countByContractorStatusId(statusId) / (double) countByContractorStatusId(statusId - 1) * 100);
-        }
-        return String.format("%s%%", res);
-    }
-
-    private String getPrice(Long statusId) {
-        List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getAll();
-        List<InvoiceDto> invoiceDtoList = invoiceService.getAll(typeOfInvoice);
-        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for (InvoiceDto invoiceDto : invoiceDtoList) {
-            for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
-                if (Objects.equals(invoiceProductDto.getInvoiceId(), invoiceDto.getId()) &&
-                        Objects.equals(invoiceDto.getInvoicesStatusId(), statusId))
-                    totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-                            .multiply(invoiceProductDto.getAmount()));
-            }
-        }
-        return String.format("%.2f", totalPrice);
-    }
-
-    private String getOrdersTime(Long id) {
-        List<InvoiceDto> list = invoiceService.getAll(typeOfInvoice);
-        Long alltime = 0L;
-        for (InvoiceDto invoiceDto : list) {
-            if (Objects.equals(invoiceDto.getInvoicesStatusId(), id)) {
-                LocalDateTime startTime = LocalDateTime.parse(invoiceService.getById(invoiceDto.getId()).getDate());
-                LocalDateTime endTime = LocalDateTime.now();
-                Long invoiceDuration = Duration.between(startTime, endTime).toMillis();
-                alltime += invoiceDuration;
-                alltime /= countByInvoiceStatusId(id);
-            }
-        }
-        return String.format("%02dд %02dч %02dм %02dс",
-                TimeUnit.MILLISECONDS.toDays(alltime),
-                TimeUnit.MILLISECONDS.toHours(alltime) -
-                        TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(alltime)),
-                TimeUnit.MILLISECONDS.toMinutes(alltime) -
-                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(alltime)),
-                TimeUnit.MILLISECONDS.toSeconds(alltime) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(alltime)));
-    }
-
 
     private Button buttonQuestion() {
         return Buttons.buttonQuestion(
@@ -228,6 +149,7 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
@@ -248,4 +170,24 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
         title.setWidth("80px");
         return title;
     }
+
+    private void updateList() {
+        if (orders.isSelected()) {
+            configListOrders();
+        } else if (contractors.isSelected()) {
+            configListContractors();
+        }
+    }
+
+    private void configOrderGrid() {
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.removeAllColumns();
+        grid.setItems(listOrdersDataView);
+        grid.addColumn(statusName).setFlexGrow(11).setHeader(status).setId(status);
+        grid.addColumn(count).setFlexGrow(11).setHeader(value).setId(value);
+        grid.addColumn("time").setFlexGrow(11).setHeader(time).setId(time);
+        grid.addColumn(conversion).setFlexGrow(11).setHeader(conversion).setId(conversion);
+        grid.addColumn(price).setFlexGrow(11).setHeader("Сумма").setId("Сумма");
+    }
+
 }
