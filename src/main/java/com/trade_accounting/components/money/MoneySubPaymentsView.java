@@ -159,7 +159,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 .setKey("projectDto").setHeader("Проект").setId("Проект");
         grid.setHeight("73vh");
         grid.setClassNameGenerator(paymentDto -> {
-            if(paymentDto.getIsConducted() == false) {
+            if(paymentDto.getConducted() == false) {
                 return "not-conducted";
             }
             return "";
@@ -349,7 +349,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private void conductPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (PaymentDto paymentDto: grid.getSelectedItems()) {
-                paymentService.getById(paymentDto.getId()).setIsConducted(true);
+                paymentService.getById(paymentDto.getId()).setConducted(true);
                 notifications.infoNotification("Выбранные платежи успешно проведены");
             }
         } else {
@@ -360,7 +360,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private void removeConductPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (PaymentDto paymentDto: grid.getSelectedItems()) {
-                paymentService.getById(paymentDto.getId()).setIsConducted(false);
+                paymentService.getById(paymentDto.getId()).setConducted(false);
                 notifications.infoNotification("Выбранные платежи успешно проведены");
             }
         } else {
@@ -388,7 +388,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         BigDecimal credit = BigDecimal.ZERO;
         BigDecimal expense = BigDecimal.ZERO;
         for (PaymentDto paymentDto: data) {
-            if (paymentDto.getIsConducted()) {
+            if (paymentDto.getConducted()) {
                 if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
                     credit = credit.add(paymentDto.getSum());
                 } else {

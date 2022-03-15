@@ -140,7 +140,7 @@ public class CreditOrderModal extends Dialog {
         payment.setSum(sum.getValue());
         payment.setTypeOfPayment("INCOMING");
         payment.setTypeOfDocument("Приходный ордер");
-        payment.setIsConducted(isConducted.getValue());
+        payment.setConducted(isConducted.getValue());
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
             payment.setId(this.paymentDto.getId());
         }
@@ -222,6 +222,6 @@ public class CreditOrderModal extends Dialog {
         sum.setValue(paymentDto.getSum());
         expenseItem.setValue(paymentDto.getExpenseItem());
         dateField.setValue(LocalDateTime.now());
-        isConducted.setValue(paymentDto.getIsConducted());
+        isConducted.setValue(paymentDto.getConducted());
     }
 }

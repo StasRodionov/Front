@@ -140,7 +140,7 @@ public class ExpenseOrderModal extends Dialog {
         payment.setSum(sum.getValue());
         payment.setTypeOfPayment("OUTGOING");
         payment.setTypeOfDocument("Расходный ордер");
-        payment.setIsConducted(isConducted.getValue());
+        payment.setConducted(isConducted.getValue());
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
             payment.setId(this.paymentDto.getId());
         }
@@ -221,6 +221,6 @@ public class ExpenseOrderModal extends Dialog {
         sum.setValue(paymentDto.getSum());
         expenseItem.setValue(paymentDto.getExpenseItem());
         dateField.setValue(LocalDateTime.now());
-        isConducted.setValue(paymentDto.getIsConducted());
+        isConducted.setValue(paymentDto.getConducted());
     }
 }
