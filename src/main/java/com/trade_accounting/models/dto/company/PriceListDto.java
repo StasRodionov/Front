@@ -19,10 +19,10 @@ public class PriceListDto {
     @NotNull
     private String number;
 
-    private LocalDateTime time;
+    private String time;
 
     @NotNull
-    private Long companyDtoId;
+    private Long companyId;
 
     private Boolean sent;
 
