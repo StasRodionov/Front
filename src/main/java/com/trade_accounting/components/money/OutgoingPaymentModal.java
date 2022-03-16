@@ -55,7 +55,7 @@ public class OutgoingPaymentModal extends Dialog {
     private final TextField payNumber = new TextField();
     private final ComboBox<String> expenseItem = new ComboBox<>();
     private final BigDecimalField sum = new BigDecimalField();
-    private final Checkbox isConducted = new Checkbox();
+    private final Checkbox сonducted = new Checkbox();
     private transient PaymentDto paymentDto;
 
     public OutgoingPaymentModal(
@@ -104,7 +104,7 @@ public class OutgoingPaymentModal extends Dialog {
         add(getHorizontalLayout("Договор", contractDtoComboBox));
         add(getHorizontalLayout("Проект", projectDtoComboBox));
         add(getHorizontalLayout("Сумма", sum));
-        add(getHorizontalLayout("Проведен", isConducted));
+        add(getHorizontalLayout("Проведен", сonducted));
         add(getFooter());
     }
 
@@ -140,7 +140,7 @@ public class OutgoingPaymentModal extends Dialog {
         payment.setSum(sum.getValue());
         payment.setTypeOfPayment("OUTGOING");
         payment.setTypeOfDocument("Исходящий платеж");
-        payment.setIsConducted(isConducted.getValue());
+        payment.setConducted(сonducted.getValue());
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
             payment.setId(this.paymentDto.getId());
         }
@@ -221,6 +221,6 @@ public class OutgoingPaymentModal extends Dialog {
         sum.setValue(paymentDto.getSum());
         expenseItem.setValue(paymentDto.getExpenseItem());
         dateField.setValue(LocalDateTime.now());
-        isConducted.setValue(paymentDto.getIsConducted());
+        сonducted.setValue(paymentDto.getConducted());
     }
 }
