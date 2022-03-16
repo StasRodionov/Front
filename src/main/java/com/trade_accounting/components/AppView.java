@@ -65,7 +65,10 @@ public class AppView extends AppLayout {
         profileMenuItem.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
         SubMenu projectSubMenu = profileMenuItem.getSubMenu();
 
-        MenuItem settings = projectSubMenu.addItem("Настройки пользователя");
+        MenuItem userSettings = projectSubMenu.addItem("Настройки пользователя");
+        userSettings.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile/user_settings")));
+
+        MenuItem settings = projectSubMenu.addItem("Настройки");
         settings.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile/settings")));
 
         MenuItem logout = projectSubMenu.addItem("Выход");

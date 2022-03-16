@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-@Route(value = "profile/settings", layout = AppView.class)
+@Route(value = "profile/user_settings", layout = AppView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class ProfileSettingsView extends VerticalLayout {
