@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 public abstract class PrintExcelDocument<T> {
 
-    private final List<T> list;
+    protected final List<T> list;
     private final String pathToXlsTemplate;
 
     protected PrintExcelDocument(String pathToXlsTemplate, List<T> list) {
