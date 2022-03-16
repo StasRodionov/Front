@@ -198,4 +198,6 @@ supplier_account_products_list_url: /api/supplier-account-products-list
 audit_url: /api/audit
 
 funnel_url: /api/funnel
+
+serial_numbers_url: /api/serialnumbers
 #debug: true
