@@ -30,13 +30,14 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
     private final RevenueView revenueView;
     private final LossView lossView;
     private final GoodsPriceLayout priceLayoutView;
+    private final SerialNumbersView serialNumbersView;
 
     private final Div div = new Div();
 
     public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
                             GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder,
                             MovementView movementView, RemainView remainView, LossView lossView,
-                            GoodsPriceLayout priceLayoutView, RevenueView revenueView) {
+                            GoodsPriceLayout priceLayoutView, RevenueView revenueView, SerialNumbersView serialNumbersView) {
         this.goodsView = goodsView;
         this.revenueView = revenueView;
         this.postingTabView = postingTabView;
@@ -46,6 +47,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
         this.remainView = remainView;
         this.priceLayoutView = priceLayoutView;
         this.lossView = lossView;
+        this.serialNumbersView = serialNumbersView;
 
 
         add(configurationSubMenu(), div);
@@ -138,6 +140,15 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                     div.add(priceLayoutView);
                 }));
 
+        HorizontalLayout serialNumbersTab = new HorizontalLayout(new Label("Сер.номера"));
+
+        serialNumbersTab.addClickListener(event ->
+                serialNumbersTab.getUI().ifPresent(ui -> {
+                    div.removeAll();
+                    serialNumbersView.updateList();
+                    div.add(serialNumbersView);
+                }));
+
         return new Tabs(
                 new Tab(goodsLayout),
                 new Tab(postingTab),
@@ -147,7 +158,8 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
                 new Tab(movementTab),
                 new Tab(priceLayoutTab),
                 new Tab(remainTab),
-                new Tab(revenueTab)
+                new Tab(revenueTab),
+                new Tab(serialNumbersTab)
         );
 
     }
