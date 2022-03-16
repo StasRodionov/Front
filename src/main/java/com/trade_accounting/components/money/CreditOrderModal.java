@@ -55,7 +55,7 @@ public class CreditOrderModal extends Dialog {
     private final TextField payNumber = new TextField();
     private final ComboBox<String> expenseItem = new ComboBox<>();
     private final BigDecimalField sum = new BigDecimalField();
-    private final Checkbox isConducted = new Checkbox();
+    private final Checkbox сonducted = new Checkbox();
     private transient PaymentDto paymentDto;
 
     public CreditOrderModal(
@@ -104,7 +104,7 @@ public class CreditOrderModal extends Dialog {
         add(getHorizontalLayout("Договор", contractDtoComboBox));
         add(getHorizontalLayout("Проект", projectDtoComboBox));
         add(getHorizontalLayout("Сумма", sum));
-        add(getHorizontalLayout("Проведен", isConducted));
+        add(getHorizontalLayout("Проведен", сonducted));
         add(getFooter());
     }
 
@@ -140,7 +140,7 @@ public class CreditOrderModal extends Dialog {
         payment.setSum(sum.getValue());
         payment.setTypeOfPayment("INCOMING");
         payment.setTypeOfDocument("Приходный ордер");
-        payment.setIsConducted(isConducted.getValue());
+        payment.setConducted(сonducted.getValue());
         if (this.paymentDto != null && this.paymentDto.getId() != null) {
             payment.setId(this.paymentDto.getId());
         }
@@ -162,7 +162,7 @@ public class CreditOrderModal extends Dialog {
         payNumber.clear();
         paymentMethods.clear();
         sum.clear();
-        isConducted.setValue(false);
+        сonducted.setValue(false);
     }
 
     private Button getSaveButton() {
@@ -222,6 +222,6 @@ public class CreditOrderModal extends Dialog {
         sum.setValue(paymentDto.getSum());
         expenseItem.setValue(paymentDto.getExpenseItem());
         dateField.setValue(LocalDateTime.now());
-        isConducted.setValue(paymentDto.getIsConducted());
+        сonducted.setValue(paymentDto.getConducted());
     }
 }
