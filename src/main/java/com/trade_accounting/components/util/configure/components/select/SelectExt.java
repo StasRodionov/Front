@@ -8,6 +8,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+
+/**
+ * Для создания объекта select через builder
+ * @Example:
+ *          new SelectExt.SelectBuilder<String>().itemWithAction("Удалить", ()->{
+ *                  *действия при нажатии кнопки*
+ *                  }).build();
+ * @param <T>
+ */
 public class SelectExt<T> extends Select<T> {
 
     Map<T, Action> itemsWithActions;
@@ -51,16 +60,31 @@ public class SelectExt<T> extends Select<T> {
             items = new HashSet<>();
         }
 
+        /**
+         * Добавление элемента без действия
+         * @param item - элемент
+         * @return
+         */
         public SelectBuilder<T> item(T item) {
             items.add(item);
             return this;
         }
 
+        /**
+         * Дефолтное значение select
+         * @param value
+         * @return
+         */
         public SelectBuilder<T> defaultValue(T value){
             this.defaultValue = value;
             return this;
         }
-
+        /**
+         * Добавление элемента с действием
+         * @param item - элемент
+         * @param execute - действие (через функциональный интерфейс Action)
+         * @return
+         */
         public SelectBuilder<T> itemWithAction(T item, Action execute) {
             itemsWithActions.put(item, execute);
             return this;

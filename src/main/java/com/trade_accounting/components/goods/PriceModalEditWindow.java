@@ -30,9 +30,9 @@ import java.util.Comparator;
 import java.util.List;
 
 @UIScope
-@Route(value = "goods/priceList-create", layout = AppView.class)
+@Route(value = "goods/priceList-edit", layout = AppView.class)
 @SpringComponent
-public class PriceModalWindow extends Dialog {
+public class PriceModalEditWindow extends Dialog {
 
     private final String fieldWidth = "400px";
     private final String labelWidth = "200px";
@@ -54,8 +54,8 @@ public class PriceModalWindow extends Dialog {
     private List<Long> listNumber = new ArrayList<>();
 
     private String parentLocation = "goods_price_layout";
-    public PriceModalWindow(PriceListService priceListService,
-                            CompanyService companyService) {
+    public PriceModalEditWindow(PriceListService priceListService,
+                                CompanyService companyService) {
         this.companyService = companyService;
         this.priceListService = priceListService;
         add(header());
@@ -64,19 +64,21 @@ public class PriceModalWindow extends Dialog {
         setCloseOnEsc(true);
 
     }
-    public void setPostingEdit(PriceListDto createDto) {
-        this.priceListDto = createDto;
-        dateTimePicker.setValue(LocalDateTime.parse(createDto.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-        companyComboBox.setValue(companyService.getById(createDto.getCompanyId()));
-        checkboxIsSent.setValue(createDto.getSent());
-        checkboxIsPrint.setValue(createDto.getPrinted());
-        comment.setValue(createDto.getCommentary());
+    public void setPriceListEdit(PriceListDto editDto) {
+        this.priceListDto = editDto;
+
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
+        checkboxIsSent.setValue(editDto.getSent());
+        checkboxIsPrint.setValue(editDto.getPrinted());
+        comment.setValue(editDto.getCommentary());
     }
 
 
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
-        H2 title = new H2("Прайс-лист");
+        //System.out.println(priceListDto.getNumber());
+        H2 title = new H2("Изменение прайс-листа");
         header.add(getSaveButton(), getCloseButton(), title);
         return header;
     }
@@ -96,16 +98,15 @@ public class PriceModalWindow extends Dialog {
     }
 
     private Button getSaveButton() {
-        Button saveButton = new Button("Сохранить", event -> {
-                PriceListDto priceListDto = new PriceListDto();
+        Button saveButton = new Button("Изменить", event -> {
                 priceListDto.setCompanyId(companyComboBox.getValue().getId());
                 priceListDto.setTime(String.valueOf(dateTimePicker.getValue()));
-                priceListDto.setNumber(AddNumber());
                 priceListDto.setSent(checkboxIsSent.getValue());
                 priceListDto.setPrinted(checkboxIsPrint.getValue());
                 priceListDto.setCommentary(comment.getValue());
+                priceListDto.setNumber("123");
                 if (priceListDtoBinder.validate().isOk()) {
-                    priceListService.create(priceListDto);
+                    priceListService.update(priceListDto);
                     clearAll();
                     close();
                     UI.getCurrent().navigate(parentLocation);
@@ -115,6 +116,7 @@ public class PriceModalWindow extends Dialog {
                 }
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
         return saveButton;
     }
 
@@ -163,13 +165,13 @@ public class PriceModalWindow extends Dialog {
 
     private HorizontalLayout companyConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        java.util.List<CompanyDto> list = companyService.getAll();
+        List<CompanyDto> list = companyService.getAll();
         if (list != null) {
             companyComboBox.setItems(list);
         }
         companyComboBox.setItemLabelGenerator(CompanyDto::getName);
         companyComboBox.setWidth(fieldWidth);
-        com.vaadin.flow.component.html.Label label = new com.vaadin.flow.component.html.Label("Организация");
+        Label label = new Label("Организация");
         companyComboBox.setWidth(fieldWidth);
         label.setWidth(labelWidth);
         horizontalLayout.add(label, companyComboBox);
@@ -182,7 +184,7 @@ public class PriceModalWindow extends Dialog {
         this.parentLocation = parentLocation;
     }
 
-    public void clearAll() {
+    void clearAll() {
         companyComboBox.clear();
         dateTimePicker.clear();
         checkboxIsSent.clear();
