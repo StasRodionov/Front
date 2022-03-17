@@ -5,6 +5,9 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
@@ -44,11 +47,13 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -60,7 +65,6 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private final ProductService productService;
     ProjectService projectService;
-    Notifications notifications;
     UnitService unitService;
 
     private final TextField textField = new TextField();
@@ -76,7 +80,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     private Grid<ShipmentDto> grid;
     private GridPaginator<ShipmentDto> paginator;
     private final GridFilter<ShipmentDto> filter;
-
+    private final Notifications notifications;
     private final String typeOfInvoice = "RECEIPT";
 
     @Autowired
@@ -87,7 +91,8 @@ public class SalesSubShipmentView extends VerticalLayout {
                                 SalesEditShipmentView salesEditShipmentView,
                                 ShipmentService shipmentService,
                                 ShipmentProductService shipmentProductService,
-                                ProductService productService) {
+                                ProductService productService,
+                                @Lazy Notifications notifications) {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
@@ -96,6 +101,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
         this.productService = productService;
+        this.notifications = notifications;
         this.data = getData();
 
         configureActions();
@@ -158,17 +164,19 @@ public class SalesSubShipmentView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
     }
+
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("contractorId", ContractorDto::getName, contractorService.getAll());
-        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName,warehouseService.getAll());
+        filter.setFieldToComboBox("warehouseId", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToIntegerField("id");
         filter.onSearchClick(e -> paginator
                 .setData(invoiceService.searchByFilter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(invoiceService.getAll(typeOfInvoice)));
     }
+
     private Component getIsCheckedIcon(InvoiceDto invoiceDto) {
         if (invoiceDto.getIsSpend()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
@@ -243,35 +251,38 @@ public class SalesSubShipmentView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        select.setItems("Изменить");
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        return select;
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedCorrections();
+            grid.deselectAll();
+            paginator.setData(getData());
+        });
+    }
+
+    private void deleteSelectedCorrections() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ShipmentDto shipmentDto : grid.getSelectedItems()) {
+                shipmentService.deleteById(shipmentDto.getId());
+                notifications.infoNotification("Выбранные счета-фактуры успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные счета-фактуры");
+        }
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valueCreate() {
-        Select<String> create = new Select<>();
-        create.setItems("Создать");
-        create.setValue("Создать");
-        create.setWidth("130px");
-        return create;
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.CREATE_SELECT_ITEM)
+                .defaultValue(SelectConstants.CREATE_SELECT_ITEM)
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private String getTotalPrice(ShipmentDto shipmentDto) {
@@ -292,7 +303,7 @@ public class SalesSubShipmentView extends VerticalLayout {
         }
     }
 
-    private void updateList(){
+    private void updateList() {
         grid.setItems(shipmentService.getAll());
     }
 

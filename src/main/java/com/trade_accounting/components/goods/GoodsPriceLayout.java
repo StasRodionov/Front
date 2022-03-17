@@ -2,6 +2,9 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
@@ -23,6 +26,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -30,27 +35,41 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Route(value = "goods_price_layout", layout = AppView.class)
 @PageTitle("Прайс-лист")
 @SpringComponent
 @UIScope
-public class GoodsPriceLayout extends VerticalLayout {
+public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationObserver {
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final PriceListService priceListService;
     private final CompanyService companyService;
     private final PriceModalWindow modalWindow;
-    PriceListService priceListService;
+    private final PriceModalEditWindow modalEditWindowWindow;
+    private final List<PriceListDto> data;
     private final Grid<PriceListDto> grid = new Grid<>(PriceListDto.class, false);
+    private final GridPaginator<PriceListDto> paginator;
+    private final Notifications notifications;
 
     @Autowired
-    public GoodsPriceLayout( CompanyService companyService, PriceModalWindow modalWindow) {
+    public GoodsPriceLayout(PriceListService priceListService, CompanyService companyService,
+                            PriceModalWindow modalWindow, PriceModalEditWindow modalEditWindowWindow, Notifications notifications) {
+        this.priceListService = priceListService;
         this.companyService = companyService;
         this.modalWindow = modalWindow;
-        add(configureActions(),grid);
-        configureGrid();
+        this.modalEditWindowWindow = modalEditWindowWindow;
+        this.notifications = notifications;
+        this.data = getData();
+        paginator = new GridPaginator<>(grid, data, 50);
+        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         setSizeFull();
+        configureGrid();
+        add(configureActions(), grid, paginator);
     }
 
     private HorizontalLayout configureActions() {
@@ -58,14 +77,16 @@ public class GoodsPriceLayout extends VerticalLayout {
         horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(),
                 buttonFilter(), text(), numberField(), valueSelect(), valueStatus(),
                 valuePrint(), buttonSettings(), selectXlsTemplateButton);
-        horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);return horizontalLayout;
+        horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        return horizontalLayout;
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(PriceListDto::getTime).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
-        grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyDtoId())
+//        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(PriceListDto::getNumber).setKey("number").setHeader("№").setSortable(true).setId("№");
+        grid.addColumn(PriceListDto::getTime).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
+        grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Организация").setId("Организация");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
@@ -74,11 +95,11 @@ public class GoodsPriceLayout extends VerticalLayout {
         grid.addColumn("commentary").setHeader("Комментарий").setId("Комментарий");
         grid.addItemDoubleClickListener(event -> {
             PriceListDto priceListDto = event.getItem();
-            PriceModalWindow view = new PriceModalWindow(
+            PriceModalEditWindow view = new PriceModalEditWindow(
                     priceListService,
                     companyService
             );
-            view.setPostingEdit(priceListDto);
+            view.setPriceListEdit(priceListDto);
             view.open();
         });
         grid.setHeight("66vh");
@@ -87,8 +108,15 @@ public class GoodsPriceLayout extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
+    private List<PriceListDto> getData() {
+        return priceListService.getAll();
+    }
+
     private Button buttonQuestion() {
-        return Buttons.buttonQuestion("Добавьте описание");
+        return Buttons.buttonQuestion("Прайс-листы позволяют быстро назначать цены в документах: заказах," +
+                " счетах и расходных накладных.\n" +
+                "Прайс-лист может быть заполнен вручную, по одному товару или автоматически — из номенклатуры " +
+                "или из остатков. Можно создать несколько независимых прайс-листов.");
     }
 
     private Button buttonRefresh() {
@@ -98,19 +126,22 @@ public class GoodsPriceLayout extends VerticalLayout {
         return buttonRefresh;
     }
 
-    public void updateList() {}
+    public void updateList() {
+        grid.setItems(priceListService.getAll());
+    }
 
     private Button buttonUnit() {
-
         Button button = new Button("Прайс-лист", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(e -> modalWindow.open());
-        updateList();
+        modalWindow.clearAll();
+        modalWindow.setParentLocation("goods_price_layout");
+        button.getUI().ifPresent(ui -> ui.navigate("goods/priceList-create"));
         return button;
     }
 
     private Button buttonFilter() {
-                return new Button("Фильтр");
-            }
+        return new Button("Фильтр");
+    }
 
     private TextField text() {
         textField.setWidth("300px");
@@ -130,31 +161,34 @@ public class GoodsPriceLayout extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        select.setItems("Изменить", "Удалить");
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        return select;
+        return SelectConfigurer.configureDeleteSelect(()->{
+            deleteSelectedPriceList();
+            grid.deselectAll();
+            paginator.setData(getData());
+        });
+    }
+
+    private void deleteSelectedPriceList() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (PriceListDto priceListDto : grid.getSelectedItems()) {
+                priceListService.deleteById(priceListDto.getId());
+                notifications.infoNotification("Выбранные прайс-листы успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные прайс-листы");
+        }
     }
 
     private Button buttonSettings() {
-                return new Button(new Icon(VaadinIcon.COG_O));
-            }
+        return new Button(new Icon(VaadinIcon.COG_O));
+    }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private H2 getTextOrder() {
@@ -181,5 +215,10 @@ public class GoodsPriceLayout extends VerticalLayout {
         } else {
             return new Span("");
         }
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }

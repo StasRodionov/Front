@@ -6,6 +6,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceReceivedDto;
@@ -215,32 +217,33 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> stringList = new ArrayList<>();
-        stringList.add("Изменить");
-        stringList.add("Удалить");
-        select.setItems(stringList);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        return select;
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedCorrections();
+            grid.deselectAll();
+            paginator.setData(getData());
+        });
+    }
+
+    private void deleteSelectedCorrections() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (InvoiceReceivedDto invoiceReceivedDto : grid.getSelectedItems()) {
+                invoiceReceivedService.deleteById(invoiceReceivedDto.getId());
+                notifications.infoNotification("Выбранные счета-фактуры успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные счета-фактуры");
+        }
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("130px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать","Добавить");
-        print.setValue("Печать");
+        Select<String> print = SelectConfigurer.configurePrintSelect();
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
 //        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
-        print.setWidth("130px");
         return print;
     }
 

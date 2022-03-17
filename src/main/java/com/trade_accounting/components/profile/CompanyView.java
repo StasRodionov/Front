@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.AddressDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.LegalDetailDto;
@@ -42,7 +44,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -250,32 +251,11 @@ public class CompanyView extends VerticalLayout {
     }
 
     private Select<String> getSelect() {
-//        final Select<String> selector = new Select<>();
-//        selector.setItems("Изменить");
-//        selector.setValue("Изменить");
-//        selector.setWidth("130px");
-//        return selector;
-        Select<String> valueSelect = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("");
-        listItems.add("Удалить");
-        listItems.add("Изменить");
-        valueSelect.setItems(listItems);
-        valueSelect.setPlaceholder("");
-        valueSelect.setWidth("130px");
-        valueSelect.addValueChangeListener(event -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedCompanies();
-                grid.deselectAll();
-                valueSelect.setValue("");
-                paginator.setData(getData());
-            }
-            if (valueSelect.getValue().equals("Изменить")) {
-                notifications.infoNotification("Выбранная компания успешно изменена");
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedCompanies();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-
-        return valueSelect;
     }
 
     private void deleteSelectedCompanies() {

@@ -1,218 +1,187 @@
 package com.trade_accounting.components.sells;
 
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
-import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.models.dto.company.ContractorStatusDto;
 import com.trade_accounting.models.dto.finance.FunnelDto;
-import com.trade_accounting.models.dto.invoice.InvoiceDto;
-import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
-import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.models.dto.invoice.InvoicesStatusDto;
 import com.trade_accounting.services.interfaces.company.ContractorStatusService;
-import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
-import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.finance.FunnelService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import org.springframework.context.annotation.Lazy;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.StreamResource;
+import lombok.extern.slf4j.Slf4j;
 
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+@Slf4j
+@Route(value = "salesSubSalesFunnelView", layout = AppView.class)
+@PageTitle("Воронка Продаж")
 public class SalesSubSalesFunnelView extends VerticalLayout {
-
-    private final Notifications notifications;
-    private final InvoiceProductService invoiceProductService;
-    private final InvoiceService invoiceService;
-    private final InvoicesStatusService invoicesStatusService;
-    private final ContractorService contractorService;
     private final ContractorStatusService contractorStatusService;
+    private final InvoicesStatusService invoicesStatusService;
+    private final FunnelService funnelService;
 
-    List<FunnelDto> listOrdersDataView = new ArrayList<>();
-    List<FunnelDto> listContractorsDataView = new ArrayList<>();
-    private final List<InvoiceDto> data;
-    private final Grid<FunnelDto> grid = new Grid<>(FunnelDto.class, false);
-    //    private final GridPaginator<InvoiceDto> paginator;
-    private final GridFilter<FunnelDto> filter;
-    private final String typeOfInvoice = "RECEIPT";
+    private final List<FunnelDto> invoiceData;
+    private final List<FunnelDto> contractorData;
+    private final Grid<FunnelDto> invoiceGrid = new Grid<>(FunnelDto.class, false);
+    private final Grid<FunnelDto> contractorGrid = new Grid<>(FunnelDto.class, false);
+    private final GridPaginator<FunnelDto> invoicePaginator;
+    private final GridPaginator<FunnelDto> contractorPaginator;
+    private final GridFilter<FunnelDto> invoiceFilter;
+    private final GridFilter<FunnelDto> contractorFilter;
+    private final List<String> contractorStatuses;
+    private final List<String> invoiceStatuses;
+    private final Tab invoices = new Tab("По заказам");
+    private final Tab contractors = new Tab("По контрагентам");
+    private final Tabs tabs = new Tabs(invoices, contractors);
+    private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final MenuItem print;
+    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/sales_templates/funnel/";
 
-    public SalesSubSalesFunnelView(ContractorService contractorService, InvoiceService invoiceService,
-                                   InvoicesStatusService invoicesStatusService, InvoiceProductService invoiceProductService,
-                                   @Lazy Notifications notifications, ContractorStatusService contractorStatusService) {
-        this.contractorService = contractorService;
 
-        this.invoiceService = invoiceService;
-        this.invoicesStatusService = invoicesStatusService;
-        this.notifications = notifications;
-        this.invoiceProductService = invoiceProductService;
-        this.data = invoiceService.getAll(typeOfInvoice);
+
+    public SalesSubSalesFunnelView(ContractorStatusService contractorStatusService, InvoicesStatusService invoicesStatusService, FunnelService funnelService) {
         this.contractorStatusService = contractorStatusService;
-//        paginator = new GridPaginator<>(grid, this.data, 50);
-        configureGrid();
-        configureListDataView();
-        this.filter = new GridFilter<>(grid);
-        configureFilter();
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
-        add(upperLayout(), filter, grid);
+        this.invoicesStatusService = invoicesStatusService;
+        this.funnelService = funnelService;
+        this.contractorStatuses = contractorStatusService.getAll().stream().map(ContractorStatusDto::getName).collect(Collectors.toList());
+        this.invoiceStatuses = invoicesStatusService.getAll().stream().map(InvoicesStatusDto::getStatusName).collect(Collectors.toList());
+        this.invoiceData = funnelService.getAllByType("invoice");
+        this.contractorData = funnelService.getAllByType("contractor");
+        print = selectXlsTemplateButton.addItem("Печать");
+        invoicePaginator = new GridPaginator<>(invoiceGrid, invoiceData, 50);
+        contractorPaginator = new GridPaginator<>(contractorGrid, contractorData, 50);
+        configureInvoiceGrid();
+        configureContractorGrid();
+        this.invoiceFilter = new GridFilter<>(invoiceGrid);
+        this.contractorFilter = new GridFilter<>(contractorGrid);
+        configureInvoiceFilter();
+        configureConractorFilter();
+        setHorizontalComponentAlignment(Alignment.CENTER, invoicePaginator);
+        add(upperLayout(), invoiceFilter, invoiceGrid, invoicePaginator);
+        configureSelectXlsTemplateButton();
     }
 
-    private void configureFilter() {
+    private void configureInvoiceFilter() {
+
+        invoiceFilter.setFieldToComboBox("statusName", FunnelDto::getStatusName, funnelService.getAllByType("invoice"));
+        invoiceFilter.setFieldToIntegerField("count");
+        invoiceFilter.setFieldToIntegerField("conversion");
+        invoiceFilter.setFieldToIntegerField("price");
+        invoiceFilter.onSearchClick(e -> invoicePaginator.setData(funnelService.searchByFilter(invoiceFilter.getFilterData())
+                .stream().filter(this::isInvoiceFunnelDto).sorted().collect(Collectors.toList())));
+        invoiceFilter.onClearClick(e -> updateList());
     }
 
-    private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setItems(listOrdersDataView);
-        grid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-        grid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-        grid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
-        grid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
-        grid.addColumn("price").setFlexGrow(11).setHeader("Сумма").setId("Сумма");
+    private void configureConractorFilter() {
 
+        contractorFilter.setFieldToComboBox("statusName", FunnelDto::getStatusName, funnelService.getAllByType("contractor"));
+        contractorFilter.setFieldToIntegerField("count");
+        contractorFilter.setFieldToIntegerField("conversion");
+        contractorFilter.onSearchClick(e -> contractorPaginator.setData(funnelService.searchByFilter(contractorFilter.getFilterData())
+                        .stream().filter(this::isContractorFunnelDto).collect(Collectors.toList())));
+        contractorFilter.onClearClick(e -> updateList());
     }
 
-    private void configureListDataView() {
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(1L).getStatusName(), countByInvoiceStatusId(1L), getOrdersTime(1L), "", getPrice(1L)));
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(2L).getStatusName(), countByInvoiceStatusId(2L), getOrdersTime(2L), calcOrdersConversion(2L), getPrice(2L)));
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(3L).getStatusName(), countByInvoiceStatusId(3L), getOrdersTime(3L), calcOrdersConversion(3L), getPrice(3L)));
-        listOrdersDataView.add(new FunnelDto(invoicesStatusService.getById(4L).getStatusName(), countByInvoiceStatusId(4L), getOrdersTime(4L), calcOrdersConversion(4L), getPrice(4L)));
-
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(1L).getName(), countByContractorStatusId(1L), ""));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(2L).getName(), countByContractorStatusId(1L), calcContractorsConversion(2L)));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(3L).getName(), countByContractorStatusId(1L), calcContractorsConversion(3L)));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(4L).getName(), countByContractorStatusId(1L), calcContractorsConversion(4L)));
-        listContractorsDataView.add(new FunnelDto(contractorStatusService.getById(5L).getName(), countByContractorStatusId(1L), calcContractorsConversion(5L)));
-
+    private boolean isInvoiceFunnelDto(FunnelDto funnelDto) {
+        return funnelDto.getType().equals("invoice");
     }
+
+    private boolean isContractorFunnelDto(FunnelDto funnelDto) {
+        return funnelDto.getType().equals("contractor");
+    }
+
 
     private HorizontalLayout upperLayout() {
         HorizontalLayout upper = new HorizontalLayout();
-        upper.add(buttonQuestion(), title(), buttonRefresh(),configurationSubMenu(), buttonFilter(), buttonSettings());
+        upper.add(buttonQuestion(), title(), buttonRefresh(), configurationSubMenu(), buttonFilter(), selectXlsTemplateButton);
         upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return upper;
     }
 
     private Tabs configurationSubMenu() {
-        Tab orders = new Tab("По заказам");
-        Tab contractors = new Tab("По контрагентам");
-        Tabs tabs = new Tabs(orders, contractors);
-
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
             if ("По заказам".equals(tabName)) {
-                grid.removeAllColumns();
-                grid.setItems(listOrdersDataView);
-                grid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-                grid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-                grid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
-                grid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
-                grid.addColumn("price").setFlexGrow(11).setHeader("Сумма").setId("Сумма");
+                removeAll();
+                configureInvoiceGrid();
+                configureInvoiceFilter();
+                setHorizontalComponentAlignment(Alignment.CENTER, invoicePaginator);
+                add(upperLayout(), invoiceFilter, invoiceGrid, invoicePaginator);
             } else if ("По контрагентам".equals(tabName)) {
-                grid.removeAllColumns();
-                grid.setItems(listContractorsDataView);
-                grid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-                grid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-//                grid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
-                grid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
+                removeAll();
+                configureContractorGrid();
+                configureConractorFilter();
+                setHorizontalComponentAlignment(Alignment.CENTER, contractorPaginator);
+                add(upperLayout(), contractorFilter, contractorGrid, contractorPaginator);
             }
         });
         return tabs;
     }
 
-    public Long countByInvoiceStatusId(Long statusId) {
-        Long i = 0L;
-        for (InvoiceDto dto : invoiceService.getAll(typeOfInvoice)) {
-            if (Objects.equals(dto.getInvoicesStatusId(), statusId)) {
-                i++;
-            }
-        }
-        return i;
+    private void configListInvoices() {
+        invoiceGrid.removeAllColumns();
+        invoiceGrid.setItems(invoiceData);
+        invoiceGrid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
+        invoiceGrid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
+        invoiceGrid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
+        invoiceGrid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
+        invoiceGrid.addColumn("price").setFlexGrow(11).setHeader("Сумма").setId("Сумма");
     }
 
-    public Long countByContractorStatusId(Long statusId) {
-        Long i = 0L;
-        for (ContractorDto dto : contractorService.getAll()) {
-            if (Objects.equals(dto.getContractorStatusId(), statusId)) {
-                i++;
-            }
-        }
-        return i;
+    private void configListContractors() {
+        contractorGrid.removeAllColumns();
+        contractorGrid.setItems(contractorData);
+        contractorGrid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
+        contractorGrid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
+        contractorGrid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
     }
 
-    public String calcOrdersConversion(Long statusId) {
-        double res = 0;
-        if (statusId == 1L) {
-            return "";
-        } else if (statusId > 1L && countByInvoiceStatusId(statusId) > 0) {
-            res = ((double) countByInvoiceStatusId(statusId) / (double) countByInvoiceStatusId(statusId - 1) * 100);
-        }
-        return String.format("%s%%", res);
+    private void configureInvoiceGrid() {
+        contractorGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        configListInvoices();
     }
 
-    public String calcContractorsConversion(Long statusId) {
-        double res = 0;
-        if (statusId == 1L) {
-            return "";
-        } else if (statusId > 1L && countByContractorStatusId(statusId) > 0) {
-            res = ((double) countByContractorStatusId(statusId) / (double) countByContractorStatusId(statusId - 1) * 100);
-        }
-        return String.format("%s%%", res);
+    private void configureContractorGrid() {
+        contractorGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        configListContractors();
     }
-
-    private String getPrice(Long statusId) {
-        List<InvoiceProductDto> invoiceProductDtoList = invoiceProductService.getAll();
-        List<InvoiceDto> invoiceDtoList = invoiceService.getAll(typeOfInvoice);
-        BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-        for (InvoiceDto invoiceDto : invoiceDtoList) {
-            for (InvoiceProductDto invoiceProductDto : invoiceProductDtoList) {
-                if (Objects.equals(invoiceProductDto.getInvoiceId(), invoiceDto.getId()) &&
-                        Objects.equals(invoiceDto.getInvoicesStatusId(), statusId))
-                    totalPrice = totalPrice.add(invoiceProductDto.getPrice()
-                            .multiply(invoiceProductDto.getAmount()));
-            }
-        }
-        return String.format("%.2f", totalPrice);
-    }
-
-    private String getOrdersTime(Long id) {
-        List<InvoiceDto> list = invoiceService.getAll(typeOfInvoice);
-        Long alltime = 0L;
-        for (InvoiceDto invoiceDto : list) {
-            if (Objects.equals(invoiceDto.getInvoicesStatusId(), id)) {
-                LocalDateTime startTime = LocalDateTime.parse(invoiceService.getById(invoiceDto.getId()).getDate());
-                LocalDateTime endTime = LocalDateTime.now();
-                Long invoiceDuration = Duration.between(startTime, endTime).toMillis();
-                alltime += invoiceDuration;
-                alltime /= countByInvoiceStatusId(id);
-            }
-        }
-        return String.format("%02dд %02dч %02dм %02dс",
-                TimeUnit.MILLISECONDS.toDays(alltime),
-                TimeUnit.MILLISECONDS.toHours(alltime) -
-                        TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(alltime)),
-                TimeUnit.MILLISECONDS.toMinutes(alltime) -
-                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(alltime)),
-                TimeUnit.MILLISECONDS.toSeconds(alltime) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(alltime)));
-    }
-
 
     private Button buttonQuestion() {
         return Buttons.buttonQuestion(
@@ -228,13 +197,15 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
         buttonRefresh.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        buttonRefresh.addClickListener(e -> updateList());
         return buttonRefresh;
     }
 
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        buttonFilter.addClickListener(e -> invoiceFilter.setVisible(!invoiceFilter.isVisible()));
+        buttonFilter.addClickListener(e -> contractorFilter.setVisible(!contractorFilter.isVisible()));
         return buttonFilter;
     }
 
@@ -247,5 +218,124 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
         title.setHeight("2.2em");
         title.setWidth("80px");
         return title;
+    }
+
+    private void updateList() {
+        if (invoices.isSelected()) {
+            configListInvoices();
+        } else if (contractors.isSelected()) {
+            configListContractors();
+        }
+    }
+
+    private void uploadXlsMenuItem(SubMenu subMenu) {
+        MenuItem menuItem = subMenu.addItem("Добавить шаблон");
+        Dialog dialog = new Dialog();
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        configureUploadFinishedListener(upload, buffer, dialog);
+        dialog.add(upload);
+        menuItem.addClickListener(x -> dialog.open());
+    }
+
+    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog) {
+        upload.addFinishedListener(event -> {
+            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
+                getErrorNotification("Файл с таким именем уже существует");
+            } else {
+                File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
+                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
+                    fos.write(buffer.getInputStream().readAllBytes());
+                    configureSelectXlsTemplateButton();
+                    getInfoNotification("Файл успешно загружен");
+                    log.info("xls шаблон успешно загружен");
+                } catch (IOException e) {
+                    getErrorNotification("При загрузке шаблона произошла ошибка");
+                    log.error("при загрузке xls шаблона произошла ошибка");
+                }
+                dialog.close();
+            }
+        });
+    }
+
+    private void configureSelectXlsTemplateButton() {
+        SubMenu printSubMenu = print.getSubMenu();
+        printSubMenu.removeAll();
+        templatesXlsMenuItems(printSubMenu);
+        uploadXlsMenuItem(printSubMenu);
+    }
+
+    private void templatesXlsMenuItems(SubMenu subMenu) {
+
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsInvoiceTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToPdfInvoiceTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToOdsInvoiceTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsContractorTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToPdfContractorTemplate(x)));
+        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToOdsContractorTemplate(x)));
+    }
+
+    private List<File> getXlsFiles() {
+        File dir = new File(pathForSaveXlsTemplate);
+        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
+                .contains(".xls")).collect(Collectors.toList());
+    }
+
+
+    private Anchor getLinkToXlsInvoiceTemplate(File file) {
+        String templateName = file.getName();
+        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("invoice"));
+        return new Anchor(new StreamResource(templateName, printFunnelXls::createReport), "Скачать по заказам в формате Excel");
+    }
+
+    private Anchor getLinkToPdfInvoiceTemplate(File file) {
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
+        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("invoice"));
+        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportPDF), "Скачать по заказам в формате PDF");
+    }
+
+    private Anchor getLinkToOdsInvoiceTemplate(File file) {
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".ods";
+        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("invoice"));
+        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportODS), "Скачать по заказам в формате Office Calc");
+    }
+
+    private Anchor getLinkToXlsContractorTemplate(File file) {
+        String templateName = file.getName();
+        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("contractor"));
+        return new Anchor(new StreamResource(templateName, printFunnelXls::createReport), "Скачать по контрагентам в формате Excel");
+    }
+
+    private Anchor getLinkToPdfContractorTemplate(File file) {
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
+        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("contractor"));
+        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportPDF), "Скачать по контрагентам в формате PDF");
+    }
+
+    private Anchor getLinkToOdsContractorTemplate(File file) {
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".ods";
+        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("contractor"));
+        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportODS), "Скачать по контрагентам в формате Office Calc");
+    }
+
+
+    private void getErrorNotification(String message) {
+        Div content = new Div();
+        content.addClassName("my-style");
+        content.setText(message);
+        Notification notification = new Notification(content);
+        notification.setDuration(5000);
+        String styles = ".my-style { color: red; }";
+        StreamRegistration resource = UI.getCurrent().getSession()
+                .getResourceRegistry()
+                .registerResource(new StreamResource("styles.css", () ->
+                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
+        UI.getCurrent().getPage().addStyleSheet(
+                "base://" + resource.getResourceUri().toString());
+        notification.open();
+    }
+    private void getInfoNotification(String message) {
+        Notification notification = new Notification(message, 5000);
+        notification.open();
     }
 }

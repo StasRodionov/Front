@@ -18,6 +18,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
@@ -444,22 +446,11 @@ public class OperationsView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(e -> {
-            if (select.getValue().equals("Удалить")) {
-                moveToRecyclebinOperation();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                updateList();
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            moveToRecyclebinOperation();
+            grid.deselectAll();
+            updateList();
         });
-        return select;
     }
 
     private void moveToRecyclebinOperation() {
@@ -494,11 +485,7 @@ public class OperationsView extends VerticalLayout {
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("130px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     private void updateList() {

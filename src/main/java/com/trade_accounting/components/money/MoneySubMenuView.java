@@ -105,11 +105,13 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Платежи":
                     div.removeAll();
-                    div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal, incomingPaymentModal, expenseOrderModal, outgoingPaymentModal));
+                    div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService,
+                            contractService, notifications, creditOrderModal, incomingPaymentModal, expenseOrderModal, outgoingPaymentModal));
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
-                    div.add(new MoneySubCashFlowView(moneySubCashFlowService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal));
+                    div.add(new MoneySubCashFlowView(moneySubCashFlowService, companyService, contractorService,
+                            projectService, contractService, notifications, creditOrderModal));
                     break;
                 case "Прибыли и убытки":
                     div.removeAll();
@@ -121,7 +123,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Корректировки":
                     div.removeAll();
-                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService, companyService, contractorService, notifications, modalView, projectService, contractService, paymentService));
+                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService, companyService, contractorService,
+                            notifications, modalView, projectService, contractService, paymentService));
                     break;
             }
         });

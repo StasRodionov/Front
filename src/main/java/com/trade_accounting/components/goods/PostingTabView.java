@@ -1,10 +1,16 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.purchases.SupplierAccountModalView;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
 import com.trade_accounting.models.dto.finance.CorrectionProductDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
 import com.trade_accounting.services.interfaces.finance.CorrectionService;
@@ -62,6 +68,7 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
 
     private final Grid<CorrectionDto> grid = new Grid<>(CorrectionDto.class, false);
     private GridPaginator<CorrectionDto> paginator;
+    private final GridFilter<CorrectionDto> filter;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
@@ -85,24 +92,26 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();
+        filter = new GridFilter<>(grid);
+        configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(configureActions(), grid, paginator);
+        add(configureActions(), filter, grid, paginator);
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(CorrectionDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
+        grid.addColumn(CorrectionDto::getDate).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
         grid.addColumn(correctionDto -> warehouseService.getById(correctionDto.getWarehouseId())
-                .getName()).setKey("warehouse").setHeader("Склад").setId("Склад");
+                .getName()).setKey("warehouseDto").setHeader("Склад").setId("Склад");
         grid.addColumn(correctionDto -> companyService.getById(correctionDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Компания").setId("Компания");
+                .getName()).setKey("companyDto").setHeader("Компания").setId("Компания");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
@@ -117,6 +126,15 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
             postingModal.setPostingEdit(correctionDto);
             postingModal.open();
         });
+    }
+
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
+        filter.onSearchClick(e -> paginator.setData(correctionService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(correctionService.getAll()));
     }
 
     private List<CorrectionDto> getData() {
@@ -234,8 +252,7 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        return buttonFilter;
+        return new Button("Фильтр", e -> filter.setVisible(!filter.isVisible()));
     }
 
     private TextField text() {
@@ -256,22 +273,11 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
     }
 
     private Select<String> valueSelect() {
-        Select<String> select = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Изменить");
-        listItems.add("Удалить");
-        select.setItems(listItems);
-        select.setValue("Изменить");
-        select.setWidth("130px");
-        select.addValueChangeListener(event -> {
-            if (select.getValue().equals("Удалить")) {
-                deleteSelectedCorrections();
-                grid.deselectAll();
-                select.setValue("Изменить");
-                paginator.setData(getData());
-            }
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedCorrections();
+            grid.deselectAll();
+            paginator.setData(getData());
         });
-        return select;
     }
 
     private Button buttonSettings() {
@@ -279,19 +285,11 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
     }
 
     private Select<String> valueStatus() {
-        Select<String> status = new Select<>();
-        status.setItems("Статус");
-        status.setValue("Статус");
-        status.setWidth("110px");
-        return status;
+        return SelectConfigurer.configureStatusSelect();
     }
 
     private Select<String> valuePrint() {
-        Select<String> print = new Select<>();
-        print.setItems("Печать", "Добавить шаблон");
-        print.setValue("Печать");
-        print.setWidth("110px");
-        return print;
+        return SelectConfigurer.configurePrintSelect();
     }
 
     @Override

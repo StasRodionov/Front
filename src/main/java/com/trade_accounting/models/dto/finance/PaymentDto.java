@@ -41,7 +41,7 @@ public class PaymentDto {
 
     private BigDecimal sum;
 
-    private Boolean isConducted;
+    private Boolean conducted;
 
-    private Boolean isRecyclebin;
+    private Boolean recyclebin;
 }

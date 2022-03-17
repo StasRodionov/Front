@@ -5,6 +5,8 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.Action;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.services.interfaces.company.AddressService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
@@ -127,6 +129,7 @@ public class ContractorsTabView extends VerticalLayout {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
+        grid.addColumn("shortname").setHeader("Краткое наименование").setId("Краткое наименование");
         grid.addColumn("sortNumber").setHeader("номер").setId("номер");
         grid.addColumn("phone").setHeader("телефон").setId("телефон");
         grid.addColumn("fax").setHeader("факс").setId("факс");
@@ -255,22 +258,11 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        Select<String> valueSelect = new Select<>();
-        List<String> listItems = new ArrayList<>();
-        listItems.add("Удалить");
-        valueSelect.setItems(listItems);
-        valueSelect.setPlaceholder("Изменить");
-        valueSelect.setWidth("130px");
-        valueSelect.addValueChangeListener(event -> {
-            if (valueSelect.getValue().equals("Удалить")) {
-                deleteSelectedContractors();
-                grid.deselectAll();
-                valueSelect.setValue("Изменить");
-                paginator.setData(getData());
-            }
-        });
-
-        return valueSelect;
+        return SelectConfigurer.configureDeleteSelect(() -> {
+                    deleteSelectedContractors();
+                    grid.deselectAll();
+                }
+        );
     }
 
     private void updateList() {
@@ -337,13 +329,13 @@ public class ContractorsTabView extends VerticalLayout {
     }
 
     private Anchor getLinkToPdfTemplate(File file) {
-        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".pdf";
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReportPDF), "Скачать в формате PDF");
     }
 
     private Anchor getLinkToOdsTemplate(File file) {
-        String templateName = file.getName().substring(0,file.getName().lastIndexOf(".")) + ".ods";
+        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".ods";
         PrintContractorsXls printContractorsXls = new PrintContractorsXls(file.getPath(), contractorService.getAll(), legalDetailService, addressService);
         return new Anchor(new StreamResource(templateName, printContractorsXls::createReportODS), "Скачать в формате Office Calc");
     }

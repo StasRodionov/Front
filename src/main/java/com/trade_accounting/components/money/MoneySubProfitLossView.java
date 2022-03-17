@@ -2,6 +2,8 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridFilter;
+import com.trade_accounting.components.util.configure.components.select.SelectConstants;
+import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.finance.MoneyArticleProfitLossDto;
 import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
 import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
@@ -139,10 +141,11 @@ public class MoneySubProfitLossView extends VerticalLayout {
 
 
     private Select<String> getPrint() {
-        Select getPrint = new Select();
-        getPrint.setWidth("130px");
-        getPrint.setItems("Печать", "Прибыли и убытки");
-        getPrint.setValue("Печать");
-        return getPrint;
+        return new SelectExt.SelectBuilder<String>()
+                .item(SelectConstants.PRINT_SELECT_ITEM)
+                .defaultValue(SelectConstants.PRINT_SELECT_ITEM)
+                .item("Прибыли и убытки")
+                .width(SelectConstants.SELECT_WIDTH_130PX)
+                .build();
     }
 }

@@ -1,10 +1,12 @@
 package com.trade_accounting.components.goods;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -17,10 +19,18 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 @UIScope
+@Route(value = "goods/priceList-create", layout = AppView.class)
 @SpringComponent
 public class PriceModalWindow extends Dialog {
 
@@ -29,7 +39,7 @@ public class PriceModalWindow extends Dialog {
 
     private final CompanyService companyService;
     private final PriceListService priceListService;
-    PriceListDto priceListDto;
+    private PriceListDto priceListDto;
 
     private final ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
@@ -41,7 +51,9 @@ public class PriceModalWindow extends Dialog {
             new Binder<>(PriceListDto.class);
     private PriceListDto priceListDtoToEdit = new PriceListDto();
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
+    private List<Long> listNumber = new ArrayList<>();
 
+    private String parentLocation = "goods_price_layout";
     public PriceModalWindow(PriceListService priceListService,
                             CompanyService companyService) {
         this.companyService = companyService;
@@ -52,12 +64,13 @@ public class PriceModalWindow extends Dialog {
         setCloseOnEsc(true);
 
     }
-    public void setPostingEdit(PriceListDto editDto) {
-        this.priceListDto = editDto;
-        dateTimePicker.setValue(editDto.getTime());
-        companyComboBox.setValue(companyService.getById(editDto.getCompanyDtoId()));
-        checkboxIsSent.setValue(editDto.getSent());
-        checkboxIsPrint.setValue(editDto.getPrinted());
+    public void setPostingEdit(PriceListDto createDto) {
+        this.priceListDto = createDto;
+        dateTimePicker.setValue(LocalDateTime.parse(createDto.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        companyComboBox.setValue(companyService.getById(createDto.getCompanyId()));
+        checkboxIsSent.setValue(createDto.getSent());
+        checkboxIsPrint.setValue(createDto.getPrinted());
+        comment.setValue(createDto.getCommentary());
     }
 
 
@@ -84,23 +97,10 @@ public class PriceModalWindow extends Dialog {
 
     private Button getSaveButton() {
         Button saveButton = new Button("Сохранить", event -> {
-            if (priceListDto.getId() != null) {
-                priceListDto.setCompanyDtoId(companyComboBox.getValue().getId());
-                priceListDto.setTime(dateTimePicker.getValue());
-                priceListDto.setSent(checkboxIsSent.getValue());
-                priceListDto.setPrinted(checkboxIsPrint.getValue());
-                priceListDto.setCommentary(comment.getValue());
-                if (priceListDtoBinder.validate().isOk()) {
-                    priceListService.update(priceListDtoToEdit);
-                    clearAll();
-                    close();
-                } else {
-                    priceListDtoBinder.validate().notifyBindingValidationStatusHandlers();
-                }
-            } else {
                 PriceListDto priceListDto = new PriceListDto();
-                priceListDto.setCompanyDtoId(companyComboBox.getValue().getId());
-                priceListDto.setTime(dateTimePicker.getValue());
+                priceListDto.setCompanyId(companyComboBox.getValue().getId());
+                priceListDto.setTime(String.valueOf(dateTimePicker.getValue()));
+                priceListDto.setNumber(AddNumber());
                 priceListDto.setSent(checkboxIsSent.getValue());
                 priceListDto.setPrinted(checkboxIsPrint.getValue());
                 priceListDto.setCommentary(comment.getValue());
@@ -108,10 +108,11 @@ public class PriceModalWindow extends Dialog {
                     priceListService.create(priceListDto);
                     clearAll();
                     close();
+                    UI.getCurrent().navigate(parentLocation);
+                    priceListService.getAll();
                 } else {
                     priceListDtoBinder.validate().notifyBindingValidationStatusHandlers();
                 }
-            }
         });
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         return saveButton;
@@ -124,6 +125,11 @@ public class PriceModalWindow extends Dialog {
         });
     }
 
+    private String AddNumber() {
+        priceListService.getAll().stream().forEach(i -> listNumber.add(Long.valueOf(i.getNumber())));
+        Long number = listNumber.stream().max(Comparator.naturalOrder()).get()+1;
+        return String.valueOf(number);
+    }
 
     private Component dateConfigure() {
         Label label = new Label("От");
@@ -172,9 +178,11 @@ public class PriceModalWindow extends Dialog {
         //
         return horizontalLayout;
     }
+    public void setParentLocation(String parentLocation) {
+        this.parentLocation = parentLocation;
+    }
 
-
-    private void clearAll() {
+    public void clearAll() {
         companyComboBox.clear();
         dateTimePicker.clear();
         checkboxIsSent.clear();
