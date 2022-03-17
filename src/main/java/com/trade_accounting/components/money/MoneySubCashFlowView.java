@@ -20,6 +20,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
@@ -39,6 +40,7 @@ import java.util.List;
 
 @Route(value = "MoneySubCashFlowView", layout = AppView.class)
 @PageTitle("Движение денежных средств")
+@CssImport(value = "styles/money_sub_cash_flow_filter_toolbar.css")
 public class MoneySubCashFlowView extends VerticalLayout {
 
     private final MoneySubCashFlowService moneySubCashFlowService;
@@ -50,6 +52,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
     private final Grid<MoneySubCashFlowDto> grid = new Grid<>(MoneySubCashFlowDto.class, false);
     private final GridPaginator<MoneySubCashFlowDto> paginator;
     private final CreditOrderModal creditOrderModal;
+    private HorizontalLayout toolbarWithFilters;
 
     private Long projectId;
     private Long companyId;
@@ -76,11 +79,13 @@ public class MoneySubCashFlowView extends VerticalLayout {
         this.contractorService = contractorService;
         this.projectService = projectService;
         this.creditOrderModal = creditOrderModal;
+        this.toolbarWithFilters = getToolbarWithFilters();
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         //configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(getToolbar(), grid, paginator);
+        add(getToolbar(), toolbarWithFilters, grid, paginator);
+        toolbarWithFilters.setVisible(false);
     }
 
 //    private void configureFilter() {
@@ -111,16 +116,23 @@ public class MoneySubCashFlowView extends VerticalLayout {
                 = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         removeAll();
-        add(getToolbar(), grid, paginator);
+        add(getToolbar(), toolbarWithFilters, grid, paginator);
     }
 
     public HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
-        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(),
-                getButtonFilter(), getPrint(), getComboBoxProject(), getComboBoxCompany(), getComboBoxContractor(),
+        toolbar.add(getButtonQuestion(), getTextContract(), getButtonRefresh(), getButtonFilter(), getPrint());
+        toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+
+        return toolbar;
+    }
+
+    public HorizontalLayout getToolbarWithFilters() {
+        HorizontalLayout toolbar = new HorizontalLayout();
+        toolbar.add(getButtonFilterInsideToolbar(), getButtonClearFilter(), getComboBoxProject(), getComboBoxCompany(), getComboBoxContractor(),
                 getDatePickerDateRange().get(0),
                 getDatePickerDateRange().get(1));
-        toolbar.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        toolbar.addClassName("toolbarWithFilters");
 
         return toolbar;
     }
@@ -163,18 +175,30 @@ public class MoneySubCashFlowView extends VerticalLayout {
         return dates;
     }
 
-    private Button getButtonFilter() {
-        Button filterButton = new Button("Отфильтровать");
+    private Button getButtonFilterInsideToolbar() {
+        Button filterButton = new Button("Найти");
         filterButton.addClickListener(event -> {
             data = moneySubCashFlowService.filter(departureDate, returnDate, projectId, companyId, contractorId);
             updateList();
-            departureDate = null;
-            returnDate = null;
-            projectId = null;
-            companyId = null;
-            contractorId = null;
         });
         return filterButton;
+    }
+
+    private Button getButtonFilter() {
+        Button filterButton = new Button("Фильтр");
+        filterButton.addClickListener(e -> toolbarWithFilters.setVisible(!toolbarWithFilters.isVisible()));
+        return filterButton;
+    }
+
+    private Button getButtonClearFilter() {
+
+        Button clearButton = new Button("Очистить");
+        clearButton.addClickListener(e -> {
+            toolbarWithFilters = getToolbarWithFilters();
+            data = moneySubCashFlowService.getAll();
+            updateList();
+        });
+        return clearButton;
     }
 
     public Button getButtonRefresh() {
