@@ -116,7 +116,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                     break;
                 case "Прибыли и убытки":
                     div.removeAll();
-                    div.add(new MoneySubProfitLossView(moneySubProfitLossService, creditOrderModal, employeeService, companyService, projectService));
+                    div.add(new MoneySubProfitLossView(moneySubProfitLossService, employeeService, companyService, projectService));
                     break;
                 case "Взаиморасчеты":
                     div.removeAll();

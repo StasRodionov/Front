@@ -2,12 +2,9 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
-import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.MoneyArticleProfitLossDto;
-import com.trade_accounting.models.dto.finance.MoneySubCashFlowDto;
 import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
-import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
@@ -45,10 +42,6 @@ public class MoneySubProfitLossView extends VerticalLayout {
 
     private final MoneySubProfitLossService moneySubProfitLossService;
     private final CompanyService companyService;
-    //    private final ContractorService contractorService;
-    private final ProjectService projectService;
-//    private final ContractService contractService;
-//    private final Notifications notifications;
 
     private Long projectId;
     private Long companyId;
@@ -56,13 +49,9 @@ public class MoneySubProfitLossView extends VerticalLayout {
     private LocalDate endDatePeriod;
     private MoneySubProfitLossDto data;
 
-    List<MoneyArticleProfitLossDto> listDataView = new ArrayList<>();
-    private final Grid<MoneyArticleProfitLossDto> grid = new Grid<>(MoneyArticleProfitLossDto.class, false);
-    //private final Grid<MoneySubProfitLossDto> grid = new Grid<>(MoneySubProfitLossDto.class, false);
-    private final CreditOrderModal creditOrderModal;
+    private List<MoneyArticleProfitLossDto> listDataView;
+    private Grid<MoneyArticleProfitLossDto> grid = new Grid<>(MoneyArticleProfitLossDto.class, false);
     private final EmployeeService employeeService;
-    //private final GridPaginator<MoneySubProfitLossDto> paginator;
-    //private final GridFilter<MoneyArticleProfitLossDto> filter;
     private HorizontalLayout filter;
 
     private H2 title() {
@@ -72,25 +61,16 @@ public class MoneySubProfitLossView extends VerticalLayout {
     }
 
     public MoneySubProfitLossView(MoneySubProfitLossService moneySubProfitLossService,
-                                  CreditOrderModal creditOrderModal,
                                   EmployeeService employeeService,
                                   CompanyService companyService,
                                   ProjectService projectService) {
         this.moneySubProfitLossService = moneySubProfitLossService;
         this.data = getData();
         this.companyService = companyService;
-//        this.contractorService = contractorService;
-        this.projectService = projectService;
-//        this.contractService = contractService;
-//        this.notifications = notifications;
-        this.creditOrderModal = creditOrderModal;
         this.employeeService = employeeService;
         configureListDataView();
         configureGrid();
-        //this.filter = new GridFilter<>(grid);
-        //this.paginator = new GridPaginator<>(grid, data, 100);
         configureFilter();
-        //paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(getToolbar(), filter, grid);
     }
@@ -99,37 +79,12 @@ public class MoneySubProfitLossView extends VerticalLayout {
         return moneySubProfitLossService.getAll();
     }
 
-//    private void configureFilter() {
-//        filter.setFieldToDatePicker("itemsList");
-//    }
-
-//    private void configureFilter() {
-//        filter.add(getComboBoxCompany());
-//        //filter.setFieldToIntegerField("number");
-////        filter.setFieldToDatePicker("time");
-////        filter.setFieldToComboBox("paymentMethods", "CASH", "BANK");
-////        filter.setFieldToComboBox("expenseItem", "RETURN",
-////                "PURCHACE",
-////                "TAXESANDFEES",
-////                "MOVEMENT",
-////                "RENTAL",
-////                "SALARY",
-////                "MARKETING");
-////        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
-//        //filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
-//        //filter.setFieldToComboBox("projectDto", ProjectDto::getName, projectService.getAll());
-//        filter.onSearchClick(e -> moneySubProfitLossService.filter(filter.getFilterData()));
-//        //filter.onClearClick(e -> paginator.setData(getDate()));
-//    }
-
     private void configureFilter() {
         filter = new HorizontalLayout(getFindButton(),
                 getClearButton(),
-                //new Button("Очистить", e -> this.updateList()),
                 new Button(new Icon(VaadinIcon.COG_O)),
                 getDatePickerDateRange().get(0),
                 getDatePickerDateRange().get(1),
-                //getComboBoxProject(),
                 getComboBoxCompany());
 
         filter.getStyle().set("background-color", "#e7eaef")
@@ -141,21 +96,6 @@ public class MoneySubProfitLossView extends VerticalLayout {
         filter.setWidthFull();
 
         filter.setVisible(false);
-        //filter.setFieldToIntegerField("number");
-//        filter.setFieldToDatePicker("time");
-//        filter.setFieldToComboBox("paymentMethods", "CASH", "BANK");
-//        filter.setFieldToComboBox("expenseItem", "RETURN",
-//                "PURCHACE",
-//                "TAXESANDFEES",
-//                "MOVEMENT",
-//                "RENTAL",
-//                "SALARY",
-//                "MARKETING");
-//        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
-        //filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
-        //filter.setFieldToComboBox("projectDto", ProjectDto::getName, projectService.getAll());
-        //filter.onSearchClick(e -> moneySubProfitLossService.filter(filter.getFilterData()));
-        //filter.onClearClick(e -> paginator.setData(getDate()));
     }
 
     private Component getClearButton() {
@@ -163,10 +103,6 @@ public class MoneySubProfitLossView extends VerticalLayout {
         filterButton.addClickListener(event -> {
             data = moneySubProfitLossService.getAll();
             updateList();
-//            startDatePeriod = null;
-//            endDatePeriod = null;
-//            projectId = null;
-//            companyId = null;
         });
         return filterButton;
     }
@@ -175,19 +111,15 @@ public class MoneySubProfitLossView extends VerticalLayout {
         Button filterButton = new Button("Найти");
         filterButton.addClickListener(event -> {
             data = moneySubProfitLossService.filter(startDatePeriod, endDatePeriod, companyId);
-            //System.out.println(startDatePeriod.toString() + endDatePeriod.toString() + projectId + companyId);
-            //data = moneySubProfitLossService.getAll();
             updateList();
-//            startDatePeriod = null;
-//            endDatePeriod = null;
-//            projectId = null;
-//            companyId = null;
         });
         return filterButton;
     }
 
     public void updateList() {
         removeAll();
+        configureListDataView();
+        configureGrid();
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(getToolbar(), filter, grid);
@@ -195,6 +127,7 @@ public class MoneySubProfitLossView extends VerticalLayout {
     }
 
     private void configureGrid() {
+        grid = new Grid<>(MoneyArticleProfitLossDto.class, false);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setItems(listDataView);
         grid.addColumn("article").setFlexGrow(11).setHeader("Статья").setId("Статья");
@@ -202,6 +135,7 @@ public class MoneySubProfitLossView extends VerticalLayout {
     }
 
     private void configureListDataView() {
+        listDataView = new ArrayList<>();
         listDataView.add(new MoneyArticleProfitLossDto("Выручка", data.getRevenue()));
         listDataView.add(new MoneyArticleProfitLossDto("Себестоимость", data.getCostPrice()));
         listDataView.add(new MoneyArticleProfitLossDto("Валовая прибыль", data.getGrossProfit()));
@@ -257,11 +191,6 @@ public class MoneySubProfitLossView extends VerticalLayout {
     }
 
     private Button getButtonQuestion() {
-//        final Button buttonQuestion = new Button();
-//        Icon question = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
-//        buttonQuestion.setIcon(question);
-//        buttonQuestion.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-//        return buttonQuestion;
         String description = "Отчет отражает доходы и расходы организации и позволяет увидеть чистую прибыль за выбранный период.\n" +
                 "\n" +
                 "Выручка = Отгрузки + Розничные продажи − Возвраты\n" +
@@ -288,15 +217,6 @@ public class MoneySubProfitLossView extends VerticalLayout {
         companyComboBox.addValueChangeListener(event -> companyId = event.getValue().getId());
         return companyComboBox;
     }
-
-//    public ComboBox<ProjectDto> getComboBoxProject(){
-//        ComboBox<ProjectDto> projectComboBox = new ComboBox();
-//        projectComboBox.setLabel("Выберете проект");
-//        projectComboBox.setItems(projectService.getAll());
-//        projectComboBox.setItemLabelGenerator(ProjectDto::getName);
-//        projectComboBox.addValueChangeListener(event -> projectId = event.getValue().getId());
-//        return projectComboBox;
-//    }
 
     /*Меню Печать*/
     private MenuBar getPrintMenu() {
