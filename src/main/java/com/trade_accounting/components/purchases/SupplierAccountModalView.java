@@ -275,7 +275,7 @@ public class SupplierAccountModalView extends Dialog {
                 saveProducts(supplierAccountDto);
                 clearField();
                 close();
-                UI.getCurrent().navigate("purchases");
+                UI.getCurrent().navigate("suppliersInvoices");
                 notifications.infoNotification(String.format("Счет поставщика № %s сохранен", supplierAccountDto.getId()));
             }
         });
