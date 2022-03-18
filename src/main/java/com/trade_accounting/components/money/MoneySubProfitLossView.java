@@ -8,7 +8,6 @@ import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
-import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -43,7 +42,6 @@ public class MoneySubProfitLossView extends VerticalLayout {
     private final MoneySubProfitLossService moneySubProfitLossService;
     private final CompanyService companyService;
 
-    private Long projectId;
     private Long companyId;
     private LocalDate startDatePeriod;
     private LocalDate endDatePeriod;
@@ -62,8 +60,7 @@ public class MoneySubProfitLossView extends VerticalLayout {
 
     public MoneySubProfitLossView(MoneySubProfitLossService moneySubProfitLossService,
                                   EmployeeService employeeService,
-                                  CompanyService companyService,
-                                  ProjectService projectService) {
+                                  CompanyService companyService) {
         this.moneySubProfitLossService = moneySubProfitLossService;
         this.data = getData();
         this.companyService = companyService;
@@ -112,6 +109,9 @@ public class MoneySubProfitLossView extends VerticalLayout {
         filterButton.addClickListener(event -> {
             data = moneySubProfitLossService.filter(startDatePeriod, endDatePeriod, companyId);
             updateList();
+            companyId = null;
+            startDatePeriod = null;
+            endDatePeriod = null;
         });
         return filterButton;
     }
@@ -230,7 +230,7 @@ public class MoneySubProfitLossView extends VerticalLayout {
         print.add("Печать");
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.addItem("Прибыль и убытки", menuItemClickEvent -> {
-            ProfitLossPrintModal profitLossPrintModalModal = new ProfitLossPrintModal(moneySubProfitLossService, employeeService);
+            ProfitLossPrintModal profitLossPrintModalModal = new ProfitLossPrintModal(data, employeeService);
             profitLossPrintModalModal.open();
         });
         return menuBar;

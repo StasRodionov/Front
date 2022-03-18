@@ -1,5 +1,7 @@
 package com.trade_accounting.components.money;
 
+import com.trade_accounting.components.contractors.PrintContractorsXls;
+import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
 import com.vaadin.flow.component.button.Button;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -27,13 +30,13 @@ import java.util.stream.Collectors;
 public class ProfitLossPrintModal extends Dialog {
 
     private static final String LABEL_WIDTH = "500px";
-    private final MoneySubProfitLossService moneySubProfitLossService;
+    private final MoneySubProfitLossDto moneySubProfitLossDto;
     private final EmployeeService employeeService;
 
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/profitLoss_templates/";
 
-    public ProfitLossPrintModal(MoneySubProfitLossService moneySubProfitLossService, EmployeeService employeeService) {
-        this.moneySubProfitLossService = moneySubProfitLossService;
+    public ProfitLossPrintModal(MoneySubProfitLossDto moneySubProfitLossDto, EmployeeService employeeService) {
+        this.moneySubProfitLossDto = moneySubProfitLossDto;
         this.employeeService = employeeService;
         add(header(), configurePrintSelect(), valueSelectPrint(), footer());
     }
@@ -76,15 +79,24 @@ public class ProfitLossPrintModal extends Dialog {
     private Anchor getLinkToProfitLossXls(File file) {
         String profitLossTemplate = file.getName();
         PrintProfitLossXls printProfitLossXls = new PrintProfitLossXls(
-                file.getPath(), List.of(moneySubProfitLossService.getAll()), employeeService);
+                file.getPath(), List.of(moneySubProfitLossDto), employeeService);
         return new Anchor(new StreamResource(profitLossTemplate, printProfitLossXls::createReport),
-                "Скачать файл");
+                "Скачать в формате Excel");
+    }
+
+    private Anchor getLinkToProfitLossPdf(File file) {
+        String profitLossTemplate = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
+        PrintProfitLossXls printProfitLossXls = new PrintProfitLossXls(
+                file.getPath(), List.of(moneySubProfitLossDto), employeeService);
+        return new Anchor(new StreamResource(profitLossTemplate, printProfitLossXls::createReportPDF), "Скачать в формате PDF");
     }
 
     private void downloadXls(ComboBox<String> print) {
         print.addValueChangeListener(x -> {
             if (x.getValue().equals("Скачать в формате Excel")) {
                 getXlsFile().forEach(i -> add(getLinkToProfitLossXls(i)));
+            } else if (x.getValue().equals("Скачать в формате PDF")) {
+                getXlsFile().forEach(i -> add(getLinkToProfitLossPdf(i)));
             } else {
                 close();
             }

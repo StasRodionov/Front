@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import org.apache.poi.ss.usermodel.Cell;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -14,7 +15,9 @@ public class PrintProfitLossXls extends PrintExcelDocument<MoneySubProfitLossDto
 
     private EmployeeDto principal;
 
-    protected PrintProfitLossXls(String pathToXlsTemplate, List<MoneySubProfitLossDto> list, EmployeeService employeeService) {
+    protected PrintProfitLossXls(String pathToXlsTemplate,
+                                 List<MoneySubProfitLossDto> list,
+                                 EmployeeService employeeService) {
         super(pathToXlsTemplate, list);
         this.principal = employeeService.getPrincipal();
     }
