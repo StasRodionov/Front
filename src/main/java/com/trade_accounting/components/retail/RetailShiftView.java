@@ -156,7 +156,7 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
 
     private String formatDate(String stringDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate);
+        LocalDateTime formatDateTime = LocalDateTime.parse(stringDate, formatter);
         return formatDateTime.format(formatter);
     }
 
