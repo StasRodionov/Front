@@ -46,6 +46,7 @@ public class PriceModalEditWindow extends Dialog {
     private final Checkbox checkboxIsSent = new Checkbox();
     private final Checkbox checkboxIsPrint = new Checkbox();
     private final TextField comment = new TextField();
+    private final TextField number = new TextField();
 
     private final Binder<PriceListDto> priceListDtoBinder =
             new Binder<>(PriceListDto.class);
@@ -66,7 +67,7 @@ public class PriceModalEditWindow extends Dialog {
     }
     public void setPriceListEdit(PriceListDto editDto) {
         this.priceListDto = editDto;
-
+        number.setValue(editDto.getNumber());
         dateTimePicker.setValue(LocalDateTime.parse(editDto.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         checkboxIsSent.setValue(editDto.getSent());
@@ -99,12 +100,13 @@ public class PriceModalEditWindow extends Dialog {
 
     private Button getSaveButton() {
         Button saveButton = new Button("Изменить", event -> {
+
                 priceListDto.setCompanyId(companyComboBox.getValue().getId());
                 priceListDto.setTime(String.valueOf(dateTimePicker.getValue()));
                 priceListDto.setSent(checkboxIsSent.getValue());
                 priceListDto.setPrinted(checkboxIsPrint.getValue());
                 priceListDto.setCommentary(comment.getValue());
-                priceListDto.setNumber("123");
+                priceListDto.setNumber(number.getValue());
                 if (priceListDtoBinder.validate().isOk()) {
                     priceListService.update(priceListDto);
                     clearAll();
