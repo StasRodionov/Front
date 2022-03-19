@@ -2,6 +2,7 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
+import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -17,7 +18,10 @@ import com.trade_accounting.services.interfaces.purchases.PurchaseCurrentBalance
 import com.trade_accounting.services.interfaces.purchases.PurchaseForecastService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSalesService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -97,6 +101,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
+    SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+
     private Select<String> print1;
     private List<PurchaseControlDto> purchaseControl;
     private HorizontalLayout actions;
@@ -112,7 +118,9 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             ProductPriceService productPriceService,
                                             PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
                                             PurchaseCurrentBalanceService purchaseCurrentBalanceService,
-                                            PurchaseForecastService purchaseForecastService) {
+                                            PurchaseForecastService purchaseForecastService,
+                                            SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
+        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
         this.notifications = notifications;
@@ -429,8 +437,23 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
         MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PLUS_CIRCLE, "Заказ поставщику", null);
         SubMenu orderSub = supplierOrder.getSubMenu();
-        orderSub.addItem("Общий");                   /*Заглушка: требует реализации*/
-        orderSub.addItem("Разбить по поставщикам");  /*Заглушка: требует реализации*/
+
+        Text selected = new Text("");
+        String string1 = new String("Общий");
+        ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
+
+        orderSub.addItem("Общий", listener);
+        orderSub.addItem("Разбить по поставщикам", listener);
+
+        if(selected.getText().equals(string1)) {
+            supplierOrder.addClickListener(event -> {
+                salesEditCreateInvoiceView.resetView();
+                salesEditCreateInvoiceView.setUpdateState(false);
+                salesEditCreateInvoiceView.setType("EXPENSE");
+                salesEditCreateInvoiceView.setLocation("purchases");
+                supplierOrder.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+            });
+        }
         return menuBar;
     }
 
