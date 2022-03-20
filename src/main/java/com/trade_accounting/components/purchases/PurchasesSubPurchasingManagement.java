@@ -11,12 +11,16 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.TemplateDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.models.dto.purchases.PurchaseCurrentBalanceDto;
+import com.trade_accounting.models.dto.purchases.PurchaseForecastDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseControlService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseCurrentBalanceService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseForecastService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSalesService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -77,6 +81,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -93,6 +98,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
     private final ProductPriceService productPriceService;
+    private final ProductService productService;
     private final PurchaseHistoryOfSalesService purchaseHistoryOfSalesService;
     private final PurchaseCurrentBalanceService purchaseCurrentBalanceService;
     private final PurchaseForecastService purchaseForecastService;
@@ -118,7 +124,9 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
                                             PurchaseCurrentBalanceService purchaseCurrentBalanceService,
                                             PurchaseForecastService purchaseForecastService,
-                                            SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
+                                            SalesEditCreateInvoiceView salesEditCreateInvoiceView,
+                                            ProductService productService) {
+        this.productService = productService;
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
         this.notifications = notifications;
@@ -188,7 +196,18 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 .setWidth("1px")
                 .setId("№");
 
-        grid.addColumn(PurchaseControlDto::getProductName)
+//        grid.addColumn("date")   /*колонка не соответствует оригинальному сайту*/
+//                .setWidth("1px")
+//                .setId("data");
+
+//        grid.addColumn(iDto -> formatDate(iDto.getDate()))
+//                .setKey("date")
+//                .setHeader("Дата")
+//                .setSortable(true)
+//                .setWidth("1px")
+//                .setId("Дата");
+
+        grid.addColumn(dto -> productService.getById(dto.getProductNameId()).getName())
                 .setHeader("Наименование")
                 .setKey("product_name")
                 .setResizable(true)
@@ -373,12 +392,19 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private void configureFilter() {
-        //filter.setFieldToDatePicker("date", PurchaseControlDto::getDate);
-        filter.setFieldToComboBox("product_name", PurchaseControlDto::getProductName, purchaseControlService.getAll());
-        filter.setFieldToComboBox("rest_of_the_warehouse", "Любое", "Положительное", "Отрицательное", "Нулевое", "Ненулевое", "Ниже неснижаемого остатка");
-        filter.setFieldToComboBox("products_available_for_order", "Любое", "Положительное", "Отрицательное", "Нулевое", "Ненулевое", "Ниже неснижаемого остатка");
-        filter.setFieldToComboBox("ordered", "Все", "Только проданные товары", "Только не проданные");
+        //filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("product_name", ProductDto::getName, productService.getAll());
+        filter.setFieldToIntegerField("rest_of_the_warehouse");
+        filter.setFieldToIntegerField("products_available_for_order");
+        filter.setFieldToComboBox("ordered", Boolean.TRUE, Boolean.FALSE );
 
+        /**TODO: Исправить методы поиска согласно оригинальному сайту
+        //filter.setFieldToComboBox("rest_of_the_warehouse",
+        //          "Любое", "Положительное", "Отрицательное", "Нулевое", "Ненулевое", "Ниже неснижаемого остатка");
+        //filter.setFieldToComboBox("products_available_for_order",
+        //          "Любое", "Положительное", "Отрицательное", "Нулевое", "Ненулевое", "Ниже неснижаемого остатка");
+        //  filter.setFieldToComboBox("ordered",
+        //          "Все", "Только проданные товары", "Только не проданные");**/
 
         filter.setVisibleFields(false, "id");
         filter.setVisibleFields(false, "product_quantity");
@@ -684,7 +710,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReport), "Печать в формате Excel: " + templateName);
     }
@@ -696,7 +723,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportPDF), "Печать в формате PDF: " + templateName);
     }
@@ -708,7 +736,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportODS), "Печать в формате Office Calc: " + templateName);
     }
@@ -720,7 +749,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportHTML), "Открыть в браузере: " + templateName);
     }

@@ -499,7 +499,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
     }
 
     private BigDecimal getPriceFromProductPriceByTypeOfPriceId(List<ProductPriceDto> productPriceDtoList, Long id) {
-        // TODO
+
         // Раскомментить, когда в базе будут notNullable TypeOfPrice в таблице product_prises и закомментить
         /*Optional<ProductPriceDto> productPrice = productPriceDtoList.stream().filter(productPriceDto ->
                 productPriceDto.getTypeOfPriceId().equals(id)).findFirst();*/

@@ -18,7 +18,7 @@ public class PurchaseControlDto {
     private Long id;
 
     @NotNull
-    private String productName;
+    private Long productNameId;
 
     @NotNull
     private String date;
