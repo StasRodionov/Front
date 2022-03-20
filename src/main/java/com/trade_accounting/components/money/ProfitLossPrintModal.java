@@ -4,10 +4,12 @@ import com.trade_accounting.components.contractors.PrintContractorsXls;
 import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -34,11 +37,15 @@ public class ProfitLossPrintModal extends Dialog {
     private final EmployeeService employeeService;
 
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/profitLoss_templates/";
+    private List<Anchor> downloadLinks;
+    private HorizontalLayout linkPlaceholder;
 
     public ProfitLossPrintModal(MoneySubProfitLossDto moneySubProfitLossDto, EmployeeService employeeService) {
         this.moneySubProfitLossDto = moneySubProfitLossDto;
         this.employeeService = employeeService;
-        add(header(), configurePrintSelect(), valueSelectPrint(), footer());
+        this.downloadLinks = new ArrayList<>();
+        this.linkPlaceholder = new HorizontalLayout();
+        add(header(), configurePrintSelect(), valueSelectPrint(), footer(), linkPlaceholder);
     }
 
     private HorizontalLayout header() {
@@ -94,14 +101,20 @@ public class ProfitLossPrintModal extends Dialog {
     private void downloadXls(ComboBox<String> print) {
         print.addValueChangeListener(x -> {
             if (x.getValue().equals("Скачать в формате Excel")) {
-                getXlsFile().forEach(i -> add(getLinkToProfitLossXls(i)));
+                downloadLinks.clear();
+                getXlsFile().forEach(i -> downloadLinks.add(getLinkToProfitLossXls(i)));
+                configureLinkPlaceholder();
             } else if (x.getValue().equals("Скачать в формате PDF")) {
-                getXlsFile().forEach(i -> add(getLinkToProfitLossPdf(i)));
+                downloadLinks.clear();
+                getXlsFile().forEach(i -> downloadLinks.add(getLinkToProfitLossPdf(i)));
+                configureLinkPlaceholder();
             } else {
                 close();
             }
         });
     }
+
+
 
     private HorizontalLayout footer() {
         HorizontalLayout footer = new HorizontalLayout();
@@ -113,6 +126,13 @@ public class ProfitLossPrintModal extends Dialog {
         footer.setHeight("100px");
         footer.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         return footer;
+    }
+
+    private void configureLinkPlaceholder() {
+        linkPlaceholder.removeAll();
+        for (Component c : downloadLinks) {
+            linkPlaceholder.add(c);
+        }
     }
 
     private Button getCancelButton() {
