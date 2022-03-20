@@ -16,6 +16,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -97,12 +98,12 @@ public class DocumentsView extends VerticalLayout {
         grid.addColumn(FileDto::getName).setKey("name").setHeader("Наименование").setSortable(true).setId("Наименование");
         Grid.Column<FileDto> buttonColumn = grid.addColumn(new ComponentRenderer<>() {
             @Override
-            public FileDownloadWrapper createComponent(FileDto item) {
-                Button button = new Button(new Icon(VaadinIcon.DOWNLOAD));
-                FileDownloadWrapper buttonWrapper = new FileDownloadWrapper(
-                        new StreamResource(item.getName(), () -> new ByteArrayInputStream(item.getContent())));
-                buttonWrapper.wrapComponent(button);
-                return buttonWrapper;
+            public Anchor createComponent(FileDto item) {
+                Anchor download = new Anchor(new StreamResource(item.getName(), () -> new ByteArrayInputStream(item.getContent())), "");
+                download.getElement().setAttribute("download", true);
+                download.removeAll();
+                download.add(new Button(new Icon(VaadinIcon.DOWNLOAD_ALT)));
+                return download;
             }
         });
         buttonColumn.setKey("button").setId("Кнопки");
