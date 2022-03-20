@@ -104,7 +104,10 @@ public class SettingsView extends AppView {
 
     private Tab configureUnitsTab() {
         Tab tab = new Tab();
-        tab.setLabel("Еденицы измерения");
+        tab.setLabel("Единицы измерения");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate("profile/settings/units_settings"));
+        });
         return tab;
     }
 }
