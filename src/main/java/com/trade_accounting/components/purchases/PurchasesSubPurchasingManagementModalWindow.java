@@ -2,6 +2,7 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.invoice.InvoicesStatusDto;
 import com.trade_accounting.models.dto.warehouse.InventarizationDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -27,7 +28,10 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 @UIScope
 @SpringComponent
@@ -46,12 +50,15 @@ public class PurchasesSubPurchasingManagementModalWindow extends Dialog {
     private final Checkbox checkboxIsSent = new Checkbox("Отправленно");
     private final TextField returnNumber = new TextField();
     private final TextArea textArea = new TextArea();
-
+    private final H2 title = new H2("Добавление заказа");
+    private final Button buttonDelete = new Button("Удалить", new Icon(VaadinIcon.TRASH));
     private final Grid<InventarizationDto> grid = new Grid<>(InventarizationDto.class, false);
 
     private final Binder<InventarizationDto> inventarizationBinder =
             new Binder<>(InventarizationDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
+    private String location;
+    private String type;
 
     public PurchasesSubPurchasingManagementModalWindow(InventarizationService inventarizationService,
                                                        WarehouseService warehouseService,
@@ -224,5 +231,20 @@ public class PurchasesSubPurchasingManagementModalWindow extends Dialog {
         textArea.setValue("");
         returnNumber.setValue("");
         checkboxIsSent.setValue(false);
+    }
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setUpdateState(boolean isUpdate) {
+        title.setText(isUpdate ? "Редактирование заказа" : "Добавление заказа");
+        buttonDelete.setVisible(isUpdate);
+    }
+
+    public void resetView() {
+
     }
 }

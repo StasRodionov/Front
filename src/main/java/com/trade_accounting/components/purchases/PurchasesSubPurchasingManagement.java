@@ -431,24 +431,22 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private MenuBar orderSupplier() {
-        Text selected = null;
-        ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
+        //Text selected = new Text("");
+        //ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
         MenuBar menuBar = new MenuBar();
-
         MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PLUS_CIRCLE, "Заказ поставщику", null);
         SubMenu orderSub = supplierOrder.getSubMenu();
-        orderSub.addItem("Общий", listener);
-        orderSub.addItem("Разбить по поставщикам", listener);
 
-        if(listener.getClass().getName().equals("Общий")) {
-            supplierOrder.addClickListener(event -> {
-//                purchasesSubPurchasingManagementModalWindow.resetView();
-//                purchasesSubPurchasingManagementModalWindow.setUpdateState(false);
-//                purchasesSubPurchasingManagementModalWindow.setType("EXPENSE");
-//                purchasesSubPurchasingManagementModalWindow.setLocation("purchases");
-                supplierOrder.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
-            });
-        }
+        //orderSub.addItem("Общий", listener);
+        //orderSub.addItem("Разбить по поставщикам", listener);
+
+        supplierOrder.addClickListener(event -> {
+                purchasesSubPurchasingManagementModalWindow.resetView();
+                purchasesSubPurchasingManagementModalWindow.setUpdateState(false);
+                purchasesSubPurchasingManagementModalWindow.setType("EXPENSE");
+                purchasesSubPurchasingManagementModalWindow.setLocation("purchases");
+                supplierOrder.getUI().ifPresent(ui -> ui.navigate("purchases/new-order-purchases"));
+        });
         return menuBar;
     }
 
