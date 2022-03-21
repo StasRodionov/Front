@@ -37,6 +37,9 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,12 +50,12 @@ import java.util.List;
 @Route(value = "accepts", layout = AppView.class)
 public class AcceptanceModalView extends Dialog {
 
-    private final CompanyService companyService;
-    private final AcceptanceService acceptanceService;
-    private final ContractService contractService;
-    private final WarehouseService warehouseService;
-    private final ContractorService contractorService;
-    private AcceptanceDto dto = new AcceptanceDto();
+    transient private final CompanyService companyService;
+    transient private final AcceptanceService acceptanceService;
+    transient private final ContractService contractService;
+    transient private final WarehouseService warehouseService;
+    transient private final ContractorService contractorService;
+    transient private AcceptanceDto dto = new AcceptanceDto();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
@@ -65,19 +68,22 @@ public class AcceptanceModalView extends Dialog {
     private final TextArea textArea = new TextArea();
     private final Binder<AcceptanceDto> acceptanceDtoBinder = new Binder<>(AcceptanceDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
-    private final Notifications notifications;
-    private final ProductService productService;
+    transient private final Notifications notifications;
+    transient private final ProductService productService;
     private final Grid<AcceptanceProductionDto> grid = new Grid<>(AcceptanceProductionDto.class, false);
     private GridPaginator<AcceptanceProductionDto> paginator;
-    private List<AcceptanceProductionDto> data;
-    private final AcceptanceProductionService acceptanceProductionService;
+    transient private List<AcceptanceProductionDto> data;
+    transient private final AcceptanceProductionService acceptanceProductionService;
     private final Editor<AcceptanceProductionDto> editor = grid.getEditor();
     private final Binder<AcceptanceProductionDto> binderInvoiceProductDto = new Binder<>(AcceptanceProductionDto.class);//Rename!!!!
     private final TextField amountField = new TextField();
     private final TextField summ = new TextField();
-    private static boolean isNew;
+    private boolean isNew;
     private boolean isNewProd;
+    private static final String ACTION_1 = "350px";
+    private static final String ACTION_2 = "100px";
 
+    @Autowired
     public AcceptanceModalView(CompanyService companyService,
                                AcceptanceService acceptanceService,
                                ContractService contractService,
@@ -338,7 +344,7 @@ public class AcceptanceModalView extends Dialog {
     private HorizontalLayout dateConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("От");
-        dateTimePicker.setWidth("350px");
+        dateTimePicker.setWidth(ACTION_1);
         dateTimePicker.setRequiredIndicatorVisible(true);
         horizontalLayout.add(label, dateTimePicker);
         acceptanceDtoBinder.forField(dateTimePicker)
@@ -360,9 +366,9 @@ public class AcceptanceModalView extends Dialog {
             warehouseDtoComboBox.setItems(list);
         }
         warehouseDtoComboBox.setItemLabelGenerator(WarehouseDto::getName);
-        warehouseDtoComboBox.setWidth("350px");
+        warehouseDtoComboBox.setWidth(ACTION_1);
         Label label = new Label("Склад");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, warehouseDtoComboBox);
         acceptanceDtoBinder.forField(warehouseDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -377,9 +383,9 @@ public class AcceptanceModalView extends Dialog {
             contractorDtoComboBox.setItems(list);
         }
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
-        contractorDtoComboBox.setWidth("350px");
+        contractorDtoComboBox.setWidth(ACTION_1);
         Label label = new Label("Контрагент");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, contractorDtoComboBox);
         acceptanceDtoBinder.forField(contractorDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -394,14 +400,14 @@ public class AcceptanceModalView extends Dialog {
             contractDtoComboBox.setItems(contractDtos);
         }
         contractDtoComboBox.setItemLabelGenerator(ContractDto::getNumber);
-        contractDtoComboBox.setWidth("350px");
+        contractDtoComboBox.setWidth(ACTION_1);
         contractDtoComboBox.setRequired(true);
         contractDtoComboBox.setRequiredIndicatorVisible(true);
         acceptanceDtoBinder.forField(contractDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(AcceptanceDto::getContractDtoValid, AcceptanceDto::setContractDtoValid);
         Label label = new Label("Договор");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, contractDtoComboBox);
         return horizontalLayout;
     }
@@ -412,14 +418,14 @@ public class AcceptanceModalView extends Dialog {
             companyDtoComboBox.setItems(companyDtos);
         }
         companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
-        companyDtoComboBox.setWidth("350px");
+        companyDtoComboBox.setWidth(ACTION_1);
         companyDtoComboBox.setRequired(true);
         companyDtoComboBox.setRequiredIndicatorVisible(true);
         acceptanceDtoBinder.forField(companyDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(AcceptanceDto::getCompanyDtoValid, AcceptanceDto::setCompanyDtoValid);
         Label label = new Label("Компания");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, companyDtoComboBox);
         return horizontalLayout;
     }
@@ -431,13 +437,13 @@ public class AcceptanceModalView extends Dialog {
             productDtoComboBox.setItems(productDto);
         }
         productDtoComboBox.setItemLabelGenerator(ProductDto::getDescription);
-        productDtoComboBox.setWidth("350px");
+        productDtoComboBox.setWidth(ACTION_1);
         productDtoComboBox.setRequired(true);
         productDtoComboBox.setRequiredIndicatorVisible(true);
         acceptanceDtoBinder.forField(productDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD);
         Label label = new Label("Продукты");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, productDtoComboBox);
         return horizontalLayout;
     }
@@ -445,7 +451,7 @@ public class AcceptanceModalView extends Dialog {
     private HorizontalLayout amountFieldConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Количество");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, amountField);
         return horizontalLayout;
     }

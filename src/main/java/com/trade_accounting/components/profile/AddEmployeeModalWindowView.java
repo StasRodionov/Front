@@ -31,6 +31,7 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -73,34 +74,35 @@ public class AddEmployeeModalWindowView extends Dialog {
 
     private final Div div;
 
-    private final EmployeeService employeeService;
+    transient private final EmployeeService employeeService;
 
-    private final RoleService roleService;
+    transient private final RoleService roleService;
 
-    private final ImageService imageService;
+    transient private final ImageService imageService;
 
-    private final DepartmentService departmentService;
+    transient private final DepartmentService departmentService;
 
-    private final PositionService positionService;
+    transient private final PositionService positionService;
 
-    private final Notifications notifications;
+    transient private final Notifications notifications;
 
-    private EmployeeDto employeeDto;
+    transient private EmployeeDto employeeDto;
 
-    private ImageDto imageDto;
+    transient private ImageDto imageDto;
 
-    private Set<RoleDto> roles;
+    transient private Set<RoleDto> roles;
 
-    private DepartmentDto departmentDto;
+    transient private DepartmentDto departmentDto;
 
-    private PositionDto positionDto;
+    transient private PositionDto positionDto;
 
     private Component avatarContainer;
 
     private Image avatar = new Image();
 
-    private String title;
+    private String header;
 
+    @Autowired
     public AddEmployeeModalWindowView(EmployeeDto employeeDto,
                                       EmployeeService employeeService,
                                       RoleService roleService,
@@ -115,7 +117,7 @@ public class AddEmployeeModalWindowView extends Dialog {
         this.departmentService = departmentService;
         this.positionService = positionService;
         this.notifications = notifications;
-        this.title = title;
+        this.header = title;
         div = new Div();
         if (employeeDto != null) {
             this.employeeDto = employeeDto;

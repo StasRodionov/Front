@@ -35,16 +35,18 @@ import java.util.Arrays;
 import java.util.List;
 
 @Route(value = "BonusProgramTabView", layout = AppView.class)
-@PageTitle("Бонусная программа")
+@PageTitle("ACTION_4")
 @SpringComponent
 @UIScope
 public class BonusProgramTabView  extends VerticalLayout implements AfterNavigationObserver  {
-    private final BonusProgramService bonusProgramService;
-    private final ContractorGroupService contractorGroupService;
-    private List<BonusProgramDto> data;
+    transient private final BonusProgramService bonusProgramService;
+    transient private final ContractorGroupService contractorGroupService;
+    transient private List<BonusProgramDto> data;
 
     private final Grid<BonusProgramDto> grid = new Grid<>(BonusProgramDto.class, false);
     private final GridPaginator<BonusProgramDto> paginator;
+    static final String ACTION_4 = "Бонусная программа";
+    private static final String ACTION_5 = "green";
 
     public BonusProgramTabView(BonusProgramService bonusProgramService, ContractorGroupService contractorGroupService) {
         this.bonusProgramService = bonusProgramService;
@@ -91,7 +93,7 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
     private Component isActiveStatusCheckedIcon(BonusProgramDto bonusProgramDto) {
         if (bonusProgramDto.getActiveStatus()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
-            icon.setColor("green");
+            icon.setColor(ACTION_5);
             return icon;
         } else {
             return new Span("");
@@ -102,7 +104,7 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
     private Component isAllContractorsCheckedIcon(BonusProgramDto bonusProgramDto) {
         if (bonusProgramDto.getAllContractors()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
-            icon.setColor("green");
+            icon.setColor(ACTION_5);
             return icon;
         } else {
             return new Span("");
@@ -112,7 +114,7 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
     private Component isWelcomePointsCheckedIcon(BonusProgramDto bonusProgramDto) {
         if (bonusProgramDto.getWelcomePoints()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
-            icon.setColor("green");
+            icon.setColor(ACTION_5);
             return icon;
         } else {
             return new Span("");
@@ -125,7 +127,7 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
         }
         if (bonusProgramDto.getRegistrationInBonusProgram()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
-            icon.setColor("green");
+            icon.setColor(ACTION_5);
             return icon;
         } else {
             return new Span("");
@@ -138,7 +140,7 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
         }
         if (bonusProgramDto.getFirstPurchase()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
-            icon.setColor("green");
+            icon.setColor(ACTION_5);
             return icon;
         } else {
             return new Span("");
@@ -153,17 +155,17 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
     }
 
     private H2 title() {
-        H2 title = new H2("Бонусная программа");
+        H2 title = new H2(ACTION_4);
         title.setHeight("2.2em");
         return title;
     }
 
-    // Здесь кнопка вопроса Розница -- бонусная программа
+    // Здесь кнопка вопроса Розница -- ACTION_4
     private Button buttonQuestion() {
         return Buttons.buttonQuestion(
                 new Text("Создание, управление и настройка бонусных программ, в которых может участвовать пользователь. " +
                         "Читать инструкцию: "),
-                new Anchor("#", "Бонусная программа"));
+                new Anchor("#", ACTION_4));
     }
 
     private Button buttonRefresh() {
@@ -174,7 +176,7 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
     }
 
     private Button buttonCreate() {
-        Button createRetailStoreButton = new Button("Бонусная программа", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button createRetailStoreButton = new Button(ACTION_4, new Icon(VaadinIcon.PLUS_CIRCLE));
         BonusProgramModalWindow bonusProgramModalWindow =
                 new BonusProgramModalWindow(bonusProgramService, contractorGroupService);
         createRetailStoreButton.addClickListener(e -> {

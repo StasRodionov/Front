@@ -94,9 +94,9 @@ public class CompanyModal extends Dialog {
     private Long typeOfContractorId;
     private final Select<TypeOfContractorDto> typeOfContractorDtoSelect = new Select<>();
 
-    private List<BankAccountDto> bankAccountDtos = new ArrayList<>();
-    Set<Long> bankAccountDtoId = new HashSet<>();
-    Set<Long> bankAccountDtoForDeleteId = new HashSet<>();
+    transient private List<BankAccountDto> bankAccountDtos = new ArrayList<>();
+    transient Set<Long> bankAccountDtoId = new HashSet<>();
+    transient Set<Long> bankAccountDtoForDeleteId = new HashSet<>();
     private final TextField bankAccountBic = new TextField();
     private final TextField bankAccountBank = new TextField();
     private final TextField bankAccountAddress = new TextField();
@@ -108,12 +108,12 @@ public class CompanyModal extends Dialog {
 
     private Accordion accordionInfoAboutCompany = new Accordion();
 
-    private final CompanyService companyService;
-    private final AddressService addressService;
-    private final LegalDetailService legalDetailService;
-    private final TypeOfContractorService typeOfContractorService;
-    private final BankAccountService bankAccountService;
-    private final Notifications notifications;
+    transient private final CompanyService companyService;
+    transient private final AddressService addressService;
+    transient private final LegalDetailService legalDetailService;
+    transient private final TypeOfContractorService typeOfContractorService;
+    transient private final BankAccountService bankAccountService;
+    transient private final Notifications notifications;
 
     public CompanyModal(CompanyService companyService, AddressService addressService, LegalDetailService legalDetailService, TypeOfContractorService typeOfContractorService, BankAccountService bankAccountService, @Lazy Notifications notifications) {
         this.companyService = companyService;
@@ -198,7 +198,7 @@ public class CompanyModal extends Dialog {
                 setField(legalDetailAddressHouse, legalDetailAddressDto.getHouse());
                 setField(legalDetailAddressApartment, legalDetailAddressDto.getApartment());
                 setField(legalDetailAddressAnother, legalDetailAddressDto.getAnother());
-                if (legalDetailAddressId == addressId) {
+                if (legalDetailAddressId != addressId && legalDetailAddressId.equals(addressId)) {
                     checkboxAddress.setValue(true);
                 } else {
                     checkboxAddress.setValue(false);
@@ -248,7 +248,7 @@ public class CompanyModal extends Dialog {
             legalDetailDto.setMiddleName(legalDetailMiddleName.getValue());
             if (checkboxAddress.getValue()) {
                 legalDetailDto.setAddressDtoId(addressId);
-                if (legalDetailAddressId != null && legalDetailAddressId != addressId) {
+                if (legalDetailAddressId != null && legalDetailAddressId.equals(addressId)) {
                     addressService.deleteById(legalDetailAddressId);
                 }
             } else {
