@@ -2,7 +2,6 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
-import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -57,7 +56,6 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -101,7 +99,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-    SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    PurchasesSubPurchasingManagementModalWindow purchasesSubPurchasingManagementModalWindow;
 
     private Select<String> print1;
     private List<PurchaseControlDto> purchaseControl;
@@ -119,8 +117,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
                                             PurchaseCurrentBalanceService purchaseCurrentBalanceService,
                                             PurchaseForecastService purchaseForecastService,
-                                            SalesEditCreateInvoiceView salesEditCreateInvoiceView) {
-        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+                                            PurchasesSubPurchasingManagementModalWindow purchasesSubPurchasingManagementModalWindow) {
+        this.purchasesSubPurchasingManagementModalWindow = purchasesSubPurchasingManagementModalWindow;
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
         this.notifications = notifications;
@@ -433,24 +431,21 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private MenuBar orderSupplier() {
+        Text selected = null;
+        ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
         MenuBar menuBar = new MenuBar();
 
         MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PLUS_CIRCLE, "Заказ поставщику", null);
         SubMenu orderSub = supplierOrder.getSubMenu();
-
-        Text selected = new Text("");
-        String string1 = new String("Общий");
-        ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
-
         orderSub.addItem("Общий", listener);
         orderSub.addItem("Разбить по поставщикам", listener);
 
-        if(selected.getText().equals(string1)) {
+        if(listener.getClass().getName().equals("Общий")) {
             supplierOrder.addClickListener(event -> {
-                salesEditCreateInvoiceView.resetView();
-                salesEditCreateInvoiceView.setUpdateState(false);
-                salesEditCreateInvoiceView.setType("EXPENSE");
-                salesEditCreateInvoiceView.setLocation("purchases");
+//                purchasesSubPurchasingManagementModalWindow.resetView();
+//                purchasesSubPurchasingManagementModalWindow.setUpdateState(false);
+//                purchasesSubPurchasingManagementModalWindow.setType("EXPENSE");
+//                purchasesSubPurchasingManagementModalWindow.setLocation("purchases");
                 supplierOrder.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
             });
         }
