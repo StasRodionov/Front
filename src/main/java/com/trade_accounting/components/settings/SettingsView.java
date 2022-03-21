@@ -1,6 +1,7 @@
 package com.trade_accounting.components.settings;
 
 import com.trade_accounting.components.AppView;
+import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
@@ -10,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Route(value = "profile/settings", layout = AppView.class)
 @PageTitle("Настройки")
 @Slf4j
-public class SettingsView extends AppView {
+public class SettingsView extends AppLayout {
 
     public SettingsView() {
         super();
