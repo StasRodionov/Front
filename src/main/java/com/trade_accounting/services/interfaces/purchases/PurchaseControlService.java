@@ -21,4 +21,6 @@ public interface PurchaseControlService {
 
     List<PurchaseControlDto> searchByFilter(Map<String, String> query);
 
+    List<PurchaseControlDto> newFilter( /*Вставить что будем отправлять Map`у или же отдельными String`ами */ );
+
 }

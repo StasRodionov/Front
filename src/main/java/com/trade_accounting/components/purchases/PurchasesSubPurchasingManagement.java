@@ -9,14 +9,22 @@ import com.trade_accounting.components.util.MenuBarIcon;
 import com.trade_accounting.components.util.Notifications;
 
 import com.trade_accounting.models.dto.TemplateDto;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseControlService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseCurrentBalanceService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseForecastService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSalesService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -28,6 +36,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -53,7 +62,6 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -73,6 +81,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -96,6 +106,19 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final PurchaseForecastService purchaseForecastService;
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final ProductService productService;
+
+    private VerticalLayout toolbarWithFilters;
+    private final CompanyService companyService;
+    private final ContractorService contractorService;
+    private final WarehouseService warehouseService;
+
+    private LocalDate departureDate;
+    private LocalDate returnDate;
+    private Long productId;
+    private Long contractorId;
+    private Long companyId;
+    private Long warehouseId;
 
     private Select<String> print1;
     private List<PurchaseControlDto> purchaseControl;
@@ -112,7 +135,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             ProductPriceService productPriceService,
                                             PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
                                             PurchaseCurrentBalanceService purchaseCurrentBalanceService,
-                                            PurchaseForecastService purchaseForecastService) {
+                                            PurchaseForecastService purchaseForecastService, ProductService productService, CompanyService companyService, ContractorService contractorService, WarehouseService warehouseService) {
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
         this.notifications = notifications;
@@ -121,6 +144,11 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.purchaseHistoryOfSalesService = purchaseHistoryOfSalesService;
         this.purchaseCurrentBalanceService = purchaseCurrentBalanceService;
         this.purchaseForecastService = purchaseForecastService;
+        this.productService = productService;
+        this.companyService = companyService;
+        this.contractorService = contractorService;
+        this.warehouseService = warehouseService;
+        this.toolbarWithFilters = ToolbarFilters();
         print = selectXlsTemplateButton.addItem("Печать");
 
         loadSupplierAccounts();
@@ -129,7 +157,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         configurePaginator();
         this.filter = new GridFilter<>(grid);
         configureFilter();
-        add(actions, filter, grid, paginator);
+        add(actions, toolbarWithFilters, grid, paginator);
+        toolbarWithFilters.setVisible(false);
         configureSelectXlsTemplateButton();
     }
 
@@ -363,9 +392,128 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private void configureFilter() {
-        filter.setFieldToIntegerField("id");
-        filter.onSearchClick(e -> paginator.setData(purchaseControlService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e -> paginator.setData(purchaseControlService.getAll()));
+//        filter.setFieldToIntegerField("id");
+//        filter.onSearchClick(e -> paginator.setData(purchaseControlService.searchByFilter(filter.getFilterData())));
+//        filter.onClearClick(e -> paginator.setData(purchaseControlService.getAll()));
+
+    }
+
+    public VerticalLayout ToolbarFilters() {
+        VerticalLayout filterToolbar = new VerticalLayout();
+        filterToolbar.add(ToolbarFiltersLineOne(), ToolbarFiltersLineTwo());
+        filterToolbar.addClassName("toolbarWithFilters");
+    return filterToolbar;
+    }
+
+    public HorizontalLayout ToolbarFiltersLineOne() {
+        HorizontalLayout toolbar = new HorizontalLayout();
+        toolbar.add(ButtonFilterSearch(), ButtonClearFilter(), getDatePickerDateRange().get(0), getDatePickerDateRange().get(1),
+                getComboBoxProduct(), getComboBoxRemainder(), getComboBoxAvailable());
+        toolbar.addClassName("toolbarWithFilters");
+
+        return toolbar;
+    }
+    public HorizontalLayout ToolbarFiltersLineTwo() {
+        HorizontalLayout toolbar = new HorizontalLayout();
+        toolbar.add(getComboBoxSold(), getComboBoxWarehouse(), getComboBoxContractor(), getComboBoxCompany());
+        //toolbar.addClassName("toolbarWithFilters");
+
+        return toolbar;
+    }
+    private Button ButtonFilterSearch() {
+        Button search = new Button("Найти");
+        search.addClickListener(event -> {
+            /*Прочитать все поля в фильтре и передать их в метод newFilter,
+            можно перед этим записать их в Map`у (ключ: значение) и предавать Map`у в метод*/
+            purchaseControl = purchaseControlService.newFilter(/*то что передаем*/);
+            updateList();
+        });
+        return search;
+    }
+
+    private Button ButtonClearFilter() {
+
+        Button clearButton = new Button("Очистить");
+        clearButton.addClickListener(e -> {
+            toolbarWithFilters = ToolbarFilters();
+            purchaseControl = purchaseControlService.getAll();
+            updateList();
+        });
+        return clearButton;
+    }
+
+    public List<DatePicker> getDatePickerDateRange() {
+        List<DatePicker> dates = new ArrayList<>();
+        DatePicker dDate = new DatePicker("Начальная дата");
+        DatePicker rDate = new DatePicker("Конечная дата");
+        dDate.addValueChangeListener(event -> departureDate = event.getValue());
+        rDate.addValueChangeListener(event -> returnDate = event.getValue());
+        dates.add(dDate);
+        dates.add(rDate);
+        return dates;
+    }
+
+    public ComboBox<ProductDto> getComboBoxProduct(){
+        ComboBox<ProductDto> productComboBox = new ComboBox();
+        productComboBox.setLabel("Выберете товар");
+        productComboBox.setItems(productService.getAll());
+        productComboBox.setItemLabelGenerator(ProductDto::getName);
+        productComboBox.addValueChangeListener(event -> productId = event.getValue().getId());
+        return productComboBox;
+    }
+
+    public ComboBox<String> getComboBoxAvailable(){
+        ComboBox<String> availableComboBox = new ComboBox();
+        availableComboBox.setLabel("Доступно");
+        availableComboBox.setItems("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
+//        remainderComboBox.setItemLabelGenerator("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
+//        remainder.addValueChangeListener(event -> productId = event.getValue().getId());
+        return availableComboBox;
+    }
+
+    public ComboBox<String> getComboBoxSold(){
+        ComboBox<String> soldComboBox = new ComboBox();
+        soldComboBox.setLabel("Проданные товары");
+        soldComboBox.setItems("Все","Только проданные","Только непроданные");
+//        remainderComboBox.setItemLabelGenerator("Все","Только проданные","Только непроданные");
+//        remainder.addValueChangeListener(event -> productId = event.getValue().getId());
+        return soldComboBox;
+    }
+
+    public ComboBox<String> getComboBoxRemainder(){
+        ComboBox<String> remainderComboBox = new ComboBox();
+        remainderComboBox.setLabel("Остаток");
+        remainderComboBox.setItems("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
+//        remainderComboBox.setItemLabelGenerator("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
+//        remainder.addValueChangeListener(event -> productId = event.getValue().getId());
+        return remainderComboBox;
+    }
+
+    public ComboBox<WarehouseDto> getComboBoxWarehouse(){
+        ComboBox<WarehouseDto> warehouseComboBox = new ComboBox();
+        warehouseComboBox.setLabel("Склад");
+        warehouseComboBox.setItems(warehouseService.getAll());
+        warehouseComboBox.setItemLabelGenerator(WarehouseDto::getName);
+        warehouseComboBox.addValueChangeListener(event -> warehouseId = event.getValue().getId());
+        return warehouseComboBox;
+    }
+
+    public ComboBox<ContractorDto> getComboBoxContractor(){
+        ComboBox<ContractorDto> contractorComboBox = new ComboBox();
+        contractorComboBox.setLabel("Поставщик");
+        contractorComboBox.setItems(contractorService.getAll());
+        contractorComboBox.setItemLabelGenerator(ContractorDto::getName);
+        contractorComboBox.addValueChangeListener(event -> contractorId = event.getValue().getId());
+        return contractorComboBox;
+    }
+
+    public ComboBox<CompanyDto> getComboBoxCompany(){
+        ComboBox<CompanyDto> companyComboBox = new ComboBox();
+        companyComboBox.setLabel("Организация");
+        companyComboBox.setItems(companyService.getAll());
+        companyComboBox.setItemLabelGenerator(CompanyDto::getName);
+        companyComboBox.addValueChangeListener(event -> companyId = event.getValue().getId());
+        return companyComboBox;
     }
 
     private Label title() {
@@ -394,7 +542,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
     private Button buttonFilter() {
         Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        buttonFilter.addClickListener(e -> toolbarWithFilters.setVisible(!toolbarWithFilters.isVisible()));
         return buttonFilter;
     }
 

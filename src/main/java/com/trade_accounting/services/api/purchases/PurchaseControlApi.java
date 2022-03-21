@@ -1,5 +1,6 @@
 package com.trade_accounting.services.api.purchases;
 
+import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
 
 import retrofit2.Call;
@@ -10,6 +11,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 import java.util.List;
 
@@ -39,4 +41,17 @@ public interface PurchaseControlApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/filter/")
+    Call<List<PurchaseControlDto>> newFilter(@Path(value = "url", encoded = true) String url,
+                                             /*@Query("startDatePeriod") LocalDate startDatePeriod,
+                                             @Query("endDatePeriod") LocalDate endDatePeriod,
+                                             @Query("productId") Long productId,
+                                             @Query("remainder") String remainder,
+                                             @Query("available") String available,
+                                             @Query("sold") String sold,
+                                             @Query("contractorId") Long contractorId,
+                                             @Query("companyId") Long companyId,*/
+                                             @Query("warehouseId") Long warehouseId);
 }

@@ -24,6 +24,11 @@ public interface MoneySubCashFlowApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/filter")
-    Call<List<MoneySubCashFlowDto>> filter(@Path(value = "url", encoded = true) String url, @Query("startDatePeriod") LocalDate startDatePeriod, @Query("endDatePeriod") LocalDate endDatePeriod, @Query("projectId") Long projectId, @Query("companyId") Long companyId, @Query("contractorId") Long contractorId);
+    Call<List<MoneySubCashFlowDto>> filter(@Path(value = "url", encoded = true) String url,
+                                           @Query("startDatePeriod") LocalDate startDatePeriod,
+                                           @Query("endDatePeriod") LocalDate endDatePeriod,
+                                           @Query("projectId") Long projectId,
+                                           @Query("companyId") Long companyId,
+                                           @Query("contractorId") Long contractorId);
 
 }
