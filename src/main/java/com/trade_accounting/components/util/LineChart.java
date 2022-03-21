@@ -26,32 +26,32 @@ public class LineChart extends Div {
 
 
     public LineChart(List<String> categories, Integer[] data, String dataName) {
-        ApexCharts lineChart = ApexChartsBuilder.get()
-                .withChart(ChartBuilder.get()
-                        .withType(Type.line)
-                        .withZoom(ZoomBuilder.get()
-                                .withEnabled(false)
-                                .build())
-                        .build())
-                .withStroke(StrokeBuilder.get()
-                        .withCurve(Curve.straight)
-                        .build())
-                .withTitle(TitleSubtitleBuilder.get()
-                        .withText(dataName)
-                        .withAlign(Align.left)
-                        .build())
-                .withGrid(GridBuilder.get()
-                        .withRow(RowBuilder.get()
-                                .withColors("#f3f3f3", "transparent")
-                                .withOpacity(0.5).build()
-                        ).build())
-                .withXaxis(XAxisBuilder.get()
-                        .withCategories(categories)
-                        .build())
-                .withSeries(new Series<Integer>(dataName, data))
-                .build();
-        add(lineChart);
-        setWidth("100%");
+//        ApexCharts lineChart = ApexChartsBuilder.get()
+//                .withChart(ChartBuilder.get()
+//                        .withType(Type.line)
+//                        .withZoom(ZoomBuilder.get()
+//                                .withEnabled(false)
+//                                .build())
+//                        .build())
+//                .withStroke(StrokeBuilder.get()
+//                        .withCurve(Curve.straight)
+//                        .build())
+//                .withTitle(TitleSubtitleBuilder.get()
+//                        .withText(dataName)
+//                        .withAlign(Align.left)
+//                        .build())
+//                .withGrid(GridBuilder.get()
+//                        .withRow(RowBuilder.get()
+//                                .withColors("#f3f3f3", "transparent")
+//                                .withOpacity(0.5).build()
+//                        ).build())
+//                .withXaxis(XAxisBuilder.get()
+//                        .withCategories(categories)
+//                        .build())
+//                .withSeries(new Series<Integer>(dataName, data))
+//                .build();
+//        add(lineChart);
+//        setWidth("100%");
     }
 
 }

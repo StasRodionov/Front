@@ -22,8 +22,6 @@ public class SettingsView extends AppLayout {
     private Tabs lowerLayout() {
 
         Tabs tabs = new Tabs(
-                configureCompanySettingsTab(),
-                configureCurrencyTab(),
                 configureUnitsTab(),
                 configureWarehousesTab(),
                 configureDiscountTab(),
@@ -31,7 +29,9 @@ public class SettingsView extends AppLayout {
                 configureExportTab(),
                 configureImportTab(),
                 configureLegalEntitiesTab(),
-                configureScenarioTab()
+                configureScenarioTab(),
+                configureCompanySettingsTab(),
+                configureCurrencyTab()
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
@@ -99,6 +99,9 @@ public class SettingsView extends AppLayout {
     private Tab configureCurrencyTab() {
         Tab tab = new Tab();
         tab.setLabel("Валюта");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate("profile/settings/currency_settings"));
+        });
         return tab;
     }
 
