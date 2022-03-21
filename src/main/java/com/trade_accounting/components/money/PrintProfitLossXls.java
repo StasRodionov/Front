@@ -14,12 +14,20 @@ import java.util.List;
 public class PrintProfitLossXls extends PrintExcelDocument<MoneySubProfitLossDto> {
 
     private EmployeeDto principal;
+    private List<MoneySubProfitLossDto> list;
+    private LocalDate startDatePeriod;
+    private LocalDate endDatePeriod;
 
     protected PrintProfitLossXls(String pathToXlsTemplate,
                                  List<MoneySubProfitLossDto> list,
-                                 EmployeeService employeeService) {
+                                 EmployeeService employeeService,
+                                 LocalDate startDatePeriod,
+                                 LocalDate endDatePeriod) {
         super(pathToXlsTemplate, list);
+        this.startDatePeriod = startDatePeriod;
+        this.endDatePeriod = endDatePeriod;
         this.principal = employeeService.getPrincipal();
+        this.list = list;
     }
 
     @Override
@@ -33,6 +41,12 @@ public class PrintProfitLossXls extends PrintExcelDocument<MoneySubProfitLossDto
                 break;
             case ("<authorName>"):
                 editCell.setCellValue("Администратор " + "(" + principal.getEmail() + " )");
+                break;
+            case ("<startDatePeriod>"):
+                editCell.setCellValue(startDatePeriod == null ? "не определен" : startDatePeriod.toString());
+                break;
+            case ("<endDatePeriod>"):
+                editCell.setCellValue(endDatePeriod == null ? "не определен" : endDatePeriod.toString());
                 break;
             case ("<revenue>"):
                 editCell.setCellValue(list.get(0).getRevenue().toString());

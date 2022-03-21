@@ -35,16 +35,20 @@ public class ProfitLossPrintModal extends Dialog {
     private static final String LABEL_WIDTH = "500px";
     private final MoneySubProfitLossDto moneySubProfitLossDto;
     private final EmployeeService employeeService;
+    private final LocalDate startDatePeriod;
+    private final LocalDate endDatePeriod;
 
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/profitLoss_templates/";
     private List<Anchor> downloadLinks;
     private HorizontalLayout linkPlaceholder;
 
-    public ProfitLossPrintModal(MoneySubProfitLossDto moneySubProfitLossDto, EmployeeService employeeService) {
+    public ProfitLossPrintModal(MoneySubProfitLossDto moneySubProfitLossDto, EmployeeService employeeService, LocalDate startDatePeriod, LocalDate endDatePeriod) {
         this.moneySubProfitLossDto = moneySubProfitLossDto;
         this.employeeService = employeeService;
         this.downloadLinks = new ArrayList<>();
         this.linkPlaceholder = new HorizontalLayout();
+        this.startDatePeriod = startDatePeriod;
+        this.endDatePeriod = endDatePeriod;
         add(header(), configurePrintSelect(), valueSelectPrint(), footer(), linkPlaceholder);
     }
 
@@ -86,7 +90,7 @@ public class ProfitLossPrintModal extends Dialog {
     private Anchor getLinkToProfitLossXls(File file) {
         String profitLossTemplate = file.getName();
         PrintProfitLossXls printProfitLossXls = new PrintProfitLossXls(
-                file.getPath(), List.of(moneySubProfitLossDto), employeeService);
+                file.getPath(), List.of(moneySubProfitLossDto), employeeService, startDatePeriod, endDatePeriod);
         return new Anchor(new StreamResource(profitLossTemplate, printProfitLossXls::createReport),
                 "Скачать в формате Excel");
     }
@@ -94,7 +98,7 @@ public class ProfitLossPrintModal extends Dialog {
     private Anchor getLinkToProfitLossPdf(File file) {
         String profitLossTemplate = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
         PrintProfitLossXls printProfitLossXls = new PrintProfitLossXls(
-                file.getPath(), List.of(moneySubProfitLossDto), employeeService);
+                file.getPath(), List.of(moneySubProfitLossDto), employeeService, startDatePeriod, endDatePeriod);
         return new Anchor(new StreamResource(profitLossTemplate, printProfitLossXls::createReportPDF), "Скачать в формате PDF");
     }
 
