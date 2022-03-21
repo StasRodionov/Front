@@ -85,6 +85,8 @@ public class ReturnToSupplierModalView extends Dialog {
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractDtoComboBox.setValue(contractService.getById(editDto.getContractId()));
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
+        checkboxIsSpend.setValue(editDto.getIsSend());
+        checkboxIsPrint.setValue(editDto.getIsPrint());
     }
 
     private HorizontalLayout headerLayout() {

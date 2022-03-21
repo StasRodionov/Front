@@ -172,6 +172,12 @@ public class ReturnBuyersReturnModalView extends Dialog {
         if (editDto.getSum() != null) {
             summConfig.setValue(String.valueOf(editDto.getSum()));
         }
+        if(editDto.getIsPrint() != null){
+            checkboxIsPrint.setValue(editDto.getIsPrint());
+        }
+        if(editDto.getIsSent() != null){
+            checkboxIsSent.setValue(editDto.getIsSent());
+        }
     }
 
     private HorizontalLayout topButtons() {
