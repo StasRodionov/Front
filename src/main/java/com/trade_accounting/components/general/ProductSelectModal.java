@@ -48,6 +48,12 @@ public class ProductSelectModal extends Dialog {
         add(header(), configureProductSelect(), configurePriceSelect(), configureAmountField());
     }
 
+    public void setPostingEdit(CorrectionProductDto correctionProductDto) {
+        productSelect.setValue(productService.getById(correctionProductDto.getProductId()));
+        priceSelect.setValue(productPriceService.getById(correctionProductDto.getProductId()));
+        amountField.setValue(correctionProductDto.getAmount());
+    }
+
     private HorizontalLayout header() {
         HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.add(getSaveButton(), getCloseButton()
