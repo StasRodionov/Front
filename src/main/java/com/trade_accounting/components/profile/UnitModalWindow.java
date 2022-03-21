@@ -13,6 +13,9 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.RegexpValidator;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class UnitModalWindow extends Dialog {
 
     private TextField shortNameField = new TextField();
@@ -79,6 +82,12 @@ public class UnitModalWindow extends Dialog {
             newUnitDto.setFullName(fullNameField.getValue());
             newUnitDto.setShortName(shortNameField.getValue());
             newUnitDto.setSortNumber(sortNumberField.getValue());
+            newUnitDto.setUnitType("Пользовательский");
+            newUnitDto.setGeneralAccess(false);
+            newUnitDto.setDepartmentOwner(""/*employeeRepository.findByFirstName(authentication.getName()).getDepartment().getName()*/);
+            newUnitDto.setEmployeeChange(""/*authentication.getName()*/);
+            newUnitDto.setEmployeeOwner(""/*authentication.getName()*/);
+            newUnitDto.setDateOfChange(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             if (!sortNumberField.isEmpty() && sortNumberField.getValue()
                     .matches("^([0-9]{0,5})$")) {
                 unitService.update(newUnitDto);
