@@ -16,4 +16,6 @@ public interface PriceListService {
 
     void deleteById(Long id);
 
+    List<PriceListDto> newFilter(String string);
+
 }

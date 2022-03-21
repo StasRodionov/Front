@@ -33,4 +33,10 @@ public interface PriceListApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/filter/{string}")
+    Call<List<PriceListDto>> getAllForFilter(@Path(value = "url", encoded = true) String url,
+                                             @Path(value = "string", encoded = true) String string);
+
 }

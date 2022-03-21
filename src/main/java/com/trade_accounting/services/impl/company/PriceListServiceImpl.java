@@ -10,6 +10,7 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -82,5 +83,19 @@ public class PriceListServiceImpl implements PriceListService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PriceListDto с id= {} - {}", e);
         }
+    }
+
+    @Override
+    public List<PriceListDto> newFilter(String string) {
+        List<PriceListDto> priceListDtoList = new ArrayList<>();
+        Call<List<PriceListDto>> priceListDtoListCall = priceListApi.getAllForFilter(priceListUrl, string);
+        System.out.println(string);
+        try {
+            priceListDtoList = priceListDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение отгрузки по фильтру {}", string);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение отгрузки {IOException}", e);
+        }
+        return priceListDtoList;
     }
 }

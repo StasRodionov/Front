@@ -14,6 +14,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -56,6 +57,8 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private final GridPaginator<PriceListDto> paginator;
     private final Notifications notifications;
 
+    private final TextField filterNew = new TextField();
+
     @Autowired
     public GoodsPriceLayout(PriceListService priceListService, CompanyService companyService,
                             PriceModalWindow modalWindow, PriceModalEditWindow modalEditWindowWindow, Notifications notifications) {
@@ -64,7 +67,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         this.modalWindow = modalWindow;
         this.modalEditWindowWindow = modalEditWindowWindow;
         this.notifications = notifications;
-        this.data = getData();
+        this.data = getData(null);
         paginator = new GridPaginator<>(grid, data, 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         setSizeFull();
@@ -76,14 +79,21 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(buttonQuestion(), getTextOrder(), buttonRefresh(), buttonUnit(),
                 buttonFilter(), text(), numberField(), valueSelect(), valueStatus(),
-                valuePrint(), buttonSettings(), selectXlsTemplateButton);
+                valuePrint(), buttonSettings(),getFilterButton(), filter(), selectXlsTemplateButton);
         horizontalLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return horizontalLayout;
+    }
+
+    private Component filter() {
+        Label label = new Label("Фильтр");
+        filterNew.setWidth("400px");
+        return new HorizontalLayout(label, filterNew);
     }
 
     private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 //        grid.addColumn("id").setHeader("№").setId("№");
+
         grid.addColumn(PriceListDto::getNumber).setKey("number").setHeader("№").setSortable(true).setId("№");
         grid.addColumn(PriceListDto::getTime).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
         grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId())
@@ -108,9 +118,21 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
-    private List<PriceListDto> getData() {
-        return priceListService.getAll();
+    private List<PriceListDto> getData(String string) {
+        if (string!=null){
+            return priceListService.newFilter(string);
+        }else {
+            return priceListService.getAll();
+        }
     }
+
+    private Button getFilterButton() {
+        Button filterButton = new Button("Отфильтровать", event -> {
+            paginator.setData(priceListService.newFilter(filterNew.getValue()));
+        });
+        return filterButton;
+    }
+
 
     private Button buttonQuestion() {
         return Buttons.buttonQuestion("Прайс-листы позволяют быстро назначать цены в документах: заказах," +
@@ -164,7 +186,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         return SelectConfigurer.configureDeleteSelect(()->{
             deleteSelectedPriceList();
             grid.deselectAll();
-            paginator.setData(getData());
+            paginator.setData(getData(null));
         });
     }
 
