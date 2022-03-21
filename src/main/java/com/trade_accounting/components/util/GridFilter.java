@@ -275,7 +275,6 @@ public class GridFilter<T> extends HorizontalLayout {
     private void configureFilterField() {
         try {
             grid.getColumns().forEach(e -> {
-
                 if (!e.getKey().equals("imageDto") && !e.getKey().equals("sumOut")) {
                     this.add(getFilterTextField(e.getKey()));
                 }
