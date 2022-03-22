@@ -22,4 +22,6 @@ public interface PurchaseControlService {
     List<PurchaseControlDto> search(String query);
 
     List<PurchaseControlDto> searchByFilter(Map<String, String> query);
+
+    List<PurchaseControlDto> newFilter(Map<String, String> query);
 }
