@@ -3,12 +3,15 @@ package com.trade_accounting.components.authentication;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.AuthenticationService;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.trade_accounting.config.SecurityConstants.EXPIRATION_TIME;
 import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
@@ -16,39 +19,38 @@ import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME
 @Route(value = "login", layout = AppView.class)
 public class LoginView extends VerticalLayout {
 
-    private LoginOverlay loginForm = new LoginOverlay();
+    private final LoginForm login = new LoginForm();
+    private VerticalLayout layout = new VerticalLayout();
 
-    private final AuthenticationService authenticationService;
+    public LoginView(@Autowired AuthenticationService authenticationService) {
 
-    public LoginView(AuthenticationService authenticationService) {
-
-        this.authenticationService = authenticationService;
-
+        layout.add();
         WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
-        loginForm.setI18n(createTradeAccountUniqueI18n());
-
-        loginForm.setOpened(true);
-
-        loginForm.addLoginListener(e -> {
+        login.setI18n(createTradeAccountUniqueI18n());
+        login.addLoginListener(e -> {
             LoginRequest loginRequest = new LoginRequest();
 
             loginRequest.setEmail(e.getUsername());
             loginRequest.setPassword(e.getPassword());
 
-            LoginResponse loginResponse = new LoginResponse();
-            loginResponse = authenticationService.userLogin(loginRequest);
+            LoginResponse loginResponse = authenticationService.userLogin(loginRequest);
 
             if (loginResponse != null) {
                 wrappedSession.setAttribute(TOKEN_ATTRIBUTE_NAME, loginResponse.getToken());
                 wrappedSession.setMaxInactiveInterval((int) (EXPIRATION_TIME / 1000));
-                loginForm.setOpened(false);
                 UI.getCurrent().getPage().setLocation("/");
             } else {
-                loginForm.setOpened(true);
-                loginForm.setError(true);
+                login.setError(true);
             }
-
         });
+        Button registration = new Button("Зарегистрировться",e ->{
+            UI.getCurrent().navigate("registration");
+        });
+        registration.getStyle().set("margin", "auto");
+
+        layout.setAlignItems(Alignment.CENTER);
+        layout.add(login, registration);
+        add(layout);
     }
 
     private LoginI18n createTradeAccountUniqueI18n() {
