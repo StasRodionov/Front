@@ -22,7 +22,6 @@ public class SettingsView extends AppLayout {
     private Tabs lowerLayout() {
 
         Tabs tabs = new Tabs(
-                configureUnitsTab(),
                 configureWarehousesTab(),
                 configureDiscountTab(),
                 configureEmployeesTab(),
@@ -31,7 +30,8 @@ public class SettingsView extends AppLayout {
                 configureLegalEntitiesTab(),
                 configureScenarioTab(),
                 configureCompanySettingsTab(),
-                configureCurrencyTab()
+                configureCurrencyTab(),
+                configureUnitsTab()
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;

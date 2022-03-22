@@ -15,6 +15,7 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class UnitModalWindow extends Dialog {
 
@@ -42,6 +43,11 @@ public class UnitModalWindow extends Dialog {
         shortNameField.setValue(getFieldValueNotNull(unitDto.getShortName()));
         fullNameField.setValue(getFieldValueNotNull(unitDto.getFullName()));
         sortNumberField.setValue(getFieldValueNotNull(unitDto.getSortNumber()));
+        if (Objects.equals(unitDto.getUnitType(), "Системный")){
+            shortNameField.setReadOnly(true);
+            fullNameField.setReadOnly(true);
+            sortNumberField.setReadOnly(true);
+        }
         add(new Text("Наименование"), header(),
                 new VerticalLayout(configureShortNameField(), configureSortNumberField()));
     }
@@ -76,17 +82,18 @@ public class UnitModalWindow extends Dialog {
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
             UnitDto newUnitDto = new UnitDto();
-            if(id != null) {
+
+            if (id != null) {
                 newUnitDto.setId(id);
             }
             newUnitDto.setFullName(fullNameField.getValue());
             newUnitDto.setShortName(shortNameField.getValue());
             newUnitDto.setSortNumber(sortNumberField.getValue());
             newUnitDto.setUnitType("Пользовательский");
-            newUnitDto.setGeneralAccess(false);
-            newUnitDto.setDepartmentOwner(""/*employeeRepository.findByFirstName(authentication.getName()).getDepartment().getName()*/);
-            newUnitDto.setEmployeeChange(""/*authentication.getName()*/);
-            newUnitDto.setEmployeeOwner(""/*authentication.getName()*/);
+            newUnitDto.setGeneralAccess(true);
+            newUnitDto.setDepartmentOwner("");
+            newUnitDto.setEmployeeChange("");
+            newUnitDto.setEmployeeOwner("");
             newUnitDto.setDateOfChange(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             if (!sortNumberField.isEmpty() && sortNumberField.getValue()
                     .matches("^([0-9]{0,5})$")) {

@@ -29,6 +29,8 @@ public class UnitDto {
 
     private String employeeChange;
 
+    private Boolean isRecyclebin;
+
     public UnitDto(String unitType, String shortName, String fullName, String sortNumber, boolean generalAccess, String departmentOwner, String employeeOwner, String dateOfChange, String employeeChange) {
         this.unitType = unitType;
         this.shortName = shortName;
