@@ -113,14 +113,27 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final ContractorService contractorService;
     private final WarehouseService warehouseService;
 
+    private List<DatePicker> dates = new ArrayList<>();
+    private ComboBox<ProductDto> productComboBox = new ComboBox();
+    private ComboBox<String> availableComboBox = new ComboBox();
+    private ComboBox<String> soldComboBox = new ComboBox();
+    private ComboBox<String> remainderComboBox = new ComboBox();
+    private ComboBox<WarehouseDto> warehouseComboBox = new ComboBox();
+    private ComboBox<ContractorDto> contractorComboBox = new ComboBox();
+    private ComboBox<CompanyDto> companyComboBox = new ComboBox();
+
     private LocalDate departureDate;
     private LocalDate returnDate;
     private Long productId;
+    private String available;
+    private String sold;
+    private String remainder;
     private Long contractorId;
     private Long companyId;
     private Long warehouseId;
 
     private Select<String> print1;
+
     private List<PurchaseControlDto> purchaseControl;
     private HorizontalLayout actions;
     private final Grid<PurchaseControlDto> grid = new Grid<>(PurchaseControlDto.class, false);
@@ -221,23 +234,30 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     public HorizontalLayout ToolbarFiltersLineTwo() {
         HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.add(getComboBoxSold(), getComboBoxWarehouse(), getComboBoxContractor(), getComboBoxCompany());
-        //toolbar.addClassName("toolbarWithFilters");
+        toolbar.addClassName("toolbarWithFilters");
 
         return toolbar;
     }
     private Button ButtonFilterSearch() {
         Button search = new Button("Найти");
         search.addClickListener(event -> {
-            /*Прочитать все поля в фильтре и передать их в метод newFilter,
-            можно перед этим записать их в Map`у (ключ: значение) и предавать Map`у в метод*/
-           // purchaseControl = purchaseControlService.newFilter(/*то что передаем*/);
+            Map<String, String> map = new HashMap();
+            if (departureDate != null) { map.put("startDate", departureDate.toString()); }
+            if (returnDate != null) { map.put("endDate", returnDate.toString());}
+            if (productId != null){ map.put("productId", productId.toString());}
+            if (availableComboBox.getValue() != null){ map.put("available", availableComboBox.getValue());}
+            if (soldComboBox.getValue() != null){ map.put("sold", soldComboBox.getValue());}
+            if (remainderComboBox.getValue() != null){ map.put("remainder", remainderComboBox.getValue());}
+            if (warehouseId != null){ map.put("warehouseId", warehouseId.toString());}
+            if (contractorId != null){ map.put("contractorId", contractorId.toString());}
+            if (companyId != null){ map.put("companyId", companyId.toString());}
+            purchaseControl = purchaseControlService.newFilter(map);
             updateList();
         });
         return search;
     }
 
     private Button ButtonClearFilter() {
-
         Button clearButton = new Button("Очистить");
         clearButton.addClickListener(e -> {
             toolbarWithFilters = ToolbarFilters();
@@ -248,7 +268,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public List<DatePicker> getDatePickerDateRange() {
-        List<DatePicker> dates = new ArrayList<>();
         DatePicker dDate = new DatePicker("Начальная дата");
         DatePicker rDate = new DatePicker("Конечная дата");
         dDate.addValueChangeListener(event -> departureDate = event.getValue());
@@ -259,7 +278,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public ComboBox<ProductDto> getComboBoxProduct(){
-        ComboBox<ProductDto> productComboBox = new ComboBox();
         productComboBox.setLabel("Выберете товар");
         productComboBox.setItems(productService.getAll());
         productComboBox.setItemLabelGenerator(ProductDto::getName);
@@ -268,34 +286,27 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public ComboBox<String> getComboBoxAvailable(){
-        ComboBox<String> availableComboBox = new ComboBox();
         availableComboBox.setLabel("Доступно");
         availableComboBox.setItems("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
-//        remainderComboBox.setItemLabelGenerator("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
-//        remainder.addValueChangeListener(event -> productId = event.getValue().getId());
+        available = availableComboBox.getValue();
         return availableComboBox;
     }
 
     public ComboBox<String> getComboBoxSold(){
-        ComboBox<String> soldComboBox = new ComboBox();
         soldComboBox.setLabel("Проданные товары");
         soldComboBox.setItems("Все","Только проданные","Только непроданные");
-//        remainderComboBox.setItemLabelGenerator("Все","Только проданные","Только непроданные");
-//        remainder.addValueChangeListener(event -> productId = event.getValue().getId());
+        sold = soldComboBox.getValue();
         return soldComboBox;
     }
 
     public ComboBox<String> getComboBoxRemainder(){
-        ComboBox<String> remainderComboBox = new ComboBox();
         remainderComboBox.setLabel("Остаток");
         remainderComboBox.setItems("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
-//        remainderComboBox.setItemLabelGenerator("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
-//        remainder.addValueChangeListener(event -> productId = event.getValue().getId());
+        remainder = remainderComboBox.getValue();
         return remainderComboBox;
     }
 
     public ComboBox<WarehouseDto> getComboBoxWarehouse(){
-        ComboBox<WarehouseDto> warehouseComboBox = new ComboBox();
         warehouseComboBox.setLabel("Склад");
         warehouseComboBox.setItems(warehouseService.getAll());
         warehouseComboBox.setItemLabelGenerator(WarehouseDto::getName);
@@ -304,7 +315,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public ComboBox<ContractorDto> getComboBoxContractor(){
-        ComboBox<ContractorDto> contractorComboBox = new ComboBox();
         contractorComboBox.setLabel("Поставщик");
         contractorComboBox.setItems(contractorService.getAll());
         contractorComboBox.setItemLabelGenerator(ContractorDto::getName);
@@ -313,7 +323,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public ComboBox<CompanyDto> getComboBoxCompany(){
-        ComboBox<CompanyDto> companyComboBox = new ComboBox();
         companyComboBox.setLabel("Организация");
         companyComboBox.setItems(companyService.getAll());
         companyComboBox.setItemLabelGenerator(CompanyDto::getName);

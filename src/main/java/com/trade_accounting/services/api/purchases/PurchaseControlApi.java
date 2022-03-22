@@ -50,7 +50,8 @@ public interface PurchaseControlApi {
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
-    @GET("{url}/newFilter")
+    @GET("{url}/filter")
     Call<List<PurchaseControlDto>> newFilter(@Path(value = "url", encoded = true) String url,
-                                                                 @QueryMap Map<String, String> queryRetailStore);
+                                             @QueryMap Map<String,String> map);
+
 }

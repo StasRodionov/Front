@@ -1,10 +1,9 @@
 package com.trade_accounting.services.impl.purchases;
 
-import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.services.api.purchases.PurchaseControlApi;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseControlService;
-import com.trade_accounting.services.api.purchases.PurchaseControlApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -125,9 +123,9 @@ public class PurchaseControlServiceImpl implements PurchaseControlService {
         Call<List<PurchaseControlDto>> purchaseControlDtoCall = purchaseControlApi.newFilter(purchaseControlUrl, query);
         try {
             purchaseControlDtoList = purchaseControlDtoCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice -{}", query);
+            log.info("Успешно выполнен запрос на поиск и получение списка  purchase{}",query);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка purchase - ", e);
         }
         return purchaseControlDtoList;
     }
