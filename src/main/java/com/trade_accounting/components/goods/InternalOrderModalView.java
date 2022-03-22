@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.finance.LossDto;
 import com.trade_accounting.models.dto.invoice.InternalOrderDto;
 import com.trade_accounting.models.dto.invoice.InternalOrderProductsDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
@@ -134,7 +135,7 @@ public class InternalOrderModalView extends Dialog {
 
                 if(returnNumber.getValue() != "") {
                     dto.setId(Long.parseLong(returnNumber.getValue()));
-                    dto.setInternalOrderProductsIds(internalOrderDto.getInternalOrderProductsIds());
+                    ((InternalOrderDto) dto).setInternalOrderProductsIds(internalOrderDto.getInternalOrderProductsIds());
                 }
 
                 dto.setCompanyId(companyDtoComboBox.getValue().getId());
@@ -220,7 +221,7 @@ public class InternalOrderModalView extends Dialog {
 
         internalOrderProductsIdComboBox.setItems(items);
         internalOrderProductsIdComboBox.setItemLabelGenerator(item -> productService.getById(internalOrderProductsDtoService
-                                                                                    .getById(item).getProductId()).getName());
+                .getById(item).getProductId()).getName());
         internalOrderProductsIdComboBox.setWidth("350px");
         Label label = new Label("Список товаров");
         label.setWidth("100px");
@@ -230,7 +231,7 @@ public class InternalOrderModalView extends Dialog {
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(internalOrderDto -> new HashSet<>(internalOrderDto.getInternalOrderProductsIdsValid()),
                         (internalOrderDto, internalOrderDto2) -> internalOrderDto.setInternalOrderProductsIdsValid(internalOrderDto
-                                                                                 .getInternalOrderProductsIdsValid()));
+                                .getInternalOrderProductsIdsValid()));
         UI.getCurrent().navigate("goods");
         return horizontalLayout;
     }

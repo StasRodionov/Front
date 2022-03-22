@@ -4,12 +4,12 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.finance.LossDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.LossProductService;
 import com.trade_accounting.services.interfaces.finance.LossService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -39,6 +39,8 @@ import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import com.trade_accounting.components.util.configure.components.select.Action;
 
 @SpringComponent
 @PageTitle("Списания")
@@ -50,6 +52,11 @@ public class LossView extends VerticalLayout {
     private final CompanyService companyService;
     private final LossProductService lossProductService;
     private final Notifications notifications;
+
+    private final ProductService productService;
+    private final TitleForModal titleForEdit;
+    private final TitleForModal titleForСreate;
+    private final TitleForModal titleForEditSelected;
 
     private final Grid<LossDto> grid = new Grid<>(LossDto.class, false);
     private final GridPaginator<LossDto> paginator;
@@ -66,15 +73,19 @@ public class LossView extends VerticalLayout {
                     CompanyService companyService,
                     LossProductService lossProductService,
                     Notifications notifications,
-                    @Lazy LossCreateView lossCreateView,
+                    ProductService productService, @Lazy LossCreateView lossCreateView,
                     LossModalWindow lossModalWindow) {
         this.lossService = lossService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.lossProductService = lossProductService;
         this.notifications = notifications;
+        this.productService = productService;
         this.lossCreateView = lossCreateView;
         this.lossModalWindow = lossModalWindow;
+        titleForEdit = new TitleForModal("Редактирование внутреннего списания");
+        titleForСreate = new TitleForModal("Добавление внутреннего списания");
+        titleForEditSelected = new TitleForModal("Массовое редактирование списания");
         data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -102,6 +113,21 @@ public class LossView extends VerticalLayout {
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
+
+        grid.addItemDoubleClickListener(e -> {
+            LossDto dto = e.getItem();
+            LossModalWindow modalWindow = new LossModalWindow(
+                    warehouseService,
+                    lossService,
+                    companyService,
+                    lossProductService,
+                    productService,
+                    notifications,
+                    titleForEdit
+            );
+            modalWindow.setLossEdit(dto);
+            modalWindow.open();
+        });
 
 //        grid.addItemDoubleClickListener(e-> {
 //            LossDto dto = e.getItem();
@@ -228,13 +254,46 @@ public class LossView extends VerticalLayout {
     }
 
     private Select<String> valueSelect() {
-        return SelectConfigurer.configureDeleteSelect(() -> {
-                    deleteSelectedLoss();
-                    grid.deselectAll();
-                    paginator.setData(getData());
-                }
+        Action onBulkEdit = () -> {
+            editSelectedLoss();
+            grid.deselectAll();
+            paginator.setData(getData());
+        };
+        Action onDelete = () -> {
+            deleteSelectedLoss();
+            grid.deselectAll();
+            paginator.setData(getData());
+        };
+        return SelectConfigurer.configureBulkEditAndDeleteSelect(
+                onBulkEdit,
+                onDelete
         );
+
     }
+
+//    private Select<String> valueSelect() {
+//        return SelectConfigurer.configureDeleteSelect(() -> {
+//                    deleteSelectedLoss();
+//                    grid.deselectAll();
+//                    paginator.setData(getData());
+//                }
+//        );
+//    }
+
+    private void editSelectedLoss() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            Set<LossDto> list = grid.getSelectedItems();
+            EditSelectedLossesModalWindow editSelectedLossesModalWindow = new EditSelectedLossesModalWindow(
+                    lossService, notifications, companyService, warehouseService, list);
+            editSelectedLossesModalWindow.open();
+        }
+    }
+//
+//            editSelectedModalWindow.open();
+//        } else {
+//            notifications.errorNotification("Сначала отметьте галочками нужные списания");
+//        }
+//    }
 
     private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
