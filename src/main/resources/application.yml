@@ -200,4 +200,6 @@ audit_url: /api/audit
 funnel_url: /api/funnel
 
 serial_numbers_url: /api/serialnumbers
+
+account_url: /api/account
 #debug: true
