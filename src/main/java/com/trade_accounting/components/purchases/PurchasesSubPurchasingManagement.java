@@ -2,7 +2,6 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
-import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -36,7 +35,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -79,10 +78,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -105,15 +108,15 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-  //  private final String typeOfInvoice = "EXPENSE";
-  //  private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    //  private final String typeOfInvoice = "EXPENSE";
+    //  private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
     private VerticalLayout toolbarWithFilters;
     private final CompanyService companyService;
     private final ContractorService contractorService;
     private final WarehouseService warehouseService;
 
-    private List<DatePicker> dates = new ArrayList<>();
+    private List<DateTimePicker> dates = new ArrayList<>();
     private ComboBox<ProductDto> productComboBox = new ComboBox();
     private ComboBox<String> availableComboBox = new ComboBox();
     private ComboBox<String> soldComboBox = new ComboBox();
@@ -122,8 +125,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private ComboBox<ContractorDto> contractorComboBox = new ComboBox();
     private ComboBox<CompanyDto> companyComboBox = new ComboBox();
 
-    private LocalDate departureDate;
-    private LocalDate returnDate;
+    private LocalDateTime departureDate;
+    private LocalDateTime returnDate;
     private Long productId;
     private String available;
     private String sold;
@@ -149,7 +152,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
                                             PurchaseCurrentBalanceService purchaseCurrentBalanceService,
                                             PurchaseForecastService purchaseForecastService,
-                                         //   SalesEditCreateInvoiceView salesEditCreateInvoiceView,
+                                            //   SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                             ProductService productService,
                                             CompanyService companyService,
                                             ContractorService contractorService,
@@ -169,7 +172,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.toolbarWithFilters = ToolbarFilters();
         print = selectXlsTemplateButton.addItem("Печать");
 
-    //    this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        //    this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
 
         loadSupplierAccounts();
         configureActions();
@@ -215,7 +218,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
 
-
     public VerticalLayout ToolbarFilters() {
         VerticalLayout filterToolbar = new VerticalLayout();
         filterToolbar.add(ToolbarFiltersLineOne(), ToolbarFiltersLineTwo());
@@ -231,6 +233,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
         return toolbar;
     }
+
     public HorizontalLayout ToolbarFiltersLineTwo() {
         HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.add(getComboBoxSold(), getComboBoxWarehouse(), getComboBoxContractor(), getComboBoxCompany());
@@ -238,21 +241,42 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 
         return toolbar;
     }
+
     private Button ButtonFilterSearch() {
         Button search = new Button("Найти");
         search.addClickListener(event -> {
             Map<String, String> map = new HashMap();
-            if (departureDate != null) { map.put("startDate", departureDate.toString()); }
-            if (returnDate != null) { map.put("endDate", returnDate.toString());}
-            if (productId != null){ map.put("productId", productId.toString());}
-            if (availableComboBox.getValue() != null){ map.put("available", availableComboBox.getValue());}
-            if (soldComboBox.getValue() != null){ map.put("sold", soldComboBox.getValue());}
-            if (remainderComboBox.getValue() != null){ map.put("remainder", remainderComboBox.getValue());}
-            if (warehouseId != null){ map.put("warehouseId", warehouseId.toString());}
-            if (contractorId != null){ map.put("contractorId", contractorId.toString());}
-            if (companyId != null){ map.put("companyId", companyId.toString());}
-            purchaseControl = purchaseControlService.newFilter(map);
-            updateList();
+            if (departureDate != null) {
+                map.put("startDate", departureDate.toString());
+            }
+            if (returnDate != null) {
+                map.put("endDate", returnDate.toString());
+            }
+            if (productId != null) {
+                map.put("productId", productId.toString());
+            }
+            if (availableComboBox.getValue() != null) {
+                map.put("available", availableComboBox.getValue());
+            }
+            if (soldComboBox.getValue() != null) {
+                map.put("sold", soldComboBox.getValue());
+            }
+            if (remainderComboBox.getValue() != null) {
+                map.put("remainder", remainderComboBox.getValue());
+            }
+            if (warehouseId != null) {
+                map.put("warehouseId", warehouseId.toString());
+            }
+            if (contractorId != null) {
+                map.put("contractorId", contractorId.toString());
+            }
+            if (companyId != null) {
+                map.put("companyId", companyId.toString());
+            }
+            List<PurchaseControlDto> list = purchaseControlService.newFilter(map);
+            if (list != null) {
+                paginator.setData(list);
+            }
         });
         return search;
     }
@@ -267,9 +291,9 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return clearButton;
     }
 
-    public List<DatePicker> getDatePickerDateRange() {
-        DatePicker dDate = new DatePicker("Начальная дата");
-        DatePicker rDate = new DatePicker("Конечная дата");
+    public List<DateTimePicker> getDatePickerDateRange() {
+        DateTimePicker dDate = new DateTimePicker("Начальная дата");
+        DateTimePicker rDate = new DateTimePicker("Конечная дата");
         dDate.addValueChangeListener(event -> departureDate = event.getValue());
         rDate.addValueChangeListener(event -> returnDate = event.getValue());
         dates.add(dDate);
@@ -277,7 +301,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return dates;
     }
 
-    public ComboBox<ProductDto> getComboBoxProduct(){
+    public ComboBox<ProductDto> getComboBoxProduct() {
         productComboBox.setLabel("Выберете товар");
         productComboBox.setItems(productService.getAll());
         productComboBox.setItemLabelGenerator(ProductDto::getName);
@@ -285,28 +309,28 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return productComboBox;
     }
 
-    public ComboBox<String> getComboBoxAvailable(){
+    public ComboBox<String> getComboBoxAvailable() {
         availableComboBox.setLabel("Доступно");
-        availableComboBox.setItems("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
+        availableComboBox.setItems("Любой", "Положительный", "Отрицательный", "Нулевой", "Ненулевой", "Ниже неснижаемого остатка");
         available = availableComboBox.getValue();
         return availableComboBox;
     }
 
-    public ComboBox<String> getComboBoxSold(){
+    public ComboBox<String> getComboBoxSold() {
         soldComboBox.setLabel("Проданные товары");
-        soldComboBox.setItems("Все","Только проданные","Только непроданные");
+        soldComboBox.setItems("Все", "Только проданные", "Только непроданные");
         sold = soldComboBox.getValue();
         return soldComboBox;
     }
 
-    public ComboBox<String> getComboBoxRemainder(){
+    public ComboBox<String> getComboBoxRemainder() {
         remainderComboBox.setLabel("Остаток");
-        remainderComboBox.setItems("Любой","Положительный","Отрицательный","Нулевой","Ненулевой","Ниже неснижаемого остатка");
+        remainderComboBox.setItems("Любой", "Положительный", "Отрицательный", "Нулевой", "Ненулевой", "Ниже неснижаемого остатка");
         remainder = remainderComboBox.getValue();
         return remainderComboBox;
     }
 
-    public ComboBox<WarehouseDto> getComboBoxWarehouse(){
+    public ComboBox<WarehouseDto> getComboBoxWarehouse() {
         warehouseComboBox.setLabel("Склад");
         warehouseComboBox.setItems(warehouseService.getAll());
         warehouseComboBox.setItemLabelGenerator(WarehouseDto::getName);
@@ -314,7 +338,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return warehouseComboBox;
     }
 
-    public ComboBox<ContractorDto> getComboBoxContractor(){
+    public ComboBox<ContractorDto> getComboBoxContractor() {
         contractorComboBox.setLabel("Поставщик");
         contractorComboBox.setItems(contractorService.getAll());
         contractorComboBox.setItemLabelGenerator(ContractorDto::getName);
@@ -322,14 +346,13 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         return contractorComboBox;
     }
 
-    public ComboBox<CompanyDto> getComboBoxCompany(){
+    public ComboBox<CompanyDto> getComboBoxCompany() {
         companyComboBox.setLabel("Организация");
         companyComboBox.setItems(companyService.getAll());
         companyComboBox.setItemLabelGenerator(CompanyDto::getName);
         companyComboBox.addValueChangeListener(event -> companyId = event.getValue().getId());
         return companyComboBox;
     }
-
 
 
     private Grid<PurchaseControlDto> configureGrid() {
