@@ -61,6 +61,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+// TODO: При недоступности сервиса DaData, невозможно создать соответствующий бин.
+//  По причине HostException.
+//  В результате чего крашиться вся вкладка Контрагенты.
+//  Следует на основе этой информации, предовратить подобный сценарий в случае проблем на стороне Dadata.
+
 @Slf4j
 public class ContractorModalWindow extends Dialog {
     private final TextField idField = new TextField();
