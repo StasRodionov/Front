@@ -1,28 +1,30 @@
 package com.trade_accounting.components.contractors;
 
+import com.kuliginstepan.dadata.client.domain.Suggestion;
 import com.trade_accounting.components.util.ValidTextField;
+import com.trade_accounting.models.dto.client.DepartmentDto;
+import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.company.AddressDto;
 import com.trade_accounting.models.dto.company.BankAccountDto;
 import com.trade_accounting.models.dto.company.ContactDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.ContractorGroupDto;
 import com.trade_accounting.models.dto.company.ContractorStatusDto;
-import com.trade_accounting.models.dto.client.DepartmentDto;
-import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.company.LegalDetailDto;
 import com.trade_accounting.models.dto.company.TypeOfContractorDto;
 import com.trade_accounting.models.dto.company.TypeOfPriceDto;
+import com.trade_accounting.services.interfaces.client.DepartmentService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.AddressService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.ContactService;
 import com.trade_accounting.services.interfaces.company.ContractorGroupService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.ContractorStatusService;
-import com.trade_accounting.services.interfaces.client.DepartmentService;
-import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.dadata.DadataAddressService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -68,7 +70,7 @@ public class ContractorModalWindow extends Dialog {
     private final TextField phoneField = new TextField();
     private final TextField faxField = new TextField();
     private final TextField emailField = new TextField();
-    private final TextArea addressField = new TextArea();
+    private final ComboBox<String> addressField = new ComboBox<>();
     private final TextArea commentToAddressField = new TextArea();
     private final TextArea commentField = new TextArea();
     private final TextField discountCardField = new TextField();
@@ -105,6 +107,7 @@ public class ContractorModalWindow extends Dialog {
     private final BankAccountService bankAccountService;
     private final AddressService addressService;
     private final ContactService contactService;
+    private final DadataAddressService dadataAddressService;
 
     private AddressDto addressDto;
     private ContractorDto contractorDto;
@@ -168,7 +171,8 @@ public class ContractorModalWindow extends Dialog {
                                  EmployeeService employeeService,
                                  BankAccountService bankAccountService,
                                  AddressService addressService,
-                                 ContactService contactService) {
+                                 ContactService contactService,
+                                 DadataAddressService dadataAddressService) {
         this.contractorService = contractorService;
         this.addressService = addressService;
         this.contractorGroupService = contractorGroupService;
@@ -181,6 +185,7 @@ public class ContractorModalWindow extends Dialog {
         this.employeeService = employeeService;
         this.bankAccountService = bankAccountService;
         this.contactService = contactService;
+        this.dadataAddressService = dadataAddressService;
         if (contractorDto.getLegalDetailId() != null) {
             legalDetailDto = legalDetailService.getById(contractorDto.getLegalDetailId());
         }
@@ -194,6 +199,22 @@ public class ContractorModalWindow extends Dialog {
         phoneField.setValue(getFieldValueNotNull(contractorDto.getPhone()));
         faxField.setValue(getFieldValueNotNull(contractorDto.getFax()));
         emailField.setValue(getFieldValueNotNull(contractorDto.getEmail()));
+
+        // TODO: Ниже реализован только пример работы с DaData API.
+        //  Метод для получения всех полей запроса у объекта типа Suggestion - getData().
+        //  Следует создать DTO для полученных данных, настроить правильную работу и биндинг значений для нужных полей.
+
+        addressField.setAllowCustomValue(true);
+        List<String> addreses = new ArrayList<>();
+        addressField.setItems(addreses);
+        addressField.addCustomValueSetListener(event -> {
+            addreses.clear();
+            addreses.addAll(dadataAddressService.getAddress(event.getDetail()).stream()
+                    .map(Suggestion::getValue)
+                    .collect(Collectors.toList()));
+            addressField.setItems(addreses);
+            addressField.setOpened(true);
+        });
         addressField.setValue(getFieldValueNotNull(
                 getAddress(contractorDto)
         ));
@@ -1210,8 +1231,6 @@ public class ContractorModalWindow extends Dialog {
                     contractorService.getAllAddressByLevel("4").stream()
                             .map(e -> e.getFormalname() + " " + e.getShortname() + ".")
                             .collect(Collectors.toList()));
-            addressDtoBinder.forField(addressCity).bind(AddressDto::getCity, AddressDto::setCity);
-
             addressForm.addFormItem(addressStreet, "Улица");
             addressStreet.setItems(
                     contractorService.getAllAddressByLevel("7").stream()
