@@ -1237,6 +1237,8 @@ public class ContractorModalWindow extends Dialog {
                     contractorService.getAllAddressByLevel("4").stream()
                             .map(e -> e.getFormalname() + " " + e.getShortname() + ".")
                             .collect(Collectors.toList()));
+            addressDtoBinder.forField(addressCity).bind(AddressDto::getCity, AddressDto::setCity);
+
             addressForm.addFormItem(addressStreet, "Улица");
             addressStreet.setItems(
                     contractorService.getAllAddressByLevel("7").stream()
