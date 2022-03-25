@@ -20,4 +20,6 @@ public interface UnitService {
     List<UnitDto> search(Map<String, String> query);
 
     List<UnitDto> findBySearch(String search);
+
+    void moveToIsRecyclebin(Long id);
 }

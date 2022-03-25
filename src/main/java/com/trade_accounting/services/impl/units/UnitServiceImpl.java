@@ -1,10 +1,12 @@
 package com.trade_accounting.services.impl.units;
 
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.units.UnitDto;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.trade_accounting.services.api.units.UnitApi;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
@@ -87,5 +89,11 @@ public class UnitServiceImpl implements UnitService {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка eдиниц измерения - ", e);
         }
         return unitDtoList;
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = unitApi.moveToIsRecyclebin(unitUrl, id);
+        dtoCallExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, UnitDto.class, id);
     }
 }
