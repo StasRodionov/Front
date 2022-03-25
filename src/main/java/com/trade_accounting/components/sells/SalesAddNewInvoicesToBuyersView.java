@@ -90,7 +90,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private final Binder<SupplierAccountDto> supplierAccountDtoBinder = new Binder<>(SupplierAccountDto.class);
     private final Button buttonDelete = new Button("Удалить", new Icon(VaadinIcon.TRASH));
 
-    private String location = null;
+    private String location = "invoicesToBuyers";
 
     @Autowired
     public SalesAddNewInvoicesToBuyersView(CompanyService companyService,
@@ -156,7 +156,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
                 );
 
                 addInvoiceProductToInvoicedDto(invoiceDto);*/ //добавление продуктов в счет
-                UI.getCurrent().navigate(location);
+                UI.getCurrent().navigate("invoicesToBuyers");
                 notifications.infoNotification(String.format("Счет № %s сохранен", supplierAccountDto.getId()));
             }
         });

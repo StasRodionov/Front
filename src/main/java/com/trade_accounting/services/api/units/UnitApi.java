@@ -45,5 +45,7 @@ public interface UnitApi {
     @GET("{url}/searchByString")
     Call<List<UnitDto>> searchByString(@Path(value = "url", encoded = true) String url,
                                             @Query("search") String text);
-
+    @Headers("Accept: application/json")
+    @PUT("{url}/moveToIsRecyclebin/{id}")
+    Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }

@@ -3,6 +3,7 @@ package com.trade_accounting.components;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -10,17 +11,43 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.PageConfigurator;
+import com.vaadin.flow.server.StreamResource;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 @Route
-public class AppView extends AppLayout {
+public class AppView extends AppLayout implements PageConfigurator {
+
+    private final String LOGO = "logo.png";
 
     public AppView() {
-        addToNavbar(configurationMenu());
+        addToNavbar(image(), configurationMenu());
+    }
+
+    private Image image(){
+        StreamResource resource = new StreamResource("logo.png", () -> getImageInputStream(LOGO));
+        Image logo = new Image(resource, "logo");
+        logo.setId("logo");
+        logo.setHeight("55px");
+        logo.setWidth("55px");
+        return logo;
     }
 
     private Tabs configurationMenu() {
+
+        //TODO будет желание, иконку можно сделать иконку как кнопку перехода на главную страничку, если будете ее реализовывать или еще что))
+//        VerticalLayout logo = new VerticalLayout(image(), new Label (""));
+//        logo.addClickListener(e -> logo.getUI().ifPresent(ui -> ui.navigate("main")));
+
         VerticalLayout indicators = new VerticalLayout(VaadinIcon.TRENDING_UP.create(), new Label("Показатели"));
         indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate("indicators")));
 
@@ -100,5 +127,22 @@ public class AppView extends AppLayout {
         tabs.setWidthFull();
         tabs.setFlexGrowForEnclosedTabs(1);
         return tabs;
+    }
+
+    public static InputStream getImageInputStream(String svgIconName) {
+        InputStream imageInputStream = null;
+        try {
+            imageInputStream = new DataInputStream(new FileInputStream("src/main/resources/static/icons/" + svgIconName));
+        } catch (IOException ex) {
+            log.error("При чтении icon {} произошла ошибка", svgIconName);
+        }
+        return imageInputStream;
+    }
+
+    @Override
+    public void configurePage(InitialPageSettings settings) {
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put("rel", "shortcut icon");
+        settings.addLink("icons/favicon.ico", attributes);
     }
 }

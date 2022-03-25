@@ -110,8 +110,8 @@ public class EmployeeView extends VerticalLayout {
         grid.addColumn(EmployeeDto::getLastName).setKey("lastName").setHeader("Фамилия").setId("Фамилия");
         grid.addColumn(EmployeeDto::getFirstName).setKey("firstName").setHeader("Имя").setId("Имя");
         grid.addColumn(EmployeeDto::getMiddleName).setKey("middleName").setHeader("Отчество").setId("Отчество");
-        grid.addColumn(EmployeeDto::getEmail).setKey("email").setHeader("E-mail").setId("E-mail");
-        grid.addColumn(EmployeeDto::getPhone).setKey("phone").setHeader("Телефон").setId("Телефон");
+        grid.addColumn(EmployeeDto::getEmail).setKey("email").setFlexGrow(2).setHeader("E-mail").setId("E-mail");
+        grid.addColumn(EmployeeDto::getPhone).setKey("phone").setFlexGrow(2).setHeader("Телефон").setId("Телефон");
         grid.addColumn(EmployeeDto::getDescription).setKey("description").setHeader("Описание").setId("Описание");
         grid.addColumn(employeeDto -> (departmentService.getById(employeeDto.getDepartmentDtoId()).getName()))
                 .setKey("department").setHeader("Отдел").setId("Отдел");
@@ -119,7 +119,7 @@ public class EmployeeView extends VerticalLayout {
                 .setKey("position").setHeader("Должность").setId("Должность");
         grid.addColumn(employeeDto -> (employeeDto.getRoleDtoIds().stream()
                 .map(map -> roleService.getById(map).getName())
-                .collect(Collectors.toSet())))
+                .collect(Collectors.toSet()).toString().replace("[", "").replace("]", "")))
                 .setHeader("Роль").setId("Роль");
         grid.setHeight("64vh");
         grid.addItemDoubleClickListener(event -> {
@@ -145,7 +145,8 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        return Buttons.buttonQuestion("Добавьте описание");
+        return Buttons.buttonQuestion("Здесь предоставлена информация о вашем персонале. Вы можете добавить нового члена команды, нажав кнопку \"+ Сотрудник\"." +
+                "Также можно редактировать данные сотрудников, нажав двойным кликом на данные в таблице");
     }
 
     private Button buttonRefresh() {

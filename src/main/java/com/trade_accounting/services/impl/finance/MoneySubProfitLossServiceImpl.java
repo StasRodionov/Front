@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +40,14 @@ public class MoneySubProfitLossServiceImpl implements MoneySubProfitLossService 
     public void update(MoneySubProfitLossDto moneySubProfitLossDto) {
     }
 
+//    @Override
+//    public List<MoneySubProfitLossDto> filter(Map<String, String> query) {
+//        return null;
+//    }
+
     @Override
-    public List<MoneySubProfitLossDto> filter(Map<String, String> query) {
-        return null;
+    public MoneySubProfitLossDto filter(LocalDate startDatePeriod, LocalDate endDatePeriod, Long companyId) {
+        Call<MoneySubProfitLossDto> paymentDtoListCall = moneySubProfitLossApi.filter(moneySubProfitLossUrl, startDatePeriod, endDatePeriod, companyId);
+        return dtoCallExecuteService.callExecuteBody(paymentDtoListCall, MoneySubProfitLossDto.class);
     }
 }
