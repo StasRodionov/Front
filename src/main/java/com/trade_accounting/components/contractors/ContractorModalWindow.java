@@ -209,6 +209,7 @@ public class ContractorModalWindow extends Dialog {
         //  Метод для получения всех полей запроса у объекта типа Suggestion - getData().
         //  Следует создать DTO для полученных данных, настроить правильную работу и биндинг значений для нужных полей.
 
+        addressField.setPlaceholder("Нажмите Enter после ввода для получения списка вариантов");
         addressField.setAllowCustomValue(true);
         List<String> addreses = new ArrayList<>();
         addressField.setItems(addreses);
