@@ -2,10 +2,11 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.finance.LossDto;
 import com.trade_accounting.models.dto.invoice.InternalOrderDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
-import com.trade_accounting.services.interfaces.invoice.InternalOrderService;
+import com.trade_accounting.services.interfaces.finance.LossService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,38 +19,34 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
 import java.util.List;
 import java.util.Set;
 
-public class EditSelectedModalWindow extends Dialog {
+public class EditSelectedLossesModalWindow extends Dialog {
 
+    private final LossService lossService;
+    private final Notifications notifications;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
-    private final InternalOrderService internalOrderService;
+    private final Set<LossDto> listOfLosses;
 
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
-    private final TextField returnNumber = new TextField();
-    private final Set<InternalOrderDto> list;
-
-    private final Binder<InternalOrderDto> internalOrderDtoBinder =
-            new Binder<>(InternalOrderDto.class);
+    private final Binder<LossDto> lossDtoBinder =
+            new Binder<>(LossDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
-    private final Notifications notifications;
 
 
-    public EditSelectedModalWindow(CompanyService companyService, WarehouseService warehouseService,
-                                   InternalOrderService internalOrderService,
-                                   Notifications notifications, Set<InternalOrderDto> list) {
+    public EditSelectedLossesModalWindow(LossService lossService, Notifications notifications, CompanyService companyService, WarehouseService warehouseService, Set<LossDto> listOfLosses) {
+        this.lossService = lossService;
+        this.notifications = notifications;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
-        this.internalOrderService = internalOrderService;
-        this.notifications = notifications;
-        this.list = list;
+        this.listOfLosses = listOfLosses;
+
         setSizeFull();
         add(headerLayout(), formLayout());
     }
@@ -85,39 +82,28 @@ public class EditSelectedModalWindow extends Dialog {
     private Button saveButton() {
         return new Button("Сохранить", e -> {
 
-            for(InternalOrderDto dto : list) {
+            for (LossDto dto : listOfLosses) {
 
-                if(!returnNumber.getValue().equals("")) {
-                    dto.setId(Long.parseLong(returnNumber.getValue()));
-                    dto.setInternalOrderProductsIds(dto.getInternalOrderProductsIds());
-                    dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-                    dto.setDate(dateTimePicker.getValue().toString());
-                    dto.setCompanyId(companyDtoComboBox.getValue().getId());
-                }
+                dto.setDate(dateTimePicker.getValue().toString());
+                dto.setCompanyId(companyDtoComboBox.getValue().getId());
 
-                if(warehouseDtoComboBox.getValue() == null) {
-                    dto.setWarehouseId(dto.getWarehouseId());
-                } else {
+                if (warehouseDtoComboBox.getValue() != null) {
                     dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
                 }
 
-                if(companyDtoComboBox.getValue() == null) {
-                    dto.setCompanyId(dto.getCompanyId());
-                } else {
+                if (companyDtoComboBox.getValue() != null) {
                     dto.setCompanyId(companyDtoComboBox.getValue().getId());
                 }
 
-                if(dateTimePicker.getValue() == null) {
-                    dto.setDate(dto.getDate());
-                } else {
+                if (dateTimePicker.getValue() != null) {
                     dto.setDate(dateTimePicker.getValue().toString());
                 }
 
-                internalOrderService.create(dto);
+                lossService.create(dto);
             }
             notifications.infoNotification("Выбранные списания успешно отредактированы");
             close();
-            UI.getCurrent().navigate("internalorder");
+            UI.getCurrent().navigate("lossView");
         });
     }
 
@@ -126,9 +112,9 @@ public class EditSelectedModalWindow extends Dialog {
         Label label = new Label("От");
         dateTimePicker.setWidth("350px");
         horizontalLayout.add(label, dateTimePicker);
-        internalOrderDtoBinder.forField(dateTimePicker)
+        lossDtoBinder.forField(dateTimePicker)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(InternalOrderDto::getDateValid, InternalOrderDto::setDateValid);
+                .bind(LossDto::getDateValid, LossDto::setDateValid);
         return horizontalLayout;
     }
 
@@ -143,9 +129,9 @@ public class EditSelectedModalWindow extends Dialog {
         Label label = new Label("Организация");
         label.setWidth("100px");
         horizontalLayout.add(label, companyDtoComboBox);
-        internalOrderDtoBinder.forField(companyDtoComboBox)
+        lossDtoBinder.forField(companyDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(InternalOrderDto::getCompanyDtoValid, InternalOrderDto::setCompanyDtoValid);
+                .bind(LossDto::getCompanyDtoValid, LossDto::setCompanyDtoValid);
         return horizontalLayout;
     }
 
@@ -160,9 +146,9 @@ public class EditSelectedModalWindow extends Dialog {
         Label label = new Label("Склад");
         label.setWidth("100px");
         horizontalLayout.add(label, warehouseDtoComboBox);
-        internalOrderDtoBinder.forField(warehouseDtoComboBox)
+        lossDtoBinder.forField(warehouseDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(InternalOrderDto::getWarehouseDtoValid, InternalOrderDto::setWarehouseDtoValid);
+                .bind(LossDto::getWarehouseDtoValid, LossDto::setWarehouseDtoValid);
         return horizontalLayout;
     }
 
@@ -173,4 +159,5 @@ public class EditSelectedModalWindow extends Dialog {
         });
         return button;
     }
+
 }

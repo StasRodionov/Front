@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LossDto {
+public class LossDto extends LossDtoForValidation {
 
     private Long id;
 
@@ -29,4 +29,6 @@ public class LossDto {
 
     private Boolean isRecyclebin;
 
+    public void setInternalOrderProductsIds(List<Long> idList) {
+    }
 }
