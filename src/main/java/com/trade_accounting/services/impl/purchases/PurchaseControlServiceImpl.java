@@ -1,10 +1,9 @@
 package com.trade_accounting.services.impl.purchases;
 
-import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.services.api.purchases.PurchaseControlApi;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseControlService;
-import com.trade_accounting.services.api.purchases.PurchaseControlApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,20 +14,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 @Slf4j
 public class PurchaseControlServiceImpl implements PurchaseControlService {
 
-    private final PurchaseControlApi purchaseControl;
+    private final PurchaseControlApi purchaseControlApi;
     private final String purchaseControlUrl;
     private final CallExecuteService<PurchaseControlDto> callExecuteService;
 
 
     public PurchaseControlServiceImpl(@Value("${purchase_control_url}") String purchaseControlUrl, Retrofit retrofit,
                                       CallExecuteService<PurchaseControlDto> callExecuteService) {
-        purchaseControl = retrofit.create(PurchaseControlApi.class);
+        purchaseControlApi = retrofit.create(PurchaseControlApi.class);
         this.purchaseControlUrl = purchaseControlUrl;
         this.callExecuteService = callExecuteService;
     }
@@ -37,7 +35,7 @@ public class PurchaseControlServiceImpl implements PurchaseControlService {
     @Override
     public List<PurchaseControlDto> getAll() {
         List<PurchaseControlDto> getAllPurchaseControl = new ArrayList<>();
-        Call<List<PurchaseControlDto>> getAllPurchaseControlCall = purchaseControl.getAll(purchaseControlUrl);
+        Call<List<PurchaseControlDto>> getAllPurchaseControlCall = purchaseControlApi.getAll(purchaseControlUrl);
 
         try {
             getAllPurchaseControl = getAllPurchaseControlCall.execute().body();
@@ -67,7 +65,7 @@ public class PurchaseControlServiceImpl implements PurchaseControlService {
     @Override
     public PurchaseControlDto getById(Long id) {
         PurchaseControlDto purchaseControlDto = null;
-        Call<PurchaseControlDto> purchaseControlDtoCall = purchaseControl.getById(purchaseControlUrl, id);
+        Call<PurchaseControlDto> purchaseControlDtoCall = purchaseControlApi.getById(purchaseControlUrl, id);
 
         try {
             purchaseControlDto = purchaseControlDtoCall.execute().body();
@@ -95,7 +93,7 @@ public class PurchaseControlServiceImpl implements PurchaseControlService {
 
     @Override
     public List<PurchaseControlDto> search(String query) {
-        Call<List<PurchaseControlDto>> getPurchaseControlByNameFilter = purchaseControl.searchByString(purchaseControlUrl, query);
+        Call<List<PurchaseControlDto>> getPurchaseControlByNameFilter = purchaseControlApi.searchByString(purchaseControlUrl, query);
         List<PurchaseControlDto> purchaseControlDto = new ArrayList<>();
         try {
             purchaseControlDto = getPurchaseControlByNameFilter.execute().body();
@@ -109,12 +107,25 @@ public class PurchaseControlServiceImpl implements PurchaseControlService {
     @Override
     public List<PurchaseControlDto> searchByFilter(Map<String, String> query) {
         List<PurchaseControlDto> purchaseControlDtoList = new ArrayList<>();
-        Call<List<PurchaseControlDto>> purchaseControlDtoCall = purchaseControl.searchPurchaseControlByFilter(purchaseControlUrl, query);
+        Call<List<PurchaseControlDto>> purchaseControlDtoCall = purchaseControlApi.searchPurchaseControlByFilter(purchaseControlUrl, query);
         try {
             purchaseControlDtoList = purchaseControlDtoCall.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение списка счетов invoice -{}", query);
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на поиск и получение списка InvoiceDto - ", e);
+        }
+        return purchaseControlDtoList;
+    }
+
+    @Override
+    public List<PurchaseControlDto> newFilter(Map<String, String> query) {
+        List<PurchaseControlDto> purchaseControlDtoList = new ArrayList<>();
+        Call<List<PurchaseControlDto>> purchaseControlDtoCall = purchaseControlApi.newFilter(purchaseControlUrl, query);
+        try {
+            purchaseControlDtoList = purchaseControlDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка  purchase{}",query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка purchase - ", e);
         }
         return purchaseControlDtoList;
     }

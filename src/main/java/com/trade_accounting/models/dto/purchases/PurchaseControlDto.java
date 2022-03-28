@@ -32,6 +32,16 @@ public class PurchaseControlDto {
     @NotNull
     private String productMeasure;
 
+    @NotNull
+    private Long companyId;
+
+    @NotNull
+    private Long warehouseId;
+
+    @NotNull
+    private Long contractorId;
+
+    @NotNull
     private Long productQuantity;
 
     @NotNull
