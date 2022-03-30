@@ -1,6 +1,5 @@
 package com.trade_accounting.components.purchases;
 
-
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
@@ -39,6 +38,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @SpringComponent
@@ -46,23 +47,24 @@ import org.springframework.stereotype.Component;
 @UIScope
 @Component
 public class AddFromDirectModalWin extends Dialog {
-    private final ProductService productService;
+    transient private final ProductService productService;
     private final Grid<AcceptanceProductionDto> grid = new Grid<>(AcceptanceProductionDto.class, false);
     private final Grid<AcceptanceProductionDto> gridAdd = new Grid<>(AcceptanceProductionDto.class, false);
-    private List<AcceptanceProductionDto> data;
-    private List<AcceptanceProductionDto> acceptanceProduction = new ArrayList<>();
+    transient private List<AcceptanceProductionDto> data;
+    transient private List<AcceptanceProductionDto> acceptanceProduction = new ArrayList<>();
     private TextField countTextField = new TextField();
     private final Editor<AcceptanceProductionDto> editor = grid.getEditor();
     private final TextField amountField = new TextField();
-    private final AcceptanceProductionService acceptanceProductionService;
-    private final AcceptanceService acceptanceService;
-    private AcceptanceDto dto;
-    private final ContractService contractService;
-    private final WarehouseService warehouseService;
-    private final ContractorService contractorService;
-    private final Notifications notifications;
-    private final CompanyService companyService;
+    transient private final AcceptanceProductionService acceptanceProductionService;
+    transient private final AcceptanceService acceptanceService;
+    transient private AcceptanceDto dto;
+    transient private final ContractService contractService;
+    transient private final WarehouseService warehouseService;
+    transient private final ContractorService contractorService;
+    transient private final Notifications notifications;
+    transient private final CompanyService companyService;
 
+    @Autowired
     public AddFromDirectModalWin (ProductService productService,
                                   AcceptanceService acceptanceService,
                                   AcceptanceProductionService acceptanceProductionService,

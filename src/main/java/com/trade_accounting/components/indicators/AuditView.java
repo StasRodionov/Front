@@ -4,7 +4,6 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.indicators.AuditDto;
@@ -44,14 +43,12 @@ public class AuditView extends VerticalLayout {
     private final Grid<AuditDto> grid = new Grid<>(AuditDto.class, false);
     private final GridFilter<AuditDto> filter;
     private final GridPaginator<AuditDto> paginator;
-    private final EmployeeService employeeService;
-    private final AuditService auditService;
-    private final Notifications notifications;
+    transient private final EmployeeService employeeService;
+    transient private final AuditService auditService;
 
-    public AuditView(EmployeeService employeeService, AuditService auditService, Notifications notifications) {
+    public AuditView(EmployeeService employeeService, AuditService auditService) {
         this.employeeService = employeeService;
         this.auditService = auditService;
-        this.notifications = notifications;
         List<AuditDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();

@@ -42,14 +42,10 @@ public class BonusProgramModalWindow extends Dialog {
     private final Checkbox registrationInBonusProgram = new Checkbox();
     private final Checkbox firstPurchase = new Checkbox();
 
-    private final Select<String> defaultTaxationSystem = new Select<>();
-    private final Select<String> orderTaxationSystem = new Select<>();
-    //private final MultiSelectListBox<EmployeeDto> cashiers = new MultiSelectListBox<>();
+    transient private final BonusProgramService bonusProgramService;
+    transient private final ContractorGroupService contractorGroupService;
 
-    private final BonusProgramService bonusProgramService;
-    private final ContractorGroupService contractorGroupService;
-
-    private BonusProgramDto bonusProgramDtoToEdit = new BonusProgramDto();
+    transient private BonusProgramDto bonusProgramDtoToEdit = new BonusProgramDto();
     private Binder<BonusProgramDto> bonusProgramDtoBinder = new Binder<>(BonusProgramDto.class);
 
     public BonusProgramModalWindow(BonusProgramService bonusProgramService, ContractorGroupService contractorGroupService) {
@@ -165,10 +161,6 @@ public class BonusProgramModalWindow extends Dialog {
     private Component addContractorGroup() {
         Label label = new Label("Контрагенты из групп");
         label.setWidth(labelWidth);
-        /*List<ContractorGroupDto> contractorGroupDto = contractorGroupService.getAll().stream()
-                .collect(Collectors.toList());
-        contractorGroup.setItems(contractorGroupDto);
-        contractorGroup.setWidth(fieldWidth);*/
 
         List<String> contractorGroupNameDto = contractorGroupService.getAll().stream()
                 .map(ContractorGroupDto::getName)
@@ -189,7 +181,7 @@ public class BonusProgramModalWindow extends Dialog {
                 if (contractorGroup.isEmpty()) {
                     contractorGroup.setValue(bonusProgramDtoToEdit.getContractorGroupIds().stream().map(contractorGroupService::getById).collect(Collectors.toSet()));
                 }
-                //bonusProgramDtoToEdit.setContractorGroupIds(contractorGroup.getValue().stream().map(ContractorGroupDto::getId).collect(Collectors.toList()));
+
                 bonusProgramDtoToEdit.setContractorGroupIds(contractorGroup.getValue().stream()
                                 .filter(e1 -> contractorGroupName.getValue().stream().anyMatch(e2 -> e1.equals(e2)))
                                 .map(ContractorGroupDto::getId)

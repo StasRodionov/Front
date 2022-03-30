@@ -30,10 +30,10 @@ import java.util.List;
 @UIScope
 @SpringComponent
 public class BalanceAdjustmentModalView extends Dialog {
-    private final BalanceAdjustmentService balanceAdjustmentService;
-    private final CompanyService companyService;
-    private final ContractorService contractorService;
-    private BalanceAdjustmentDto dto;
+    transient private final BalanceAdjustmentService balanceAdjustmentService;
+    transient private final CompanyService companyService;
+    transient private final ContractorService contractorService;
+    transient private BalanceAdjustmentDto dto;
 
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
@@ -47,7 +47,10 @@ public class BalanceAdjustmentModalView extends Dialog {
     private final Binder<BalanceAdjustmentDto> balanceAdjustmentDtoBinder = new Binder<>(BalanceAdjustmentDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
 
-    private final Notifications notifications;
+    transient private final Notifications notifications;
+    private static final String ACTION_1 = "350px";
+    private static final String ACTION_2 = "100px";
+    private static final String ACTION_3 = "750px";
 
     public BalanceAdjustmentModalView(BalanceAdjustmentService balanceAdjustmentService, CompanyService companyService,
                                       ContractorService contractorService, Notifications notifications) {
@@ -124,19 +127,19 @@ public class BalanceAdjustmentModalView extends Dialog {
             if (!balanceAdjustmentDtoBinder.validate().isOk()) {
                 balanceAdjustmentDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
-                BalanceAdjustmentDto dto = new BalanceAdjustmentDto();
-                dto.setId(Long.parseLong(returnNumber.getValue()));
-                dto.setCompanyId(companyDtoComboBox.getValue().getId());
+                BalanceAdjustmentDto badto = new BalanceAdjustmentDto();
+                badto.setId(Long.parseLong(returnNumber.getValue()));
+                badto.setCompanyId(companyDtoComboBox.getValue().getId());
 
-                dto.setContractorId(contractorDtoComboBox.getValue().getId());
-                dto.setDate(dateTimePicker.getValue().toString());
+                badto.setContractorId(contractorDtoComboBox.getValue().getId());
+                badto.setDate(dateTimePicker.getValue().toString());
 
-                dto.setAccount(account.getValue());
-                dto.setCashOffice(cashOffice.getValue());
-                dto.setWhoChanged(whoChanged.getValue());
+                badto.setAccount(account.getValue());
+                badto.setCashOffice(cashOffice.getValue());
+                badto.setWhoChanged(whoChanged.getValue());
 
-                dto.setComment(textArea.getValue());
-                balanceAdjustmentService.create(dto);
+                badto.setComment(textArea.getValue());
+                balanceAdjustmentService.create(badto);
 
                 UI.getCurrent().navigate("balanceAdjustment");
                 close();
@@ -169,7 +172,7 @@ public class BalanceAdjustmentModalView extends Dialog {
     private HorizontalLayout dateConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("От");
-        dateTimePicker.setWidth("350px");
+        dateTimePicker.setWidth(ACTION_1);
         horizontalLayout.add(label, dateTimePicker);
         balanceAdjustmentDtoBinder.forField(dateTimePicker)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -184,9 +187,9 @@ public class BalanceAdjustmentModalView extends Dialog {
             companyDtoComboBox.setItems(list);
         }
         companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
-        companyDtoComboBox.setWidth("350px");
+        companyDtoComboBox.setWidth(ACTION_1);
         Label label = new Label("Организация");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, companyDtoComboBox);
         balanceAdjustmentDtoBinder.forField(companyDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -201,9 +204,9 @@ public class BalanceAdjustmentModalView extends Dialog {
             contractorDtoComboBox.setItems(list);
         }
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
-        contractorDtoComboBox.setWidth("350px");
+        contractorDtoComboBox.setWidth(ACTION_1);
         Label label = new Label("Контрагент");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.add(label, contractorDtoComboBox);
         balanceAdjustmentDtoBinder.forField(contractorDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -214,9 +217,9 @@ public class BalanceAdjustmentModalView extends Dialog {
     private HorizontalLayout commentConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Комментарий");
-        label.setWidth("100px");
-        horizontalLayout.setWidth("750px");
-        horizontalLayout.setHeight("100px");
+        label.setWidth(ACTION_2);
+        horizontalLayout.setWidth(ACTION_3);
+        horizontalLayout.setHeight(ACTION_2);
         horizontalLayout.add(label, textArea);
         return horizontalLayout;
     }
@@ -225,7 +228,7 @@ public class BalanceAdjustmentModalView extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Счет");
         label.setWidth("50px");
-        horizontalLayout.setWidth("750px");
+        horizontalLayout.setWidth(ACTION_3);
         horizontalLayout.setHeight("50px");
         horizontalLayout.add(label, account);
         return horizontalLayout;
@@ -235,7 +238,7 @@ public class BalanceAdjustmentModalView extends Dialog {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Касса");
         label.setWidth("50px");
-        horizontalLayout.setWidth("750px");
+        horizontalLayout.setWidth(ACTION_3);
         horizontalLayout.setHeight("50px");
         horizontalLayout.add(label, cashOffice);
         return horizontalLayout;
@@ -244,7 +247,7 @@ public class BalanceAdjustmentModalView extends Dialog {
     private HorizontalLayout whoChangedConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Кто изменил");
-        label.setWidth("100px");
+        label.setWidth(ACTION_2);
         horizontalLayout.setWidth("150px");
         horizontalLayout.setHeight("50px");
         horizontalLayout.add(label, whoChanged);
