@@ -107,7 +107,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final PurchaseForecastService purchaseForecastService;
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
-
+    PurchasesSubPurchasingManagementModalWindow purchasesSubPurchasingManagementModalWindow;
     //  private final String typeOfInvoice = "EXPENSE";
     //  private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
@@ -156,7 +156,9 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             ProductService productService,
                                             CompanyService companyService,
                                             ContractorService contractorService,
-                                            WarehouseService warehouseService) {
+                                            WarehouseService warehouseService,
+                                            PurchasesSubPurchasingManagementModalWindow purchasesSubPurchasingManagementModalWindow) {
+        this.purchasesSubPurchasingManagementModalWindow = purchasesSubPurchasingManagementModalWindow;
         this.productService = productService;
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
@@ -171,8 +173,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.warehouseService = warehouseService;
         this.toolbarWithFilters = ToolbarFilters();
         print = selectXlsTemplateButton.addItem("Печать");
-
-        //    this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
 
         loadSupplierAccounts();
         configureActions();
@@ -370,18 +370,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 .setWidth("1px")
                 .setId("№");
 
-//        grid.addColumn("date")   /*колонка не соответствует оригинальному сайту*/
-//                .setWidth("1px")
-//                .setId("data");
-
-//        grid.addColumn(iDto -> formatDate(iDto.getDate()))
-//                .setKey("date")
-//                .setHeader("Дата")
-//                .setSortable(true)
-//                .setWidth("1px")
-//                .setId("Дата");
-
-        grid.addColumn(dto -> productService.getById(dto.getProductNameId()).getName())
+        grid.addColumn(PurchaseControlDto::getProductNameId)
                 .setHeader("Наименование")
                 .setKey("product_name")
                 .setResizable(true)
@@ -663,12 +652,23 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private MenuBar orderSupplier() {
+        //Text selected = new Text("");
+        //ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
         MenuBar menuBar = new MenuBar();
 
         MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PLUS_CIRCLE, "Заказ поставщику", null);
         SubMenu orderSub = supplierOrder.getSubMenu();
-        orderSub.addItem("Общий");                   /*Заглушка: требует реализации*/
-        orderSub.addItem("Разбить по поставщикам");  /*Заглушка: требует реализации*/
+
+        //orderSub.addItem("Общий", listener);
+        //orderSub.addItem("Разбить по поставщикам", listener);
+
+        supplierOrder.addClickListener(event -> {
+                purchasesSubPurchasingManagementModalWindow.resetView();
+                purchasesSubPurchasingManagementModalWindow.setUpdateState(false);
+                purchasesSubPurchasingManagementModalWindow.setType("EXPENSE");
+                purchasesSubPurchasingManagementModalWindow.setLocation("purchases");
+                supplierOrder.getUI().ifPresent(ui -> ui.navigate("purchases/new-order-purchases"));
+        });
         return menuBar;
     }
 

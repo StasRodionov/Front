@@ -726,6 +726,10 @@ public class OperationsView extends VerticalLayout {
         supplierOrders.addClickListener(e -> operations.getUI()
                 .ifPresent(ui -> ui.navigate("sells/customer-order-edit")));
 
+//        MenuItem supplierNewOrders = operationsSubMenu.addItem("Новый заказ поставщикам");
+//        supplierNewOrders.addClickListener(e -> operations.getUI()
+//                .ifPresent(ui -> ui.navigate("purchases/new-order-purchases")));
+
         MenuItem vendorAccounts = operationsSubMenu.addItem("Счета поставщиков", menuItemClickEvent -> supplierAccountModalView.open());
         MenuItem admissions = operationsSubMenu.addItem("Приемка", menuItemClickEvent -> acceptanceModalView.open());
 
