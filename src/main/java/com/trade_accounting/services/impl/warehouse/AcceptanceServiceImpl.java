@@ -34,9 +34,22 @@ public class AcceptanceServiceImpl implements AcceptanceService {
 
     @Override
     public List<AcceptanceDto> getAll() {
-        Call<List<AcceptanceDto>> acceptanceDtoListCall = acceptanceApi.getAll(acceptanceUrl);
-        return callExecuteService.callExecuteBodyList(acceptanceDtoListCall, AcceptanceDto.class);
+        List<AcceptanceDto> acceptanceDtoList = new ArrayList<>();
+        Call<List<AcceptanceDto>> callListAcceptances = acceptanceApi.getAll(acceptanceUrl);
+        try {
+            acceptanceDtoList = callListAcceptances.execute().body();
+            log.info("Успешно выполнен запрос на получение списка AcceptanceDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение списка AcceptanceDto - {IOException}", e);
+        }
+        return acceptanceDtoList;
     }
+
+//    @Override
+//    public List<AcceptanceDto> getAll() {
+//        Call<List<AcceptanceDto>> acceptanceDtoListCall = acceptanceApi.getAll(acceptanceUrl);
+//        return callExecuteService.callExecuteBodyList(acceptanceDtoListCall, AcceptanceDto.class);
+//    }
 
     @Override
     public AcceptanceDto getById(Long id) {
