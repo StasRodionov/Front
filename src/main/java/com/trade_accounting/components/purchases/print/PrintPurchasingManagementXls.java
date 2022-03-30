@@ -5,6 +5,7 @@ import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSalesService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.util.List;
 public class PrintPurchasingManagementXls extends PrintExcelDocument<PurchaseControlDto> {
     private final EmployeeService employeeService;
     private final ProductPriceService productPriceService;
+    private final ProductService productService;
     private final PurchaseHistoryOfSalesService purchaseHistoryOfSalesService;
 
 //    private final List<String> sumList;
@@ -20,8 +22,12 @@ public class PrintPurchasingManagementXls extends PrintExcelDocument<PurchaseCon
 
 
     public PrintPurchasingManagementXls(String pathToXlsTemplate, List<PurchaseControlDto> list,
-                                         EmployeeService employeeService, ProductPriceService productPriceService, PurchaseHistoryOfSalesService purchaseHistoryOfSalesService) {
+                                        EmployeeService employeeService,
+                                        ProductPriceService productPriceService,
+                                        PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
+                                        ProductService productService) {
         super(pathToXlsTemplate, list);
+        this.productService = productService;
         this.employeeService = employeeService;
         this.productPriceService = productPriceService;
         this.purchaseHistoryOfSalesService = purchaseHistoryOfSalesService;
@@ -48,7 +54,7 @@ public class PrintPurchasingManagementXls extends PrintExcelDocument<PurchaseCon
                 editCell.setCellValue(String.valueOf(model.getId()));
                 break;
             case ("<name>"):
-                editCell.setCellValue(model.getProductName());
+                editCell.setCellValue(String.valueOf((productService.getById(model.getProductNameId()).getId())));
                 break;
             case ("<article>"):
                 editCell.setCellValue(model.getArticleNumber());

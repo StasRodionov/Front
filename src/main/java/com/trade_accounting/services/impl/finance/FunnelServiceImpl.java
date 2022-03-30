@@ -1,7 +1,6 @@
 package com.trade_accounting.services.impl.finance;
 
 import com.trade_accounting.models.dto.finance.FunnelDto;
-import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.services.api.finance.FunnelApi;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.finance.FunnelService;
@@ -63,12 +62,17 @@ public class FunnelServiceImpl implements FunnelService {
     }
 
     @Override
+    public List<FunnelDto> getAllByType(String type) {
+        List<FunnelDto> list = getAll();
+        list.removeIf(funnelDto -> !Objects.equals(funnelDto.getType(), type));
+        return list;
+    }
+
+    @Override
     public FunnelDto getById(Long id) {
         Call<FunnelDto> funnelDtoCall = funnelApi.getById(funnelUrl, id);
         return dtoCallExecuteService.callExecuteBodyById(funnelDtoCall, FunnelDto.class, id);
     }
-
-    }
-
+}
 
 

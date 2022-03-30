@@ -18,7 +18,10 @@ public class PurchaseControlDto {
     private Long id;
 
     @NotNull
-    private String productName;
+    private Long productNameId;
+
+    @NotNull
+    private String date;
 
     @NotNull
     private Long productCode;
@@ -29,7 +32,16 @@ public class PurchaseControlDto {
     @NotNull
     private String productMeasure;
 
+    @NotNull
+    private Long companyId;
 
+    @NotNull
+    private Long warehouseId;
+
+    @NotNull
+    private Long contractorId;
+
+    @NotNull
     private Long productQuantity;
 
     @NotNull

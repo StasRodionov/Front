@@ -16,6 +16,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 public class Buttons {
 
+    private Buttons() {
+        throw new IllegalStateException("Buttons class");
+    }
+
     public static Button buttonQuestion(Component ... components) {
         HorizontalLayout layout = new HorizontalLayout(new Div(components));
         var notification = new Notification(layout);

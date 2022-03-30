@@ -1,7 +1,9 @@
 package com.trade_accounting.services.api.purchases;
 
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
 
+import com.trade_accounting.models.dto.retail.RetailStoreDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -10,8 +12,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PurchaseControlApi {
 
@@ -23,6 +27,11 @@ public interface PurchaseControlApi {
     @GET("{url}/search/{nameFilter}")
     Call<List<PurchaseControlDto>> searchByString(@Path(value = "url", encoded = true) String url,
                                                   @Path(value = "nameFilter", encoded = true) String nameFilter);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchPurchaseControlByFilter")
+    Call<List<PurchaseControlDto>> searchPurchaseControlByFilter(@Path(value = "url", encoded = true) String url,
+                                                                 @QueryMap Map<String, String> queryRetailStore);
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
@@ -39,4 +48,10 @@ public interface PurchaseControlApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/filter")
+    Call<List<PurchaseControlDto>> newFilter(@Path(value = "url", encoded = true) String url,
+                                             @QueryMap Map<String,String> map);
+
 }

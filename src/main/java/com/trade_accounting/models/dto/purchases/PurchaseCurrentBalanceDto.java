@@ -1,5 +1,6 @@
 package com.trade_accounting.models.dto.purchases;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,19 +11,18 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PurchaseCurrentBalanceDto {
-
     @NotNull
     private Long id;
 
-    private Long restOfTheWarehouse;
+    private String restOfTheWarehouse;
 
     private Long productsReserve;
 
     private Long productsAwaiting;
 
-    private Long productsAvailableForOrder;
+    private String productsAvailableForOrder;
 
     private Long daysStoreOnTheWarehouse;
 }

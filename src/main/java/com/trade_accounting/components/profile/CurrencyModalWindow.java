@@ -51,7 +51,7 @@ public class CurrencyModalWindow extends Dialog {
 
     private HorizontalLayout header() {
         HorizontalLayout header = new HorizontalLayout();
-        fullNameField.setWidth("345px");
+        fullNameField.setWidth("350px");
         header.add(fullNameField, getSaveButton(), getCancelButton(), getDeleteButton());
         return header;
     }
@@ -69,7 +69,7 @@ public class CurrencyModalWindow extends Dialog {
         Label label = new Label("Цифровой код");
         label.setWidth(labelWidth);
         digitalCodeField.setWidth(fieldWidth);
-        digitalCodeField.getStyle().set("minHeight", "120px");
+        digitalCodeField.getStyle().set("minHeight", "30px");
         horizontalLayout.add(label, digitalCodeField);
         return horizontalLayout;
     }
@@ -79,7 +79,7 @@ public class CurrencyModalWindow extends Dialog {
         Label label = new Label("Буквенный код");
         label.setWidth(labelWidth);
         letterCodeField.setWidth(fieldWidth);
-        letterCodeField.getStyle().set("minHeight", "120px");
+        letterCodeField.getStyle().set("minHeight", "60px");
         horizontalLayout.add(label, letterCodeField);
         return horizontalLayout;
     }
@@ -89,7 +89,7 @@ public class CurrencyModalWindow extends Dialog {
         Label label = new Label("Сортировочный номер");
         label.setWidth(labelWidth);
         sortNumberField.setWidth(fieldWidth);
-        sortNumberField.getStyle().set("minHeight", "120px");
+        sortNumberField.getStyle().set("minHeight", "30px");
         horizontalLayout.add(label, sortNumberField);
         return horizontalLayout;
     }

@@ -9,6 +9,8 @@ public interface PurchaseControlService {
 
     List<PurchaseControlDto> getAll();
 
+//    List<PurchaseControlDto> getAll(String purchaseControl);
+
     PurchaseControlDto getById(Long id);
 
     void create(PurchaseControlDto purchaseControlDto);
@@ -21,4 +23,5 @@ public interface PurchaseControlService {
 
     List<PurchaseControlDto> searchByFilter(Map<String, String> query);
 
+    List<PurchaseControlDto> newFilter(Map<String, String> query);
 }

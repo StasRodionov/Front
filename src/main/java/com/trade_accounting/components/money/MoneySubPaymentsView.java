@@ -93,7 +93,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         configureScroller();
         this.paginator = new GridPaginator<>(grid, data, 10);
         this.filter = new GridFilter<>(grid);
-        configureScroller();
+        //configureScroller();
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -159,7 +159,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
                 .setKey("projectDto").setHeader("Проект").setId("Проект");
         grid.setHeight("73vh");
         grid.setClassNameGenerator(paymentDto -> {
-            if(paymentDto.getIsConducted() == false) {
+            if(paymentDto.getConducted() == false) {
                 return "not-conducted";
             }
             return "";
@@ -308,7 +308,13 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     /*Кнопка Вопрос*/
     private Button getButtonQuestion() {
-        return Buttons.buttonQuestion("Добавьте описание");
+        return Buttons.buttonQuestion("На основе платежей формируются взаиморасчеты с контрагентами.\n" +
+                "\n" +
+                "Входящий и исходящий платежи изменяют баланс на расчетных счетах организации, то есть используются " +
+                "для учета безналичных платежей. Приходный и расходный ордеры учитывают наличные платежи, то есть изменяют " +
+                "баланс в кассе организации. Также можно импортировать выписку из банка.\n" +
+                "\n" +
+                "Платежные документы можно привязать сразу к нескольким товарным документам.");
     }
 
     /*Меню Изменить*/
@@ -349,7 +355,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private void conductPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (PaymentDto paymentDto: grid.getSelectedItems()) {
-                paymentService.getById(paymentDto.getId()).setIsConducted(true);
+                paymentService.getById(paymentDto.getId()).setConducted(true);
                 notifications.infoNotification("Выбранные платежи успешно проведены");
             }
         } else {
@@ -360,8 +366,8 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private void removeConductPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
             for (PaymentDto paymentDto: grid.getSelectedItems()) {
-                paymentService.getById(paymentDto.getId()).setIsConducted(false);
-                notifications.infoNotification("Выбранные платежи успешно проведены");
+                paymentService.getById(paymentDto.getId()).setConducted(false);
+                notifications.infoNotification("Выбранные платежи успешно распроведены");
             }
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные платежы");
@@ -388,7 +394,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         BigDecimal credit = BigDecimal.ZERO;
         BigDecimal expense = BigDecimal.ZERO;
         for (PaymentDto paymentDto: data) {
-            if (paymentDto.getIsConducted()) {
+            if (paymentDto.getConducted()) {
                 if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
                     credit = credit.add(paymentDto.getSum());
                 } else {

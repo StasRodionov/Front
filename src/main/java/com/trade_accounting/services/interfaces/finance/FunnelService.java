@@ -12,5 +12,7 @@ public interface FunnelService {
 
     List<FunnelDto> searchByFilter(Map<String ,String> query);
 
+    List<FunnelDto> getAllByType(String type);
+
     FunnelDto getById(Long id);
 }

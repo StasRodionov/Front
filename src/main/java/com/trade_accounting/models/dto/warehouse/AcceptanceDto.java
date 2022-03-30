@@ -33,9 +33,11 @@ public class AcceptanceDto extends AcceptanceDtoForValidation {
 
     private String comment;
 
-    private Boolean isSent = null;
+    private Boolean isSend;
 
-    private Boolean isPrint = null;
+    private Boolean isSent;
+
+    private Boolean isPrint;
 
     private List<AcceptanceProductionDto> acceptanceProduction;
 

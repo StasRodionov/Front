@@ -79,45 +79,45 @@ public class EditSelectedModalWindow extends Dialog {
     }
 
     private H2 title() {
-        return new H2("Массовое редактирование заказов");
+        return new H2("Массовое редактирование списаний");
     }
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
 
-                for(InternalOrderDto dto : list) {
+            for(InternalOrderDto dto : list) {
 
-                    if(returnNumber.getValue() != "") {
-                        dto.setId(Long.parseLong(returnNumber.getValue()));
-                        dto.setInternalOrderProductsIds(dto.getInternalOrderProductsIds());
-                        dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-                        dto.setDate(dateTimePicker.getValue().toString());
-                        dto.setCompanyId(companyDtoComboBox.getValue().getId());
-                    }
-
-                    if(warehouseDtoComboBox.getValue() == null) {
-                        dto.setWarehouseId(dto.getWarehouseId());
-                    } else {
-                        dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-                    }
-
-                    if(companyDtoComboBox.getValue() == null) {
-                        dto.setCompanyId(dto.getCompanyId());
-                    } else {
-                        dto.setCompanyId(companyDtoComboBox.getValue().getId());
-                    }
-
-                    if(dateTimePicker.getValue() == null) {
-                        dto.setDate(dto.getDate());
-                    } else {
-                        dto.setDate(dateTimePicker.getValue().toString());
-                    }
-
-                    internalOrderService.create(dto);
+                if(!returnNumber.getValue().equals("")) {
+                    dto.setId(Long.parseLong(returnNumber.getValue()));
+                    dto.setInternalOrderProductsIds(dto.getInternalOrderProductsIds());
+                    dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+                    dto.setDate(dateTimePicker.getValue().toString());
+                    dto.setCompanyId(companyDtoComboBox.getValue().getId());
                 }
-                notifications.infoNotification("Выбранные заказы успешно отредактированы");
-                close();
-                UI.getCurrent().navigate("internalorder");
+
+                if(warehouseDtoComboBox.getValue() == null) {
+                    dto.setWarehouseId(dto.getWarehouseId());
+                } else {
+                    dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
+                }
+
+                if(companyDtoComboBox.getValue() == null) {
+                    dto.setCompanyId(dto.getCompanyId());
+                } else {
+                    dto.setCompanyId(companyDtoComboBox.getValue().getId());
+                }
+
+                if(dateTimePicker.getValue() == null) {
+                    dto.setDate(dto.getDate());
+                } else {
+                    dto.setDate(dateTimePicker.getValue().toString());
+                }
+
+                internalOrderService.create(dto);
+            }
+            notifications.infoNotification("Выбранные списания успешно отредактированы");
+            close();
+            UI.getCurrent().navigate("internalorder");
         });
     }
 

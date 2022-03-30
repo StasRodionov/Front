@@ -111,6 +111,7 @@ public class ContractModalWindow extends Dialog {
 
     public void setContractDataForEdit(ContractDto contractDto) {
         setHeader("Редактирование");
+        contractId = contractDto.getId();
         dateField.setValue(LocalDate.parse(contractDto.getContractDate()));
         amountField.setValue(contractDto.getAmount().toString());
         archiveField.setValue(contractDto.getArchive());

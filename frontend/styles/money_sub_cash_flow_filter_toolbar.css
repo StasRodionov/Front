@@ -1,0 +1,8 @@
+.toolbarWithFilters {
+    background-color: rgb(231, 234, 239);
+    border-radius: 4px;
+    width: 100%;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: baseline;
+}

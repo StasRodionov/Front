@@ -13,11 +13,15 @@ spring:
     username: trade_test42@mail.ru
     password: 62M8ZcThdpetP3EDmjeH
     properties:
-      mail.smtp.auth : true
-      mail.smtp.starttls : true
+      mail.smtp.auth: true
+      mail.smtp.starttls: true
 
 vaadin:
   whitelisted-packages: com/trade_accounting/components
+
+dadata:
+  client:
+    token: be01a29604fd6048e177d8c793c2ae545d16c02d
 
 invoice_received_url: api/invoice_received
 
@@ -151,17 +155,17 @@ inventarization_product_url: api/inventarization/product
 
 internal_order_url: api/internalorder
 
-internal_order_product_url:  api/internalorder/product
+internal_order_product_url: api/internalorder/product
 
-payout_url:  api/payout
+payout_url: api/payout
 
 acceptance_url: api/acceptance
 
 acceptance_product_url: api/acceptance/product
 
-movement_url:  /api/movement
+movement_url: /api/movement
 
-movement_product_url:  /api/movement/product
+movement_product_url: /api/movement/product
 
 moneySubProfitLoss_url: /api/profitloss
 
@@ -198,4 +202,8 @@ supplier_account_products_list_url: /api/supplier-account-products-list
 audit_url: /api/audit
 
 funnel_url: /api/funnel
+
+serial_numbers_url: /api/serialnumbers
+
+account_url: /api/account
 #debug: true
