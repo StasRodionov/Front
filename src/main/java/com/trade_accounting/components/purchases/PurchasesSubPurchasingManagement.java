@@ -370,7 +370,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 .setWidth("1px")
                 .setId("№");
 
-        grid.addColumn(PurchaseControlDto::getProductName)
+        grid.addColumn(PurchaseControlDto::getProductNameId)
                 .setHeader("Наименование")
                 .setKey("product_name")
                 .setResizable(true)
@@ -884,7 +884,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReport), "Печать в формате Excel: " + templateName);
     }
@@ -896,7 +897,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportPDF), "Печать в формате PDF: " + templateName);
     }
@@ -908,7 +910,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportODS), "Печать в формате Office Calc: " + templateName);
     }
@@ -920,7 +923,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 products,
                 employeeService,
                 productPriceService,
-                purchaseHistoryOfSalesService
+                purchaseHistoryOfSalesService,
+                productService
         );
         return new Anchor(new StreamResource(templateName, printPurchasingManagementXls::createReportHTML), "Открыть в браузере: " + templateName);
     }
