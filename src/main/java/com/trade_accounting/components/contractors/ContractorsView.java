@@ -2,6 +2,7 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.services.impl.dadata.DadataAddressServiceImpl;
 import com.trade_accounting.services.interfaces.company.AddressService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.ContactService;
@@ -13,6 +14,7 @@ import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.dadata.DadataAddressService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -45,6 +47,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
     private final AddressService addressService;
     private final ContractsView contractsView;
     private final ContactService contactService;
+    private final DadataAddressService dadataAddressService;
 
     @Autowired
     public ContractorsView(Notifications notifications,
@@ -59,7 +62,8 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                            BankAccountService bankAccountService,
                            AddressService addressService,
                            ContractsView contractsView,
-                           ContactService contactService) {
+                           ContactService contactService,
+                           DadataAddressService dadataAddressService) {
         this.notifications = notifications;
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
@@ -73,6 +77,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
         this.bankAccountService = bankAccountService;
         this.addressService = addressService;
         this.contactService = contactService;
+        this.dadataAddressService = dadataAddressService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -97,7 +102,8 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                     employeeService,
                     bankAccountService,
                     addressService,
-                    contactService));
+                    contactService,
+                    dadataAddressService));
         });
     }
 
@@ -114,7 +120,7 @@ public class ContractorsView extends Div implements AfterNavigationObserver {
                     div.removeAll();
                     div.add(new ContractorsTabView(notifications, contractorService, contractorGroupService,
                             typeOfContractorService, typeOfPriceService, legalDetailService, contractorStatusService,
-                            departmentService, employeeService, bankAccountService, addressService, contactService));
+                            departmentService, employeeService, bankAccountService, addressService, contactService, dadataAddressService));
                     break;
                 case "Договоры":
                     div.removeAll();

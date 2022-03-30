@@ -19,6 +19,10 @@ spring:
 vaadin:
   whitelisted-packages: com/trade_accounting/components
 
+dadata:
+  client:
+    token: be01a29604fd6048e177d8c793c2ae545d16c02d
+
 invoice_received_url: api/invoice_received
 
 issued_invoice_url: api/issuedInvoice
@@ -200,4 +204,6 @@ audit_url: /api/audit
 funnel_url: /api/funnel
 
 serial_numbers_url: /api/serialnumbers
+
+account_url: /api/account
 #debug: true

@@ -384,7 +384,7 @@ public class MovementViewModalWindow extends Dialog {
                 dto.setMovementProductsIds(idList);
                 movementService.create(dto);
 
-                UI.getCurrent().navigate("goods");
+                UI.getCurrent().navigate("movementView");
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Перемещение c ID=%s сохранен", dto.getId()));

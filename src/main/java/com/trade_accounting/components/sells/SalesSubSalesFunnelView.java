@@ -72,8 +72,6 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private final Tabs tabs = new Tabs(invoices, contractors);
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
-    private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/sales_templates/funnel/";
-
 
 
     public SalesSubSalesFunnelView(ContractorStatusService contractorStatusService, InvoicesStatusService invoicesStatusService, FunnelService funnelService) {
@@ -115,7 +113,7 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
         contractorFilter.setFieldToIntegerField("count");
         contractorFilter.setFieldToIntegerField("conversion");
         contractorFilter.onSearchClick(e -> contractorPaginator.setData(funnelService.searchByFilter(contractorFilter.getFilterData())
-                        .stream().filter(this::isContractorFunnelDto).collect(Collectors.toList())));
+                .stream().filter(this::isContractorFunnelDto).collect(Collectors.toList())));
         contractorFilter.onClearClick(e -> updateList());
     }
 
@@ -228,114 +226,17 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
         }
     }
 
-    private void uploadXlsMenuItem(SubMenu subMenu) {
-        MenuItem menuItem = subMenu.addItem("Добавить шаблон");
-        Dialog dialog = new Dialog();
-        MemoryBuffer buffer = new MemoryBuffer();
-        Upload upload = new Upload(buffer);
-        configureUploadFinishedListener(upload, buffer, dialog);
-        dialog.add(upload);
-        menuItem.addClickListener(x -> dialog.open());
-    }
-
-    private void configureUploadFinishedListener(Upload upload, MemoryBuffer buffer, Dialog dialog) {
-        upload.addFinishedListener(event -> {
-            if (getXlsFiles().stream().map(File::getName).anyMatch(x -> x.equals(event.getFileName()))) {
-                getErrorNotification("Файл с таким именем уже существует");
-            } else {
-                File exelTemplate = new File(pathForSaveXlsTemplate + event.getFileName());
-                try (FileOutputStream fos = new FileOutputStream(exelTemplate)) {
-                    fos.write(buffer.getInputStream().readAllBytes());
-                    configureSelectXlsTemplateButton();
-                    getInfoNotification("Файл успешно загружен");
-                    log.info("xls шаблон успешно загружен");
-                } catch (IOException e) {
-                    getErrorNotification("При загрузке шаблона произошла ошибка");
-                    log.error("при загрузке xls шаблона произошла ошибка");
-                }
-                dialog.close();
-            }
-        });
-    }
 
     private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.removeAll();
-        templatesXlsMenuItems(printSubMenu);
-        uploadXlsMenuItem(printSubMenu);
-    }
-
-    private void templatesXlsMenuItems(SubMenu subMenu) {
-
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsInvoiceTemplate(x)));
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToPdfInvoiceTemplate(x)));
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToOdsInvoiceTemplate(x)));
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsContractorTemplate(x)));
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToPdfContractorTemplate(x)));
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToOdsContractorTemplate(x)));
-    }
-
-    private List<File> getXlsFiles() {
-        File dir = new File(pathForSaveXlsTemplate);
-        return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
-                .contains(".xls")).collect(Collectors.toList());
-    }
-
-
-    private Anchor getLinkToXlsInvoiceTemplate(File file) {
-        String templateName = file.getName();
-        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("invoice"));
-        return new Anchor(new StreamResource(templateName, printFunnelXls::createReport), "Скачать по заказам в формате Excel");
-    }
-
-    private Anchor getLinkToPdfInvoiceTemplate(File file) {
-        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
-        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("invoice"));
-        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportPDF), "Скачать по заказам в формате PDF");
-    }
-
-    private Anchor getLinkToOdsInvoiceTemplate(File file) {
-        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".ods";
-        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("invoice"));
-        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportODS), "Скачать по заказам в формате Office Calc");
-    }
-
-    private Anchor getLinkToXlsContractorTemplate(File file) {
-        String templateName = file.getName();
-        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("contractor"));
-        return new Anchor(new StreamResource(templateName, printFunnelXls::createReport), "Скачать по контрагентам в формате Excel");
-    }
-
-    private Anchor getLinkToPdfContractorTemplate(File file) {
-        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".pdf";
-        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("contractor"));
-        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportPDF), "Скачать по контрагентам в формате PDF");
-    }
-
-    private Anchor getLinkToOdsContractorTemplate(File file) {
-        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".ods";
-        PrintFunnelXls printFunnelXls = new PrintFunnelXls(file.getPath(), funnelService.getAllByType("contractor"));
-        return new Anchor(new StreamResource(templateName, printFunnelXls::createReportODS), "Скачать по контрагентам в формате Office Calc");
-    }
-
-
-    private void getErrorNotification(String message) {
-        Div content = new Div();
-        content.addClassName("my-style");
-        content.setText(message);
-        Notification notification = new Notification(content);
-        notification.setDuration(5000);
-        String styles = ".my-style { color: red; }";
-        StreamRegistration resource = UI.getCurrent().getSession()
-                .getResourceRegistry()
-                .registerResource(new StreamResource("styles.css", () ->
-                        new ByteArrayInputStream(styles.getBytes(StandardCharsets.UTF_8))));
-        UI.getCurrent().getPage().addStyleSheet(
-                "base://" + resource.getResourceUri().toString());
-        notification.open();
-    }
-    private void getInfoNotification(String message) {
-        Notification notification = new Notification(message, 5000);
-        notification.open();
+        printSubMenu.addItem("Воронка продаж по заказам", event -> {
+            PrintInvoiceFunnelModalView view = new PrintInvoiceFunnelModalView(funnelService);
+            view.open();
+        });
+        printSubMenu.addItem("Воронка продаж по контрагентам", event -> {
+            PrintContractorFunnelModalView view = new PrintContractorFunnelModalView(funnelService);
+            view.open();
+        });
     }
 }

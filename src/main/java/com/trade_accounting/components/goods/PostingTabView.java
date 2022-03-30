@@ -1,11 +1,10 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
-import com.trade_accounting.components.purchases.SupplierAccountModalView;
+import com.trade_accounting.components.general.ProductSelectModal;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
@@ -14,6 +13,8 @@ import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
 import com.trade_accounting.services.interfaces.finance.CorrectionService;
+import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -47,7 +48,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringComponent
@@ -56,14 +56,16 @@ import java.util.List;
 @UIScope
 public class PostingTabView extends VerticalLayout  implements AfterNavigationObserver {
 
+    private final ProductService productService;
     private final CorrectionService correctionService;
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final CorrectionProductService correctionProductService;
+    private final ProductPriceService productPriceService;
     private final PostingCreateView postingCreateView;
     private Notifications notifications;
     private final PostingModal modalWindow;
-
+    private final ProductSelectModal productSelectModal;
     private final List<CorrectionDto> data;
 
     private final Grid<CorrectionDto> grid = new Grid<>(CorrectionDto.class, false);
@@ -80,6 +82,9 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
                           CorrectionProductService correctionProductService,
                           PostingCreateView postingCreateView,
                           Notifications notifications,
+                          ProductService productService,
+                          ProductSelectModal productSelectModal,
+                          ProductPriceService productPriceService,
                           PostingModal modalWindow) {
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
@@ -88,6 +93,9 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
         this.postingCreateView = postingCreateView;
         this.notifications = notifications;
         this.modalWindow = modalWindow;
+        this.productService = productService;
+        this.productPriceService = productPriceService;
+        this.productSelectModal = productSelectModal;
         this.data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -119,10 +127,14 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
         grid.addItemDoubleClickListener(event -> {
             CorrectionDto correctionDto = event.getItem();
             PostingModal postingModal = new PostingModal(
+                    productService,
                     correctionService,
                     warehouseService,
                     companyService,
-                    notifications);
+                    notifications,
+                    correctionProductService,
+                    productSelectModal,
+                    productPriceService);
             postingModal.setPostingEdit(correctionDto);
             postingModal.open();
         });

@@ -11,6 +11,5 @@ import com.vaadin.flow.router.RouteAlias;
 public class MainLayout extends VerticalLayout {
 
     public MainLayout() {
-
     }
 }

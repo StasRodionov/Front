@@ -162,7 +162,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                 .setId("Оплачено");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
-        grid.setHeight("66vh");
+        grid.setHeight("100vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {

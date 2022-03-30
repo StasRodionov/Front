@@ -20,7 +20,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @SpringComponent
 @UIScope
 public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
-
     private final GoodsView goodsView;
     private final PostingTabView postingTabView;
     private final GoodsSubInventory goodsSubInventory;
@@ -131,7 +130,7 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
 
 
-        HorizontalLayout priceLayoutTab = new HorizontalLayout(new Label("Прайс-лист"));
+        HorizontalLayout priceLayoutTab = new HorizontalLayout(new Label("Прайс-листы"));
 
         priceLayoutTab.addClickListener(event ->
                 priceLayoutTab.getUI().ifPresent(ui -> {

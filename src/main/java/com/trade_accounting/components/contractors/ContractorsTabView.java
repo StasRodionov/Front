@@ -8,6 +8,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.services.impl.dadata.DadataAddressServiceImpl;
 import com.trade_accounting.services.interfaces.company.AddressService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.ContactService;
@@ -19,6 +20,7 @@ import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.dadata.DadataAddressService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -87,6 +89,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final MenuItem print;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
     private final ContactService contactService;
+    private final DadataAddressService dadataAddressService;
 
 
     public ContractorsTabView(Notifications notifications,
@@ -97,7 +100,7 @@ public class ContractorsTabView extends VerticalLayout {
                               LegalDetailService legalDetailService, ContractorStatusService contractorStatusService,
                               DepartmentService departmentService, EmployeeService employeeService,
                               BankAccountService bankAccountService, AddressService addressService,
-                              ContactService contactService) {
+                              ContactService contactService, DadataAddressService dadataAddressService) {
         this.notifications = notifications;
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
@@ -110,6 +113,7 @@ public class ContractorsTabView extends VerticalLayout {
         this.bankAccountService = bankAccountService;
         this.addressService = addressService;
         this.contactService = contactService;
+        this.dadataAddressService = dadataAddressService;
         print = selectXlsTemplateButton.addItem("печать");
 
         this.data = getData();
@@ -162,7 +166,9 @@ public class ContractorsTabView extends VerticalLayout {
                     employeeService,
                     bankAccountService,
                     addressService,
-                    contactService);
+                    contactService,
+                    dadataAddressService
+                    );
             contractorModalWindow.setContractorDataForEdit(contractorDto);
             contractorModalWindow.open();
         });
@@ -174,7 +180,7 @@ public class ContractorsTabView extends VerticalLayout {
                 new ContractorModalWindow(new ContractorDto(),
                         contractorService, contractorGroupService, typeOfContractorService, typeOfPriceService,
                         legalDetailService, contractorStatusService, departmentService, employeeService, bankAccountService, addressService,
-                        contactService);
+                        contactService, dadataAddressService);
         buttonUnit.addClickListener(event -> addContractorModalWindowCreate.open());
         addContractorModalWindowCreate.addDetachListener(event -> updateList());
         return buttonUnit;

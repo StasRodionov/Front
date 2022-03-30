@@ -56,7 +56,4 @@ public class ProductDto {
     private String saleTax;
 
     private int minimumBalance;
-
-
-
 }

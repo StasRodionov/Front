@@ -1,6 +1,7 @@
 package com.trade_accounting.components.settings;
 
 import com.trade_accounting.components.AppView;
+import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
@@ -10,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Route(value = "profile/settings", layout = AppView.class)
 @PageTitle("Настройки")
 @Slf4j
-public class SettingsView extends AppView {
+public class SettingsView extends AppLayout {
 
     public SettingsView() {
         super();
@@ -21,16 +22,16 @@ public class SettingsView extends AppView {
     private Tabs lowerLayout() {
 
         Tabs tabs = new Tabs(
-                configureCompanySettingsTab(),
-                configureCurrencyTab(),
-                configureUnitsTab(),
                 configureWarehousesTab(),
                 configureDiscountTab(),
                 configureEmployeesTab(),
                 configureExportTab(),
                 configureImportTab(),
                 configureLegalEntitiesTab(),
-                configureScenarioTab()
+                configureScenarioTab(),
+                configureCompanySettingsTab(),
+                configureCurrencyTab(),
+                configureUnitsTab()
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
@@ -98,13 +99,19 @@ public class SettingsView extends AppView {
     private Tab configureCurrencyTab() {
         Tab tab = new Tab();
         tab.setLabel("Валюта");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate("profile/settings/currency_settings"));
+        });
         return tab;
     }
 
 
     private Tab configureUnitsTab() {
         Tab tab = new Tab();
-        tab.setLabel("Еденицы измерения");
+        tab.setLabel("Единицы измерения");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate("profile/settings/units_settings"));
+        });
         return tab;
     }
 }

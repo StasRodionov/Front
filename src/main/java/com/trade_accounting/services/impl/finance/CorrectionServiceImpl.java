@@ -73,7 +73,8 @@ public class CorrectionServiceImpl implements CorrectionService {
 
     @Override
     public void update(CorrectionDto correctionDto) {
-
+        Call<Void> correctionDtoCall = correctionApi.update(correctionUrl, correctionDto);
+        callExecuteService.callExecuteBodyUpdate(correctionDtoCall, CorrectionDto.class);
     }
 
     @Override
