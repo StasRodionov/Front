@@ -58,8 +58,10 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <!-- https://stackoverflow.com/questions/66836145/intellij-idea-compilation-error-with-project-lombok-in-jdk-16 -->
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
             <optional>true</optional>
         </dependency>
         <dependency>
