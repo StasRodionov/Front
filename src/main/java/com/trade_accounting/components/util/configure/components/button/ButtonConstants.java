@@ -3,9 +3,6 @@ package com.trade_accounting.components.util.configure.components.button;
 public class ButtonConstants {
 
     public static final String BUTTON_START_LEARNING = "Начать обучение";
-    public static final String BUTTON_WEEK = "Неделя";
-    public static final String BUTTON_MONTH = "Месяц";
-    public static final String BUTTON_YEAR = "Год";
     public static final String BUTTON_FILTER = "Фильтр";
     public static final String BUTTON_FIND = "Найти";
     public static final String BUTTON_CLEAR = "Очистить";
@@ -36,18 +33,6 @@ public class ButtonConstants {
     public static final String BUTTON_ORDER_FOR_SUPPLIER = "Заказ поставщику";
 
     public static final String BUTTON_SHIPMENT = "Отгрузка";
-    public static final String BUTTON_BY_GOODS = "По товарам";
-    public static final String BUTTON_BY_EMPLOYEE = "По сотрудникам";
-    public static final String BUTTON_BY_BUYERS = "По покупателям";
-    public static final String BUTTON_BY_CHANNELS_SALES = "По каналам продаж";
-    public static final String BUTTON_BY_CLOCK = "По часам";
-    public static final String BUTTON_BY_DAYS = "По дням";
-    public static final String BUTTON_BY_WEEKS = "По неделям";
-    public static final String BUTTON_BY_MONTHS = "По месяцам";
-    public static final String BUTTON_ACCEPTED = "Принятые";
-    public static final String BUTTON_TRANSFERRED = "Переданные";
-    public static final String BUTTON_BY_ORDERS = "По заказам";
-    public static final String BUTTON_BY_COUNTERPARTIES = "По контрагентам";
 
     public static final String BUTTON_GOODS = "Товар";
     public static final String BUTTON_IMAGE = "Изображение";
