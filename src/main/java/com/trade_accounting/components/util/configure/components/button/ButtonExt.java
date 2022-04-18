@@ -36,27 +36,27 @@ public class ButtonExt extends Button {
 
     private ButtonExt(ButtonBuilder buttonBuilder) {
         super();
-        //Добавляем текст к кнопке
+
         if (buttonBuilder.text != null) {
             this.setText(buttonBuilder.text);
         }
-        //Добавляем иконку к кнопке
+
         if (buttonBuilder.icon != null) {
             this.setIcon(buttonBuilder.icon);
         }
-        //Добавляем атрибуты к кнопке
+
         buttonBuilder.attribute.forEach((a, v) -> this.getElement().setAttribute(a, v));
-        //Добавляем темы кнопки
+
         buttonBuilder.variant.forEach(this::addThemeVariants);
-        //Задаем расположение текста относительно иконки
+
         this.setIconAfterText(buttonBuilder.iconAfterText);
-        //Добавляем статус кнопки (активна/не активна)
+
         this.setEnabled(buttonBuilder.enabled);
-        //Задаем наличие блокировки множественных кликов по кнопке
+
         this.setDisableOnClick(buttonBuilder.disableOnClick);
-        //Задаем наличие автофокуса на кнопке
+
         this.setAutofocus(buttonBuilder.autofocus);
-        //Задаем событие для кнопки
+
         if (buttonBuilder.clickListener != null) {
             this.addClickListener(buttonBuilder.clickListener);
         }
