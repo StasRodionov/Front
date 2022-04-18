@@ -16,7 +16,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "registration", layout = AppView.class)
+@Route(value = "registration")
 public class RegistrationView extends VerticalLayout {
 
     private PasswordField passwordField1;
