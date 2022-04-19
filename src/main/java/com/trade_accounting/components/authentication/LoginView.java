@@ -1,12 +1,10 @@
 package com.trade_accounting.components.authentication;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.services.interfaces.AuthenticationService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
-import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
@@ -16,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static com.trade_accounting.config.SecurityConstants.EXPIRATION_TIME;
 import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
 
-@Route(value = "login", layout = AppView.class)
+@Route(value = "login")
 public class LoginView extends VerticalLayout {
 
     private final LoginForm login = new LoginForm();
@@ -54,20 +52,24 @@ public class LoginView extends VerticalLayout {
     }
 
     private LoginI18n createTradeAccountUniqueI18n() {
+
         final LoginI18n i18n = LoginI18n.createDefault();
 
-        i18n.setHeader(new LoginI18n.Header());
-        i18n.getHeader().setTitle("Trade Accounting");
-        i18n.getHeader().setDescription("Номер 101 в мире");
-        i18n.getForm().setUsername("E-mail");
-        i18n.getForm().setTitle("");
-        i18n.getForm().setSubmit("Войти");
-        i18n.getForm().setPassword("Пароль");
-        i18n.getForm().setForgotPassword("Забыли пароль?");
-        i18n.getErrorMessage().setTitle("Неверный имейл или пароль");
-        i18n.getErrorMessage()
-                .setMessage("Проверьте их еще раз");
-        i18n.setAdditionalInformation("");
+        LoginI18n.Form i18nForm = i18n.getForm();
+        i18nForm.setTitle("Trade Accounting");
+        i18nForm.setUsername("E-mail");
+        i18nForm.setPassword("Пароль");
+        i18nForm.setSubmit("Войти");
+        i18nForm.setForgotPassword("Забыли пароль?");
+        i18n.setForm(i18nForm);
+
+        LoginI18n.ErrorMessage i18nErrorMessage = i18n.getErrorMessage();
+        i18nErrorMessage.setTitle("Неверный имейл или пароль");
+        i18nErrorMessage.setMessage("Проверьте их еще раз");
+        i18n.setErrorMessage(i18nErrorMessage);
+
+        LoginForm loginForm = new LoginForm();
+        loginForm.setI18n(i18n);
         return i18n;
     }
 }
