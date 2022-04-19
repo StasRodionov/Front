@@ -94,7 +94,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление текста у кнопки
          * @param text
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonText(String text) {
             this.text = text;
@@ -104,7 +104,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление иконки у кнопки
          * @param icon
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonComponent(Component icon) {
             this.icon = icon;
@@ -115,7 +115,7 @@ public class ButtonExt extends Button {
          * Добавление атрибутов к кнопке
          * @param attribute - имя атрибута
          * @param value - значение атрибута
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonAttribute(String attribute, String value) {
             this.attribute.put(attribute, value);
@@ -125,7 +125,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление тем для кнопки (может быть несколько)
          * @param buttonVariant
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonThemeVariants(ButtonVariant... buttonVariant) {
             variant.addAll(Arrays.asList(buttonVariant));
@@ -135,7 +135,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление расположения иконки с правой стороны от текста (по дефолту слева)
          * @param enabled
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonIconAfterText(boolean enabled) {
             iconAfterText = enabled;
@@ -145,7 +145,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление неактивного статуса кнопке
          * @param enabled
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonEnabled(boolean enabled) {
             this.enabled = enabled;
@@ -155,7 +155,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление блокировки множественного клика
          * @param enabled
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonDisableOnClick(boolean enabled) {
             disableOnClick = enabled;
@@ -165,7 +165,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление автофокуса на кнопку
          * @param enabled
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonAutofocus(boolean enabled) {
             autofocus = enabled;
@@ -175,7 +175,7 @@ public class ButtonExt extends Button {
         /**
          * Добавление события по клику на кнопку
          * @param clickListener
-         * @return - текущий объект ButtonExt
+         * @return - текущий объект ButtonBuilder
          */
         public ButtonBuilder buttonClickListener(ComponentEventListener<ClickEvent<Button>> clickListener) {
             this.clickListener = clickListener;
