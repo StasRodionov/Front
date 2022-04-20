@@ -22,14 +22,14 @@ public class SettingsView extends AppLayout {
     private Tabs lowerLayout() {
 
         Tabs tabs = new Tabs(
-                configureWarehousesTab(),
+                configureCompanySettingsTab(),
                 configureDiscountTab(),
-                configureEmployeesTab(),
                 configureExportTab(),
                 configureImportTab(),
-                configureLegalEntitiesTab(),
                 configureScenarioTab(),
-                configureCompanySettingsTab(),
+                configureLegalEntitiesTab(),
+                configureEmployeesTab(),
+                configureWarehousesTab(),
                 configureCurrencyTab(),
                 configureUnitsTab()
         );
@@ -64,6 +64,9 @@ public class SettingsView extends AppLayout {
     private Tab configureLegalEntitiesTab() {
         Tab tab = new Tab();
         tab.setLabel("Юридические лица");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate( "profile/settings/legal_entities_settings"));
+        });
         return tab;
     }
 
@@ -85,13 +88,18 @@ public class SettingsView extends AppLayout {
     private Tab configureEmployeesTab() {
         Tab tab = new Tab();
         tab.setLabel("Сотрудники");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate( "profile/settings/employees_settings"));
+        });
         return tab;
     }
-
 
     private Tab configureWarehousesTab() {
         Tab tab = new Tab();
         tab.setLabel("Склады");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate( "profile/settings/warehouses_settings"));
+        });
         return tab;
     }
 
@@ -104,6 +112,7 @@ public class SettingsView extends AppLayout {
         });
         return tab;
     }
+
 
 
     private Tab configureUnitsTab() {
