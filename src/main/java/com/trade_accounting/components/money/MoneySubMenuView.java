@@ -20,7 +20,9 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "money", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+
+@Route(value = BODY_URL + "money", layout = AppView.class)
 @PageTitle("Деньги")
 public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final PaymentService paymentService;

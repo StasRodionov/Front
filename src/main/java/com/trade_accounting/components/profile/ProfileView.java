@@ -23,7 +23,9 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "profile", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+
+@Route(value = BODY_URL + "profile", layout = AppView.class)
 @PageTitle("Профиль")
 public class ProfileView extends Div implements AfterNavigationObserver {
 

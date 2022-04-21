@@ -14,7 +14,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
-@Route(value = "indicators", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+
+@Route(value = BODY_URL + "indicators", layout = AppView.class)
 @PageTitle("Показатели")
 @SpringComponent
 @UIScope

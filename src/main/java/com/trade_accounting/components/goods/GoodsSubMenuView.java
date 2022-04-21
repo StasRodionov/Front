@@ -14,8 +14,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
 
-@Route(value = "goods", layout = AppView.class)
+
+@Route(value = BODY_URL + "goods", layout = AppView.class)
 @PageTitle("Товары")
 @SpringComponent
 @UIScope

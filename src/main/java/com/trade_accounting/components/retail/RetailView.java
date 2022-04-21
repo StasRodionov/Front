@@ -34,7 +34,9 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "retail", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+
+@Route(value = BODY_URL + "retail", layout = AppView.class)
 @PageTitle("Розница")
 @SpringComponent
 @UIScope
