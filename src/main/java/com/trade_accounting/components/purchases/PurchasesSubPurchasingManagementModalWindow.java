@@ -338,7 +338,7 @@ public class PurchasesSubPurchasingManagementModalWindow extends VerticalLayout 
 
     private HorizontalLayout articleNumberConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Артикль");
+        Label label = new Label("Артикул");
         label.setWidth("150px");
         articleNumber.setWidth("300px");
         horizontalLayout.add(label, articleNumber);
@@ -349,7 +349,7 @@ public class PurchasesSubPurchasingManagementModalWindow extends VerticalLayout 
 
     private HorizontalLayout productMeasureConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Измерение продукта");
+        Label label = new Label("Единицы измерения продукта");
         label.setWidth("150px");
         productMeasure.setWidth("300px");
         horizontalLayout.add(label, productMeasure);

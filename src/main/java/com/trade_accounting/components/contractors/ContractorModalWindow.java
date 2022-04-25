@@ -515,7 +515,7 @@ public class ContractorModalWindow extends Dialog {
     private Button getAddBankAccountButton(VerticalLayout verticalLayout) {
         BankAccountDto newBankAccountDto = BankAccountDto.builder().rcbic("").bank("").address("")
                 .correspondentAccount("").account("").build();
-        Button addBankAccountButton = new Button("Рассчётный счёт", event -> {
+        Button addBankAccountButton = new Button("Расчётный счёт", event -> {
             showBankAccount(newBankAccountDto, verticalLayout);
         });
         addBankAccountButton.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));
