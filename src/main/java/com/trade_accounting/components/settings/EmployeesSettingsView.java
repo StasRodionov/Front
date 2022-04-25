@@ -56,8 +56,8 @@ public class EmployeesSettingsView extends VerticalLayout {
     private final GridFilter<EmployeeDto> filter;
     private final GridPaginator<EmployeeDto> paginator;
     private final Notifications notifications;
-    private String addTitle = "Добавление сотрудника";
-    private String editTitle = "Изменение сотрудника";
+    private final String addTitle = "Добавление сотрудника";
+    private final String editTitle = "Изменение сотрудника";
 
     public EmployeesSettingsView(EmployeeService employeeService, RoleService roleService, ImageService imageService, Notifications notifications,
                         DepartmentService departmentService, PositionService positionService) {
@@ -73,7 +73,7 @@ public class EmployeesSettingsView extends VerticalLayout {
         this.paginator = new GridPaginator<>(grid, data, 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureFilter();
-        add(upperLayout(),getAppView(), filter, grid, paginator);
+        add(getAppView(), upperLayout(), filter, grid, paginator);
     }
 
     private List<EmployeeDto> getData() {
