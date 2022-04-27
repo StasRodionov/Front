@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -47,6 +48,7 @@ public class DashboardView extends VerticalLayout {
     private List<InvoiceDto> invoiceDtoList;
     private List<InvoiceProductDto> invoiceProductDtoList;
 
+    @Autowired
     public DashboardView(InvoiceService invoiceService, InvoiceProductService invoiceProductService) {
         this.invoiceProductService = invoiceProductService;
         this.invoiceService = invoiceService;

@@ -6,11 +6,13 @@ import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDtoForValidation;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SupplierAccountDto extends SupplierAccountDtoForValidation {

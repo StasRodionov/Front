@@ -18,7 +18,6 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
@@ -85,6 +84,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -149,6 +149,7 @@ public class OperationsView extends VerticalLayout {
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
 
+    @Autowired
     public OperationsView(CreditOrderModal creditOrderModal,
                           SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                           GoodsSubInventoryModalWindow goodsSubInventoryModalWindow,
