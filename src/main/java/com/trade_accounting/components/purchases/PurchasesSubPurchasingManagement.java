@@ -302,7 +302,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public ComboBox<ProductDto> getComboBoxProduct() {
-        productComboBox.setLabel("Выберете товар");
+        productComboBox.setLabel("Выберите товар");
         productComboBox.setItems(productService.getAll());
         productComboBox.setItemLabelGenerator(ProductDto::getName);
         productComboBox.addValueChangeListener(event -> productId = event.getValue().getId());
