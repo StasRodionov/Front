@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+
 @Slf4j
 @Route
 public class AppView extends AppLayout implements PageConfigurator {
@@ -76,7 +78,7 @@ public class AppView extends AppLayout implements PageConfigurator {
         tasks.addClickListener(e -> tasks.getUI().ifPresent(ui -> ui.navigate("tasks")));
 
         VerticalLayout applications = new VerticalLayout(VaadinIcon.COGS.create(), new Label("Приложения"));
-        applications.addClickListener(e -> applications.getUI().ifPresent(ui -> ui.navigate("")));
+        applications.addClickListener(e -> applications.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "embed-apps")));
 
         VerticalLayout notifications = new VerticalLayout(VaadinIcon.BELL.create(), new Label("Уведомления"));
         notifications.addClickListener(e -> notifications.getUI().ifPresent(ui -> ui.navigate("")));
