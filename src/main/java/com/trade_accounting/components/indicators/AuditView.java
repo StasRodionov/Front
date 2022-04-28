@@ -30,7 +30,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -40,6 +39,8 @@ import java.util.List;
 @PageTitle("Аудит")
 @UIScope
 public class AuditView extends VerticalLayout {
+
+    private final AuditModalWindow auditModalWindow;
     private final Grid<AuditDto> grid = new Grid<>(AuditDto.class, false);
     private final GridFilter<AuditDto> filter;
     private final GridPaginator<AuditDto> paginator;
@@ -57,7 +58,7 @@ public class AuditView extends VerticalLayout {
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER);
         add(getUpperLayout(), filter, grid, paginator);
-
+        this.auditModalWindow = new AuditModalWindow(auditService);
     }
 
     private List<AuditDto> getData() {
@@ -69,16 +70,33 @@ public class AuditView extends VerticalLayout {
         grid.addColumn(AuditDto::getDate).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
         grid.addColumn(auditDto -> employeeService.getById(auditDto.getEmployeeId())).setKey("employee").setHeader("Сотрудник").setSortable(true).setId("Сотрудник");
         grid.addColumn(AuditDto::getDescription).setKey("description").setHeader("Событие").setSortable(true).setId("Событие");
+        grid.addItemDoubleClickListener(event -> {
+            auditModalWindow.addDetachListener(e -> updateList());
+            auditModalWindow.open();
+        });
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private Component getUpperLayout(){
         HorizontalLayout mainLayout = new HorizontalLayout();
-        mainLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(),
+        mainLayout.add(buttonQuestion(), title(), buttonRefresh(), buttonFilter(), buttonEvent(),
                 textField(), numberField(), valuePrint());
         mainLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return mainLayout;
+    }
+
+    // Для модального окна
+    private Button buttonEvent() {
+        Button buttonEvent = new Button("Аудит", new Icon(VaadinIcon.PLUS_CIRCLE));
+        AuditModalWindow auditModalWindow =
+                new AuditModalWindow(auditService);
+        buttonEvent.addClickListener(e -> {
+            auditModalWindow.addDetachListener(event -> updateList());
+            auditModalWindow.open();
+        });
+        buttonEvent.getStyle().set("cursor", "pointer");
+        return buttonEvent;
     }
 
     private Button buttonQuestion() {
