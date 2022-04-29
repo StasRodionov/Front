@@ -1,9 +1,10 @@
 package com.trade_accounting.services.impl.invoice;
 
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.purchases.PurchaseCreateOrderDto;
+import com.trade_accounting.services.api.invoice.InvoiceApi;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
-import com.trade_accounting.services.api.invoice.InvoiceApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -158,5 +159,11 @@ public class InvoiceServiceImpl implements InvoiceService {
         Call<Void> dtoCall = invoiceApi.restoreFromIsRecyclebin(invoiceUrl, id);
         dtoCallExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, InvoiceDto.class, id);
 
+    }
+
+    @Override
+    public void createAll(PurchaseCreateOrderDto purchaseCreateOrderDto) {
+        Call<Void> dtoCall = invoiceApi.createAll(invoiceUrl, purchaseCreateOrderDto);
+        dtoCallExecuteService.callExecuteBodyCreateAll(dtoCall, InvoiceDto.class);
     }
 }

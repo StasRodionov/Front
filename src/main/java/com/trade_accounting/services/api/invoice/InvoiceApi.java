@@ -1,6 +1,9 @@
 package com.trade_accounting.services.api.invoice;
 
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.invoice.TypeOfOrder;
+import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.models.dto.purchases.PurchaseCreateOrderDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -66,4 +69,9 @@ public interface InvoiceApi {
     @Headers("Accept: application/json")
     @PUT("{url}/restoreFromIsRecyclebin/{id}")
     Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @POST("{url}/createAll")
+    Call<Void> createAll(@Path(value = "url", encoded = true) String url,
+                         @Body PurchaseCreateOrderDto purchaseCreateOrderDto);
 }

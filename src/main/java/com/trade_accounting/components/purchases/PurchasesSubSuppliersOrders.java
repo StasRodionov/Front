@@ -138,8 +138,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
                 .setId("Дата");
-        grid.addColumn(iDto -> contractorService.getById(iDto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorId")
-                .setId("Контрагент");
+        grid.addColumn(
+                iDto -> iDto.getContractorId() != null ?
+                        contractorService.getById(iDto.getContractorId()).getName() : "Неизвестный поставщик")
+                .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
 //        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
 //        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
         grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyId")
