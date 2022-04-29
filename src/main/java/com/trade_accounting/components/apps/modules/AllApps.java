@@ -1,6 +1,5 @@
-package com.trade_accounting.components.apps.views;
+package com.trade_accounting.components.apps.modules;
 
-import com.trade_accounting.components.apps.modules.TypeAppsEnum;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -31,7 +30,7 @@ import java.util.List;
 @Slf4j
 @SpringComponent
 @UIScope
-public class AllAppsView extends VerticalLayout {
+public class AllApps extends VerticalLayout {
     private final VerticalLayout bodyCategoriesAppsVertical = new VerticalLayout();
     private int sumCategories = TypeAppsEnum.values().length - 1;
     String srcBase64LogoApp_56X56 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxNCAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjUgOFYxMi41QzEzLjUgMTIuNzY1MiAxMy4zOTQ2IDEzLjAxOTYgMTMuMjA3MSAxMy4yMDcxQzEzLjAxOTYgMTMuMzk0NiAxMi43NjUyIDEzLjUgMTIuNSAxMy41SDEuNUMxLjIzNDc4IDEzLjUgMC45ODA0MyAxMy4zOTQ2IDAuNzkyODkzIDEzLjIwNzFDMC42MDUzNTcgMTMuMDE5NiAwLjUgMTIuNzY1MiAwLjUgMTIuNVYxLjVDMC41IDEuMjM0NzggMC42MDUzNTcgMC45ODA0MyAwLjc5Mjg5MyAwLjc5Mjg5M0MwLjk4MDQzIDAuNjA1MzU3IDEuMjM0NzggMC41IDEuNSAwLjVINiIgc3Ryb2tlPSIjMDAwMDAxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEwIDAuNUgxMy41VjQiIHN0cm9rZT0iIzAwMDAwMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMy41IDAuNUw3IDciIHN0cm9rZT0iIzAwMDAwMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=";
@@ -44,7 +43,7 @@ public class AllAppsView extends VerticalLayout {
     String titleApp = "";
 
 
-    public AllAppsView() {
+    public AllApps() {
 
         //Настраиваем стили главного контейнера для всех категорий приложений
         bodyCategoriesAppsVertical.getStyle()
@@ -77,12 +76,13 @@ public class AllAppsView extends VerticalLayout {
             Div divCategory = divListCategories.get(i);
             divCategory.getStyle()
                     .set("width", "100%");
+            divCategory.setId("category-" + (i + 1));
 
 
 
 
             //Создаем и оформляем заголовок ктегории
-            Text headerCategory = new Text(TypeAppsEnum.values()[i].getTypeApp() + " (" + sumCardApps + ")");
+            Text headerCategory = new Text(TypeAppsEnum.values()[i + 1].getTypeApp() + " (" + sumCardApps + ")");
             Div divHeaderCategory = new Div();
             divHeaderCategory.getStyle()
                     .set("font-weight", "700")
@@ -159,6 +159,7 @@ public class AllAppsView extends VerticalLayout {
                         .setAttribute("onmouseover", "this.style.color='#107782'")
                         .setAttribute("onmouseout", "this.style.color='#303334'")
                         .setAttribute("target", "_blank");
+                nameApp.setClassName("anchorApp");
                 divNameApp.add(nameApp);
 
                 base64LogoApp.getStyle()
@@ -442,7 +443,9 @@ public class AllAppsView extends VerticalLayout {
                 .set("line-height", "2");
         divInfoApp.add(spanSiteDeveloper);
 
-        spanSiteDeveloperUrl.add(anchor("https://www.freshcube.ru/", "www.freshcube.ru"));
+        Anchor urlDeveloper = anchor("https://www.freshcube.ru/", "www.freshcube.ru");
+        urlDeveloper.getElement().setAttribute("target", "_blank");
+        spanSiteDeveloperUrl.add(urlDeveloper);
         spanSiteDeveloperUrl.getStyle()
                 .set("display", "inline-block")
                 .set("vertical-align", "top")

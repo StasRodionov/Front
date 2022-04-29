@@ -1,6 +1,7 @@
 package com.trade_accounting.components.apps.views;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.apps.modules.AllApps;
 import com.trade_accounting.components.apps.modules.TypeAppsEnum;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -19,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.BODY_URL;
@@ -34,13 +34,19 @@ import static com.trade_accounting.config.SecurityConstants.BODY_URL;
 public class AppsView  extends Div implements AfterNavigationObserver {
     private final HorizontalLayout bodyHorizontal = new HorizontalLayout();
     private final Div div = new Div();
-    private final AllAppsView allAppsView;
+    private final AllApps allAppsView;
 
 
     @Autowired
-    public AppsView(AllAppsView allAppsView) {
+    public AppsView(AllApps allAppsView) {
         this.allAppsView = allAppsView;
 
+        //ВАЖНО! Подключен JS. Благодаря ему работает:
+        //1. Добавляется разделитель "Категории" в меню с категориями
+        //2. При кликах на разделы меню с категориями, скрываются ненужные категории приложений,
+        //   можно переписать на Vaadin и добавить на каждую категорию класс,
+        //   но через JS меньше файлов и меньше обращений к БД будет
+        //3. Когда юзер кликает на заголовок с сылкой на сторонний сайт в шапке, то скрывается всплывающее окно с доп. информацией о приложении
         //https://vaadin.com/forum/thread/17800495/vaadin-14-javascript
         UI.getCurrent().getPage().addJavaScript("js/AppsView.js");
         //Растягиваем контейнер на всю ширину
@@ -86,7 +92,14 @@ public class AppsView  extends Div implements AfterNavigationObserver {
 
         Tabs tabsCategoryApps = new Tabs();
         TypeAppsEnum[] typeAppsEnum = TypeAppsEnum.values();
-        Arrays.stream(typeAppsEnum).forEach(category -> tabsCategoryApps.add(new Tab(category.getTypeApp())));
+        for (int i = 0; i < typeAppsEnum.length; i++) {
+            TypeAppsEnum category = typeAppsEnum[i];
+            Tab tab = new Tab(category.getTypeApp());
+            tab.setClassName("category-" + i);
+            tab.getElement().setAttribute("sum-categories", String.valueOf(typeAppsEnum.length));
+            tabsCategoryApps.add(tab);
+        }
+
 
         tabsCategoryApps.setOrientation(Tabs.Orientation.VERTICAL);
         tabsCategoryApps.getStyle()
