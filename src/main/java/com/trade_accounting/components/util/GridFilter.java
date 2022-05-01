@@ -43,6 +43,7 @@ public class GridFilter<T> extends HorizontalLayout {
     private Button searchButton;
     private Button clearButton;
     private Button configureFieldsButton;
+    private Button addBookmarkButton;
 
     /**
      * Creates a GridFilter.
@@ -257,9 +258,10 @@ public class GridFilter<T> extends HorizontalLayout {
     private void configureLayout() {
         this.searchButton = new Button("Найти");
         this.clearButton = new Button("Очистить");
+        this.addBookmarkButton = new Button(new Icon(VaadinIcon.BOOKMARK_O));
         this.configureFieldsButton = new Button(new Icon(VaadinIcon.COG_O));
 
-        add(searchButton, clearButton, configureFieldsButton);
+        add(searchButton, clearButton, addBookmarkButton, configureFieldsButton);
 
         this.getStyle().set("background-color", "#e7eaef")
                 .set("border-radius", "4px")
