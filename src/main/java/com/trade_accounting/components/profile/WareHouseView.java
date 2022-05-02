@@ -56,7 +56,7 @@ public class WareHouseView extends VerticalLayout {
     }
 
     private Button buttonQuestion() {
-        return Buttons.buttonQuestion("Добавьте описание");
+        return Buttons.buttonQuestion("В МоемСкладе можно вести учет по разным складам.");
     }
 
     private H2 title() {

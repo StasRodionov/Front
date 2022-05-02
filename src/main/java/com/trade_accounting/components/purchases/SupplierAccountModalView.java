@@ -49,6 +49,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 import retrofit2.Response;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -95,6 +96,7 @@ public class SupplierAccountModalView extends Dialog {
     private final H4 totalPrice = new H4();
     private final ComboBox<InvoiceDto> invoiceSelectField = new ComboBox<>();
 
+    @Autowired
     public SupplierAccountModalView(SupplierAccountService supplierAccountService,
                                     CompanyService companyService,
                                     WarehouseService warehouseService,

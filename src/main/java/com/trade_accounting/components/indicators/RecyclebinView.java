@@ -85,6 +85,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -152,6 +153,7 @@ public class RecyclebinView extends VerticalLayout {
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
 
+    @Autowired
     public RecyclebinView(CreditOrderModal creditOrderModal,
                           SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                           GoodsSubInventoryModalWindow goodsSubInventoryModalWindow,
