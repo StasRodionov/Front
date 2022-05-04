@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_TECHNICAL_PROCESS_VIEW;
+
 
 @UIScope
 @SpringComponent
@@ -211,7 +213,7 @@ public class TechnicalProcessModalView extends Dialog {
                 } else {
                     technicalProcessService.create(dto);
                 }
-                UI.getCurrent().navigate("technical_process");
+                UI.getCurrent().navigate(PRODUCTION_TECHNICAL_PROCESS_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Тех процесс %s сохранен", dto.getName()));

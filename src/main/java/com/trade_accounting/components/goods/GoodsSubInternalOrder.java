@@ -53,8 +53,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_INTERNAL_ORDER_VIEW;
+
 @Slf4j
-@Route(value = "internalorder", layout = AppView.class)
+@Route(value = GOODS_INTERNAL_ORDER_VIEW, layout = AppView.class)
 @PageTitle("Внутренние заказы")
 @SpringComponent
 @UIScope

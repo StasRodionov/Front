@@ -50,9 +50,11 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_MOVEMENT_VIEW;
+
 @SpringComponent
 @PageTitle("Перемещения")
-@Route(value = "movementView", layout = AppView.class)
+@Route(value = GOODS_MOVEMENT_VIEW, layout = AppView.class)
 @UIScope
 public class MovementView extends VerticalLayout implements AfterNavigationObserver {
 

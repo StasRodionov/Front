@@ -39,8 +39,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "goods_price_layout", layout = AppView.class)
+@Route(value = GOODS_GOODS_PRICE_VIEW, layout = AppView.class)
 @PageTitle("Прайс-лист")
 @SpringComponent
 @UIScope
@@ -162,8 +164,8 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         Button button = new Button("Прайс-листы", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(e -> modalWindow.open());
         modalWindow.clearAll();
-        modalWindow.setParentLocation("goods_price_layout");
-        button.getUI().ifPresent(ui -> ui.navigate("goods/priceList-create"));
+        modalWindow.setParentLocation(GOODS_GOODS_PRICE_VIEW);
+        button.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_CREATE));
         return button;
     }
 

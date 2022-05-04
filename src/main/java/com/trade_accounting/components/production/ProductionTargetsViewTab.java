@@ -42,11 +42,13 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_PRODUCTION_TARGETS_VIEW;
+
 @Slf4j
 @SpringComponent
 @UIScope
 @PageTitle("Производственные Задания")
-@Route(value = "productionTargets", layout = AppView.class)
+@Route(value = PRODUCTION_PRODUCTION_TARGETS_VIEW, layout = AppView.class)
 public class ProductionTargetsViewTab extends VerticalLayout implements AfterNavigationObserver {
 
     private final TextField textField = new TextField();

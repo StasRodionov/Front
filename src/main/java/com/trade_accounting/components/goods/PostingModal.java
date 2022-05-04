@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_POSTING_VIEW;
+
 @UIScope
 @SpringComponent
 public class PostingModal  extends Dialog {
@@ -65,7 +67,6 @@ public class PostingModal  extends Dialog {
     private final Binder<CorrectionDto> postingBinder =
             new Binder<>(CorrectionDto.class);
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
-    private String parentLocation = "positingTab";
 
     public PostingModal(ProductService productService, CorrectionService correctionService,
                         WarehouseService warehouseService,
@@ -184,7 +185,7 @@ public class PostingModal  extends Dialog {
 
                 close();
                 clearAllFieldsModalView();
-                UI.getCurrent().navigate("positingTab");
+                UI.getCurrent().navigate(GOODS_POSTING_VIEW);
 
                 notifications.infoNotification(String.format("оприходование c ID=%s обновлен", dto.getId()));
             }
@@ -200,7 +201,7 @@ public class PostingModal  extends Dialog {
     private Button closeButton() {
         return new Button("Закрыть", new Icon(VaadinIcon.CLOSE), clickEvent -> {
             Modals.confirmModal("Вы уверены? Несохраненные данные будут утеряны",
-                    new Button("Продолжить", e -> UI.getCurrent().navigate(parentLocation)),
+                    new Button("Продолжить", e -> UI.getCurrent().navigate(GOODS_POSTING_VIEW)),
                     new Button("Отменить")
             ).open();
         });

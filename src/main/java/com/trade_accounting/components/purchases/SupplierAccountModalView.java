@@ -58,7 +58,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route(value = "purchases/add-new-invoices-to-suplier", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.*;
+
+@Route(value = PURCHASES_PURCHASES__ADD_NEW_INVOICES_TO_SUPPLIER, layout = AppView.class)
 @PageTitle("Новый счет поставщика")
 @SpringComponent
 @UIScope
@@ -277,7 +279,7 @@ public class SupplierAccountModalView extends Dialog {
                 saveProducts(supplierAccountDto);
                 clearField();
                 close();
-                UI.getCurrent().navigate("suppliersInvoices");
+                UI.getCurrent().navigate(PURCHASES_SUPPLIERS_INVOICES_VIEW);
                 notifications.infoNotification(String.format("Счет поставщика № %s сохранен", supplierAccountDto.getId()));
             }
         });
@@ -521,7 +523,7 @@ public class SupplierAccountModalView extends Dialog {
 
     private void closeView() {
         clearField();
-        UI.getCurrent().navigate("purchases");
+        UI.getCurrent().navigate(PURCHASES);
     }
 
     private void configureDateTimePickerField() {

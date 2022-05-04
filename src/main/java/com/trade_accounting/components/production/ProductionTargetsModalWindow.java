@@ -28,6 +28,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_PRODUCTION_TARGETS_VIEW;
+
 @UIScope
 @SpringComponent
 public class ProductionTargetsModalWindow extends Dialog {
@@ -107,7 +109,7 @@ public class ProductionTargetsModalWindow extends Dialog {
                 dto.setUpdatedByName(updatedByName.getValue());
                 productionTargetsService.create(dto);
 
-                UI.getCurrent().navigate("productionTargets");
+                UI.getCurrent().navigate(PRODUCTION_PRODUCTION_TARGETS_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Производственное задание c ID=%s сохранено", dto.getId()));

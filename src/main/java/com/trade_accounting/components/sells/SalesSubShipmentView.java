@@ -56,8 +56,10 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_SHIPMENT_VIEW;
+
 @Slf4j
-@Route(value = "shipment", layout = AppView.class)
+@Route(value = SELLS_SHIPMENT_VIEW, layout = AppView.class)
 @PageTitle("Отгрузки")
 @SpringComponent
 @UIScope

@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+import static com.trade_accounting.config.SecurityConstants.*;
 
 
 //https://vaadin.com/docs/latest/flow/tutorial/login-and-authentication
@@ -29,7 +29,7 @@ import static com.trade_accounting.config.SecurityConstants.BODY_URL;
 //https://vaadin.com/docs/v14/flow/routing/tutorial-routing-url-generation
 //https://vaadin.com/docs/latest/flow/tutorial/navigation-and-layouts
 @Slf4j
-@Route(value = BODY_URL + "embed-apps", layout = AppView.class)
+@Route(value = APPS_EMBED_APPS_VIEW, layout = AppView.class)
 @PageTitle("Приложения")
 @SpringComponent
 @UIScope
@@ -56,7 +56,7 @@ public class EmbedAppsView extends VerticalLayout {
         Image image = image();
         Div div1 = div(text(NO_APPS_INSTALLED));
         Div div2 = div(text(TRY_INSTALL_APP_LINK));
-        Anchor anchor = anchor("app/apps", "Выбрать приложение");
+        Anchor anchor = anchor(APPS, "Выбрать приложение");
 
         image.getStyle()
                 .set("margin-bottom", "40px");

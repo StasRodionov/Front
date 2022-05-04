@@ -34,6 +34,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PURCHASES_RETURNS_TO_SUPPLIERS_VIEW;
+
 @UIScope
 @SpringComponent
 public class ReturnToSupplierModalView extends Dialog {
@@ -148,7 +150,7 @@ public class ReturnToSupplierModalView extends Dialog {
                 dto.setComment(textArea.getValue());
                 returnToSupplierService.create(dto);
 
-                UI.getCurrent().navigate("returnsToSuppliers");
+                UI.getCurrent().navigate(PURCHASES_RETURNS_TO_SUPPLIERS_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Возврат поставщику № %s сохранен", dto.getId()));

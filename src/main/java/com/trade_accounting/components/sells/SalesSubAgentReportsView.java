@@ -51,8 +51,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_AGENT_REPORTS_VIEW;
+
 @Slf4j
-@Route(value = "agentReports", layout = AppView.class)
+@Route(value = SELLS_AGENT_REPORTS_VIEW, layout = AppView.class)
 @PageTitle("Отчеты комиссионера")
 @SpringComponent
 @UIScope

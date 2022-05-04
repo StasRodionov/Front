@@ -47,10 +47,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
 @SpringComponent
-@Route(value = "documentsView", layout = AppView.class)
-@PageTitle("Файлы")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = INDICATORS_DOCUMENTS_VIEW, layout = AppView.class)
+@PageTitle("Файлы")*/
 @UIScope
 public class DocumentsView extends VerticalLayout {
 

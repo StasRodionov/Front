@@ -34,9 +34,12 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_REMAIN_VIEW;
+
 @SpringComponent
-@PageTitle("Остатки")
-@Route(value = "remainView", layout = AppView.class)
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@PageTitle("Остатки")
+@Route(value = GOODS_REMAIN_VIEW, layout = AppView.class)*/
 @UIScope
 public class RemainView extends VerticalLayout {
 

@@ -34,8 +34,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route(value = "MoneySubProfitLossView", layout = AppView.class)
-@PageTitle("Прибыли и убытки")
+import static com.trade_accounting.config.SecurityConstants.MONEY_MONEY_SUB_PROFIT_LOSS_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = MONEY_MONEY_SUB_PROFIT_LOSS_VIEW, layout = AppView.class)
+@PageTitle("Прибыли и убытки")*/
 public class MoneySubProfitLossView extends VerticalLayout {
 
 

@@ -39,8 +39,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Route(value = "PrepayoutView", layout = AppView.class)
-@PageTitle("Предоплаты")
+import static com.trade_accounting.config.SecurityConstants.RETAIL_PREPAYMENT_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_PREPAYMENT_VIEW, layout = AppView.class)
+@PageTitle("Предоплаты")*/
 @SpringComponent
 @UIScope
 public class PrepayoutView extends VerticalLayout implements AfterNavigationObserver {

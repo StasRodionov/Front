@@ -42,9 +42,11 @@ import java.util.List;
 import java.util.Set;
 import com.trade_accounting.components.util.configure.components.select.Action;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @SpringComponent
 @PageTitle("Списания")
-@Route(value = "lossView", layout = AppView.class)
+@Route(value = GOODS_LOSS_VIEW, layout = AppView.class)
 @UIScope
 public class LossView extends VerticalLayout {
     private final LossService lossService;
@@ -223,8 +225,8 @@ public class LossView extends VerticalLayout {
         Button button = new Button("Списание", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(e -> {
             lossCreateView.clearForm();
-            lossCreateView.setParentLocation("lossView");
-            button.getUI().ifPresent(ui -> ui.navigate("goods/loss-create"));
+            lossCreateView.setParentLocation(GOODS_LOSS_VIEW);
+            button.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__LOSS_CREATE));
         });
         updateList();
         return button;

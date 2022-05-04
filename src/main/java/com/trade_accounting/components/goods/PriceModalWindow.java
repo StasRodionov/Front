@@ -29,8 +29,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__PRICE_LIST_CREATE;
+
 @UIScope
-@Route(value = "goods/priceList-create", layout = AppView.class)
+@Route(value = GOODS_GOODS__PRICE_LIST_CREATE, layout = AppView.class)
 @SpringComponent
 public class PriceModalWindow extends Dialog {
 

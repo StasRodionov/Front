@@ -22,12 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+import static com.trade_accounting.config.SecurityConstants.APPS;
 
 //https://vaadin.com/docs/v14/ds/components/basic-layouts
 //https://vaadin.com/docs/latest/ds/components/tabs
 @Slf4j
-@Route(value = BODY_URL + "apps", layout = AppView.class)
+@Route(value = APPS, layout = AppView.class)
 @PageTitle("Приложения")
 @SpringComponent
 @UIScope

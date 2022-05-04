@@ -50,8 +50,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__POSTING_CREATE;
+
 @Slf4j
-@Route(value = "goods/posting-create", layout = AppView.class)
+@Route(value = GOODS_GOODS__POSTING_CREATE, layout = AppView.class)
 @PageTitle("Добавить оприходование")
 @PreserveOnRefresh
 @SpringComponent

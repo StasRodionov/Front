@@ -71,9 +71,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 
 @Slf4j
-@Route(value = "goods/add_moving", layout = AppView.class)
+@Route(value = GOODS_GOODS__ADD_MOVING, layout = AppView.class)
 @PageTitle("Добавить перемещение")
 @PreserveOnRefresh
 @SpringComponent
@@ -384,7 +386,7 @@ public class MovementViewModalWindow extends Dialog {
                 dto.setMovementProductsIds(idList);
                 movementService.create(dto);
 
-                UI.getCurrent().navigate("movementView");
+                UI.getCurrent().navigate(GOODS_MOVEMENT_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Перемещение c ID=%s сохранен", dto.getId()));
@@ -498,7 +500,7 @@ public class MovementViewModalWindow extends Dialog {
                 .bind(movementDto -> new HashSet<>(movementDto.getMovementProductsIds()),
                         (movementDto, movementDto1) -> movementDto.setMovementProductsIds(movementDto
                                 .getMovementProductsIds()));
-        UI.getCurrent().navigate("goods");
+        UI.getCurrent().navigate(GOODS);
         return horizontalLayout;
     }
 

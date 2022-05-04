@@ -24,7 +24,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "production", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION;
+
+@Route(value = PRODUCTION, layout = AppView.class)
 @PageTitle("Производство")
 public class ProductionSubMenuView extends Div implements AfterNavigationObserver {
 

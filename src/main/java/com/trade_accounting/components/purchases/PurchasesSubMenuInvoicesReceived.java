@@ -66,9 +66,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "invoice_received", layout = AppView.class)
-@PageTitle("Счета-фактуры полученные")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PURCHASES_INVOICE_RECEIVED_VIEW, layout = AppView.class)
+@PageTitle("Счета-фактуры полученные")*/
 @SpringComponent
 @UIScope
 public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements AfterNavigationObserver {
