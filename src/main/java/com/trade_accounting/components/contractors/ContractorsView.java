@@ -26,9 +26,11 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static com.trade_accounting.config.SecurityConstants.CONTRACTORS;
+
 @SpringComponent
 @UIScope
-@Route(value = "contractors", layout = AppView.class)
+@Route(value = CONTRACTORS, layout = AppView.class)
 @PageTitle("Контрагенты")
 public class ContractorsView extends Div implements AfterNavigationObserver {
 

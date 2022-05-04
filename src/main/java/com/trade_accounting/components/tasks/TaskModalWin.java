@@ -31,6 +31,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.TASKS;
+
 public class TaskModalWin extends Dialog {
 
     private final TaskService taskService;
@@ -209,14 +211,14 @@ public class TaskModalWin extends Dialog {
                 saveFields(taskDto);
                 taskService.create(taskDto);
                 close();
-                UI.getCurrent().navigate("tasks");
+                UI.getCurrent().navigate(TASKS);
             });
         } else {
             return new Button("Изменить", event -> {
                 saveFields(taskDto);
                 taskService.update(taskDto);
                 close();
-                UI.getCurrent().navigate("tasks");
+                UI.getCurrent().navigate(TASKS);
             });
         }
     }

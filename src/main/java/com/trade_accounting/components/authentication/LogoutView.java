@@ -6,7 +6,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
-@Route(value = "logout", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.LOGOUT;
+
+@Route(value = LOGOUT, layout = AppView.class)
 public class LogoutView extends VerticalLayout {
     public LogoutView() {
         VaadinSession.getCurrent().getSession().invalidate();

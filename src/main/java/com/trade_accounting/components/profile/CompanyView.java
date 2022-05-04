@@ -49,9 +49,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.PROFILE_COMPANY_VIEW;
+
 @Slf4j
-@Route(value = "company", layout = AppView.class)
-@PageTitle("Юр. лица")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PROFILE_COMPANY_VIEW, layout = AppView.class)
+@PageTitle("Юр. лица")*/
 public class CompanyView extends VerticalLayout {
 
     private final CompanyService companyService;

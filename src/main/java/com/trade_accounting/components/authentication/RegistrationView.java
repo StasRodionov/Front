@@ -16,7 +16,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "registration")
+import static com.trade_accounting.config.SecurityConstants.REGISTRATION;
+
+@Route(value = REGISTRATION)
 public class RegistrationView extends VerticalLayout {
 
     private PasswordField passwordField1;

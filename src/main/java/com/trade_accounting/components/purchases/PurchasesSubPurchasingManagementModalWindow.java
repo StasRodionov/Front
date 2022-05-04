@@ -35,12 +35,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PURCHASES_PURCHASES__NEW_ORDER_PURCHASES;
 import static org.atmosphere.util.IOUtils.close;
 
 
 @UIScope
 @SpringComponent
-@Route(value = "purchases/new-order-purchases", layout = AppView.class)
+@Route(value = PURCHASES_PURCHASES__NEW_ORDER_PURCHASES, layout = AppView.class)
 @PageTitle("Создание заказа")
 @PreserveOnRefresh
 @Slf4j

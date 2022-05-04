@@ -35,6 +35,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS;
+
 @UIScope
 @SpringComponent
 public class ReturnBuyersReturnModalView extends Dialog {
@@ -134,7 +136,7 @@ public class ReturnBuyersReturnModalView extends Dialog {
         } else {
             buyersReturnService.update(buyersReturnDto);
         }
-        UI.getCurrent().navigate("sells");
+        UI.getCurrent().navigate(SELLS);
 
         close();
     }

@@ -38,8 +38,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route(value = "MoneySubCashFlowView", layout = AppView.class)
-@PageTitle("Движение денежных средств")
+import static com.trade_accounting.config.SecurityConstants.MONEY_MONEY_SUB_CASE_FLOW_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = MONEY_MONEY_SUB_CASE_FLOW_VIEW, layout = AppView.class)
+@PageTitle("Движение денежных средств")*/
 @CssImport(value = "styles/money_sub_cash_flow_filter_toolbar.css")
 public class MoneySubCashFlowView extends VerticalLayout {
 

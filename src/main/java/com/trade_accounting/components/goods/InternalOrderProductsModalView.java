@@ -89,7 +89,7 @@ public class InternalOrderProductsModalView extends Dialog {
 
                 internalOrderProductsDtoService.create(dto);
 
-                UI.getCurrent().navigate("internalorder");
+                UI.getCurrent().navigate("internal-order");
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification("Продукт внутреннего заказа сохранен");

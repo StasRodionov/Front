@@ -24,6 +24,8 @@ import com.vaadin.flow.data.binder.Binder;
 import java.util.List;
 import java.util.Set;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_LOSS_VIEW;
+
 public class EditSelectedLossesModalWindow extends Dialog {
 
     private final LossService lossService;
@@ -103,7 +105,7 @@ public class EditSelectedLossesModalWindow extends Dialog {
             }
             notifications.infoNotification("Выбранные списания успешно отредактированы");
             close();
-            UI.getCurrent().navigate("lossView");
+            UI.getCurrent().navigate(GOODS_LOSS_VIEW);
         });
     }
 

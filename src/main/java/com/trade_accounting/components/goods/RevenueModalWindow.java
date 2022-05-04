@@ -23,8 +23,10 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__REVENUE_EDIT;
+
 @Slf4j
-@Route(value = "goods/revenue-edit", layout = AppView.class)
+@Route(value = GOODS_GOODS__REVENUE_EDIT, layout = AppView.class)
 @PageTitle("Оборот")
 @PreserveOnRefresh
 @SpringComponent

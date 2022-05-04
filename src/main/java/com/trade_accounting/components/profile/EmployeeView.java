@@ -41,9 +41,12 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.PROFILE_EMPLOYEE_VIEW;
+
 @Slf4j
-@Route(value = "employee", layout = AppView.class)
-@PageTitle("Сотрудники")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PROFILE_EMPLOYEE_VIEW, layout = AppView.class)
+@PageTitle("Сотрудники")*/
 public class EmployeeView extends VerticalLayout {
 
     private final Grid<EmployeeDto> grid = new Grid<>(EmployeeDto.class, false);

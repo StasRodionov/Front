@@ -50,11 +50,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_TECHNOLOGICAL_VIEW;
+
 
 @SpringComponent
 @UIScope
 @PageTitle("Тех. операции")
-@Route(value = "technological", layout = AppView.class)
+@Route(value = PRODUCTION_TECHNOLOGICAL_VIEW, layout = AppView.class)
 public class TechnologicalOperationsViewTab extends VerticalLayout implements AfterNavigationObserver {
 
     private final TextField textField = new TextField();

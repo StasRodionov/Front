@@ -54,8 +54,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.MONEY_BALANCE_ADJUSTMENT_VIEW;
+
 @Slf4j
-@Route(value = "balanceAdjustment", layout = AppView.class)
+@Route(value = MONEY_BALANCE_ADJUSTMENT_VIEW, layout = AppView.class)
 @PageTitle("Корректировки")
 @SpringComponent
 @UIScope

@@ -27,6 +27,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.MONEY_BALANCE_ADJUSTMENT_VIEW;
+
 @UIScope
 @SpringComponent
 public class BalanceAdjustmentModalView extends Dialog {
@@ -141,7 +143,7 @@ public class BalanceAdjustmentModalView extends Dialog {
                 badto.setComment(textArea.getValue());
                 balanceAdjustmentService.create(badto);
 
-                UI.getCurrent().navigate("balanceAdjustment");
+                UI.getCurrent().navigate(MONEY_BALANCE_ADJUSTMENT_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Корректировка № %s сохранена", dto.getId()));

@@ -24,6 +24,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_STAGES_VIEW;
+
 @UIScope
 @SpringComponent
 public class StageProductionModalView extends Dialog {
@@ -106,7 +108,7 @@ public class StageProductionModalView extends Dialog {
                 } else {
                     stagesProductionService.create(dto);
                 }
-                UI.getCurrent().navigate("stages");
+                UI.getCurrent().navigate(PRODUCTION_STAGES_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Этап %s сохранен", dto.getName()));

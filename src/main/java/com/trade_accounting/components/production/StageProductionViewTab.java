@@ -44,10 +44,12 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_STAGES_VIEW;
+
 @SpringComponent
 @UIScope
 @PageTitle("Этапы")
-@Route(value = "stages", layout = AppView.class)
+@Route(value = PRODUCTION_STAGES_VIEW, layout = AppView.class)
 public class StageProductionViewTab extends VerticalLayout implements AfterNavigationObserver {
 
     private final TextField textField = new TextField();

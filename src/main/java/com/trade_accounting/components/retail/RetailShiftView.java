@@ -52,9 +52,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_SHIFT_VIEW;
+
 @Slf4j
-@Route(value = "RetailShiftView", layout = AppView.class)
-@PageTitle("Смены")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_RETAIL_SHIFT_VIEW, layout = AppView.class)
+@PageTitle("Смены")*/
 @SpringComponent
 @UIScope
 public class RetailShiftView extends VerticalLayout implements AfterNavigationObserver {

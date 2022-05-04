@@ -63,9 +63,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.CONTRACTORS_CONTRACTORS_VIEW;
+
 @Slf4j
-@Route(value = "contractorsTabView", layout = AppView.class)
-@PageTitle("Контрагенты")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = CONTRACTORS_CONTRACTORS_VIEW, layout = AppView.class)
+@PageTitle("Контрагенты")*/
 public class ContractorsTabView extends VerticalLayout {
 
 

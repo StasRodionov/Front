@@ -45,9 +45,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @UIScope
 @SpringComponent
-@Route(value = "accepts", layout = AppView.class)
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+//@Route(value = PURCHASES_ACCEPTS_VIEW, layout = AppView.class)
 public class AcceptanceModalView extends Dialog {
 
     transient private final CompanyService companyService;
@@ -162,7 +165,7 @@ public class AcceptanceModalView extends Dialog {
         }
         data = null;
         clearAllFieldsModalView();
-        UI.getCurrent().navigate("admissions");
+        UI.getCurrent().navigate(PURCHASES_ADMISSIONS_VIEW);
         close();
 
     }
@@ -184,7 +187,7 @@ public class AcceptanceModalView extends Dialog {
                 dto.setComment(textArea.getValue());
                 acceptanceService.create(dto);
 
-                UI.getCurrent().navigate("admissions");
+                UI.getCurrent().navigate(PURCHASES_ADMISSIONS_VIEW);
                 updateSupplier();
                 close();
                 clearAllFieldsModalView();

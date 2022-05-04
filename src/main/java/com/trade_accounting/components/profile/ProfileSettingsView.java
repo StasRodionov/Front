@@ -26,7 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-@Route(value = "profile/user_settings", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.*;
+
+@Route(value = PROFILE_PROFILE__USER_SETTINGS, layout = AppView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class ProfileSettingsView extends VerticalLayout {
@@ -215,7 +217,7 @@ public class ProfileSettingsView extends VerticalLayout {
     }
 
     private Button getCancelButton() {
-        return new Button("Закрыть", event -> UI.getCurrent().navigate("profile"));
+        return new Button("Закрыть", event -> UI.getCurrent().navigate(PROFILE));
     }
 
     private String getFieldValueNotNull(String value) {

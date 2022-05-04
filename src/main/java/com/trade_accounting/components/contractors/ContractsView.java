@@ -41,11 +41,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.CONTRACTORS_CONTRACTS_VIEW;
+
 @Slf4j
 @SpringComponent
 @UIScope
-@Route(value = "contracts", layout = AppView.class)
-@PageTitle("Договоры")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = CONTRACTORS_CONTRACTS_VIEW, layout = AppView.class)
+@PageTitle("Договоры")*/
 public class ContractsView extends VerticalLayout implements AfterNavigationObserver {
 
     private final LegalDetailService legalDetailService;

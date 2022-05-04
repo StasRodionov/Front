@@ -34,8 +34,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Route(value = "RetailStoresTabView", layout = AppView.class)
-@PageTitle("Точки продаж")
+import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_STORES_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_RETAIL_STORES_VIEW, layout = AppView.class)
+@PageTitle("Точки продаж")*/
 @SpringComponent
 @UIScope
 public class RetailStoresTabView extends VerticalLayout implements AfterNavigationObserver { //в задаче сказано, что проблема ещё и здесь

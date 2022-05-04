@@ -30,8 +30,11 @@ import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route(value = "warehouse", layout = AppView.class)
-@PageTitle("Склады")
+import static com.trade_accounting.config.SecurityConstants.PROFILE_WAREHOUSE_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PROFILE_WAREHOUSE_VIEW, layout = AppView.class)
+@PageTitle("Склады")*/
 public class WareHouseView extends VerticalLayout {
 
     private final WarehouseService warehouseService;

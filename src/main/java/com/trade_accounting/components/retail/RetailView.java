@@ -34,7 +34,9 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "retail", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.RETAIL;
+
+@Route(value = RETAIL, layout = AppView.class)
 @PageTitle("Розница")
 @SpringComponent
 @UIScope
@@ -65,11 +67,27 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final BankAccountService bankAccountService;
 
     @Autowired
-    public RetailView(RetailOperationWithPointsService retailOperationWithPointsService, BonusProgramService bonusProgramService, TaskService taskService, ContractorService contractorService, RetailStoreService retailStoreService, RetailSalesService retailSalesService,
-                      CompanyService companyService, EmployeeService employeeService,
-                      PayoutService payoutService, Notifications notifications, RetailReturnsService retailReturnsService, ContractorGroupService contractorGroupService,
-                      RetailPointsService retailPointsService, RetailShiftService retailShiftService, RetailMakingService retailMakingService, RetailCloudCheckService retailCloudCheckService,
-                      CurrencyService currencyService, PrepayoutService prepayoutService, PrepaymentReturnService prepaymentReturnService, WarehouseService warehouseService, PositionService positionService,
+    public RetailView(RetailOperationWithPointsService retailOperationWithPointsService,
+                      BonusProgramService bonusProgramService,
+                      TaskService taskService,
+                      ContractorService contractorService,
+                      RetailStoreService retailStoreService,
+                      RetailSalesService retailSalesService,
+                      CompanyService companyService,
+                      EmployeeService employeeService,
+                      PayoutService payoutService,
+                      Notifications notifications,
+                      RetailReturnsService retailReturnsService,
+                      ContractorGroupService contractorGroupService,
+                      RetailPointsService retailPointsService,
+                      RetailShiftService retailShiftService,
+                      RetailMakingService retailMakingService,
+                      RetailCloudCheckService retailCloudCheckService,
+                      CurrencyService currencyService,
+                      PrepayoutService prepayoutService,
+                      PrepaymentReturnService prepaymentReturnService,
+                      WarehouseService warehouseService,
+                      PositionService positionService,
                       BankAccountService bankAccountService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;

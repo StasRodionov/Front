@@ -69,8 +69,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "admissions", layout = AppView.class)
+@Route(value = PURCHASES_ADMISSIONS_VIEW, layout = AppView.class)
 @PageTitle("Приемки")
 @SpringComponent
 @UIScope
