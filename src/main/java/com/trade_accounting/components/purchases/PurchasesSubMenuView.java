@@ -15,7 +15,9 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-@Route(value = "purchases", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+
+@Route(value = BODY_URL +  "purchases", layout = AppView.class)
 @PageTitle("Закупки")
 @SpringComponent
 @UIScope

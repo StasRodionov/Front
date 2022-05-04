@@ -23,8 +23,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+
 @Slf4j
-@Route
+@Route("app")
 public class AppView extends AppLayout implements PageConfigurator {
 
     private final String LOGO = "logo.png";
@@ -39,6 +41,7 @@ public class AppView extends AppLayout implements PageConfigurator {
         logo.setId("logo");
         logo.setHeight("55px");
         logo.setWidth("55px");
+        logo.addClickListener(e -> logo.getUI().ifPresent(ui -> ui.navigate("app")));
         return logo;
     }
 
@@ -49,34 +52,34 @@ public class AppView extends AppLayout implements PageConfigurator {
 //        logo.addClickListener(e -> logo.getUI().ifPresent(ui -> ui.navigate("main")));
 
         VerticalLayout indicators = new VerticalLayout(VaadinIcon.TRENDING_UP.create(), new Label("Показатели"));
-        indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate("indicators")));
+        indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "indicators")));
 
         VerticalLayout purchases = new VerticalLayout(VaadinIcon.CART.create(), new Label("Закупки"));
-        purchases.addClickListener(e -> purchases.getUI().ifPresent(ui -> ui.navigate("purchases")));
+        purchases.addClickListener(e -> purchases.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "purchases")));
 
         VerticalLayout sales = new VerticalLayout(VaadinIcon.BRIEFCASE.create(), new Label("Продажи"));
-        sales.addClickListener(e -> sales.getUI().ifPresent(ui -> ui.navigate("sells")));
+        sales.addClickListener(e -> sales.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "sells")));
 
         VerticalLayout products = new VerticalLayout(VaadinIcon.STOCK.create(), new Label("Товары"));
-        products.addClickListener(e -> products.getUI().ifPresent(ui -> ui.navigate("goods")));
+        products.addClickListener(e -> products.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "goods")));
 
         VerticalLayout counterparties = new VerticalLayout(VaadinIcon.USERS.create(), new Label("Контрагенты"));
-        counterparties.addClickListener(e -> counterparties.getUI().ifPresent(ui -> ui.navigate("contractors")));
+        counterparties.addClickListener(e -> counterparties.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "contractors")));
 
         VerticalLayout money = new VerticalLayout(VaadinIcon.MONEY.create(), new Label("Деньги"));
-        money.addClickListener(e -> money.getUI().ifPresent(ui -> ui.navigate("money")));
+        money.addClickListener(e -> money.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "money")));
 
         VerticalLayout retail = new VerticalLayout(VaadinIcon.SHOP.create(), new Label("Розница"));
-        retail.addClickListener(e -> retail.getUI().ifPresent(ui -> ui.navigate("retail")));
+        retail.addClickListener(e -> retail.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "retail")));
 
         VerticalLayout production = new VerticalLayout(VaadinIcon.FACTORY.create(), new Label("Производство"));
-        production.addClickListener(e -> production.getUI().ifPresent(ui -> ui.navigate("production")));
+        production.addClickListener(e -> production.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "production")));
 
         VerticalLayout tasks = new VerticalLayout(VaadinIcon.CHECK_SQUARE_O.create(), new Label("Задачи"));
-        tasks.addClickListener(e -> tasks.getUI().ifPresent(ui -> ui.navigate("tasks")));
+        tasks.addClickListener(e -> tasks.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "tasks")));
 
         VerticalLayout applications = new VerticalLayout(VaadinIcon.COGS.create(), new Label("Приложения"));
-        applications.addClickListener(e -> applications.getUI().ifPresent(ui -> ui.navigate("")));
+        applications.addClickListener(e -> applications.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "")));
 
         VerticalLayout notifications = new VerticalLayout(VaadinIcon.BELL.create(), new Label("Уведомления"));
         notifications.addClickListener(e -> notifications.getUI().ifPresent(ui -> ui.navigate("")));
@@ -88,8 +91,8 @@ public class AppView extends AppLayout implements PageConfigurator {
         menuBar.setOpenOnHover(true);
         VerticalLayout profile = new VerticalLayout(VaadinIcon.USER.create(), menuBar);
         MenuItem profileMenuItem = menuBar.addItem("Профиль");
-        profile.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
-        profileMenuItem.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate("profile")));
+        profile.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "profile")));
+        profileMenuItem.addClickListener(e -> profile.getUI().ifPresent(ui -> ui.navigate(BODY_URL + "profile")));
         SubMenu projectSubMenu = profileMenuItem.getSubMenu();
 
         MenuItem userSettings = projectSubMenu.addItem("Настройки пользователя");
