@@ -12,13 +12,19 @@ import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -40,6 +46,7 @@ public class GridFilter<T> extends HorizontalLayout {
     private final Grid<T> grid;
     private final Map<String, String> filterData;
 
+
     private Button searchButton;
     private Button clearButton;
     private Button configureFieldsButton;
@@ -57,7 +64,7 @@ public class GridFilter<T> extends HorizontalLayout {
         configureLayout();
         configureFilterField();
         configureButton();
-    }
+       }
 
     /**
      * Sets field uses column key to ComboBox with specific item label generator and items.
@@ -233,6 +240,22 @@ public class GridFilter<T> extends HorizontalLayout {
             }
         }));
 
+//        addBookmarkButton.addClickListener(e ->{
+//            Dialog dialog = new Dialog();
+//            dialog.setHeaderTitle("Закладки");
+//
+//            VerticalLayout dialogLayout = createDialogLayout();
+//            dialog.add(dialogLayout);
+//            Button saveButton = createSaveButton(dialog);
+//            Button cancelButton = new Button("Cancel", e1 -> dialog.close());
+//            dialog.getFooter().add(cancelButton);
+//            dialog.getFooter().add(saveButton);
+//
+//            Button button = new Button("Show dialog", e1 -> dialog.open());
+//
+//            add(dialog, button);
+//        });
+
         configureFieldsButton.addClickListener(e -> {
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.setTarget(configureFieldsButton);
@@ -393,3 +416,5 @@ public class GridFilter<T> extends HorizontalLayout {
         }
     }
 }
+
+

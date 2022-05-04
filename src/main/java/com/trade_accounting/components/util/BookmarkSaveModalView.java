@@ -23,9 +23,9 @@ public class BookmarkSaveModalView extends Dialog{
     public BookmarkSaveModalView(Notifications notifications) {
         this.notifications = notifications;
         setSizeFull();
-        add(headerLayout(), formLayout());
+        add(headerLayout(), formLayout2());
     }
-    private VerticalLayout formLayout() {
+    private VerticalLayout formLayout2() {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.add(formLayout1());
         return verticalLayout;
@@ -60,7 +60,7 @@ public class BookmarkSaveModalView extends Dialog{
 
     private HorizontalLayout titleConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Комментарий");
+        Label label = new Label("Название");
         label.setWidth("100px");
         horizontalLayout.setWidth("750px");
         horizontalLayout.setHeight("100px");
