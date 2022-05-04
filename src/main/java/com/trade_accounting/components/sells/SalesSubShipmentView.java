@@ -56,7 +56,7 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.trade_accounting.config.SecurityConstants.SELLS_SHIPMENT_VIEW;
+import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
 @Route(value = SELLS_SHIPMENT_VIEW, layout = AppView.class)
@@ -206,8 +206,8 @@ public class SalesSubShipmentView extends VerticalLayout {
         buttonUnit.addClickListener(event -> {
             salesEditShipmentView.resetView();
 //            salesEditShipmentView.setType("RECEIPT");
-            salesEditShipmentView.setLocation("sells");
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/shipment-edit"));
+            salesEditShipmentView.setLocation(SELLS);
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__SHIPMENT_EDIT));
         });
         return buttonUnit;
     }

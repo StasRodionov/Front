@@ -746,7 +746,7 @@ public class OperationsView extends VerticalLayout {
         //Склад
         MenuItem internalOrder = operationsSubMenu.addItem("Внутренний заказ", menuItemClickEvent -> internalOrderModalView.open());
         MenuItem movement = operationsSubMenu.addItem("Перемещение");
-        movement.addClickListener(e -> operations.getUI().ifPresent(ui -> ui.navigate("goods/add_moving")));
+        movement.addClickListener(e -> operations.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__ADD_MOVING)));
         MenuItem inventory = operationsSubMenu.addItem("Инвентаризация", menuItemClickEvent -> goodsSubInventoryModalWindow.open());
         MenuItem posting = operationsSubMenu.addItem("Оприходование", menuItemClickEvent -> postingModal.open());
         MenuItem loss = operationsSubMenu.addItem("Списание", menuItemClickEvent -> lossModalWindow.open());

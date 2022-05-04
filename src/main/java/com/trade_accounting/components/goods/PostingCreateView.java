@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__POSTING_CREATE;
+import static com.trade_accounting.config.SecurityConstants.GOODS_POSTING_VIEW;
 
 @Slf4j
 @Route(value = GOODS_GOODS__POSTING_CREATE, layout = AppView.class)
@@ -84,7 +85,7 @@ public class PostingCreateView extends VerticalLayout {
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
-    private String parentLocation = "positingTab";
+    private String parentLocation = GOODS_POSTING_VIEW;
 
     private final Binder<CorrectionDto> postingBinder = new Binder<>(CorrectionDto.class);
 

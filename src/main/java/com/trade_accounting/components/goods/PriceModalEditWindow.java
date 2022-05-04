@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS_PRICE_VIEW;
 import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__PRICE_LIST_EDIT;
 
 @UIScope
@@ -56,7 +57,7 @@ public class PriceModalEditWindow extends Dialog {
     private final String TEXT_FOR_REQUEST_FIELD = "Обязательное поле";
     private List<Long> listNumber = new ArrayList<>();
 
-    private String parentLocation = "goods_price_layout";
+    private String parentLocation = GOODS_GOODS_PRICE_VIEW;
     public PriceModalEditWindow(PriceListService priceListService,
                                 CompanyService companyService) {
         this.companyService = companyService;

@@ -163,8 +163,8 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
             commissionAgentReportModalView.open();
 //            salesEditCreateInvoiceView.setUpdateState(true);
 //            salesEditCreateInvoiceView.setType("RECEIPT");
-//            salesEditCreateInvoiceView.setLocation("sells");
-//            UI.getCurrent().navigate("sells/customer-order-edit");
+//            salesEditCreateInvoiceView.setLocation(SELLS);
+//            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
         });
     }
 
