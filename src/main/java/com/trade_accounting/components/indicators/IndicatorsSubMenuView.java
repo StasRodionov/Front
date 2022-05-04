@@ -13,6 +13,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 @Route(value = "indicators", layout = AppView.class)
@@ -27,7 +28,8 @@ public class IndicatorsSubMenuView extends Div implements AfterNavigationObserve
     private final DocumentsView documentsView;
     private final Div div = new Div();
 
-    IndicatorsSubMenuView(DashboardView dashboardView,
+    @Autowired
+    public IndicatorsSubMenuView(DashboardView dashboardView,
                           @Lazy OperationsView operationsView,
                           @Lazy RecyclebinView recyclebinView,
                           AuditView auditView,
