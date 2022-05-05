@@ -6,6 +6,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
@@ -13,9 +14,13 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -23,8 +28,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -64,6 +67,7 @@ public class GridFilter<T> extends HorizontalLayout {
         configureLayout();
         configureFilterField();
         configureButton();
+
        }
 
     /**
@@ -240,21 +244,45 @@ public class GridFilter<T> extends HorizontalLayout {
             }
         }));
 
-//        addBookmarkButton.addClickListener(e ->{
-//            Dialog dialog = new Dialog();
-//            dialog.setHeaderTitle("Закладки");
-//
-//            VerticalLayout dialogLayout = createDialogLayout();
-//            dialog.add(dialogLayout);
-//            Button saveButton = createSaveButton(dialog);
-//            Button cancelButton = new Button("Cancel", e1 -> dialog.close());
-//            dialog.getFooter().add(cancelButton);
-//            dialog.getFooter().add(saveButton);
-//
-//            Button button = new Button("Show dialog", e1 -> dialog.open());
-//
-//            add(dialog, button);
-//        });
+        addBookmarkButton.addClickListener(e -> {
+            Dialog dialog = new Dialog();
+            H3 title = new H3("Закладки");
+            FormLayout formLayout = new FormLayout();
+            formLayout.addFormItem(new Input(), "Название");
+            Button confirm = new Button("Сохранить закладку");
+            confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+            Button cancel = new Button("Отменить", new Icon(VaadinIcon.CLOSE));
+            dialog.setHeight("200px");
+            dialog.setWidth("550px");
+            dialog.add(title);
+            dialog.add(formLayout);
+            dialog.add(confirm);
+            dialog.add(cancel);
+
+            confirm.addClickListener(clickEvent -> {
+                Button pending = new Button("Название");
+                pending.getElement().getThemeList().add("badge pill");
+                add(pending);
+
+                pending.addClickListener(click -> {
+                    Button del = new Button("Удалить");
+                    del.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+                    dialog.add(del);
+//                    del.addClickListener(d -> {
+//                    });
+                    dialog.open();
+                });
+                dialog.close();
+            });
+
+            cancel.addClickListener(clickEvent -> {
+                dialog.close();
+            });
+
+
+            dialog.open();
+
+        });
 
         configureFieldsButton.addClickListener(e -> {
             ContextMenu contextMenu = new ContextMenu();
