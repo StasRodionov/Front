@@ -27,7 +27,7 @@ import java.net.URISyntaxException;
 import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
-@Route(value = ERROR_404, layout = AppView.class)
+@Route(value = ERROR_404)
 @PageTitle("ИмяПроекта - HTTP Status 404")
 @SpringComponent
 @UIScope
