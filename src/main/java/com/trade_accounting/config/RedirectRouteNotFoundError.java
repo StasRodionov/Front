@@ -17,11 +17,10 @@ public class RedirectRouteNotFoundError extends VerticalLayout implements HasErr
 
     @Override
     public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotFoundException> parameter) {
-
         //Если запрашиваемая страница не найдена, то выводит страницу с 404 ошибкой
         event.rerouteTo(NotFoundErrorView.class);
         return HttpServletResponse.SC_NOT_FOUND;
-
     }
+
 }
 
