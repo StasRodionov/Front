@@ -1,6 +1,5 @@
 package com.trade_accounting.components.errors;
 
-import com.trade_accounting.components.AppView;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
