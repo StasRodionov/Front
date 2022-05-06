@@ -31,16 +31,41 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @SpringComponent
 @UIScope
 public class NotFoundErrorView extends VerticalLayout {
+    private final String SRC_IMAGE_LOGO = "src/main/resources/static/icons/";
+    private final String LOGO = "logo.png";
     private final String SRC_IMAGE_PAGE_NOT_FOUND = "src/main/resources/static/images/";
     private final String PAGE_NOT_FOUND = "page-notfound.svg";
 
     public NotFoundErrorView() {
         setHeight("100%");
-        add(configurePageNotFoundError());
+        setPadding(false);
+        add(configureNavbar(), configurePageNotFoundError());
     }
 
 
 
+
+    private Div configureNavbar() {
+        Div navbar = new Div();
+
+        //Создаем шапку страницы
+        Image logo = image(SRC_IMAGE_LOGO, LOGO, "logo");
+        navbar.getStyle()
+                .set("width", "100%")
+                .set("height", "80px")
+                .set("background", "#f5f7f9");
+        logo.getStyle()
+                .set("height", "55px")
+                .set("width", "55px")
+                .set("margin-top", "13px")
+                .set("cursor", "pointer");
+        logo.setId("logo");
+        logo.addClickListener(e -> logo.getUI().ifPresent(ui -> ui.navigate("")));
+        navbar.add(logo);
+
+        return navbar;
+
+    }
 
     private HorizontalLayout configurePageNotFoundError() {
         String path = "";
@@ -54,7 +79,7 @@ public class NotFoundErrorView extends VerticalLayout {
         horizontalBody.setJustifyContentMode(JustifyContentMode.CENTER);
         horizontalBody.setHeight("100%");
         horizontalBody.setWidth("100%");
-        Image image = image();
+        Image image = image(SRC_IMAGE_PAGE_NOT_FOUND, PAGE_NOT_FOUND, "page-notfound");
         Span spanTextURL = new Span(new Text(path));
         Div bodyErrorPage = new Div();
         Div errorPageTextContent = new Div();
@@ -63,6 +88,8 @@ public class NotFoundErrorView extends VerticalLayout {
         Div anchorErrorPageTextContent = new Div();
         Anchor anchor = anchor("", "Вернуться на главную");
         Div errorPageImageContent = new Div();
+
+
 
 
         //Добавляем в div с текстовой информацией необходимые элементы
@@ -108,10 +135,15 @@ public class NotFoundErrorView extends VerticalLayout {
         errorPageImageContent.getStyle()
                 .set("display", "inline-block")
                 .set("vertical-align", "top");
+        image.getStyle()
+                .set("height", "450px")
+                .set("width", "573px");
+        image.setId("page-notfound");
         errorPageImageContent.add(image);
 
 
         //Добавляем весь контент в основной div
+        bodyErrorPage.getStyle().set("margin-top", "215px");
         bodyErrorPage.add(errorPageTextContent, errorPageImageContent);
         horizontalBody.add(bodyErrorPage);
 
@@ -134,15 +166,13 @@ public class NotFoundErrorView extends VerticalLayout {
 
     /**
      * Создаем экземпляр Image
+     * @param url
+     * @param name
      * @return - созданный объект Image
      */
-    private Image image() {
-        StreamResource resource = new StreamResource(PAGE_NOT_FOUND, () -> getImageInputStream(SRC_IMAGE_PAGE_NOT_FOUND, PAGE_NOT_FOUND));
-        Image logo = new Image(resource, "page-notfound");
-        logo.setId("page-notfound");
-        logo.getStyle().set("height", "450px");
-        logo.getStyle().set("width", "573px");
-        return logo;
+    private Image image(String url, String name, String alt) {
+        StreamResource resource = new StreamResource(name, () -> getImageInputStream(url, name));
+        return new Image(resource, alt);
     }
 
     public static InputStream getImageInputStream(String src, String imageName) {
