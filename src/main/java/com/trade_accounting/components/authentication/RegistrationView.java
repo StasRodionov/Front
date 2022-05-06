@@ -19,12 +19,9 @@ import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-@Slf4j
-@Route(value = "registration")
+import static com.trade_accounting.config.SecurityConstants.REGISTRATION;
+
+@Route(value = REGISTRATION)
 public class RegistrationView extends VerticalLayout {
 
     private PasswordField passwordField1;

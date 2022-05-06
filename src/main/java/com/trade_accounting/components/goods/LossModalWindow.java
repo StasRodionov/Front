@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_LOSS_VIEW;
+
 @UIScope
 @SpringComponent
 public class LossModalWindow extends Dialog {
@@ -129,7 +131,7 @@ public class LossModalWindow extends Dialog {
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification("Списание сохранено");
-                UI.getCurrent().navigate("lossView");
+                UI.getCurrent().navigate(GOODS_LOSS_VIEW);
             }
         });
     }
@@ -297,7 +299,7 @@ public class LossModalWindow extends Dialog {
                 .bind(lossDto -> new HashSet<>(lossDto.getLossProductsIds()),
                         (lossDto, lossDto1) -> lossDto.setLossProductsIds(lossDto
                                 .getLossProductsIds()));
-        UI.getCurrent().navigate("lossView");
+        UI.getCurrent().navigate(GOODS_LOSS_VIEW);
         return horizontalLayout;
     }
 }

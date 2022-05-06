@@ -29,9 +29,12 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_SERIAL_NUMBERS_VIEW;
+
 @SpringComponent
-@Route(value = "serialNumbersView", layout = AppView.class)
-@PageTitle("Серийные номера")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = GOODS_SERIAL_NUMBERS_VIEW, layout = AppView.class)
+@PageTitle("Серийные номера")*/
 @UIScope
 public class SerialNumbersView extends VerticalLayout {
 

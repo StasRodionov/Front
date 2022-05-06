@@ -43,9 +43,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_SALES_VIEW;
 
-@Route(value = "RetailSalesTabView", layout = AppView.class)
-@PageTitle("Продажи")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_RETAIL_SALES_VIEW, layout = AppView.class)
+@PageTitle("Продажи")*/
 @SpringComponent
 @UIScope
 public class RetailSalesTabView extends VerticalLayout implements AfterNavigationObserver {

@@ -44,7 +44,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Route(value = "profile/settings/units_settings", layout = SettingsView.class)
+import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS;
+
+@Route(value = PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS, layout = SettingsView.class)
 @PageTitle("Единицы измерения")
 @Slf4j
 @SpringComponent

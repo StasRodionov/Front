@@ -39,10 +39,13 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_FLOWCHARTS_VIEW;
+
 @SpringComponent
 @UIScope
-@PageTitle("Тех. карты")
-@Route(value = "flowcharts", layout = AppView.class)
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@PageTitle("Тех. карты")
+@Route(value = PRODUCTION_FLOWCHARTS_VIEW, layout = AppView.class)*/
 public class FlowchartsViewTab extends VerticalLayout {
 
     private final TextField text = new TextField();

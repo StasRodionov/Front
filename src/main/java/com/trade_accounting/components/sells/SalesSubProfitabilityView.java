@@ -57,9 +57,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_PROFITABILITY_VIEW;
+
 @Slf4j
-@Route(value = "profitability", layout = AppView.class)
-@PageTitle("Прибыльность")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = SELLS_PROFITABILITY_VIEW, layout = AppView.class)
+@PageTitle("Прибыльность")*/
 @SpringComponent
 @UIScope
 public class SalesSubProfitabilityView extends VerticalLayout {

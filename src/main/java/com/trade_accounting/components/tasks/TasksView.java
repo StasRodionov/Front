@@ -48,12 +48,12 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+import static com.trade_accounting.config.SecurityConstants.TASKS;
 
 @SpringComponent
 @UIScope
 @Slf4j
-@Route(value = BODY_URL + "tasks", layout = AppView.class)
+@Route(value = TASKS, layout = AppView.class)
 @PageTitle("Задачи")
 public class TasksView extends VerticalLayout implements AfterNavigationObserver {
 

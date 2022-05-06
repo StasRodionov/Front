@@ -71,8 +71,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "suppliersInvoices", layout = AppView.class)
+@Route(value = PURCHASES_SUPPLIERS_INVOICES_VIEW, layout = AppView.class)
 @PageTitle("Счета поставщиков")
 @SpringComponent
 @UIScope

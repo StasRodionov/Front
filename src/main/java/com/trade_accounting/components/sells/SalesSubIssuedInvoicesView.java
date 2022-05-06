@@ -43,9 +43,12 @@ import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_ISSUED_INVOICE_VIEW;
+
 @Slf4j
-@Route(value = "IssuedInvoice", layout = AppView.class)
-@PageTitle("Счета-фактуры выданные")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = SELLS_ISSUED_INVOICE_VIEW, layout = AppView.class)
+@PageTitle("Счета-фактуры выданные")*/
 @SpringComponent
 @UIScope
 public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterNavigationObserver {

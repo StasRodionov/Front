@@ -25,8 +25,11 @@ import com.vaadin.flow.router.Route;
 
 import java.util.List;
 
-@Route(value = "MoneySubMutualSettlementsView", layout = AppView.class)
-@PageTitle("Взаиморасчеты")
+import static com.trade_accounting.config.SecurityConstants.MONEY_MONEY_SUB_MUTUAL_SETTLEMENTS_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = MONEY_MONEY_SUB_MUTUAL_SETTLEMENTS_VIEW, layout = AppView.class)
+@PageTitle("Взаиморасчеты")*/
 public class MoneySubMutualSettlementsView extends VerticalLayout {
 
     private final MoneySubMutualSettlementsService moneySubMutualSettlementsService;

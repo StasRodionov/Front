@@ -35,7 +35,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-@Route(value = "profile/settings/currency_settings", layout = SettingsView.class)
+import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SETTINGS__CURRENCY_SETTINGS;
+
+@Route(value = PROFILE_PROFILE__SETTINGS__CURRENCY_SETTINGS, layout = SettingsView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class CurrencySettingsView extends VerticalLayout {

@@ -44,8 +44,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__LOSS_CREATE;
+
 @Slf4j
-@Route(value = "goods/loss-create", layout = AppView.class)
+@Route(value = GOODS_GOODS__LOSS_CREATE, layout = AppView.class)
 @PageTitle("Добавить списание")
 @PreserveOnRefresh
 @SpringComponent

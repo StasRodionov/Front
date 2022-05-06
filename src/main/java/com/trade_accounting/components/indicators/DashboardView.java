@@ -32,10 +32,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
 @SpringComponent
-@Route(value = "dashboardView", layout = AppView.class)
-@PageTitle("Показатели")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = INDICATORS_DASHBOARD_VIEW, layout = AppView.class)
+@PageTitle("Показатели")*/
 @UIScope
 public class DashboardView extends VerticalLayout {
 

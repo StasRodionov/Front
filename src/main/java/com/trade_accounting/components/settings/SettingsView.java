@@ -8,7 +8,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.extern.slf4j.Slf4j;
 
-@Route(value = "profile/settings", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.*;
+
+@Route(value = PROFILE_PROFILE__SETTINGS, layout = AppView.class)
 @PageTitle("Настройки")
 @Slf4j
 public class SettingsView extends AppLayout {
@@ -41,7 +43,7 @@ public class SettingsView extends AppLayout {
         Tab tab = new Tab();
         tab.setLabel("Настройки компании");
         tab.getElement().addEventListener("click", e->{
-            this.getUI().ifPresent(ui -> ui.navigate("profile/settings/company_settings"));
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__COMPANY_SETTINGS));
         });
         return tab;
     }
@@ -65,7 +67,7 @@ public class SettingsView extends AppLayout {
         Tab tab = new Tab();
         tab.setLabel("Юридические лица");
         tab.getElement().addEventListener("click", e->{
-            this.getUI().ifPresent(ui -> ui.navigate( "profile/settings/legal_entities_settings"));
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS));
         });
         return tab;
     }
@@ -89,7 +91,7 @@ public class SettingsView extends AppLayout {
         Tab tab = new Tab();
         tab.setLabel("Сотрудники");
         tab.getElement().addEventListener("click", e->{
-            this.getUI().ifPresent(ui -> ui.navigate( "profile/settings/employees_settings"));
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__EMPLOYEES_SETTINGS));
         });
         return tab;
     }
@@ -98,7 +100,7 @@ public class SettingsView extends AppLayout {
         Tab tab = new Tab();
         tab.setLabel("Склады");
         tab.getElement().addEventListener("click", e->{
-            this.getUI().ifPresent(ui -> ui.navigate( "profile/settings/warehouses_settings"));
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__WAREHOUSES_SETTINGS));
         });
         return tab;
     }
@@ -108,7 +110,7 @@ public class SettingsView extends AppLayout {
         Tab tab = new Tab();
         tab.setLabel("Валюта");
         tab.getElement().addEventListener("click", e->{
-            this.getUI().ifPresent(ui -> ui.navigate("profile/settings/currency_settings"));
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__CURRENCY_SETTINGS));
         });
         return tab;
     }
@@ -119,7 +121,7 @@ public class SettingsView extends AppLayout {
         Tab tab = new Tab();
         tab.setLabel("Единицы измерения");
         tab.getElement().addEventListener("click", e->{
-            this.getUI().ifPresent(ui -> ui.navigate("profile/settings/units_settings"));
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS));
         });
         return tab;
     }

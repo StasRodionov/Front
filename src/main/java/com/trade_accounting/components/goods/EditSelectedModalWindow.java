@@ -24,6 +24,8 @@ import com.vaadin.flow.data.binder.Binder;
 import java.util.List;
 import java.util.Set;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_INTERNAL_ORDER_VIEW;
+
 public class EditSelectedModalWindow extends Dialog {
 
     private final CompanyService companyService;
@@ -117,7 +119,7 @@ public class EditSelectedModalWindow extends Dialog {
             }
             notifications.infoNotification("Выбранные списания успешно отредактированы");
             close();
-            UI.getCurrent().navigate("internalorder");
+            UI.getCurrent().navigate(GOODS_INTERNAL_ORDER_VIEW);
         });
     }
 

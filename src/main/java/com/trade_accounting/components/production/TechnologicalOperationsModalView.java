@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_TECHNOLOGICAL_VIEW;
+
 @UIScope
 @SpringComponent
 public class TechnologicalOperationsModalView extends Dialog {
@@ -105,7 +107,7 @@ public class TechnologicalOperationsModalView extends Dialog {
                 dto.setVolume(Integer.parseInt(returnVolume.getValue()));
                 technicalOperationsService.create(dto);
 
-                UI.getCurrent().navigate("technological");
+                UI.getCurrent().navigate(PRODUCTION_TECHNOLOGICAL_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("технологическая операция c ID=%s сохранен", dto.getId()));

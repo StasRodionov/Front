@@ -49,9 +49,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_SALES_SUB_SALES_FUNNEL_VIEW;
+
 @Slf4j
-@Route(value = "salesSubSalesFunnelView", layout = AppView.class)
-@PageTitle("Воронка Продаж")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = SELLS_SALES_SUB_SALES_FUNNEL_VIEW, layout = AppView.class)
+@PageTitle("Воронка Продаж")*/
 public class SalesSubSalesFunnelView extends VerticalLayout {
     private final ContractorStatusService contractorStatusService;
     private final InvoicesStatusService invoicesStatusService;

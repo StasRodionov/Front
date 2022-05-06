@@ -51,8 +51,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_AGENT_REPORTS_VIEW;
+
 @Slf4j
-@Route(value = "agentReports", layout = AppView.class)
+@Route(value = SELLS_AGENT_REPORTS_VIEW, layout = AppView.class)
 @PageTitle("Отчеты комиссионера")
 @SpringComponent
 @UIScope
@@ -161,8 +163,8 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
             commissionAgentReportModalView.open();
 //            salesEditCreateInvoiceView.setUpdateState(true);
 //            salesEditCreateInvoiceView.setType("RECEIPT");
-//            salesEditCreateInvoiceView.setLocation("sells");
-//            UI.getCurrent().navigate("sells/customer-order-edit");
+//            salesEditCreateInvoiceView.setLocation(SELLS);
+//            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
         });
     }
 

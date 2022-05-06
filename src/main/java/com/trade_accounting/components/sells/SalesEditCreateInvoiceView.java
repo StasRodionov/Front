@@ -69,8 +69,10 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_SELLS__CUSTOMER_ORDER_EDIT;
+
 @Slf4j
-@Route(value = "sells/customer-order-edit", layout = AppView.class)
+@Route(value = SELLS_SELLS__CUSTOMER_ORDER_EDIT, layout = AppView.class)
 @PageTitle("Изменить заказ")
 @PreserveOnRefresh
 @SpringComponent

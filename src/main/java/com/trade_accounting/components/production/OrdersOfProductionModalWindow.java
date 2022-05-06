@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_ORDERS_OF_PRODUCTION_VIEW;
+
 @UIScope
 @SpringComponent
 public class OrdersOfProductionModalWindow  extends Dialog {
@@ -152,7 +154,7 @@ public class OrdersOfProductionModalWindow  extends Dialog {
                 dto.setVolume(Integer.parseInt(volumeField.getValue()));
                 ordersOfProductionService.create(dto);
 
-                UI.getCurrent().navigate("ordersOfProductionViewTab");
+                UI.getCurrent().navigate(PRODUCTION_ORDERS_OF_PRODUCTION_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification(String.format("Заказ на производство сохранен", dto.getId()));

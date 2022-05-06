@@ -46,9 +46,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_MAKING_VIEW;
+
 @Slf4j
-@Route(value = "RetailMakingView", layout = AppView.class)
-@PageTitle("Внесения")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_RETAIL_MAKING_VIEW, layout = AppView.class)
+@PageTitle("Внесения")*/
 @SpringComponent
 @UIScope
 public class RetailMakingView extends VerticalLayout implements AfterNavigationObserver {

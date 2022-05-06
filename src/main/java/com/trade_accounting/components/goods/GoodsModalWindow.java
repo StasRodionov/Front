@@ -68,6 +68,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS;
+
 @SpringComponent
 @UIScope
 @Slf4j
@@ -519,7 +521,7 @@ public class GoodsModalWindow extends Dialog {
 
                 Notification.show(String.format("Товар %s изменен", productDto.getName()));
                 close();
-                UI.getCurrent().navigate("goods");
+                UI.getCurrent().navigate(GOODS);
             } else {
                 com.trade_accounting.components.sells.InformationView informationView =
                         new InformationView("Одно или несколько полей не заполнены");

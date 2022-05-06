@@ -33,9 +33,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_GOODS_FOR_SALE_VIEW;
+
 @Slf4j
-@Route(value = "goodsForSale", layout = AppView.class)
-@PageTitle("Товары на реализации")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = SELLS_GOODS_FOR_SALE_VIEW, layout = AppView.class)
+@PageTitle("Товары на реализации")*/
 @SpringComponent
 @UIScope
 public class SalesSubGoodsForSaleView extends VerticalLayout {

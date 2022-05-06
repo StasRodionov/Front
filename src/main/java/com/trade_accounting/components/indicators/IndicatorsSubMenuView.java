@@ -17,9 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 
-import static com.trade_accounting.config.SecurityConstants.BODY_URL;
+import static com.trade_accounting.config.SecurityConstants.INDICATORS;
 
-@Route(value = BODY_URL + "indicators", layout = AppView.class)
+@Route(value = INDICATORS, layout = AppView.class)
 @PageTitle("Показатели")
 @SpringComponent
 @UIScope

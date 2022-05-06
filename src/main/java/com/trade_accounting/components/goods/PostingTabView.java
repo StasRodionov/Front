@@ -50,9 +50,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @SpringComponent
 @PageTitle("Оприходования")
-@Route(value = "positingTab", layout = AppView.class)
+@Route(value = GOODS_POSTING_VIEW, layout = AppView.class)
 @UIScope
 public class PostingTabView extends VerticalLayout  implements AfterNavigationObserver {
 
@@ -256,8 +258,8 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
         Button button = new Button("Оприходование", new Icon(VaadinIcon.PLUS_CIRCLE));
         button.addClickListener(e -> {
             postingCreateView.clearForm();
-            postingCreateView.setParentLocation("positingTab");
-            button.getUI().ifPresent(ui -> ui.navigate("goods/posting-create"));
+            postingCreateView.setParentLocation(GOODS_POSTING_VIEW);
+            button.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__POSTING_CREATE));
         });
 
         return button;
