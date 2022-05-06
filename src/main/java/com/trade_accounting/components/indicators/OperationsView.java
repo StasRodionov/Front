@@ -18,7 +18,6 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
@@ -85,16 +84,20 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
 @SpringComponent
-@Route(value = "operationsView", layout = AppView.class)
-@PageTitle("Документы")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = INDICATORS_OPERATIONS_VIEW, layout = AppView.class)
+@PageTitle("Документы")*/
 @UIScope
 
 public class OperationsView extends VerticalLayout {
@@ -149,6 +152,7 @@ public class OperationsView extends VerticalLayout {
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
 
+    @Autowired
     public OperationsView(CreditOrderModal creditOrderModal,
                           SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                           GoodsSubInventoryModalWindow goodsSubInventoryModalWindow,
@@ -713,22 +717,22 @@ public class OperationsView extends VerticalLayout {
         //Продажи sells/shipment-edit
         MenuItem salesSubCustomersOrders = operationsSubMenu.addItem("Заказ покупателя");
         salesSubCustomersOrders.addClickListener(e -> operations.getUI()
-                .ifPresent(ui -> ui.navigate("sells/customer-order-edit")));
+                .ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT)));
 
         MenuItem salesSubInvoicesToBuyers = operationsSubMenu.addItem("Счета покупателей");
         salesSubInvoicesToBuyers.addClickListener(e -> operations.getUI()
-                .ifPresent(ui -> ui.navigate("sells/add-new-invoices-to-buyers")));
+                .ifPresent(ui -> ui.navigate(SELLS_SELLS__ADD_NEW_INVOICES_TO_BUYERS)));
         MenuItem salesSubShipment = operationsSubMenu.addItem("Отгрузки");
         salesSubShipment.addClickListener(e -> operations.getUI()
-                .ifPresent(ui -> ui.navigate("sells/shipment-edit")));
+                .ifPresent(ui -> ui.navigate(SELLS_SELLS__SHIPMENT_EDIT)));
         //Закупки
         MenuItem supplierOrders = operationsSubMenu.addItem("Заказы поставщикам");
         supplierOrders.addClickListener(e -> operations.getUI()
-                .ifPresent(ui -> ui.navigate("sells/customer-order-edit")));
+                .ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT)));
 
 //        MenuItem supplierNewOrders = operationsSubMenu.addItem("Новый заказ поставщикам");
 //        supplierNewOrders.addClickListener(e -> operations.getUI()
-//                .ifPresent(ui -> ui.navigate("purchases/new-order-purchases")));
+//                .ifPresent(ui -> ui.navigate(PURCHASES_PURCHASES__NEW_ORDER_PURCHASES)));
 
         MenuItem vendorAccounts = operationsSubMenu.addItem("Счета поставщиков", menuItemClickEvent -> supplierAccountModalView.open());
         MenuItem admissions = operationsSubMenu.addItem("Приемка", menuItemClickEvent -> acceptanceModalView.open());
@@ -742,7 +746,7 @@ public class OperationsView extends VerticalLayout {
         //Склад
         MenuItem internalOrder = operationsSubMenu.addItem("Внутренний заказ", menuItemClickEvent -> internalOrderModalView.open());
         MenuItem movement = operationsSubMenu.addItem("Перемещение");
-        movement.addClickListener(e -> operations.getUI().ifPresent(ui -> ui.navigate("goods/add_moving")));
+        movement.addClickListener(e -> operations.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__ADD_MOVING)));
         MenuItem inventory = operationsSubMenu.addItem("Инвентаризация", menuItemClickEvent -> goodsSubInventoryModalWindow.open());
         MenuItem posting = operationsSubMenu.addItem("Оприходование", menuItemClickEvent -> postingModal.open());
         MenuItem loss = operationsSubMenu.addItem("Списание", menuItemClickEvent -> lossModalWindow.open());

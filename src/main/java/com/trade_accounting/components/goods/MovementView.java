@@ -5,7 +5,6 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.warehouse.MovementDto;
@@ -13,7 +12,6 @@ import com.trade_accounting.models.dto.warehouse.MovementProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
-import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
@@ -25,6 +23,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -37,6 +36,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -46,14 +46,15 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static com.trade_accounting.config.SecurityConstants.GOODS_MOVEMENT_VIEW;
 
 @SpringComponent
 @PageTitle("Перемещения")
-@Route(value = "movementView", layout = AppView.class)
+@Route(value = GOODS_MOVEMENT_VIEW, layout = AppView.class)
 @UIScope
 public class MovementView extends VerticalLayout implements AfterNavigationObserver {
 
@@ -120,13 +121,15 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
         grid.addColumn(movementDto -> companyService.getById(movementDto.getCompanyId())
                 .getName()).setKey("companyDto").setHeader("Организация").setId("Организация");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn("comment").setSortable(true).setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
         grid.setHeight("66vh");
         grid.setMaxWidth("100%");
+        GridSortOrder<MovementDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
+        grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
@@ -148,6 +151,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
             modalView.open();
         });
     }
+
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");

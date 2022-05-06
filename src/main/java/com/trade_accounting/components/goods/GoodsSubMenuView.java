@@ -14,8 +14,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS;
 
-@Route(value = "goods", layout = AppView.class)
+
+@Route(value = GOODS, layout = AppView.class)
 @PageTitle("Товары")
 @SpringComponent
 @UIScope
@@ -33,10 +35,16 @@ public class GoodsSubMenuView extends Div implements AfterNavigationObserver {
 
     private final Div div = new Div();
 
-    public GoodsSubMenuView(GoodsView goodsView, PostingTabView postingTabView,
-                            GoodsSubInventory goodsSubInventory, GoodsSubInternalOrder goodsSubInternalOrder,
-                            MovementView movementView, RemainView remainView, LossView lossView,
-                            GoodsPriceLayout priceLayoutView, RevenueView revenueView, SerialNumbersView serialNumbersView) {
+    public GoodsSubMenuView(GoodsView goodsView,
+                            PostingTabView postingTabView,
+                            GoodsSubInventory goodsSubInventory,
+                            GoodsSubInternalOrder goodsSubInternalOrder,
+                            MovementView movementView,
+                            RemainView remainView,
+                            LossView lossView,
+                            GoodsPriceLayout priceLayoutView,
+                            RevenueView revenueView,
+                            SerialNumbersView serialNumbersView) {
         this.goodsView = goodsView;
         this.revenueView = revenueView;
         this.postingTabView = postingTabView;

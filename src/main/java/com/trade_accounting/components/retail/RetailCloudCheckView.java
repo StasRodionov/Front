@@ -38,9 +38,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_CLOUD_CHECK_VIEW;
+
 @Slf4j
-@Route(value = "RetailCloudCheckView", layout = AppView.class)
-@PageTitle("Очередь облачных чеков")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_RETAIL_CLOUD_CHECK_VIEW, layout = AppView.class)
+@PageTitle("Очередь облачных чеков")*/
 @SpringComponent
 @UIScope
 public class RetailCloudCheckView extends VerticalLayout implements AfterNavigationObserver {

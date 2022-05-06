@@ -62,11 +62,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_ORDERS_OF_PRODUCTION_VIEW;
+
 @Slf4j
 @SpringComponent
 @UIScope
 @PageTitle("Заказы на производство")
-@Route(value = "ordersOfProductionViewTab", layout = AppView.class)
+@Route(value = PRODUCTION_ORDERS_OF_PRODUCTION_VIEW, layout = AppView.class)
 public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNavigationObserver {
 
 

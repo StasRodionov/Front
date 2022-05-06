@@ -6,9 +6,11 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
+import static com.trade_accounting.config.SecurityConstants.LOGIN;
+
 public interface AuthenticationApi {
 
-    @POST("login")
+    @POST(LOGIN)
     Call<LoginResponse> userLogin(@Body LoginRequest loginRequest);
 
 }

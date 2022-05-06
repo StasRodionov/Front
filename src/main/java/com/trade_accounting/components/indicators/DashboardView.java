@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -31,10 +32,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
 @SpringComponent
-@Route(value = "dashboardView", layout = AppView.class)
-@PageTitle("Показатели")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = INDICATORS_DASHBOARD_VIEW, layout = AppView.class)
+@PageTitle("Показатели")*/
 @UIScope
 public class DashboardView extends VerticalLayout {
 
@@ -47,6 +51,7 @@ public class DashboardView extends VerticalLayout {
     private List<InvoiceDto> invoiceDtoList;
     private List<InvoiceProductDto> invoiceProductDtoList;
 
+    @Autowired
     public DashboardView(InvoiceService invoiceService, InvoiceProductService invoiceProductService) {
         this.invoiceProductService = invoiceProductService;
         this.invoiceService = invoiceService;

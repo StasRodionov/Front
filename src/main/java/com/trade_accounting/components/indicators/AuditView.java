@@ -32,11 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 
 @Slf4j
 @SpringComponent
-@Route(value = "auditView", layout = AppView.class)
-@PageTitle("Аудит")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = INDICATORS_AUDIT_VIEW, layout = AppView.class)
+@PageTitle("Аудит")*/
 @UIScope
 public class AuditView extends VerticalLayout {
 

@@ -30,9 +30,12 @@ import org.springframework.context.annotation.Lazy;
 import java.util.List;
 import java.util.Map;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_REVENUE_VIEW;
+
 @SpringComponent
-@Route(value = "revenueView", layout = AppView.class)
-@PageTitle("Обороты")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = GOODS_REVENUE_VIEW, layout = AppView.class)
+@PageTitle("Обороты")*/
 @UIScope
 public class RevenueView extends VerticalLayout {
 

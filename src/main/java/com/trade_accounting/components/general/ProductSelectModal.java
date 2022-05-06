@@ -33,8 +33,6 @@ public class ProductSelectModal extends Dialog {
     private final ProductPriceService productPriceService;
 
 
-    private List<ProductDto> productDtos;
-
     public final ComboBox<ProductDto> productSelect = new ComboBox<>();
     public final ComboBox<ProductPriceDto> priceSelect = new ComboBox<>();
     public final BigDecimalField amountField = new BigDecimalField();
@@ -66,22 +64,20 @@ public class ProductSelectModal extends Dialog {
     }
 
     public void updatePricesList() {
-        if (productSelect.getValue() != null){
+        if (productSelect.getValue() != null) {
             priceSelect.setItems(productPriceService.getAll()
                     .stream()
                     .filter(x -> productSelect.getValue().getProductPriceIds().contains(x.getId()))
                     .collect(Collectors.toList())
             );
             priceSelect.setItemLabelGenerator(x -> x.getValue().toString());
-            priceSelect.addValueChangeListener(e -> {
-                updateSaveButtonEnable();
-            });
+            priceSelect.addValueChangeListener(e -> updateSaveButtonEnable());
         }
     }
 
     private HorizontalLayout configureProductSelect() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        productDtos = productService.getAll();
+        List<ProductDto> productDtos = productService.getAll();
         if (productDtos != null) {
             productSelect.setItems(productDtos);
         }

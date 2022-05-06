@@ -42,7 +42,9 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Route(value = "profile/settings/employees_settings", layout = SettingsView.class)
+import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SETTINGS__EMPLOYEES_SETTINGS;
+
+@Route(value = PROFILE_PROFILE__SETTINGS__EMPLOYEES_SETTINGS, layout = SettingsView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class EmployeesSettingsView extends VerticalLayout {
@@ -56,8 +58,8 @@ public class EmployeesSettingsView extends VerticalLayout {
     private final GridFilter<EmployeeDto> filter;
     private final GridPaginator<EmployeeDto> paginator;
     private final Notifications notifications;
-    private String addTitle = "Добавление сотрудника";
-    private String editTitle = "Изменение сотрудника";
+    private final String addTitle = "Добавление сотрудника";
+    private final String editTitle = "Изменение сотрудника";
 
     public EmployeesSettingsView(EmployeeService employeeService, RoleService roleService, ImageService imageService, Notifications notifications,
                         DepartmentService departmentService, PositionService positionService) {
@@ -73,7 +75,7 @@ public class EmployeesSettingsView extends VerticalLayout {
         this.paginator = new GridPaginator<>(grid, data, 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureFilter();
-        add(upperLayout(),getAppView(), filter, grid, paginator);
+        add(getAppView(), upperLayout(), filter, grid, paginator);
     }
 
     private List<EmployeeDto> getData() {

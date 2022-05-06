@@ -88,9 +88,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "purchasingManagement", layout = AppView.class)
-@PageTitle("Управление закупками")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PURCHASES_PURCHASING_MANAGEMENT_VIEW, layout = AppView.class)
+@PageTitle("Управление закупками")*/
 @SpringComponent
 @UIScope
 public class PurchasesSubPurchasingManagement extends VerticalLayout implements AfterNavigationObserver {
@@ -302,7 +305,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     public ComboBox<ProductDto> getComboBoxProduct() {
-        productComboBox.setLabel("Выберете товар");
+        productComboBox.setLabel("Выберите товар");
         productComboBox.setItems(productService.getAll());
         productComboBox.setItemLabelGenerator(ProductDto::getName);
         productComboBox.addValueChangeListener(event -> productId = event.getValue().getId());
@@ -666,8 +669,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 purchasesSubPurchasingManagementModalWindow.resetView();
                 purchasesSubPurchasingManagementModalWindow.setUpdateState(false);
                 purchasesSubPurchasingManagementModalWindow.setType("EXPENSE");
-                purchasesSubPurchasingManagementModalWindow.setLocation("purchases");
-                supplierOrder.getUI().ifPresent(ui -> ui.navigate("purchases/new-order-purchases"));
+                purchasesSubPurchasingManagementModalWindow.setLocation(PURCHASES);
+                supplierOrder.getUI().ifPresent(ui -> ui.navigate(PURCHASES_PURCHASES__NEW_ORDER_PURCHASES));
         });
         return menuBar;
     }

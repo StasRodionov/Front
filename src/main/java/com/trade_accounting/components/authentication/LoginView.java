@@ -11,10 +11,9 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static com.trade_accounting.config.SecurityConstants.EXPIRATION_TIME;
-import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
+import static com.trade_accounting.config.SecurityConstants.*;
 
-@Route(value = "login")
+@Route(value = LOGIN)
 public class LoginView extends VerticalLayout {
 
     private final LoginForm login = new LoginForm();
@@ -42,7 +41,7 @@ public class LoginView extends VerticalLayout {
             }
         });
         Button registration = new Button("Зарегистрировться",e ->{
-            UI.getCurrent().navigate("registration");
+            UI.getCurrent().navigate(REGISTRATION);
         });
         registration.getStyle().set("margin", "auto");
 

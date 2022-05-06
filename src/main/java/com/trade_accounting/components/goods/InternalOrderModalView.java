@@ -37,6 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @UIScope
 @SpringComponent
 public class InternalOrderModalView extends Dialog {
@@ -151,7 +153,7 @@ public class InternalOrderModalView extends Dialog {
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification("Внутренний заказ сохранен");
-                UI.getCurrent().navigate("internalorder");
+                UI.getCurrent().navigate(GOODS_INTERNAL_ORDER_VIEW);
             }
         });
     }
@@ -232,7 +234,7 @@ public class InternalOrderModalView extends Dialog {
                 .bind(internalOrderDto -> new HashSet<>(internalOrderDto.getInternalOrderProductsIdsValid()),
                         (internalOrderDto, internalOrderDto2) -> internalOrderDto.setInternalOrderProductsIdsValid(internalOrderDto
                                 .getInternalOrderProductsIdsValid()));
-        UI.getCurrent().navigate("goods");
+        UI.getCurrent().navigate(GOODS);
         return horizontalLayout;
     }
 

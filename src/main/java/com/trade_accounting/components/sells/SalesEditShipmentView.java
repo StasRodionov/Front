@@ -53,8 +53,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_SELLS__SHIPMENT_EDIT;
+
 @Slf4j
-@Route(value = "sells/shipment-edit", layout = AppView.class)
+@Route(value = SELLS_SELLS__SHIPMENT_EDIT, layout = AppView.class)
 @PageTitle("Добавить отгрузку")
 @PreserveOnRefresh
 @SpringComponent

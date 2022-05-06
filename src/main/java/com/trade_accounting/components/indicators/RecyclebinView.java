@@ -85,6 +85,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -93,10 +94,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
 @SpringComponent
-@Route(value = "recyclebinView", layout = AppView.class)
-@PageTitle("Корзина")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = INDICATORS_TRASHCAN_VIEW, layout = AppView.class)
+@PageTitle("Корзина")*/
 @UIScope
 public class RecyclebinView extends VerticalLayout {
 
@@ -152,30 +156,43 @@ public class RecyclebinView extends VerticalLayout {
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
 
+    @Autowired
     public RecyclebinView(CreditOrderModal creditOrderModal,
                           SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                           GoodsSubInventoryModalWindow goodsSubInventoryModalWindow,
                           InternalOrderModalView internalOrderModalView,
-                          LossModalWindow lossModalWindow, MovementViewModalWindow movementViewModalWindow,
-                          PostingModal postingModal, IncomingPaymentModal incomingPaymentModal,
-                          OutgoingPaymentModal outgoingPaymentModal, ExpenseOrderModal expenseOrderModal,
-                          SupplierAccountModalView supplierAccountModalView, AcceptanceModalView acceptanceModalView,
-                          SalesEditShipmentView salesEditShipmentView, OperationsService operationsService,
+                          LossModalWindow lossModalWindow,
+                          MovementViewModalWindow movementViewModalWindow,
+                          PostingModal postingModal,
+                          IncomingPaymentModal incomingPaymentModal,
+                          OutgoingPaymentModal outgoingPaymentModal,
+                          ExpenseOrderModal expenseOrderModal,
+                          SupplierAccountModalView supplierAccountModalView,
+                          AcceptanceModalView acceptanceModalView,
+                          SalesEditShipmentView salesEditShipmentView,
+                          OperationsService operationsService,
                           CompanyService companyService,
-                          WarehouseService warehouseService, MovementService movementService,
+                          WarehouseService warehouseService,
+                          MovementService movementService,
                           MovementProductService movementProductService,
-                          LossService lossService, InternalOrderService internalOrderService,
+                          LossService lossService,
+                          InternalOrderService internalOrderService,
                           LossProductService lossProductService,
                           InternalOrderProductsDtoService internalOrderProductsDtoService,
-                          PaymentService paymentService, ContractorService contractorService,
+                          PaymentService paymentService,
+                          ContractorService contractorService,
                           CorrectionService correctionService,
                           CorrectionProductService correctionProductService,
                           InventarizationService inventarizationService,
                           InventarizationProductService inventarizationProductService,
-                          InvoiceService invoiceService, InvoiceProductService invoiceProductService,
-                          AcceptanceService acceptanceService, AcceptanceProductionService acceptanceProductionService,
-                          SupplierAccountService supplierAccountService, ShipmentService shipmentService,
-                          ShipmentProductService shipmentProductService, Notifications notifications) {
+                          InvoiceService invoiceService,
+                          InvoiceProductService invoiceProductService,
+                          AcceptanceService acceptanceService,
+                          AcceptanceProductionService acceptanceProductionService,
+                          SupplierAccountService supplierAccountService,
+                          ShipmentService shipmentService,
+                          ShipmentProductService shipmentProductService,
+                          Notifications notifications) {
         this.creditOrderModal = creditOrderModal;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.goodsSubInventoryModalWindow = goodsSubInventoryModalWindow;

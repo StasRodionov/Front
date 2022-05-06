@@ -47,9 +47,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_INVENTORY_VIEW;
+
 @Slf4j
-@Route(value = "inventory", layout = AppView.class)
-@PageTitle("Инвентаризации")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = GOODS_INVENTORY_VIEW, layout = AppView.class)
+@PageTitle("Инвентаризации")*/
 @SpringComponent
 @UIScope
 public class GoodsSubInventory extends VerticalLayout implements AfterNavigationObserver {

@@ -30,6 +30,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_MOVEMENT_VIEW;
+
 @UIScope
 @SpringComponent
 public class MovementProductsModalView extends Dialog {
@@ -110,7 +112,7 @@ public class MovementProductsModalView extends Dialog {
 
                 movementProductService.create(dto);
 
-                UI.getCurrent().navigate("movementView");
+                UI.getCurrent().navigate(GOODS_MOVEMENT_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification("Продукт перемещения сохранен");

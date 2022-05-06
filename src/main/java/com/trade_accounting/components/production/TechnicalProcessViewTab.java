@@ -42,10 +42,12 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PRODUCTION_TECHNICAL_PROCESS_VIEW;
+
 @SpringComponent
 @UIScope
 @PageTitle("Тех. процессы")
-@Route(value = "technical_process", layout = AppView.class)
+@Route(value = PRODUCTION_TECHNICAL_PROCESS_VIEW, layout = AppView.class)
 public class TechnicalProcessViewTab extends VerticalLayout implements AfterNavigationObserver {
 
     private final TextField textField = new TextField();

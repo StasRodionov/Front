@@ -52,8 +52,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "sells/add-new-invoices-to-buyers", layout = AppView.class)
+@Route(value = SELLS_SELLS__ADD_NEW_INVOICES_TO_BUYERS, layout = AppView.class)
 @PageTitle("Новый счет")
 @PreserveOnRefresh
 @SpringComponent
@@ -90,7 +92,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
     private final Binder<SupplierAccountDto> supplierAccountDtoBinder = new Binder<>(SupplierAccountDto.class);
     private final Button buttonDelete = new Button("Удалить", new Icon(VaadinIcon.TRASH));
 
-    private String location = "invoicesToBuyers";
+    private String location = SELLS_INVOICES_TO_BUYERS_VIEW;
 
     @Autowired
     public SalesAddNewInvoicesToBuyersView(CompanyService companyService,
@@ -156,7 +158,7 @@ public class SalesAddNewInvoicesToBuyersView extends VerticalLayout {
                 );
 
                 addInvoiceProductToInvoicedDto(invoiceDto);*/ //добавление продуктов в счет
-                UI.getCurrent().navigate("invoicesToBuyers");
+                UI.getCurrent().navigate(SELLS_INVOICES_TO_BUYERS_VIEW);
                 notifications.infoNotification(String.format("Счет № %s сохранен", supplierAccountDto.getId()));
             }
         });

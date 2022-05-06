@@ -35,12 +35,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.PURCHASES_PURCHASES__NEW_ORDER_PURCHASES;
 import static org.atmosphere.util.IOUtils.close;
 
 
 @UIScope
 @SpringComponent
-@Route(value = "purchases/new-order-purchases", layout = AppView.class)
+@Route(value = PURCHASES_PURCHASES__NEW_ORDER_PURCHASES, layout = AppView.class)
 @PageTitle("Создание заказа")
 @PreserveOnRefresh
 @Slf4j
@@ -338,7 +339,7 @@ public class PurchasesSubPurchasingManagementModalWindow extends VerticalLayout 
 
     private HorizontalLayout articleNumberConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Артикль");
+        Label label = new Label("Артикул");
         label.setWidth("150px");
         articleNumber.setWidth("300px");
         horizontalLayout.add(label, articleNumber);
@@ -349,7 +350,7 @@ public class PurchasesSubPurchasingManagementModalWindow extends VerticalLayout 
 
     private HorizontalLayout productMeasureConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        Label label = new Label("Измерение продукта");
+        Label label = new Label("Единицы измерения продукта");
         label.setWidth("150px");
         productMeasure.setWidth("300px");
         horizontalLayout.add(label, productMeasure);

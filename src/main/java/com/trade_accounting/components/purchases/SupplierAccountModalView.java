@@ -49,6 +49,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.springframework.beans.factory.annotation.Autowired;
 import retrofit2.Response;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -57,7 +58,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route(value = "purchases/add-new-invoices-to-suplier", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.*;
+
+@Route(value = PURCHASES_PURCHASES__ADD_NEW_INVOICES_TO_SUPPLIER, layout = AppView.class)
 @PageTitle("Новый счет поставщика")
 @SpringComponent
 @UIScope
@@ -95,6 +98,7 @@ public class SupplierAccountModalView extends Dialog {
     private final H4 totalPrice = new H4();
     private final ComboBox<InvoiceDto> invoiceSelectField = new ComboBox<>();
 
+    @Autowired
     public SupplierAccountModalView(SupplierAccountService supplierAccountService,
                                     CompanyService companyService,
                                     WarehouseService warehouseService,
@@ -275,7 +279,7 @@ public class SupplierAccountModalView extends Dialog {
                 saveProducts(supplierAccountDto);
                 clearField();
                 close();
-                UI.getCurrent().navigate("suppliersInvoices");
+                UI.getCurrent().navigate(PURCHASES_SUPPLIERS_INVOICES_VIEW);
                 notifications.infoNotification(String.format("Счет поставщика № %s сохранен", supplierAccountDto.getId()));
             }
         });
@@ -519,7 +523,7 @@ public class SupplierAccountModalView extends Dialog {
 
     private void closeView() {
         clearField();
-        UI.getCurrent().navigate("purchases");
+        UI.getCurrent().navigate(PURCHASES);
     }
 
     private void configureDateTimePickerField() {
