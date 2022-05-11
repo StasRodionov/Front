@@ -27,7 +27,7 @@ import java.util.List;
 import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
-@Route
+@Route("app")
 public class AppView extends AppLayout implements PageConfigurator {
 
     private final String LOGO = "logo.png";
