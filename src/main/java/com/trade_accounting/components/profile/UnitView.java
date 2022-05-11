@@ -30,8 +30,11 @@ import com.vaadin.flow.router.Route;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route(value = "unit", layout = AppView.class)
-@PageTitle("Единицы измерения")
+import static com.trade_accounting.config.SecurityConstants.PROFILE_UNIT_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PROFILE_UNIT_VIEW, layout = AppView.class)
+@PageTitle("Единицы измерения")*/
 public class UnitView extends VerticalLayout {
 
     private final UnitService unitService;

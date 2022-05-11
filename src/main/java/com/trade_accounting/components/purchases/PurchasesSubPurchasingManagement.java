@@ -102,8 +102,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Route(value = "purchasingManagement", layout = AppView.class)
-@PageTitle("Управление закупками")
 @SpringComponent
 @UIScope
 public class PurchasesSubPurchasingManagement extends VerticalLayout implements AfterNavigationObserver {
@@ -638,13 +636,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 //        return textField;
 //    }
 
-//    public void updateList(String nameFilter) {
-//        if (!(textField.getValue().equals(""))) {
-//
-//        } else {
-//
-//        }
-//    }
 
     private String formatDate(String stringDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

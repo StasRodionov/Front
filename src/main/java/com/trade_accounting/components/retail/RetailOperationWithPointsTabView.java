@@ -30,8 +30,11 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.Arrays;
 import java.util.List;
 
-@Route(value = "RetailOperationWithPointsTabView", layout = AppView.class)
-@PageTitle("Операции с баллами")
+import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_OPERATION_WITH_POINTS_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_RETAIL_OPERATION_WITH_POINTS_VIEW, layout = AppView.class)
+@PageTitle("Операции с баллами")*/
 @SpringComponent
 @UIScope
 public class RetailOperationWithPointsTabView extends VerticalLayout implements AfterNavigationObserver {

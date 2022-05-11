@@ -70,9 +70,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.SELLS_BUYERS_RETURNS_VIEW;
+
 @Slf4j
-@Route(value = "buyersReturns", layout = AppView.class)
-@PageTitle("Возвраты покупателей")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = SELLS_BUYERS_RETURNS_VIEW, layout = AppView.class)
+@PageTitle("Возвраты покупателей")*/
 @SpringComponent
 @UIScope
 public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNavigationObserver {

@@ -48,9 +48,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_CUSTOMERS_PRODUCTS_VIEW;
+
 @Slf4j
 @SpringComponent
-@Route(value = "customersProducts", layout = AppView.class)
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+//@Route(value = GOODS_CUSTOMERS_PRODUCTS_VIEW, layout = AppView.class)
 @UIScope
 public class GoodsView extends VerticalLayout {
 

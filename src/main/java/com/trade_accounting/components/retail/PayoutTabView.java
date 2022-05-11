@@ -62,9 +62,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.RETAIL_PAYOUT_VIEW;
+
 @Slf4j
-@Route(value = "PayoutTabView", layout = AppView.class)
-@PageTitle("Выплаты")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = RETAIL_PAYOUT_VIEW, layout = AppView.class)
+@PageTitle("Выплаты")*/
 @SpringComponent
 @UIScope
 public class PayoutTabView extends VerticalLayout implements AfterNavigationObserver {

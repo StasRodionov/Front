@@ -23,6 +23,8 @@ import com.vaadin.flow.data.binder.Binder;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_LOSS_VIEW;
+
 public class LossProductModalWindow extends Dialog {
     private final ProductService productService;
     private final CompanyService companyService;
@@ -81,7 +83,7 @@ public class LossProductModalWindow extends Dialog {
 
                 lossProductService.create(dto);
 
-                UI.getCurrent().navigate("lossView");
+                UI.getCurrent().navigate(GOODS_LOSS_VIEW);
                 close();
                 clearAllFieldsModalView();
                 notifications.infoNotification("Продукт списания сохранен");

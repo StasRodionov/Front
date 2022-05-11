@@ -34,8 +34,11 @@ import com.vaadin.flow.router.Route;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Route(value = "currency", layout = AppView.class)
-@PageTitle("Валюты")
+import static com.trade_accounting.config.SecurityConstants.PROFILE_CURRENCY_VIEW;
+
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PROFILE_CURRENCY_VIEW, layout = AppView.class)
+@PageTitle("Валюты")*/
 public class CurrencyView extends VerticalLayout {
     private final NumberField selectedNumberField;
     private final List<CurrencyDto> data;

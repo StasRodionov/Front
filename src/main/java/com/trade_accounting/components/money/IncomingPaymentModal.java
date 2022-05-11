@@ -35,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static com.trade_accounting.config.SecurityConstants.MONEY;
+
 @SpringComponent
 @UIScope
 @Slf4j
@@ -175,7 +177,7 @@ public class IncomingPaymentModal extends Dialog {
                     paymentService.update(payment);
                 }
                 reset();
-                UI.getCurrent().navigate("money");
+                UI.getCurrent().navigate(MONEY);
                 close();
             } else {
                 sum.clear();

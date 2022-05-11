@@ -48,8 +48,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "invoicesToBuyers", layout = AppView.class)
+@Route(value = SELLS_INVOICES_TO_BUYERS_VIEW, layout = AppView.class)
 @PageTitle("Счета покупателям")
 @SpringComponent
 @UIScope
@@ -137,8 +139,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
             SupplierAccountDto editInvoice = event.getItem();
             salesAddNewInvoicesToBuyersView.setSupplierDataForEdit(editInvoice);
             salesAddNewInvoicesToBuyersView.setUpdateState(true);
-            salesAddNewInvoicesToBuyersView.setLocation("sells");
-            UI.getCurrent().navigate("sells/add-new-invoices-to-buyers");
+            salesAddNewInvoicesToBuyersView.setLocation(SELLS);
+            UI.getCurrent().navigate(SELLS_SELLS__ADD_NEW_INVOICES_TO_BUYERS);
         });
     }
 
@@ -172,8 +174,8 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
         buttonUnit.addClickListener(event -> {
             salesAddNewInvoicesToBuyersView.resetView();
             salesAddNewInvoicesToBuyersView.setUpdateState(false);
-            salesAddNewInvoicesToBuyersView.setLocation("sells");
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/add-new-invoices-to-buyers"));
+            salesAddNewInvoicesToBuyersView.setLocation(SELLS);
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__ADD_NEW_INVOICES_TO_BUYERS));
         });
         return buttonUnit;
     }

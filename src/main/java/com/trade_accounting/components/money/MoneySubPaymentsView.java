@@ -44,9 +44,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.MONEY_MONEY_PAYMENTS_VIEW;
+
 @Slf4j
-@Route(value = "MoneySubPaymentsView", layout = AppView.class)
-@PageTitle("Платежи")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = MONEY_MONEY_PAYMENTS_VIEW, layout = AppView.class)
+@PageTitle("Платежи")*/
 @CssImport(value = "styles/conducted_grid_style.css", themeFor = "vaadin-grid")
 public class MoneySubPaymentsView extends VerticalLayout {
     private final transient PaymentService paymentService;

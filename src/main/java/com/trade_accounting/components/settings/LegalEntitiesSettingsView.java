@@ -49,7 +49,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Route(value = "profile/settings/legal_entities_settings", layout = SettingsView.class)
+import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS;
+
+@Route(value = PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS, layout = SettingsView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class LegalEntitiesSettingsView extends VerticalLayout {

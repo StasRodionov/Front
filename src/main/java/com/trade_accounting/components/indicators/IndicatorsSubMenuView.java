@@ -14,10 +14,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 
-@Route(value = "indicators", layout = AppView.class)
+import static com.trade_accounting.config.SecurityConstants.INDICATORS;
+
+@Route(value = INDICATORS, layout = AppView.class)
 @PageTitle("Показатели")
 @SpringComponent
 @UIScope
@@ -31,10 +32,10 @@ public class IndicatorsSubMenuView extends Div implements AfterNavigationObserve
 
     @Autowired
     public IndicatorsSubMenuView(DashboardView dashboardView,
-                                 @Lazy OperationsView operationsView,
-                                 @Lazy RecyclebinView recyclebinView,
-                                 AuditView auditView,
-                                 DocumentsView documentsView) {
+                          @Lazy OperationsView operationsView,
+                          @Lazy RecyclebinView recyclebinView,
+                          AuditView auditView,
+                          DocumentsView documentsView) {
         this.dashboardView = dashboardView;
         this.operationsView = operationsView;
         this.recyclebinView = recyclebinView;

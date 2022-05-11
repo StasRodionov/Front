@@ -70,9 +70,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
-@Route(value = "suppliersOrders", layout = AppView.class)
-@PageTitle("Заказы поставщикам")
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+/*@Route(value = PURCHASES_SUPPLIERS_ORDERS_VIEW, layout = AppView.class)
+@PageTitle("Заказы поставщикам")*/
 @SpringComponent
 @UIScope
 public class PurchasesSubSuppliersOrders extends VerticalLayout implements AfterNavigationObserver {
@@ -161,8 +164,8 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);
             salesEditCreateInvoiceView.setType("EXPENSE");
-            salesEditCreateInvoiceView.setLocation("purchases");
-            UI.getCurrent().navigate("sells/customer-order-edit");
+            salesEditCreateInvoiceView.setLocation(PURCHASES);
+            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
         });
         return grid;
     }
@@ -203,8 +206,8 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             salesEditCreateInvoiceView.resetView();
             salesEditCreateInvoiceView.setUpdateState(false);
             salesEditCreateInvoiceView.setType("EXPENSE");
-            salesEditCreateInvoiceView.setLocation("purchases");
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate("sells/customer-order-edit"));
+            salesEditCreateInvoiceView.setLocation(PURCHASES);
+            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT));
         });
         return buttonUnit;
     }

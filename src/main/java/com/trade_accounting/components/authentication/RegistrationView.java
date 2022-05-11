@@ -1,22 +1,27 @@
 package com.trade_accounting.components.authentication;
 
-import com.trade_accounting.components.AppView;
+
 import com.trade_accounting.models.dto.client.AccountDto;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.services.interfaces.client.AccountService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(value = "registration")
+import static com.trade_accounting.config.SecurityConstants.REGISTRATION;
+
+@Route(value = REGISTRATION)
 public class RegistrationView extends VerticalLayout {
 
     private PasswordField passwordField1;
@@ -24,7 +29,20 @@ public class RegistrationView extends VerticalLayout {
 
 
     public RegistrationView(@Autowired AccountService accountService) {
-        H2 title = new H2("Signup form");
+
+        // Картинка на фоне
+        StreamResource bodyPicture = new StreamResource("lord.png",
+                () -> getImageInputStream("lord.png"));
+        Image bodyImage = new Image(bodyPicture, "");
+        bodyImage.setId("lord.png");
+        bodyImage.setWidth("300px");
+        bodyImage.setHeight("300px");
+        bodyImage.getStyle()
+                .set("position", "relative")
+                .set("bottom", "-60px")
+                .set("left", "-20px");
+
+        H1 title = new H1("Signup form");
 
         TextField firstNameField = new TextField("First name");
         TextField lastNameField = new TextField("Last name");
@@ -57,7 +75,7 @@ public class RegistrationView extends VerticalLayout {
         errorMessage.getStyle().set("color", "var(--lumo-error-text-color)");
         errorMessage.getStyle().set("padding", "15px 0");
 
-        add(formLayout);
+        add(formLayout, bodyImage);
 
         submitButton.addClickListener(e -> {
             AccountDto accountDto = new AccountDto();
@@ -68,6 +86,17 @@ public class RegistrationView extends VerticalLayout {
             employeeDto.setPassword(passwordField1.getValue());
             accountService.create(accountDto, employeeDto);
         });
+    }
+
+    // Метод, достающий картинку
+    private static InputStream getImageInputStream(String svgIconName) {
+        InputStream imageInputStream = null;
+        try {
+            imageInputStream = new DataInputStream(new FileInputStream("src/main/resources/static/icons/" + svgIconName));
+        } catch (IOException ex) {
+            log.error("При чтении icon {} произошла ошибка", svgIconName);
+        }
+        return imageInputStream;
     }
 
 }

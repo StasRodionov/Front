@@ -34,6 +34,8 @@ import java.math.BigDecimal;
 import java.util.stream.Stream;
 import java.time.LocalDate;
 
+import static com.trade_accounting.config.SecurityConstants.CONTRACTORS_CONTRACTS_VIEW;
+
 @SpringComponent
 @UIScope
 public class ContractModalWindow extends Dialog {
@@ -63,7 +65,7 @@ public class ContractModalWindow extends Dialog {
     private final LegalDetailService legalDetailService;
     private final BankAccountService bankAccountService;
 
-    private String parentLocation = "contracts";
+    private String parentLocation = CONTRACTORS_CONTRACTS_VIEW;
 
     @Autowired
     public ContractModalWindow(ContractService contractService, ContractorService contractorService,
