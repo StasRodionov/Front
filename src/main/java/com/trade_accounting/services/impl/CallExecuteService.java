@@ -97,4 +97,13 @@ public class CallExecuteService<T> {
             log.error(String.format("Произошла ошибка при выполнении запроса на восстановление экземпляра из корзины %s c id = %d", tClass.getSimpleName(), id));
         }
     }
+
+    public void callExecuteBodyCreateAll(Call<Void> call, Class<T> tClass) {
+        try {
+            call.execute();
+            log.info(String.format("Успешно выполнен запрос на создание экземпляров %s и InvoiceProductDto из экземпляра PurchaseCreateOrderDto", tClass.getSimpleName()));
+        } catch (IOException e) {
+            log.error(String.format("Произошла ошибка при выполнении запроса на создание экземпляров %s и InvoiceProductDto из экземпляра PurchaseCreateOrderDto", tClass.getSimpleName()));
+        }
+    }
 }

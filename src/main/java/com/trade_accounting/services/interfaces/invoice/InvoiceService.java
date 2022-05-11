@@ -1,6 +1,7 @@
 package com.trade_accounting.services.interfaces.invoice;
 
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.purchases.PurchaseCreateOrderDto;
 import retrofit2.Response;
 
 import java.time.LocalDateTime;
@@ -31,4 +32,7 @@ public interface InvoiceService {
     void moveToIsRecyclebin(Long id);
 
     void restoreFromIsRecyclebin(Long id);
+
+    void createAll(PurchaseCreateOrderDto purchaseCreateOrderDto);
+
 }

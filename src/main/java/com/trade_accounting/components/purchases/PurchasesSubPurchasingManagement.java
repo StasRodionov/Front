@@ -2,6 +2,7 @@ package com.trade_accounting.components.purchases;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
+import com.trade_accounting.components.sells.InformationView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
@@ -11,12 +12,19 @@ import com.trade_accounting.models.dto.TemplateDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
+import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
+import com.trade_accounting.models.dto.invoice.TypeOfOrder;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
+import com.trade_accounting.models.dto.purchases.PurchaseCreateOrderDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseControlService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseCurrentBalanceService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseForecastService;
@@ -24,7 +32,10 @@ import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSales
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -72,11 +83,13 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import retrofit2.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -88,12 +101,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.trade_accounting.config.SecurityConstants.*;
-
 @Slf4j
-//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
-/*@Route(value = PURCHASES_PURCHASING_MANAGEMENT_VIEW, layout = AppView.class)
-@PageTitle("Управление закупками")*/
 @SpringComponent
 @UIScope
 public class PurchasesSubPurchasingManagement extends VerticalLayout implements AfterNavigationObserver {
@@ -110,23 +118,21 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final PurchaseForecastService purchaseForecastService;
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
-    PurchasesSubPurchasingManagementModalWindow purchasesSubPurchasingManagementModalWindow;
-    //  private final String typeOfInvoice = "EXPENSE";
-    //  private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    private final String typeOfInvoice = "EXPENSE";
 
     private VerticalLayout toolbarWithFilters;
     private final CompanyService companyService;
     private final ContractorService contractorService;
     private final WarehouseService warehouseService;
 
-    private List<DateTimePicker> dates = new ArrayList<>();
-    private ComboBox<ProductDto> productComboBox = new ComboBox();
-    private ComboBox<String> availableComboBox = new ComboBox();
-    private ComboBox<String> soldComboBox = new ComboBox();
-    private ComboBox<String> remainderComboBox = new ComboBox();
-    private ComboBox<WarehouseDto> warehouseComboBox = new ComboBox();
-    private ComboBox<ContractorDto> contractorComboBox = new ComboBox();
-    private ComboBox<CompanyDto> companyComboBox = new ComboBox();
+    private final List<DateTimePicker> dates = new ArrayList<>();
+    private final ComboBox<ProductDto> productComboBox = new ComboBox<>();
+    private final ComboBox<String> availableComboBox = new ComboBox<>();
+    private final ComboBox<String> soldComboBox = new ComboBox<>();
+    private final ComboBox<String> remainderComboBox = new ComboBox<>();
+    private final ComboBox<WarehouseDto> warehouseComboBox = new ComboBox<>();
+    private final ComboBox<ContractorDto> contractorComboBox = new ComboBox<>();
+    private final ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
 
     private LocalDateTime departureDate;
     private LocalDateTime returnDate;
@@ -146,6 +152,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private GridPaginator<PurchaseControlDto> paginator;
     private final GridFilter<PurchaseControlDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchasesManagement/";
+    private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
 
     @Autowired
     public PurchasesSubPurchasingManagement(EmployeeService employeeService, PurchaseControlService purchaseControlService,
@@ -155,13 +163,13 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             PurchaseHistoryOfSalesService purchaseHistoryOfSalesService,
                                             PurchaseCurrentBalanceService purchaseCurrentBalanceService,
                                             PurchaseForecastService purchaseForecastService,
-                                            //   SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                             ProductService productService,
                                             CompanyService companyService,
                                             ContractorService contractorService,
                                             WarehouseService warehouseService,
-                                            PurchasesSubPurchasingManagementModalWindow purchasesSubPurchasingManagementModalWindow) {
-        this.purchasesSubPurchasingManagementModalWindow = purchasesSubPurchasingManagementModalWindow;
+                                            InvoicesStatusService invoicesStatusService,
+                                            InvoiceService invoiceService,
+                                            InvoiceProductService invoiceProductService) {
         this.productService = productService;
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
@@ -174,6 +182,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.warehouseService = warehouseService;
+        this.invoiceService = invoiceService;
+        this.invoiceProductService = invoiceProductService;
         this.toolbarWithFilters = ToolbarFilters();
         print = selectXlsTemplateButton.addItem("Печать");
 
@@ -368,12 +378,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 //                .setTextAlign(ColumnTextAlign.START)
 //                .setFrozen(true);
 
-        grid.addColumn("id")   /*колонка не соответствует оригинальному сайту*/
-                .setHeader("№")
-                .setWidth("1px")
-                .setId("№");
-
-        grid.addColumn(PurchaseControlDto::getProductNameId)
+        grid.addColumn(dto -> productService.getById(dto.getProductNameId()).getName())
                 .setHeader("Наименование")
                 .setKey("product_name")
                 .setResizable(true)
@@ -511,7 +516,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 .setTextAlign(ColumnTextAlign.END)
                 .setResizable(true)
                 .setSortable(true)
-                .setId("Проданные товары");
+                .setId("Заказать");
 
         HeaderRow groupingHeader2 = grid.prependHeaderRow();
 
@@ -599,8 +604,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private Label createLabel(String text) {
-        Label label = new Label(text);
-        return label;
+        return new Label(text);
     }
 
     private Button buttonRefresh() {
@@ -632,13 +636,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
 //        return textField;
 //    }
 
-    public void updateList(String nameFilter) {
-        if (!(textField.getValue().equals(""))) {
-
-        } else {
-
-        }
-    }
 
     private String formatDate(String stringDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -655,25 +652,51 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
     private MenuBar orderSupplier() {
-        //Text selected = new Text("");
-        //ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
+        Text selected = new Text("");
+        ComponentEventListener<ClickEvent<MenuItem>> listener = e -> selected.setText(e.getSource().getText());
         MenuBar menuBar = new MenuBar();
 
         MenuItem supplierOrder = MenuBarIcon.createIconItem(menuBar, VaadinIcon.PLUS_CIRCLE, "Заказ поставщику", null);
         SubMenu orderSub = supplierOrder.getSubMenu();
+        MenuItem generalOrder = orderSub.addItem("Общий", listener);
+        MenuItem ordersBySuppliers = orderSub.addItem("Разбить по поставщикам", listener);
 
-        //orderSub.addItem("Общий", listener);
-        //orderSub.addItem("Разбить по поставщикам", listener);
 
-        supplierOrder.addClickListener(event -> {
-                purchasesSubPurchasingManagementModalWindow.resetView();
-                purchasesSubPurchasingManagementModalWindow.setUpdateState(false);
-                purchasesSubPurchasingManagementModalWindow.setType("EXPENSE");
-                purchasesSubPurchasingManagementModalWindow.setLocation(PURCHASES);
-                supplierOrder.getUI().ifPresent(ui -> ui.navigate(PURCHASES_PURCHASES__NEW_ORDER_PURCHASES));
-        });
+        // для автоматического создания заказа необходимо найти товары, у которых в поле Заказать значение > 0
+        ordersBySuppliers.addClickListener(event -> saveOrderSupplier(
+                purchaseControl.stream()
+                        .filter(dto -> purchaseForecastService.getById(dto.getForecastId()).getOrdered() > 0)
+                        .collect(Collectors.toList()), ordersBySuppliers.getText()
+        ));
+        generalOrder.addClickListener(event -> saveOrderSupplier(
+                purchaseControl.stream()
+                        .filter(dto -> purchaseForecastService.getById(dto.getForecastId()).getOrdered() > 0)
+                        .collect(Collectors.toList()), generalOrder.getText()
+        ));
         return menuBar;
     }
+
+    private void saveOrderSupplier(List<PurchaseControlDto> purchaseControlDtoList, String typeOfOrder) {
+
+        if (purchaseControlDtoList.isEmpty()) {
+            InformationView informationView = new InformationView("Количество товаров на складе достаточно");
+            informationView.open();
+            return;
+        }
+        // собираем PurchaseCreateOrderDto для создания сущностей Invoice и InvoiceProduct на бэке
+        if (typeOfOrder.equals("Разбить по поставщикам")) {
+            invoiceService.createAll(new PurchaseCreateOrderDto(purchaseControlDtoList, TypeOfOrder.GROUPING_BY_CONTRACTOR));
+            int countOfInvoices = purchaseControlDtoList.stream()
+                    .collect(
+                            Collectors.groupingBy(dto -> productService.getById(dto.getProductNameId()).getContractorId())
+                    ).size();
+            notifications.infoNotification(String.format("Добавлено заказов: %d", countOfInvoices));
+        } else {
+            invoiceService.createAll(new PurchaseCreateOrderDto(purchaseControlDtoList, TypeOfOrder.GENERAL));
+            notifications.infoNotification("Добавлен один заказ");
+        }
+    }
+
 
 //    private MenuBar valuePrint() {
 //        MenuBar menuBar = new MenuBar();
