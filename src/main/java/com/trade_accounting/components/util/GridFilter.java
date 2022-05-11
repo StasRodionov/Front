@@ -11,6 +11,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -48,7 +49,6 @@ public class GridFilter<T> extends HorizontalLayout {
 
     private final Grid<T> grid;
     private final Map<String, String> filterData;
-
 
     private Button searchButton;
     private Button clearButton;
@@ -247,43 +247,53 @@ public class GridFilter<T> extends HorizontalLayout {
         addBookmarkButton.addClickListener(e -> {
             Dialog dialog = new Dialog();
             H3 title = new H3("Закладки");
-            FormLayout formLayout = new FormLayout();
-            formLayout.addFormItem(new Input(), "Название");
-            Button confirm = new Button("Сохранить закладку");
-            confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+            Label label = new Label("Название");
+            TextField textField = new TextField();
+            textField.setAutofocus(true);
+            textField.setWidth("350px");
+            HorizontalLayout hl1 = new HorizontalLayout(label, textField);
+            Button save = new Button("Сохранить закладку");
+            save.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+            Button save1 = new Button("Сохранить закладку");
+            save1.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
             Button cancel = new Button("Отменить", new Icon(VaadinIcon.CLOSE));
+            Button del = new Button("Удалить");
+            del.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+            del.setVisible(false);
+            HorizontalLayout hl2 = new HorizontalLayout(save,cancel, del);
             dialog.setHeight("200px");
             dialog.setWidth("550px");
-            dialog.add(title);
-            dialog.add(formLayout);
-            dialog.add(confirm);
-            dialog.add(cancel);
+            dialog.add(title, hl1, hl2);
 
-            confirm.addClickListener(clickEvent -> {
-                Button pending = new Button("Название");
-                pending.getElement().getThemeList().add("badge pill");
-                add(pending);
+            //кнопка сохранить при нажатии на значок закладки
+            save.addClickListener(clickEvent -> {
+                Button bookmarksButton = new Button(textField.getValue());
+                bookmarksButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
+                Button edit = new Button(new Icon(VaadinIcon.PENCIL));
+                add(bookmarksButton, edit);
 
-                pending.addClickListener(click -> {
-                    Button del = new Button("Удалить");
-                    del.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-                    dialog.add(del);
-//                    del.addClickListener(d -> {
-//                    });
+                bookmarksButton.addClickListener(b -> {
+                        });
+
+                edit.addClickListener(click -> {
+                    del.setVisible(true);
+                    save.setVisible(false);
+                    HorizontalLayout hl = new HorizontalLayout(save1,cancel,del);
+                    dialog.add(hl);
                     dialog.open();
+                    del.addClickListener(d -> {
+                        bookmarksButton.setVisible(false);
+                       edit.setVisible(false);
+                       dialog.close();
+                    });
+                    save1.addClickListener(s -> //кнопка сохранить при редактировании закладки
+                        dialog.close());
                 });
                 dialog.close();
             });
-
-            cancel.addClickListener(clickEvent -> {
-                dialog.close();
-            });
-
-
+            cancel.addClickListener(clickEvent -> dialog.close());
             dialog.open();
-
         });
-
         configureFieldsButton.addClickListener(e -> {
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.setTarget(configureFieldsButton);
