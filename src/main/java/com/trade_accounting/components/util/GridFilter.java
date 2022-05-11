@@ -272,9 +272,6 @@ public class GridFilter<T> extends HorizontalLayout {
                 Button edit = new Button(new Icon(VaadinIcon.PENCIL));
                 add(bookmarksButton, edit);
 
-                bookmarksButton.addClickListener(b -> {
-                        });
-
                 edit.addClickListener(click -> {
                     del.setVisible(true);
                     save.setVisible(false);
