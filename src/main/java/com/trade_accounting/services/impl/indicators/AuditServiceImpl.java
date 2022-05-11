@@ -1,6 +1,7 @@
 package com.trade_accounting.services.impl.indicators;
 
 import com.trade_accounting.models.dto.indicators.AuditDto;
+import com.trade_accounting.models.dto.warehouse.RemainDto;
 import com.trade_accounting.services.api.indicators.AuditApi;
 import com.trade_accounting.services.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.indicators.AuditService;
@@ -26,6 +27,31 @@ public class AuditServiceImpl implements AuditService {
         this.auditApi = retrofit.create(AuditApi.class);
         this.auditUrl = auditUrl;
         this.callExecuteService = callExecuteService;
+    }
+
+    @Override
+    public AuditDto create(AuditDto auditDto) {
+        Call<AuditDto> auditDtoCall = auditApi.create(auditUrl, auditDto);
+
+        try {
+            auditDto = auditDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на создание AuditDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на получение AuditDto - {}", e);
+        }
+
+        return auditDto;
+    }
+
+    @Override
+    public void update(AuditDto auditDto) {
+        Call<Void> auditDtoCall = auditApi.update(auditUrl, auditDto);
+        try {
+            auditDtoCall.execute();
+            log.info("Успешно выполнен запрос на обновление экземпляра Audit");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на обновление экземпляра AuditDto - {}", e);
+        }
     }
 
     @Override
