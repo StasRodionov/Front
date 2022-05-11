@@ -40,17 +40,15 @@ public class AppView extends AppLayout implements PageConfigurator {
         StreamResource resource = new StreamResource("logo.png", () -> getImageInputStream(LOGO));
         Image logo = new Image(resource, "logo");
         logo.setId("logo");
-        logo.setHeight("55px");
-        logo.setWidth("55px");
-        logo.addClickListener(e -> logo.getUI().ifPresent(ui -> ui.navigate("app")));
+        logo.getStyle()
+                .set("height", "55px")
+                .set("width", "55px")
+                .set("cursor", "pointer");
+        logo.addClickListener(e -> logo.getUI().ifPresent(ui -> ui.navigate(BODY_URL)));
         return logo;
     }
 
     private Tabs configurationMenu() {
-
-        //TODO будет желание, иконку можно сделать иконку как кнопку перехода на главную страничку, если будете ее реализовывать или еще что))
-//        VerticalLayout logo = new VerticalLayout(image(), new Label (""));
-//        logo.addClickListener(e -> logo.getUI().ifPresent(ui -> ui.navigate("main")));
 
         VerticalLayout indicators = new VerticalLayout(VaadinIcon.TRENDING_UP.create(), new Label("Показатели"));
         indicators.addClickListener(e -> indicators.getUI().ifPresent(ui -> ui.navigate(INDICATORS)));

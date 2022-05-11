@@ -145,7 +145,7 @@ public class AllApps extends VerticalLayout {
                         .set("margin-left", "14px")
                         .set("margin-top", "-5px")
 
-                        .set("white-space", "nowrap") //????
+                        .set("white-space", "nowrap")
                         .set("overflow", "hidden")
                         .set("text-overflow", "ellipsis");
 
