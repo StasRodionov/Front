@@ -11,6 +11,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import org.springframework.stereotype.Component;
 
+import static com.trade_accounting.config.SecurityConstants.BODY_URL;
 import static com.trade_accounting.config.SecurityConstants.TOKEN_ATTRIBUTE_NAME;
 
 @Component
@@ -38,7 +39,10 @@ public class ConfigureUIServiceInitListener implements VaadinServiceInitListener
                 System.out.println("---------------------------------------------");
                 UI.getCurrent().navigate(MainLayout.class);
             }
-
+            if (!AppView.class.equals(event.getNavigationTarget()) & !MainLayout.class.equals(event.getNavigationTarget())) {
+                event.rerouteTo(LoginView.class);
+                UI.getCurrent().navigate(LoginView.class);
+            }
         } else {
 
             if (event.getLocation().getPath().equals("")) {

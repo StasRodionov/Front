@@ -79,9 +79,9 @@ public class ProfileView extends Div implements AfterNavigationObserver {
         });
         getUI().ifPresent(ui -> {
             divMenu.removeAll();
-            divMenu.add(configurationSubMenu());
+//            divMenu.add(configurationSubMenu());
             div.removeAll();
-            div.add(new CompanyView(notifications, companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
+//            div.add(new CompanyView(notifications, companyService, addressService, legalDetailService, typeOfContractorService, bankAccountService));
         });
     }
 

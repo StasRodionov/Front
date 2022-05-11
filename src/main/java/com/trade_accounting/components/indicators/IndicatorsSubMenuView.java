@@ -30,12 +30,14 @@ public class IndicatorsSubMenuView extends Div implements AfterNavigationObserve
     private final DocumentsView documentsView;
     private final Div div = new Div();
 
+    // Аннотации Lazy отображают страницу, когда мы на неё переходим. Без этой аннотации нет отображения страницы.
+    // Она проставлена для удобства решения задачи с безопасностью.
     @Autowired
-    public IndicatorsSubMenuView(DashboardView dashboardView,
+    public IndicatorsSubMenuView(@Lazy DashboardView dashboardView,
                           @Lazy OperationsView operationsView,
                           @Lazy RecyclebinView recyclebinView,
-                          AuditView auditView,
-                          DocumentsView documentsView) {
+                          @Lazy AuditView auditView,
+                          @Lazy DocumentsView documentsView) {
         this.dashboardView = dashboardView;
         this.operationsView = operationsView;
         this.recyclebinView = recyclebinView;
