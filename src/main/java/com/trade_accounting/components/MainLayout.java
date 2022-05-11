@@ -62,11 +62,10 @@ public class MainLayout extends VerticalLayout {
         registration.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         // Кнопка Начать работу
-        Button startWork = new Button("Начать работу");
+        Button startWork = new Button("Начать работу", e -> getUI().ifPresent(ui -> ui.navigate("login")));
         startWork.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         startWork.setHeight("60px");
         startWork.setWidth("300px");
-        WrappedSession wrappedSession = VaadinSession.getCurrent().getSession();
 
         // Оформуха для кнопок авторизации и регистрации
         HorizontalLayout horizontalLayout = new HorizontalLayout(auth, registration);
