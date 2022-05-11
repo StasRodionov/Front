@@ -176,6 +176,11 @@ public class SecurityConstants {
     public static final String PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "legal-entities-settings";
 
 
+    //Страницы ошибок HTTP
+    //URL 2 уровня, 404 ERROR
+    public static final String ERROR_404 = BODY_URL + SIGN_UP_URL + "error-404";
+
+
 
 
     public static final String TOKEN_ATTRIBUTE_NAME = "token";
