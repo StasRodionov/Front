@@ -52,6 +52,9 @@ public class SettingsView extends AppLayout {
     private Tab configureScenarioTab() {
         Tab tab = new Tab();
         tab.setLabel("Сценарии");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui->ui.navigate(PROFILE_PROFILE__SETTINGS__SCENARIO_SETTINGS));
+        });
         return tab;
     }
 

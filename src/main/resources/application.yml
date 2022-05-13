@@ -55,6 +55,8 @@ company_url: api/company
 
 currency_url: api/currency
 
+scenario_url: api/scenario
+
 bank_account_url: api/bank/account
 
 bonus_program_url: api/bonusprogram

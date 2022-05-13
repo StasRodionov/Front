@@ -160,6 +160,7 @@ public class SecurityConstants {
     public static final String PROFILE_WAREHOUSE_VIEW = BODY_URL + SIGN_UP_URL + "warehouse-view";
     public static final String PROFILE_CURRENCY_VIEW = BODY_URL + SIGN_UP_URL + "currency-view";
     public static final String PROFILE_UNIT_VIEW = BODY_URL + SIGN_UP_URL + "unit-view";
+    public static final String PROFILE_SCENARIO_VIEW = BODY_URL + SIGN_UP_URL + "scenario_view";
     //URL 3 уровня
     public static final String PROFILE_PROFILE__USER_SETTINGS = PROFILE + SIGN_UP_URL + "user-settings";
     public static final String PROFILE_PROFILE__SETTINGS = PROFILE + SIGN_UP_URL + "settings";
