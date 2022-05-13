@@ -6,16 +6,26 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Input;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -43,6 +53,7 @@ public class GridFilter<T> extends HorizontalLayout {
     private Button searchButton;
     private Button clearButton;
     private Button configureFieldsButton;
+    private Button addBookmarkButton;
 
     /**
      * Creates a GridFilter.
@@ -56,7 +67,8 @@ public class GridFilter<T> extends HorizontalLayout {
         configureLayout();
         configureFilterField();
         configureButton();
-    }
+
+       }
 
     /**
      * Sets field uses column key to ComboBox with specific item label generator and items.
@@ -232,6 +244,53 @@ public class GridFilter<T> extends HorizontalLayout {
             }
         }));
 
+        addBookmarkButton.addClickListener(e -> {
+            Dialog dialog = new Dialog();
+            H3 title = new H3("Закладки");
+            Label label = new Label("Название");
+            TextField textField = new TextField();
+            textField.setAutofocus(true);
+            textField.setWidth("350px");
+            HorizontalLayout hl1 = new HorizontalLayout(label, textField);
+            Button save = new Button("Сохранить закладку");
+            save.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+            Button save1 = new Button("Сохранить закладку");
+            save1.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+            Button cancel = new Button("Отменить", new Icon(VaadinIcon.CLOSE));
+            Button del = new Button("Удалить");
+            del.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+            del.setVisible(false);
+            HorizontalLayout hl2 = new HorizontalLayout(save,cancel, del);
+            dialog.setHeight("200px");
+            dialog.setWidth("550px");
+            dialog.add(title, hl1, hl2);
+
+            //кнопка сохранить при нажатии на значок закладки
+            save.addClickListener(clickEvent -> {
+                Button bookmarksButton = new Button(textField.getValue());
+                bookmarksButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
+                Button edit = new Button(new Icon(VaadinIcon.PENCIL));
+                add(bookmarksButton, edit);
+
+                edit.addClickListener(click -> {
+                    del.setVisible(true);
+                    save.setVisible(false);
+                    HorizontalLayout hl = new HorizontalLayout(save1,cancel,del);
+                    dialog.add(hl);
+                    dialog.open();
+                    del.addClickListener(d -> {
+                        bookmarksButton.setVisible(false);
+                       edit.setVisible(false);
+                       dialog.close();
+                    });
+                    save1.addClickListener(s -> //кнопка сохранить при редактировании закладки
+                        dialog.close());
+                });
+                dialog.close();
+            });
+            cancel.addClickListener(clickEvent -> dialog.close());
+            dialog.open();
+        });
         configureFieldsButton.addClickListener(e -> {
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.setTarget(configureFieldsButton);
@@ -257,9 +316,10 @@ public class GridFilter<T> extends HorizontalLayout {
     private void configureLayout() {
         this.searchButton = new Button("Найти");
         this.clearButton = new Button("Очистить");
+        this.addBookmarkButton = new Button(new Icon(VaadinIcon.BOOKMARK_O));
         this.configureFieldsButton = new Button(new Icon(VaadinIcon.COG_O));
 
-        add(searchButton, clearButton, configureFieldsButton);
+        add(searchButton, clearButton, addBookmarkButton, configureFieldsButton);
 
         this.getStyle().set("background-color", "#e7eaef")
                 .set("border-radius", "4px")
@@ -391,3 +451,5 @@ public class GridFilter<T> extends HorizontalLayout {
         }
     }
 }
+
+
