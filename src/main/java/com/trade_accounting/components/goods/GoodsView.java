@@ -1,13 +1,11 @@
 package com.trade_accounting.components.goods;
 
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.components.util.configure.components.select.SelectConstants;
 import com.trade_accounting.components.util.configure.components.select.SelectExt;
@@ -35,7 +33,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -47,8 +44,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
-import static com.trade_accounting.config.SecurityConstants.GOODS_CUSTOMERS_PRODUCTS_VIEW;
 
 @Slf4j
 @SpringComponent
@@ -66,13 +61,16 @@ public class GoodsView extends VerticalLayout {
     private final GridFilter<ProductDto> filter;
     private final GridPaginator<ProductDto> paginator;
     private final Notifications notifications;
+    private final ProductGroupModalWindow productGroupModalWindow;
 
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow,
-                     Notifications notifications) {
+                     Notifications notifications,
+                     ProductGroupModalWindow productGroupModalWindow) {
+        this.productGroupModalWindow = productGroupModalWindow;
         this.grid = new Grid<>(ProductDto.class);
         this.productService = productService;
         this.productGroupService = productGroupService;
@@ -263,7 +261,10 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonPlusGroup() {
-        return new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button addProductGroupButton = new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
+        addProductGroupButton.addClickListener(e -> productGroupModalWindow.open());
+        addProductGroupButton.getStyle().set("cursor", "pointer");
+        return addProductGroupButton;
     }
 
     private Button buttonFilter() {
