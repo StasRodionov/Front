@@ -45,8 +45,9 @@ import com.trade_accounting.components.util.configure.components.select.Action;
 import static com.trade_accounting.config.SecurityConstants.*;
 
 @SpringComponent
-@PageTitle("Списания")
-@Route(value = GOODS_LOSS_VIEW, layout = AppView.class)
+//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
+//@PageTitle("Списания")
+//@Route(value = GOODS_LOSS_VIEW, layout = AppView.class)
 @UIScope
 public class LossView extends VerticalLayout {
     private final LossService lossService;
