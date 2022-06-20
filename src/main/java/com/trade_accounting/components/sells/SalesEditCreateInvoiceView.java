@@ -78,7 +78,7 @@ import static com.trade_accounting.config.SecurityConstants.SELLS_SELLS__CUSTOME
 @Slf4j
 @Route(value = SELLS_SELLS__CUSTOMER_ORDER_EDIT, layout = AppView.class)
 // убрать после того, как везде этот класс будет в диве, а не околомодалке
-@PageTitle("Изменить заказ")    // -//-
+@PageTitle("Изменить заказ")    //       -//-
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
@@ -162,6 +162,11 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
         this.productPriceService = productPriceService;
         this.purchasesSubSuppliersOrders = purchasesSubSuppliersOrders;
         this.purchasesSubMenuView = purchasesSubMenuView;
+
+        // сомнительно
+        dialogOnCloseView.setCloseOnEsc(false);
+        dialogOnCloseView.setCloseOnOutsideClick(false);
+        Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
 
         configureRecalculateDialog();
 //        configureCloseViewDialog();
@@ -716,17 +721,25 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
         dialogOnChangeContractor.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
+
+
+    public void createDialogOnCLose() {
+//        dialogOnCloseView
+    }
+
+
+
     // Поменять реализацию (выполняется избыточное "пересобирание" диалога при каждом его вызове)
     private void terminateCloseDialog(BeforeLeaveEvent beforeLeaveEvent) {
         BeforeLeaveEvent.ContinueNavigationAction action = beforeLeaveEvent.postpone();
         dialogOnCloseView.removeAll();
-        dialogOnCloseView.setCloseOnEsc(false);
-        dialogOnCloseView.setCloseOnOutsideClick(false);
-        Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
+//        dialogOnCloseView.setCloseOnEsc(false);
+//        dialogOnCloseView.setCloseOnOutsideClick(false);
+//        Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
 
         Button confirmButton = new Button("Продолжить", event -> {
             dialogOnCloseView.close();
-            purchasesSubMenuView.resetTabSelection(0);
+//            purchasesSubMenuView.resetTabSelection(0);
             action.proceed();
         });
         Button cancelButton = new Button("Отменить", event -> {

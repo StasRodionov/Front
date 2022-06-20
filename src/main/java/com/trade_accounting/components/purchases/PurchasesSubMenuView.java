@@ -64,8 +64,6 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        resetTabSelection(-1);
-
         tabs.addSelectedChangeListener(event -> {
             Tab tab = event.getSelectedTab();
             div.removeAll();
@@ -86,6 +84,8 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
             }
         });
 
+        resetTabSelection(0);
+
 //        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
 //        appView.getChildren().forEach(e -> {
 //            if (e.getClass() == Tabs.class) {
@@ -99,7 +99,7 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
     }
 
     private Tabs configurationSubMenu() {
-        Tabs tabs = new Tabs(
+        return new Tabs(
                 supplierOrdersLayout,
                 vendorAccountsLayout,
                 admissionsLayout,
@@ -107,10 +107,6 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
                 invoicesReceivedLayout,
                 purchasingManagementLayout
         );
-
-        tabs.setSelectedIndex(-1);
-
-        return tabs;
     }
 
     // PARDON
