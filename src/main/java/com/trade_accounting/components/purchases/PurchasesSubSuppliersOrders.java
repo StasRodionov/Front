@@ -33,6 +33,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -45,6 +46,8 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
@@ -54,6 +57,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -80,7 +84,6 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @UIScope
 public class PurchasesSubSuppliersOrders extends VerticalLayout implements AfterNavigationObserver {
 
-
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final InvoiceService invoiceService;
@@ -88,15 +91,15 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final Notifications notifications;
     private final EmployeeService employeeService;
 
-    private final List<InvoiceDto> data;
+    private List<InvoiceDto> data;
 
     private final String typeOfInvoice = "EXPENSE";
 
-    private HorizontalLayout actions;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private GridPaginator<InvoiceDto> paginator;
-    private final GridFilter<InvoiceDto> filter;
+    private GridFilter<InvoiceDto> filter;
     private final TextField textField = new TextField();
+    private final Div div = new Div();
 
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices";
 
@@ -110,20 +113,28 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         this.employeeService = employeeService;
         this.invoiceService = invoiceService;
         this.notifications = notifications;
-        this.data = getData();
-        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
+
+        refreshContent();
+    }
+
+    public void refreshContent() {
+        this.data = getData();
         this.filter = new GridFilter<>(grid);
         configureFilter();
-        setHorizontalComponentAlignment(Alignment.CENTER, paginator);
-        add(configureActions(), filter, grid, paginator);
+        paginator = new GridPaginator<>(grid, data, 50);
+        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+        div.removeAll();
+        div.add(configureActions(), filter, grid, paginator);
+        div.setWidthFull();
+        add(div);
     }
 
     private HorizontalLayout configureActions() {
         HorizontalLayout upper = new HorizontalLayout();
         upper.add(buttonQuestion(), title(), buttonRefresh(), buttonUnit(), buttonFilter(), filterTextField(),
                 numberField(), valueSelect(), valueStatus(), valueCreate(), valuePrint(), buttonSettings());
-        upper.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        upper.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return upper;
     }
 
@@ -142,8 +153,8 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
                 .setId("Дата");
         grid.addColumn(
-                iDto -> iDto.getContractorId() != null ?
-                        contractorService.getById(iDto.getContractorId()).getName() : "Неизвестный поставщик")
+                        iDto -> iDto.getContractorId() != null ?
+                                contractorService.getById(iDto.getContractorId()).getName() : "Неизвестный поставщик")
                 .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
 //        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
 //        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
@@ -165,7 +176,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             salesEditCreateInvoiceView.setUpdateState(true);
             salesEditCreateInvoiceView.setType("EXPENSE");
             salesEditCreateInvoiceView.setLocation(PURCHASES);
-            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
+//            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
+            div.removeAll();
+            div.add(salesEditCreateInvoiceView);
         });
         return grid;
     }
@@ -207,7 +220,11 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             salesEditCreateInvoiceView.setUpdateState(false);
             salesEditCreateInvoiceView.setType("EXPENSE");
             salesEditCreateInvoiceView.setLocation(PURCHASES);
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT));
+//            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT));     //   wtf ???
+//            buttonUnit.getUI().ifPresent(ui -> ui.navigate(PURCHASES_PURCHASES__NEW_ORDER_PURCHASES));
+
+            div.removeAll();
+            div.add(salesEditCreateInvoiceView);
         });
         return buttonUnit;
     }
@@ -270,6 +287,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         uploadXlsMenuItem(print);
         return print;
     }
+
     private List<File> getXlsFiles() {
         File dir = new File(pathForSaveXlsTemplate);
         return Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(File::isFile).filter(x -> x.getName()
@@ -312,7 +330,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             }
         });
     }
-
 
 
     private Anchor getLinkToXlsTemplate(File file) {
@@ -406,4 +423,5 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         updateList();
     }
+
 }

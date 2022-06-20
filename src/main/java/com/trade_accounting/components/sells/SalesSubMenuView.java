@@ -128,7 +128,6 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
         this.contractorStatusService = contractorStatusService;
         this.funnelService = funnelService;
 
-
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -163,38 +162,31 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                 new Tab("Воронка продаж")
         );
 
-
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
+            div.removeAll();
+
             switch (tabName) {
                 case "Заказы покупателей":
-                    div.removeAll();
                     div.add(salesSubCustomersOrdersView);
                     break;
                 case "Счета покупателям":
-                    div.removeAll();
                     div.add(salesSubInvoicesToBuyersView);
                     break;
                 case "Отгрузки":
-                    div.removeAll();
                     div.add(salesSubShipmentView);
                     break;
                 case "Отчеты комиссионера":
-                    div.removeAll();
                     div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService, commissionAgentReportModalView, notifications, contractService));
                     break;
                 case "Возвраты покупателей":
-                    div.removeAll();
                     salesSubBuyersReturnsView.updateData();
-
                     div.add(salesSubBuyersReturnsView);
                     break;
                 case "Счета-фактуры выданные":
-                    div.removeAll();
                     div.add(new SalesSubIssuedInvoicesView(issuedInvoiceService, companyService, contractorService, paymentService));
                     break;
                 case "Прибыльность":
-                    div.removeAll();
                     div.add(new SalesSubProfitabilityView(
                             invoiceService,
                             companyService,
@@ -208,15 +200,14 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {//
                             retailStoreService));
                     break;
                 case "Товары на реализации":
-                    div.removeAll();
                     div.add(new SalesSubGoodsForSaleView(salesSubGoodsForSaleService, productService));
                     break;
                 case "Воронка продаж":
-                    div.removeAll();
                     div.add(new SalesSubSalesFunnelView(contractorStatusService, invoicesStatusService, funnelService));
                     break;
             }
         });
+
         return tabs;
     }
 }

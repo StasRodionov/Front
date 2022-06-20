@@ -208,7 +208,7 @@ public class AddFromDirectModalWin extends Dialog {
         Button cancelButton = new Button("Закрыть", event -> dialog.close());
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.addComponentAsFirst(cancelButton);
-        dialog.add(new Text("Продекты  - В этом окне Вы можете добавить необходимые продукты из прайс-листа"));
+        dialog.add(new Text("Продукты  - В этом окне Вы можете добавить необходимые продукты из прайс-листа"));
         dialog.setWidth("450px");
         dialog.setHeight("250px");
         buttonQuestion.addClickListener(event -> dialog.open());

@@ -17,13 +17,15 @@ import org.springframework.context.annotation.Lazy;
 
 import static com.trade_accounting.config.SecurityConstants.PURCHASES;
 
+
+// Добавить отдельный метод-ивент-лисенер под обработку события смены вкладки (вытащить из метода конфигурации)
+
 @Route(value = PURCHASES, layout = AppView.class)
 @PageTitle("Закупки")
 @SpringComponent
 @UIScope
 public class PurchasesSubMenuView extends Div implements AfterNavigationObserver { //некорректно задаётся id при добавлении
 
-    private final Div div;
     private final InvoiceService invoiceService;
     private final PurchasesSubSuppliersOrders purchasesSubSuppliersOrders;
     private final PurchasesSubVendorAccounts purchasesSubVendorAccounts;
@@ -31,6 +33,15 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
     private final PurchasesSubMenuInvoicesReceived purchasesSubMenuInvoicesReceived;
     private final PurchasesSubAcceptances purchasesSubAcceptances;
     private final PurchasesSubPurchasingManagement purchasesSubPurchasingManagement;
+
+    private final Div div;
+    private final Tabs tabs;
+    private final Tab supplierOrdersLayout = new Tab(new Label("Заказы поставщикам"));
+    private final Tab vendorAccountsLayout = new Tab(new Label("Счета поставщиков"));
+    private final Tab admissionsLayout = new Tab(new Label("Приемки"));
+    private final Tab refundsToSuppliersLayout = new Tab(new Label("Возвраты поставщикам"));
+    private final Tab invoicesReceivedLayout = new Tab(new Label("Счета-фактуры полученные"));
+    private final Tab purchasingManagementLayout = new Tab(new Label("Управление закупками"));
 
     @Autowired
     public PurchasesSubMenuView(InvoiceService invoiceService,
@@ -46,32 +57,48 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
         this.purchasesSubMenuInvoicesReceived = purchasesSubMenuInvoicesReceived;
         this.purchasesSubAcceptances = purchasesSubAcceptances;
         this.purchasesSubPurchasingManagement = purchasesSubPurchasingManagement;
+        this.tabs = configurationSubMenu();
         div = new Div();
-        add(configurationSubMenu(), div);
+        add(tabs, div);
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
-        appView.getChildren().forEach(e -> {
-            if (e.getClass() == Tabs.class) {
-                ((Tabs) e).setSelectedIndex(1);
+        resetTabSelection(-1);
+
+        tabs.addSelectedChangeListener(event -> {
+            Tab tab = event.getSelectedTab();
+            div.removeAll();
+
+            if (supplierOrdersLayout.equals(tab)) {
+                div.add(purchasesSubSuppliersOrders);
+                purchasesSubSuppliersOrders.refreshContent();
+            } else if (vendorAccountsLayout.equals(tab)) {
+                div.add(purchasesSubVendorAccounts);
+            } else if (refundsToSuppliersLayout.equals(tab)) {
+                div.add(purchasesSubReturnToSuppliers);
+            } else if (invoicesReceivedLayout.equals(tab)) {
+                div.add(purchasesSubMenuInvoicesReceived);
+            } else if (admissionsLayout.equals(tab)) {
+                div.add(purchasesSubAcceptances);
+            } else if (purchasingManagementLayout.equals(tab)) {
+                div.add(purchasesSubPurchasingManagement);
             }
         });
-        getUI().ifPresent(ui -> {
-            div.removeAll();
-            div.add(purchasesSubSuppliersOrders);
-        });
+
+//        AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
+//        appView.getChildren().forEach(e -> {
+//            if (e.getClass() == Tabs.class) {
+//                ((Tabs) e).setSelectedIndex(1);
+//            }
+//        });
+//        getUI().ifPresent(ui -> {
+//            div.removeAll();
+//            div.add(purchasesSubSuppliersOrders);
+//        });
     }
 
     private Tabs configurationSubMenu() {
-        Tab supplierOrdersLayout = new Tab(new Label("Заказы поставщикам"));
-        Tab vendorAccountsLayout = new Tab(new Label("Счета поставщиков"));
-        Tab admissionsLayout = new Tab(new Label("Приемки"));
-        Tab refundsToSuppliersLayout = new Tab(new Label("Возвраты поставщикам"));
-        Tab invoicesReceivedLayout = new Tab(new Label("Счета-фактуры полученные"));
-        Tab purchasingManagementLayout = new Tab(new Label("Управление закупками"));
-
         Tabs tabs = new Tabs(
                 supplierOrdersLayout,
                 vendorAccountsLayout,
@@ -81,28 +108,15 @@ public class PurchasesSubMenuView extends Div implements AfterNavigationObserver
                 purchasingManagementLayout
         );
 
-        tabs.addSelectedChangeListener(event -> {
-            Tab tab = event.getSelectedTab();
-            if (supplierOrdersLayout.equals(tab)) {
-                div.removeAll();
-                div.add(purchasesSubSuppliersOrders);
-            } else if (vendorAccountsLayout.equals(tab)) {
-                div.removeAll();
-                div.add(purchasesSubVendorAccounts);
-            } else if (refundsToSuppliersLayout.equals(tab)) {
-                div.removeAll();
-                div.add(purchasesSubReturnToSuppliers);
-            } else if (invoicesReceivedLayout.equals(tab)){
-                div.removeAll();
-                div.add(purchasesSubMenuInvoicesReceived);
-            } else if (admissionsLayout.equals(tab)){
-                div.removeAll();
-                div.add(purchasesSubAcceptances);
-            }else if (purchasingManagementLayout.equals(tab)) {
-                div.removeAll();
-                div.add(purchasesSubPurchasingManagement);
-            }
-        });
+        tabs.setSelectedIndex(-1);
+
         return tabs;
+    }
+
+    // PARDON
+    // обязательно нормально параметризовать (не интом) - завязать на классы/табсы
+    public void resetTabSelection(int index) {
+        tabs.setSelectedIndex(-1);              // PARDON
+        tabs.setSelectedIndex(index);
     }
 }
