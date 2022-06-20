@@ -66,6 +66,7 @@ public class GoodsView extends VerticalLayout {
     private final GridFilter<ProductDto> filter;
     private final GridPaginator<ProductDto> paginator;
     private final Notifications notifications;
+    private Optional<ProductGroupDto> optional = Optional.empty();
 
     @Autowired
     public GoodsView(ProductService productService,
@@ -91,6 +92,10 @@ public class GoodsView extends VerticalLayout {
 
     private List<ProductDto> getData() {
         return productService.getAll();
+    }
+
+    private List<ProductDto> filteredByGroupData(ProductGroupDto productGroupDto) {
+        return productService.getAllByProductGroup(productGroupDto);
     }
 
     public void updateData() {
@@ -154,8 +159,13 @@ public class GoodsView extends VerticalLayout {
         filter.setFieldToIntegerField("id");
         filter.onSearchClick(e ->
                 paginator.setData(productService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e ->
-                paginator.setData(productService.getAll()));
+        filter.onClearClick(e -> {
+            if(optional.isPresent()){
+                paginator.setData(filteredByGroupData(optional.get()), false);
+            } else {
+                paginator.setData(productService.getAll());
+            }
+        });
     }
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
@@ -193,9 +203,9 @@ public class GoodsView extends VerticalLayout {
         cell.setComponent(horizontalLayout);
         treeGridLocal.setSelectionMode(Grid.SelectionMode.SINGLE);
         treeGridLocal.addSelectionListener(event -> {
-            Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
+            optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
-                paginator.setData(getData(), false);
+                paginator.setData(filteredByGroupData(optional.get()), false);
                 label.setText(optional.get().getName());
                 closeButton.setVisible(true);
             }
