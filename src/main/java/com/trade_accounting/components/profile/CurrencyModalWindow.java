@@ -129,7 +129,11 @@ public class CurrencyModalWindow extends Dialog {
 
     private Button getDeleteButton() {
         Button deleteButton = new Button("Удалить", event -> {
-            currencyService.deleteById(id);
+            try {
+                currencyService.deleteById(id);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             close();
         });
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
