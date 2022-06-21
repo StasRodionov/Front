@@ -54,6 +54,7 @@ import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -77,9 +78,8 @@ import java.util.stream.Collectors;
 import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
-//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
-/*@Route(value = PURCHASES_SUPPLIERS_ORDERS_VIEW, layout = AppView.class)
-@PageTitle("Заказы поставщикам")*/
+/* @Route(value = PURCHASES_SUPPLIERS_ORDERS_VIEW, layout = AppView.class)
+@PageTitle("Заказы поставщикам") */
 @SpringComponent
 @UIScope
 public class PurchasesSubSuppliersOrders extends VerticalLayout implements AfterNavigationObserver {
@@ -99,7 +99,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private GridPaginator<InvoiceDto> paginator;
     private GridFilter<InvoiceDto> filter;
     private final TextField textField = new TextField();
-    private final Div div = new Div();
 
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices";
 
@@ -114,20 +113,21 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         this.invoiceService = invoiceService;
         this.notifications = notifications;
         configureGrid();
+        this.filter = new GridFilter<>(grid);
+        configureFilter();
+
+        this.paginator = new GridPaginator<>(grid);
+        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         refreshContent();
     }
 
     public void refreshContent() {
         this.data = getData();
-        this.filter = new GridFilter<>(grid);
-        configureFilter();
-        paginator = new GridPaginator<>(grid, data, 50);
-        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
-        div.removeAll();
-        div.add(configureActions(), filter, grid, paginator);
-        div.setWidthFull();
-        add(div);
+        this.paginator.setData(data);
+        this.paginator.setItemsPerPage(50);
+        removeAll();
+        add(configureActions(), filter, grid, paginator);
     }
 
     private HorizontalLayout configureActions() {
@@ -175,10 +175,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);
             salesEditCreateInvoiceView.setType("EXPENSE");
-            salesEditCreateInvoiceView.setLocation(PURCHASES);
-//            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
-            div.removeAll();
-            div.add(salesEditCreateInvoiceView);
+            salesEditCreateInvoiceView.setLocation(PURCHASES_SUPPLIERS_ORDERS_VIEW);
+            salesEditCreateInvoiceView.setProtectedTabSwitch();
+            removeAll();
+            add(salesEditCreateInvoiceView);
         });
         return grid;
     }
@@ -219,12 +219,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             salesEditCreateInvoiceView.resetView();
             salesEditCreateInvoiceView.setUpdateState(false);
             salesEditCreateInvoiceView.setType("EXPENSE");
-            salesEditCreateInvoiceView.setLocation(PURCHASES);
-//            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT));     //   wtf ???
-//            buttonUnit.getUI().ifPresent(ui -> ui.navigate(PURCHASES_PURCHASES__NEW_ORDER_PURCHASES));
-
-            div.removeAll();
-            div.add(salesEditCreateInvoiceView);
+            salesEditCreateInvoiceView.setLocation(PURCHASES_SUPPLIERS_ORDERS_VIEW);
+            salesEditCreateInvoiceView.setProtectedTabSwitch();
+            removeAll();
+            add(salesEditCreateInvoiceView);
         });
         return buttonUnit;
     }
