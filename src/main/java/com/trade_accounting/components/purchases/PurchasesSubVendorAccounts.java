@@ -86,7 +86,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final CompanyService companyService;
     private final ContractorService contractorService;
     private final Notifications notifications;
-    private final SupplierAccountModalView modalView;
     private final TextField textField = new TextField();
     private final SupplierAccountModalView supplierAccountModalView;
     private final SupplierAccountProductsListService supplierAccountProductsListService;
@@ -105,7 +104,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       WarehouseService warehouseService, CompanyService companyService,
                                       ContractorService contractorService,
                                       @Lazy Notifications notifications,
-                                      SupplierAccountModalView modalView,
                                       SupplierAccountModalView supplierAccountModalView,
                                       SupplierAccountProductsListService supplierAccountProductsListService) {
         this.employeeService = employeeService;
@@ -114,7 +112,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.notifications = notifications;
-        this.modalView = modalView;
         this.supplierAccountModalView = supplierAccountModalView;
         this.supplierAccountProductsListService = supplierAccountProductsListService;
         loadSupplierAccounts();
@@ -218,7 +215,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(e -> modalView.open());
+        buttonUnit.addClickListener(e -> supplierAccountModalView.open());
         return buttonUnit;
     }
 
