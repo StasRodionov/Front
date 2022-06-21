@@ -13,11 +13,15 @@ import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
-import com.trade_accounting.services.interfaces.company.CompanyService;
-import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
-import com.trade_accounting.services.interfaces.warehouse.SupplierAccountProductsListService;
+import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.ContractService;
+import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.SupplierAccountService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.SupplierAccountProductsListService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -71,7 +75,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.trade_accounting.config.SecurityConstants.*;
+import static com.trade_accounting.config.SecurityConstants.PURCHASES_SUPPLIERS_INVOICES_VIEW;
 
 @Slf4j
 @Route(value = PURCHASES_SUPPLIERS_INVOICES_VIEW, layout = AppView.class)
@@ -98,6 +102,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/supplier";
+    private final ContractService contractService;
+    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
+    private final ProductService productService;
+    private final InvoiceService invoiceService;
+    private final InvoiceProductService invoiceProductService;
 
     @Autowired
     public PurchasesSubVendorAccounts(EmployeeService employeeService, SupplierAccountService supplierAccountService,
@@ -105,7 +114,12 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       ContractorService contractorService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView supplierAccountModalView,
-                                      SupplierAccountProductsListService supplierAccountProductsListService) {
+                                      SupplierAccountProductsListService supplierAccountProductsListService,
+                                      ContractService contractService,
+                                      PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin,
+                                      ProductService productService,
+                                      InvoiceService invoiceService,
+                                      InvoiceProductService invoiceProductService) {
         this.employeeService = employeeService;
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
@@ -114,6 +128,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.notifications = notifications;
         this.supplierAccountModalView = supplierAccountModalView;
         this.supplierAccountProductsListService = supplierAccountProductsListService;
+        this.contractService = contractService;
+        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
+        this.productService = productService;
+        this.invoiceService = invoiceService;
+        this.invoiceProductService = invoiceProductService;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -166,14 +185,20 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             SupplierAccountDto editSupplierAccounts = event.getItem();
-            /*SupplierAccountModalView supplierAccountModalView = new SupplierAccountModalView(
+            SupplierAccountModalView supplierAccountEditModalView = new SupplierAccountModalView(
                     supplierAccountService,
                     companyService,
                     warehouseService,
                     contractorService,
-                    notifications);*/
-            supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
-            supplierAccountModalView.open();
+                    contractService,
+                    notifications,
+                    purchasesChooseGoodsModalWin,
+                    productService,
+                    invoiceService,
+                    invoiceProductService,
+                    supplierAccountProductsListService);
+            supplierAccountEditModalView.setSupplierAccountsForEdit(editSupplierAccounts);
+            supplierAccountEditModalView.open();
 
 
         });

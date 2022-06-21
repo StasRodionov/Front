@@ -244,7 +244,7 @@ public class SupplierAccountModalView extends Dialog {
         this.saveSupplier = editSupplierAccounts;
         supplierNumber.setValue(saveSupplier.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(saveSupplier.getDate()));
-        paymentDatePicker.setValue(LocalDate.parse(saveSupplier.getPlannedDatePayment()));
+        paymentDatePicker.setValue(LocalDateTime.parse(saveSupplier.getPlannedDatePayment()).toLocalDate());
         commentConfig.setValue(saveSupplier.getComment());
         companyDtoComboBox.setValue(companyService.getById(saveSupplier.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(saveSupplier.getWarehouseId()));
