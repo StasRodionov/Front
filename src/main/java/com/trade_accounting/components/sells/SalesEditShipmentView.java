@@ -28,6 +28,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -61,7 +62,7 @@ import static com.trade_accounting.config.SecurityConstants.SELLS_SELLS__SHIPMEN
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditShipmentView extends Dialog{
+public class SalesEditShipmentView extends VerticalLayout{
     private final ProductService productService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
@@ -391,7 +392,7 @@ public class SalesEditShipmentView extends Dialog{
         Span message = new Span();
 
         Button confirmButton = new Button("Продолжить", event -> {
-            close();
+            closeView();
             dialogOnCloseView.close();
         });
         Button cancelButton = new Button("Отменить", event -> {
