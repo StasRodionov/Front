@@ -57,6 +57,7 @@ public class GoodsView extends VerticalLayout {
     private final ProductGroupService productGroupService;
     private final GoodsModalWindow goodsModalWindow;
     private final ServiceModalWindow serviceModalWindow;
+    private final SetModalWindow setModalWindow;
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridFilter<ProductDto> filter;
     private final GridPaginator<ProductDto> paginator;
@@ -69,8 +70,10 @@ public class GoodsView extends VerticalLayout {
                      ProductGroupService productGroupService,
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow,
-                     Notifications notifications,
+                     SetModalWindow setModalWindow, Notifications notifications,
                      ProductGroupModalWindow productGroupModalWindow) {
+
+        this.setModalWindow = setModalWindow;
         this.productGroupModalWindow = productGroupModalWindow;
         this.grid = new Grid<>(ProductDto.class);
         this.productService = productService;
@@ -267,7 +270,10 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonPlusSet() {
-        return new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button addSetButton = new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
+        addSetButton.addClickListener(e -> setModalWindow.open());
+        addSetButton.getStyle().set("cursor", "pointer");
+        return addSetButton;
     }
 
     private Button buttonPlusGroup() {
