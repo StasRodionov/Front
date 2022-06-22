@@ -12,6 +12,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectEx
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.models.dto.warehouse.SupplierAccountProductsListDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -102,11 +103,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/supplier";
-    private final ContractService contractService;
-    private final PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin;
-    private final ProductService productService;
-    private final InvoiceService invoiceService;
-    private final InvoiceProductService invoiceProductService;
 
     @Autowired
     public PurchasesSubVendorAccounts(EmployeeService employeeService, SupplierAccountService supplierAccountService,
@@ -114,12 +110,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                                       ContractorService contractorService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView supplierAccountModalView,
-                                      SupplierAccountProductsListService supplierAccountProductsListService,
-                                      ContractService contractService,
-                                      PurchasesChooseGoodsModalWin purchasesChooseGoodsModalWin,
-                                      ProductService productService,
-                                      InvoiceService invoiceService,
-                                      InvoiceProductService invoiceProductService) {
+                                      SupplierAccountProductsListService supplierAccountProductsListService) {
         this.employeeService = employeeService;
         this.supplierAccountService = supplierAccountService;
         this.warehouseService = warehouseService;
@@ -128,11 +119,6 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.notifications = notifications;
         this.supplierAccountModalView = supplierAccountModalView;
         this.supplierAccountProductsListService = supplierAccountProductsListService;
-        this.contractService = contractService;
-        this.purchasesChooseGoodsModalWin = purchasesChooseGoodsModalWin;
-        this.productService = productService;
-        this.invoiceService = invoiceService;
-        this.invoiceProductService = invoiceProductService;
         loadSupplierAccounts();
         configureActions();
         configureGrid();
@@ -185,22 +171,8 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             SupplierAccountDto editSupplierAccounts = event.getItem();
-            SupplierAccountModalView supplierAccountEditModalView = new SupplierAccountModalView(
-                    supplierAccountService,
-                    companyService,
-                    warehouseService,
-                    contractorService,
-                    contractService,
-                    notifications,
-                    purchasesChooseGoodsModalWin,
-                    productService,
-                    invoiceService,
-                    invoiceProductService,
-                    supplierAccountProductsListService);
-            supplierAccountEditModalView.setSupplierAccountsForEdit(editSupplierAccounts);
-            supplierAccountEditModalView.open();
-
-
+            supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
+            supplierAccountModalView.open();
         });
         return grid;
     }
