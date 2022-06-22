@@ -1,27 +1,21 @@
 package com.trade_accounting.components.profile;
 
 import com.trade_accounting.models.dto.units.CurrencyDto;
-import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.services.interfaces.units.CurrencyService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.vaadin.flow.component.Tag.H2;
 
 @UIScope
 @Slf4j
@@ -69,7 +63,6 @@ public class CurrencyModalWindow extends Dialog {
                 getHorizontalLayout("Сортировочный номер", sortNumberField),
                 footer()
         );
-
     }
 
     private Component header() {
@@ -99,7 +92,7 @@ public class CurrencyModalWindow extends Dialog {
     }
 
     private Button getSaveButton() {
-        Button saveButton = new Button("Сохранить", event -> {
+        return new Button("Сохранить", event -> {
             CurrencyDto currencyDto = new CurrencyDto();
             currencyDto.setId(id);
             currencyDto.setShortName(shortNameField.getValue());
@@ -115,20 +108,16 @@ public class CurrencyModalWindow extends Dialog {
 
             close();
         });
-        saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        return saveButton;
     }
 
     private Button getCancelButton() {
-        Button cancelButton = new Button("Закрыть", event -> {
+        return new Button("Закрыть", event -> {
             close();
         });
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        return cancelButton;
     }
 
     private Button getDeleteButton() {
-        Button deleteButton = new Button("Удалить", event -> {
+        return new Button("Удалить", event -> {
             try {
                 currencyService.deleteById(id);
             } catch (Exception e) {
@@ -136,8 +125,6 @@ public class CurrencyModalWindow extends Dialog {
             }
             close();
         });
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        return deleteButton;
     }
 
     private String getFieldValueNotNull(String value) {
