@@ -58,13 +58,7 @@ public class ExportSettingsView extends VerticalLayout {
         grid.getColumnByKey("finish").setHeader("Завершена").setId("Завершена");
         grid.getColumnByKey("status").setHeader("Статус").setId("Статус");
         grid.setHeight("64vh");
-//        grid.addItemDoubleClickListener(event-> {
-//            ExportDto editScenario = event.getItem();
-//            ScenarioModalWindow scenarioModalWindow =
-//                    new ScenarioModalWindow(editScenario,exportService);
-//            scenarioModalWindow.addDetachListener(e->updateList());
-//            scenarioModalWindow.open();
-//        });
+
     }
 
     private void updateList() {

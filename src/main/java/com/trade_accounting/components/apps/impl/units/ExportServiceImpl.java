@@ -1,11 +1,15 @@
-package com.trade_accounting.services.impl.units;
+package com.trade_accounting.components.apps.impl.units;
 
+import com.trade_accounting.components.apps.impl.CallExecuteService;
 import com.trade_accounting.models.dto.units.ExportDto;
+import com.trade_accounting.services.api.units.ExportApi;
 import com.trade_accounting.services.interfaces.units.ExportService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import retrofit2.Call;
+import retrofit2.Retrofit;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,21 +17,20 @@ import java.util.Map;
 @Slf4j
 public class ExportServiceImpl implements ExportService {
 
-//    private final ExportApi exportApi;
-//
-//    private final String scenarioUrl;
-//
-//    private final CallExecuteService<ScenarioDto> scenarioDtoCallExecuteService;
-//
-//    public ExportServiceImpl(@Value("${scenario_url}") String scenarioUrl, Retrofit retrofit, CallExecuteService<ScenarioDto> scenarioDtoCallExecuteService) {
-//        this.scenarioUrl = scenarioUrl;
-//        scenarioApi = retrofit.create(ScenarioApi.class);
-//        this.scenarioDtoCallExecuteService = scenarioDtoCallExecuteService;
-//    }
+    private final ExportApi exportApi;
+    private final String exportUrl;
+    private final CallExecuteService<ExportDto> exportDtoCallExecuteService;
+
+    public ExportServiceImpl(@Value("${export_url}") String exportUrl, Retrofit retrofit, CallExecuteService<ExportDto> exportDtoCallExecuteService) {
+        this.exportUrl = exportUrl;
+        exportApi = retrofit.create(ExportApi.class);
+        this.exportDtoCallExecuteService = exportDtoCallExecuteService;
+    }
 
     @Override
     public List<ExportDto> getAll() {
-        return new ArrayList<>();
+        Call<List<ExportDto>> exportDtoGetAll = exportApi.getAll(exportUrl);
+        return exportDtoCallExecuteService.callExecuteBodyList(exportDtoGetAll, ExportDto.class);
     }
 
     @Override
