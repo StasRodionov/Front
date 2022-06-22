@@ -161,7 +161,6 @@ public class ProductGroupModalWindow extends Dialog {
     private void updateProductGroupDto(ProductGroupDto productGroupDto) {
         productGroupDto.setName(nameField.getValue());
         productGroupDto.setDescription(descriptionField.getValue());
-        productGroupDto.setId(productGroupDtoComboBox.getValue().getId());
         productGroupDto.setSaleTax(saleTax.getValue());
         productGroupDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
         productGroupDto.setEmployeeId(employeeDtoComboBox.getValue().getId());
