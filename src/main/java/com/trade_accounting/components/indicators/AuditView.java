@@ -138,7 +138,7 @@ public class AuditView extends VerticalLayout {
 
     private TextField textField() {
         final TextField textField = new TextField();
-        textField.setPlaceholder("Сотрудник или время");
+        textField.setPlaceholder("Время, имя сотрудника или название события...");
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setWidth("300px");
         textField.setValueChangeMode(ValueChangeMode.EAGER);
