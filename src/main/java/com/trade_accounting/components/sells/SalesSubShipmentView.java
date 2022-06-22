@@ -24,6 +24,7 @@ import com.trade_accounting.services.interfaces.units.UnitService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -41,6 +42,8 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -63,7 +66,7 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @PageTitle("Отгрузки")
 @SpringComponent
 @UIScope
-public class SalesSubShipmentView extends VerticalLayout {
+public class SalesSubShipmentView extends VerticalLayout implements AfterNavigationObserver {
 
     private final ProductService productService;
     ProjectService projectService;
@@ -159,7 +162,8 @@ public class SalesSubShipmentView extends VerticalLayout {
                     unitService,
                     shipmentProductService);
             modalView.setReturnToShiptmentForEdit(dto);
-            modalView.open();
+            UI.getCurrent().navigate(SELLS_SELLS__SHIPMENT_EDIT);
+            //modalView.open();
         });
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
@@ -190,7 +194,7 @@ public class SalesSubShipmentView extends VerticalLayout {
     }
 
     private void configurePaginator() {
-        paginator = new GridPaginator<>(grid, data, 100);
+        paginator = new GridPaginator<>(grid, data, 50); //сделал 50
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
     }
 
@@ -311,5 +315,10 @@ public class SalesSubShipmentView extends VerticalLayout {
 
     private List<ShipmentDto> getData() {
         return shipmentService.getAll();
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        updateList();
     }
 }

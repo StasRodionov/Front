@@ -2,7 +2,6 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.services.impl.dadata.DadataAddressServiceImpl;
 import com.trade_accounting.services.interfaces.company.AddressService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.ContactService;
