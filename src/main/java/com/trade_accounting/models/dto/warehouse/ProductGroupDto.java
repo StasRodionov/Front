@@ -1,10 +1,9 @@
 package com.trade_accounting.models.dto.warehouse;
 
-import com.trade_accounting.models.dto.client.DepartmentDto;
-import com.trade_accounting.models.dto.client.EmployeeDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 @Data
 @NoArgsConstructor
@@ -27,7 +26,7 @@ public class ProductGroupDto {
 
     private Long taxSystemId;
 
-    private EmployeeDto employeeId;
+    private Long employeeId;
 
-    private DepartmentDto departmentId;
+    private Long departmentId;
 }

@@ -164,6 +164,9 @@ public class ProductGroupModalWindow extends Dialog {
         productGroupDto.setId(productGroupDtoComboBox.getValue().getId());
         productGroupDto.setSaleTax(saleTax.getValue());
         productGroupDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
+        productGroupDto.setEmployeeId(employeeDtoComboBox.getValue().getId());
+        productGroupDto.setDepartmentId(departmentDtoComboBox.getValue().getId());
+        productGroupDto.setParentId(productGroupDtoComboBox.getValue().getId());
     }
 
     private HorizontalLayout getFooter(Button addOrUpdateButton) {
