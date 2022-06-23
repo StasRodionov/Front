@@ -167,9 +167,7 @@ public class ProductGroupModalWindow extends Dialog {
         productGroupDto.setDepartmentId(departmentDtoComboBox.getValue().getId());
 
         try {
-            if (productGroupDtoComboBox.getValue().getId() != null) {
-                productGroupDto.setParentId(productGroupDtoComboBox.getValue().getId());
-            }
+            productGroupDto.setParentId(productGroupDtoComboBox.getValue().getId());
         } catch (NullPointerException ignored) {}
     }
 
