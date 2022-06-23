@@ -65,6 +65,22 @@ public class CurrencyModalWindow extends Dialog {
         );
     }
 
+    @Override
+    public void open() {
+        if (id == null) {
+            init();
+        }
+        super.open();
+    }
+
+    private void init() {
+        shortNameField.clear();
+        fullNameField.clear();
+        digitalCodeField.clear();
+        letterCodeField.clear();
+        sortNumberField.clear();
+    }
+
     private Component header() {
         HorizontalLayout header = new HorizontalLayout();
         H2 title = new H2("Валюта");
