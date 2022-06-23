@@ -26,7 +26,7 @@ public interface AuditApi {
                                           @Query("search") String text);
 
     @Headers("Accept: application/json")
-    @GET("{url}/queryOperations")
+    @GET("{url}/searchByFilter")
     Call<List<AuditDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
                                              @QueryMap Map<String, String> queryOperations);
 

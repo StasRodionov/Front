@@ -55,6 +55,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -243,7 +244,7 @@ public class SupplierAccountModalView extends Dialog {
         this.saveSupplier = editSupplierAccounts;
         supplierNumber.setValue(saveSupplier.getId().toString());
         dateTimePicker.setValue(LocalDateTime.parse(saveSupplier.getDate()));
-        paymentDatePicker.setValue(LocalDate.parse(saveSupplier.getPlannedDatePayment()));
+        paymentDatePicker.setValue(LocalDateTime.parse(saveSupplier.getPlannedDatePayment()).toLocalDate());
         commentConfig.setValue(saveSupplier.getComment());
         companyDtoComboBox.setValue(companyService.getById(saveSupplier.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(saveSupplier.getWarehouseId()));
@@ -291,7 +292,7 @@ public class SupplierAccountModalView extends Dialog {
             supplierAccountDto.setId(Long.parseLong(supplierNumber.getValue()));
         }
         supplierAccountDto.setDate(dateTimePicker.getValue().toString());
-        supplierAccountDto.setPlannedDatePayment(paymentDatePicker.getValue().toString());
+        supplierAccountDto.setPlannedDatePayment(LocalDateTime.of(paymentDatePicker.getValue(), LocalTime.now()).toString());
         supplierAccountDto.setCompanyId(companyDtoComboBox.getValue().getId());
         supplierAccountDto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
         supplierAccountDto.setContractId(contractDtoComboBox.getValue().getId());
@@ -487,7 +488,7 @@ public class SupplierAccountModalView extends Dialog {
         dialogOnCloseView.setCloseOnEsc(false);
         dialogOnCloseView.setCloseOnOutsideClick(false);
         Button confirmButton = new Button("Продолжить", event -> {
-            closeView();
+            clearField();
             dialogOnCloseView.close();
             close();
         });
@@ -521,10 +522,10 @@ public class SupplierAccountModalView extends Dialog {
         );
     }
 
-    private void closeView() {
-        clearField();
-        UI.getCurrent().navigate(PURCHASES);
-    }
+//    private void closeView() {
+//        clearField();
+//        UI.getCurrent().navigate(PURCHASES);
+//    }
 
     private void configureDateTimePickerField() {
         dateTimePicker.setValue(LocalDateTime.now());

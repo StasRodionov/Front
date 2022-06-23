@@ -10,7 +10,9 @@ import java.util.Map;
 public interface AuditService {
 
     AuditDto create(AuditDto auditDto);
+
     void update(AuditDto auditDto);
+
     List<AuditDto> getAll();
 
     List<AuditDto> quickSearch(String text);

@@ -3,6 +3,8 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.general.ProductSelectModal;
+import com.trade_accounting.components.purchases.PurchasesSubMenuView;
+import com.trade_accounting.components.purchases.PurchasesSubSuppliersOrders;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
@@ -39,7 +41,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -48,13 +49,17 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import retrofit2.Response;
 
 import java.math.BigDecimal;
@@ -69,16 +74,16 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 
-import static com.trade_accounting.config.SecurityConstants.SELLS_SELLS__CUSTOMER_ORDER_EDIT;
+import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
-@Route(value = SELLS_SELLS__CUSTOMER_ORDER_EDIT, layout = AppView.class)
-@PageTitle("Изменить заказ")
 @PreserveOnRefresh
 @SpringComponent
 @UIScope
-public class SalesEditCreateInvoiceView extends VerticalLayout {
+public class SalesEditCreateInvoiceView extends VerticalLayout implements BeforeLeaveObserver {
 
+    private final PurchasesSubMenuView purchasesSubMenuView;
+    private final SalesSubMenuView salesSubMenuView;
 
     private final ProductService productService;
     private final ContractorService contractorService;
@@ -138,7 +143,9 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                                       Notifications notifications,
                                       ProductSelectModal productSelectModal,
                                       TypeOfPriceService typeOfPriceService,
-                                      UnitService unitService, ProductPriceService productPriceService) {
+                                      UnitService unitService, ProductPriceService productPriceService,
+                                      @Lazy PurchasesSubMenuView purchasesSubMenuView,
+                                      @Lazy SalesSubMenuView salesSubMenuView) {
         this.productService = productService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -151,6 +158,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.typeOfPriceService = typeOfPriceService;
         this.unitService = unitService;
         this.productPriceService = productPriceService;
+        this.purchasesSubMenuView = purchasesSubMenuView;
+        this.salesSubMenuView = salesSubMenuView;
 
         configureRecalculateDialog();
         configureCloseViewDialog();
@@ -181,6 +190,12 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
 
         add(upperButtonsLayout(), formLayout(), grid, paginator);
+    }
+
+    private void configureCloseViewDialog() {
+        dialogOnCloseView.setCloseOnEsc(false);
+        dialogOnCloseView.setCloseOnOutsideClick(false);
+        Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
     }
 
 
@@ -259,7 +274,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         Button cancel = new Button("Cancel", e -> editor.cancel());
         cancel.addClassName("cancel");
 
-// Add a keypress listener that listens for an escape key up event.
+        // Add a keypress listener that listens for an escape key up event.
         grid.getElement().addEventListener("keyup", event -> editor.cancel())
                 .setFilter("event.key === 'Escape' || event.key === 'Esc'");
 
@@ -431,10 +446,38 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         return buttonQuestion;
     }
 
+    private void resetSourceTab(boolean isProtected) {
+        switch (location) {
+            case PURCHASES_SUPPLIERS_ORDERS_VIEW:
+                purchasesSubMenuView.resetTabSelection(location, isProtected);
+                break;
+            case SELLS_CUSTOMERS_ORDERS_VIEW:
+                salesSubMenuView.resetTabSelection(location, isProtected);
+        }
+    }
+
+    private void changeTabSwitchType(boolean isProtected) {
+        switch (location) {
+            case PURCHASES_SUPPLIERS_ORDERS_VIEW:
+                if (isProtected) {
+                    purchasesSubMenuView.setProtectedTabSwitch();
+                } else {
+                    purchasesSubMenuView.releaseProtectedTabSwitch();
+                }
+                break;
+            case SELLS_CUSTOMERS_ORDERS_VIEW:
+                if (isProtected) {
+                    salesSubMenuView.setProtectedTabSwitch();
+                } else {
+                    salesSubMenuView.releaseProtectedTabSwitch();
+                }
+        }
+    }
+
     private Button buttonSave() {
         return new Button("Сохранить", buttonClickEvent -> {
 
-            if (tempInvoiceProductDtoList.isEmpty()){
+            if (tempInvoiceProductDtoList.isEmpty()) {
                 InformationView informationView = new InformationView("Вы не добавили ни одного продукта");
                 informationView.open();
                 return;
@@ -454,42 +497,42 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
                 );
 
                 addInvoiceProductToInvoicedDto(invoiceDto);
-                UI.getCurrent().navigate(location);
+
+                // purchasesSubMenuView.resetTabSelection(location, true);
+                resetSourceTab(false);
                 notifications.infoNotification(String.format("Заказ № %s сохранен", invoiceDto.getId()));
             }
         });
     }
 
-    private Button buttonClose() {
-        Button buttonUnit = new Button("Закрыть", new Icon(VaadinIcon.CLOSE));
-        buttonUnit.addClickListener(event -> {
-            dialogOnCloseView.open();
-        });
-        return buttonUnit;
-    }
-
-    private void closeView() {
-        resetView();
-        UI.getCurrent().navigate(location);
+    public Button buttonClose() {
+        return new Button("Закрыть",
+                new Icon(VaadinIcon.CLOSE),
+                event -> {
+//                    purchasesSubMenuView.resetTabSelection(location, true);
+                    resetSourceTab(true);
+                });
     }
 
     private Button configureDeleteButton() {
         buttonDelete.addClickListener(event -> {
             deleteInvoiceById(Long.parseLong(invoiceIdField.getValue()));
             resetView();
-            buttonDelete.getUI().ifPresent(ui -> ui.navigate(location));
+//            buttonDelete.getUI().ifPresent(ui -> ui.getPage().setLocation(location));
+//            purchasesSubMenuView.resetTabSelection(location);
+            resetSourceTab(false);
         });
+
         return buttonDelete;
     }
 
     private Button buttonAddProduct() {
-        Button buttonAddSale = new Button("Добавить продукт",  new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button buttonAddSale = new Button("Добавить продукт", new Icon(VaadinIcon.PLUS_CIRCLE));
         buttonAddSale.addClickListener(event -> {
             productSelectModal.updateProductList();
             productSelectModal.open();
         });
         return buttonAddSale;
-
     }
 
     public void addProduct(InvoiceProductDto invoiceProductDto) {
@@ -689,7 +732,6 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         dialogOnChangeContractor.add(new Text("Вы меняете покупателя!! Пересчитать цены на продукты?"));
         dialogOnChangeContractor.setCloseOnEsc(false);
         dialogOnChangeContractor.setCloseOnOutsideClick(false);
-        Span message = new Span();
 
         Button confirmButton = new Button("Пересчитать", event -> {
             recalculateProductPrices();
@@ -698,33 +740,34 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         Button cancelButton = new Button("Оставить как есть", event -> {
             dialogOnChangeContractor.close();
         });
-// Cancel action on ESC press
-        Shortcuts.addShortcutListener(dialogOnChangeContractor, () -> {
-            dialogOnChangeContractor.close();
-        }, Key.ESCAPE);
+
+        Shortcuts.addShortcutListener(dialogOnChangeContractor,
+                dialogOnChangeContractor::close, Key.ESCAPE);
 
         dialogOnChangeContractor.add(new Div(confirmButton, new Div(), cancelButton));
     }
 
-    private void configureCloseViewDialog() {
-        dialogOnCloseView.add(new Text("Вы уверены? Несохраненные данные будут потеряны!!!"));
-        dialogOnCloseView.setCloseOnEsc(false);
-        dialogOnCloseView.setCloseOnOutsideClick(false);
-        Span message = new Span();
+    // Поменять реализацию (выполняется избыточное "пересобирание" диалога при каждом его вызове)
+    private void terminateCloseDialog(BeforeLeaveEvent beforeLeaveEvent) {
+        BeforeLeaveEvent.ContinueNavigationAction action = beforeLeaveEvent.postpone();
+        dialogOnCloseView.removeAll();
 
         Button confirmButton = new Button("Продолжить", event -> {
-            closeView();
             dialogOnCloseView.close();
+            changeTabSwitchType(false);
+//            purchasesSubMenuView.releaseProtectedTabSwitch();
+            action.proceed();
         });
         Button cancelButton = new Button("Отменить", event -> {
             dialogOnCloseView.close();
         });
-// Cancel action on ESC press
-        Shortcuts.addShortcutListener(dialogOnCloseView, () -> {
-            dialogOnCloseView.close();
-        }, Key.ESCAPE);
 
-        dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
+        dialogOnCloseView.add(new VerticalLayout(
+                new Text("Вы уверены? Несохраненные данные будут утеряны!"),
+                new HorizontalLayout(cancelButton, confirmButton))
+        );
+
+        dialogOnCloseView.open();
     }
 
     public void setType(String type) {
@@ -735,4 +778,13 @@ public class SalesEditCreateInvoiceView extends VerticalLayout {
         this.location = location;
     }
 
+    public void setProtectedTabSwitch() {
+        changeTabSwitchType(true);
+//        this.purchasesSubMenuView.setProtectedTabSwitch();
+    }
+
+    @Override
+    public void beforeLeave(BeforeLeaveEvent beforeLeaveEvent) {
+        terminateCloseDialog(beforeLeaveEvent);
+    }
 }
