@@ -173,8 +173,13 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
             SupplierAccountDto editSupplierAccounts = event.getItem();
             supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
             supplierAccountModalView.open();
+            supplierAccountModalView.addListener(SupplierAccountModalView.SaveEvent.class, this::listenEvent);
         });
         return grid;
+    }
+
+    private void listenEvent(SupplierAccountModalView.SaveEvent event) {
+        updateList();
     }
 
     private void configurePaginator() {
@@ -212,7 +217,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private Button buttonUnit() {
         Button buttonUnit = new Button("Счёт", new Icon(VaadinIcon.PLUS_CIRCLE));
-        buttonUnit.addClickListener(e -> supplierAccountModalView.open());
+        buttonUnit.addClickListener(e -> {
+            supplierAccountModalView.open();
+            supplierAccountModalView.addListener(SupplierAccountModalView.SaveEvent.class, this::listenEvent);
+        });
         return buttonUnit;
     }
 
