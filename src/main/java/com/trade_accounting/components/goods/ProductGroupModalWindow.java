@@ -165,7 +165,12 @@ public class ProductGroupModalWindow extends Dialog {
         productGroupDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
         productGroupDto.setEmployeeId(employeeDtoComboBox.getValue().getId());
         productGroupDto.setDepartmentId(departmentDtoComboBox.getValue().getId());
-        productGroupDto.setParentId(productGroupDtoComboBox.getValue().getId());
+
+        try {
+            if (productGroupDtoComboBox.getValue().getId() != null) {
+                productGroupDto.setParentId(productGroupDtoComboBox.getValue().getId());
+            }
+        } catch (NullPointerException ignored) {}
     }
 
     private HorizontalLayout getFooter(Button addOrUpdateButton) {
