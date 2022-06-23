@@ -78,10 +78,10 @@ public class ProductGroupModalWindow extends Dialog {
         descriptionField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Описание", descriptionField));
 
-        productGroupDtoComboBox.setPlaceholder("Выберите группу продуктов");
+        productGroupDtoComboBox.setPlaceholder("Выберите родительскую группу продуктов");
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
-        add(getHorizontalLayout("Группа", productGroupDtoComboBox));
+        add(getHorizontalLayout("Родительская группа", productGroupDtoComboBox));
 
         saleTax.setPlaceholder("Введите размер НДС");
         productGroupDtoBinder.forField(saleTax)
