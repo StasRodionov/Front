@@ -6,26 +6,27 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
-import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.models.dto.warehouse.SupplierAccountProductsListDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.company.SupplierAccountService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.SupplierAccountProductsListService;
-import com.trade_accounting.services.interfaces.company.SupplierAccountService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -47,13 +48,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import retrofit2.Response;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -272,16 +273,18 @@ public class SupplierAccountModalView extends Dialog {
 
     private Button saveButton() {
         return new Button("Сохранить", e -> {
+            supplierAccountDtoBinder.setValidatorsDisabled(false);
             if (!supplierAccountDtoBinder.validate().isOk()) {
                 supplierAccountDtoBinder.validate().notifyBindingValidationStatusHandlers();
             } else {
                 SupplierAccountDto supplierAccountDto = updateSupplier();
                 deleteRemovedProducts();
                 saveProducts(supplierAccountDto);
-                clearField();
                 close();
-                UI.getCurrent().navigate(PURCHASES_SUPPLIERS_INVOICES_VIEW);
+                fireEvent(new SaveEvent(this));
                 notifications.infoNotification(String.format("Счет поставщика № %s сохранен", supplierAccountDto.getId()));
+                supplierAccountDtoBinder.setValidatorsDisabled(true);
+                clearField();
             }
         });
     }
@@ -572,5 +575,22 @@ public class SupplierAccountModalView extends Dialog {
                 supplierAccountProductsListService.deleteById(removed.getId());
             }
         }
+    }
+
+    public static abstract class SupplierAccountModalViewEvent extends ComponentEvent<SupplierAccountModalView> {
+        protected SupplierAccountModalViewEvent(SupplierAccountModalView source) {
+            super(source, false);
+        }
+    }
+
+    public static class SaveEvent extends SupplierAccountModalViewEvent {
+        SaveEvent(SupplierAccountModalView source) {
+            super(source);
+        }
+    }
+    @Override
+    public <T extends ComponentEvent<?>> Registration addListener(Class<T> eventType,
+                                                                  ComponentEventListener<T> listener) {
+        return getEventBus().addListener(eventType, listener);
     }
 }
