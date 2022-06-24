@@ -76,7 +76,7 @@ public class CallExecuteService<T> {
             call.execute();
             log.info(String.format("Успешно выполнен запрос на удаление экземпляра %s c id = %d", tClass.getSimpleName(), id));
         } catch (IOException e) {
-            log.error(String.format("Произошла ошибка при выполнении запроса на обновление экземпляра %s c id = %d", tClass.getSimpleName(), id));
+            log.error(String.format("Произошла ошибка при выполнении запроса на удаление экземпляра %s c id = %d", tClass.getSimpleName(), id));
         }
     }
 
