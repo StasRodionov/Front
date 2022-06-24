@@ -21,8 +21,6 @@ public class ProductGroupServiceImpl implements ProductGroupService {
 
     private final ProductGroupApi productGroupApi;
 
-    private ProductGroupDto productGroupDto;
-
     private final CallExecuteService<ProductGroupDto> dtoCallExecuteService;
 
     public ProductGroupServiceImpl(@Value("${product_group_url}") String productGroupUrl, Retrofit retrofit, CallExecuteService<ProductGroupDto> dtoCallExecuteService) {
@@ -45,13 +43,13 @@ public class ProductGroupServiceImpl implements ProductGroupService {
 
     @Override
     public void create(ProductGroupDto dto) {
-        Call<Void> productGroupDtoCall = productGroupApi.create(productGroupUrl, productGroupDto);
+        Call<Void> productGroupDtoCall = productGroupApi.create(productGroupUrl, dto);
         dtoCallExecuteService.callExecuteBodyCreate(productGroupDtoCall, ProductGroupDto.class);
     }
 
     @Override
     public void update(ProductGroupDto dto) {
-        Call<Void> productGroupDtoCall = productGroupApi.update(productGroupUrl, productGroupDto);
+        Call<Void> productGroupDtoCall = productGroupApi.update(productGroupUrl, dto);
         dtoCallExecuteService.callExecuteBodyUpdate(productGroupDtoCall, ProductGroupDto.class);
     }
 
