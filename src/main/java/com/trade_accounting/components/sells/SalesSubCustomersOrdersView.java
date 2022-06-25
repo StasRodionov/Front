@@ -75,9 +75,8 @@ import java.util.stream.Collectors;
 import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
-//Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
-/*@Route(value = SELLS_CUSTOMERS_ORDERS_VIEW, layout = AppView.class)
-@PageTitle("Заказы покупателей")*/
+/* @Route(value = SELLS_CUSTOMERS_ORDERS_VIEW, layout = AppView.class)
+@PageTitle("Заказы покупателей") */
 @SpringComponent
 @UIScope
 public class SalesSubCustomersOrdersView extends VerticalLayout implements AfterNavigationObserver {
@@ -92,7 +91,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private final Notifications notifications;
 
-    private final List<InvoiceDto> data;
+    private List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
@@ -112,12 +111,21 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         this.invoiceService = invoiceService;
         this.notifications = notifications;
         this.invoicesStatusService = invoicesStatusService;
-        this.data = getData();
-        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
+
+        paginator = new GridPaginator<>(grid);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
+
+        refreshContent();
+    }
+
+    public void refreshContent() {
+        this.data = getData();
+        this.paginator.setData(data);
+        this.paginator.setItemsPerPage(50);
+        removeAll();
         add(upperLayout(), filter, grid, paginator);
     }
 
@@ -146,8 +154,11 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);
             salesEditCreateInvoiceView.setType("RECEIPT");
-            salesEditCreateInvoiceView.setLocation(SELLS);
-            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
+            salesEditCreateInvoiceView.setLocation(SELLS_CUSTOMERS_ORDERS_VIEW);
+            salesEditCreateInvoiceView.setProtectedTabSwitch();
+//            UI.getCurrent().navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT);
+            removeAll();
+            add(salesEditCreateInvoiceView);
         });
     }
 
@@ -205,8 +216,11 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
             salesEditCreateInvoiceView.resetView();
             salesEditCreateInvoiceView.setUpdateState(false);
             salesEditCreateInvoiceView.setType("RECEIPT");
-            salesEditCreateInvoiceView.setLocation(SELLS);
-            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT));
+            salesEditCreateInvoiceView.setLocation(SELLS_CUSTOMERS_ORDERS_VIEW);
+            salesEditCreateInvoiceView.setProtectedTabSwitch();
+//            buttonUnit.getUI().ifPresent(ui -> ui.navigate(SELLS_SELLS__CUSTOMER_ORDER_EDIT));
+            removeAll();
+            add(salesEditCreateInvoiceView);
         });
         return buttonUnit;
     }
@@ -327,7 +341,6 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     }
 
     private void updateList() {
-
         GridPaginator<InvoiceDto> paginatorUpdateList = new GridPaginator<>(grid, invoiceService.getAll(),100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginatorUpdateList);
         GridSortOrder<InvoiceDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);

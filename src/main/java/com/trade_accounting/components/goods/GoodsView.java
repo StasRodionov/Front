@@ -46,8 +46,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.trade_accounting.config.SecurityConstants.*;
-
 @Slf4j
 @SpringComponent
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -60,10 +58,13 @@ public class GoodsView extends VerticalLayout {
     private final ProductGroupService productGroupService;
     private final GoodsModalWindow goodsModalWindow;
     private final ServiceModalWindow serviceModalWindow;
+    private final SetModalWindow setModalWindow;
     private final TreeGrid<ProductGroupDto> treeGrid;
     private final GridFilter<ProductDto> filter;
     private final GridPaginator<ProductDto> paginator;
     private final Notifications notifications;
+    private final ProductGroupModalWindow productGroupModalWindow;
+    private Optional<ProductGroupDto> optional = Optional.empty();
     private final GoodsEditAddView goodsEditAddView;
 
     @Autowired
@@ -71,8 +72,11 @@ public class GoodsView extends VerticalLayout {
                      ProductGroupService productGroupService,
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow,
-                     Notifications notifications, GoodsEditAddView goodsEditAddView) {
+                     SetModalWindow setModalWindow, Notifications notifications,
+                     ProductGroupModalWindow productGroupModalWindow, GoodsEditAddView goodsEditAddView) {
         this.goodsEditAddView = goodsEditAddView;
+        this.setModalWindow = setModalWindow;
+        this.productGroupModalWindow = productGroupModalWindow;
         this.grid = new Grid<>(ProductDto.class);
         this.productService = productService;
         this.productGroupService = productGroupService;
@@ -91,6 +95,10 @@ public class GoodsView extends VerticalLayout {
 
     private List<ProductDto> getData() {
         return productService.getAll();
+    }
+
+    private List<ProductDto> filteredByGroupData(ProductGroupDto productGroupDto) {
+        return productService.getAllByProductGroup(productGroupDto);
     }
 
     public void updateData() {
@@ -156,8 +164,13 @@ public class GoodsView extends VerticalLayout {
         filter.setFieldToIntegerField("id");
         filter.onSearchClick(e ->
                 paginator.setData(productService.searchByFilter(filter.getFilterData())));
-        filter.onClearClick(e ->
-                paginator.setData(productService.getAll()));
+        filter.onClearClick(e -> {
+            if(optional.isPresent()){
+                paginator.setData(filteredByGroupData(optional.get()), false);
+            } else {
+                paginator.setData(productService.getAll());
+            }
+        });
     }
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
@@ -195,9 +208,9 @@ public class GoodsView extends VerticalLayout {
         cell.setComponent(horizontalLayout);
         treeGridLocal.setSelectionMode(Grid.SelectionMode.SINGLE);
         treeGridLocal.addSelectionListener(event -> {
-            Optional<ProductGroupDto> optional = event.getFirstSelectedItem();
+            optional = event.getFirstSelectedItem();
             if (optional.isPresent()) {
-                paginator.setData(getData(), false);
+                paginator.setData(filteredByGroupData(optional.get()), false);
                 label.setText(optional.get().getName());
                 closeButton.setVisible(true);
             }
@@ -264,11 +277,17 @@ public class GoodsView extends VerticalLayout {
     }
 
     private Button buttonPlusSet() {
-        return new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button addSetButton = new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
+        addSetButton.addClickListener(e -> setModalWindow.open());
+        addSetButton.getStyle().set("cursor", "pointer");
+        return addSetButton;
     }
 
     private Button buttonPlusGroup() {
-        return new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
+        Button addProductGroupButton = new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
+        addProductGroupButton.addClickListener(e -> productGroupModalWindow.open());
+        addProductGroupButton.getStyle().set("cursor", "pointer");
+        return addProductGroupButton;
     }
 
     private Button buttonFilter() {

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +19,14 @@ public class ProductGroupDto {
     private Boolean serviceGroup = false;
 
     private Long parentId;
+
+    private String description;
+
+    private String saleTax;
+
+    private Long taxSystemId;
+
+    private Long employeeId;
+
+    private Long departmentId;
 }
