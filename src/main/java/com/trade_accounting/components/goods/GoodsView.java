@@ -16,6 +16,7 @@ import com.trade_accounting.models.dto.warehouse.ProductGroupDto;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -48,7 +49,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.trade_accounting.config.SecurityConstants.GOODS_CUSTOMERS_PRODUCTS_VIEW;
+import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
 @SpringComponent
@@ -246,7 +247,9 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusGoods() {
         Button addGoodsButton = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
-        addGoodsButton.addClickListener(e -> goodsModalWindow.open());
+        addGoodsButton.addClickListener(e -> {
+            UI.getCurrent().navigate(GOODS_GOODS__EDIT_VIEW);
+        });
         addGoodsButton.getStyle().set("cursor", "pointer");
         return addGoodsButton;
     }
