@@ -1,6 +1,7 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.sells.InformationView;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.TaxSystemDto;
 import com.trade_accounting.models.dto.company.TypeOfPriceDto;
@@ -16,6 +17,7 @@ import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.TaxSystemService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.units.UnitService;
+import com.trade_accounting.services.interfaces.util.FileService;
 import com.trade_accounting.services.interfaces.util.ImageService;
 import com.trade_accounting.services.interfaces.warehouse.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
@@ -23,21 +25,27 @@ import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -65,12 +73,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS;
 import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VIEW;
 
 @Slf4j
@@ -90,8 +103,10 @@ public class GoodsEditAddView extends VerticalLayout {
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
     private final EmployeeService employeeService;
+    private final FileService fileService;
 
     private List<ImageDto> imageDtoList;
+    private List<ImageDto> imageDtoListForRemove;
     private ProductDto productDto;
     private List<FileDto> fileDtoList;
     private List<FileDto> fileDtoListForRemove;
@@ -123,6 +138,12 @@ public class GoodsEditAddView extends VerticalLayout {
     Tab remains = new Tab("Остатки");
     Tab history = new Tab("История");
     Tab files = new Tab("Файлы");
+    Button saveButton = new Button("Сохранить");
+    Button closeButton = new Button("Закрыть");
+    private String location = null;
+
+    private final Dialog dialogOnCloseView = new Dialog();
+
 
     public GoodsEditAddView(ProductPriceService productPriceService,
                             UnitService unitService,
@@ -133,7 +154,7 @@ public class GoodsEditAddView extends VerticalLayout {
                             ProductGroupService productGroupService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService,
-                            EmployeeService employeeService) {
+                            EmployeeService employeeService, FileService fileService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
@@ -144,7 +165,9 @@ public class GoodsEditAddView extends VerticalLayout {
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
         this.employeeService = employeeService;
+        this.fileService = fileService;
 
+        configureCloseViewDialog();
 
         productNameField.setLabel("Наименование товара");
         productNameField.setWidthFull();
@@ -172,6 +195,149 @@ public class GoodsEditAddView extends VerticalLayout {
         add(getHeader(), productNameField, getMainLayout());
     }
 
+    public void setProductDataForEdit(ProductDto editProductDto) {
+
+        productDto = productService.getById(editProductDto.getId());
+        productNameField.setValue(productDto.getName());
+        descriptionField.setValue(productDto.getDescription());
+        weightNumberField.setValue(productDto.getWeight());
+        volumeNumberField.setValue(productDto.getVolume());
+        purchasePriceNumberField.setValue(productDto.getPurchasePrice());
+        if(productDto.getCountryOrigin()==null){
+            countryOriginField.setValue("нет данных");
+        } else {
+            countryOriginField.setValue(productDto.getCountryOrigin());
+        }
+        minimumBalance.setValue(BigDecimal.valueOf(productDto.getMinimumBalance()));
+        if(productDto.getSaleTax()==null){
+            saleTax.setValue("нет данных");
+        } else {
+            saleTax.setValue(productDto.getSaleTax());
+        }
+        itemNumber.setValue(BigDecimal.valueOf(productDto.getItemNumber()));
+        unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
+        contractorDtoComboBox.setValue(contractorService.getById(productDto.getContractorId()));
+        taxSystemDtoComboBox.setValue(taxSystemService.getById(productDto.getTaxSystemId()));
+        productGroupDtoComboBox.setValue(productGroupService.getById(productDto.getProductGroupId()));
+        attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
+                .getById(productDto.getAttributeOfCalculationObjectId()));
+        imageDtoList = productDto.getImageDtos();
+        fileDtoList = productDto.getFileDtos();
+        fileGrid.setItems(fileDtoList);
+        for (ImageDto imageDto : imageDtoList) {
+            StreamResource resource = new StreamResource("image", () -> new ByteArrayInputStream(imageDto.getContent()));
+            Image image = new Image(resource, "image");
+            image.setHeight("100px");
+            imageHorizontalLayout.add(image, getRemoveImageButton(productDto, image, imageDto));
+        }
+        initTypeOfPriceFrom(productDto.getProductPriceIds());
+
+        saveButton.addClickListener(event -> {
+            if (checkAllFields()){
+
+                updateProductDto(productDto);
+                productService.update(productDto);
+                imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
+                fileDtoListForRemove.forEach(fileDto -> fileService.deleteById(fileDto.getId()));
+
+                Notification.show(String.format("Товар %s изменен", productDto.getName()));
+
+                UI.getCurrent().navigate(GOODS);
+            } else {
+                com.trade_accounting.components.sells.InformationView informationView =
+                        new InformationView("Одно или несколько полей не заполнены");
+                informationView.open();
+            }
+
+        });
+
+
+    }
+
+    private void updateProductDto(ProductDto productDto) {
+        productDto.setName(productNameField.getValue());
+        productDto.setSaleTax(saleTax.getValue());
+        productDto.setWeight(weightNumberField.getValue());
+        productDto.setItemNumber(itemNumber.getValue().intValue());
+        productDto.setVolume(volumeNumberField.getValue());
+        productDto.setMinimumBalance(minimumBalance.getValue().intValue());
+        productDto.setPurchasePrice(purchasePriceNumberField.getValue());
+        productDto.setDescription(descriptionField.getValue());
+        productDto.setUnitId(unitDtoComboBox.getValue().getId());
+        productDto.setContractorId(contractorDtoComboBox.getValue().getId());
+        productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
+        productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
+        productDto.setCountryOrigin(countryOriginField.getValue());
+        productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
+        productDto.setImageDtos(imageDtoList);
+
+
+        if (productDto.getProductPriceIds() == null) {
+            productDto.setProductPriceIds(new ArrayList<>());
+        }
+        productDto.getProductPriceIds().clear();
+        bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
+
+            List<Long> list = new ArrayList<>();
+            if (productDto.getId() != null) {
+                List<Long> productPriceIds = productService.getById(productDto.getId()).getProductPriceIds();
+                list = productService.getById(productDto.getId()).getProductPriceIds().stream()
+                        .filter(x -> productPriceService.getById(x).getTypeOfPriceId().equals(typeOfPriceDto.getId()))
+                        .collect(Collectors.toList());
+            }
+
+            if (list.size() == 0){
+                // создаем цену
+                ProductPriceDto productPriceDto = new ProductPriceDto();
+                productPriceDto.setTypeOfPriceId(typeOfPriceDto.getId());
+                productPriceDto.setValue(bigDecimalField.getValue());
+                productPriceService.create(productPriceDto);
+
+                // получаем ID, так как заранее мы не можем его знать. затем ID присваиваем в лист TypeOfPrices
+                Optional<ProductPriceDto> id = productPriceService.getAll().stream()
+                        .filter(x -> x.getTypeOfPriceId().equals(typeOfPriceDto.getId()))
+                        .filter(x -> x.getValue().compareTo(bigDecimalField.getValue()) == 0)
+                        .findFirst();
+                id.ifPresent(priceDto -> productDto.getProductPriceIds().add(priceDto.getId()));
+
+            } else {
+                ProductPriceDto priceDto = productPriceService.getById(list.get(0));
+                priceDto.setValue(bigDecimalField.getValue());
+                productPriceService.update(priceDto);
+
+                productDto.getProductPriceIds().add(list.get(0));
+            }
+        });
+        productDto.setFileDtos(fileDtoList);
+    }
+
+    private boolean checkAllFields(){
+        if ( minimumBalance.getValue().compareTo(BigDecimal.ZERO) < 0){
+            return false;
+        }
+
+        AtomicBoolean flag = new AtomicBoolean(true);
+
+        bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
+            Optional<BigDecimal> bd = Optional.ofNullable(bigDecimalField.getValue());
+
+            if (bd.isEmpty() || bd.get().compareTo(BigDecimal.ZERO) <= 0){
+                flag.set(false);
+            }
+        });
+
+        return flag.get();
+    }
+
+    private void initTypeOfPriceFrom(List<Long> list) {
+        list.forEach(productPriceId ->
+                bigDecimalFields.get(typeOfPriceService
+                                .getById(productPriceService.getById(productPriceId)
+                                        .getTypeOfPriceId()))
+                        .setValue(productPriceService.getById(productPriceId)
+                                .getValue()));
+    }
+
     private HorizontalLayout getHeader() {
         HorizontalLayout header = new HorizontalLayout();
 
@@ -184,10 +350,10 @@ public class GoodsEditAddView extends VerticalLayout {
     private HorizontalLayout getLeftButtons() {
         HorizontalLayout leftButtons = new HorizontalLayout();
 
-        Button saveButton = new Button("Сохранить");
-        Button closeButton = new Button("Закрыть");
-
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+        closeButton.addClickListener(event -> {
+            dialogOnCloseView.open();
+        });
 
         leftButtons.add(saveButton, closeButton);
         leftButtons.setWidth("50%");
@@ -395,7 +561,7 @@ public class GoodsEditAddView extends VerticalLayout {
         taxSystemDtoComboBox.setPlaceholder("Выберите систему налогообложения");
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
-        add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
+        content.add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
 
         content.add(new Hr());
 
@@ -412,7 +578,7 @@ public class GoodsEditAddView extends VerticalLayout {
         attributeOfCalculationObjectComboBox.setPlaceholder("Выберите предмет расчета");
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
         attributeOfCalculationObjectComboBox.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
-        add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
+        content.add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
 
         unitDtoComboBox.setPlaceholder("Выберите единицу измерения");
         unitDtoComboBox.setItems(unitService.getAll());
@@ -441,7 +607,7 @@ public class GoodsEditAddView extends VerticalLayout {
                 .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
                 .bind(ProductDto::getPurchasePrice, ProductDto::setPurchasePrice);
         purchasePriceNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Закупочная цена", purchasePriceNumberField));
+        content.add(getHorizontalLayout("Закупочная цена", purchasePriceNumberField));
 
         content.add(new Hr());
 
@@ -589,6 +755,54 @@ public class GoodsEditAddView extends VerticalLayout {
             verticalLayout.add(horizontalLayout);
         });
         return verticalLayout;
+    }
+
+    private void configureCloseViewDialog() {
+        dialogOnCloseView.add(new Text("Вы уверены? Несохраненные данные будут потеряны!!!"));
+        dialogOnCloseView.setCloseOnEsc(false);
+        dialogOnCloseView.setCloseOnOutsideClick(false);
+        Button confirmButton = new Button("Продолжить", event -> {
+            closeView();
+            dialogOnCloseView.close();
+        });
+        Button cancelButton = new Button("Отменить", event -> dialogOnCloseView.close());
+// Cancel action on ESC press
+        Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
+        dialogOnCloseView.add(new Div(confirmButton, new Div(), cancelButton));
+    }
+
+    private void closeView() {
+        resetView();
+        UI.getCurrent().navigate(location);
+    }
+
+    private void resetView() {
+        productNameField.clear();
+        descriptionField.clear();
+        weightNumberField.clear();
+        volumeNumberField.clear();
+        countryOriginField.clear();
+        itemNumber.clear();
+        minimumBalance.clear();
+        saleTax.clear();
+        purchasePriceNumberField.clear();
+        imageHorizontalLayout.removeAll();
+        bigDecimalFields = new HashMap<>();
+        imageDtoList = new ArrayList<>();
+        imageDtoListForRemove = new ArrayList<>();
+        fileDtoList= new ArrayList<>();
+        fileDtoListForRemove = new ArrayList<>();
+        fileGrid.setItems(fileDtoList);
+        unitDtoComboBox.setItems(unitService.getAll());
+        contractorDtoComboBox.setItems(contractorService.getAll());
+        taxSystemDtoComboBox.setItems(taxSystemService.getAll());
+        productGroupDtoComboBox.setItems(productGroupService.getAll());
+        attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
+        productDto = new ProductDto();
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
 }

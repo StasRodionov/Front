@@ -1,13 +1,11 @@
 package com.trade_accounting.components.goods;
 
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.components.util.configure.components.select.SelectConstants;
 import com.trade_accounting.components.util.configure.components.select.SelectExt;
@@ -36,7 +34,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -67,13 +64,15 @@ public class GoodsView extends VerticalLayout {
     private final GridFilter<ProductDto> filter;
     private final GridPaginator<ProductDto> paginator;
     private final Notifications notifications;
+    private final GoodsEditAddView goodsEditAddView;
 
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow,
-                     Notifications notifications) {
+                     Notifications notifications, GoodsEditAddView goodsEditAddView) {
+        this.goodsEditAddView = goodsEditAddView;
         this.grid = new Grid<>(ProductDto.class);
         this.productService = productService;
         this.productGroupService = productGroupService;
@@ -248,6 +247,7 @@ public class GoodsView extends VerticalLayout {
     private Button buttonPlusGoods() {
         Button addGoodsButton = new Button("Товар", new Icon(VaadinIcon.PLUS_CIRCLE));
         addGoodsButton.addClickListener(e -> {
+            goodsEditAddView.setLocation(GOODS);
             UI.getCurrent().navigate(GOODS_GOODS__EDIT_VIEW);
         });
         addGoodsButton.getStyle().set("cursor", "pointer");
