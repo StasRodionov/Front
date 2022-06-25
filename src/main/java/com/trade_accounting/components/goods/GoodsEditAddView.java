@@ -3,11 +3,14 @@ package com.trade_accounting.components.goods;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.TaxSystemDto;
+import com.trade_accounting.models.dto.company.TypeOfPriceDto;
 import com.trade_accounting.models.dto.units.UnitDto;
+import com.trade_accounting.models.dto.util.FileDto;
 import com.trade_accounting.models.dto.util.ImageDto;
 import com.trade_accounting.models.dto.warehouse.AttributeOfCalculationObjectDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductGroupDto;
+import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.TaxSystemService;
@@ -28,6 +31,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -46,6 +50,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -58,8 +63,13 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VIEW;
 
@@ -83,8 +93,13 @@ public class GoodsEditAddView extends VerticalLayout {
 
     private List<ImageDto> imageDtoList;
     private ProductDto productDto;
+    private List<FileDto> fileDtoList;
+    private List<FileDto> fileDtoListForRemove;
 
     private final Binder<ProductDto> productDtoBinder = new Binder<>(ProductDto.class);
+    private final Binder<ProductPriceDto> priceDtoBinder = new Binder<>(ProductPriceDto.class);
+    private final Grid<FileDto> fileGrid = new Grid<>(FileDto.class, false);
+    private Map<TypeOfPriceDto, BigDecimalField> bigDecimalFields = new HashMap<>();
 
     private final HorizontalLayout imageHorizontalLayout = new HorizontalLayout();
     private final VerticalLayout tabsContent = new VerticalLayout();
@@ -102,6 +117,12 @@ public class GoodsEditAddView extends VerticalLayout {
     private final BigDecimalField weightNumberField = new BigDecimalField();
     private final BigDecimalField volumeNumberField = new BigDecimalField();
     private final BigDecimalField purchasePriceNumberField = new BigDecimalField();
+    Tab prices = new Tab("Цены");
+    Tab modifications = new Tab("Модификации");
+    Tab packing = new Tab("Упаковка");
+    Tab remains = new Tab("Остатки");
+    Tab history = new Tab("История");
+    Tab files = new Tab("Файлы");
 
     public GoodsEditAddView(ProductPriceService productPriceService,
                             UnitService unitService,
@@ -130,6 +151,23 @@ public class GoodsEditAddView extends VerticalLayout {
         productDtoBinder.forField(productNameField)
                 .withValidator(text -> text.length() >= 3, "Не менее трёх символов", ErrorLevel.ERROR)
                 .bind(ProductDto::getName, ProductDto::setName);
+
+        fileGrid.addColumn(FileDto::getName).setHeader("Наименование")
+                .setAutoWidth(true);
+        fileGrid.addColumn(fileDto -> String.format("%.2f",((double) fileDto.getContent().length)/Math.pow(1024,2)))
+                .setHeader("Размер, Мб")
+                .setAutoWidth(true);
+        fileGrid.addColumn(fileDto -> fileDto.getUploadDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")))
+                .setHeader("Дата добавления")
+                .setAutoWidth(true);
+        fileGrid.addColumn(FileDto::getEmployee)
+                .setHeader("Сотрудник")
+                .setAutoWidth(true);
+        fileGrid.addColumn(new ComponentRenderer<>(Button::new, (button, fileDto) -> {
+            button.setIcon(new Icon(VaadinIcon.CLOSE_CIRCLE_O));
+            button.addClickListener(event -> this.removeFile(fileDto));
+        })).setAutoWidth(true);
+        fileGrid.setHeightByRows(true);
 
         add(getHeader(), productNameField, getMainLayout());
     }
@@ -207,18 +245,13 @@ public class GoodsEditAddView extends VerticalLayout {
     private VerticalLayout getRightColumnLayout() {
         VerticalLayout rightColumnLayout = new VerticalLayout();
 
+        tabsContent.add(getPricesTabContent());
+        rightColumnLayout.add(getTabs(), tabsContent);
 
         return rightColumnLayout;
     }
 
     private Tabs getTabs() {
-        Tab prices = new Tab("Цены");
-        Tab modifications = new Tab("Модификации");
-        Tab packing = new Tab("Упаковка");
-        Tab remains = new Tab("Остатки");
-        Tab history = new Tab("История");
-        Tab files = new Tab("Файлы");
-
         Tabs tabs = new Tabs(prices, modifications, packing, remains, history, files);
         tabs.addSelectedChangeListener(event ->
                 setTabsContent(event.getSelectedTab()));
@@ -227,11 +260,25 @@ public class GoodsEditAddView extends VerticalLayout {
 
     private void setTabsContent(Tab selectedTab) {
         tabsContent.removeAll();
-
+        if (selectedTab.equals(prices)) {
+            tabsContent.add(getPricesTabContent());
+        } else if (selectedTab.equals(modifications)) {
+            tabsContent.add(getModificationsTabContent());
+        } else if (selectedTab.equals(packing)) {
+            tabsContent.add(getPackingTabContent());
+        } else if (selectedTab.equals(remains)) {
+            tabsContent.add(getRemainsTabContent());
+        } else if (selectedTab.equals(history)) {
+            tabsContent.add(getHistoryTabContent());
+        } else {
+            tabsContent.add(getFilesTabContent());
+        }
     }
 
     private VerticalLayout getPricesTabContent() {
         VerticalLayout content = new VerticalLayout();
+
+        content.add(getTypeOfPriceForm(typeOfPriceService.getAll()));
 
         return content;
     }
@@ -263,9 +310,50 @@ public class GoodsEditAddView extends VerticalLayout {
     private VerticalLayout getFilesTabContent() {
         VerticalLayout content = new VerticalLayout();
 
+        content.add(fileGrid);
+        content.add(getFileButton());
+
         return content;
     }
 
+    private Component getFileButton() {
+        Button fileButton = new Button("Добавить файл");
+        Dialog dialog = new Dialog();
+        MultiFileMemoryBuffer memoryBuffer = new MultiFileMemoryBuffer();
+        Upload upload = new Upload(memoryBuffer);
+
+        upload.addFinishedListener(event -> {
+            try {
+                FileDto fileDto = new FileDto();
+                String fileName = event.getFileName();
+                fileDto.setName(fileName);
+                String[] splitFileName = fileName.split("\\.");
+                fileDto.setExtension("." + splitFileName[splitFileName.length-1]);
+                fileDto.setKey(UUID.randomUUID().toString());
+                fileDto.setContent(memoryBuffer.getInputStream(fileName).readAllBytes());
+                fileDto.setEmployee(employeeService.getPrincipal().getFirstName());
+                fileDto.setUploadDateTime(LocalDateTime.now());
+                fileDtoList.add(fileDto);
+                fileGrid.setItems(fileDtoList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dialog.close();
+        });
+        fileButton.addClickListener(click -> dialog.open());
+        dialog.add(upload);
+
+        return fileButton;
+    }
+
+    private void removeFile(FileDto fileDto) {
+        if (fileDto == null){
+            return;
+        }
+        fileDtoList.remove(fileDto);
+        fileDtoListForRemove.add(fileDto);
+        fileGrid.setItems(fileDtoList);
+    }
 
     private Details getImagesLayout() {
         VerticalLayout content = new VerticalLayout();
@@ -304,6 +392,11 @@ public class GoodsEditAddView extends VerticalLayout {
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
         content.add(getHorizontalLayout("Поставщик", contractorDtoComboBox));
 
+        taxSystemDtoComboBox.setPlaceholder("Выберите систему налогообложения");
+        taxSystemDtoComboBox.setItems(taxSystemService.getAll());
+        taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
+        add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
+
         content.add(new Hr());
 
         itemNumber.setPlaceholder("Введите Артикул");
@@ -315,6 +408,11 @@ public class GoodsEditAddView extends VerticalLayout {
         content.add(getHorizontalLayout("Артикул", itemNumber));
 
         content.add(new Hr());
+
+        attributeOfCalculationObjectComboBox.setPlaceholder("Выберите предмет расчета");
+        attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
+        attributeOfCalculationObjectComboBox.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
+        add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
 
         unitDtoComboBox.setPlaceholder("Выберите единицу измерения");
         unitDtoComboBox.setItems(unitService.getAll());
@@ -336,6 +434,14 @@ public class GoodsEditAddView extends VerticalLayout {
                 .bind(ProductDto::getVolume, ProductDto::setVolume);
         volumeNumberField.setValueChangeMode(ValueChangeMode.EAGER);
         content.add(getHorizontalLayout("Объем", volumeNumberField));
+
+        purchasePriceNumberField.setPlaceholder("Введите закупочную цену");
+        productDtoBinder.forField(purchasePriceNumberField)
+                .withValidator(Objects::nonNull, "Введите закупочную цену")
+                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
+                .bind(ProductDto::getPurchasePrice, ProductDto::setPurchasePrice);
+        purchasePriceNumberField.setValueChangeMode(ValueChangeMode.EAGER);
+        add(getHorizontalLayout("Закупочная цена", purchasePriceNumberField));
 
         content.add(new Hr());
 
@@ -458,6 +564,31 @@ public class GoodsEditAddView extends VerticalLayout {
         horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, label);
         horizontalLayout.add(label, field);
         return horizontalLayout;
+    }
+
+    private Component getTypeOfPriceForm(List<TypeOfPriceDto> typeOfPriceDtos) {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setPadding(false);
+        verticalLayout.setSpacing(false);
+        typeOfPriceDtos.forEach(typeOfPriceDto -> {
+            HorizontalLayout horizontalLayout = new HorizontalLayout();
+            Label label = new Label(typeOfPriceDto.getName());
+            label.setWidth("150px");
+            horizontalLayout.add(label);
+            BigDecimalField field = new BigDecimalField();
+            field.setWidth("200px");
+
+            priceDtoBinder.forField(field)
+                    .withValidator(Objects::nonNull, "Не заполнено!")
+                    .withValidator(new BigDecimalRangeValidator("Не может быть меньше 0", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))
+                    .bind("value");
+            field.setValueChangeMode(ValueChangeMode.EAGER);
+
+            bigDecimalFields.put(typeOfPriceDto, field);
+            horizontalLayout.add(field);
+            verticalLayout.add(horizontalLayout);
+        });
+        return verticalLayout;
     }
 
 }
