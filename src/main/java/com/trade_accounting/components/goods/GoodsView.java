@@ -46,6 +46,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS;
+import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VIEW;
+
 @Slf4j
 @SpringComponent
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
