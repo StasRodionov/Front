@@ -1,5 +1,6 @@
 package com.trade_accounting.components.goods;
 
+import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -24,13 +25,19 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VIEW;
+
 @Slf4j
 @SpringComponent
 @UIScope
+@Route(value = GOODS_GOODS__EDIT_VIEW, layout = AppView.class)
+@PageTitle("Заказы поставщикам")
 public class GoodsEditAddView extends VerticalLayout {
 
     private final ProductPriceService productPriceService;
