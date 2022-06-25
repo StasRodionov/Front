@@ -191,12 +191,10 @@ public class GoodsEditAddView extends VerticalLayout {
             button.addClickListener(event -> this.removeFile(fileDto));
         })).setAutoWidth(true);
         fileGrid.setHeightByRows(true);
-
         add(getHeader(), productNameField, getMainLayout());
     }
 
     public void setProductDataForEdit(ProductDto editProductDto) {
-
         productDto = productService.getById(editProductDto.getId());
         productNameField.setValue(productDto.getName());
         descriptionField.setValue(productDto.getDescription());
@@ -234,24 +232,18 @@ public class GoodsEditAddView extends VerticalLayout {
 
         saveButton.addClickListener(event -> {
             if (checkAllFields()){
-
                 updateProductDto(productDto);
                 productService.update(productDto);
                 imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
                 fileDtoListForRemove.forEach(fileDto -> fileService.deleteById(fileDto.getId()));
-
                 Notification.show(String.format("Товар %s изменен", productDto.getName()));
-
                 UI.getCurrent().navigate(GOODS);
             } else {
                 com.trade_accounting.components.sells.InformationView informationView =
                         new InformationView("Одно или несколько полей не заполнены");
                 informationView.open();
             }
-
         });
-
-
     }
 
     private void updateProductDto(ProductDto productDto) {
@@ -351,6 +343,18 @@ public class GoodsEditAddView extends VerticalLayout {
         HorizontalLayout leftButtons = new HorizontalLayout();
 
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+        saveButton.addClickListener(event -> {
+            ProductDto productDto = new ProductDto();
+            if (!productDtoBinder.validate().isOk() || !priceDtoBinder.validate().isOk()) {
+                productDtoBinder.validate().notifyBindingValidationStatusHandlers();
+                priceDtoBinder.validate().notifyBindingValidationStatusHandlers();
+            } else {
+                updateProductDto(productDto);
+                productService.create(productDto);
+                Notification.show(String.format("Товар %s добавлен", productDto.getName()));
+                closeView();
+            }
+        });
         closeButton.addClickListener(event -> {
             dialogOnCloseView.open();
         });
