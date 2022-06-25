@@ -145,7 +145,9 @@ public class GoodsView extends VerticalLayout {
 
         grid.addItemDoubleClickListener(event -> {
             ProductDto productDto = event.getItem();
-            goodsModalWindow.open(productDto);
+            goodsEditAddView.setProductDataForEdit(productDto);
+            goodsEditAddView.setLocation(GOODS);
+            UI.getCurrent().navigate(GOODS_GOODS__EDIT_VIEW);
         });
         grid.getColumns().forEach(column -> column.setAutoWidth(true));
     }
