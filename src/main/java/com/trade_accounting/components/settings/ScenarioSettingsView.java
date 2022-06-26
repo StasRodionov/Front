@@ -32,7 +32,7 @@ import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SETTINGS__SCENARIO_SETTINGS;
 
-@Route(value = PROFILE_PROFILE__SETTINGS__SCENARIO_SETTINGS, layout = AppView.class)
+@Route(value = PROFILE_PROFILE__SETTINGS__SCENARIO_SETTINGS, layout = SettingsView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class ScenarioSettingsView extends VerticalLayout {

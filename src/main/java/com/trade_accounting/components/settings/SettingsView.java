@@ -2,8 +2,6 @@ package com.trade_accounting.components.settings;
 
 import com.trade_accounting.components.AppView;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
@@ -15,11 +13,11 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @Route(value = PROFILE_PROFILE__SETTINGS, layout = AppView.class)
 @PageTitle("Настройки")
 @Slf4j
-public class SettingsView extends HorizontalLayout {
+public class SettingsView extends AppLayout {
 
     public SettingsView() {
         super();
-        add(lowerLayout());
+        addToDrawer(lowerLayout());
 
     }
 
