@@ -8,6 +8,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.units.CurrencyService;
 import com.trade_accounting.services.interfaces.client.DepartmentService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.trade_accounting.services.interfaces.util.ImageService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.client.PositionService;
@@ -46,10 +47,12 @@ public class ProfileView extends Div implements AfterNavigationObserver {
     private final DepartmentService departmentService;
     private final PositionService positionService;
 
+    private final SalesChannelService salesChannelService;
+
     public ProfileView(Notifications notifications, UnitService unitService, CompanyService companyService,
                        AddressService addressService, LegalDetailService legalDetailService, EmployeeService employeeService, WarehouseService warehouseService,
                        CurrencyService currencyService, RoleService roleService, ImageService imageService, TypeOfContractorService typeOfContractorService,
-                       BankAccountService bankAccountService, DepartmentService departmentService, PositionService positionService) {
+                       BankAccountService bankAccountService, DepartmentService departmentService, PositionService positionService, SalesChannelService salesChannelService) {
         this.notifications = notifications;
         this.unitService = unitService;
         this.companyService = companyService;
@@ -64,6 +67,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
         this.bankAccountService = bankAccountService;
         this.departmentService = departmentService;
         this.positionService = positionService;
+        this.salesChannelService = salesChannelService;
         div = new Div();
         divMenu = new Div();
         add(divMenu, div);
@@ -91,7 +95,8 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                 new Tab("Сотрудники"),
                 new Tab("Склады"),
                 new Tab("Валюты"),
-                new Tab("Единицы измерения")
+                new Tab("Единицы измерения"),
+                new Tab("Каналы продаж")
         );
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
@@ -116,6 +121,9 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                     div.removeAll();
                     div.add(new UnitView(unitService));
                     break;
+                case "Каналы продаж":
+                    div.removeAll();
+                    div.add(new SalesChannelView(salesChannelService));
                 default:
             }
         });
