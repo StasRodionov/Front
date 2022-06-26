@@ -512,8 +512,11 @@ public class GoodsModalWindow extends Dialog {
 
     private Button getUpdateButton(ProductDto productDto) {
         return new Button("Изменить", event -> {
-            if (checkAllFields()){
-
+//            if (checkAllFields()){
+            if (!productDtoBinder.validate().isOk() || !priceDtoBinder.validate().isOk()) {
+                productDtoBinder.validate().notifyBindingValidationStatusHandlers();
+                priceDtoBinder.validate().notifyBindingValidationStatusHandlers();
+            } else {
                 updateProductDto(productDto);
                 productService.update(productDto);
                 imageDtoListForRemove.forEach(el -> imageService.deleteById(el.getId()));
@@ -522,11 +525,12 @@ public class GoodsModalWindow extends Dialog {
                 Notification.show(String.format("Товар %s изменен", productDto.getName()));
                 close();
                 UI.getCurrent().navigate(GOODS);
-            } else {
-                com.trade_accounting.components.sells.InformationView informationView =
-                        new InformationView("Одно или несколько полей не заполнены");
-                informationView.open();
             }
+//            else {
+//                com.trade_accounting.components.sells.InformationView informationView =
+//                        new InformationView("Одно или несколько полей не заполнены");
+//                informationView.open();
+//            }
 
         });
     }
@@ -588,23 +592,25 @@ public class GoodsModalWindow extends Dialog {
         productDto.setFileDtos(fileDtoList);
     }
 
-    private boolean checkAllFields(){
-        if ( minimumBalance.getValue().compareTo(BigDecimal.ZERO) < 0){
-            return false;
-        }
+//    Нет необходимости дополнительной проверки, случай незаполнения и диапазон для валидации привязаны к полям ввода
 
-        AtomicBoolean flag = new AtomicBoolean(true);
-
-        bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
-            Optional<BigDecimal> bd = Optional.ofNullable(bigDecimalField.getValue());
-
-            if (bd.isEmpty() || bd.get().compareTo(BigDecimal.ZERO) <= 0){
-                flag.set(false);
-            }
-        });
-
-        return flag.get();
-    }
+//    private boolean checkAllFields(){
+//        if ( minimumBalance.getValue().compareTo(BigDecimal.ZERO) < 0){
+//            return false;
+//        }
+//
+//        AtomicBoolean flag = new AtomicBoolean(true);
+//
+//        bigDecimalFields.forEach((typeOfPriceDto, bigDecimalField) -> {
+//            Optional<BigDecimal> bd = Optional.ofNullable(bigDecimalField.getValue());
+//
+//            if (bd.isEmpty() || bd.get().compareTo(BigDecimal.ZERO) <= 0){
+//                flag.set(false);
+//            }
+//        });
+//
+//        return flag.get();
+//    }
 
     private <T extends Component & HasSize> HorizontalLayout getHorizontalLayout(String labelText, T field) {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
