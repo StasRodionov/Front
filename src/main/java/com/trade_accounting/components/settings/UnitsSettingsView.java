@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS;
 
-@Route(value = PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS, layout = SettingsView.class)
+@Route(value = PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS, layout = AppView.class)
 @PageTitle("Единицы измерения")
 @Slf4j
 @SpringComponent

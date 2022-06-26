@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SETTINGS__EMPLOYEES_SETTINGS;
 
-@Route(value = PROFILE_PROFILE__SETTINGS__EMPLOYEES_SETTINGS, layout = SettingsView.class)
+@Route(value = PROFILE_PROFILE__SETTINGS__EMPLOYEES_SETTINGS, layout = AppView.class)
 @PageTitle("Учетная запись")
 @Slf4j
 public class EmployeesSettingsView extends VerticalLayout {
