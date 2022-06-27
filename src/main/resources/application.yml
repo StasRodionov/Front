@@ -213,4 +213,6 @@ serial_numbers_url: /api/serialnumbers
 account_url: /api/account
 
 sales_channel_url: /api/sales-channel
+
+discount_url: /api/discount
 #debug: true

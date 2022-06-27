@@ -18,12 +18,13 @@ public class SettingsView extends AppLayout {
     public SettingsView() {
         super();
         addToDrawer(lowerLayout());
-
     }
 
     private Tabs lowerLayout() {
 
         Tabs tabs = new Tabs(
+                new Tab(""),
+                new Tab(""),
                 configureCompanySettingsTab(),
                 configureDiscountTab(),
                 configureExportTab(),
@@ -63,6 +64,9 @@ public class SettingsView extends AppLayout {
     private Tab configureDiscountTab() {
         Tab tab = new Tab();
         tab.setLabel("Скидки");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui->ui.navigate(PROFILE_PROFILE__SETTINGS__DISCOUNT_SETTINGS));
+        });
         return tab;
     }
 
