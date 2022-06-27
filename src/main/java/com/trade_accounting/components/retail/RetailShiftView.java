@@ -1,13 +1,10 @@
 package com.trade_accounting.components.retail;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
+import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
-import com.trade_accounting.components.util.configure.components.select.SelectConstants;
-import com.trade_accounting.components.util.configure.components.select.SelectExt;
-import com.trade_accounting.models.dto.company.BankAccountDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.retail.RetailShiftDto;
 import com.trade_accounting.models.dto.retail.RetailStoreDto;
@@ -41,8 +38,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +46,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_SHIFT_VIEW;
 
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -67,6 +60,7 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final BankAccountService bankAccountService;
+    private final Notifications notifications;
     private List<RetailShiftDto> data;
 
     private final GridFilter<RetailShiftDto> filter;
@@ -75,13 +69,14 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
 
     public RetailShiftView(RetailShiftService retailShiftService, RetailStoreService retailStoreService,
                            WarehouseService warehouseService, CompanyService companyService,
-                           BankAccountService bankAccountService) {
+                           BankAccountService bankAccountService, Notifications notifications) {
         this.retailShiftService = retailShiftService;
         this.data = retailShiftService.getAll();
         this.retailStoreService = retailStoreService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.bankAccountService = bankAccountService;
+        this.notifications = notifications;
         this.paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
         this.filter = new GridFilter<>(grid);
@@ -98,8 +93,6 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
                 .setSortable(true).setId("Дата открытия");
         grid.addColumn(dto -> formatDate(dto.getDataClose())).setKey("dataClose").setFlexGrow(10).setHeader("Дата закрытия")
                 .setSortable(true).setId("Дата закрытия");
-//        grid.addColumn("dataOpen").setFlexGrow(10).setHeader("Дата открытия").setId("Дата открытия");
-//        grid.addColumn("dataClose").setFlexGrow(10).setHeader("Дата закрытия").setId("Дата закрытия");
         grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getName()).setFlexGrow(5)
                 .setHeader("Точка продаж").setKey("retailStoreDto").setId("Точка продаж");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(5)
@@ -130,7 +123,6 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
         filter.setFieldToComboBox("retailStoreDto", RetailStoreDto::getName, retailStoreService.getAll());
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
-//        filter.setFieldToComboBox("bank", BankAccountDto::getBank, bankAccountService.getAll());
         filter.setFieldToCheckBox("sent");
         filter.setFieldToCheckBox("printed");
         filter.onSearchClick(e -> paginator.setData(retailShiftService.searchByFilter(filter.getFilterData())));
@@ -158,7 +150,7 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
     }
 
     private String formatDate(String stringDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy H:mm");
         LocalDateTime formatDateTime = LocalDateTime.parse(stringDate, formatter);
         return formatDateTime.format(formatter);
     }
@@ -246,11 +238,23 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
     }
 
     private Select<String> getSelect() {
-        return new SelectExt.SelectBuilder<String>()
-                .item(SelectConstants.CHANGE_SELECT_ITEM)
-                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
-                .width(SelectConstants.SELECT_WIDTH_130PX)
-                .build();
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedItems();
+            grid.deselectAll();
+            paginator.setData(getData());
+        });
+    }
+
+    private void deleteSelectedItems() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (RetailShiftDto retailShiftDto : grid.getSelectedItems()) {
+                retailShiftService.deleteById(retailShiftDto.getId());
+                notifications.infoNotification("Выбранные товары успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте товары для удаления");
+        }
+
     }
 
     private Select<String> getStatus() {

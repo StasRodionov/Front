@@ -34,7 +34,8 @@ public class SettingsView extends AppLayout {
                 configureEmployeesTab(),
                 configureWarehousesTab(),
                 configureCurrencyTab(),
-                configureUnitsTab()
+                configureUnitsTab(),
+                configureSalesChannelTab()
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
@@ -43,7 +44,7 @@ public class SettingsView extends AppLayout {
     private Tab configureCompanySettingsTab() {
         Tab tab = new Tab();
         tab.setLabel("Настройки компании");
-        tab.getElement().addEventListener("click", e->{
+        tab.getElement().addEventListener("click", e -> {
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__COMPANY_SETTINGS));
         });
         return tab;
@@ -53,8 +54,8 @@ public class SettingsView extends AppLayout {
     private Tab configureScenarioTab() {
         Tab tab = new Tab();
         tab.setLabel("Сценарии");
-        tab.getElement().addEventListener("click", e->{
-            this.getUI().ifPresent(ui->ui.navigate(PROFILE_PROFILE__SETTINGS__SCENARIO_SETTINGS));
+        tab.getElement().addEventListener("click", e -> {
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__SCENARIO_SETTINGS));
         });
         return tab;
     }
@@ -73,7 +74,7 @@ public class SettingsView extends AppLayout {
     private Tab configureLegalEntitiesTab() {
         Tab tab = new Tab();
         tab.setLabel("Юридические лица");
-        tab.getElement().addEventListener("click", e->{
+        tab.getElement().addEventListener("click", e -> {
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS));
         });
         return tab;
@@ -90,6 +91,9 @@ public class SettingsView extends AppLayout {
     private Tab configureExportTab() {
         Tab tab = new Tab();
         tab.setLabel("Экспорт");
+        tab.getElement().addEventListener("click", e -> {
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__EXPORT_SETTINGS));
+        });
         return tab;
     }
 
@@ -97,7 +101,7 @@ public class SettingsView extends AppLayout {
     private Tab configureEmployeesTab() {
         Tab tab = new Tab();
         tab.setLabel("Сотрудники");
-        tab.getElement().addEventListener("click", e->{
+        tab.getElement().addEventListener("click", e -> {
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__EMPLOYEES_SETTINGS));
         });
         return tab;
@@ -106,7 +110,7 @@ public class SettingsView extends AppLayout {
     private Tab configureWarehousesTab() {
         Tab tab = new Tab();
         tab.setLabel("Склады");
-        tab.getElement().addEventListener("click", e->{
+        tab.getElement().addEventListener("click", e -> {
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__WAREHOUSES_SETTINGS));
         });
         return tab;
@@ -116,19 +120,27 @@ public class SettingsView extends AppLayout {
     private Tab configureCurrencyTab() {
         Tab tab = new Tab();
         tab.setLabel("Валюта");
-        tab.getElement().addEventListener("click", e->{
+        tab.getElement().addEventListener("click", e -> {
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__CURRENCY_SETTINGS));
         });
         return tab;
     }
 
 
-
     private Tab configureUnitsTab() {
         Tab tab = new Tab();
         tab.setLabel("Единицы измерения");
-        tab.getElement().addEventListener("click", e->{
+        tab.getElement().addEventListener("click", e -> {
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS));
+        });
+        return tab;
+    }
+
+    private Tab configureSalesChannelTab() {
+        Tab tab = new Tab();
+        tab.setLabel("Канала продаж");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__SALES_CHANNEL_SETTINGS));
         });
         return tab;
     }

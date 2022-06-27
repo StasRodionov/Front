@@ -87,6 +87,7 @@ public class SecurityConstants {
     public static final String GOODS_GOODS__ADD_MOVING = GOODS + SIGN_UP_URL + "add-moving";
     public static final String GOODS_GOODS__POSTING_CREATE = GOODS + SIGN_UP_URL + "posting-create";
     public static final String GOODS_GOODS__REVENUE_EDIT = GOODS + SIGN_UP_URL + "revenue-edit";
+    public static final String GOODS_GOODS__EDIT_VIEW = GOODS + SIGN_UP_URL + "edit";
 
     //Раздел "Контрагенты"
     //URL 2 уровня
@@ -175,6 +176,7 @@ public class SecurityConstants {
     public static final String PROFILE_PROFILE__SETTINGS__CURRENCY_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "currency-settings";
     public static final String PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "units-settings";
     public static final String PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "legal-entities-settings";
+    public static final String PROFILE_PROFILE__SETTINGS__SALES_CHANNEL_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "sales-channel-settings";
 
 
     //Страницы ошибок HTTP
