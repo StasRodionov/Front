@@ -23,7 +23,7 @@ public interface ImportApi {
 
     @Headers("Accept: application/json")
     @GET("{url}/{id}")
-    Call<List<ImportDto>> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+    Call<ImportDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
     @POST("{url}")
