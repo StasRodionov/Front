@@ -176,6 +176,7 @@ public class SecurityConstants {
     public static final String PROFILE_PROFILE__SETTINGS__CURRENCY_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "currency-settings";
     public static final String PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "units-settings";
     public static final String PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "legal-entities-settings";
+    public static final String PROFILE_PROFILE__SETTINGS__SALES_CHANNEL_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "sales-channel-settings";
 
 
     //Страницы ошибок HTTP

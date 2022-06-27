@@ -33,7 +33,8 @@ public class SettingsView extends AppLayout {
                 configureEmployeesTab(),
                 configureWarehousesTab(),
                 configureCurrencyTab(),
-                configureUnitsTab()
+                configureUnitsTab(),
+                configureSalesChannelTab()
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
@@ -127,6 +128,15 @@ public class SettingsView extends AppLayout {
         tab.setLabel("Единицы измерения");
         tab.getElement().addEventListener("click", e -> {
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__UNITS_SETTINGS));
+        });
+        return tab;
+    }
+
+    private Tab configureSalesChannelTab() {
+        Tab tab = new Tab();
+        tab.setLabel("Канала продаж");
+        tab.getElement().addEventListener("click", e->{
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__SALES_CHANNEL_SETTINGS));
         });
         return tab;
     }
