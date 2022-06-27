@@ -57,6 +57,8 @@ currency_url: api/currency
 
 scenario_url: api/scenario
 
+export_url: api/export
+
 bank_account_url: api/bank/account
 
 bonus_program_url: api/bonusprogram
@@ -209,6 +211,8 @@ funnel_url: /api/funnel
 serial_numbers_url: /api/serialnumbers
 
 account_url: /api/account
+
+sales_channel_url: /api/sales-channel
 
 import_url: api/import
 #debug: true
