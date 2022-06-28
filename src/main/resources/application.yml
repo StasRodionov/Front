@@ -214,5 +214,7 @@ account_url: /api/account
 
 sales_channel_url: /api/sales-channel
 
+discount_url: /api/discount
+
 import_url: api/import
 #debug: true
