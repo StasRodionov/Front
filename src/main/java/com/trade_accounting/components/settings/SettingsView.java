@@ -84,9 +84,11 @@ public class SettingsView extends AppLayout {
     private Tab configureImportTab() {
         Tab tab = new Tab();
         tab.setLabel("Импорт");
+        tab.getElement().addEventListener("click", e -> {
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__IMPORT_SETTINGS));
+        });
         return tab;
     }
-
 
     private Tab configureExportTab() {
         Tab tab = new Tab();
