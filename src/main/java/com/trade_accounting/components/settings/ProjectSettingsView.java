@@ -118,9 +118,7 @@ public class ProjectSettingsView extends VerticalLayout {
     private void configureGrid() {
         grid.setItems(projectService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-//        grid.setColumns("id", "name", "code", "description");
         grid.setColumns( "name", "code", "description");
-//        grid.getColumnByKey("id").setHeader("id").setId("id");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("code").setHeader("Код").setId("Код");
         grid.getColumnByKey("description").setHeader("Описание").setId("Описание");

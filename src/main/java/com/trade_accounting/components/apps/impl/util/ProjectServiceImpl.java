@@ -110,9 +110,9 @@ public class ProjectServiceImpl implements ProjectService {
         Call<List<ProjectDto>> projectDtoListCall = projectApi.search(projectUrl, query);
         try {
             projectDtoList = projectDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на поиск и получение списка EmployeeDto");
+            log.info("Успешно выполнен запрос на поиск и получение списка ProjectDto");
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка EmployeeDto - ", e);
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ProjectDto - ", e);
         }
         return projectDtoList;
     }
