@@ -36,10 +36,10 @@ import static com.trade_accounting.config.SecurityConstants.PROFILE_PROFILE__SET
 @PageTitle("Учетная запись")
 @Slf4j
 public class SalesChannelSettingsView extends VerticalLayout {
-
     private final NumberField selectedNumberField;
     private final List<SalesChannelDto> data;
-    SalesChannelService salesChannelService;
+    private SalesChannelService salesChannelService;
+    private SalesChannelDto salesChannelDto;
     private Grid<SalesChannelDto> grid = new Grid<>(SalesChannelDto.class);
     private GridPaginator<SalesChannelDto> paginator;
     private final GridFilter<SalesChannelDto> filter;
@@ -69,7 +69,7 @@ public class SalesChannelSettingsView extends VerticalLayout {
     private HorizontalLayout horizontalLayout() {
         HorizontalLayout hl = new HorizontalLayout();
         hl.add(title(), buttonRefresh(), buttonSalesChannel(), getButtonFilter(), textField());
-      hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return hl;
     }
 
@@ -101,7 +101,8 @@ public class SalesChannelSettingsView extends VerticalLayout {
 
     private Button buttonSalesChannel() {
         Button salesChannelButton = new Button("Канал продаж", new Icon(VaadinIcon.PLUS_CIRCLE));
-        SalesChannelModalWindow salesChannelModalWindow = new SalesChannelModalWindow(new SalesChannelDto(), salesChannelService);
+        salesChannelDto = new SalesChannelDto();
+        SalesChannelModalWindow salesChannelModalWindow = new SalesChannelModalWindow(salesChannelDto, salesChannelService);
         salesChannelButton.addClickListener(event -> salesChannelModalWindow.open());
         salesChannelButton.addDetachListener(event -> updateList());
         return salesChannelButton;

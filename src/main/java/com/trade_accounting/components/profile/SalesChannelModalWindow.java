@@ -21,12 +21,14 @@ public class SalesChannelModalWindow extends Dialog {
 
     private final SalesChannelService salesChannelService;
 
+    private SalesChannelDto salesChannelDto;
     private final String labelWidth = "100px";
 
     private final String fieldWidth = "400px";
 
     public SalesChannelModalWindow(SalesChannelDto salesChannelDto, SalesChannelService salesChannelService) {
         this.salesChannelService = salesChannelService;
+        this.salesChannelDto = salesChannelDto;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -78,9 +80,9 @@ public class SalesChannelModalWindow extends Dialog {
 
     private Button getSaveButton() {
         return new Button("Сохранить", event -> {
-            SalesChannelDto salesChannelDto = new SalesChannelDto();
+            //SalesChannelDto salesChannelDto = new SalesChannelDto();
 
-            salesChannelDto.setId(id);
+            //salesChannelDto.setId(id);
             salesChannelDto.setName(nameField.getValue());
             salesChannelDto.setType(typeField.getValue());
             salesChannelDto.setDescription(descriptionField.getValue());

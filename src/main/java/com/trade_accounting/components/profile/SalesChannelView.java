@@ -37,6 +37,7 @@ public class SalesChannelView extends VerticalLayout {
     private final NumberField selectedNumberField;
     private final List<SalesChannelDto> data;
     private final SalesChannelService salesChannelService;
+    private SalesChannelDto salesChannelDto;
     private Grid<SalesChannelDto> grid = new Grid<>(SalesChannelDto.class);
     private GridPaginator<SalesChannelDto> paginator;
 
@@ -50,6 +51,7 @@ public class SalesChannelView extends VerticalLayout {
         grid();
         this.selectedNumberField = getSelectedNumberField();
         this.filter = new GridFilter<>(grid);
+        updateList();
         add(getToolbar(), filter, grid, paginator);
     }
 
@@ -62,9 +64,12 @@ public class SalesChannelView extends VerticalLayout {
 
     private Button buttonSalesChannel() {
         Button salesChannelButton = new Button("Канал продаж", new Icon(VaadinIcon.PLUS_CIRCLE));
-        SalesChannelModalWindow salesChannelModalWindow = new SalesChannelModalWindow(new SalesChannelDto(), salesChannelService);
-        salesChannelButton.addClickListener(event -> salesChannelModalWindow.open());
-        salesChannelModalWindow.addDetachListener(event -> updateList());
+        salesChannelButton.addClickListener(event -> {
+            salesChannelDto = new SalesChannelDto();
+            SalesChannelModalWindow salesChannelModalWindow = new SalesChannelModalWindow(salesChannelDto, salesChannelService);
+            salesChannelModalWindow.addDetachListener(e -> updateList());
+            salesChannelModalWindow.open();
+        });
         return salesChannelButton;
     }
 
@@ -89,7 +94,7 @@ public class SalesChannelView extends VerticalLayout {
             salesChannelModalWindow.addDetachListener(e -> updateList());
             salesChannelModalWindow.open();
         });
-    grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
+        grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
     }
 
 

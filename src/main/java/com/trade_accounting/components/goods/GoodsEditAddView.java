@@ -84,7 +84,7 @@ import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VI
 @SpringComponent
 @UIScope
 @Route(value = GOODS_GOODS__EDIT_VIEW, layout = AppView.class)
-@PageTitle("Заказы поставщикам")
+@PageTitle("Товары и услуги")
 public class GoodsEditAddView extends VerticalLayout {
 
     private final ProductPriceService productPriceService;
@@ -161,6 +161,7 @@ public class GoodsEditAddView extends VerticalLayout {
         productDtoBinder.forField(productNameField)
                 .withValidator(text -> text.length() >= 3, "Не менее трёх символов", ErrorLevel.ERROR)
                 .bind(ProductDto::getName, ProductDto::setName);
+        productNameField.setValueChangeMode(ValueChangeMode.EAGER);
 
         fileGrid.addColumn(FileDto::getName).setHeader("Наименование")
                 .setAutoWidth(true);
@@ -747,6 +748,7 @@ public class GoodsEditAddView extends VerticalLayout {
         saleTax.clear();
         purchasePriceNumberField.clear();
         imageHorizontalLayout.removeAll();
+        prices.removeAll();
         bigDecimalFields = new HashMap<>();
         imageDtoList = new ArrayList<>();
         fileDtoList= new ArrayList<>();
