@@ -13,6 +13,7 @@ import retrofit2.Retrofit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -32,7 +33,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectDto> getAll() {
-        List<ProjectDto> projectDtoList = new ArrayList<>();
         Call<List<ProjectDto>> projectDtoListCall = projectApi.getAll(projectUrl);
         return dtoCallExecuteService.callExecuteBodyList(projectDtoListCall, ProjectDto.class);
     }
@@ -88,5 +88,32 @@ public class ProjectServiceImpl implements ProjectService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра ProjectDto по id= {} - {}", id, e);
         }
+    }
+
+    @Override
+    public List<ProjectDto> findBySearch(String search) {
+        List<ProjectDto> projectDtoList = new ArrayList<>();
+        Call<List<ProjectDto>> projectDtoListCall = projectApi.searchByString(projectUrl, search.toLowerCase());
+
+        try {
+            projectDtoList = projectDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка ProjectDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ProjectDto - ", e);
+        }
+        return projectDtoList;
+    }
+
+    @Override
+    public List<ProjectDto> search(Map<String, String> query) {
+        List<ProjectDto> projectDtoList = new ArrayList<>();
+        Call<List<ProjectDto>> projectDtoListCall = projectApi.search(projectUrl, query);
+        try {
+            projectDtoList = projectDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка ProjectDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка ProjectDto - ", e);
+        }
+        return projectDtoList;
     }
 }
