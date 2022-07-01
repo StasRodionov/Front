@@ -5,7 +5,6 @@ import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
-import com.trade_accounting.models.dto.retail.RetailShiftDto;
 import com.trade_accounting.models.dto.units.ImportDto;
 import com.trade_accounting.services.interfaces.units.ImportService;
 import com.vaadin.flow.component.Component;

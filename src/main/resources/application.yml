@@ -217,4 +217,6 @@ sales_channel_url: /api/sales-channel
 discount_url: /api/discount
 
 import_url: api/import
+
+country_url: api/country
 #debug: true

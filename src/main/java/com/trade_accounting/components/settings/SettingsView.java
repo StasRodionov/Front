@@ -35,7 +35,8 @@ public class SettingsView extends AppLayout {
                 configureWarehousesTab(),
                 configureCurrencyTab(),
                 configureUnitsTab(),
-                configureSalesChannelTab()
+                configureSalesChannelTab(),
+                configureCountry()
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
@@ -143,6 +144,15 @@ public class SettingsView extends AppLayout {
         tab.setLabel("Канала продаж");
         tab.getElement().addEventListener("click", e->{
             this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__SALES_CHANNEL_SETTINGS));
+        });
+        return tab;
+    }
+
+    private Tab configureCountry() {
+        Tab tab = new Tab();
+        tab.setLabel("Страны");
+        tab.getElement().addEventListener("click", e -> {
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__COUNTRIES_SETTINGS));
         });
         return tab;
     }
