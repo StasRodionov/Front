@@ -33,7 +33,7 @@ import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS_PRICE_VI
 import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__PRICE_LIST_EDIT;
 
 @UIScope
-@Route(value = GOODS_GOODS__PRICE_LIST_EDIT, layout = AppView.class)
+//@Route(value = GOODS_GOODS__PRICE_LIST_EDIT, layout = AppView.class)
 @SpringComponent
 public class PriceModalEditWindow extends Dialog {
 
