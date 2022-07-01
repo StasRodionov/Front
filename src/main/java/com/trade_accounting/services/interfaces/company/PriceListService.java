@@ -10,7 +10,7 @@ public interface PriceListService {
 
     PriceListDto getById(Long id);
 
-    void create(PriceListDto priceListDto);
+    PriceListDto create(PriceListDto priceListDto);
 
     void update(PriceListDto priceListDto);
 

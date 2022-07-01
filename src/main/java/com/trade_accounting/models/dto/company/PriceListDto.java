@@ -1,20 +1,18 @@
 package com.trade_accounting.models.dto.company;
 
-import com.trade_accounting.models.dto.warehouse.ProductDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PriceListDto {
+public class PriceListDto extends PriceListDtoForValidation{
 
     private Long id;
 
@@ -33,4 +31,12 @@ public class PriceListDto {
     private String commentary;
 
     private List<Long> productsIds;
+
+    private Boolean isSpend;
+
+    private Boolean isRecyclebin;
+
+    private Long typeOfPriceId;
+
+    private List<Long> percentsIds;
 }
