@@ -19,16 +19,16 @@ public class PriceListDto extends PriceListDtoForValidation{
     @NotNull
     private String number;
 
-    private String time;
+    private String date;
 
     @NotNull
     private Long companyId;
 
-    private Boolean sent;
+    private Boolean isSent;
 
-    private Boolean printed;
+    private Boolean isPrint;
 
-    private String commentary;
+    private String comment;
 
     private List<Long> productsIds;
 

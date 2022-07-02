@@ -32,7 +32,7 @@ public class PriceProductSelectModal extends Dialog {
     private final BigDecimalField priceSelect = new BigDecimalField();
     private Button saveButton;
     private PriceListDto priceListData;
-    private PriceListProductPercentsDto priceListProductPrices;
+    private PriceListProductPercentsDto priceListProductPercent;
     private PriceListProductDto priceListProductData = new PriceListProductDto();
     ;
     private Label label = new Label();
@@ -75,7 +75,7 @@ public class PriceProductSelectModal extends Dialog {
     public void setProductSelect(PriceListProductDto priceListProductData, PriceListDto priceListData,
                                  PriceListProductPercentsDto priceListProductPercentsDto) {
         this.priceListData = priceListData;
-        this.priceListProductPrices = priceListProductPercentsDto;
+        this.priceListProductPercent = priceListProductPercentsDto;
         this.priceListProductData = priceListProductData;
         productSelect.setValue(productService.getById(priceListProductData.getProductId()));
     }
@@ -91,7 +91,7 @@ public class PriceProductSelectModal extends Dialog {
     }
 
     private BigDecimal totalSum(Double price) {
-        double percent = (priceListProductPrices.getPercent()).doubleValue();
+        double percent = (priceListProductPercent.getPercent()).doubleValue();
         if (percent == 0) {
             return BigDecimal.valueOf(price);
         } else {
@@ -148,7 +148,7 @@ public class PriceProductSelectModal extends Dialog {
 
     public void setPriceList(PriceListDto priceListData, PriceListProductPercentsDto priceListProductPercentsDto) {
         this.priceListData = priceListData;
-        this.priceListProductPrices = priceListProductPercentsDto;
-        label.setText(priceListProductPrices.getName());
+        this.priceListProductPercent = priceListProductPercentsDto;
+        label.setText(priceListProductPercent.getName());
     }
 }

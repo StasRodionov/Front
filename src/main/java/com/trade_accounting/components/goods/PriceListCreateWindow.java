@@ -151,11 +151,11 @@ public class PriceListCreateWindow extends VerticalLayout implements AfterNaviga
                 priceListDto.setNumber(name.getValue());
                 priceListDto.setTypeOfPriceId(typeOfPriceComboBox.getValue().getId());
                 priceListDto.setCompanyId(companyComboBox.getValue().getId());
-                priceListDto.setTime(LocalDateTime.now().toString().substring(0, 16));
+                priceListDto.setDate(LocalDateTime.now().toString().substring(0, 16));
                 priceListDto.setIsSpend(true);
                 priceListDto.setIsRecyclebin(false);
-                priceListDto.setPrinted(false);
-                priceListDto.setSent(false);
+                priceListDto.setIsPrint(false);
+                priceListDto.setIsSent(false);
                 priceListDto.setId(priceListService.create(priceListDto).getId());
                 PriceListProductPercentsDto priceListProductPercentsDto = new PriceListProductPercentsDto();
                 priceListProductPercentsDto.setName(column.getValue());
@@ -166,7 +166,7 @@ public class PriceListCreateWindow extends VerticalLayout implements AfterNaviga
                 }
                 priceListProductPercentsDto.setPriceListId(priceListDto.getId());
                 priceListProductPercentsDto.setId(priceListProductPercentsService.create(priceListProductPercentsDto).getId());
-                view.setPriceListForCreate(priceListDto, priceListProductPercentsDto);
+                view.setPriceListForCreate(priceListDto, priceListProductPercentsDto, (byte) 1);
                 priceListDtoBinder.setValidatorsDisabled(true);
                 priceListProductPercentsDtoBinder.setValidatorsDisabled(true);
                 UI.getCurrent().navigate(GOODS_GOODS__PRICE_LIST_EDIT);

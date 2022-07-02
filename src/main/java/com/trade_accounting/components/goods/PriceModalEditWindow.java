@@ -1,6 +1,5 @@
 package com.trade_accounting.components.goods;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -19,7 +18,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 
@@ -30,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS_PRICE_VIEW;
-import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__PRICE_LIST_EDIT;
 
 @UIScope
 //@Route(value = GOODS_GOODS__PRICE_LIST_EDIT, layout = AppView.class)
@@ -71,11 +68,11 @@ public class PriceModalEditWindow extends Dialog {
     public void setPriceListEdit(PriceListDto editDto) {
         this.priceListDto = editDto;
         number.setValue(editDto.getNumber());
-        dateTimePicker.setValue(LocalDateTime.parse(editDto.getTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        dateTimePicker.setValue(LocalDateTime.parse(editDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         companyComboBox.setValue(companyService.getById(editDto.getCompanyId()));
-        checkboxIsSent.setValue(editDto.getSent());
-        checkboxIsPrint.setValue(editDto.getPrinted());
-        comment.setValue(editDto.getCommentary());
+        checkboxIsSent.setValue(editDto.getIsSent());
+        checkboxIsPrint.setValue(editDto.getIsPrint());
+        comment.setValue(editDto.getComment());
     }
 
 
@@ -105,10 +102,10 @@ public class PriceModalEditWindow extends Dialog {
         Button saveButton = new Button("Изменить", event -> {
 
                 priceListDto.setCompanyId(companyComboBox.getValue().getId());
-                priceListDto.setTime(String.valueOf(dateTimePicker.getValue()));
-                priceListDto.setSent(checkboxIsSent.getValue());
-                priceListDto.setPrinted(checkboxIsPrint.getValue());
-                priceListDto.setCommentary(comment.getValue());
+                priceListDto.setDate(String.valueOf(dateTimePicker.getValue()));
+                priceListDto.setIsSent(checkboxIsSent.getValue());
+                priceListDto.setIsPrint(checkboxIsPrint.getValue());
+                priceListDto.setComment(comment.getValue());
                 priceListDto.setNumber(number.getValue());
                 if (priceListDtoBinder.validate().isOk()) {
                     priceListService.update(priceListDto);

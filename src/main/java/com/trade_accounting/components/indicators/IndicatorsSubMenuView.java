@@ -69,6 +69,7 @@ public class IndicatorsSubMenuView extends Div implements AfterNavigationObserve
                 recyclebinTab.getUI().ifPresent(ui -> {
                     div.removeAll();
 //                   recyclebinTab.updateData();
+                    recyclebinView.updateList();
                     div.add(recyclebinView);
                 }));
 
