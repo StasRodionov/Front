@@ -16,4 +16,8 @@ public interface PriceListService {
 
     void deleteById(Long id);
 
+    void moveToIsRecyclebin(Long id);
+
+    void restoreFromIsRecyclebin(Long id);
+
 }

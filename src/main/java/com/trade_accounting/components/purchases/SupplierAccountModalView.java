@@ -303,6 +303,8 @@ public class SupplierAccountModalView extends Dialog {
         supplierAccountDto.setContractorId(contractorDtoComboBox.getValue().getId());
         supplierAccountDto.setIsSpend(isSpend.getValue());
         supplierAccountDto.setIsRecyclebin(false);
+        supplierAccountDto.setIsSent(false);
+        supplierAccountDto.setIsPrint(false);
         supplierAccountDto.setComment(commentConfig.getValue());
         Response<SupplierAccountDto> supplierAccountDtoResponse = supplierAccountService.create(supplierAccountDto);
         return supplierAccountDtoResponse.body();

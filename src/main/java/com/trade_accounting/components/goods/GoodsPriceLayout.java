@@ -39,7 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.*;
 
@@ -97,7 +99,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 //        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(PriceListDto::getNumber).setKey("number").setHeader("№").setSortable(true).setId("№");
-        grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getTime())))
+        grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getDate())))
                 .setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
         grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Организация").setId("Организация");
@@ -105,7 +107,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn(PriceListDto::getCommentary).setKey("commentary").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn(PriceListDto::getComment).setKey("commentary").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
@@ -114,14 +116,14 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
             PriceListDto priceList = event.getItem();
             PriceListProductPercentsDto priceListProductPercentsDto = priceListProductPercentsService
                     .getByPriceListId(priceList.getId()).get(0);
-            priceListContent.setPriceListForEdit(priceList, priceListProductPercentsDto);
+            priceListContent.setPriceListForEdit(priceList, priceListProductPercentsDto, (byte) 1);
             this.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_EDIT));
         });
     }
 
     private List<PriceListDto> getData() {
-        List<PriceListDto> priceListDtos = priceListService.getAll();
-        return priceListDtos;
+        return priceListService.getAll().stream().filter(pl -> pl.getIsRecyclebin()
+                .equals(false)).collect(Collectors.toList());
     }
 
     private Button buttonQuestion() {
@@ -139,13 +141,14 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     }
 
     public void updateList() {
-        grid.setItems(priceListService.getAll());
+        grid.setItems(priceListService.getAll().stream().filter(pl -> pl.getIsRecyclebin()
+                .equals(false)).collect(Collectors.toList()));
     }
 
     private Button buttonUnit() {
         Button button = new Button("Прайс-лист", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(e ->
-                button.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_CREATE))
+        button.addClickListener(e -> button.getUI()
+                .ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_CREATE))
         );
         return button;
     }
@@ -172,22 +175,11 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     }
 
     private Select<String> valueSelect() {
-        return SelectConfigurer.configureDeleteSelect(()->{
-            deleteSelectedPriceList();
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            moveToRecycleBinSelectedPriceLists();
             grid.deselectAll();
             paginator.setData(getData());
         });
-    }
-
-    private void deleteSelectedPriceList() {
-        if (!grid.getSelectedItems().isEmpty()) {
-            for (PriceListDto priceListDto : grid.getSelectedItems()) {
-                priceListService.deleteById(priceListDto.getId());
-                notifications.infoNotification("Выбранные прайс-листы успешно удалены");
-            }
-        } else {
-            notifications.errorNotification("Сначала отметьте галочками нужные прайс-листы");
-        }
     }
 
     private Button buttonSettings() {
@@ -209,7 +201,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     }
 
     private Component getIsSentIcon(PriceListDto priceListDto) {
-        if (priceListDto.getSent()) {
+        if (priceListDto.getIsSent()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
@@ -219,13 +211,28 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     }
 
     private Component getIsPrintIcon(PriceListDto priceListDto) {
-        if (priceListDto.getPrinted()) {
+        if (priceListDto.getIsPrint()) {
             Icon icon = new Icon(VaadinIcon.CHECK);
             icon.setColor("green");
             return icon;
         } else {
             return new Span("");
         }
+    }
+
+    public List<PriceListDto> moveToRecycleBinSelectedPriceLists() {
+        List<PriceListDto> moved = new ArrayList<>();
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (PriceListDto priceListDto : grid.getSelectedItems()) {
+                moved.add(priceListService.getById(priceListDto.getId()));
+                priceListService.moveToIsRecyclebin(priceListDto.getId());
+                notifications.infoNotification("Выбранные прайс-листы помещены в корзину");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные прайс-листы");
+        }
+
+        return moved;
     }
 
     @Override

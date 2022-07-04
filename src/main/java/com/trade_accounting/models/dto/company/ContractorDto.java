@@ -68,4 +68,6 @@ public class ContractorDto {
     private ContractorStatusDto contractorStatusDto;
 //    @EqualsAndHashCode.Exclude
 //    private AccessParametersDto accessParametersDto;
+
+    private Long accountId;
 }

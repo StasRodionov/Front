@@ -51,4 +51,7 @@ public class SupplierAccountDto extends SupplierAccountDtoForValidation {
 
     private Boolean isRecyclebin;
 
+    private Boolean isSent;
+
+    private Boolean isPrint;
 }
