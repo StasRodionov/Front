@@ -42,6 +42,6 @@ public interface CountryApi {
     Call<List<CountryDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
-    @GET("{url}")
+    @GET("{url}/searchByString")
     Call<List<CountryDto>> searchByString(@Path(value = "url", encoded = true) String url, @Query("search") String text);
 }
