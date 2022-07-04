@@ -24,7 +24,7 @@ public interface PriceListApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body PriceListDto priceListDto);
+    Call<PriceListDto> create(@Path(value = "url", encoded = true) String url, @Body PriceListDto priceListDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")

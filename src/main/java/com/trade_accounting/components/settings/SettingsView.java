@@ -21,25 +21,36 @@ public class SettingsView extends AppLayout {
     }
 
     private Tabs lowerLayout() {
-
         Tabs tabs = new Tabs(
                 new Tab(""),
                 new Tab(""),
                 configureCompanySettingsTab(),
-                configureDiscountTab(),
-                configureExportTab(),
-                configureImportTab(),
                 configureScenarioTab(),
+                configureDiscountTab(),
+                configureImportTab(),
+                configureExportTab(),
                 configureLegalEntitiesTab(),
                 configureEmployeesTab(),
                 configureWarehousesTab(),
+                configureSalesChannelTab(),
                 configureCurrencyTab(),
                 configureUnitsTab(),
                 configureSalesChannelTab(),
-                configureCountry()
-        );
+                configureCountry(),
+                configureProjectSettingsTab(),
+                configureUnitsTab()
+                );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
+    }
+
+    private Tab configureProjectSettingsTab() {
+        Tab tab = new Tab();
+        tab.setLabel("Проекты");
+        tab.getElement().addEventListener("click", e -> {
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__PROJECTS_SETTINGS));
+        });
+        return tab;
     }
 
     private Tab configureCompanySettingsTab() {
@@ -51,7 +62,6 @@ public class SettingsView extends AppLayout {
         return tab;
     }
 
-
     private Tab configureScenarioTab() {
         Tab tab = new Tab();
         tab.setLabel("Сценарии");
@@ -60,7 +70,6 @@ public class SettingsView extends AppLayout {
         });
         return tab;
     }
-
 
     private Tab configureDiscountTab() {
         Tab tab = new Tab();
@@ -71,7 +80,6 @@ public class SettingsView extends AppLayout {
         return tab;
     }
 
-
     private Tab configureLegalEntitiesTab() {
         Tab tab = new Tab();
         tab.setLabel("Юридические лица");
@@ -80,7 +88,6 @@ public class SettingsView extends AppLayout {
         });
         return tab;
     }
-
 
     private Tab configureImportTab() {
         Tab tab = new Tab();
@@ -100,7 +107,6 @@ public class SettingsView extends AppLayout {
         return tab;
     }
 
-
     private Tab configureEmployeesTab() {
         Tab tab = new Tab();
         tab.setLabel("Сотрудники");
@@ -119,7 +125,6 @@ public class SettingsView extends AppLayout {
         return tab;
     }
 
-
     private Tab configureCurrencyTab() {
         Tab tab = new Tab();
         tab.setLabel("Валюта");
@@ -128,7 +133,6 @@ public class SettingsView extends AppLayout {
         });
         return tab;
     }
-
 
     private Tab configureUnitsTab() {
         Tab tab = new Tab();

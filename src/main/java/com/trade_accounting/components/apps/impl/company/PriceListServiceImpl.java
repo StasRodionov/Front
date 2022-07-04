@@ -52,14 +52,16 @@ public class PriceListServiceImpl implements PriceListService {
     }
 
     @Override
-    public void create(PriceListDto priceListDto) {
-        Call<Void> priceListDtoCall = priceListApi.create(priceListUrl, priceListDto);
+    public PriceListDto create(PriceListDto priceListDto) {
+        Call<PriceListDto> priceListDtoCall = priceListApi.create(priceListUrl, priceListDto);
+        PriceListDto priceListCreateDto = null;
         try {
-            priceListDtoCall.execute().body();
+            priceListCreateDto = priceListDtoCall.execute().body();
             log.info("Успешно выполнен запрос на создание экземпляра PriceListDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на создание экземпляра PriceListDto - {}", e);
         }
+        return priceListCreateDto;
     }
 
     @Override

@@ -6,10 +6,10 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.company.PriceListDto;
+import com.trade_accounting.models.dto.company.PriceListProductPercentsDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
-import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
-import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -37,6 +37,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.*;
@@ -52,38 +54,35 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final PriceListService priceListService;
     private final CompanyService companyService;
-    private final ProductService productService;
-    private final ProductGroupService productGroupService;
-    private final PriceModalWindow modalWindow;
-    private final PriceModalEditWindow modalEditWindowWindow;
     private List<PriceListDto> data;
     private final HorizontalLayout actions;
     private final Grid<PriceListDto> grid;
     private final GridPaginator<PriceListDto> paginator;
     private final Notifications notifications;
     private final GoodsPriceLayoutPriceListView priceListContent;
+    private final PriceListProductPercentsService priceListProductPercentsService;
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
-    public GoodsPriceLayout(PriceListService priceListService, CompanyService companyService,
-                            ProductService productService, ProductGroupService productGroupService, PriceModalWindow modalWindow, PriceModalEditWindow modalEditWindowWindow,
-                            Notifications notifications) {
+    public GoodsPriceLayout(PriceListService priceListService,
+                            CompanyService companyService,
+                            Notifications notifications,
+                            GoodsPriceLayoutPriceListView priceListContent,
+                            PriceListProductPercentsService priceListProductPercentsService) {
         this.priceListService = priceListService;
         this.companyService = companyService;
-        this.productService = productService;
-        this.productGroupService = productGroupService;
-        this.modalWindow = modalWindow;
-        this.modalEditWindowWindow = modalEditWindowWindow;
         this.notifications = notifications;
+        this.priceListProductPercentsService = priceListProductPercentsService;
         this.data = getData();
         actions = new HorizontalLayout();
         grid = new Grid<>(PriceListDto.class, false);
         paginator = new GridPaginator<>(grid, data, 50);
-        priceListContent = new GoodsPriceLayoutPriceListView(this, this.productService, this.productGroupService);
+        this.priceListContent = priceListContent;
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         setSizeFull();
         configureActions();
         configureGrid();
-        add(actions, grid, paginator, priceListContent);
+        add(actions, grid, paginator);
     }
 
     private HorizontalLayout configureActions() {
@@ -98,43 +97,26 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 //        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(PriceListDto::getNumber).setKey("number").setHeader("№").setSortable(true).setId("№");
-        grid.addColumn(PriceListDto::getTime).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
+        grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getTime())))
+                .setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
         grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Организация").setId("Организация");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn("commentary").setHeader("Комментарий").setId("Комментарий");
-        grid.addItemDoubleClickListener(event -> {
-            PriceListDto priceListDto = event.getItem();
-            PriceModalEditWindow view = new PriceModalEditWindow(
-                    priceListService,
-                    companyService
-            );
-            view.setPriceListEdit(priceListDto);
-            view.open();
-        });
+        grid.addColumn(PriceListDto::getCommentary).setKey("commentary").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemClickListener(event -> showPriceListContent(event.getItem()));
-    }
-
-    private void showPriceListContent(PriceListDto priceList) {
-        priceListContent.fillContent(priceList);
-        actions.setVisible(false);
-        grid.setVisible(false);
-        paginator.setVisible(false);
-        priceListContent.setVisible(true);
-    }
-
-    public void showPriceLists() {
-        actions.setVisible(true);
-        grid.setVisible(true);
-        paginator.setVisible(true);
-        priceListContent.setVisible(false);
+        grid.addItemClickListener(event -> {
+            PriceListDto priceList = event.getItem();
+            PriceListProductPercentsDto priceListProductPercentsDto = priceListProductPercentsService
+                    .getByPriceListId(priceList.getId()).get(0);
+            priceListContent.setPriceListForEdit(priceList, priceListProductPercentsDto);
+            this.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_EDIT));
+        });
     }
 
     private List<PriceListDto> getData() {
@@ -161,11 +143,10 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     }
 
     private Button buttonUnit() {
-        Button button = new Button("Прайс-листы", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(e -> modalWindow.open());
-        modalWindow.clearAll();
-        modalWindow.setParentLocation(GOODS_GOODS_PRICE_VIEW);
-        button.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_CREATE));
+        Button button = new Button("Прайс-лист", new Icon(VaadinIcon.PLUS_CIRCLE));
+        button.addClickListener(e ->
+                button.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_CREATE))
+        );
         return button;
     }
 

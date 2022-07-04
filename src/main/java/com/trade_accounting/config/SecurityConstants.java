@@ -178,6 +178,7 @@ public class SecurityConstants {
     public static final String PROFILE_PROFILE__SETTINGS__LEGAL_ENTITIES_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "legal-entities-settings";
     public static final String PROFILE_PROFILE__SETTINGS__SALES_CHANNEL_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "sales-channel-settings";
     public static final String PROFILE_PROFILE__SETTINGS__COUNTRIES_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "countries-settings";
+    public static final String PROFILE_PROFILE__SETTINGS__PROJECTS_SETTINGS = PROFILE_PROFILE__SETTINGS + SIGN_UP_URL + "projects-settings";
 
     //Страницы ошибок HTTP
     //URL 2 уровня, 404 ERROR
