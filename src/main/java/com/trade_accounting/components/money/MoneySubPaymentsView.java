@@ -158,62 +158,71 @@ public class MoneySubPaymentsView extends VerticalLayout {
         grid.addColumn("expenseItem").setFlexGrow(4).setHeader("Статья расходов").setId("Статья расходов");
         grid.addColumn(pDto -> contractService.getById(pDto.getContractId()).getNumber()).setFlexGrow(3).setSortable(true)
                 .setKey("contractDto").setHeader("Договор").setId("Договор");
-        grid.addColumn(pDto -> projectService.getById(pDto.getProjectId()).getName()).setFlexGrow(7).setSortable(true)
-                .setKey("projectDto").setHeader("Проект").setId("Проект");
+//        grid.addColumn(pDto -> projectService.getById(pDto.getProjectId()).getName()).setFlexGrow(7).setSortable(true)
+//                .setKey("projectDto").setHeader("Проект").setId("Проект");
+        grid.addColumn(pDto -> {
+            Long projectId = pDto.getProjectId();
+            return projectId != null && projectId != 0 ? projectService.getById(projectId).getName() : "";
+        }).setFlexGrow(7).setSortable(true).setKey("projectDto").setHeader("Проект").setId("Проект");
         grid.setHeight("73vh");
         grid.setClassNameGenerator(paymentDto -> {
-            if(paymentDto.getConducted() == false) {
+            if (paymentDto.getConducted() == false) {
                 return "not-conducted";
             }
             return "";
         });
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(event -> {
+        grid.addItemClickListener(event -> {
             PaymentDto editPaymentDto = event.getItem();
-            if (editPaymentDto.getTypeOfDocument().equals("Входящий платеж")) {
-                IncomingPaymentModal incomingPaymentModal = new IncomingPaymentModal(
-                        paymentService,
-                        companyService,
-                        contractorService,
-                        projectService,
-                        contractService,
-                        notifications);
-                incomingPaymentModal.addDetachListener(e -> updateList());
-                incomingPaymentModal.setPaymentDataForEdit(editPaymentDto);
-                incomingPaymentModal.open();
-            } else if (editPaymentDto.getTypeOfDocument().equals("Приходный ордер")) {
-                CreditOrderModal addCreditOrderModal = new CreditOrderModal(
-                        paymentService,
-                        companyService,
-                        contractorService,
-                        projectService,
-                        contractService,
-                        notifications);
-                addCreditOrderModal.addDetachListener(e -> updateList());
-                addCreditOrderModal.setPaymentDataForEdit(editPaymentDto);
-                addCreditOrderModal.open();
-            } else if (editPaymentDto.getTypeOfDocument().equals("Исходящий платеж")) {
-                OutgoingPaymentModal outgoingPaymentModal = new OutgoingPaymentModal(
-                        paymentService,
-                        companyService,
-                        contractorService,
-                        projectService,
-                        contractService,
-                        notifications);
-                outgoingPaymentModal.addDetachListener(e -> updateList());
-                outgoingPaymentModal.setPaymentDataForEdit(editPaymentDto);
-                outgoingPaymentModal.open();
-            } else {
-                ExpenseOrderModal expenseOrderModal = new ExpenseOrderModal(
-                        paymentService,
-                        companyService,
-                        contractorService,
-                        projectService,
-                        contractService,
-                        notifications);
-                expenseOrderModal.addDetachListener(e -> updateList());
-                expenseOrderModal.setPaymentDataForEdit(editPaymentDto);
-                expenseOrderModal.open();
+            switch (editPaymentDto.getTypeOfDocument()) {
+                case "Входящий платеж":
+                    IncomingPaymentModal incomingPaymentModal = new IncomingPaymentModal(
+                            paymentService,
+                            companyService,
+                            contractorService,
+                            projectService,
+                            contractService,
+                            notifications);
+                    incomingPaymentModal.addDetachListener(e -> updateList());
+                    incomingPaymentModal.setPaymentDataForEdit(editPaymentDto);
+                    incomingPaymentModal.open();
+                    break;
+                case "Приходный ордер":
+                    CreditOrderModal addCreditOrderModal = new CreditOrderModal(
+                            paymentService,
+                            companyService,
+                            contractorService,
+                            projectService,
+                            contractService,
+                            notifications);
+                    addCreditOrderModal.addDetachListener(e -> updateList());
+                    addCreditOrderModal.setPaymentDataForEdit(editPaymentDto);
+                    addCreditOrderModal.open();
+                    break;
+                case "Исходящий платеж":
+                    OutgoingPaymentModal outgoingPaymentModal = new OutgoingPaymentModal(
+                            paymentService,
+                            companyService,
+                            contractorService,
+                            projectService,
+                            contractService,
+                            notifications);
+                    outgoingPaymentModal.addDetachListener(e -> updateList());
+                    outgoingPaymentModal.setPaymentDataForEdit(editPaymentDto);
+                    outgoingPaymentModal.open();
+                    break;
+                default:
+                    ExpenseOrderModal expenseOrderModal = new ExpenseOrderModal(
+                            paymentService,
+                            companyService,
+                            contractorService,
+                            projectService,
+                            contractService,
+                            notifications);
+                    expenseOrderModal.addDetachListener(e -> updateList());
+                    expenseOrderModal.setPaymentDataForEdit(editPaymentDto);
+                    expenseOrderModal.open();
+                    break;
             }
         });
     }
@@ -346,7 +355,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     /*Удаление выбранных платежей*/
     private void deleteSelectedPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
-            for (PaymentDto paymentDto: grid.getSelectedItems()) {
+            for (PaymentDto paymentDto : grid.getSelectedItems()) {
                 paymentService.deleteById(paymentDto.getId());
                 notifications.infoNotification("Выбранные платежи успешно удалены");
             }
@@ -357,7 +366,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private void conductPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
-            for (PaymentDto paymentDto: grid.getSelectedItems()) {
+            for (PaymentDto paymentDto : grid.getSelectedItems()) {
                 paymentService.getById(paymentDto.getId()).setConducted(true);
                 notifications.infoNotification("Выбранные платежи успешно проведены");
             }
@@ -368,7 +377,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private void removeConductPayments() {
         if (!grid.getSelectedItems().isEmpty()) {
-            for (PaymentDto paymentDto: grid.getSelectedItems()) {
+            for (PaymentDto paymentDto : grid.getSelectedItems()) {
                 paymentService.getById(paymentDto.getId()).setConducted(false);
                 notifications.infoNotification("Выбранные платежи успешно распроведены");
             }
@@ -396,7 +405,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private List<Div> getCreditAndExpense() {
         BigDecimal credit = BigDecimal.ZERO;
         BigDecimal expense = BigDecimal.ZERO;
-        for (PaymentDto paymentDto: data) {
+        for (PaymentDto paymentDto : data) {
             if (paymentDto.getConducted()) {
                 if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
                     credit = credit.add(paymentDto.getSum());

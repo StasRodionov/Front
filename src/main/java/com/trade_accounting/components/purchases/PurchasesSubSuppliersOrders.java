@@ -1,23 +1,25 @@
 package com.trade_accounting.components.purchases;
 
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.components.util.configure.components.select.SelectConstants;
 import com.trade_accounting.components.util.configure.components.select.SelectExt;
+import com.trade_accounting.models.dto.company.CompanyDto;
+import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
+import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -46,19 +48,13 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.BeforeLeaveEvent;
-import com.vaadin.flow.router.BeforeLeaveObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -90,6 +86,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
     private final Notifications notifications;
     private final EmployeeService employeeService;
+    private final ProjectService projectService;
 
     private List<InvoiceDto> data;
 
@@ -103,14 +100,16 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices";
 
     @Autowired
-    public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService, InvoiceService invoiceService,
+    public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService,
+                                       InvoiceService invoiceService, ProjectService projectService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                        @Lazy Notifications notifications, EmployeeService employeeService) {
         this.contractorService = contractorService;
         this.companyService = companyService;
-        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        this.projectService = projectService;
         this.employeeService = employeeService;
         this.invoiceService = invoiceService;
+        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.notifications = notifications;
         configureGrid();
         this.filter = new GridFilter<>(grid);
@@ -152,16 +151,18 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
                 .setId("Дата");
-        grid.addColumn(
-                        iDto -> iDto.getContractorId() != null ?
+        grid.addColumn(iDto -> iDto.getContractorId() != null ?
                                 contractorService.getById(iDto.getContractorId()).getName() : "Неизвестный поставщик")
-                .setHeader("Контрагент").setKey("contractorId").setId("Контрагент");
+                .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
 //        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
 //        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyId")
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Проведена")
                 .setId("Проведена");
+        grid.addColumn(iDto -> iDto.getProjectId() != null ?
+                                projectService.getById(iDto.getProjectId()).getName() : "")
+                .setHeader("Проект").setKey("projectDto").setId("Проект");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
 //        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
@@ -170,7 +171,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(event -> {
+        grid.addItemClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);
@@ -190,6 +191,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("projectDto", ProjectDto::getName, projectService.getAll());
         filter.setFieldToComboBox("isSpend", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
@@ -247,8 +251,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private void updateList(String search) {
         if (search.isEmpty()) {
             paginator.setData(invoiceService.getAll(typeOfInvoice));
-        } else paginator.setData(invoiceService
+        } else {
+            paginator.setData(invoiceService
                 .findBySearchAndTypeOfInvoice(search, typeOfInvoice));
+        }
     }
 
     private NumberField numberField() {
@@ -281,7 +287,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private Select<String> valuePrint() {
         Select<String> print = SelectConfigurer.configurePrintSelect();
         getXlsFiles().forEach(x -> print.add(getLinkToXlsTemplate(x)));
-//        getXlsFiles().forEach(x -> print.add(getLinkToPDFTemplate(x)));
         uploadXlsMenuItem(print);
         return print;
     }

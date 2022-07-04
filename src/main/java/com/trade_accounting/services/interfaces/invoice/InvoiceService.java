@@ -29,6 +29,8 @@ public interface InvoiceService {
 
     List<InvoiceDto> getByContractorId(Long id);
 
+    List<InvoiceDto> getByProjectId(Long id);
+
     void moveToIsRecyclebin(Long id);
 
     void restoreFromIsRecyclebin(Long id);

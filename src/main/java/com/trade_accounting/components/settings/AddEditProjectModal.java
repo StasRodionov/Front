@@ -1,6 +1,10 @@
 package com.trade_accounting.components.settings;
 
+import com.trade_accounting.models.dto.finance.PaymentDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.util.ProjectDto;
+import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
@@ -20,20 +24,30 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @UIScope
 @Slf4j
 public class AddEditProjectModal extends Dialog {
 
+    private final ProjectService projectService;
+    private final InvoiceService invoiceService;
+    private final PaymentService paymentService;
     private TextField nameField = new TextField();
     private TextArea codeField = new TextArea();
     private TextArea descriptionField = new TextArea();
     private Long id;
-    private final ProjectService projectService;
     private final Dialog dialogOnCloseView = new Dialog();
+    private Dialog associationWarning = new Dialog();
 
     public AddEditProjectModal(ProjectDto projectDto,
-                               ProjectService projectService) {
+                               ProjectService projectService,
+                               InvoiceService invoiceService,
+                               PaymentService paymentService) {
+
         this.projectService = projectService;
+        this.invoiceService = invoiceService;
+        this.paymentService = paymentService;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -59,12 +73,36 @@ public class AddEditProjectModal extends Dialog {
         );
 
         configureCloseViewDialog();
+        configureAssociationWarningDialog();
     }
 
     private void configureCloseViewDialog() {
         dialogOnCloseView.setCloseOnEsc(false);
         dialogOnCloseView.setCloseOnOutsideClick(false);
         Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
+    }
+
+    private void configureAssociationWarningDialog() {
+        associationWarning.setCloseOnEsc(true);
+        associationWarning.setCloseOnOutsideClick(true);
+        Shortcuts.addShortcutListener(associationWarning, associationWarning::close, Key.ESCAPE);
+
+    }
+
+    private void buildAssociationWarningDialog(String projectName, String usageList) {
+        associationWarning.removeAll();
+
+        Button cancelButton = new Button("Закрыть", event -> {
+            associationWarning.close();
+        });
+
+        associationWarning.add(new VerticalLayout(
+                new Text("Требуется удалить связанные объекты, проект " + projectName + " используется в:\n" + usageList),
+                new HorizontalLayout(cancelButton))
+        );
+
+        associationWarning.open();
+
     }
 
     private void terminateCloseDialog() {
@@ -151,12 +189,34 @@ public class AddEditProjectModal extends Dialog {
 
     private Button getDeleteButton() {
         return new Button("Удалить", event -> {
-            try {
+            List<InvoiceDto> boundedInvoices = invoiceService.getByProjectId(id);
+            List<PaymentDto> boundedPayments = paymentService.getByProjectId(id);
+
+            if (boundedInvoices.isEmpty() & boundedPayments.isEmpty()) {
                 projectService.deleteById(id);
-            } catch (Exception e) {
-                e.printStackTrace();
+                close();
+            } else {
+//                StringBuilder stringBuilder = new StringBuilder();
+
+
+                buildAssociationWarningDialog(projectService.getById(id).getName(), "");
             }
-            close();
+
+//            for (InvoiceDto invoice : boundedInvoices) {
+//                log.info(invoice.toString());
+//                invoice.setProjectId(null);
+//                invoiceService.update(invoice);
+//            }
+//
+//            log.warn("СЧЕТА с ЗАДАННЫМ id после удаления: " + invoiceService.getByProjectId(id));
+//
+//            for (PaymentDto payment : boundedPayments) {
+//                log.info(payment.toString());
+//                payment.setProjectId(null);
+//                paymentService.update(payment);
+//            }
+
+//            close();
         });
     }
 

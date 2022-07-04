@@ -28,6 +28,10 @@ public interface InvoiceApi {
     Call<List<InvoiceDto>> getByContractorId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
+    @GET("{url}/getByProjectId{id}")
+    Call<List<InvoiceDto>> getByProjectId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
     @GET("{url}")
     Call<List<InvoiceDto>> getAll(@Path(value = "url", encoded = true) String url, @Query("typeOfInvoice") String typeOfInvoice);
 

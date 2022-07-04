@@ -72,6 +72,22 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public List<InvoiceDto> getByProjectId(Long id) {
+        List<InvoiceDto> invoiceDtoList = new ArrayList<>();
+        Call<List<InvoiceDto>> invoiceDtoListCall = invoiceApi.getByProjectId(invoiceUrl, id);
+
+        try {
+//            invoiceDtoList.addAll(Objects.requireNonNull(invoiceDtoListCall.execute().body()));
+            invoiceDtoList = invoiceDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка InvoiceDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /purchases  не авторизованного пользователя - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка InvoiceDto - {IOException}", e);
+        }
+        return invoiceDtoList;
+    }
+
+    @Override
     public InvoiceDto getById(Long id) {
         Call<InvoiceDto> invoiceDtoCall = invoiceApi.getById(invoiceUrl, id);
         return dtoCallExecuteService.callExecuteBodyById(invoiceDtoCall, InvoiceDto.class, id);
@@ -124,7 +140,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Response<InvoiceDto> create(InvoiceDto invoiceDto) {
 
         Call<InvoiceDto> invoiceDtoCall = invoiceApi.create(invoiceUrl, invoiceDto);
-        Response<InvoiceDto> resp = Response.success(new InvoiceDto());
+//        Response<InvoiceDto> resp = Response.success(new InvoiceDto());
+        Response<InvoiceDto> resp = Response.success(invoiceDto);
 
         try {
             resp = invoiceDtoCall.execute();
