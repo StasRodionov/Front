@@ -52,8 +52,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS_PRICE_VIEW;
-import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__PRICE_LIST_EDIT;
+import static com.trade_accounting.config.SecurityConstants.*;
+import static com.trade_accounting.config.SecurityConstants.INDICATORS_OPERATIONS_VIEW;
 
 @SpringComponent
 @Route(value = GOODS_GOODS__PRICE_LIST_EDIT, layout = AppView.class)
@@ -61,15 +61,15 @@ import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__PRICE_L
 @Slf4j
 public class GoodsPriceLayoutPriceListView extends VerticalLayout implements AfterNavigationObserver {
     private PriceListDto priceListData;
+    private byte currentPage = 1;
     private Grid<PriceListProductDto> grid;
     private final VerticalLayout upperLayout;
     private final CompanyService companyService;
     private final PriceListService priceListService;
     private final ProductGroupService productGroupService;
     private final ProductService productService;
-    private final PriceListProductPercentsService priceListProductPercentsService;
     private TextField listName = new TextField();
-    private TextArea comments = new TextArea("Комментарии");
+    private TextArea comments = new TextArea("Комментарии", "Комментарий");
     private ComboBox<CompanyDto> companyComboBox = new ComboBox<>();
     private DateTimePicker creationDate = new DateTimePicker();
     private List<PriceListProductDto> tempPriceListProducts = new ArrayList<>();
@@ -87,14 +87,13 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
     public GoodsPriceLayoutPriceListView(CompanyService companyService, PriceListService priceListService,
                                          ProductService productService,
                                          ProductGroupService productGroupService,
-                                         PriceListProductPercentsService priceListProductPercentsService, PriceProductSelectModal productSelectModal,
+                                         PriceProductSelectModal productSelectModal,
                                          PriceListProductService priceListProductService,
                                          Notifications notifications) {
         this.companyService = companyService;
         this.priceListService = priceListService;
         this.productService = productService;
         this.productGroupService = productGroupService;
-        this.priceListProductPercentsService = priceListProductPercentsService;
         this.productSelectModal = productSelectModal;
         this.priceListProductService = priceListProductService;
         this.notifications = notifications;
@@ -128,10 +127,13 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
 
         } else {
             for (PriceListProductDto priceListProduct : tempPriceListProducts) {
-                if (priceListProduct.getId().equals(priceListProductDto.getId())) {
+                if (priceListProduct.getId() != null && priceListProduct.getId().equals(priceListProductDto.getId())) {
                     tempPriceListProducts.remove(priceListProduct);
                     tempPriceListProducts.add(priceListProductDto);
                     break;
+                } else {
+                    notifications.infoNotification(String.format("Продукт № %s уже добавлен",
+                            priceListProduct.getProductId()));
                 }
             }
             paginator.setData(tempPriceListProducts);
@@ -190,7 +192,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         line3.add(addPositionButton(), filterButton, filterCriteria);
         priceListDtoBinder.forField(listName).asRequired(TEXT_FOR_REQUEST_FIELD).bind("number");
         priceListDtoBinder.forField(creationDate).asRequired(TEXT_FOR_REQUEST_FIELD)
-                .bind(PriceListDto::getTimeValid, PriceListDto::setTimeValid);
+                .bind(PriceListDto::getDateForValid, PriceListDto::setDateForValid);
         priceListDtoBinder.forField(companyComboBox).asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(PriceListDto::getCompanyDtoValid, PriceListDto::setCompanyDtoValid);
 
@@ -259,7 +261,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                     }
                 }
                 priceListData.setNumber(listName.getValue());
-                priceListData.setTime(creationDate.getValue().toString());
+                priceListData.setDate(creationDate.getValue().toString());
                 priceListData.setProductsIds(tempPriceListProducts.stream()
                         .map(PriceListProductDto::getProductId).collect(Collectors.toList()));
                 addPriceListProductToPriceListDto(priceListData);
@@ -267,10 +269,10 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 if (priceListData.getPercentsIds() == null) {
                     priceListData.setPercentsIds(List.of(priceListProductPercentsDto.getId()));
                 }
-                priceListData.setCommentary(comments.getValue());
+                priceListData.setComment(comments.getValue());
                 priceListData.setIsSpend(isSpend.getValue());
                 priceListService.update(priceListData);
-                notifications.infoNotification(String.format("Заказ № %s сохранен", priceListData.getId()));
+                notifications.infoNotification(String.format("Прайс-лист № %s сохранен", priceListData.getId()));
                 priceListDtoBinder.setValidatorsDisabled(true);
                 comments.clear();
             }
@@ -293,7 +295,13 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
             comments.clear();
             cancelEditingView.close();
             paginator.reloadGrid();
-            UI.getCurrent().navigate(GOODS_GOODS_PRICE_VIEW);
+            if (currentPage == 1) {
+                UI.getCurrent().navigate(GOODS_GOODS_PRICE_VIEW);
+            } else if (currentPage == 2){
+                UI.getCurrent().navigate(INDICATORS_TRASHCAN_VIEW);
+            } else {
+                UI.getCurrent().navigate(INDICATORS_OPERATIONS_VIEW);
+            }
             priceListDtoBinder.setValidatorsDisabled(true);
 
         });
@@ -347,26 +355,30 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         this.grid = new Grid<>(PriceListProductDto.class, false);
     }
 
-    public void setPriceListForCreate(PriceListDto priceListDto, PriceListProductPercentsDto priceListProductPercentsDto) {
+    public void setPriceListForCreate(PriceListDto priceListDto,
+                                      PriceListProductPercentsDto priceListProductPercentsDto, byte currentPage) {
         tempPriceListProducts.clear();
+        this.currentPage = currentPage;
         this.priceListData = priceListDto;
         listName.setValue(priceListData.getNumber());
-        creationDate.setValue(LocalDateTime.parse(priceListData.getTime()));
+        creationDate.setValue(LocalDateTime.parse(priceListData.getDate()));
         companyComboBox.setValue(companyService.getById(priceListData.getCompanyId()));
         paginator.setData(tempPriceListProducts);
         this.priceListProductPercentsDto = priceListProductPercentsDto;
         configureGrid();
     }
 
-    public void setPriceListForEdit(PriceListDto priceListDto, PriceListProductPercentsDto priceListProductPercentsDto) {
+    public void setPriceListForEdit(PriceListDto priceListDto,
+                                    PriceListProductPercentsDto priceListProductPercentsDto, byte currentPage) {
         this.priceListData = priceListDto;
+        this.currentPage = currentPage;
         listName.setValue(priceListData.getNumber());
-        creationDate.setValue(LocalDateTime.parse(priceListData.getTime()));
+        creationDate.setValue(LocalDateTime.parse(priceListData.getDate()));
         companyComboBox.setValue(companyService.getById(priceListData.getCompanyId()));
-        if (priceListData.getCommentary() != null) {
-            comments.setValue(priceListData.getCommentary());
-            isSpend.setValue(priceListData.getIsSpend());
+        if (priceListData.getComment() != null) {
+            comments.setValue(priceListData.getComment());
         }
+        isSpend.setValue(priceListData.getIsSpend());
         tempPriceListProducts = priceListProductService.getByPriceListId(priceListData.getId());
         paginator.setData(tempPriceListProducts);
         this.priceListProductPercentsDto = priceListProductPercentsDto;

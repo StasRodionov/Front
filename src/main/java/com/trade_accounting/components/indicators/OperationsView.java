@@ -1,6 +1,7 @@
 package com.trade_accounting.components.indicators;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.goods.GoodsPriceLayoutPriceListView;
 import com.trade_accounting.components.goods.GoodsSubInventoryModalWindow;
 import com.trade_accounting.components.goods.InternalOrderModalView;
 import com.trade_accounting.components.goods.LossModalWindow;
@@ -19,6 +20,7 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.CorrectionDto;
@@ -37,6 +39,8 @@ import com.trade_accounting.models.dto.finance.PaymentDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
+import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -79,12 +83,15 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -96,11 +103,11 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @Slf4j
 @SpringComponent
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
-/*@Route(value = INDICATORS_OPERATIONS_VIEW, layout = AppView.class)
-@PageTitle("Документы")*/
+@Route(value = INDICATORS_OPERATIONS_VIEW, layout = AppView.class)
+@PageTitle("Документы")
 @UIScope
 
-public class OperationsView extends VerticalLayout {
+public class OperationsView extends VerticalLayout implements AfterNavigationObserver {
     private final CreditOrderModal creditOrderModal;
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
     private final GoodsSubInventoryModalWindow goodsSubInventoryModalWindow;
@@ -114,6 +121,7 @@ public class OperationsView extends VerticalLayout {
     private final SupplierAccountModalView supplierAccountModalView;
     private final AcceptanceModalView acceptanceModalView;
     private final SalesEditShipmentView salesEditShipmentView;
+    private final GoodsPriceLayoutPriceListView priceListContent;
     private final OperationsService operationsService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
@@ -136,6 +144,8 @@ public class OperationsView extends VerticalLayout {
     private final SupplierAccountService supplierAccountService;
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
+    private final PriceListService priceListService;
+    private final PriceListProductPercentsService priceListProductPercentsService;
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
     private final GridPaginator<OperationsDto> paginator;
@@ -151,6 +161,7 @@ public class OperationsView extends VerticalLayout {
     private List<Long> acceptanceIds;
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
+    private List<Long> priceListIds;
 
     @Autowired
     public OperationsView(CreditOrderModal creditOrderModal,
@@ -161,7 +172,9 @@ public class OperationsView extends VerticalLayout {
                           PostingModal postingModal, IncomingPaymentModal incomingPaymentModal,
                           OutgoingPaymentModal outgoingPaymentModal, ExpenseOrderModal expenseOrderModal,
                           SupplierAccountModalView supplierAccountModalView, AcceptanceModalView acceptanceModalView,
-                          SalesEditShipmentView salesEditShipmentView, OperationsService operationsService,
+                          SalesEditShipmentView salesEditShipmentView,
+                          @Qualifier("goodsPriceLayoutPriceListView") GoodsPriceLayoutPriceListView priceListContent,
+                          OperationsService operationsService,
                           CompanyService companyService,
                           WarehouseService warehouseService, MovementService movementService,
                           MovementProductService movementProductService,
@@ -176,7 +189,8 @@ public class OperationsView extends VerticalLayout {
                           InvoiceService invoiceService, InvoiceProductService invoiceProductService,
                           AcceptanceService acceptanceService, AcceptanceProductionService acceptanceProductionService,
                           SupplierAccountService supplierAccountService, ShipmentService shipmentService,
-                          ShipmentProductService shipmentProductService, Notifications notifications) {
+                          ShipmentProductService shipmentProductService, PriceListService priceListService,
+                          PriceListProductPercentsService priceListProductPercentsService, Notifications notifications) {
         this.creditOrderModal = creditOrderModal;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.goodsSubInventoryModalWindow = goodsSubInventoryModalWindow;
@@ -190,6 +204,7 @@ public class OperationsView extends VerticalLayout {
         this.supplierAccountModalView = supplierAccountModalView;
         this.acceptanceModalView = acceptanceModalView;
         this.salesEditShipmentView = salesEditShipmentView;
+        this.priceListContent = priceListContent;
         this.operationsService = operationsService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
@@ -212,6 +227,8 @@ public class OperationsView extends VerticalLayout {
         this.supplierAccountService = supplierAccountService;
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
+        this.priceListService = priceListService;
+        this.priceListProductPercentsService = priceListProductPercentsService;
         this.notifications = notifications;
         List<OperationsDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -231,6 +248,7 @@ public class OperationsView extends VerticalLayout {
         acceptanceIds = getAcceptanceIds();
         supplierAccountIds = getSupplierAccountIds();
         shipmentIds = getShipmentIds();
+        priceListIds = getPriceListIds();
 
     }
 
@@ -307,10 +325,15 @@ public class OperationsView extends VerticalLayout {
             CorrectionDto correctionDto = correctionService.getById(operationId);
             postingModal.setPostingEdit(correctionDto);
             postingModal.open();
-        } else if (acceptanceIds.contains(operationId)){
+        } else if (acceptanceIds.contains(operationId)) {
             AcceptanceDto acceptanceDto = acceptanceService.getById(operationId);
             acceptanceModalView.setAcceptanceForEdit(acceptanceDto);
             acceptanceModalView.open();
+        } else if ((priceListIds.contains(dto.getId()))) {
+            PriceListDto priceListDto = priceListService.getById(dto.getId());
+            priceListContent.setPriceListForEdit(priceListDto, priceListProductPercentsService
+                    .getById(priceListDto.getPercentsIds().get(0)), (byte) 3);
+            this.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_EDIT));
         }
     }
 
@@ -351,20 +374,20 @@ public class OperationsView extends VerticalLayout {
             warehouseTo = warehouseService.getById(internalOrderDto.getWarehouseId()).getName();
             return warehouseTo;
         }
-         else if (correctionIds.contains(operationsDto.getId())) {
+        else if (correctionIds.contains(operationsDto.getId())) {
             CorrectionDto correctionDto = correctionService.getById(operationsDto.getId());
             warehouseTo = warehouseService.getById(correctionDto.getWarehouseId()).getName();
             return warehouseTo;
         } else if (acceptanceIds.contains(operationsDto.getId())) {
-             AcceptanceDto acceptanceDto = acceptanceService.getById(operationsDto.getId());
-             warehouseTo = warehouseService.getById(acceptanceDto.getWarehouseId()).getName();
-             return warehouseTo;
+            AcceptanceDto acceptanceDto = acceptanceService.getById(operationsDto.getId());
+            warehouseTo = warehouseService.getById(acceptanceDto.getWarehouseId()).getName();
+            return warehouseTo;
         }
         else {
             warehouseTo = " ";
             return warehouseTo;
 
-       }
+        }
     }
 
     private String getContractor(OperationsDto operationsDto) {
@@ -391,7 +414,7 @@ public class OperationsView extends VerticalLayout {
             return contractor;
         }
         else {
-        contractor  =" ";
+            contractor  =" ";
             return contractor;
         }
     }
@@ -459,30 +482,33 @@ public class OperationsView extends VerticalLayout {
 
     private void moveToRecyclebinOperation() {
         if (!grid.getSelectedItems().isEmpty()) {
-               for (OperationsDto dto : grid.getSelectedItems()) {
-                   Long id = dto.getId();
-                   if (movementsIds.contains(id)) {
-                       movementService.moveToIsRecyclebin(id);
-                   } else if (lossIds.contains(id)) {
-                       lossService.moveToIsRecyclebin(id);
-                   } else if (internalOrdersIds.contains(id)) {
-                       internalOrderService.moveToIsRecyclebin(id);
-                   } else if (paymentsIds.contains(id)) {
-                       paymentService.moveToIsRecyclebin(id);
-                   } else if (correctionIds.contains(id)) {
-                       correctionService.moveToIsRecyclebin(id);
-                   } else if (inventarizationsIds.contains(id)) {
-                       inventarizationService.moveToIsRecyclebin(id);
-                   } else if (invoiceIds.contains(id)) {
-                       invoiceService.moveToIsRecyclebin(id);
-                   } else if (acceptanceIds.contains(id)) {
-                       acceptanceService.moveToIsRecyclebin(id);
-                   } else if (supplierAccountIds.contains(id)) {
-                       supplierAccountService.moveToIsRecyclebin(id);
-                   } else if (shipmentIds.contains(id)) {
-                       shipmentService.moveToIsRecyclebin(id);
-                   }
-               }
+            for (OperationsDto dto : grid.getSelectedItems()) {
+                Long id = dto.getId();
+                if (movementsIds.contains(id)) {
+                    movementService.moveToIsRecyclebin(id);
+                } else if (lossIds.contains(id)) {
+                    lossService.moveToIsRecyclebin(id);
+                } else if (internalOrdersIds.contains(id)) {
+                    internalOrderService.moveToIsRecyclebin(id);
+                } else if (paymentsIds.contains(id)) {
+                    paymentService.moveToIsRecyclebin(id);
+                } else if (correctionIds.contains(id)) {
+                    correctionService.moveToIsRecyclebin(id);
+                } else if (inventarizationsIds.contains(id)) {
+                    inventarizationService.moveToIsRecyclebin(id);
+                } else if (invoiceIds.contains(id)) {
+                    invoiceService.moveToIsRecyclebin(id);
+                } else if (acceptanceIds.contains(id)) {
+                    acceptanceService.moveToIsRecyclebin(id);
+                } else if (supplierAccountIds.contains(id)) {
+                    supplierAccountService.moveToIsRecyclebin(id);
+                } else if (shipmentIds.contains(id)) {
+                    shipmentService.moveToIsRecyclebin(id);
+                } else if (priceListIds.contains(id)) {
+                    priceListService.moveToIsRecyclebin(id);
+                }
+                notifications.infoNotification("Документы успешно перемещены в корзину");
+            }
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные ");
         }
@@ -504,6 +530,7 @@ public class OperationsView extends VerticalLayout {
         acceptanceIds = getAcceptanceIds();
         supplierAccountIds = getSupplierAccountIds();
         shipmentIds = getShipmentIds();
+        priceListIds = getPriceListIds();
     }
 
     private Component getIsSentIcon(OperationsDto operationsDto) {
@@ -542,10 +569,10 @@ public class OperationsView extends VerticalLayout {
 
     private List<Long> getPaymentsIds() {
         List<Long> paymentsIds = new ArrayList<>();
-              for(PaymentDto paymentDto : paymentService.getAll()) {
-                  paymentsIds.add(paymentDto.getId());
-              }
-              return paymentsIds;
+        for(PaymentDto paymentDto : paymentService.getAll()) {
+            paymentsIds.add(paymentDto.getId());
+        }
+        return paymentsIds;
     }
 
     private List<Long> getCorrectionIds() {
@@ -590,13 +617,21 @@ public class OperationsView extends VerticalLayout {
 
     private List<Long> getShipmentIds() {
         List<Long> shipIds = new ArrayList<>();
-        for (ShipmentDto shipmentDto : shipmentService.getAll()){
+        for (ShipmentDto shipmentDto : shipmentService.getAll()) {
             shipIds.add(shipmentDto.getId());
         }
         return shipIds;
     }
 
-    private String getTotalPrice(OperationsDto operationsDto){
+    private List<Long> getPriceListIds() {
+        List<Long> priceListIds = new ArrayList<>();
+        for (PriceListDto priceListDto : priceListService.getAll()) {
+            priceListIds.add(priceListDto.getId());
+        }
+        return priceListIds;
+    }
+
+    private String getTotalPrice(OperationsDto operationsDto) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         if (movementsIds.contains(operationsDto.getId())) {
             MovementDto movementDto = movementService.getById(operationsDto.getId());
@@ -606,7 +641,7 @@ public class OperationsView extends VerticalLayout {
                         .multiply(movementProductDto.getPrice()));
             }
             return String.format("%.2f", totalPrice);
-        } else if (internalOrdersIds.contains(operationsDto.getId())){
+        } else if (internalOrdersIds.contains(operationsDto.getId())) {
             InternalOrderDto internalDto = internalOrderService.getById(operationsDto.getId());
             for (Long id: internalDto.getInternalOrderProductsIds()) {
                 InternalOrderProductsDto internalProducts = internalOrderProductsDtoService.getById(id);
@@ -699,8 +734,10 @@ public class OperationsView extends VerticalLayout {
         } else if (shipmentIds.contains(operationsDto.getId())) {
             typeOfOperation = "Отгрузка";
             return typeOfOperation;
-        }
-        else {
+        } else if (priceListIds.contains(operationsDto.getId())) {
+            typeOfOperation = "Прайс-Лист";
+            return typeOfOperation;
+        } else {
             typeOfOperation = "неизвестно";
             return typeOfOperation;
         }
@@ -761,5 +798,10 @@ public class OperationsView extends VerticalLayout {
                 .ifPresent(ui -> ui.navigate("ordersOfProductionModal")));
         //  "Производственное задание"
         return operations;
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        updateList();
     }
 }

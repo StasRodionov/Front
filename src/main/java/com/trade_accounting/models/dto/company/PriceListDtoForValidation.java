@@ -6,6 +6,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class PriceListDtoForValidation {
-    private LocalDateTime timeValid;
+    private LocalDateTime dateForValid;
     private CompanyDto companyDtoValid;
 }
