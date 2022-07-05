@@ -1,9 +1,9 @@
 package com.trade_accounting.components.apps.impl.warehouse;
 
-import com.trade_accounting.models.dto.warehouse.AttributeOfCalculationObjectDto;
 import com.trade_accounting.components.apps.impl.CallExecuteService;
-import com.trade_accounting.services.interfaces.warehouse.AttributeOfCalculationObjectService;
+import com.trade_accounting.models.dto.warehouse.AttributeOfCalculationObjectDto;
 import com.trade_accounting.services.api.warehouse.AttributeOfCalculationObjectApi;
+import com.trade_accounting.services.interfaces.warehouse.AttributeOfCalculationObjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
