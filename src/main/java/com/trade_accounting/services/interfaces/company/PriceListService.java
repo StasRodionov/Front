@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces.company;
 import com.trade_accounting.models.dto.company.PriceListDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PriceListService {
 
@@ -20,4 +21,9 @@ public interface PriceListService {
 
     void restoreFromIsRecyclebin(Long id);
 
+    List<PriceListDto> quickSearch(String text);
+
+    List<PriceListDto> searchByFilter(Map<String, String> query);
+
+    List<PriceListDto> searchByBetweenDataFilter(Map<String, String> query);
 }

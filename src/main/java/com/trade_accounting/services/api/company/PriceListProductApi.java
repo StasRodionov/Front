@@ -9,6 +9,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 import java.util.List;
@@ -49,4 +50,8 @@ public interface PriceListProductApi {
     @GET("{url}/product/{id}")
     Call<List<PriceListProductDto>> getByProductId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
+    @Headers("Accept: application/json")
+    @GET("{url}/quickSearch")
+    Call<List<PriceListProductDto>> quickSearch(@Path(value = "url", encoded = true) String url,
+                                                @Query("search") String text);
 }

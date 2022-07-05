@@ -21,4 +21,6 @@ public interface PriceListProductService {
     List<PriceListProductDto> search(Map<String, String> query);
 
     List<PriceListProductDto> getByProductId(Long id);
+
+    List<PriceListProductDto> quickSearch(String text);
 }

@@ -9,8 +9,11 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PriceListApi {
 
@@ -41,4 +44,20 @@ public interface PriceListApi {
     @Headers("Accept: application/json")
     @PUT("{url}/restoreFromIsRecyclebin/{id}")
     Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByFilter")
+    Call<List<PriceListDto>> searchByFilter(@Path(value = "url", encoded = true) String url,
+                                            @QueryMap Map<String, String> query);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByBetweenDataFilter")
+    Call<List<PriceListDto>> searchByBetweenDataFilter(@Path(value = "url", encoded = true) String url,
+                                                       @QueryMap Map<String, String> query);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/quickSearch")
+    Call<List<PriceListDto>> quickSearch(@Path(value = "url", encoded = true) String url,
+                                         @Query("search") String text);
 }
