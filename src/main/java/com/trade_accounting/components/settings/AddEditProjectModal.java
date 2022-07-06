@@ -1,10 +1,12 @@
 package com.trade_accounting.components.settings;
 
 import com.trade_accounting.models.dto.finance.PaymentDto;
+import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.finance.ReturnToSupplierService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
@@ -37,7 +39,7 @@ public class AddEditProjectModal extends Dialog {
     private final InvoiceService invoiceService;
     private final PaymentService paymentService;
     private final AcceptanceService acceptanceService;
-
+    private final ReturnToSupplierService returnToSupplierService;
 
     private TextField nameField = new TextField();
     private TextArea codeField = new TextArea();
@@ -50,12 +52,14 @@ public class AddEditProjectModal extends Dialog {
                                ProjectService projectService,
                                InvoiceService invoiceService,
                                PaymentService paymentService,
-                               AcceptanceService acceptanceService) {
+                               AcceptanceService acceptanceService,
+                               ReturnToSupplierService returnToSupplierService) {
 
         this.projectService = projectService;
         this.invoiceService = invoiceService;
         this.paymentService = paymentService;
         this.acceptanceService = acceptanceService;
+        this.returnToSupplierService = returnToSupplierService;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -200,8 +204,10 @@ public class AddEditProjectModal extends Dialog {
             List<InvoiceDto> boundedInvoices = invoiceService.getByProjectId(id);
             List<PaymentDto> boundedPayments = paymentService.getByProjectId(id);
             List<AcceptanceDto> boundedAcceptances = acceptanceService.getByProjectId(id);
+            List<ReturnToSupplierDto> boundedReturnToSupplier = returnToSupplierService.getByProjectId(id);
 
-            if (boundedInvoices.isEmpty() & boundedPayments.isEmpty() & boundedAcceptances.isEmpty()) {
+            if (boundedInvoices.isEmpty() & boundedPayments.isEmpty() & boundedAcceptances.isEmpty()
+                    & boundedReturnToSupplier.isEmpty()) {
                 projectService.deleteById(id);
                 close();
             } else {
@@ -221,8 +227,14 @@ public class AddEditProjectModal extends Dialog {
 
                 for (AcceptanceDto acceptance : boundedAcceptances) {
                     usageListContainer.add(new HorizontalLayout(
-                            new Text("Acceptance with id "),
+                            new Text("Приёмка with id "),
                             new Anchor("#", acceptance.getId().toString())));
+                }
+
+                for (ReturnToSupplierDto returns : boundedReturnToSupplier) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Возврат поставщику with id "),
+                            new Anchor("#", returns.getId().toString())));
                 }
 
                 buildAssociationWarningDialog(projectService.getById(id).getName(), usageListContainer);

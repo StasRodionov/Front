@@ -165,7 +165,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(e -> {
+        grid.addItemClickListener(e -> {
             ReturnToSupplierDto dto = e.getItem();
             ReturnToSupplierModalView modalView = new ReturnToSupplierModalView(returnToSupplierService,
                     companyService,

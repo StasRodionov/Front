@@ -12,6 +12,8 @@ public interface ReturnToSupplierService {
 
     ReturnToSupplierDto getById(Long id);
 
+    List<ReturnToSupplierDto> getByProjectId(Long id);
+
     List<ReturnToSupplierDto> searchByString(String nameFilter);
 
     Response<ReturnToSupplierDto> create(ReturnToSupplierDto returnToSupplierDto);

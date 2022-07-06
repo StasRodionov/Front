@@ -55,6 +55,21 @@ public class ReturnToSupplierServiceImpl implements ReturnToSupplierService {
     }
 
     @Override
+    public List<ReturnToSupplierDto> getByProjectId(Long id) {
+        List<ReturnToSupplierDto> ReturnToSupplierDtoList = new ArrayList<>();
+        Call<List<ReturnToSupplierDto>> ReturnToSupplierDtoListCall = returnToSupplierApi.getByProjectId(returnToSupplierUrl, id);
+
+        try {
+            ReturnToSupplierDtoList = ReturnToSupplierDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка AcceptanceDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /acceptance  не авторизованного пользователя - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка AcceptanceDto - {IOException}", e);
+        }
+        return ReturnToSupplierDtoList;
+    }
+
+    @Override
     public List<ReturnToSupplierDto> searchByString(String nameFilter) {
         List<ReturnToSupplierDto> returnToSupplierDtoList = new ArrayList<>();
         Call<List<ReturnToSupplierDto>> callListReturnSuppliers = returnToSupplierApi.searchByString(returnToSupplierUrl, nameFilter);

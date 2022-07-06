@@ -8,6 +8,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectCo
 import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.finance.ReturnToSupplierService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
@@ -41,6 +42,7 @@ public class ProjectSettingsView extends VerticalLayout {
     private final InvoiceService invoiceService;
     private final PaymentService paymentService;
     private final AcceptanceService acceptanceService;
+    private final ReturnToSupplierService returnToSupplierService;
 
     private Grid<ProjectDto> grid = new Grid<>(ProjectDto.class);
     private GridPaginator<ProjectDto> paginator;
@@ -49,11 +51,13 @@ public class ProjectSettingsView extends VerticalLayout {
     public ProjectSettingsView(ProjectService projectService,
                                InvoiceService invoiceService,
                                PaymentService paymentService,
-                               AcceptanceService acceptanceService) {
+                               AcceptanceService acceptanceService,
+                               ReturnToSupplierService returnToSupplierService) {
         this.projectService = projectService;
         this.invoiceService = invoiceService;
         this.paymentService = paymentService;
         this.acceptanceService = acceptanceService;
+        this.returnToSupplierService = returnToSupplierService;
         paginator = new GridPaginator<>(grid, projectService.getAll(), 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
         configureGrid();
@@ -64,12 +68,12 @@ public class ProjectSettingsView extends VerticalLayout {
     }
 
     private AppView getAppView() {
-        return  new AppView();
+        return new AppView();
     }
 
     private void configureFilter() {
         filter.onSearchClick(e -> paginator.setData(projectService.search(filter.getFilterData())));
-        filter.onClearClick(e-> paginator.setData(projectService.getAll()));
+        filter.onClearClick(e -> paginator.setData(projectService.getAll()));
     }
 
     private Button buttonQuestion() {
@@ -99,7 +103,8 @@ public class ProjectSettingsView extends VerticalLayout {
     private Button buttonProject() {
         Button buttonProject = new Button("Проект", new Icon(VaadinIcon.PLUS_CIRCLE));
         AddEditProjectModal addEditProjectModal =
-                new AddEditProjectModal(new ProjectDto(), projectService, invoiceService, paymentService, acceptanceService);
+                new AddEditProjectModal(new ProjectDto(), projectService, invoiceService, paymentService,
+                        acceptanceService, returnToSupplierService);
         buttonProject.addClickListener(event -> addEditProjectModal.open());
         addEditProjectModal.addDetachListener(event -> updateList());
         return buttonProject;
@@ -131,7 +136,7 @@ public class ProjectSettingsView extends VerticalLayout {
     private void configureGrid() {
         grid.setItems(projectService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setColumns( "name", "code", "description");
+        grid.setColumns("name", "code", "description");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("code").setHeader("Код").setId("Код");
         grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
@@ -139,7 +144,8 @@ public class ProjectSettingsView extends VerticalLayout {
         grid.addItemClickListener(event -> {
             ProjectDto editProject = event.getItem();
             AddEditProjectModal addEditProjectModal =
-                    new AddEditProjectModal(editProject, projectService, invoiceService, paymentService, acceptanceService);
+                    new AddEditProjectModal(editProject, projectService, invoiceService, paymentService,
+                            acceptanceService, returnToSupplierService);
             addEditProjectModal.addDetachListener(e -> updateList());
             addEditProjectModal.open();
         });
