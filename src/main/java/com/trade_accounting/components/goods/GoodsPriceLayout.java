@@ -124,7 +124,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
 //        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(PriceListDto::getNumber).setKey("number").setHeader("№").setSortable(true).setId("№");
         grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getDate())))
-                .setKey("date").setHeader("Дата после").setSortable(true).setId("Дата после");
+                .setKey("date").setHeader("Начальная дата").setSortable(true).setId("Начальная дата");
         grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Организация").setId("Организация");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")

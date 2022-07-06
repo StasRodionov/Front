@@ -366,7 +366,7 @@ public class GridFilter<T> extends HorizontalLayout {
                     this.add(getFilterTextField(e.getKey()));
                 }
                 if (e.getKey().equals("date")) {
-                    grid.addColumn(t -> "").setKey("dateBefore").setId("Дата до");
+                    grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
                     this.add(getFilterDatePicker("dateBefore"));
                 }
             });
@@ -385,7 +385,7 @@ public class GridFilter<T> extends HorizontalLayout {
                     this.add(getFilterTextField(e.getKey()));
                 }
                 if (e.getKey().equals("date")) {
-                    grid.addColumn(t -> "").setKey("dateBefore").setId("Дата до");
+                    grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
                     this.add(getFilterDatePicker("dateBefore"));
                 }
             });
