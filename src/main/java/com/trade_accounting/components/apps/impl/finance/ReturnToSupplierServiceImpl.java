@@ -61,10 +61,10 @@ public class ReturnToSupplierServiceImpl implements ReturnToSupplierService {
 
         try {
             ReturnToSupplierDtoList = ReturnToSupplierDtoListCall.execute().body();
-            log.info("Успешно выполнен запрос на получение списка AcceptanceDto");
+            log.info("Успешно выполнен запрос на получение списка ReturnToSupplierDto");
         } catch (IOException | NullPointerException e) {
             log.error("Попытка перехода на страницу /acceptance  не авторизованного пользователя - {NullPointerException}", e);
-            log.error("Произошла ошибка при выполнении запроса на получение списка AcceptanceDto - {IOException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка ReturnToSupplierDto - {IOException}", e);
         }
         return ReturnToSupplierDtoList;
     }
