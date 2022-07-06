@@ -769,7 +769,7 @@ public class GoodsEditAddView extends VerticalLayout {
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
-        productDto = new ProductDto();
+
     }
 
     public void setLocation(String location) {
