@@ -1,5 +1,6 @@
 package com.trade_accounting.components.goods;
 
+
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.TaxSystemDto;
@@ -769,11 +770,9 @@ public class GoodsEditAddView extends VerticalLayout {
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
-
     }
 
     public void setLocation(String location) {
         this.location = location;
     }
-
 }
