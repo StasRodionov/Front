@@ -97,7 +97,6 @@ public class GoodsEditAddView extends VerticalLayout {
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
-
     private final TypeOfPackingService typeOfPackingService;
     private final TypeOfPriceService typeOfPriceService;
     private final EmployeeService employeeService;
