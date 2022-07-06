@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -39,16 +40,20 @@ public class ProjectSettingsView extends VerticalLayout {
     private final ProjectService projectService;
     private final InvoiceService invoiceService;
     private final PaymentService paymentService;
+    private final AcceptanceService acceptanceService;
+
     private Grid<ProjectDto> grid = new Grid<>(ProjectDto.class);
     private GridPaginator<ProjectDto> paginator;
     private final GridFilter<ProjectDto> filter;
 
     public ProjectSettingsView(ProjectService projectService,
                                InvoiceService invoiceService,
-                               PaymentService paymentService) {
+                               PaymentService paymentService,
+                               AcceptanceService acceptanceService) {
         this.projectService = projectService;
         this.invoiceService = invoiceService;
         this.paymentService = paymentService;
+        this.acceptanceService = acceptanceService;
         paginator = new GridPaginator<>(grid, projectService.getAll(), 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
         configureGrid();
@@ -94,7 +99,7 @@ public class ProjectSettingsView extends VerticalLayout {
     private Button buttonProject() {
         Button buttonProject = new Button("Проект", new Icon(VaadinIcon.PLUS_CIRCLE));
         AddEditProjectModal addEditProjectModal =
-                new AddEditProjectModal(new ProjectDto(), projectService, invoiceService, paymentService);
+                new AddEditProjectModal(new ProjectDto(), projectService, invoiceService, paymentService, acceptanceService);
         buttonProject.addClickListener(event -> addEditProjectModal.open());
         addEditProjectModal.addDetachListener(event -> updateList());
         return buttonProject;
@@ -134,7 +139,7 @@ public class ProjectSettingsView extends VerticalLayout {
         grid.addItemClickListener(event -> {
             ProjectDto editProject = event.getItem();
             AddEditProjectModal addEditProjectModal =
-                    new AddEditProjectModal(editProject, projectService, invoiceService, paymentService);
+                    new AddEditProjectModal(editProject, projectService, invoiceService, paymentService, acceptanceService);
             addEditProjectModal.addDetachListener(e -> updateList());
             addEditProjectModal.open();
         });

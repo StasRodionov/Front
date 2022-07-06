@@ -146,7 +146,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
                 new Anchor("#", "Заказы поставщикам"));
     }
 
-    private Grid<InvoiceDto> configureGrid() {
+    private void configureGrid() {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
@@ -155,14 +155,14 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
                                 contractorService.getById(iDto.getContractorId()).getName() : "Неизвестный поставщик")
                 .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
 //        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
-//        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
         grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
                 .setId("Компания");
+//        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Проведена")
                 .setId("Проведена");
         grid.addColumn(iDto -> iDto.getProjectId() != null ?
                                 projectService.getById(iDto.getProjectId()).getName() : "")
-                .setHeader("Проект").setKey("projectDto").setId("Проект");
+                .setKey("projectDto").setSortable(true).setHeader("Проект").setId("Проект");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
 //        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
@@ -181,7 +181,6 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
             removeAll();
             add(salesEditCreateInvoiceView);
         });
-        return grid;
     }
 
     private List<InvoiceDto> getData() {
@@ -232,9 +231,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     }
 
     private Button buttonFilter() {
-        Button buttonFilter = new Button("Фильтр");
-        buttonFilter.addClickListener(e -> filter.setVisible(!filter.isVisible()));
-        return buttonFilter;
+        return new Button("Фильтр", clickEvent -> {
+            filter.setVisible(!filter.isVisible());
+        });
     }
 
     private TextField filterTextField() {

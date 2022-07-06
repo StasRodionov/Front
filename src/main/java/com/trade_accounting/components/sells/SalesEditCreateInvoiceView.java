@@ -374,8 +374,6 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
         }
         projectSelect.setItemLabelGenerator(ProjectDto::getName);
         projectSelect.setWidth(FIELD_WIDTH);
-//        binderInvoiceDto.forField(projectSelect)
-//                .bind("projectDto");
         Label label = new Label("Проект");
         label.setWidth(LABEL_WIDTH);
         projectLayout.add(label, projectSelect);

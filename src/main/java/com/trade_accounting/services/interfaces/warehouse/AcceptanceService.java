@@ -12,6 +12,8 @@ public interface AcceptanceService {
 
     AcceptanceDto getById(Long id);
 
+    List<AcceptanceDto> getByProjectId(Long id);
+
     Response<AcceptanceDto> create(AcceptanceDto acceptanceDto);
 
     void update(AcceptanceDto acceptanceDto);

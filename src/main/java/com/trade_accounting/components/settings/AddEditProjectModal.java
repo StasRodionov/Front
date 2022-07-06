@@ -3,9 +3,11 @@ package com.trade_accounting.components.settings;
 import com.trade_accounting.models.dto.finance.PaymentDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.util.ProjectDto;
+import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.Key;
@@ -13,6 +15,7 @@ import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -33,6 +36,9 @@ public class AddEditProjectModal extends Dialog {
     private final ProjectService projectService;
     private final InvoiceService invoiceService;
     private final PaymentService paymentService;
+    private final AcceptanceService acceptanceService;
+
+
     private TextField nameField = new TextField();
     private TextArea codeField = new TextArea();
     private TextArea descriptionField = new TextArea();
@@ -43,11 +49,13 @@ public class AddEditProjectModal extends Dialog {
     public AddEditProjectModal(ProjectDto projectDto,
                                ProjectService projectService,
                                InvoiceService invoiceService,
-                               PaymentService paymentService) {
+                               PaymentService paymentService,
+                               AcceptanceService acceptanceService) {
 
         this.projectService = projectService;
         this.invoiceService = invoiceService;
         this.paymentService = paymentService;
+        this.acceptanceService = acceptanceService;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -89,7 +97,7 @@ public class AddEditProjectModal extends Dialog {
 
     }
 
-    private void buildAssociationWarningDialog(String projectName, String usageList) {
+    private void buildAssociationWarningDialog(String projectName, VerticalLayout usageListContainer) {
         associationWarning.removeAll();
 
         Button cancelButton = new Button("Закрыть", event -> {
@@ -97,12 +105,12 @@ public class AddEditProjectModal extends Dialog {
         });
 
         associationWarning.add(new VerticalLayout(
-                new Text("Требуется удалить связанные объекты, проект " + projectName + " используется в:\n" + usageList),
+                new Label("Требуется удалить связанные объекты, проект " + projectName + " используется в:"),
+                usageListContainer,
                 new HorizontalLayout(cancelButton))
         );
 
         associationWarning.open();
-
     }
 
     private void terminateCloseDialog() {
@@ -191,32 +199,34 @@ public class AddEditProjectModal extends Dialog {
         return new Button("Удалить", event -> {
             List<InvoiceDto> boundedInvoices = invoiceService.getByProjectId(id);
             List<PaymentDto> boundedPayments = paymentService.getByProjectId(id);
+            List<AcceptanceDto> boundedAcceptances = acceptanceService.getByProjectId(id);
 
-            if (boundedInvoices.isEmpty() & boundedPayments.isEmpty()) {
+            if (boundedInvoices.isEmpty() & boundedPayments.isEmpty() & boundedAcceptances.isEmpty()) {
                 projectService.deleteById(id);
                 close();
             } else {
-//                StringBuilder stringBuilder = new StringBuilder();
+                VerticalLayout usageListContainer = new VerticalLayout();
 
+                for (InvoiceDto invoice : boundedInvoices) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Invoice " + invoice.getTypeOfInvoice() + " with id "),
+                            new Anchor("#", invoice.getId().toString())));
+                }
 
-                buildAssociationWarningDialog(projectService.getById(id).getName(), "");
+                for (PaymentDto payment : boundedPayments) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Payment " + payment.getTypeOfDocument() + " with id "),
+                            new Anchor("#", payment.getId().toString())));
+                }
+
+                for (AcceptanceDto acceptance : boundedAcceptances) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Acceptance with id "),
+                            new Anchor("#", acceptance.getId().toString())));
+                }
+
+                buildAssociationWarningDialog(projectService.getById(id).getName(), usageListContainer);
             }
-
-//            for (InvoiceDto invoice : boundedInvoices) {
-//                log.info(invoice.toString());
-//                invoice.setProjectId(null);
-//                invoiceService.update(invoice);
-//            }
-//
-//            log.warn("СЧЕТА с ЗАДАННЫМ id после удаления: " + invoiceService.getByProjectId(id));
-//
-//            for (PaymentDto payment : boundedPayments) {
-//                log.info(payment.toString());
-//                payment.setProjectId(null);
-//                paymentService.update(payment);
-//            }
-
-//            close();
         });
     }
 

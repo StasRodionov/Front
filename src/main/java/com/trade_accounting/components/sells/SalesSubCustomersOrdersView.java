@@ -147,7 +147,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
                 .setId("Проведена");
         grid.addColumn(iDto -> iDto.getProjectId() != null ?
                                 projectService.getById(iDto.getProjectId()).getName() : "")
-                .setHeader("Проект").setKey("projectDto").setId("Проект");
+                .setSortable(true).setHeader("Проект").setKey("projectDto").setId("Проект");
         grid.addColumn(iDto -> invoicesStatusService.getById(iDto.getInvoicesStatusId()).getStatusName()).setHeader("Статус").setKey("invoicesStatusDto")
                 .setId("Статус");
 

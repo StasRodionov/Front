@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -63,6 +64,7 @@ public class AddFromDirectModalWin extends Dialog {
     transient private final ContractorService contractorService;
     transient private final Notifications notifications;
     transient private final CompanyService companyService;
+    transient private final ProjectService projectService;
 
     @Autowired
     public AddFromDirectModalWin (ProductService productService,
@@ -72,7 +74,8 @@ public class AddFromDirectModalWin extends Dialog {
                                   WarehouseService warehouseService,
                                   ContractorService contractorService,
                                   Notifications notifications,
-                                  CompanyService companyService) {
+                                  CompanyService companyService,
+                                  ProjectService projectService) {
         this.productService = productService;
         this.acceptanceProductionService = acceptanceProductionService;
         this.acceptanceService = acceptanceService;
@@ -81,6 +84,7 @@ public class AddFromDirectModalWin extends Dialog {
         this.contractorService = contractorService;
         this.notifications = notifications;
         this.companyService = companyService;
+        this.projectService = projectService;
         countTextField.setValue("0");
         data = getData();
         paginator = new GridPaginator<>(grid, data, 7);
@@ -235,7 +239,8 @@ public class AddFromDirectModalWin extends Dialog {
                     contractorService,
                     notifications,
                     productService,
-                    acceptanceProductionService);
+                    acceptanceProductionService,
+                    projectService);
             for (AcceptanceProductionDto newAcceptanceProductionDto : acceptanceProduction) {
                 newAcceptanceProductionDto.setId(acceptanceProductionService.create(newAcceptanceProductionDto).body().getId());
             }

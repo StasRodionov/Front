@@ -11,21 +11,15 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -349,8 +343,6 @@ public class GridFilter<T> extends HorizontalLayout {
         filter.setId(columnKey);
         filter.addValueChangeListener(e -> onFilterChange(filter));
         filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
-        Grid.Column<T> column = grid.getColumnByKey(columnKey);
-        Optional<String> id = column.getId();
         if (grid.getColumnByKey(columnKey).getId().isPresent()) {
             filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
         }
@@ -361,7 +353,6 @@ public class GridFilter<T> extends HorizontalLayout {
     private IntegerField getFilterIntegerField(String columnKey) {
         IntegerField filter = new IntegerField();
         filter.setId(columnKey);
-
         filter.addValueChangeListener(e -> onFilterChange(filter));
         filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
         if (grid.getColumnByKey(columnKey).getId().isPresent()) {
