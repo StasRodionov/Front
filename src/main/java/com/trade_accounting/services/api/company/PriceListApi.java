@@ -24,7 +24,7 @@ public interface PriceListApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body PriceListDto priceListDto);
+    Call<PriceListDto> create(@Path(value = "url", encoded = true) String url, @Body PriceListDto priceListDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")
@@ -33,4 +33,12 @@ public interface PriceListApi {
     @Headers("Accept: application/json")
     @DELETE("{url}/{id}")
     Call<Void> deleteById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/moveToIsRecyclebin/{id}")
+    Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
+    @PUT("{url}/restoreFromIsRecyclebin/{id}")
+    Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 }

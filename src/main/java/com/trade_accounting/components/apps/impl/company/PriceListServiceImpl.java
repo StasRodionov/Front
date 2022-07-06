@@ -1,5 +1,6 @@
 package com.trade_accounting.components.apps.impl.company;
 
+import com.trade_accounting.components.apps.impl.CallExecuteService;
 import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.trade_accounting.services.api.company.PriceListApi;
@@ -19,10 +20,13 @@ public class PriceListServiceImpl implements PriceListService {
     private final PriceListApi priceListApi;
     private final String priceListUrl;
     private PriceListDto priceListDto;
+    private final CallExecuteService<PriceListDto> callExecuteService;
 
-    public PriceListServiceImpl(@Value("${price_list_url}") String priceListUrl, Retrofit retrofit) {
+    public PriceListServiceImpl(@Value("${price_list_url}") String priceListUrl, Retrofit retrofit,
+                                CallExecuteService<PriceListDto> callExecuteService) {
         this.priceListUrl = priceListUrl;
         priceListApi = retrofit.create(PriceListApi.class);
+        this.callExecuteService = callExecuteService;
     }
 
     @Override
@@ -52,14 +56,16 @@ public class PriceListServiceImpl implements PriceListService {
     }
 
     @Override
-    public void create(PriceListDto priceListDto) {
-        Call<Void> priceListDtoCall = priceListApi.create(priceListUrl, priceListDto);
+    public PriceListDto create(PriceListDto priceListDto) {
+        Call<PriceListDto> priceListDtoCall = priceListApi.create(priceListUrl, priceListDto);
+        PriceListDto priceListCreateDto = null;
         try {
-            priceListDtoCall.execute().body();
+            priceListCreateDto = priceListDtoCall.execute().body();
             log.info("Успешно выполнен запрос на создание экземпляра PriceListDto");
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на создание экземпляра PriceListDto - {}", e);
         }
+        return priceListCreateDto;
     }
 
     @Override
@@ -82,5 +88,19 @@ public class PriceListServiceImpl implements PriceListService {
         } catch (IOException e) {
             log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PriceListDto с id= {} - {}", e);
         }
+    }
+
+    @Override
+    public void moveToIsRecyclebin(Long id) {
+        Call<Void> dtoCall = priceListApi.moveToIsRecyclebin(priceListUrl, id);
+        callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, PriceListDto.class, id);
+
+    }
+
+    @Override
+    public void restoreFromIsRecyclebin(Long id) {
+        Call<Void> dtoCall = priceListApi.restoreFromIsRecyclebin(priceListUrl, id);
+        callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, PriceListDto.class, id);
+
     }
 }

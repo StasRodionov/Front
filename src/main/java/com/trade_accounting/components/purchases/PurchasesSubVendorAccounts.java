@@ -405,9 +405,10 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private String getTotalPrice(SupplierAccountDto invoice) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
-//        for(SupplierAccountProductsListDto supplierAccountProductsListDto: supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
-//            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
-//        }
+        for(SupplierAccountProductsListDto supplierAccountProductsListDto:
+                supplierAccountProductsListService.getBySupplierId(invoice.getId())) {
+            totalPrice = totalPrice.add(supplierAccountProductsListDto.getTotal());
+        }
         return String.format("%.2f", totalPrice);
     }
 

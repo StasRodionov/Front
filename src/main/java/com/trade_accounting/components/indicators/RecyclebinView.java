@@ -1,6 +1,7 @@
 package com.trade_accounting.components.indicators;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.goods.GoodsPriceLayoutPriceListView;
 import com.trade_accounting.components.goods.GoodsSubInventoryModalWindow;
 import com.trade_accounting.components.goods.InternalOrderModalView;
 import com.trade_accounting.components.goods.LossModalWindow;
@@ -22,6 +23,7 @@ import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.components.util.configure.components.select.SelectConstants;
 import com.trade_accounting.components.util.configure.components.select.SelectExt;
+import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
@@ -41,6 +43,8 @@ import com.trade_accounting.models.dto.finance.PaymentDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
+import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
+import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -86,6 +90,7 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -99,8 +104,8 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @Slf4j
 @SpringComponent
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
-/*@Route(value = INDICATORS_TRASHCAN_VIEW, layout = AppView.class)
-@PageTitle("Корзина")*/
+@Route(value = INDICATORS_TRASHCAN_VIEW, layout = AppView.class)
+@PageTitle("Корзина")
 @UIScope
 public class RecyclebinView extends VerticalLayout {
 
@@ -117,6 +122,7 @@ public class RecyclebinView extends VerticalLayout {
     private final SupplierAccountModalView supplierAccountModalView;
     private final AcceptanceModalView acceptanceModalView;
     private final SalesEditShipmentView salesEditShipmentView;
+    private final GoodsPriceLayoutPriceListView priceListContent;
     private final OperationsService operationsService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
@@ -139,6 +145,8 @@ public class RecyclebinView extends VerticalLayout {
     private final SupplierAccountService supplierAccountService;
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
+    private final PriceListService priceListService;
+    private final PriceListProductPercentsService priceListProductPercentsService;
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
     private final GridPaginator<OperationsDto> paginator;
@@ -155,6 +163,7 @@ public class RecyclebinView extends VerticalLayout {
     private List<Long> acceptanceIds;
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
+    private List<Long> priceListIds;
 
     @Autowired
     public RecyclebinView(CreditOrderModal creditOrderModal,
@@ -170,6 +179,7 @@ public class RecyclebinView extends VerticalLayout {
                           SupplierAccountModalView supplierAccountModalView,
                           AcceptanceModalView acceptanceModalView,
                           SalesEditShipmentView salesEditShipmentView,
+                          @Qualifier("goodsPriceLayoutPriceListView") GoodsPriceLayoutPriceListView priceListContent,
                           OperationsService operationsService,
                           CompanyService companyService,
                           WarehouseService warehouseService,
@@ -192,6 +202,8 @@ public class RecyclebinView extends VerticalLayout {
                           SupplierAccountService supplierAccountService,
                           ShipmentService shipmentService,
                           ShipmentProductService shipmentProductService,
+                          PriceListService priceListService,
+                          PriceListProductPercentsService priceListProductPercentsService,
                           Notifications notifications) {
         this.creditOrderModal = creditOrderModal;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
@@ -206,6 +218,7 @@ public class RecyclebinView extends VerticalLayout {
         this.supplierAccountModalView = supplierAccountModalView;
         this.acceptanceModalView = acceptanceModalView;
         this.salesEditShipmentView = salesEditShipmentView;
+        this.priceListContent = priceListContent;
         this.operationsService = operationsService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
@@ -228,6 +241,8 @@ public class RecyclebinView extends VerticalLayout {
         this.supplierAccountService = supplierAccountService;
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
+        this.priceListService = priceListService;
+        this.priceListProductPercentsService = priceListProductPercentsService;
         this.notifications = notifications;
         List<OperationsDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
@@ -247,7 +262,7 @@ public class RecyclebinView extends VerticalLayout {
         acceptanceIds = getAcceptanceIds();
         supplierAccountIds = getSupplierAccountIds();
         shipmentIds = getShipmentIds();
-
+        priceListIds = getPriceListIds();
     }
 
     private List<OperationsDto> getData() {
@@ -282,19 +297,19 @@ public class RecyclebinView extends VerticalLayout {
             openModalWindow(dto);
         });
     }
-        private void configureFilter() {
-            filter.setFieldToIntegerField("id");
-            filter.setFieldToDatePicker("date");
-            filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll()); // Организация
-            // filter.setFieldToComboBox ("typeOfOperation"); // Тип документа
-            // filter.setFieldToComboBox ("price"); // Сумма
-            // filter.setFieldToComboBox("from", WarehouseDto::getName, warehouseService.getAll()); // Со склада
-            // filter.setFieldToComboBox("to", WarehouseDto::getName, warehouseService.getAll()); // На склад
-            // filter.setFieldToComboBox("contactor", ContractorDto::getName, contractorService.getAll()); // Контрагент
-            filter.setFieldToCheckBox("sent");
-            filter.setFieldToCheckBox("print");
-            filter.onSearchClick(e -> paginator.setData(filterDeletedOperations(operationsService.searchByFilter(filter.getFilterData()))));
-            filter.onClearClick(e -> paginator.setData(filterDeletedOperations(operationsService.getAll())));
+    private void configureFilter() {
+        filter.setFieldToIntegerField("id");
+        filter.setFieldToDatePicker("date");
+        filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll()); // Организация
+        // filter.setFieldToComboBox ("typeOfOperation"); // Тип документа
+        // filter.setFieldToComboBox ("price"); // Сумма
+        // filter.setFieldToComboBox("from", WarehouseDto::getName, warehouseService.getAll()); // Со склада
+        // filter.setFieldToComboBox("to", WarehouseDto::getName, warehouseService.getAll()); // На склад
+        // filter.setFieldToComboBox("contactor", ContractorDto::getName, contractorService.getAll()); // Контрагент
+        filter.setFieldToCheckBox("sent");
+        filter.setFieldToCheckBox("print");
+        filter.onSearchClick(e -> paginator.setData(filterDeletedOperations(operationsService.searchByFilter(filter.getFilterData()))));
+        filter.onClearClick(e -> paginator.setData(filterDeletedOperations(operationsService.getAll())));
     }
 
     private void openModalWindow(OperationsDto dto) {
@@ -335,6 +350,11 @@ public class RecyclebinView extends VerticalLayout {
             SupplierAccountDto supplierAccountDto = supplierAccountService.getById(dto.getId());
             supplierAccountModalView.setSupplierAccountsForEdit(supplierAccountDto);
             supplierAccountModalView.open();
+        } else if ((priceListIds.contains(dto.getId()))) {
+            PriceListDto priceListDto = priceListService.getById(dto.getId());
+            priceListContent.setPriceListForEdit(priceListDto, priceListProductPercentsService
+                    .getById(priceListDto.getPercentsIds().get(0)), (byte) 2);
+            this.getUI().ifPresent(ui -> ui.navigate(GOODS_GOODS__PRICE_LIST_EDIT));
         }
     }
 
@@ -523,7 +543,10 @@ public class RecyclebinView extends VerticalLayout {
                     supplierAccountService.restoreFromIsRecyclebin(id);
                 } else if (shipmentIds.contains(id)) {
                     shipmentService.restoreFromIsRecyclebin(id);
+                } else if (priceListIds.contains(id)) {
+                    priceListService.restoreFromIsRecyclebin(id);
                 }
+                notifications.infoNotification("Документы успешно восстановлены");
             }
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные ");
@@ -554,7 +577,10 @@ public class RecyclebinView extends VerticalLayout {
                     supplierAccountService.deleteById(id);
                 } else if (shipmentIds.contains(id)) {
                     shipmentService.deleteById(id);
+                } else if (priceListIds.contains(id)) {
+                    priceListService.deleteById(id);
                 }
+                notifications.infoNotification("Документы успешно удалены");
             }
         } else {
             notifications.errorNotification("Сначала отметьте галочками нужные ");
@@ -576,7 +602,7 @@ public class RecyclebinView extends VerticalLayout {
     }
 
 
-    private void updateList() {
+    public void updateList() {
         grid.setItems(getData());
         movementsIds = getMovementsIds();
         lossIds = getLossIds();
@@ -588,6 +614,7 @@ public class RecyclebinView extends VerticalLayout {
         acceptanceIds = getAcceptanceIds();
         supplierAccountIds = getSupplierAccountIds();
         shipmentIds = getShipmentIds();
+        priceListIds = getPriceListIds();
     }
 
     private Component getIsSentIcon(OperationsDto operationsDto) {
@@ -674,14 +701,21 @@ public class RecyclebinView extends VerticalLayout {
 
     private List<Long> getShipmentIds() {
         List<Long> shipIds = new ArrayList<>();
-        for (ShipmentDto shipmentDto : shipmentService.getAll()){
+        for (ShipmentDto shipmentDto : shipmentService.getAll()) {
             shipIds.add(shipmentDto.getId());
         }
         return shipIds;
     }
 
+    private List<Long> getPriceListIds() {
+        List<Long> priceListIds = new ArrayList<>();
+        for (PriceListDto priceListDto : priceListService.getAll()) {
+            priceListIds.add(priceListDto.getId());
+        }
+        return priceListIds;
+    }
 
-    private String getTotalPrice(OperationsDto operationsDto){
+    private String getTotalPrice(OperationsDto operationsDto) {
         BigDecimal totalPrice = BigDecimal.valueOf(0.0);
         if (movementsIds.contains(operationsDto.getId())) {
             MovementDto movementDto = movementService.getById(operationsDto.getId());
@@ -794,8 +828,10 @@ public class RecyclebinView extends VerticalLayout {
         } else if (shipmentIds.contains(operationsDto.getId())) {
             typeOfOperation = "Отгрузка";
             return typeOfOperation;
-        }
-        else {
+        } else if (priceListIds.contains(operationsDto.getId())) {
+            typeOfOperation = "Прайс-Лист";
+            return typeOfOperation;
+        } else {
             typeOfOperation = "неизвестно";
             return typeOfOperation;
         }
