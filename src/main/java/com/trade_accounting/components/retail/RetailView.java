@@ -20,6 +20,7 @@ import com.trade_accounting.services.interfaces.retail.RetailSalesService;
 import com.trade_accounting.services.interfaces.retail.RetailShiftService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
 import com.trade_accounting.services.interfaces.units.CurrencyService;
+import com.trade_accounting.services.interfaces.units.ExportService;
 import com.trade_accounting.services.interfaces.util.BonusProgramService;
 import com.trade_accounting.services.interfaces.util.TaskService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
@@ -65,6 +66,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final WarehouseService warehouseService;
     private final PositionService positionService;
     private final BankAccountService bankAccountService;
+    private final EventLogModal eventLogModal;
 
     @Autowired
     public RetailView(RetailOperationWithPointsService retailOperationWithPointsService,
@@ -88,7 +90,8 @@ public class RetailView extends Div implements AfterNavigationObserver {
                       PrepaymentReturnService prepaymentReturnService,
                       WarehouseService warehouseService,
                       PositionService positionService,
-                      BankAccountService bankAccountService) {
+                      BankAccountService bankAccountService,
+                      EventLogModal eventLogModal) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -111,6 +114,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.warehouseService = warehouseService;
         this.positionService = positionService;
         this.bankAccountService = bankAccountService;
+        this.eventLogModal = eventLogModal;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -157,7 +161,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Продажи":
                     div.removeAll();
-                    div.add(new RetailSalesTabView(retailSalesService,retailStoreService,companyService, contractorService));
+                    div.add(new RetailSalesTabView(retailSalesService, retailStoreService, companyService, contractorService));
                     break;
                 case "Возвраты":
                     div.removeAll();
@@ -186,7 +190,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
                     break;
                 case "Очередь облачных чеков":
                     div.removeAll();
-                    div.add(new RetailCloudCheckView(retailCloudCheckService,currencyService,retailStoreService,employeeService));
+                    div.add(new RetailCloudCheckView(retailCloudCheckService, currencyService, retailStoreService, employeeService, eventLogModal));
                     break;
                 case "Бонусные программы":
                     div.removeAll();
