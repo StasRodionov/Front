@@ -75,10 +75,15 @@ public class SalesChannelView extends VerticalLayout {
     public void grid() {
         grid.setItems(salesChannelService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setColumns("name", "type", "description");
+        grid.setColumns("name", "type", "description", "generalAccess", "departmentOwner", "employeeOwner", "dateOfChange", "employeeChange");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("type").setHeader("Тип").setId("Тип");
         grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
+        grid.getColumnByKey("generalAccess").setHeader("Общий доступ").setId("Общий доступ");
+        grid.getColumnByKey("departmentOwner").setHeader("Владелец-отдел").setId("Владелец-отдел");
+        grid.getColumnByKey("employeeOwner").setHeader("Владелец-сотрудник").setId("Владелец-сотрудник");
+        grid.getColumnByKey("dateOfChange").setHeader("Когда изменил").setId("Когда изменил");
+        grid.getColumnByKey("employeeChange").setHeader("Кто изменил").setId("Кто изменил");
         getGridContextMenu();
 
         grid.setHeight("64vh");

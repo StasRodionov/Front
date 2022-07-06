@@ -48,7 +48,7 @@ public class SalesChannelSettingsView extends VerticalLayout {
         this.selectedNumberField = getSelectedField();
         this.salesChannelService = salesChannelService;
         this.data = salesChannelService.getAll();
-        paginator = new GridPaginator<SalesChannelDto>(grid, salesChannelService.getAll(), 50);
+        paginator = new GridPaginator<>(grid, salesChannelService.getAll(), 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureGrid();
         this.filter = new GridFilter<>(grid);
@@ -69,7 +69,7 @@ public class SalesChannelSettingsView extends VerticalLayout {
     private HorizontalLayout horizontalLayout() {
         HorizontalLayout hl = new HorizontalLayout();
         hl.add(title(), buttonRefresh(), buttonSalesChannel(), getButtonFilter(), textField());
-      hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return hl;
     }
 
@@ -131,16 +131,21 @@ public class SalesChannelSettingsView extends VerticalLayout {
     public void configureGrid() {
         grid.setItems(salesChannelService.getAll());
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.setColumns("name", "type", "description");
+        grid.setColumns("name", "type", "description", "generalAccess", "departmentOwner", "employeeOwner", "dateOfChange", "employeeChange");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
         grid.getColumnByKey("type").setHeader("Тип").setId("Тип");
         grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
+        grid.getColumnByKey("generalAccess").setHeader("Общий доступ").setId("Общий доступ");
+        grid.getColumnByKey("departmentOwner").setHeader("Владелец-отдел").setId("Владелец-отдел");
+        grid.getColumnByKey("employeeOwner").setHeader("Владелец-сотрудник").setId("Владелец-сотрудник");
+        grid.getColumnByKey("dateOfChange").setHeader("Когда изменил").setId("Когда изменил");
+        grid.getColumnByKey("employeeChange").setHeader("Кто изменил").setId("Кто изменил");
         grid.setHeight("64vh");
 
         grid.addItemDoubleClickListener(event -> {
-            SalesChannelDto editSalesChabbel = event.getItem();
+            SalesChannelDto editSalesChannel = event.getItem();
             SalesChannelModalWindow salesChannelModalWindow =
-                    new SalesChannelModalWindow(editSalesChabbel, salesChannelService);
+                    new SalesChannelModalWindow(editSalesChannel, salesChannelService);
             salesChannelModalWindow.addDetachListener(e -> updateList());
             salesChannelModalWindow.open();
         });
