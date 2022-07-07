@@ -8,6 +8,7 @@ import com.trade_accounting.models.dto.units.CurrencyDto;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.retail.RetailCloudCheckDto;
 import com.trade_accounting.models.dto.retail.RetailStoreDto;
+import com.trade_accounting.services.interfaces.retail.RetailEventLogService;
 import com.trade_accounting.services.interfaces.units.CurrencyService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.retail.RetailCloudCheckService;
@@ -52,21 +53,20 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
     private final CurrencyService currencyService;
     private final RetailStoreService retailStoreService;
     private final EmployeeService employeeService;
-    private final EventLogModal eventLogModal;
+    private final RetailEventLogService retailEventLogService;
     private List<RetailCloudCheckDto> data;
-
     private final GridFilter<RetailCloudCheckDto> filter;
     private final Grid<RetailCloudCheckDto> grid = new Grid<>(RetailCloudCheckDto.class, false);
     private final GridPaginator<RetailCloudCheckDto> paginator;
 
-    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService, EventLogModal eventLogModal) {
+    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService, RetailEventLogService retailEventLogService) {
         this.retailCloudCheckService = retailCloudCheckService;
         this.data = getData();
         this.currencyService = currencyService;
         this.retailStoreService = retailStoreService;
         this.employeeService = employeeService;
         this.paginator = new GridPaginator<>(grid, data, 100);
-        this.eventLogModal = eventLogModal;
+        this.retailEventLogService = retailEventLogService;
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -183,6 +183,7 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
 
     private Button buttonEventLog() {
         Button status = new Button("Журнал событий");
+        EventLogModal eventLogModal = new EventLogModal(retailEventLogService);
         status.addClickListener(e -> eventLogModal.open());
         status.getStyle().set("cursor", "pointer");
         status.setWidth("170px");
