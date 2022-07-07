@@ -125,7 +125,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
     }
 
     private Component checkIsSpend() {
-        isSpend.addValueChangeListener(event -> priceListData.setIsSpend(event.getValue().equals(true)));
+        isSpend.addValueChangeListener(event -> priceListData.setIsSpend(event.getValue()));
         return isSpend;
     }
 
@@ -305,7 +305,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 priceListData.setNumber(listName.getValue());
                 priceListData.setDate(creationDate.getValue().toString());
                 priceListData.setProductsIds(tempPriceListProducts.stream()
-                        .map(PriceListProductDto::getProductId).collect(Collectors.toList()));
+                        .map(PriceListProductDto::getId).collect(Collectors.toList()));
                 addPriceListProductToPriceListDto(priceListData);
                 priceListData.setCompanyId(companyComboBox.getValue().getId());
                 if (priceListData.getPercentsIds() == null) {
@@ -407,6 +407,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         listName.setValue(priceListData.getNumber());
         creationDate.setValue(LocalDateTime.parse(priceListData.getDate()));
         companyComboBox.setValue(companyService.getById(priceListData.getCompanyId()));
+        isSpend.setValue(priceListData.getIsSpend());
         paginator.setData(tempPriceListProducts);
         this.priceListProductPercentsDto = priceListProductPercentsDto;
         configureGrid();

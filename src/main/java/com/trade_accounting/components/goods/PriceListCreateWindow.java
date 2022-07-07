@@ -156,6 +156,7 @@ public class PriceListCreateWindow extends VerticalLayout implements AfterNaviga
                 priceListDto.setIsRecyclebin(false);
                 priceListDto.setIsPrint(false);
                 priceListDto.setIsSent(false);
+                priceListDto.setComment("");
                 priceListDto.setId(priceListService.create(priceListDto).getId());
                 PriceListProductPercentsDto priceListProductPercentsDto = new PriceListProductPercentsDto();
                 priceListProductPercentsDto.setName(column.getValue());
