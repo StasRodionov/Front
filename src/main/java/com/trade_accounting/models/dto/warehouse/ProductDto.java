@@ -41,6 +41,8 @@ public class ProductDto {
 
     private Long taxSystemId;
 
+    private Long typeOfPackingId;
+
     private List<ImageDto> imageDtos;
 
     private List<FileDto> fileDtos;
