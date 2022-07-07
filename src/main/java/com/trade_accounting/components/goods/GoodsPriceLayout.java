@@ -2,14 +2,21 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.PriceListDto;
 import com.trade_accounting.models.dto.company.PriceListProductPercentsDto;
+import com.trade_accounting.models.dto.company.TypeOfPriceDto;
+import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
+import com.trade_accounting.services.interfaces.company.PriceListProductService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
+import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,6 +35,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -36,11 +44,14 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.*;
@@ -56,35 +67,48 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final PriceListService priceListService;
     private final CompanyService companyService;
+    private final ProductService productService;
     private List<PriceListDto> data;
     private final HorizontalLayout actions;
-    private final Grid<PriceListDto> grid;
+    private final Grid<PriceListDto> grid = new Grid<>(PriceListDto.class, false);
     private final GridPaginator<PriceListDto> paginator;
+    private final GridFilter<PriceListDto> filter;
     private final Notifications notifications;
     private final GoodsPriceLayoutPriceListView priceListContent;
     private final PriceListProductPercentsService priceListProductPercentsService;
+    private final TypeOfPriceService typeOfPriceService;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     public GoodsPriceLayout(PriceListService priceListService,
                             CompanyService companyService,
+                            ProductService productService,
+                            PriceListProductService priceListProductService,
                             Notifications notifications,
-                            GoodsPriceLayoutPriceListView priceListContent,
-                            PriceListProductPercentsService priceListProductPercentsService) {
+                            @Qualifier("goodsPriceLayoutPriceListView") GoodsPriceLayoutPriceListView priceListContent,
+                            PriceListProductPercentsService priceListProductPercentsService, TypeOfPriceService typeOfPriceService) {
         this.priceListService = priceListService;
         this.companyService = companyService;
+        this.productService = productService;
         this.notifications = notifications;
         this.priceListProductPercentsService = priceListProductPercentsService;
+        this.typeOfPriceService = typeOfPriceService;
         this.data = getData();
         actions = new HorizontalLayout();
-        grid = new Grid<>(PriceListDto.class, false);
         paginator = new GridPaginator<>(grid, data, 50);
         this.priceListContent = priceListContent;
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         setSizeFull();
-        configureActions();
         configureGrid();
-        add(actions, grid, paginator);
+
+        Map<ValueProvider<PriceListDto, ?>, List<String>> filterMap = new LinkedHashMap<>();
+        filterMap.put((priceListDto -> priceListProductService
+                .getByPriceListId(priceListDto.getId())), List.of("productName", "Товар"));
+        filterMap.put(priceListDto -> typeOfPriceService
+                .getById(priceListDto.getTypeOfPriceId()), List.of("typeOfPrice", "Тип цены"));
+        filter = new GridFilter<>(grid, filterMap);
+
+        add(configureActions(), configureFilter(), grid, paginator);
     }
 
     private HorizontalLayout configureActions() {
@@ -100,14 +124,14 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
 //        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(PriceListDto::getNumber).setKey("number").setHeader("№").setSortable(true).setId("№");
         grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getDate())))
-                .setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
+                .setKey("date").setHeader("Начальная дата").setSortable(true).setId("Начальная дата");
         grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId())
                 .getName()).setKey("company").setHeader("Организация").setId("Организация");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
-        grid.addColumn(PriceListDto::getComment).setKey("commentary").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn(PriceListDto::getComment).setKey("comment").setHeader("Комментарий").setId("Комментарий");
         grid.setHeight("66vh");
         grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
@@ -154,7 +178,35 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     }
 
     private Button buttonFilter() {
-        return new Button("Фильтр");
+        Button button = new Button("Фильтр");
+        button.addClickListener(e -> filter.setVisible(!filter.isVisible()));
+        return button;
+    }
+
+    private HorizontalLayout configureFilter() {
+        filter.setFieldToDatePicker("date");
+
+        filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
+
+        filter.setFieldToComboBox("productName", ProductDto::getName, productService.getAll());
+        filter.setFieldToComboBox("typeOfPrice", TypeOfPriceDto::getName, typeOfPriceService.getAll());
+
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterDataBetween();
+            if(map.get("date") != null && map.get("dateBefore") != null){
+                paginator.setData(priceListService.searchByBetweenDataFilter(map));
+            } else {
+                paginator.setData(priceListService.searchByFilter(map));
+            }
+        });
+        filter.onClearClick(e -> paginator.setData(getData()));
+        return filter;
+    }
+
+    private void updateListQsearch(String text) {
+        grid.setItems(priceListService.quickSearch(text));
     }
 
     private TextField text() {
@@ -163,6 +215,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         textField.addThemeVariants(TextFieldVariant.MATERIAL_ALWAYS_FLOAT_LABEL);
         textField.setClearButtonVisible(true);
         textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.addValueChangeListener(event -> updateListQsearch(textField.getValue()));
         setSizeFull();
         return textField;
     }

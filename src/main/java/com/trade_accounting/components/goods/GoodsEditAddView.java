@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.warehouse.AttributeOfCalculationObjectDto
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductGroupDto;
 import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
+import com.trade_accounting.models.dto.warehouse.TypeOfPackingDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.TaxSystemService;
@@ -20,6 +21,7 @@ import com.trade_accounting.services.interfaces.warehouse.AttributeOfCalculation
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
+import com.trade_accounting.services.interfaces.warehouse.TypeOfPackingService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.Key;
@@ -94,11 +96,13 @@ public class GoodsEditAddView extends VerticalLayout {
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
+
+    private final TypeOfPackingService typeOfPackingService;
     private final TypeOfPriceService typeOfPriceService;
     private final EmployeeService employeeService;
 
     private List<ImageDto> imageDtoList;
-    private ProductDto productDto;
+    private ProductDto productDto = new ProductDto();
     private List<FileDto> fileDtoList;
 
     private final Binder<ProductDto> productDtoBinder = new Binder<>(ProductDto.class);
@@ -117,6 +121,8 @@ public class GoodsEditAddView extends VerticalLayout {
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<TaxSystemDto> taxSystemDtoComboBox = new ComboBox<>();
     private final ComboBox<AttributeOfCalculationObjectDto> attributeOfCalculationObjectComboBox = new ComboBox<>();
+
+    private final ComboBox<TypeOfPackingDto> typeOfPackingComboBox = new ComboBox<>();
     private final BigDecimalField itemNumber = new BigDecimalField();
     private final BigDecimalField minimumBalance = new BigDecimalField();
     private final BigDecimalField weightNumberField = new BigDecimalField();
@@ -142,6 +148,7 @@ public class GoodsEditAddView extends VerticalLayout {
                             ProductService productService,
                             ProductGroupService productGroupService,
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
+                            TypeOfPackingService typeOfPackingService,
                             TypeOfPriceService typeOfPriceService,
                             EmployeeService employeeService) {
         this.productPriceService = productPriceService;
@@ -151,6 +158,7 @@ public class GoodsEditAddView extends VerticalLayout {
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
+        this.typeOfPackingService = typeOfPackingService;
         this.typeOfPriceService = typeOfPriceService;
         this.employeeService = employeeService;
 
@@ -248,7 +256,7 @@ public class GoodsEditAddView extends VerticalLayout {
         this.productDto.setCountryOrigin(countryOriginField.getValue());
         this.productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         this.productDto.setImageDtos(imageDtoList);
-
+        this.productDto.setTypeOfPackingId(typeOfPackingComboBox.getValue().getId());
 
         if (productDto.getProductPriceIds() == null) {
             this.productDto.setProductPriceIds(new ArrayList<>());
@@ -522,6 +530,11 @@ public class GoodsEditAddView extends VerticalLayout {
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
         taxSystemDtoComboBox.setItemLabelGenerator(TaxSystemDto::getName);
         content.add(getHorizontalLayout("Система налогообложения", taxSystemDtoComboBox));
+
+        typeOfPackingComboBox.setPlaceholder("Фасовка");
+        typeOfPackingComboBox.setItems(typeOfPackingService.getAll());
+        typeOfPackingComboBox.setItemLabelGenerator(TypeOfPackingDto::getName);
+        content.add(getHorizontalLayout("Фасовка", typeOfPackingComboBox));
 
         content.add(new Hr());
 

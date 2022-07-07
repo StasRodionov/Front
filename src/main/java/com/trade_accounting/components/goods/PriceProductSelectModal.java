@@ -147,6 +147,7 @@ public class PriceProductSelectModal extends Dialog {
     }
 
     public void setPriceList(PriceListDto priceListData, PriceListProductPercentsDto priceListProductPercentsDto) {
+        this.priceListProductData = new PriceListProductDto();
         this.priceListData = priceListData;
         this.priceListProductPercent = priceListProductPercentsDto;
         label.setText(priceListProductPercent.getName());

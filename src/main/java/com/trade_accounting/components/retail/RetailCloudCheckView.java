@@ -52,19 +52,21 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
     private final CurrencyService currencyService;
     private final RetailStoreService retailStoreService;
     private final EmployeeService employeeService;
+    private final EventLogModal eventLogModal;
     private List<RetailCloudCheckDto> data;
 
     private final GridFilter<RetailCloudCheckDto> filter;
     private final Grid<RetailCloudCheckDto> grid = new Grid<>(RetailCloudCheckDto.class, false);
     private final GridPaginator<RetailCloudCheckDto> paginator;
 
-    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService) {
+    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService, EventLogModal eventLogModal) {
         this.retailCloudCheckService = retailCloudCheckService;
         this.data = getData();
         this.currencyService = currencyService;
         this.retailStoreService = retailStoreService;
         this.employeeService = employeeService;
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.eventLogModal = eventLogModal;
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -181,6 +183,8 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
 
     private Button buttonEventLog() {
         Button status = new Button("Журнал событий");
+        status.addClickListener(e -> eventLogModal.open());
+        status.getStyle().set("cursor", "pointer");
         status.setWidth("170px");
         return status;
     }

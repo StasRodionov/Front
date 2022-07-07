@@ -10,6 +10,7 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -121,5 +122,20 @@ public class PriceListProductServiceImpl implements PriceListProductService {
             log.error("Произошла ошибка при выполнении запроса на получение списка PriceListProductDto по productId= {} - {}", id, e);
         }
         return priceListProductDtoList;
+    }
+
+
+    @Override
+    public List<PriceListProductDto> quickSearch(String text) {
+        List<PriceListProductDto> priceListProductDtos = new ArrayList<>();
+        Call<List<PriceListProductDto>> priceListProductDtoCall = priceListProductApi.quickSearch(priceListProductUrl, text.toLowerCase());
+
+        try {
+            priceListProductDtos = priceListProductDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка PriceListProductDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка PriceListProductDto: ", e);
+        }
+        return priceListProductDtos;
     }
 }
