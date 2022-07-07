@@ -5,21 +5,20 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.profile.SalesChannelModalWindow;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.units.SalesChannelDto;
 import com.trade_accounting.services.interfaces.units.SalesChannelService;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
-
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
@@ -44,14 +43,19 @@ public class SalesChannelSettingsView extends VerticalLayout {
     private GridPaginator<SalesChannelDto> paginator;
     private final GridFilter<SalesChannelDto> filter;
 
-    public SalesChannelSettingsView(SalesChannelService salesChannelService) {
+    private final Notifications notifications;
+
+    public SalesChannelSettingsView(SalesChannelService salesChannelService, Notifications notifications) {
         this.selectedNumberField = getSelectedField();
         this.salesChannelService = salesChannelService;
         this.data = salesChannelService.getAll();
+        this.notifications = notifications;
         paginator = new GridPaginator<>(grid, salesChannelService.getAll(), 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureGrid();
         this.filter = new GridFilter<>(grid);
+        updateList();
+        configureFilter();
         add(getAppView(), horizontalLayout(), filter, horizontalLayout2(), horizontalLayout3(), grid, paginator);
     }
 
@@ -68,7 +72,7 @@ public class SalesChannelSettingsView extends VerticalLayout {
 
     private HorizontalLayout horizontalLayout() {
         HorizontalLayout hl = new HorizontalLayout();
-        hl.add(title(), buttonRefresh(), buttonSalesChannel(), getButtonFilter(), textField());
+        hl.add(title(), buttonRefresh(), buttonSalesChannel(), getButtonFilter(), textField(), valueSelect());
         hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         return hl;
     }
@@ -127,6 +131,10 @@ public class SalesChannelSettingsView extends VerticalLayout {
         grid.setItems(salesChannelService.getAll());
     }
 
+    private List<SalesChannelDto> getData() {
+        return salesChannelService.getAll();
+    }
+
 
     public void configureGrid() {
         grid.setItems(salesChannelService.getAll());
@@ -158,5 +166,34 @@ public class SalesChannelSettingsView extends VerticalLayout {
         numberField.setWidth("50px");
         numberField.setValue(0D);
         return numberField;
+    }
+
+    private void configureFilter() {
+        filter.onSearchClick(e -> paginator.setData(salesChannelService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(salesChannelService.getAll()));
+    }
+
+    private Select<String> valueSelect() {
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedSalesChannel();
+            grid.deselectAll();
+            paginator.setData(getData());
+        });
+    }
+
+
+    private void deleteSelectedSalesChannel() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (SalesChannelDto salesChannelDto : grid.getSelectedItems()) {
+                salesChannelService.deleteById(salesChannelDto.getId());
+            }
+            if (grid.getSelectedItems().size() == 1) {
+                notifications.infoNotification("Выбранный канал продаж успешно удален");
+            } else if (grid.getSelectedItems().size() > 1) {
+                notifications.infoNotification("Выбранные каналы продаж успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные каналы продаж");
+        }
     }
 }

@@ -3,8 +3,8 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.configure.components.select.SelectConstants;
-import com.trade_accounting.components.util.configure.components.select.SelectExt;
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.units.SalesChannelDto;
 import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.vaadin.flow.component.Component;
@@ -39,20 +39,26 @@ public class SalesChannelView extends VerticalLayout {
     private final SalesChannelService salesChannelService;
     private Grid<SalesChannelDto> grid = new Grid<>(SalesChannelDto.class);
     private GridPaginator<SalesChannelDto> paginator;
-
     private final GridFilter<SalesChannelDto> filter;
+    private final Notifications notifications;
 
-    public SalesChannelView(SalesChannelService salesChannelService) {
+    public SalesChannelView(SalesChannelService salesChannelService, Notifications notifications) {
         this.salesChannelService = salesChannelService;
         this.data = salesChannelService.getAll();
-        paginator = new GridPaginator<>(grid, salesChannelService.getAll(), 50);
+        this.notifications = notifications;
+        this.paginator = new GridPaginator<>(grid, salesChannelService.getAll(), 50);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         grid();
         this.selectedNumberField = getSelectedNumberField();
         this.filter = new GridFilter<>(grid);
+        updateList();
+        configureFilter();
         add(getToolbar(), filter, grid, paginator);
     }
 
+    private List<SalesChannelDto> getData() {
+        return salesChannelService.getAll();
+    }
 
     private Button buttonRefresh() {
         Button buttonRefresh = new Button(new Icon(VaadinIcon.REFRESH));
@@ -94,7 +100,7 @@ public class SalesChannelView extends VerticalLayout {
             salesChannelModalWindow.addDetachListener(e -> updateList());
             salesChannelModalWindow.open();
         });
-    grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
+        grid.addSelectionListener(e -> selectedNumberField.setValue((double) e.getAllSelectedItems().size()));
     }
 
 
@@ -106,13 +112,13 @@ public class SalesChannelView extends VerticalLayout {
     }
 
 
-    private Select<String> valueSelect() {
-        return new SelectExt.SelectBuilder<String>()
-                .item(SelectConstants.CHANGE_SELECT_ITEM)
-                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
-                .width(SelectConstants.SELECT_WIDTH_130PX)
-                .build();
-    }
+//    private Select<String> valueSelect() {
+//        return new SelectExt.SelectBuilder<String>()
+//                .item(SelectConstants.CHANGE_SELECT_ITEM)
+//                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
+//                .width(SelectConstants.SELECT_WIDTH_130PX)
+//                .build();
+//    }
 
     private Button buttonSettings() {
         return new Button(new Icon(VaadinIcon.COG_O));
@@ -178,6 +184,35 @@ public class SalesChannelView extends VerticalLayout {
         numberField.setWidth("50px");
         numberField.setValue(0D);
         return numberField;
+    }
+
+    private void configureFilter() {
+        filter.onSearchClick(e -> paginator.setData(salesChannelService.search(filter.getFilterData())));
+        filter.onClearClick(e -> paginator.setData(salesChannelService.getAll()));
+    }
+
+    private Select<String> valueSelect() {
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedSalesChannel();
+            grid.deselectAll();
+            paginator.setData(getData());
+        });
+    }
+
+
+    private void deleteSelectedSalesChannel() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (SalesChannelDto salesChannelDto : grid.getSelectedItems()) {
+                salesChannelService.deleteById(salesChannelDto.getId());
+            }
+            if (grid.getSelectedItems().size() == 1) {
+                notifications.infoNotification("Выбранный канал продаж успешно удален");
+            } else if (grid.getSelectedItems().size() > 1) {
+                notifications.infoNotification("Выбранные каналы продаж успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте галочками нужные каналы продаж");
+        }
     }
 
 }
