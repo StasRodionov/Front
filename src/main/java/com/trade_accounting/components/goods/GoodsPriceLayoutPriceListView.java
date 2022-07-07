@@ -12,7 +12,6 @@ import com.trade_accounting.models.dto.company.PriceListProductPercentsDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductGroupDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
-import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
 import com.trade_accounting.services.interfaces.company.PriceListProductService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
@@ -58,7 +57,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.*;
-import static com.trade_accounting.config.SecurityConstants.INDICATORS_OPERATIONS_VIEW;
 
 @SpringComponent
 @Route(value = GOODS_GOODS__PRICE_LIST_EDIT, layout = AppView.class)
@@ -298,7 +296,9 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
             } else {
 
                 for (PriceListProductDto priceListProductDto : priceListProductService.getByPriceListId(priceListData.getId())) {
-                    if (!tempPriceListProducts.contains(priceListProductDto)) {
+                    List<Long> ids = tempPriceListProducts.stream().map(PriceListProductDto::getId)
+                            .collect(Collectors.toList());
+                    if (!ids.contains(priceListProductDto.getId())) {
                         priceListProductService.deleteById(priceListProductDto.getId());
                     }
                 }
