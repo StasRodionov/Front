@@ -11,7 +11,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -86,7 +88,7 @@ public class PriceListServiceImpl implements PriceListService {
             priceListDtoCall.execute();
             log.info("Успешно выполнен запрос на удаление экземпляра PriceListDto с id= {}", id);
         } catch (IOException e) {
-            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PriceListDto с id= {} - {}", e);
+            log.error("Произошла ошибка при выполнении запроса на удаление экземпляра PriceListDto с id= {} - {}", id, e);
         }
     }
 
@@ -102,5 +104,46 @@ public class PriceListServiceImpl implements PriceListService {
         Call<Void> dtoCall = priceListApi.restoreFromIsRecyclebin(priceListUrl, id);
         callExecuteService.callExecuteBodyRestoreFromIsRecyclebin(dtoCall, PriceListDto.class, id);
 
+    }
+
+
+    @Override
+    public List<PriceListDto> quickSearch(String text) {
+        List<PriceListDto> priceListDtos = new ArrayList<>();
+        Call<List<PriceListDto>> priceListDtoCall = priceListApi.quickSearch(priceListUrl, text.toLowerCase());
+
+        try {
+            priceListDtos = priceListDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка PriceListDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка PriceListDto: ", e);
+        }
+        return priceListDtos;
+    }
+
+    @Override
+    public List<PriceListDto> searchByFilter(Map<String, String> query) {
+        List<PriceListDto> priceListDtos = new ArrayList<>();
+        Call<List<PriceListDto>> priceListDtoCall = priceListApi.searchByFilter(priceListUrl, query);
+        try {
+            priceListDtos = priceListDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка PriceListDto по ФИЛЬТРУ -{}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка PriceListDto - ", e);
+        }
+        return priceListDtos;
+    }
+
+    @Override
+    public List<PriceListDto> searchByBetweenDataFilter(Map<String, String> query) {
+        List<PriceListDto> priceListDtos = new ArrayList<>();
+        Call<List<PriceListDto>> priceListDtoCall = priceListApi.searchByBetweenDataFilter(priceListUrl, query);
+        try {
+            priceListDtos = priceListDtoCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка PriceListDto по ФИЛЬТРУ -{}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка PriceListDto - ", e);
+        }
+        return priceListDtos;
     }
 }

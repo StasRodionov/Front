@@ -11,24 +11,19 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.function.ValueProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -69,6 +64,15 @@ public class GridFilter<T> extends HorizontalLayout {
         configureButton();
 
        }
+
+    public GridFilter(Grid<T> grid, Map<ValueProvider<T, ?>, List<String>> columnKeys) {
+        this.grid = grid;
+        this.filterData = new HashMap<>();
+        configureLayout();
+        configureFilterField(columnKeys);
+        configureButton();
+
+    }
 
     /**
      * Sets field uses column key to ComboBox with specific item label generator and items.
@@ -237,6 +241,29 @@ public class GridFilter<T> extends HorizontalLayout {
         return filterData;
     }
 
+
+    public Map<String, String> getFilterDataBetween() {
+        String datetime = filterData.get("date");
+        String datetimeBefore = filterData.get("dateBefore");
+
+        if (datetime != null) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+                filterData.put("date", LocalDateTime.parse(datetime).format(formatter));
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (datetimeBefore != null) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+                filterData.put("dateBefore", LocalDateTime.parse(datetimeBefore).format(formatter));
+            } catch (Exception ignored) {
+            }
+        }
+        return filterData;
+    }
+
     private void configureButton() {
         clearButton.addClickListener(e -> this.getChildren().forEach(component -> {
             if (component instanceof AbstractField) {
@@ -338,7 +365,31 @@ public class GridFilter<T> extends HorizontalLayout {
                 if (!e.getKey().equals("imageDto") && !e.getKey().equals("sumOut")) {
                     this.add(getFilterTextField(e.getKey()));
                 }
+                if (e.getKey().equals("date")) {
+                    grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
+                    this.add(getFilterDatePicker("dateBefore"));
+                }
             });
+        } catch (NullPointerException e) {
+        }
+    }
+
+    private void configureFilterField(Map<ValueProvider<T, ?>, List<String>> columnKeys) {
+        for (Map.Entry<ValueProvider<T, ?>, List<String>> column : columnKeys.entrySet()) {
+            grid.addColumn(column.getKey()).setKey(column.getValue().get(0)).setId(column.getValue().get(1));
+            grid.getColumnByKey(column.getValue().get(0)).setVisible(false);
+        }
+        try {
+            grid.getColumns().forEach(e -> {
+                if (!e.getKey().equals("imageDto") && !e.getKey().equals("sumOut")) {
+                    this.add(getFilterTextField(e.getKey()));
+                }
+                if (e.getKey().equals("date")) {
+                    grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
+                    this.add(getFilterDatePicker("dateBefore"));
+                }
+            });
+
         } catch (NullPointerException e) {
         }
     }
