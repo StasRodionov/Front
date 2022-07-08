@@ -17,4 +17,24 @@ public class SalesChannelDto {
 
     private String description;
 
+    private boolean generalAccess;
+
+    private String departmentOwner;
+
+    private String employeeOwner;
+
+    private String dateOfChange;
+
+    private String employeeChange;
+
+//    public SalesChannelDto(String name, String type, String description, boolean generalAccess, String departmentOwner, String employeeOwner, String dateOfChange, String employeeChange) {
+//        this.name = name;
+//        this.type = type;
+//        this.description = description;
+//        this.generalAccess = generalAccess;
+//        this.departmentOwner = departmentOwner;
+//        this.employeeOwner = employeeOwner;
+//        this.dateOfChange = dateOfChange;
+//        this.employeeChange = employeeChange;
+//    }
 }
