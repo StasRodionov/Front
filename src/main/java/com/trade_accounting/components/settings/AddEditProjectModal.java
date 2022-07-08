@@ -1,7 +1,15 @@
 package com.trade_accounting.components.settings;
 
+import com.trade_accounting.models.dto.finance.PaymentDto;
+import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
+import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.util.ProjectDto;
+import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
+import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.finance.ReturnToSupplierService;
+import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
+import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.Key;
@@ -9,6 +17,7 @@ import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -20,20 +29,37 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @UIScope
 @Slf4j
 public class AddEditProjectModal extends Dialog {
+
+    private final ProjectService projectService;
+    private final InvoiceService invoiceService;
+    private final PaymentService paymentService;
+    private final AcceptanceService acceptanceService;
+    private final ReturnToSupplierService returnToSupplierService;
 
     private TextField nameField = new TextField();
     private TextArea codeField = new TextArea();
     private TextArea descriptionField = new TextArea();
     private Long id;
-    private final ProjectService projectService;
     private final Dialog dialogOnCloseView = new Dialog();
+    private Dialog associationWarning = new Dialog();
 
     public AddEditProjectModal(ProjectDto projectDto,
-                               ProjectService projectService) {
+                               ProjectService projectService,
+                               InvoiceService invoiceService,
+                               PaymentService paymentService,
+                               AcceptanceService acceptanceService,
+                               ReturnToSupplierService returnToSupplierService) {
+
         this.projectService = projectService;
+        this.invoiceService = invoiceService;
+        this.paymentService = paymentService;
+        this.acceptanceService = acceptanceService;
+        this.returnToSupplierService = returnToSupplierService;
 
         setCloseOnOutsideClick(false);
         setCloseOnEsc(false);
@@ -59,12 +85,36 @@ public class AddEditProjectModal extends Dialog {
         );
 
         configureCloseViewDialog();
+        configureAssociationWarningDialog();
     }
 
     private void configureCloseViewDialog() {
         dialogOnCloseView.setCloseOnEsc(false);
         dialogOnCloseView.setCloseOnOutsideClick(false);
         Shortcuts.addShortcutListener(dialogOnCloseView, dialogOnCloseView::close, Key.ESCAPE);
+    }
+
+    private void configureAssociationWarningDialog() {
+        associationWarning.setCloseOnEsc(true);
+        associationWarning.setCloseOnOutsideClick(true);
+        Shortcuts.addShortcutListener(associationWarning, associationWarning::close, Key.ESCAPE);
+
+    }
+
+    private void buildAssociationWarningDialog(String projectName, VerticalLayout usageListContainer) {
+        associationWarning.removeAll();
+
+        Button cancelButton = new Button("Закрыть", event -> {
+            associationWarning.close();
+        });
+
+        associationWarning.add(new VerticalLayout(
+                new Label("Требуется удалить связанные объекты, проект " + projectName + " используется в:"),
+                usageListContainer,
+                new HorizontalLayout(cancelButton))
+        );
+
+        associationWarning.open();
     }
 
     private void terminateCloseDialog() {
@@ -151,12 +201,44 @@ public class AddEditProjectModal extends Dialog {
 
     private Button getDeleteButton() {
         return new Button("Удалить", event -> {
-            try {
+            List<InvoiceDto> boundedInvoices = invoiceService.getByProjectId(id);
+            List<PaymentDto> boundedPayments = paymentService.getByProjectId(id);
+            List<AcceptanceDto> boundedAcceptances = acceptanceService.getByProjectId(id);
+            List<ReturnToSupplierDto> boundedReturnToSupplier = returnToSupplierService.getByProjectId(id);
+
+            if (boundedInvoices.isEmpty() & boundedPayments.isEmpty() & boundedAcceptances.isEmpty()
+                    & boundedReturnToSupplier.isEmpty()) {
                 projectService.deleteById(id);
-            } catch (Exception e) {
-                e.printStackTrace();
+                close();
+            } else {
+                VerticalLayout usageListContainer = new VerticalLayout();
+
+                for (InvoiceDto invoice : boundedInvoices) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Invoice " + invoice.getTypeOfInvoice() + " with id "),
+                            new Anchor("#", invoice.getId().toString())));
+                }
+
+                for (PaymentDto payment : boundedPayments) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Payment " + payment.getTypeOfDocument() + " with id "),
+                            new Anchor("#", payment.getId().toString())));
+                }
+
+                for (AcceptanceDto acceptance : boundedAcceptances) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Приёмка with id "),
+                            new Anchor("#", acceptance.getId().toString())));
+                }
+
+                for (ReturnToSupplierDto returns : boundedReturnToSupplier) {
+                    usageListContainer.add(new HorizontalLayout(
+                            new Text("Возврат поставщику with id "),
+                            new Anchor("#", returns.getId().toString())));
+                }
+
+                buildAssociationWarningDialog(projectService.getById(id).getName(), usageListContainer);
             }
-            close();
         });
     }
 

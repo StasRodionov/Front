@@ -9,6 +9,8 @@ public interface PaymentService {
 
     List<PaymentDto> getAll();
 
+    List<PaymentDto> getByProjectId(Long id);
+
     PaymentDto getById(Long id);
 
     void create(PaymentDto paymentDto);

@@ -23,6 +23,8 @@ public class ReturnToSupplierDto extends ReturnToSupplierDtoForValidation {
 
     private Long contractId;
 
+    private Long projectId;
+
     private Boolean isSend;
 
     private Boolean isPrint;

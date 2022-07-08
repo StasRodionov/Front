@@ -1,8 +1,8 @@
 package com.trade_accounting.components.purchases;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.company.ContractDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -34,12 +35,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -52,18 +51,19 @@ import static com.trade_accounting.config.SecurityConstants.*;
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 //@Route(value = PURCHASES_ACCEPTS_VIEW, layout = AppView.class)
 public class AcceptanceModalView extends Dialog {
-
     transient private final CompanyService companyService;
     transient private final AcceptanceService acceptanceService;
     transient private final ContractService contractService;
     transient private final WarehouseService warehouseService;
     transient private final ContractorService contractorService;
+    transient private final ProjectService projectService;
     transient private AcceptanceDto dto = new AcceptanceDto();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<CompanyDto> companyDtoComboBox = new ComboBox<>();
     private final ComboBox<ProductDto> productDtoComboBox = new ComboBox<>();
+    private final ComboBox<ProjectDto> projectDtoComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox checkboxIsSent = new Checkbox("Отправлено");
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
@@ -83,8 +83,8 @@ public class AcceptanceModalView extends Dialog {
     private final TextField summ = new TextField();
     private boolean isNew;
     private boolean isNewProd;
-    private static final String ACTION_1 = "350px";
-    private static final String ACTION_2 = "100px";
+    private static final String FIELD_WIDTH = "350px";
+    private static final String LABEL_WIDTH = "100px";
 
     @Autowired
     public AcceptanceModalView(CompanyService companyService,
@@ -94,7 +94,8 @@ public class AcceptanceModalView extends Dialog {
                                ContractorService contractorService,
                                Notifications notifications,
                                ProductService productService,
-                               AcceptanceProductionService acceptanceProductionService) {
+                               AcceptanceProductionService acceptanceProductionService,
+                               ProjectService projectService) {
         this.companyService = companyService;
         this.acceptanceService = acceptanceService;
         this.contractService = contractService;
@@ -103,6 +104,7 @@ public class AcceptanceModalView extends Dialog {
         this.notifications = notifications;
         this.productService = productService;
         this.acceptanceProductionService = acceptanceProductionService;
+        this.projectService = projectService;
         isNew = true;
         isNewProd = true;
         data = getData();
@@ -119,13 +121,16 @@ public class AcceptanceModalView extends Dialog {
         companyDtoComboBox.setValue(companyService.getById(editDto.getCompanyId()));
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractDtoComboBox.setValue(contractService.getById(editDto.getContractId()));
+        if (editDto.getProjectId() != null) {
+            projectDtoComboBox.setValue(projectService.getById(editDto.getProjectId()));
+        }
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
         checkboxIsSent.setValue(editDto.getIsSent());
         checkboxIsPrint.setValue(editDto.getIsPrint());
     }
 
     private List<AcceptanceProductionDto> getData() {
-        if (dto.getAcceptanceProduction() == null){
+        if (dto.getAcceptanceProduction() == null) {
             dto.setAcceptanceProduction(new ArrayList<>());
         }
         return dto.getAcceptanceProduction();
@@ -144,20 +149,21 @@ public class AcceptanceModalView extends Dialog {
 //    }
 
     private void updateSupplier() {
-        dto.setAcceptanceProduction(data);
         dto.setId(Long.parseLong(returnNumber.getValue()));
-        dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
-        dto.setDate(dateTimePicker.getValue().toString());
-        dto.setContractId(contractDtoComboBox.getValue().getId());
         dto.setCompanyId(companyDtoComboBox.getValue().getId());
+        dto.setContractId(contractDtoComboBox.getValue().getId());
+        dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
         dto.setContractorId(contractorDtoComboBox.getValue().getId());
-        dto.setComment(textArea.getValue());
-        dto.setProjectId((long) 1); //Это неправлильно. Должен быть список с выбором проекта. Пока списка проектов нет, будет так
+        dto.setProjectId(projectDtoComboBox.getValue() == null ?
+                null : projectDtoComboBox.getValue().getId());
+        dto.setDate(dateTimePicker.getValue().toString());
         dto.setIsSent(checkboxIsSent.getValue());
         dto.setIsPrint(checkboxIsPrint.getValue());
-        if (data.size() == 0) {
-            dto.setAcceptanceProduction(new ArrayList<>());
-        }
+        dto.setComment(textArea.getValue());
+//        dto.setAcceptanceProduction(data);
+//        if (data.isEmpty()) {
+//            dto.setAcceptanceProduction(new ArrayList<>());
+//        }
         dto.setAcceptanceProduction(data);
         if (!isNew) {
             acceptanceService.update(dto);
@@ -181,6 +187,8 @@ public class AcceptanceModalView extends Dialog {
                 dto.setContractId(contractDtoComboBox.getValue().getId());
                 dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
                 dto.setContractorId(contractorDtoComboBox.getValue().getId());
+                dto.setProjectId(projectDtoComboBox.getValue() == null ?
+                        null : projectDtoComboBox.getValue().getId());
                 dto.setDate(dateTimePicker.getValue().toString());
                 dto.setIsSent(checkboxIsSent.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
@@ -225,7 +233,8 @@ public class AcceptanceModalView extends Dialog {
                 dto.setCompanyId(companyDtoComboBox.getValue().getId());
                 dto.setContractorId(contractorDtoComboBox.getValue().getId());
                 dto.setComment(textArea.getValue());
-                dto.setProjectId((long) 1); //Это неправлильно. Должен быть список с выбором проекта. Пока списка проектов нет, будет так
+                dto.setProjectId(projectDtoComboBox.getValue() == null ?
+                        null : projectDtoComboBox.getValue().getId());
                 dto.setIsSent(checkboxIsSent.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
                 dtoId = acceptanceService.create(dto).body().getId();
@@ -272,25 +281,19 @@ public class AcceptanceModalView extends Dialog {
 
     private HorizontalLayout formLayout2() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(companyConfigure(), warehouseConfigure());
+        horizontalLayout.add(companyConfigure(), warehouseConfigure(), contractorConfigure());
         return horizontalLayout;
     }
 
     private HorizontalLayout formLayout3() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(contractorConfigure(), contractConfigure());
+        horizontalLayout.add(contractConfigure(), productConfigure(), projectConfigure());
         return horizontalLayout;
     }
 
-//    private HorizontalLayout formLayout4() {
-//        HorizontalLayout horizontalLayout = new HorizontalLayout();
-//        horizontalLayout.add(commentConfig());
-//        return horizontalLayout;
-//    }
-
-        private HorizontalLayout formLayout4() {
+    private HorizontalLayout formLayout4() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(productConfigure(), amountFieldConfig(), addProduct());
+        horizontalLayout.add(amountFieldConfig(), addProduct());
         return horizontalLayout;
     }
 
@@ -325,7 +328,8 @@ public class AcceptanceModalView extends Dialog {
                     warehouseService,
                     contractorService,
                     notifications,
-                    companyService);
+                    companyService,
+                    projectService);
 
             if (isNew) {
                 dto.setAcceptanceProduction(new ArrayList<>());
@@ -336,7 +340,8 @@ public class AcceptanceModalView extends Dialog {
                 dto.setCompanyId(companyDtoComboBox.getValue().getId());
                 dto.setContractorId(contractorDtoComboBox.getValue().getId());
                 dto.setComment(textArea.getValue());
-                dto.setProjectId((long) 1); //Это неправлильно. Должен быть список с выбором проекта. Пока списка проектов нет, будет так
+                dto.setProjectId(projectDtoComboBox.getValue() == null ?
+                        null : projectDtoComboBox.getValue().getId());
                 dto.setIsSent(checkboxIsSent.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
                 dtoId = acceptanceService.create(dto).body().getId();
@@ -367,7 +372,7 @@ public class AcceptanceModalView extends Dialog {
     private HorizontalLayout dateConfigure() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("От");
-        dateTimePicker.setWidth(ACTION_1);
+        dateTimePicker.setWidth(FIELD_WIDTH);
         dateTimePicker.setRequiredIndicatorVisible(true);
         horizontalLayout.add(label, dateTimePicker);
         acceptanceDtoBinder.forField(dateTimePicker)
@@ -389,9 +394,9 @@ public class AcceptanceModalView extends Dialog {
             warehouseDtoComboBox.setItems(list);
         }
         warehouseDtoComboBox.setItemLabelGenerator(WarehouseDto::getName);
-        warehouseDtoComboBox.setWidth(ACTION_1);
+        warehouseDtoComboBox.setWidth(FIELD_WIDTH);
         Label label = new Label("Склад");
-        label.setWidth(ACTION_2);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseDtoComboBox);
         acceptanceDtoBinder.forField(warehouseDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -406,9 +411,9 @@ public class AcceptanceModalView extends Dialog {
             contractorDtoComboBox.setItems(list);
         }
         contractorDtoComboBox.setItemLabelGenerator(ContractorDto::getName);
-        contractorDtoComboBox.setWidth(ACTION_1);
+        contractorDtoComboBox.setWidth(FIELD_WIDTH);
         Label label = new Label("Контрагент");
-        label.setWidth(ACTION_2);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractorDtoComboBox);
         acceptanceDtoBinder.forField(contractorDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -423,14 +428,14 @@ public class AcceptanceModalView extends Dialog {
             contractDtoComboBox.setItems(list);
         }
         contractDtoComboBox.setItemLabelGenerator(ContractDto::getNumber);
-        contractDtoComboBox.setWidth(ACTION_1);
+        contractDtoComboBox.setWidth(FIELD_WIDTH);
         contractDtoComboBox.setRequired(true);
         contractDtoComboBox.setRequiredIndicatorVisible(true);
         acceptanceDtoBinder.forField(contractDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(AcceptanceDto::getContractDtoValid, AcceptanceDto::setContractDtoValid);
         Label label = new Label("Договор");
-        label.setWidth(ACTION_2);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, contractDtoComboBox);
         acceptanceDtoBinder.forField(contractDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
@@ -445,16 +450,30 @@ public class AcceptanceModalView extends Dialog {
             companyDtoComboBox.setItems(list);
         }
         companyDtoComboBox.setItemLabelGenerator(CompanyDto::getName);
-        companyDtoComboBox.setWidth(ACTION_1);
+        companyDtoComboBox.setWidth(FIELD_WIDTH);
         companyDtoComboBox.setRequired(true);
         companyDtoComboBox.setRequiredIndicatorVisible(true);
         acceptanceDtoBinder.forField(companyDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD)
                 .bind(AcceptanceDto::getCompanyDtoValid, AcceptanceDto::setCompanyDtoValid);
         Label label = new Label("Компания");
-        label.setWidth(ACTION_2);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, companyDtoComboBox);
         return horizontalLayout;
+    }
+
+    private HorizontalLayout projectConfigure() {
+        HorizontalLayout projectLayout = new HorizontalLayout();
+        List<ProjectDto> projects = projectService.getAll();
+        if (projects != null) {
+            projectDtoComboBox.setItems(projects);
+        }
+        projectDtoComboBox.setItemLabelGenerator(ProjectDto::getName);
+        projectDtoComboBox.setWidth(FIELD_WIDTH);
+        Label label = new Label("Проект");
+        label.setWidth(LABEL_WIDTH);
+        projectLayout.add(label, projectDtoComboBox);
+        return projectLayout;
     }
 
     private HorizontalLayout productConfigure() {
@@ -464,13 +483,13 @@ public class AcceptanceModalView extends Dialog {
             productDtoComboBox.setItems(productDto);
         }
         productDtoComboBox.setItemLabelGenerator(ProductDto::getDescription);
-        productDtoComboBox.setWidth(ACTION_1);
+        productDtoComboBox.setWidth(FIELD_WIDTH);
         productDtoComboBox.setRequired(true);
         productDtoComboBox.setRequiredIndicatorVisible(true);
         acceptanceDtoBinder.forField(productDtoComboBox)
                 .asRequired(TEXT_FOR_REQUEST_FIELD);
         Label label = new Label("Продукты");
-        label.setWidth(ACTION_2);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, productDtoComboBox);
         return horizontalLayout;
     }
@@ -478,7 +497,7 @@ public class AcceptanceModalView extends Dialog {
     private HorizontalLayout amountFieldConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Количество");
-        label.setWidth(ACTION_2);
+        label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, amountField);
         return horizontalLayout;
     }
@@ -492,6 +511,7 @@ public class AcceptanceModalView extends Dialog {
         horizontalLayout.add(label, textArea);
         return horizontalLayout;
     }
+
     private HorizontalLayout commentSumm() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Сумма");
@@ -505,6 +525,7 @@ public class AcceptanceModalView extends Dialog {
         contractDtoComboBox.setValue(null);
         contractorDtoComboBox.setValue(null);
         warehouseDtoComboBox.setValue(null);
+        projectDtoComboBox.setValue(null);
         dateTimePicker.setValue(null);
         textArea.setValue("");
         returnNumber.setValue("");

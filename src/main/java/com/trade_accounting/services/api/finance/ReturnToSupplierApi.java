@@ -25,6 +25,10 @@ public interface ReturnToSupplierApi {
     Call<ReturnToSupplierDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
+    @GET("{url}/getByProjectId{id}")
+    Call<List<ReturnToSupplierDto>> getByProjectId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<ReturnToSupplierDto> create(@Path(value = "url", encoded = true) String url, @Body ReturnToSupplierDto modelDto);
 

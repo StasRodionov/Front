@@ -136,7 +136,7 @@ public class CreditOrderModal extends Dialog {
         payment.setCompanyId(companyDtoComboBox.getValue().getId());
         payment.setContractorId(contractorDtoComboBox.getValue().getId());
         payment.setContractId(contractDtoComboBox.getValue().getId());
-        payment.setProjectId(projectDtoComboBox.getValue().getId());
+        payment.setProjectId(projectDtoComboBox.getValue() == null ? null : projectDtoComboBox.getValue().getId());
         payment.setNumber(payNumber.getValue());
         payment.setExpenseItem(expenseItem.getValue());
         payment.setSum(sum.getValue());

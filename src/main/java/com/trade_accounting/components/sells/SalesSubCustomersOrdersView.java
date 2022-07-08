@@ -13,11 +13,13 @@ import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
 import com.trade_accounting.models.dto.invoice.InvoicesStatusDto;
+import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -86,6 +88,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final InvoiceService invoiceService;
     private final EmployeeService employeeService;
     private final InvoicesStatusService invoicesStatusService;
+    private final ProjectService projectService;
 
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
 
@@ -100,17 +103,19 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/sales_templates/";
 
     @Autowired
-    public SalesSubCustomersOrdersView(CompanyService companyService, ContractorService contractorService, InvoiceService invoiceService,
+    public SalesSubCustomersOrdersView(CompanyService companyService, ContractorService contractorService,
+                                       InvoiceService invoiceService, EmployeeService employeeService,
+                                       InvoicesStatusService invoicesStatusService, ProjectService projectService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
-                                       @Lazy Notifications notifications,
-                                       EmployeeService employeeService, InvoicesStatusService invoicesStatusService) {
+                                       @Lazy Notifications notifications) {
         this.companyService = companyService;
         this.contractorService = contractorService;
-        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        this.projectService = projectService;
         this.employeeService = employeeService;
         this.invoiceService = invoiceService;
-        this.notifications = notifications;
         this.invoicesStatusService = invoicesStatusService;
+        this.notifications = notifications;
+        this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -140,6 +145,9 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
                 .setId("Компания");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
                 .setId("Проведена");
+        grid.addColumn(iDto -> iDto.getProjectId() != null ?
+                                projectService.getById(iDto.getProjectId()).getName() : "")
+                .setSortable(true).setHeader("Проект").setKey("projectDto").setId("Проект");
         grid.addColumn(iDto -> invoicesStatusService.getById(iDto.getInvoicesStatusId()).getStatusName()).setHeader("Статус").setKey("invoicesStatusDto")
                 .setId("Статус");
 
@@ -169,6 +177,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("invoicesStatusDto", InvoicesStatusDto::getStatusName, invoicesStatusService.getAll());
         filter.setFieldToComboBox("spend", Boolean.TRUE, Boolean.FALSE);
+        filter.setFieldToComboBox("projectDto", ProjectDto::getName, projectService.getAll());
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData();
             map.put("typeOfInvoice", typeOfInvoice);

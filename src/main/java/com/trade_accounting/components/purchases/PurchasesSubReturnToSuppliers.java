@@ -11,12 +11,14 @@ import com.trade_accounting.components.util.configure.components.select.SelectEx
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
+import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.finance.ReturnToSupplierService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -84,6 +86,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final CompanyService companyService;
     private final ContractorService contractorService;
     private final ContractService contractService;
+    private final ProjectService projectService;
 
     private final Notifications notifications;
     private final ReturnToSupplierModalView modalView;
@@ -99,15 +102,19 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final TextField textField = new TextField();
 
     @Autowired
-    public PurchasesSubReturnToSuppliers(EmployeeService employeeService, ReturnToSupplierService returnToSupplierService, WarehouseService warehouseService,
-                                         CompanyService companyService, ContractorService contractorService, ContractService contractService,
-                                         @Lazy Notifications notifications, ReturnToSupplierModalView modalView, GoodsModalWindow goodsModalWindow) {
+    public PurchasesSubReturnToSuppliers(EmployeeService employeeService, ReturnToSupplierService returnToSupplierService,
+                                         WarehouseService warehouseService, CompanyService companyService,
+                                         ContractorService contractorService, ContractService contractService,
+                                         ProjectService projectService,
+                                         @Lazy Notifications notifications, ReturnToSupplierModalView modalView,
+                                         GoodsModalWindow goodsModalWindow) {
         this.employeeService = employeeService;
         this.returnToSupplierService = returnToSupplierService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.contractService = contractService;
+        this.projectService = projectService;
         this.notifications = notifications;
         this.modalView = modalView;
         this.goodsModalWindow = goodsModalWindow;
@@ -146,6 +153,9 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
                 .setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(dto -> dto.getProjectId() != null ?
+                        projectService.getById(dto.getProjectId()).getName() : "")
+                .setSortable(true).setHeader("Проект").setKey("projectDto").setId("Проект");
         grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
                 .setId("Отправлено");
@@ -155,13 +165,14 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(e -> {
+        grid.addItemClickListener(e -> {
             ReturnToSupplierDto dto = e.getItem();
             ReturnToSupplierModalView modalView = new ReturnToSupplierModalView(returnToSupplierService,
                     companyService,
                     warehouseService,
                     contractorService,
                     contractService,
+                    projectService,
                     goodsModalWindow, notifications);
             modalView.setReturnToSupplierForEdit(dto);
             modalView.open();
@@ -175,6 +186,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("projectDto", ProjectDto::getName, projectService.getAll());
         filter.setFieldToComboBox("send", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
         filter.onSearchClick(e -> paginator

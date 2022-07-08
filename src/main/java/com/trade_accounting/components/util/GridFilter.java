@@ -400,8 +400,6 @@ public class GridFilter<T> extends HorizontalLayout {
         filter.setId(columnKey);
         filter.addValueChangeListener(e -> onFilterChange(filter));
         filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
-        Grid.Column<T> column = grid.getColumnByKey(columnKey);
-        Optional<String> id = column.getId();
         if (grid.getColumnByKey(columnKey).getId().isPresent()) {
             filter.setLabel(grid.getColumnByKey(columnKey).getId().orElse(""));
         }
@@ -412,7 +410,6 @@ public class GridFilter<T> extends HorizontalLayout {
     private IntegerField getFilterIntegerField(String columnKey) {
         IntegerField filter = new IntegerField();
         filter.setId(columnKey);
-
         filter.addValueChangeListener(e -> onFilterChange(filter));
         filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
         if (grid.getColumnByKey(columnKey).getId().isPresent()) {
