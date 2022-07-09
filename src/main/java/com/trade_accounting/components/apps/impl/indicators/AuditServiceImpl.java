@@ -22,8 +22,8 @@ public class AuditServiceImpl implements AuditService {
     private final String auditUrl;
     private final CallExecuteService<AuditDto> callExecuteService;
 
-    public AuditServiceImpl(Retrofit retrofit, @Value("${audit_url}") String auditUrl, CallExecuteService<AuditDto> callExecuteService) {
-        this.auditApi = retrofit.create(AuditApi.class);
+    public AuditServiceImpl(Retrofit retrofitAudit, @Value("${audit_url}") String auditUrl, CallExecuteService<AuditDto> callExecuteService) {
+        this.auditApi = retrofitAudit.create(AuditApi.class);
         this.auditUrl = auditUrl;
         this.callExecuteService = callExecuteService;
     }
