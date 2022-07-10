@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -78,6 +79,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     private final EmployeeService employeeService;
 
     private final Grid<PayoutDto> grid = new Grid<>(PayoutDto.class, false);
+    private final GridConfigurer<PayoutDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<PayoutDto> paginator;
     private final Notifications notifications;
 
@@ -87,6 +89,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     private final PayoutModalWindow payoutModalWindow;
     private final String typeOfInvoice = "RECEIPT";
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/payouts_templates/";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private final GridFilter<PayoutDto> filter;
 
@@ -113,30 +116,35 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setHeader("№").setSortable(true).setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Дата и время").setId("Дата и время");
         grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getName()).setHeader("Точка продаж")
-                .setSortable(true).setKey("retailDto").setId("Точка продаж");
+                .setKey("retailDto").setId("Точка продаж");
         grid.addColumn("whoWasPaid").setHeader("Кому").setId("Кому");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
-                .setSortable(true).setKey("companyDto").setId("Организация");
+                .setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getRevenue()).setHeader("Сумма")
-                .setSortable(true).setKey("retailSumDto").setId("Сумма");
+                .setKey("retailSumDto").setId("Сумма");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
-                .setSortable(true).setId("Отправлено");
+                .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
-                .setSortable(true).setId("Напечатано");
+                .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.setHeight("66vh");
-        grid.getColumnByKey("id").setWidth("15px");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(event -> {
             payoutModalWindow.addDetachListener(e -> updateList());
             payoutModalWindow.open();
         });
+
         GridSortOrder<PayoutDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
-        grid.setColumnReorderingAllowed(true);
     }
 
     private void configureFilter() {

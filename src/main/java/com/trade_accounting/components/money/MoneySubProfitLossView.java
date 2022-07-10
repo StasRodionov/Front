@@ -2,6 +2,7 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.finance.MoneyArticleProfitLossDto;
 import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.contextmenu.HasMenuItems;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
@@ -52,8 +54,10 @@ public class MoneySubProfitLossView extends VerticalLayout {
 
     private List<MoneyArticleProfitLossDto> listDataView;
     private Grid<MoneyArticleProfitLossDto> grid;
+    private GridConfigurer<MoneyArticleProfitLossDto> gridConfigurer;
     private final EmployeeService employeeService;
     private HorizontalLayout filter;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public MoneySubProfitLossView(MoneySubProfitLossService moneySubProfitLossService,
                                   EmployeeService employeeService,
@@ -64,6 +68,7 @@ public class MoneySubProfitLossView extends VerticalLayout {
         this.employeeService = employeeService;
         this.listDataView = new ArrayList<>();
         this.grid = new Grid<>(MoneyArticleProfitLossDto.class, false);
+        this.gridConfigurer = new GridConfigurer<>(grid);
         this.filter = new HorizontalLayout();
         configureListDataView();
         configureGrid();
@@ -130,10 +135,16 @@ public class MoneySubProfitLossView extends VerticalLayout {
 
     private void configureGrid() {
         grid.removeAllColumns();
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.setItems(listDataView);
-        grid.addColumn("article").setFlexGrow(11).setHeader("Статья").setId("Статья");
-        grid.addColumn("profitLoss").setFlexGrow(11).setHeader("Прибыль(убытки)").setId("Прибыль(убытки)");
+        grid.addColumn("article").setHeader("Статья").setId("Статья");
+        grid.addColumn("profitLoss").setHeader("Прибыль (убытки)").setTextAlign(ColumnTextAlign.END).setId("Прибыль (убытки)");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private void configureListDataView() {

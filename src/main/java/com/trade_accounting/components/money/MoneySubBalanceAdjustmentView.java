@@ -2,6 +2,7 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -20,6 +21,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -73,14 +75,15 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private final List<BalanceAdjustmentDto> data;
 
     private final Grid<BalanceAdjustmentDto> grid = new Grid<>(BalanceAdjustmentDto.class, false);
+    private final GridConfigurer<BalanceAdjustmentDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<BalanceAdjustmentDto> paginator;
     private final GridFilter<BalanceAdjustmentDto> filter;
-
 
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/adjustments_templates/";
     private final transient ProjectService projectService;
     private final transient ContractService contractService;
     private final transient PaymentService paymentService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private final TextField textField = new TextField();
 
@@ -113,23 +116,28 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         return horizontalLayout;
     }
 
-    private Grid<BalanceAdjustmentDto> configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+    private void configureGrid() {
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setKey("date").setHeader("Время").setId("Дата");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
                 .setKey("companyDto").setId("Организация");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorDto").setId("Контрагент");
         grid.addColumn("account").setHeader("Счет").setId("Счет");
         grid.addColumn("cashOffice").setHeader("Касса").setId("Касса");
-        grid.addColumn(this::getTotalPrice).setKey("sum").setHeader("Сумма").setSortable(true).setId("Сумма");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setKey("sum").setId("Сумма");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn("dateChanged").setHeader("Когда изменен").setId("Когда изменен");
         grid.addColumn("whoChanged").setHeader("Кто изменил").setId("Кто изменил");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(e -> {
             BalanceAdjustmentDto dto = e.getItem();
             BalanceAdjustmentModalView modalView = new BalanceAdjustmentModalView(balanceAdjustmentService,
@@ -139,7 +147,6 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
             modalView.setBalanceAdjustmentForEdit(dto);
             modalView.open();
         });
-        return grid;
     }
 
     private void configureFilter() {

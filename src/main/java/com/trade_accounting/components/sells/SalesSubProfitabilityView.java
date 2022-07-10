@@ -1,7 +1,7 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -27,10 +27,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -40,8 +42,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -56,8 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.trade_accounting.config.SecurityConstants.SELLS_PROFITABILITY_VIEW;
 
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -79,9 +77,13 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
 
-    private Grid<ContractorDto> gridCostumers = new Grid<>(ContractorDto.class, false);
+    private Grid<ContractorDto> gridCustomers = new Grid<>(ContractorDto.class, false);
     private Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
     private Grid<EmployeeDto> gridEmployees = new Grid<>(EmployeeDto.class, false);
+
+    private final GridConfigurer<ContractorDto> gridCustomersConfigurer = new GridConfigurer<>(gridCustomers);
+    private final GridConfigurer<InvoiceProductDto> gridProductsConfigurer = new GridConfigurer<>(gridProducts);
+    private final GridConfigurer<EmployeeDto> gridEmployeesConfigurer = new GridConfigurer<>(gridEmployees);
 
     private GridPaginator<EmployeeDto> paginatorEmployees;
     private GridPaginator<ContractorDto> paginatorCustomers;
@@ -100,6 +102,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private final String pathForSaveXlsTemplate =
             "src/main/resources/xls_templates/profitability_templates/";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public SalesSubProfitabilityView(InvoiceService invoiceService, CompanyService companyService,
                                      ContractorService contractorService,
@@ -129,7 +132,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         this.employeeDtos = getEmployeeDtos();
         this.retailStoreDtos = getRetailSoresDtos();
 
-        paginatorCustomers = new GridPaginator<>(gridCostumers, contractorDtos, 50);
+        paginatorCustomers = new GridPaginator<>(gridCustomers, contractorDtos, 50);
         paginatorProducts = new GridPaginator<>(gridProducts, invoiceProductDtos, 50);
         paginatorEmployees = new GridPaginator<>(gridEmployees, employeeDtos, 50);
 
@@ -139,11 +142,11 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
         add(upperLayout());
 
-        configureCostumersGrid(false);
+        configureCustomersGrid(false);
         configureEmployeeGrid(false);
         configureProductsGrid(false);
 
-        this.costumersFilter = new GridFilter<>(gridCostumers);
+        this.costumersFilter = new GridFilter<>(gridCustomers);
         this.productsFilter = new GridFilter<>(gridProducts);
         this.employeeFilter = new GridFilter<>(gridEmployees);
 
@@ -153,7 +156,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
         add(productsFilter, costumersFilter, employeeFilter,
                 gridProducts, paginatorProducts,
-                gridCostumers, paginatorCustomers,
+                gridCustomers, paginatorCustomers,
                 gridEmployees, paginatorEmployees);
 
         getCashiersIdsRevenues();
@@ -203,7 +206,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private void configureEmployeeGrid(boolean refreshing) {
-        gridEmployees.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        gridEmployees.addThemeVariants(GRID_STYLE);
         gridEmployees.setItems(employeeDtos);
 
         gridEmployees.addColumn(iDto -> employeeDtos.get(iDto.getId().intValue() - 1))
@@ -217,17 +220,22 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                 .setKey("position")
                 .setId("Должность");
 
-        gridEmployees.addColumn(iDto -> averagePrice(iDto.getId()))
+        gridEmployees.addColumn(iDto -> averagePrice(iDto.getId())).setTextAlign(ColumnTextAlign.END)
                 .setHeader("Средний чек")
                 .setKey("average")
                 .setId("Средний чек");
 
-        gridEmployees.addColumn(iDto -> cashiersIdsTotalRevenues.get(iDto.getId()))
+        gridEmployees.addColumn(iDto -> cashiersIdsTotalRevenues.get(iDto.getId())).setTextAlign(ColumnTextAlign.END)
                 .setHeader("Прибыль")
                 .setKey("profit")
                 .setId("Прибыль");
 
-        gridEmployees.setHeight("100vh");
+        gridEmployees.getColumns().forEach(
+                column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+
+        gridEmployeesConfigurer.addConfigColumnToGrid();
+
+        gridEmployees.setHeight("66vh");
         gridEmployees.setColumnReorderingAllowed(true);
         if (!refreshing) {
             gridEmployees.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -270,7 +278,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private void configureProductsGrid(boolean refreshing) {
-        gridProducts.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        gridProducts.addThemeVariants(GRID_STYLE);
         gridProducts.setItems(invoiceProductDtos);
 
         gridProducts.addColumn(iDto -> productDtos.get(invoiceProductDtos.get(iDto.getId().intValue() - 1).getProductId().intValue() - 1).getName())
@@ -311,59 +319,71 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         gridProducts.addColumn(iDto -> getTotalReturnPriceForProducts(iDto.getId()))
                 .setHeader("Сумма возвратов")
                 .setKey("totalReturnPrice")
-                .setSortable(true)
                 .setId("Сумма возвратов");
 
         gridProducts.addColumn(iDto -> getProfitByProducts(iDto.getId(), iDto.getProductId(), iDto.getInvoiceId()))
                 .setHeader("Прибыль")
                 .setKey("profit")
-                .setSortable(true)
                 .setId("Прибыль");
 
-        gridProducts.setHeight("100vh");
+        gridProducts.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true)
+                .setSortable(true).setTextAlign(ColumnTextAlign.END));
+        gridProducts.getColumnByKey("productDto").setTextAlign(ColumnTextAlign.START);
+        gridProducts.getColumnByKey("description").setTextAlign(ColumnTextAlign.START);
+
+        gridProductsConfigurer.addConfigColumnToGrid();
+
+        gridProducts.setHeight("66vh");
         gridProducts.setColumnReorderingAllowed(true);
         if (!refreshing) {
             gridProducts.setSelectionMode(Grid.SelectionMode.MULTI);
         }
     }
 
-    private void configureCostumersGrid(boolean refreshing) {
-        gridCostumers.setItems(contractorDtos);
+    private void configureCustomersGrid(boolean refreshing) {
+        gridCustomers.addThemeVariants(GRID_STYLE);
+        gridCustomers.setItems(contractorDtos);
 
-        gridCostumers.addColumn(iDto -> contractorService.getById(iDto.getId()).getName())
+        gridCustomers.addColumn(iDto -> contractorService.getById(iDto.getId()).getName())
                 .setHeader("Контрагент")
                 .setKey("name")
                 .setId("Контрагент");
 
-        gridCostumers.addColumn(iDto -> getTotalPrice(iDto.getId()))
+        gridCustomers.addColumn(iDto -> getTotalPrice(iDto.getId()))
                 .setHeader("Сумма продаж")
                 .setKey("salesTotal")
                 .setId("Cумма продаж");
 
-        gridCostumers.addColumn(iDto -> getTotalCostPrice(iDto.getId()))
+        gridCustomers.addColumn(iDto -> getTotalCostPrice(iDto.getId()))
                 .setHeader("Сумма себестоимости")
                 .setKey("costTotal")
                 .setId("Сумма себестоимости");
 
-        gridCostumers.addColumn(iDto -> averagePrice(iDto.getId()))
+        gridCustomers.addColumn(iDto -> averagePrice(iDto.getId()))
                 .setHeader("Средний чек")
                 .setKey("average")
                 .setId("Средний чек");
 
-        gridCostumers.addColumn(iDto -> getReturnsTotalPrice(iDto.getId()))
+        gridCustomers.addColumn(iDto -> getReturnsTotalPrice(iDto.getId()))
                 .setHeader("Сумма возврата")
                 .setKey("returnTotal")
                 .setId("Сумма возврата");
 
-        gridCostumers.addColumn(iDto -> getProfit(iDto.getId()))
+        gridCustomers.addColumn(iDto -> getProfit(iDto.getId()))
                 .setHeader("Прибыль")
                 .setKey("profit")
                 .setId("Прибыль");
 
-        gridCostumers.setHeight("100vh");
-        gridCostumers.setColumnReorderingAllowed(true);
+        gridCustomers.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true)
+                .setSortable(true).setTextAlign(ColumnTextAlign.END));
+        gridCustomers.getColumnByKey("name").setTextAlign(ColumnTextAlign.START);
+
+        gridCustomersConfigurer.addConfigColumnToGrid();
+
+        gridCustomers.setHeight("66vh");
+        gridCustomers.setColumnReorderingAllowed(true);
         if (!refreshing) {
-            gridCostumers.setSelectionMode(Grid.SelectionMode.MULTI);
+            gridCustomers.setSelectionMode(Grid.SelectionMode.MULTI);
         }
     }
 
@@ -565,7 +585,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private void fillByContractors() {
-        remove(gridCostumers, paginatorCustomers, gridEmployees, paginatorEmployees);
+        remove(gridCustomers, paginatorCustomers, gridEmployees, paginatorEmployees);
         add(gridProducts, paginatorProducts);
         gridProducts.removeAllColumns();
         configureProductsGrid(false);
@@ -573,7 +593,7 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     }
 
     private void fillByEmployees() {
-        remove(gridCostumers, paginatorCustomers, gridProducts, paginatorProducts);
+        remove(gridCustomers, paginatorCustomers, gridProducts, paginatorProducts);
         add(gridEmployees, paginatorEmployees);
         gridEmployees.removeAllColumns();
         configureEmployeeGrid(false);
@@ -582,9 +602,9 @@ public class SalesSubProfitabilityView extends VerticalLayout {
 
     private void fillByCustomers() {
         remove(gridProducts, paginatorProducts, gridEmployees, paginatorEmployees);
-        add(gridCostumers, paginatorCustomers);
-        gridCostumers.removeAllColumns();
-        configureCostumersGrid(false);
+        add(gridCustomers, paginatorCustomers);
+        gridCustomers.removeAllColumns();
+        configureCustomersGrid(false);
         currentTab = "По покупателям";
     }
 

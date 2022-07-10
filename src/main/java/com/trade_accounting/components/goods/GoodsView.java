@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
@@ -57,6 +59,7 @@ import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VI
 public class GoodsView extends VerticalLayout {
 
     private final Grid<ProductDto> grid;
+    private final GridConfigurer<ProductDto> gridConfigurer;
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private final GoodsModalWindow goodsModalWindow;
@@ -69,6 +72,7 @@ public class GoodsView extends VerticalLayout {
     private final ProductGroupModalWindow productGroupModalWindow;
     private Optional<ProductGroupDto> optional = Optional.empty();
     private final GoodsEditAddView goodsEditAddView;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public GoodsView(ProductService productService,
@@ -81,6 +85,7 @@ public class GoodsView extends VerticalLayout {
         this.setModalWindow = setModalWindow;
         this.productGroupModalWindow = productGroupModalWindow;
         this.grid = new Grid<>(ProductDto.class);
+        this.gridConfigurer = new GridConfigurer<>(grid);
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
@@ -138,21 +143,23 @@ public class GoodsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.removeAllColumns();
         grid.setWidth("75%");
-        grid.setHeight("100%");
+        grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.setColumns("id", "name", "itemNumber", "description", "weight", "volume", "purchasePrice");
         grid.getColumnByKey("id").setHeader("id").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
-        grid.getColumnByKey("weight").setHeader("Вес").setId("Вес");
-        grid.getColumnByKey("volume").setHeader("Объем").setId("Объем");
+        grid.getColumnByKey("weight").setHeader("Вес").setTextAlign(ColumnTextAlign.END).setId("Вес");
+        grid.getColumnByKey("volume").setHeader("Объем").setTextAlign(ColumnTextAlign.END).setId("Объем");
         grid.getColumnByKey("itemNumber").setHeader("Артикул").setId("Артикул");
         grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
-        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена").setId("Закупочная цена");
+        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена").setTextAlign(ColumnTextAlign.END).setId("Закупочная цена");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
         grid.addItemDoubleClickListener(event -> {
             ProductDto productDto = event.getItem();
@@ -178,7 +185,7 @@ public class GoodsView extends VerticalLayout {
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
         TreeGrid<ProductGroupDto> treeGridLocal = new TreeGrid<>();
-        treeGridLocal.setHeight("100%");
+        treeGridLocal.setHeight("66vh");
         treeGridLocal.setWidth("25%");
         treeGridLocal.setThemeName("dense", true);
         treeGridLocal.addClassName("treeGreed");

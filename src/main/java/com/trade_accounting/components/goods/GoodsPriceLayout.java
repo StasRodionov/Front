@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -71,6 +72,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private List<PriceListDto> data;
     private final HorizontalLayout actions;
     private final Grid<PriceListDto> grid = new Grid<>(PriceListDto.class, false);
+    private final GridConfigurer<PriceListDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<PriceListDto> paginator;
     private final GridFilter<PriceListDto> filter;
     private final Notifications notifications;
@@ -78,6 +80,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private final PriceListProductPercentsService priceListProductPercentsService;
     private final TypeOfPriceService typeOfPriceService;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public GoodsPriceLayout(PriceListService priceListService,
@@ -120,20 +123,27 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-//        grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(PriceListDto::getNumber).setKey("number").setHeader("№").setSortable(true).setId("№");
-        grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getDate())))
-                .setKey("date").setHeader("Начальная дата").setSortable(true).setId("Начальная дата");
-        grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Организация").setId("Организация");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn(PriceListDto::getNumber).setHeader("№").setKey("number").setId("№");
+        grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getDate()))).setHeader("Начальная дата")
+                .setKey("date")
+                .setId("Начальная дата");
+        grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId()).getName()).setHeader("Организация")
+                .setKey("company")
+                .setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
+                .setKey("sent")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
+                .setKey("print")
                 .setId("Напечатано");
-        grid.addColumn(PriceListDto::getComment).setKey("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn(PriceListDto::getComment).setHeader("Комментарий")
+                .setKey("comment")
+                .setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemClickListener(event -> {

@@ -4,6 +4,7 @@ package com.trade_accounting.components.purchases;
 import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -26,11 +27,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -91,8 +94,10 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private List<InvoiceDto> data;
 
     private final String typeOfInvoice = "EXPENSE";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
+    private final GridConfigurer<InvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<InvoiceDto> paginator;
     private GridFilter<InvoiceDto> filter;
     private final TextField textField = new TextField();
@@ -147,30 +152,38 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
-                .setId("Дата");
+        grid.addColumn(iDto -> formatDate(iDto.getDate())).setHeader("Дата и время")
+                .setKey("date")
+                .setId("Дата и время");
         grid.addColumn(iDto -> iDto.getContractorId() != null ?
                                 contractorService.getById(iDto.getContractorId()).getName() : "Неизвестный поставщик")
-                .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
+                .setHeader("Контрагент")
+                .setKey("contractorDto")
+                .setId("Контрагент");
 //        grid.addColumn("typeOfInvoice").setHeader("Счет-фактура").setId("Счет-фактура");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания")
+                .setKey("companyDto")
                 .setId("Компания");
 //        grid.addColumn("spend").setHeader("Проведена").setId("Проведена");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Проведена")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setHeader("Проведена")
+                .setKey("isSpend")
                 .setId("Проведена");
         grid.addColumn(iDto -> iDto.getProjectId() != null ?
-                                projectService.getById(iDto.getProjectId()).getName() : "")
-                .setKey("projectDto").setSortable(true).setHeader("Проект").setId("Проект");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
+                                projectService.getById(iDto.getProjectId()).getName() : "").setHeader("Проект")
+                .setKey("projectDto")
+                .setId("Проект");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END).setId("Сумма");
 //        grid.addColumn(iDto -> iDto.getWarehouseDto().getName()).setHeader("Склад").setKey("warehouseDto").setId("Склад");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
         grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);

@@ -1,6 +1,7 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -63,11 +64,13 @@ public class GoodsSubInventory extends VerticalLayout implements AfterNavigation
     private final CompanyService companyService;
     private final InventarizationService inventarizationService;
     private final Grid<InventarizationDto> grid = new Grid<>(InventarizationDto.class, false);
+    private final GridConfigurer<InventarizationDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<InventarizationDto> paginator;
     private final Notifications notifications;
     private final GoodsSubInventoryModalWindow modalWindow;
     private final GridFilter<InventarizationDto> filter;
     private final List<InventarizationDto> data;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public GoodsSubInventory(WarehouseService warehouseService,
@@ -195,21 +198,31 @@ public class GoodsSubInventory extends VerticalLayout implements AfterNavigation
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("1px").setHeader("№").setId("№");
-        grid.addColumn(InventarizationDto::getDate).setKey("date").setWidth("1px").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(InventarizationDto::getDate).setHeader("Дата и время")
+                .setKey("date")
+                .setId("Дата и время");
         grid.addColumn(inventarizationDto -> warehouseService.getById(inventarizationDto.getWarehouseId())
-                .getName()).setKey("warehouseId").setWidth("1px").setHeader("Со склада").setId("Со склада");
+                        .getName()).setHeader("Со склада")
+                .setKey("warehouseId")
+                .setId("Со склада");
         grid.addColumn(inventarizationDto -> companyService.getById(inventarizationDto.getCompanyId())
-                .getName()).setKey("companyId").setHeader("Организация").setId("Организация");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setWidth("1px").setKey("sent").setHeader("Отправлено")
+                        .getName()).setHeader("Организация")
+                .setKey("companyId")
+                .setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
+                .setKey("sent")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setWidth("1px").setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
+                .setKey("print")
                 .setId("Напечатано");
-        grid.addColumn("comment").setWidth("1px").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn("comment").setHeader("Комментарий")
+                .setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
         grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 

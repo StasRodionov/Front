@@ -367,6 +367,7 @@ public class GridFilter<T> extends HorizontalLayout {
                 }
                 if (e.getKey().equals("date")) {
                     grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
+                    grid.getColumnByKey("dateBefore").setVisible(false);
                     this.add(getFilterDatePicker("dateBefore"));
                 }
             });
@@ -386,6 +387,7 @@ public class GridFilter<T> extends HorizontalLayout {
                 }
                 if (e.getKey().equals("date")) {
                     grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
+                    grid.getColumnByKey("dateBefore").setVisible(false);
                     this.add(getFilterDatePicker("dateBefore"));
                 }
             });

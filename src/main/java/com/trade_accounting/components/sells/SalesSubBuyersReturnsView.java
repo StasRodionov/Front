@@ -1,7 +1,7 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -25,11 +25,13 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -46,8 +48,6 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -70,8 +70,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.trade_accounting.config.SecurityConstants.SELLS_BUYERS_RETURNS_VIEW;
-
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = SELLS_BUYERS_RETURNS_VIEW, layout = AppView.class)
@@ -87,6 +85,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final Notifications notifications;
     //    private List<BuyersReturnDto> data;
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
+    private final GridConfigurer<BuyersReturnDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
     ContractService contractService;
@@ -96,6 +95,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
 
     @Autowired
@@ -133,17 +133,15 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("isSent", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("isPrint", Boolean.TRUE, Boolean.FALSE);
-        filter.setFieldToComboBox("company", CompanyDto::getName,companyService.getAll());
-        filter.setFieldToComboBox("contractor", ContractorDto::getName,contractorService.getAll());
-        filter.setFieldToComboBox("warehouse", WarehouseDto::getName,warehouseService.getAll());
+        filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("contractor", ContractorDto::getName, contractorService.getAll());
+        filter.setFieldToComboBox("warehouse", WarehouseDto::getName, warehouseService.getAll());
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterData2();
             paginator.setData(buyersReturnService.searchByFilter(map));
         });
         filter.onClearClick(e -> paginator.setData(getData()));
     }
-
-
 
     private void configureSelectXlsTemplateButton() {
         SubMenu printSubMenu = print.getSubMenu();
@@ -223,20 +221,29 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(BuyersReturnDto::getDate).setFlexGrow(7).setHeader("Время").setKey("date").setId("Дата");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId())
-                .getName()).setKey("warehouse").setFlexGrow(7).setFlexGrow(7).setHeader("На склад").setId("На склад");
-        grid.addColumn(dto -> contractorService.getById(dto.getContractorId())
-                .getName()).setFlexGrow(7).setHeader("Контрагент").setKey("contractor").setId("Контрагент");
-        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(7).setHeader("Компания")
+        grid.addColumn(BuyersReturnDto::getDate).setHeader("Дата и время")
+                .setKey("date").setId("Дата и время");
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
+                .setKey("warehouse").setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractor").setId("Контрагент");
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Компания")
                 .setKey("company").setId("Компания");
-        grid.addColumn("sum").setFlexGrow(7).setHeader("Сумма").setId("Сумма");
-        grid.addColumn("isSent").setFlexGrow(7).setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn("isPrint").setFlexGrow(7).setHeader("Напечатано").setId("Напечатано");
-        grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("Комментарий");
-        grid.addItemDoubleClickListener(event -> {
+        grid.addColumn("sum").setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn("isSent").setHeader("Отправлено").setId("Отправлено");
+        grid.addColumn("isPrint").setHeader("Напечатано").setId("Напечатано");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemClickListener(event -> {
             BuyersReturnDto buyersReturnDto = event.getItem();
             ReturnBuyersReturnModalView view = new ReturnBuyersReturnModalView(buyersReturnService,
                     contractorService,

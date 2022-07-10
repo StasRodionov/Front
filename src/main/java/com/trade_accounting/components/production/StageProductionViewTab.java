@@ -3,6 +3,7 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -58,12 +59,14 @@ public class StageProductionViewTab extends VerticalLayout implements AfterNavig
     private final List<StagesProductionDto> data;
     private final GridPaginator<StagesProductionDto> paginator;
     private final Grid<StagesProductionDto> grid = new Grid<>(StagesProductionDto.class, false);
+    private final GridConfigurer<StagesProductionDto> gridConfigurer = new GridConfigurer<>(grid);
     private final StagesProductionService stagesProductionService;
     private final Notifications notifications;
     private final StageProductionModalView view;
 
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public StageProductionViewTab(StagesProductionService stagesProductionService,
                                   Notifications notifications,
@@ -88,12 +91,15 @@ public class StageProductionViewTab extends VerticalLayout implements AfterNavig
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
         grid.addColumn(e -> departmentService.getById(e.getDepartmentId()).getName()).setHeader("Владелец-отдел").setId("Владелец-отдел");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeId()).getFirstName()).setHeader("Владелец-сотрудник").setId("Владелец-сотрудник");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
+        grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(e -> {

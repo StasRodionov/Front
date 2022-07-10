@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -14,6 +15,7 @@ import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
@@ -40,6 +42,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import com.trade_accounting.components.util.configure.components.select.Action;
 
 import static com.trade_accounting.config.SecurityConstants.*;
@@ -61,6 +64,7 @@ public class LossView extends VerticalLayout {
     private final TitleForModal titleForEditSelected;
 
     private final Grid<LossDto> grid = new Grid<>(LossDto.class, false);
+    private final GridConfigurer<LossDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<LossDto> paginator;
 
     private final TextField textField = new TextField();
@@ -68,6 +72,7 @@ public class LossView extends VerticalLayout {
     private List<LossDto> data;
     private final LossCreateView lossCreateView;
     private final LossModalWindow lossModalWindow;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public LossView(LossService lossService,
@@ -97,24 +102,32 @@ public class LossView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(LossDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
+        grid.addColumn(LossDto::getDate).setKey("date").setHeader("Дата и время").setId("Дата и время");
         grid.addColumn(lossDto -> warehouseService.getById(lossDto.getWarehouseId())
-                .getName()).setKey("warehouseFrom").setHeader("Со Склада").setId("Со Склада");
+                        .getName()).setHeader("Со склада")
+                .setKey("warehouseFrom")
+                .setId("Со склада");
         grid.addColumn(lossDto -> companyService.getById(lossDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Организация").setId("Организация");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
+                        .getName()).setHeader("Организация")
+                .setKey("company")
+                .setId("Организация");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
+                .setKey("sent")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
+                .setKey("print")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
-        grid.setMaxWidth("100%");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
         grid.addItemDoubleClickListener(e -> {
             LossDto dto = e.getItem();

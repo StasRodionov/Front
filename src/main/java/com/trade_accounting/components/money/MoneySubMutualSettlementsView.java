@@ -2,6 +2,7 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -9,6 +10,7 @@ import com.trade_accounting.models.dto.finance.MoneySubMutualSettlementsDto;
 import com.trade_accounting.services.interfaces.finance.MoneySubMutualSettlementsService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
@@ -36,15 +38,16 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
 
     private final List<MoneySubMutualSettlementsDto> data;
     private final Grid<MoneySubMutualSettlementsDto> grid = new Grid<>(MoneySubMutualSettlementsDto.class, false);
+    private final GridConfigurer<MoneySubMutualSettlementsDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridFilter<MoneySubMutualSettlementsDto> filter;
     GridPaginator<MoneySubMutualSettlementsDto> paginator;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private H2 title() {
         H2 title = new H2("Взаиморасчеты");
         title.setHeight("2.2em");
         return title;
     }
-
 
     public MoneySubMutualSettlementsView(MoneySubMutualSettlementsService moneySubMutualSettlementsService) {
         this.moneySubMutualSettlementsService = moneySubMutualSettlementsService;
@@ -61,13 +64,19 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("contractorId").setFlexGrow(10).setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn("employeeId").setFlexGrow(7).setHeader("Сотрудник").setId("Сотрудник");
-        grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");
-        grid.addColumn("income").setFlexGrow(7).setHeader("Приход").setId("Приход");
-        grid.addColumn("expenses").setFlexGrow(7).setHeader("Расход").setId("Расход");
-        grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("contractorId").setHeader("Контрагент").setId("Контрагент");
+        grid.addColumn("employeeId").setHeader("Сотрудник").setId("Сотрудник");
+        grid.addColumn("initialBalance").setHeader("Начальный остаток").setTextAlign(ColumnTextAlign.END).setId("Начальный остаток");
+        grid.addColumn("income").setHeader("Приход").setTextAlign(ColumnTextAlign.END).setId("Приход");
+        grid.addColumn("expenses").setHeader("Расход").setTextAlign(ColumnTextAlign.END).setId("Расход");
+        grid.addColumn("finalBalance").setHeader("Конечный остаток").setTextAlign(ColumnTextAlign.END).setId("Конечный остаток");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private void configureFilter() {
@@ -86,9 +95,6 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
         return moneySubMutualSettlementsService.getAll();
     }
 
-
-
-
     private Tabs configurationSubMenu() {
         Tab contractors = new Tab("C контрагентами");
         Tab employees = new Tab("С сотрудниками");
@@ -96,25 +102,20 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
 
         tabs.addSelectedChangeListener(event -> {
             String tabName = event.getSelectedTab().getLabel();
+            grid.removeAllColumns();
+            grid.setItems(data);
             if ("C контрагентами".equals(tabName)) {
-                grid.removeAllColumns();
-                grid.setItems(data);
-                grid.addColumn("contractorId").setFlexGrow(7).setHeader("Контрагент").setId("Контрагент");
-                grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");
-                grid.addColumn("income").setFlexGrow(7).setHeader("Приход").setId("Приход");
-                grid.addColumn("expenses").setFlexGrow(7).setHeader("Расход").setId("Расход");
-                grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
-                add(grid, paginator);
+                grid.addColumn("contractorId").setHeader("Контрагент").setId("Контрагент");
             } else if ("С сотрудниками".equals(tabName)) {
-                grid.removeAllColumns();
-                grid.setItems(data);
-                grid.addColumn("employeeId").setFlexGrow(7).setHeader("Сотрудник").setId("Сотрудник");
-                grid.addColumn("initialBalance").setFlexGrow(7).setHeader("Начальный остаток").setId("Начальный остаток");
-                grid.addColumn("income").setFlexGrow(7).setHeader("Приход").setId("Приход");
-                grid.addColumn("expenses").setFlexGrow(7).setHeader("Расход").setId("Расход");
-                grid.addColumn("finalBalance").setFlexGrow(7).setHeader("Конечный остаток").setId("Конечный остаток");
-                add(grid, paginator);
+                grid.addColumn("employeeId").setHeader("Сотрудник").setId("Сотрудник");
             }
+            grid.addColumn("initialBalance").setHeader("Начальный остаток").setTextAlign(ColumnTextAlign.END).setId("Начальный остаток");
+            grid.addColumn("income").setHeader("Приход").setTextAlign(ColumnTextAlign.END).setId("Приход");
+            grid.addColumn("expenses").setHeader("Расход").setTextAlign(ColumnTextAlign.END).setId("Расход");
+            grid.addColumn("finalBalance").setHeader("Конечный остаток").setTextAlign(ColumnTextAlign.END).setId("Конечный остаток");
+            add(grid, paginator);
+            grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+            gridConfigurer.addConfigColumnToGrid();
         });
         return tabs;
     }
@@ -126,7 +127,6 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
         removeAll();
         add(getToolbar(), grid, paginator);
     }
-
 
     private HorizontalLayout getToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
