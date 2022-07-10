@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.models.dto.company.TaxSystemDto;
 import com.trade_accounting.models.dto.company.TypeOfPriceDto;
+import com.trade_accounting.models.dto.units.CountryDto;
 import com.trade_accounting.models.dto.units.UnitDto;
 import com.trade_accounting.models.dto.util.FileDto;
 import com.trade_accounting.models.dto.util.ImageDto;
@@ -12,6 +13,7 @@ import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.TaxSystemService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.units.CountryService;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.trade_accounting.services.interfaces.util.FileService;
 import com.trade_accounting.services.interfaces.util.ImageService;
@@ -80,9 +82,11 @@ public class SetModalWindow extends Dialog {
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
     private final EmployeeService employeeService;
+    private final CountryService countryService;
+
     private final TextField nameTextField = new TextField();
     private final TextField descriptionField = new TextField();
-    private final TextField countryOriginField = new TextField();
+    private final ComboBox<CountryDto> countryDtoComboBox = new ComboBox<>();
     private final TextField saleTax = new TextField();
     private final BigDecimalField itemNumber = new BigDecimalField();
     private final BigDecimalField weightNumberField = new BigDecimalField();
@@ -114,7 +118,7 @@ public class SetModalWindow extends Dialog {
                           AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                           TypeOfPriceService typeOfPriceService,
                           EmployeeService employeeService,
-                          FileService fileService) {
+                          CountryService countryService, FileService fileService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.taxSystemService = taxSystemService;
@@ -124,6 +128,7 @@ public class SetModalWindow extends Dialog {
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
         this.employeeService = employeeService;
+        this.countryService = countryService;
         this.fileService = fileService;
 
 
@@ -150,12 +155,10 @@ public class SetModalWindow extends Dialog {
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         add(getHorizontalLayout("Группа", productGroupDtoComboBox));
 
-        countryOriginField.setPlaceholder("Страна происхождения");
-        productDtoBinder.forField(countryOriginField)
-                .withValidator(text -> text.length() >= 3, "Не менее 3 Символов", ErrorLevel.ERROR)
-                .bind(ProductDto::getCountryOrigin, ProductDto::setCountryOrigin);
-        countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Страна", countryOriginField));
+        countryDtoComboBox.setPlaceholder("Введите страну происхождения");
+        countryDtoComboBox.setItems(countryService.getAll());
+        countryDtoComboBox.setItemLabelGenerator(CountryDto::getShortName);
+        add(getHorizontalLayout("Страна", countryDtoComboBox));
 
         itemNumber.setPlaceholder("Артикул");
         productDtoBinder.forField(itemNumber)
@@ -243,11 +246,7 @@ public class SetModalWindow extends Dialog {
         descriptionField.setValue(productDto.getDescription());
         weightNumberField.setValue(productDto.getWeight());
         volumeNumberField.setValue(productDto.getVolume());
-        if (productDto.getCountryOrigin() == null) {
-            countryOriginField.setValue("нет данных");
-        } else {
-            countryOriginField.setValue(productDto.getCountryOrigin());
-        }
+        countryDtoComboBox.setValue(countryService.getById(productDto.getCountryId()));
         itemNumber.setValue(BigDecimal.valueOf(productDto.getItemNumber()));
         unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
         taxSystemDtoComboBox.setValue(taxSystemService.getById(productDto.getTaxSystemId()));
@@ -274,7 +273,7 @@ public class SetModalWindow extends Dialog {
         descriptionField.clear();
         weightNumberField.clear();
         volumeNumberField.clear();
-        countryOriginField.clear();
+        countryDtoComboBox.setItems(countryService.getAll());
         itemNumber.clear();
         saleTax.clear();
         footer.removeAll();
@@ -486,7 +485,7 @@ public class SetModalWindow extends Dialog {
         productDto.setUnitId(unitDtoComboBox.getValue().getId());
         productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
         productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
-        productDto.setCountryOrigin(countryOriginField.getValue());
+        productDto.setCountryId(countryDtoComboBox.getValue().getId());
         productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         productDto.setImageDtos(imageDtoList);
 

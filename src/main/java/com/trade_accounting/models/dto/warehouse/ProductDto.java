@@ -51,7 +51,7 @@ public class ProductDto {
 
     private Long attributeOfCalculationObjectId;
 
-    private String countryOrigin;
+    private Long countryId;
 
     private int itemNumber;
 

@@ -5,6 +5,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.TaxSystemDto;
 import com.trade_accounting.models.dto.company.TypeOfPriceDto;
+import com.trade_accounting.models.dto.units.CountryDto;
 import com.trade_accounting.models.dto.units.UnitDto;
 import com.trade_accounting.models.dto.util.FileDto;
 import com.trade_accounting.models.dto.util.ImageDto;
@@ -17,6 +18,7 @@ import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.TaxSystemService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.units.CountryService;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.trade_accounting.services.interfaces.warehouse.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
@@ -100,6 +102,7 @@ public class GoodsEditAddView extends VerticalLayout {
     private final TypeOfPackingService typeOfPackingService;
     private final TypeOfPriceService typeOfPriceService;
     private final EmployeeService employeeService;
+    private final CountryService countryService;
 
     private List<ImageDto> imageDtoList;
     private ProductDto productDto = new ProductDto();
@@ -114,7 +117,7 @@ public class GoodsEditAddView extends VerticalLayout {
     private final VerticalLayout tabsContent = new VerticalLayout();
     private final TextField productNameField = new TextField();
     private final TextArea descriptionField = new TextArea();
-    private final TextField countryOriginField = new TextField();
+    private final ComboBox<CountryDto> countryDtoComboBox = new ComboBox<>();
     private final TextField saleTax = new TextField();
     private final ComboBox<ProductGroupDto> productGroupDtoComboBox = new ComboBox<>();
     private final ComboBox<UnitDto> unitDtoComboBox = new ComboBox<>();
@@ -150,7 +153,7 @@ public class GoodsEditAddView extends VerticalLayout {
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPackingService typeOfPackingService,
                             TypeOfPriceService typeOfPriceService,
-                            EmployeeService employeeService) {
+                            EmployeeService employeeService, CountryService countryService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
@@ -161,6 +164,7 @@ public class GoodsEditAddView extends VerticalLayout {
         this.typeOfPackingService = typeOfPackingService;
         this.typeOfPriceService = typeOfPriceService;
         this.employeeService = employeeService;
+        this.countryService = countryService;
 
         configureCloseViewDialog();
 
@@ -198,11 +202,7 @@ public class GoodsEditAddView extends VerticalLayout {
         weightNumberField.setValue(productDto.getWeight());
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
-        if(productDto.getCountryOrigin()==null){
-            countryOriginField.setValue("нет данных");
-        } else {
-            countryOriginField.setValue(productDto.getCountryOrigin());
-        }
+        countryDtoComboBox.setValue(countryService.getById(productDto.getCountryId()));
         minimumBalance.setValue(BigDecimal.valueOf(productDto.getMinimumBalance()));
         if(productDto.getSaleTax()==null){
             saleTax.setValue("нет данных");
@@ -253,7 +253,7 @@ public class GoodsEditAddView extends VerticalLayout {
         this.productDto.setContractorId(contractorDtoComboBox.getValue().getId());
         this.productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
         this.productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
-        this.productDto.setCountryOrigin(countryOriginField.getValue());
+        this.productDto.setCountryId(countryDtoComboBox.getValue().getId());
         this.productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         this.productDto.setImageDtos(imageDtoList);
         this.productDto.setTypeOfPackingId(typeOfPackingComboBox.getValue().getId());
@@ -514,12 +514,10 @@ public class GoodsEditAddView extends VerticalLayout {
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         content.add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
 
-        countryOriginField.setPlaceholder("Введите страну происхождения");
-        productDtoBinder.forField(countryOriginField)
-                .withValidator(text-> text.length()>=3,"Не менее 3 Символов", ErrorLevel.ERROR)
-                .bind(ProductDto::getCountryOrigin, ProductDto::setCountryOrigin);
-        countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
-        content.add(getHorizontalLayout("Страна происхождения", countryOriginField));
+        countryDtoComboBox.setPlaceholder("Введите страну происхождения");
+        countryDtoComboBox.setItems(countryService.getAll());
+        countryDtoComboBox.setItemLabelGenerator(CountryDto::getShortName);
+        content.add(getHorizontalLayout("Страна", countryDtoComboBox));
 
         contractorDtoComboBox.setPlaceholder("Выберите поставщика");
         contractorDtoComboBox.setItems(contractorService.getAll());
@@ -754,7 +752,7 @@ public class GoodsEditAddView extends VerticalLayout {
         descriptionField.clear();
         weightNumberField.clear();
         volumeNumberField.clear();
-        countryOriginField.clear();
+        countryDtoComboBox.setItems(countryService.getAll());
         itemNumber.clear();
         minimumBalance.clear();
         saleTax.clear();
