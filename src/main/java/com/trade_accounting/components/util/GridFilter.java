@@ -65,15 +65,6 @@ public class GridFilter<T> extends HorizontalLayout {
 
        }
 
-    public GridFilter(Grid<T> grid, Map<ValueProvider<T, ?>, List<String>> columnKeys) {
-        this.grid = grid;
-        this.filterData = new HashMap<>();
-        configureLayout();
-        configureFilterField(columnKeys);
-        configureButton();
-
-    }
-
     /**
      * Sets field uses column key to ComboBox with specific item label generator and items.
      *
@@ -375,24 +366,11 @@ public class GridFilter<T> extends HorizontalLayout {
         }
     }
 
-    private void configureFilterField(Map<ValueProvider<T, ?>, List<String>> columnKeys) {
+    public void addFilterField(Map<ValueProvider<T, ?>, List<String>> columnKeys) {
         for (Map.Entry<ValueProvider<T, ?>, List<String>> column : columnKeys.entrySet()) {
             grid.addColumn(column.getKey()).setKey(column.getValue().get(0)).setId(column.getValue().get(1));
             grid.getColumnByKey(column.getValue().get(0)).setVisible(false);
-        }
-        try {
-            grid.getColumns().forEach(e -> {
-                if (!e.getKey().equals("imageDto") && !e.getKey().equals("sumOut")) {
-                    this.add(getFilterTextField(e.getKey()));
-                }
-                if (e.getKey().equals("date")) {
-                    grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
-                    grid.getColumnByKey("dateBefore").setVisible(false);
-                    this.add(getFilterDatePicker("dateBefore"));
-                }
-            });
-
-        } catch (NullPointerException e) {
+            this.add(getFilterTextField(grid.getColumnByKey(column.getValue().get(0)).getKey()));
         }
     }
 

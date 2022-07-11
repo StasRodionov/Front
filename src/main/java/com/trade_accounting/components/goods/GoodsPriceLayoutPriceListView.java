@@ -88,13 +88,14 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
     private final Dialog cancelEditingView = new Dialog();
     private PriceListProductPercentsDto priceListProductPercentsDto = new PriceListProductPercentsDto();
     private final TextField filterCriteria = new TextField();
+    private final PrintPriceListProductModalView view;
 
     public GoodsPriceLayoutPriceListView(CompanyService companyService, PriceListService priceListService,
                                          ProductService productService,
                                          ProductGroupService productGroupService,
                                          PriceProductSelectModal productSelectModal,
                                          PriceListProductService priceListProductService,
-                                         Notifications notifications) {
+                                         Notifications notifications, PrintPriceListProductModalView view) {
         this.companyService = companyService;
         this.priceListService = priceListService;
         this.productService = productService;
@@ -102,6 +103,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         this.productSelectModal = productSelectModal;
         this.priceListProductService = priceListProductService;
         this.notifications = notifications;
+        this.view = view;
         this.upperLayout = new VerticalLayout();
         grid = new Grid<>(PriceListProductDto.class, false);
         paginator = new GridPaginator<>(grid, tempPriceListProducts, 50);
@@ -382,7 +384,26 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         MenuItem print = menuBar.addItem(new Icon(VaadinIcon.PRINT));
         print.add("Печать");
         SubMenu printSubMenu = print.getSubMenu();
-        printSubMenu.addItem("Ценники");
+        printSubMenu.addItem("Ценники").addClickListener(event -> {
+            if (priceListData.getProductsIds().isEmpty()) {
+                notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
+                        priceListData.getNumber()));
+            } else {
+                view.setPriceListDto(priceListData);
+                view.setPriceListTemplate("priceListTags/");
+                view.open();
+            }
+        });
+        printSubMenu.addItem("Прайс-лист").addClickListener(event -> {
+            if (priceListData.getProductsIds().isEmpty()) {
+                notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
+                        priceListData.getNumber()));
+            } else {
+                view.setPriceListDto(priceListData);
+                view.setPriceListTemplate("priceListProduct/");
+                view.open();
+            }
+        });
 
         MenuItem send = menuBar.addItem(new Icon(VaadinIcon.ENVELOPE));
         send.add("Отправить");
