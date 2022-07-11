@@ -24,6 +24,10 @@ public interface AcceptanceApi {
     Call<AcceptanceDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
+    @GET("{url}/getByProjectId{id}")
+    Call<List<AcceptanceDto>> getByProjectId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<AcceptanceDto> create(@Path(value = "url", encoded = true) String url, @Body AcceptanceDto acceptanceDto);
 

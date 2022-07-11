@@ -41,6 +41,8 @@ public class InvoiceDto {
 
     private Boolean isRecyclebin;
 
+    private Long projectId;
+
     @Override
     public String toString() {
         return  "Заказ № = " + id +
@@ -52,7 +54,8 @@ public class InvoiceDto {
                 ", Проведено = " + isSpend +
                 ", Отправлено = " + isSent +
                 ", Напечатано = " + isPrint +
-                ", Комментарий = '" + comment + '\'';
+                ", Комментарий = '" + comment + '\'' +
+                ", Проект = " + projectId;
     }
 
     @EqualsAndHashCode.Exclude

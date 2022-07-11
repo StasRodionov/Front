@@ -3,6 +3,7 @@ package com.trade_accounting.components.purchases;
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintSupplierXls;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -16,12 +17,8 @@ import com.trade_accounting.models.dto.warehouse.SupplierAccountProductsListDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
-import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.SupplierAccountService;
-import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
-import com.trade_accounting.services.interfaces.invoice.InvoiceService;
-import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.SupplierAccountProductsListService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -30,11 +27,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -97,9 +96,11 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
 
     private List<SupplierAccountDto> supplierAccount;
     private final String typeOfInvoice = "EXPENSE";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private HorizontalLayout actions;
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
+    private final GridConfigurer<SupplierAccountDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/supplier";
@@ -150,32 +151,41 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
                 new Anchor("#", "Счета поставщиков"));
     }
 
-    private Grid<SupplierAccountDto> configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("20px").setHeader("№").setId("№");
-        grid.addColumn(SupplierAccountDto::getDate).setKey("date").setHeader("Время").setSortable(true)
-                .setId("Дата");
-        grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName()).setWidth("200px")
-                .setHeader("Контрагент").setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
+    private void configureGrid() {
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(SupplierAccountDto::getDate).setHeader("Дата и время")
+                .setKey("date")
+                .setId("Дата и время");
+        grid.addColumn(e -> contractorService.getById(e.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorDto")
+                .setId("Контрагент");
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания")
+                .setKey("companyDto")
                 .setId("Компания");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
-                .setKey("warehouseDto").setId("На склад");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("isSpend").setHeader("Оплачено")
+                .setKey("warehouseDto")
+                .setId("На склад");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setHeader("Оплачено")
+                .setKey("isSpend")
                 .setId("Оплачено");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn("comment").setHeader("Комментарий")
+                .setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
-        grid.setHeight("100vh");
+        grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.addItemDoubleClickListener(event -> {
+
+        grid.addItemClickListener(event -> {
             SupplierAccountDto editSupplierAccounts = event.getItem();
             supplierAccountModalView.setSupplierAccountsForEdit(editSupplierAccounts);
             supplierAccountModalView.open();
             supplierAccountModalView.addListener(SupplierAccountModalView.SaveEvent.class, this::listenEvent);
         });
-        return grid;
     }
 
     private void listenEvent(SupplierAccountModalView.SaveEvent event) {

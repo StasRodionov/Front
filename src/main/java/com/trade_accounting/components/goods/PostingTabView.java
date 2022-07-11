@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.general.ProductSelectModal;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -23,6 +24,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -56,7 +58,7 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @PageTitle("Оприходования")
 @Route(value = GOODS_POSTING_VIEW, layout = AppView.class)
 @UIScope
-public class PostingTabView extends VerticalLayout  implements AfterNavigationObserver {
+public class PostingTabView extends VerticalLayout implements AfterNavigationObserver {
 
     private final ProductService productService;
     private final CorrectionService correctionService;
@@ -71,11 +73,13 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
     private final List<CorrectionDto> data;
 
     private final Grid<CorrectionDto> grid = new Grid<>(CorrectionDto.class, false);
+    private final GridConfigurer<CorrectionDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<CorrectionDto> paginator;
     private final GridFilter<CorrectionDto> filter;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public PostingTabView(CorrectionService correctionService,
@@ -109,23 +113,31 @@ public class PostingTabView extends VerticalLayout  implements AfterNavigationOb
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(CorrectionDto::getDate).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
+        grid.addColumn(CorrectionDto::getDate).setHeader("Дата").setKey("date")
+                .setId("Дата");
         grid.addColumn(correctionDto -> warehouseService.getById(correctionDto.getWarehouseId())
-                .getName()).setKey("warehouseDto").setHeader("Склад").setId("Склад");
+                        .getName()).setHeader("Склад").setKey("warehouseDto")
+                .setId("Склад");
         grid.addColumn(correctionDto -> companyService.getById(correctionDto.getCompanyId())
-                .getName()).setKey("companyDto").setHeader("Компания").setId("Компания");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
+                        .getName()).setHeader("Компания").setKey("companyDto")
+                .setId("Компания");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn("comment").setHeader("Комментарий")
+                .setId("Комментарий");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено").setKey("sent")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано").setKey("print")
                 .setId("Напечатано");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(event -> {
             CorrectionDto correctionDto = event.getItem();
             PostingModal postingModal = new PostingModal(

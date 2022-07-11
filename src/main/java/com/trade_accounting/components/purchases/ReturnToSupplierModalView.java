@@ -7,11 +7,13 @@ import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.finance.ReturnToSupplierDto;
+import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.finance.ReturnToSupplierService;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -45,6 +47,7 @@ public class ReturnToSupplierModalView extends Dialog {
     private final WarehouseService warehouseService;
     private final ContractorService contractorService;
     private final ContractService contractService;
+    private final ProjectService projectService;
     private ReturnToSupplierDto dto;
     private final GoodsModalWindow goodsModalWindow;
 
@@ -52,6 +55,7 @@ public class ReturnToSupplierModalView extends Dialog {
     private final ComboBox<ContractorDto> contractorDtoComboBox = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseDtoComboBox = new ComboBox<>();
     private final ComboBox<ContractDto> contractDtoComboBox = new ComboBox<>();
+    private final ComboBox<ProjectDto> projectDtoComboBox = new ComboBox<>();
     private final DateTimePicker dateTimePicker = new DateTimePicker();
     private final Checkbox checkboxIsSpend = new Checkbox("Проведено");
     private final Checkbox checkboxIsPrint = new Checkbox("Напечатано");
@@ -66,12 +70,14 @@ public class ReturnToSupplierModalView extends Dialog {
 
     public ReturnToSupplierModalView(ReturnToSupplierService returnToSupplierService, CompanyService companyService,
                                      WarehouseService warehouseService, ContractorService contractorService,
-                                     ContractService contractService, GoodsModalWindow goodsModalWindow, Notifications notifications) {
+                                     ContractService contractService, ProjectService projectService,
+                                     GoodsModalWindow goodsModalWindow, Notifications notifications) {
         this.returnToSupplierService = returnToSupplierService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
         this.contractService = contractService;
+        this.projectService = projectService;
         this.goodsModalWindow = goodsModalWindow;
         this.notifications = notifications;
         setSizeFull();
@@ -87,6 +93,9 @@ public class ReturnToSupplierModalView extends Dialog {
         warehouseDtoComboBox.setValue(warehouseService.getById(editDto.getWarehouseId()));
         contractDtoComboBox.setValue(contractService.getById(editDto.getContractId()));
         contractorDtoComboBox.setValue(contractorService.getById(editDto.getContractorId()));
+        if (editDto.getProjectId() != null) {
+            projectDtoComboBox.setValue(projectService.getById(editDto.getProjectId()));
+        }
         checkboxIsSpend.setValue(editDto.getIsSend());
         checkboxIsPrint.setValue(editDto.getIsPrint());
     }
@@ -99,7 +108,7 @@ public class ReturnToSupplierModalView extends Dialog {
 
     private VerticalLayout formLayout() {
         VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(formLayout1(), formLayout2(), formLayout3(), formLayout4());
+        verticalLayout.add(formLayout1(), formLayout2(), formLayout3());
         return verticalLayout;
     }
 
@@ -111,20 +120,14 @@ public class ReturnToSupplierModalView extends Dialog {
 
     private HorizontalLayout formLayout2() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(companyConfigure(), warehouseConfigure());
+        horizontalLayout.add(companyConfigure(), warehouseConfigure(), contractorConfigure());
         return horizontalLayout;
     }
 
 
     private HorizontalLayout formLayout3() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(contractorConfigure(), contractConfigure());
-        return horizontalLayout;
-    }
-
-    private HorizontalLayout formLayout4() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
-        horizontalLayout.add(commentConfig());
+        horizontalLayout.add(contractConfigure(), projectConfigure(), commentConfig());
         return horizontalLayout;
     }
 
@@ -144,6 +147,8 @@ public class ReturnToSupplierModalView extends Dialog {
                 dto.setContractId(contractDtoComboBox.getValue().getId());
                 dto.setWarehouseId(warehouseDtoComboBox.getValue().getId());
                 dto.setContractorId(contractorDtoComboBox.getValue().getId());
+                dto.setProjectId(projectDtoComboBox.getValue() == null ?
+                        null : projectDtoComboBox.getValue().getId());
                 dto.setDate(dateTimePicker.getValue().toString());
                 dto.setIsSend(checkboxIsSpend.getValue());
                 dto.setIsPrint(checkboxIsPrint.getValue());
@@ -271,6 +276,20 @@ public class ReturnToSupplierModalView extends Dialog {
         return horizontalLayout;
     }
 
+    private HorizontalLayout projectConfigure() {
+        HorizontalLayout projectLayout = new HorizontalLayout();
+        List<ProjectDto> projects = projectService.getAll();
+        if (projects != null) {
+            projectDtoComboBox.setItems(projects);
+        }
+        projectDtoComboBox.setItemLabelGenerator(ProjectDto::getName);
+        projectDtoComboBox.setWidth("350px");
+        Label label = new Label("Проект");
+        label.setWidth("100px");
+        projectLayout.add(label, projectDtoComboBox);
+        return projectLayout;
+    }
+
     private HorizontalLayout commentConfig() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Комментарий");
@@ -286,6 +305,7 @@ public class ReturnToSupplierModalView extends Dialog {
         contractDtoComboBox.setValue(null);
         contractorDtoComboBox.setValue(null);
         warehouseDtoComboBox.setValue(null);
+        projectDtoComboBox.setValue(null);
         dateTimePicker.setValue(null);
         textArea.setValue("");
         returnNumber.setValue("");

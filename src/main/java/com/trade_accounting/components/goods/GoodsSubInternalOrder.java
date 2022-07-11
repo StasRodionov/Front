@@ -1,6 +1,7 @@
 package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -69,6 +71,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final InternalOrderProductsDtoService internalOrderProductsDtoService;
     private final ProductService productService;
     private final Grid<InternalOrderDto> grid = new Grid<>(InternalOrderDto.class, false);
+    private final GridConfigurer<InternalOrderDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<InternalOrderDto> paginator;
     private final GridFilter<InternalOrderDto> filter;
     private final Notifications notifications;
@@ -77,6 +80,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final TitleForModal titleForEdit;
     private final TitleForModal titleForСreate;
     private final TitleForModal titleForEditSelected;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public GoodsSubInternalOrder(CompanyService companyService,
@@ -137,29 +141,41 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("1px").setHeader("№").setId("№");
-        grid.addColumn(InternalOrderDto::getDate).setKey("date").setWidth("1px").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(InternalOrderDto::getDate).setHeader("Дата и время").setKey("date").setId("Дата и время");
         grid.addColumn(internalOrderDto -> companyService.getById(internalOrderDto.getCompanyId())
-                .getName()).setKey("company").setHeader("Организация").setId("Организация");
+                .getName()).setHeader("Организация")
+                .setKey("company")
+                .setId("Организация");
         grid.addColumn(internalOrderDto -> warehouseService.getById(internalOrderDto.getWarehouseId())
-                .getName()).setKey("warehouse").setWidth("1px").setHeader("На склад").setId("На склад");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setWidth("1px").setWidth("1px").setKey("sent").setHeader("Отправлено")
+                .getName()).setHeader("На склад")
+                .setKey("warehouse")
+                .setId("На склад");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
+                .setKey("sent")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setWidth("1px").setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
+                .setKey("print")
                 .setId("Напечатано");
-        grid.addColumn("comment").setWidth("1px").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(this::getTotalPriceString).setWidth("1px").setHeader("Сумма").setKey("totalPrice").setSortable(true).setId("Сумма");
-        grid.addColumn(this::getTotalAmountString).setWidth("1px").setHeader("Количество").setKey("totalAmount").setSortable(true).setId("Количество");
+        grid.addColumn("comment").setHeader("Комментарий")
+                .setId("Комментарий");
+        grid.addColumn(this::getTotalPriceString).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setKey("totalPrice")
+                .setId("Сумма");
+        grid.addColumn(this::getTotalAmountString).setHeader("Количество").setTextAlign(ColumnTextAlign.END)
+                .setKey("totalAmount")
+                .setId("Количество");
 
         grid.addColumn(internalOrderDto -> (internalOrderDto.getInternalOrderProductsIds()).stream()
                         .map(internalOrderProductsDtoService::getById)
                         .map(map -> productService.getById(map.getProductId()).getName())
                         .collect(Collectors.toList()))
                 .setHeader("Товары внутреннего заказа").setId("Товары внутреннего заказа");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
         grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 

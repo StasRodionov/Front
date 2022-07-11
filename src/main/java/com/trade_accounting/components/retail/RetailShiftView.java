@@ -1,6 +1,7 @@
 package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -65,7 +67,9 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
 
     private final GridFilter<RetailShiftDto> filter;
     private final Grid<RetailShiftDto> grid = new Grid<>(RetailShiftDto.class, false);
+    private final GridConfigurer<RetailShiftDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<RetailShiftDto> paginator;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailShiftView(RetailShiftService retailShiftService, RetailStoreService retailStoreService,
                            WarehouseService warehouseService, CompanyService companyService,
@@ -86,34 +90,37 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDataOpen())).setKey("dataOpen").setFlexGrow(10).setHeader("Дата открытия")
-                .setSortable(true).setId("Дата открытия");
-        grid.addColumn(dto -> formatDate(dto.getDataClose())).setKey("dataClose").setFlexGrow(10).setHeader("Дата закрытия")
-                .setSortable(true).setId("Дата закрытия");
-        grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getName()).setFlexGrow(5)
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(dto -> formatDate(dto.getDataOpen())).setKey("dataOpen").setHeader("Дата открытия")
+                .setId("Дата открытия");
+        grid.addColumn(dto -> formatDate(dto.getDataClose())).setKey("dataClose").setHeader("Дата закрытия")
+                .setId("Дата закрытия");
+        grid.addColumn(dto -> retailStoreService.getById(dto.getRetailStoreId()).getName())
                 .setHeader("Точка продаж").setKey("retailStoreDto").setId("Точка продаж");
-        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setFlexGrow(5)
+        grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName())
                 .setHeader("Склад").setKey("warehouseDto").setId("Склад");
-        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setFlexGrow(5)
+        grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName())
                 .setHeader("Организация").setKey("companyDto").setId("Организация");
-        grid.addColumn("bank").setFlexGrow(5).setHeader("Банк-эквайер").setId("Банк-эквайер");
-        grid.addColumn("revenuePerShift").setFlexGrow(5).setHeader("Выручка за смену").setId("Выручка за смену");
-        grid.addColumn("received").setFlexGrow(5).setHeader("Поступило").setId("Поступило");
-        grid.addColumn("amountOfDiscounts").setFlexGrow(5).setHeader("Сумма скидок").setId("Сумма скидок");
-        grid.addColumn("commission_amount").setFlexGrow(5).setHeader("Сумма комиссии").setId("Сумма комиссии");
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("sent")
+        grid.addColumn("bank").setHeader("Банк-эквайер").setId("Банк-эквайер");
+        grid.addColumn("revenuePerShift").setTextAlign(ColumnTextAlign.END).setHeader("Выручка за смену").setId("Выручка за смену");
+        grid.addColumn("received").setTextAlign(ColumnTextAlign.END).setHeader("Поступило").setId("Поступило");
+        grid.addColumn("amountOfDiscounts").setTextAlign(ColumnTextAlign.END).setHeader("Сумма скидок").setId("Сумма скидок");
+        grid.addColumn("commission_amount").setTextAlign(ColumnTextAlign.END).setHeader("Сумма комиссии").setId("Сумма комиссии");
+        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setKey("sent")
                 .setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("printed")
+        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setKey("printed")
                 .setHeader("Напечатано").setId("Напечатано");
-        grid.addColumn("comment").setFlexGrow(5).setHeader("Комментарий").setId("Комментарий");
-        GridSortOrder<RetailShiftDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
-        grid.setHeight("66vh");
-        grid.sort(Arrays.asList(order));
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        GridSortOrder<RetailShiftDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
+        grid.sort(Arrays.asList(order));
     }
 
     private void configureFilter() {

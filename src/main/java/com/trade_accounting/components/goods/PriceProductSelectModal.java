@@ -65,7 +65,6 @@ public class PriceProductSelectModal extends Dialog {
         productSelect.addValueChangeListener(e -> {
             if (e.getValue() != null) {
                 percentSum(e.getValue());
-                getPriceListProductDto();
                 updateSaveButtonEnable();
             }
         });

@@ -177,6 +177,7 @@ public class IncomingPaymentModal extends Dialog {
                     paymentService.update(payment);
                 }
                 reset();
+                // из-за следующей строки перестает работать фильтр после закрытия модалки (аналогично во всех модальных окнах вкладки Платежи)
                 UI.getCurrent().navigate(MONEY);
                 close();
             } else {

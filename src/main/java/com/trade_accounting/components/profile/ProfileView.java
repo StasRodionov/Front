@@ -2,19 +2,19 @@ package com.trade_accounting.components.profile;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.services.interfaces.client.DepartmentService;
+import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.client.PositionService;
+import com.trade_accounting.services.interfaces.client.RoleService;
 import com.trade_accounting.services.interfaces.company.AddressService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
-import com.trade_accounting.services.interfaces.units.CurrencyService;
-import com.trade_accounting.services.interfaces.client.DepartmentService;
-import com.trade_accounting.services.interfaces.client.EmployeeService;
-import com.trade_accounting.services.interfaces.units.SalesChannelService;
-import com.trade_accounting.services.interfaces.util.ImageService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
-import com.trade_accounting.services.interfaces.client.PositionService;
-import com.trade_accounting.services.interfaces.client.RoleService;
 import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
+import com.trade_accounting.services.interfaces.units.CurrencyService;
+import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.trade_accounting.services.interfaces.units.UnitService;
+import com.trade_accounting.services.interfaces.util.ImageService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -123,7 +123,7 @@ public class ProfileView extends Div implements AfterNavigationObserver {
                     break;
                 case "Каналы продаж":
                     div.removeAll();
-                    div.add(new SalesChannelView(salesChannelService));
+                    div.add(new SalesChannelView(salesChannelService, notifications));
                 default:
             }
         });

@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -60,8 +62,10 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
     private List<RetailSalesDto> data;
 
     private final Grid<RetailSalesDto> grid = new Grid<>(RetailSalesDto.class, false);
+    private final GridConfigurer<RetailSalesDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<RetailSalesDto> paginator;
     private final GridFilter<RetailSalesDto> filter;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailSalesTabView(RetailSalesService retailSalesService, RetailStoreService retailStoreService,
                               CompanyService companyService, ContractorService contractorService) {
@@ -81,29 +85,33 @@ public class RetailSalesTabView extends VerticalLayout implements AfterNavigatio
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("id");
-        grid.addColumn("sumCash").setHeader("Сумма нал.").setId("Сумма нал.");
-        grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setId("Сумма безнал.");
-        grid.addColumn("prepayment").setHeader("Сумма предопл.").setId("Сумма предопл.");
-        grid.addColumn("sumDiscount").setHeader("Сумма скидок").setId("Сумма скидок");
-        grid.addColumn("sum").setHeader("Итого").setId("Итого");
+        grid.addColumn("sumCash").setHeader("Сумма нал.").setTextAlign(ColumnTextAlign.END).setId("Сумма нал.");
+        grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setTextAlign(ColumnTextAlign.END).setId("Сумма безнал.");
+        grid.addColumn("prepayment").setHeader("Сумма предопл.").setTextAlign(ColumnTextAlign.END).setId("Сумма предопл.");
+        grid.addColumn("sumDiscount").setHeader("Сумма скидок").setTextAlign(ColumnTextAlign.END).setId("Сумма скидок");
+        grid.addColumn("sum").setHeader("Итого").setTextAlign(ColumnTextAlign.END).setId("Итого");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
 
-        grid.addColumn("time").setHeader("Время").setId("Время");
+        grid.addColumn("time").setHeader("Дата").setId("Дата");
         grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("Точка продаж");
         grid.addColumn("contractorId").setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setKey("companyName").setHeader("Организация").setId("Организация");
 
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setWidth("35px").setKey("sent")
+        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setKey("sent")
                 .setHeader("Отправлена").setId("Отправлена");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setWidth("35px").setKey("printed")
+        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setKey("printed")
                 .setHeader("Напечатана").setId("Напечатана");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         GridSortOrder<RetailSalesDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
-        grid.setColumnReorderingAllowed(true);
     }
 
     private Button getButtonFilter() {

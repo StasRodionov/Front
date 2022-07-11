@@ -3,6 +3,7 @@ package com.trade_accounting.services.interfaces.units;
 import com.trade_accounting.models.dto.units.SalesChannelDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SalesChannelService {
 
@@ -15,4 +16,6 @@ public interface SalesChannelService {
     void update(SalesChannelDto dto);
 
     void deleteById(Long id);
+    List<SalesChannelDto> search(Map<String, String> query);
+    List<SalesChannelDto> searchByString(String search);
 }

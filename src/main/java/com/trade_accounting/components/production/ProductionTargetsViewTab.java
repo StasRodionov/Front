@@ -2,6 +2,7 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -56,10 +57,12 @@ public class ProductionTargetsViewTab extends VerticalLayout implements AfterNav
     private final List<ProductionTargetsDto> data;
     private final GridPaginator<ProductionTargetsDto> paginator;
     private final Grid<ProductionTargetsDto> grid = new Grid<>(ProductionTargetsDto.class, false);
+    private final GridConfigurer<ProductionTargetsDto> gridConfigurer = new GridConfigurer<>(grid);
     private final ProductionTargetsService productionTargetsService;
     private final Notifications notifications;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     ProductionTargetsViewTab(ProductionTargetsService productionTargetsService,
                              Notifications notifications,
@@ -81,15 +84,19 @@ public class ProductionTargetsViewTab extends VerticalLayout implements AfterNav
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(ProductionTargetsDto::getDate).setKey("date").setHeader(" Время").setSortable(true).setId("Дата");
+        grid.addColumn(ProductionTargetsDto::getDate).setKey("date").setHeader("Дата и время").setId("Дата и время");
         grid.addColumn("description").setHeader("Комментарий").setId("Комментарий");
         grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("Организация").setId("Организация");
         grid.addColumn("productionStart").setHeader("Начало производства").setId("Начало производства");
         grid.addColumn("productionEnd").setHeader("Завершение производства").setId("Завершение производства");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено").setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано").setId("Напечатано");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(e -> {
@@ -103,7 +110,6 @@ public class ProductionTargetsViewTab extends VerticalLayout implements AfterNav
            modalWindow.open();
         });
     }
-
 
     private Component getIsSentIcon(ProductionTargetsDto productionTargetsDto) {
         if (productionTargetsDto.getPublished()) {

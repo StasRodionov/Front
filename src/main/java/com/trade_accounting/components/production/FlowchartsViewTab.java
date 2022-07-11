@@ -3,6 +3,7 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -17,6 +18,7 @@ import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -50,6 +52,7 @@ public class FlowchartsViewTab extends VerticalLayout {
 
     private final TextField text = new TextField();
     private final Grid<TechnicalCardDto> grid = new Grid<>(TechnicalCardDto.class, false);
+    private final GridConfigurer<TechnicalCardDto> gridConfigurer = new GridConfigurer<>(grid);
     private final List<TechnicalCardDto> data;
     private final GridPaginator<TechnicalCardDto> paginator;
     private final TechnicalCardService technicalCardService;
@@ -61,6 +64,7 @@ public class FlowchartsViewTab extends VerticalLayout {
     private final List<ProductDto> productDtoList;
     private final TechnicalCardProductionService technicalCardProductionService;
     private final Notifications notifications;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public FlowchartsViewTab(TechnicalCardService technicalCardService,
                              TechnicalCardGroupService technicalCardGroupService,
@@ -84,16 +88,19 @@ public class FlowchartsViewTab extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn("productionCost").setHeader("Затраты на производство").setId("Затраты на производство");
+        grid.addColumn("productionCost").setHeader("Затраты на производство").setTextAlign(ColumnTextAlign.END)
+                .setId("Затраты на производство");
 //        grid.addColumn(iDto -> iDto.getTechnicalCardGroupDto().getName()).setHeader("Группа").setId("Группа");
         grid.addColumn(iDto -> technicalCardGroupService.getById(iDto.getTechnicalCardGroupId()).getName()).setHeader("Группа").setId("Группа");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("64vh");
         grid.setWidth("150vh");
-
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
@@ -106,7 +113,6 @@ public class FlowchartsViewTab extends VerticalLayout {
             addTechnicalCardModalWindow.getSaveButton();
             addTechnicalCardModalWindow.open();
         });
-
     }
 
     private HorizontalLayout getToolBar() {
@@ -221,11 +227,11 @@ public class FlowchartsViewTab extends VerticalLayout {
     private HorizontalLayout getLabelFlowchartsAndTable() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         Label label = new Label("Тех. карты");
-        label.setWidth("300px");
+        label.setWidth("200px");
         label.setHeight("30px");
         label.getElement().getStyle().set("background-color", "#e4f1fa");
-        horizontalLayout.add(label);
-        horizontalLayout.add(grid);
+        horizontalLayout.add(label, grid);
+//        horizontalLayout.add(grid);
         return horizontalLayout;
     }
 

@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.NaiveXlsTableBuilder;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.HeaderRow;
@@ -46,8 +48,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.trade_accounting.config.SecurityConstants.GOODS;
-import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VIEW;
+import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
 @SpringComponent
@@ -57,6 +58,7 @@ import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VI
 public class GoodsView extends VerticalLayout {
 
     private final Grid<ProductDto> grid;
+    private final GridConfigurer<ProductDto> gridConfigurer;
     private final ProductService productService;
     private final ProductGroupService productGroupService;
     private final GoodsModalWindow goodsModalWindow;
@@ -69,6 +71,8 @@ public class GoodsView extends VerticalLayout {
     private final ProductGroupModalWindow productGroupModalWindow;
     private Optional<ProductGroupDto> optional = Optional.empty();
     private final GoodsEditAddView goodsEditAddView;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final KitsEditAddView kitsEditAddView;
 
     @Autowired
     public GoodsView(ProductService productService,
@@ -76,11 +80,14 @@ public class GoodsView extends VerticalLayout {
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow,
                      SetModalWindow setModalWindow, Notifications notifications,
-                     ProductGroupModalWindow productGroupModalWindow, GoodsEditAddView goodsEditAddView) {
+                     ProductGroupModalWindow productGroupModalWindow, GoodsEditAddView goodsEditAddView,
+                     KitsEditAddView kitsEditAddView) {
+        this.kitsEditAddView = kitsEditAddView;
         this.goodsEditAddView = goodsEditAddView;
         this.setModalWindow = setModalWindow;
         this.productGroupModalWindow = productGroupModalWindow;
         this.grid = new Grid<>(ProductDto.class);
+        this.gridConfigurer = new GridConfigurer<>(grid);
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
@@ -138,21 +145,23 @@ public class GoodsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.removeAllColumns();
         grid.setWidth("75%");
-        grid.setHeight("100%");
+        grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.setColumns("id", "name", "itemNumber", "description", "weight", "volume", "purchasePrice");
         grid.getColumnByKey("id").setHeader("id").setId("ID");
         grid.getColumnByKey("name").setHeader("Наименование").setId("Наименование");
-        grid.getColumnByKey("weight").setHeader("Вес").setId("Вес");
-        grid.getColumnByKey("volume").setHeader("Объем").setId("Объем");
+        grid.getColumnByKey("weight").setHeader("Вес").setTextAlign(ColumnTextAlign.END).setId("Вес");
+        grid.getColumnByKey("volume").setHeader("Объем").setTextAlign(ColumnTextAlign.END).setId("Объем");
         grid.getColumnByKey("itemNumber").setHeader("Артикул").setId("Артикул");
         grid.getColumnByKey("description").setHeader("Описание").setId("Описание");
-        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена").setId("Закупочная цена");
+        grid.getColumnByKey("purchasePrice").setHeader("Закупочная цена").setTextAlign(ColumnTextAlign.END).setId("Закупочная цена");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
         grid.addItemDoubleClickListener(event -> {
             ProductDto productDto = event.getItem();
@@ -178,7 +187,7 @@ public class GoodsView extends VerticalLayout {
 
     private TreeGrid<ProductGroupDto> getTreeGrid() {
         TreeGrid<ProductGroupDto> treeGridLocal = new TreeGrid<>();
-        treeGridLocal.setHeight("100%");
+        treeGridLocal.setHeight("66vh");
         treeGridLocal.setWidth("25%");
         treeGridLocal.setThemeName("dense", true);
         treeGridLocal.addClassName("treeGreed");
@@ -250,10 +259,10 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonQuestion() {
         return Buttons.buttonQuestion("В разделе представлены все ваши товары, услуги и комплекты. " +
-                        "артикулом по характеристикам (например, размеру или цвету) удобно с помощью модификаций. " +
-                        "Несколько единиц одного товара можно продавать упаковками. А комплекты позволяют продавать " +
-                        "наборы разных товаров и услуг как единое целое. " +
-                        "Каталог товаров можно импортировать и экспортировать.");
+                "артикулом по характеристикам (например, размеру или цвету) удобно с помощью модификаций. " +
+                "Несколько единиц одного товара можно продавать упаковками. А комплекты позволяют продавать " +
+                "наборы разных товаров и услуг как единое целое. " +
+                "Каталог товаров можно импортировать и экспортировать.");
     }
 
     private Button buttonRefresh() {
@@ -281,7 +290,10 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusSet() {
         Button addSetButton = new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
-        addSetButton.addClickListener(e -> setModalWindow.open());
+        addSetButton.addClickListener(e -> {
+            kitsEditAddView.setLocation(GOODS);
+            UI.getCurrent().navigate(GOODS_KITS__EDIT_VIEW);
+        });
         addSetButton.getStyle().set("cursor", "pointer");
         return addSetButton;
     }

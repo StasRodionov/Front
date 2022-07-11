@@ -2,18 +2,21 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.units.CurrencyDto;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.retail.RetailCloudCheckDto;
 import com.trade_accounting.models.dto.retail.RetailStoreDto;
+import com.trade_accounting.services.interfaces.retail.RetailEventLogService;
 import com.trade_accounting.services.interfaces.units.CurrencyService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.retail.RetailCloudCheckService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -52,21 +55,22 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
     private final CurrencyService currencyService;
     private final RetailStoreService retailStoreService;
     private final EmployeeService employeeService;
-    private final EventLogModal eventLogModal;
+    private final RetailEventLogService retailEventLogService;
     private List<RetailCloudCheckDto> data;
-
     private final GridFilter<RetailCloudCheckDto> filter;
     private final Grid<RetailCloudCheckDto> grid = new Grid<>(RetailCloudCheckDto.class, false);
+    private final GridConfigurer<RetailCloudCheckDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<RetailCloudCheckDto> paginator;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService, EventLogModal eventLogModal) {
+    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService, RetailEventLogService retailEventLogService) {
         this.retailCloudCheckService = retailCloudCheckService;
         this.data = getData();
         this.currencyService = currencyService;
         this.retailStoreService = retailStoreService;
         this.employeeService = employeeService;
         this.paginator = new GridPaginator<>(grid, data, 100);
-        this.eventLogModal = eventLogModal;
+        this.retailEventLogService = retailEventLogService;
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
@@ -76,7 +80,6 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
     }
 
     private void configureFilter() {
-
         filter.setFieldToIntegerField("id");
         filter.setFieldToDatePicker("date");
         filter.setFieldToComboBox("retailStoreDto", RetailStoreDto::getName, retailStoreService.getAll());
@@ -92,27 +95,31 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("id");
-        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("Дата");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("id");
+        grid.addColumn("date").setHeader("Дата и время").setId("Дата и время");
         grid.addColumn(retailCloudCheckDto -> retailStoreService.getById(retailCloudCheckDto.getInitiatorId())
                 .getName()).setKey("retailStoreDto").setHeader("Инициатор").setId("Инициатор");
         grid.addColumn(retailCloudCheckDto -> retailStoreService.getById(retailCloudCheckDto.getFiscalizationPointId())
-                .getName()).setKey("fiscalPoint").setFlexGrow(10).setHeader("Точка фискализации").setId("Точка фискализации");
-        grid.addColumn("status").setFlexGrow(5).setHeader("Статус").setId("Статус");
-        grid.addColumn("cheskStatus").setFlexGrow(5).setHeader("Статус чека").setId("Статус чека");
-        grid.addColumn("total").setFlexGrow(5).setHeader("Итого").setId("Итого");
+                .getName()).setKey("fiscalPoint").setHeader("Точка фискализации").setId("Точка фискализации");
+        grid.addColumn("status").setHeader("Статус").setId("Статус");
+        grid.addColumn("cheskStatus").setHeader("Статус чека").setId("Статус чека");
+        grid.addColumn("total").setTextAlign(ColumnTextAlign.END).setHeader("Итого").setId("Итого");
 
         grid.addColumn(retailCloudCheckDto -> currencyService.getById(retailCloudCheckDto.getCurrencyId())
                 .getLetterCode()).setKey("currencyDto").setHeader("Валюта").setId("Валюта");
 
         grid.addColumn(retailCloudCheckDto -> employeeService.getById(retailCloudCheckDto.getCashierId())
                 .getFirstName()).setKey("cashierDto").setHeader("Кассир").setId("Кассир");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         GridSortOrder<RetailCloudCheckDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
-        grid.setColumnReorderingAllowed(true);
     }
 
     private List<RetailCloudCheckDto> getData() {
@@ -161,7 +168,6 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
         add(upperLayout(), grid, paginatorUpdateList);
     }
 
-
     private Button buttonSettings() {
         Button buttonSettings = new Button(new Icon(VaadinIcon.COG_O));
         return buttonSettings;
@@ -183,6 +189,7 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
 
     private Button buttonEventLog() {
         Button status = new Button("Журнал событий");
+        EventLogModal eventLogModal = new EventLogModal(retailEventLogService);
         status.addClickListener(e -> eventLogModal.open());
         status.getStyle().set("cursor", "pointer");
         status.setWidth("170px");

@@ -2,6 +2,7 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -21,9 +22,12 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -44,7 +48,6 @@ import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -70,11 +73,13 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     private final Notifications notifications;
 
     private HorizontalLayout actions;
-    private Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
+    private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
+    private final GridConfigurer<SupplierAccountDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
 
     private final String typeOfInvoice = "RECEIPT";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService,
@@ -115,27 +120,32 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
                         "Счет можно создать на основе заказа покупателя или вручную. " +
                         "Несколько счетов можно объединить: отметьте нужные счета флажками, нажмите справа вверху Изменить → Объединить. " +
                         "Исходные счета также сохранятся. " +
-                        "Счета можно распечатывать или отправлять покупателям в виде файлов. "+
+                        "Счета можно распечатывать или отправлять покупателям в виде файлов. " +
                         "Читать инструкцию: "),
                 new Anchor("#", "Счета покупателям"));
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
-                .setKey("date").setId("Дата");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Дата и время")
+                .setKey("date").setId("Дата и время");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Компания")
                 .setKey("companyId").setId("Компания");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
                 .setKey("warehouseId").setId("Со склада");
-        grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма");
+        grid.addColumn(dto -> getTotalPrice(dto.getId())).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.addItemDoubleClickListener(event -> {
+        grid.addItemClickListener(event -> {
             SupplierAccountDto editInvoice = event.getItem();
             salesAddNewInvoicesToBuyersView.setSupplierDataForEdit(editInvoice);
             salesAddNewInvoicesToBuyersView.setUpdateState(true);

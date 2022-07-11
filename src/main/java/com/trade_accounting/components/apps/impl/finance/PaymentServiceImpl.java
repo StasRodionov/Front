@@ -64,6 +64,21 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public List<PaymentDto> getByProjectId(Long id) {
+        List<PaymentDto> paymentDtoList = new ArrayList<>();
+        Call<List<PaymentDto>> paymentDtoListCall = paymentApi.getByProjectId(paymentUrl, id);
+
+        try {
+            paymentDtoList = paymentDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка PaymentDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /payments  не авторизованного пользователя - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка PaymentDto - {IOException}", e);
+        }
+        return paymentDtoList;
+    }
+
+    @Override
     public void create(PaymentDto paymentDto) {
         Call<Void> paymentDtoCall = paymentApi.create(paymentUrl, paymentDto);
         dtoCallExecuteService.callExecuteBodyCreate(paymentDtoCall, PaymentDto.class);

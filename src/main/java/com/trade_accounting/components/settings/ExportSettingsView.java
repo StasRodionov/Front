@@ -4,14 +4,16 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
-import com.trade_accounting.components.util.configure.components.select.SelectConstants;
-import com.trade_accounting.components.util.configure.components.select.SelectExt;
+import com.trade_accounting.components.util.Notifications;
+import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.units.ExportDto;
 import com.trade_accounting.services.interfaces.units.ExportService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -36,9 +38,12 @@ public class ExportSettingsView extends VerticalLayout {
     private GridPaginator<ExportDto> paginator;
     private final GridFilter<ExportDto> filter;
 
-    public ExportSettingsView(ExportService exportService) {
+    private final Notifications notifications;
+
+    public ExportSettingsView(ExportService exportService, Notifications notifications) {
         this.exportService = exportService;
         paginator = new GridPaginator<>(grid, exportService.getAll(), 100);
+        this.notifications = notifications;
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         grid();
         this.filter = new GridFilter<>(grid);
@@ -98,16 +103,36 @@ public class ExportSettingsView extends VerticalLayout {
     }
 
     private Button buttonExport() {
-        Button exportButton = new Button("Экспортировать");
-
-        return exportButton;
+        Button buttonExport = new Button("Экспортировать", new Icon(VaadinIcon.PLUS_CIRCLE));
+        ExportModalWindow addExportModalWindow =
+                new ExportModalWindow(new ExportDto(), exportService);
+        buttonExport.addClickListener(event -> addExportModalWindow.open());
+        addExportModalWindow.addDetachListener(event -> updateList());
+        return buttonExport;
     }
 
-    private Select<String> valueSelect() {
-        return new SelectExt.SelectBuilder<String>()
-                .item(SelectConstants.CHANGE_SELECT_ITEM)
-                .defaultValue(SelectConstants.CHANGE_SELECT_ITEM)
-                .width(SelectConstants.SELECT_WIDTH_130PX)
-                .build();
+    private List<ExportDto> getData() {
+        return exportService.getAll();
     }
+
+    private void deleteSelectedItems() {
+        if (!grid.getSelectedItems().isEmpty()) {
+            for (ExportDto exportDto : grid.getSelectedItems()) {
+                exportService.deleteById(exportDto.getId());
+                notifications.infoNotification("Выбранные задачи успешно удалены");
+            }
+        } else {
+            notifications.errorNotification("Сначала отметьте задачи для удаления");
+        }
+
+    }
+
+   private Select<String> valueSelect() {
+        return SelectConfigurer.configureDeleteSelect(() -> {
+            deleteSelectedItems();
+            grid.deselectAll();
+            paginator.setData(getData());
+        });
+    }
+
 }

@@ -39,6 +39,8 @@ loss_product_url: api/lossproduct
 
 retail_making_url: api/making
 
+retail_event_log_url: api/event_log
+
 orders_of_production_url: api/orders_of_production
 
 technical_operations_url: api/technical/operations

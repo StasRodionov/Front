@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -56,5 +59,33 @@ public class SalesChannelServiceImpl implements SalesChannelService {
     public void deleteById(Long id) {
         Call<Void> salesChannelDtoCall = salesChannelApi.deleteById(salesChannelUrl, id);
         dtoCallExecuteService.callExecuteBodyDelete(salesChannelDtoCall, SalesChannelDto.class, id);
+    }
+
+    @Override
+    public List<SalesChannelDto> search(Map<String, String> query) {
+        List<SalesChannelDto> salesChannelDtoList = new ArrayList<>();
+        Call<List<SalesChannelDto>> salesChannelDtoListCall = salesChannelApi.search(salesChannelUrl, query);
+
+        try{
+            salesChannelDtoList = salesChannelDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка SalesChannelDto");
+        } catch (IOException e){
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка SalesChannelDto - ", e);
+        }
+        return salesChannelDtoList;
+    }
+
+    @Override
+    public List<SalesChannelDto> searchByString(String search) {
+        List<SalesChannelDto> salesChannelDtoList = new ArrayList<>();
+        Call<List<SalesChannelDto>> salesChannelDtoListCall = salesChannelApi.searchByString(salesChannelUrl, search.toLowerCase());
+
+        try {
+            salesChannelDtoList = salesChannelDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка каналов продаж");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка каналов продаж - ", e);
+        }
+        return salesChannelDtoList;
     }
 }

@@ -2,6 +2,7 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -77,6 +79,7 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
 
     private final GridPaginator<OrdersOfProductionDto> paginator;
     private final Grid<OrdersOfProductionDto> grid = new Grid<>(OrdersOfProductionDto.class, false);
+    private final GridConfigurer<OrdersOfProductionDto> gridConfigurer = new GridConfigurer<>(grid);
     private final OrdersOfProductionService ordersOfProductionService;
     private final CompanyService companyService;
     private final TechnicalCardService technicalCardService;
@@ -87,6 +90,7 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/ordersOfProduction_templates/";
     private final String editString = "Изменение заказа на производство";
     private final String addString = "Добавление заказа на производство";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnicalCardService technicalCardService, Notifications notifications) {
             this.ordersOfProductionService = ordersOfProductionService;
@@ -180,24 +184,32 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
         notification.open();
     }
 
-
     private void configureGrid () {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.setItems(data);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(OrdersOfProductionDto::getDate).setKey("date").setHeader("время").setSortable(true).setId("Дата");
+        grid.addColumn(OrdersOfProductionDto::getDate).setHeader("Дата и время").setKey("date").setId("Дата и время");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("организация").setKey("companyDto").setId("организация");
-        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCardId()).getName()).setHeader("Технологическая карта").setKey("technicalCardDto").setId("Технологическая карта");
-        grid.addColumn("volume").setHeader("Объем производства").setId("Объем производства");
-        grid.addColumn("produce").setHeader("Произведено").setId("Произведено");
+        grid.addColumn(e -> companyService.getById(e.getCompanyId()).getName()).setHeader("Организация")
+                .setKey("companyDto")
+                .setId("Организация");
+        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCardId()).getName()).setHeader("Технологическая карта")
+                .setKey("technicalCardDto")
+                .setId("Технологическая карта");
+        grid.addColumn("volume").setHeader("Объем производства").setTextAlign(ColumnTextAlign.END)
+                .setId("Объем производства");
+        grid.addColumn("produce").setHeader("Произведено").setTextAlign(ColumnTextAlign.END)
+                .setId("Произведено");
         grid.addColumn(OrdersOfProductionDto::getPlannedProductionDate)
-                .setHeader("План. дата производства").setSortable(true).setId("План. дата производства");
+                .setHeader("План. дата производства").setId("План. дата производства");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
                 .setId("Напечатано");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 

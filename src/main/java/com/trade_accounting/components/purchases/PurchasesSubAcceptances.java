@@ -1,18 +1,19 @@
 package com.trade_accounting.components.purchases;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintAcceptancesXls;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
+import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -27,16 +28,19 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -49,8 +53,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -69,8 +71,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.trade_accounting.config.SecurityConstants.*;
-
 @Slf4j
 //@Route(value = PURCHASES_ADMISSIONS_VIEW, layout = AppView.class)
 //@PageTitle("Приемки")
@@ -85,9 +85,11 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final ContractorService contractorService;
     private final ContractService contractService;
     private final Notifications notifications;
+    private final ProjectService projectService;
     private final AcceptanceModalView modalView;
-    private final List<AcceptanceDto> data;
+    private List<AcceptanceDto> data;
     private final Grid<AcceptanceDto> grid = new Grid<>(AcceptanceDto.class, false);
+    private final GridConfigurer<AcceptanceDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<AcceptanceDto> paginator;
     private final GridFilter<AcceptanceDto> filter;
     private final TextField textField = new TextField();
@@ -95,13 +97,14 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final AddFromDirectModalWin addFromDirectModalWin;
     private final ProductService productService;
     private final AcceptanceProductionService acceptanceProductionService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchases";
-    private  final String textForQuestionButton = "<div><p>Приемки позволяют учитывать закупки товаров." +
+    private final String textForQuestionButton = "<div><p>Приемки позволяют учитывать закупки товаров." +
             "Приемку создают, когда покупают новый товар." +
             "Если товар уже лежит у вас на складе или вы не хотите указывать поставщиков, лучше воспользоваться оприходованием.</p>" +
             "<p>В результате приемки увеличиваются остатки товаров в разделе Товары → Остатки и фиксируется долг перед поставщиком в     разделе Деньги → Взаиморасчеты." +
             "Также на основе приемки формируется себестоимость товара.</p>" +
-            "<p>Приемку можно создать вручную или импортировать, в том числе из систем ЭДО.</p>"+
+            "<p>Приемку можно создать вручную или импортировать, в том числе из систем ЭДО.</p>" +
             "<p>Читать инструкцию: <a href=\"#\" target=\"_blank\">Приемка товаров</a></p></div>";
 
 
@@ -113,7 +116,8 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                                    AcceptanceModalView modalView,
                                    AddFromDirectModalWin addFromDirectModalWin,
                                    ProductService productService,
-                                   AcceptanceProductionService acceptanceProductionService) {
+                                   AcceptanceProductionService acceptanceProductionService,
+                                   ProjectService projectService) {
         this.employeeService = employeeService;
         this.companyService = companyService;
         this.acceptanceService = acceptanceService;
@@ -123,14 +127,24 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         this.notifications = notifications;
         this.productService = productService;
         this.acceptanceProductionService = acceptanceProductionService;
+        this.projectService = projectService;
         this.modalView = modalView;
-        this.data = getData();
         this.addFromDirectModalWin = addFromDirectModalWin;
-        paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
-        filter = new GridFilter<>(grid);
+        this.filter = new GridFilter<>(grid);
         configureFilter();
-        setSizeFull();
+
+        this.paginator = new GridPaginator<>(grid);
+        setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
+
+        refreshContent();
+    }
+
+    public void refreshContent() {
+        this.data = getData();
+        this.paginator.setData(data);
+        this.paginator.setItemsPerPage(50);
+        removeAll();
         add(configureActions(), filter, grid, paginator);
     }
 
@@ -154,28 +168,46 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                         "Если товар уже лежит у вас на складе или вы не хотите указывать поставщиков, лучше воспользоваться оприходованием. " +
                         "В результате приемки увеличиваются остатки товаров в разделе Товары → Остатки и фиксируется долг перед поставщиком в разделе Деньги → Взаиморасчеты. " +
                         "Также на основе приемки формируется себестоимость товара. " +
-                        "Приемку можно создать вручную или импортировать, в том числе из систем ЭДО. "+
+                        "Приемку можно создать вручную или импортировать, в том числе из систем ЭДО. " +
                         "Читать инструкцию: "),
                 new Anchor("#", "Приемка товаров"));
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> dto.getDate()).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addColumn(dto -> dto.getDate()).setKey("date").setHeader("Дата и время")
+                .setId("Дата и время");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
-                .setKey("warehouseDto").setId("На склад");
-        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")
+                .setKey("warehouseDto")
+                .setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorDto")
                 .setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(contractService.getById(dto.getContractId()).getCompanyId()).getName()).setHeader("Организация")
-                .setKey("companyDto").setId("Организация");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
+                .setKey("companyDto")
+                .setId("Организация");
+        grid.addColumn(dto -> dto.getProjectId() != null ?
+                        projectService.getById(dto.getProjectId()).getName() : "").setHeader("Проект")
+                .setKey("projectDto")
+                .setId("Проект");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setHeader("Отправлено")
+                .setKey("send")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setHeader("Напечатано")
+                .setKey("print")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addItemDoubleClickListener(event -> {
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemClickListener(event -> {
             AcceptanceDto acceptanceDto = event.getItem();
             AcceptanceModalView modalView = new AcceptanceModalView(
                     companyService,
@@ -185,13 +217,11 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                     contractorService,
                     notifications,
                     productService,
-                    acceptanceProductionService);
+                    acceptanceProductionService,
+                    projectService);
             modalView.setAcceptanceForEdit(acceptanceDto);
             modalView.open();
         });
-        grid.setHeight("66vh");
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private void configureFilter() {
@@ -200,6 +230,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToComboBox("contractorDto", ContractorDto::getName, contractorService.getAll());
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
+        filter.setFieldToComboBox("projectDto", ProjectDto::getName, projectService.getAll());
         filter.onSearchClick(e -> paginator.setData(acceptanceService.searchByFilter(filter.getFilterData())));
         filter.onClearClick(e -> paginator.setData(acceptanceService.getAll()));
     }
@@ -219,9 +250,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     }
 
     private Button buttonAdd() {
-        Button button = new Button("Приемка", new Icon(VaadinIcon.PLUS_CIRCLE));
-        button.addClickListener(e -> modalView.open());
-        return button;
+        return new Button("Приемка", new Icon(VaadinIcon.PLUS_CIRCLE), e -> modalView.open());
     }
 
     private Button buttonFilter() {

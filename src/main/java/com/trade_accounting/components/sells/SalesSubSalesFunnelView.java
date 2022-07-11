@@ -1,8 +1,7 @@
 package com.trade_accounting.components.sells;
 
-
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.company.ContractorStatusDto;
@@ -12,44 +11,27 @@ import com.trade_accounting.services.interfaces.company.ContractorStatusService;
 import com.trade_accounting.services.interfaces.finance.FunnelService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamRegistration;
-import com.vaadin.flow.server.StreamResource;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.trade_accounting.config.SecurityConstants.SELLS_SALES_SUB_SALES_FUNNEL_VIEW;
 
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -64,6 +46,8 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private final List<FunnelDto> contractorData;
     private final Grid<FunnelDto> invoiceGrid = new Grid<>(FunnelDto.class, false);
     private final Grid<FunnelDto> contractorGrid = new Grid<>(FunnelDto.class, false);
+    private final GridConfigurer<FunnelDto> invoiceGridConfigurer = new GridConfigurer<>(invoiceGrid);
+    private final GridConfigurer<FunnelDto> contractorGridConfigurer = new GridConfigurer<>(contractorGrid);
     private final GridPaginator<FunnelDto> invoicePaginator;
     private final GridPaginator<FunnelDto> contractorPaginator;
     private final GridFilter<FunnelDto> invoiceFilter;
@@ -75,6 +59,7 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private final Tabs tabs = new Tabs(invoices, contractors);
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final MenuItem print;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
 
     public SalesSubSalesFunnelView(ContractorStatusService contractorStatusService, InvoicesStatusService invoicesStatusService, FunnelService funnelService) {
@@ -159,28 +144,42 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private void configListInvoices() {
         invoiceGrid.removeAllColumns();
         invoiceGrid.setItems(invoiceData);
-        invoiceGrid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-        invoiceGrid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-        invoiceGrid.addColumn("time").setFlexGrow(11).setHeader("Время").setId("Время");
-        invoiceGrid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
-        invoiceGrid.addColumn("price").setFlexGrow(11).setHeader("Сумма").setId("Сумма");
+        invoiceGrid.addColumn("statusName").setHeader("Статус").setId("Статус");
+        invoiceGrid.addColumn("count").setHeader("Количество").setId("Количество");
+        invoiceGrid.addColumn("time").setHeader("Время").setId("Время");
+        invoiceGrid.addColumn("conversion").setHeader("Конверсия").setTextAlign(ColumnTextAlign.END).setId("Конверсия");
+        invoiceGrid.addColumn("price").setHeader("Сумма").setTextAlign(ColumnTextAlign.END).setId("Сумма");
+
+        invoiceGrid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        invoiceGridConfigurer.addConfigColumnToGrid();
+
+        invoiceGrid.setHeight("66vh");
+        invoiceGrid.setColumnReorderingAllowed(true);
     }
 
     private void configListContractors() {
         contractorGrid.removeAllColumns();
         contractorGrid.setItems(contractorData);
-        contractorGrid.addColumn("statusName").setFlexGrow(11).setHeader("Статус").setId("Статус");
-        contractorGrid.addColumn("count").setFlexGrow(11).setHeader("Количество").setId("Количество");
-        contractorGrid.addColumn("conversion").setFlexGrow(11).setHeader("Конверсия").setId("Конверсия");
+        contractorGrid.addColumn("statusName").setHeader("Статус").setId("Статус");
+        contractorGrid.addColumn("count").setHeader("Количество").setTextAlign(ColumnTextAlign.END)
+                .setId("Количество");
+        contractorGrid.addColumn("conversion").setHeader("Конверсия").setTextAlign(ColumnTextAlign.END)
+                .setId("Конверсия");
+
+        contractorGrid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        contractorGridConfigurer.addConfigColumnToGrid();
+
+        contractorGrid.setHeight("66vh");
+        contractorGrid.setColumnReorderingAllowed(true);
     }
 
     private void configureInvoiceGrid() {
-        contractorGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        invoiceGrid.addThemeVariants(GRID_STYLE);
         configListInvoices();
     }
 
     private void configureContractorGrid() {
-        contractorGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        contractorGrid.addThemeVariants(GRID_STYLE);
         configListContractors();
     }
 

@@ -12,7 +12,6 @@ import com.trade_accounting.models.dto.company.PriceListProductPercentsDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductGroupDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
-import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
 import com.trade_accounting.services.interfaces.company.PriceListProductService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
@@ -58,7 +57,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.*;
-import static com.trade_accounting.config.SecurityConstants.INDICATORS_OPERATIONS_VIEW;
 
 @SpringComponent
 @Route(value = GOODS_GOODS__PRICE_LIST_EDIT, layout = AppView.class)
@@ -125,7 +123,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
     }
 
     private Component checkIsSpend() {
-        isSpend.addValueChangeListener(event -> priceListData.setIsSpend(event.getValue().equals(true)));
+        isSpend.addValueChangeListener(event -> priceListData.setIsSpend(event.getValue()));
         return isSpend;
     }
 
@@ -298,14 +296,16 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
             } else {
 
                 for (PriceListProductDto priceListProductDto : priceListProductService.getByPriceListId(priceListData.getId())) {
-                    if (!tempPriceListProducts.contains(priceListProductDto)) {
+                    List<Long> ids = tempPriceListProducts.stream().map(PriceListProductDto::getId)
+                            .collect(Collectors.toList());
+                    if (!ids.contains(priceListProductDto.getId())) {
                         priceListProductService.deleteById(priceListProductDto.getId());
                     }
                 }
                 priceListData.setNumber(listName.getValue());
                 priceListData.setDate(creationDate.getValue().toString());
                 priceListData.setProductsIds(tempPriceListProducts.stream()
-                        .map(PriceListProductDto::getProductId).collect(Collectors.toList()));
+                        .map(PriceListProductDto::getId).collect(Collectors.toList()));
                 addPriceListProductToPriceListDto(priceListData);
                 priceListData.setCompanyId(companyComboBox.getValue().getId());
                 if (priceListData.getPercentsIds() == null) {
@@ -407,6 +407,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         listName.setValue(priceListData.getNumber());
         creationDate.setValue(LocalDateTime.parse(priceListData.getDate()));
         companyComboBox.setValue(companyService.getById(priceListData.getCompanyId()));
+        isSpend.setValue(priceListData.getIsSpend());
         paginator.setData(tempPriceListProducts);
         this.priceListProductPercentsDto = priceListProductPercentsDto;
         configureGrid();

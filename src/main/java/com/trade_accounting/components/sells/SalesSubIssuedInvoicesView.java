@@ -1,7 +1,7 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -13,10 +13,12 @@ import com.trade_accounting.services.interfaces.finance.PaymentService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -31,8 +33,6 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +42,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.trade_accounting.config.SecurityConstants.SELLS_ISSUED_INVOICE_VIEW;
 
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -61,7 +59,9 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
 
     private final GridFilter<IssuedInvoiceDto> filter;
     private final Grid<IssuedInvoiceDto> grid = new Grid<>(IssuedInvoiceDto.class, false);
+    private final GridConfigurer<IssuedInvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<IssuedInvoiceDto> paginator;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public SalesSubIssuedInvoicesView(IssuedInvoiceService issuedInvoiceService, CompanyService companyService, ContractorService contractorService, PaymentService paymentService) {
         this.issuedInvoiceService = issuedInvoiceService;
@@ -78,23 +78,31 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.removeAllColumns();
         grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setFlexGrow(4).setHeader("Время").setId("date");
-        grid.addColumn(issuedInvoiceDto -> contractorService.getById(issuedInvoiceDto.getContractorId())
-                .getName()).setFlexGrow(10).setHeader("Контрагент").setId("contractor");
-        grid.addColumn(issuedInvoiceDto -> companyService.getById(issuedInvoiceDto.getCompanyId())
-                .getName()).setHeader("Организация").setId("company");
-        grid.addColumn((issuedInvoiceDto -> paymentService.getById(issuedInvoiceDto.getPaymentId()).getSum())).setHeader("Сумма").setId("sum");
-        grid.addColumn(new ComponentRenderer<>(this::isSendCheckedIcon)).setFlexGrow(5).setWidth("25px").setKey("send")
-                .setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintCheckedIcon)).setFlexGrow(5).setWidth("25px").setKey("print")
-                .setHeader("Напечатано").setId("Напечатано");
-        grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Дата и время").setId("Дата и время");
+        grid.addColumn(issuedInvoiceDto -> contractorService.getById(issuedInvoiceDto.getContractorId()).getName())
+                .setHeader("Контрагент").setId("Контрагент");
+        grid.addColumn(issuedInvoiceDto -> companyService.getById(issuedInvoiceDto.getCompanyId()).getName()).setHeader("Организация")
+                .setId("Организация");
+        grid.addColumn((issuedInvoiceDto -> paymentService.getById(issuedInvoiceDto.getPaymentId()).getSum())).setHeader("Сумма")
+                .setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn(new ComponentRenderer<>(this::isSendCheckedIcon)).setHeader("Отправлено")
+                .setKey("send").setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::isPrintCheckedIcon)).setHeader("Напечатано")
+                .setKey("print").setId("Напечатано");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         GridSortOrder<IssuedInvoiceDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
-        grid.setColumnReorderingAllowed(true);
     }
 
     private Component isSendCheckedIcon(IssuedInvoiceDto issuedInvoiceDto) {

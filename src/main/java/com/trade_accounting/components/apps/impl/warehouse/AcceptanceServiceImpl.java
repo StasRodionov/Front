@@ -23,7 +23,6 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     private final AcceptanceApi acceptanceApi;
     private final String acceptanceUrl;
     private final CallExecuteService<AcceptanceDto> callExecuteService;
-//    private AcceptanceDto acceptanceDto;
 
     public AcceptanceServiceImpl(Retrofit retrofit, @Value("${acceptance_url}") String acceptanceUrl,
                                  CallExecuteService<AcceptanceDto> callExecuteService) {
@@ -55,6 +54,21 @@ public class AcceptanceServiceImpl implements AcceptanceService {
     public AcceptanceDto getById(Long id) {
         Call<AcceptanceDto> acceptanceDtoCall = acceptanceApi.getById(acceptanceUrl, id);
         return callExecuteService.callExecuteBodyById(acceptanceDtoCall, AcceptanceDto.class, id);
+    }
+
+    @Override
+    public List<AcceptanceDto> getByProjectId(Long id) {
+        List<AcceptanceDto> acceptanceDtoList = new ArrayList<>();
+        Call<List<AcceptanceDto>> acceptanceDtoListCall = acceptanceApi.getByProjectId(acceptanceUrl, id);
+
+        try {
+            acceptanceDtoList = acceptanceDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на получение списка AcceptanceDto");
+        } catch (IOException | NullPointerException e) {
+            log.error("Попытка перехода на страницу /acceptance  не авторизованного пользователя - {NullPointerException}", e);
+            log.error("Произошла ошибка при выполнении запроса на получение списка AcceptanceDto - {IOException}", e);
+        }
+        return acceptanceDtoList;
     }
 
     @Override

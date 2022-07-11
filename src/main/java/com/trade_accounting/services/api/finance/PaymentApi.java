@@ -24,6 +24,10 @@ public interface PaymentApi {
     Call<PaymentDto> getById(@Path(value = "url", encoded = true) String url, @Path(value = "id") Long id);
 
     @Headers("Accept: application/json")
+    @GET("{url}/getByProjectId{id}")
+    Call<List<PaymentDto>> getByProjectId(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
+
+    @Headers("Accept: application/json")
     @POST("{url}")
     Call<Void> create(@Path(value = "url", encoded = true) String url, @Body PaymentDto paymentDto);
 
