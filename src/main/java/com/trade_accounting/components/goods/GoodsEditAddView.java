@@ -172,7 +172,7 @@ public class GoodsEditAddView extends VerticalLayout {
 
         fileGrid.addColumn(FileDto::getName).setHeader("Наименование")
                 .setAutoWidth(true);
-        fileGrid.addColumn(fileDto -> String.format("%.2f",((double) fileDto.getContent().length)/Math.pow(1024,2)))
+        fileGrid.addColumn(fileDto -> String.format("%.2f", ((double) fileDto.getContent().length) / Math.pow(1024, 2)))
                 .setHeader("Размер, Мб")
                 .setAutoWidth(true);
         fileGrid.addColumn(fileDto -> fileDto.getUploadDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")))
@@ -198,24 +198,40 @@ public class GoodsEditAddView extends VerticalLayout {
         weightNumberField.setValue(productDto.getWeight());
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
-        if(productDto.getCountryOrigin()==null){
+        if (productDto.getCountryOrigin() == null) {
             countryOriginField.setValue("нет данных");
         } else {
             countryOriginField.setValue(productDto.getCountryOrigin());
         }
         minimumBalance.setValue(BigDecimal.valueOf(productDto.getMinimumBalance()));
-        if(productDto.getSaleTax()==null){
+        if (productDto.getSaleTax() == null) {
             saleTax.setValue("нет данных");
         } else {
             saleTax.setValue(productDto.getSaleTax());
         }
         itemNumber.setValue(BigDecimal.valueOf(productDto.getItemNumber()));
-        unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
-        contractorDtoComboBox.setValue(contractorService.getById(productDto.getContractorId()));
-        taxSystemDtoComboBox.setValue(taxSystemService.getById(productDto.getTaxSystemId()));
-        productGroupDtoComboBox.setValue(productGroupService.getById(productDto.getProductGroupId()));
-        attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
-                .getById(productDto.getAttributeOfCalculationObjectId()));
+
+        if (productDto.getUnitId() != null) {
+            unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
+        }
+
+        if (productDto.getContractorId() != null) {
+            contractorDtoComboBox.setValue(contractorService.getById(productDto.getContractorId()));
+        }
+
+        if (productDto.getTaxSystemId() != null) {
+            taxSystemDtoComboBox.setValue(taxSystemService.getById(productDto.getTaxSystemId()));
+        }
+
+        if (productDto.getProductGroupId() != null) {
+            productGroupDtoComboBox.setValue(productGroupService.getById(productDto.getProductGroupId()));
+        }
+
+        if (productDto.getAttributeOfCalculationObjectId() != null) {
+            attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
+                    .getById(productDto.getAttributeOfCalculationObjectId()));
+        }
+
         imageDtoList = productDto.getImageDtos();
         fileDtoList = productDto.getFileDtos();
         fileGrid.setItems(fileDtoList);
@@ -249,14 +265,44 @@ public class GoodsEditAddView extends VerticalLayout {
         this.productDto.setMinimumBalance(minimumBalance.getValue().intValue());
         this.productDto.setPurchasePrice(purchasePriceNumberField.getValue());
         this.productDto.setDescription(descriptionField.getValue());
-        this.productDto.setUnitId(unitDtoComboBox.getValue().getId());
-        this.productDto.setContractorId(contractorDtoComboBox.getValue().getId());
-        this.productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
-        this.productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
         this.productDto.setCountryOrigin(countryOriginField.getValue());
-        this.productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         this.productDto.setImageDtos(imageDtoList);
-        this.productDto.setTypeOfPackingId(typeOfPackingComboBox.getValue().getId());
+
+        try {
+            this.productDto.setUnitId(unitDtoComboBox.getValue().getId());
+        } catch (NullPointerException e) {
+            this.productDto.setUnitId(null);
+        }
+
+        try {
+            this.productDto.setContractorId(contractorDtoComboBox.getValue().getId());
+        } catch (NullPointerException e) {
+            this.productDto.setContractorId(null);
+        }
+
+        try {
+            this.productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
+        } catch (NullPointerException e) {
+            this.productDto.setTaxSystemId(null);
+        }
+
+        try {
+            this.productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
+        } catch (NullPointerException e) {
+            this.productDto.setProductGroupId(null);
+        }
+
+        try {
+            this.productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
+        } catch (NullPointerException e) {
+            this.productDto.setAttributeOfCalculationObjectId(null);
+        }
+
+        try {
+            this.productDto.setTypeOfPackingId(typeOfPackingComboBox.getValue().getId());
+        } catch (NullPointerException e) {
+            this.productDto.setTypeOfPackingId(null);
+        }
 
         if (productDto.getProductPriceIds() == null) {
             this.productDto.setProductPriceIds(new ArrayList<>());
@@ -269,7 +315,7 @@ public class GoodsEditAddView extends VerticalLayout {
                         .collect(Collectors.toList());
             }
 
-            if (list.size() == 0){
+            if (list.size() == 0) {
                 // создаем цену
                 ProductPriceDto productPriceDto = new ProductPriceDto();
                 productPriceDto.setTypeOfPriceId(typeOfPriceDto.getId());
@@ -463,7 +509,7 @@ public class GoodsEditAddView extends VerticalLayout {
                 String fileName = event.getFileName();
                 fileDto.setName(fileName);
                 String[] splitFileName = fileName.split("\\.");
-                fileDto.setExtension("." + splitFileName[splitFileName.length-1]);
+                fileDto.setExtension("." + splitFileName[splitFileName.length - 1]);
                 fileDto.setKey(UUID.randomUUID().toString());
                 fileDto.setContent(memoryBuffer.getInputStream(fileName).readAllBytes());
                 fileDto.setEmployee(employeeService.getPrincipal().getFirstName());
@@ -482,7 +528,7 @@ public class GoodsEditAddView extends VerticalLayout {
     }
 
     private void removeFile(FileDto fileDto) {
-        if (fileDto == null){
+        if (fileDto == null) {
             return;
         }
         fileDtoList.remove(fileDto);
@@ -516,7 +562,7 @@ public class GoodsEditAddView extends VerticalLayout {
 
         countryOriginField.setPlaceholder("Введите страну происхождения");
         productDtoBinder.forField(countryOriginField)
-                .withValidator(text-> text.length()>=3,"Не менее 3 Символов", ErrorLevel.ERROR)
+                .withValidator(text -> text.length() >= 3, "Не менее 3 Символов", ErrorLevel.ERROR)
                 .bind(ProductDto::getCountryOrigin, ProductDto::setCountryOrigin);
         countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
         content.add(getHorizontalLayout("Страна происхождения", countryOriginField));
@@ -590,7 +636,6 @@ public class GoodsEditAddView extends VerticalLayout {
                 .bind(ProductDto::getName, ProductDto::setName);
         saleTax.setValueChangeMode(ValueChangeMode.EAGER);
         content.add(getHorizontalLayout("НДС", saleTax));
-
 
 
         Details commonDataLayout = new Details("Общие данные", content);
@@ -762,7 +807,7 @@ public class GoodsEditAddView extends VerticalLayout {
         imageHorizontalLayout.removeAll();
         bigDecimalFields = new HashMap<>();
         imageDtoList = new ArrayList<>();
-        fileDtoList= new ArrayList<>();
+        fileDtoList = new ArrayList<>();
         fileGrid.setItems(fileDtoList);
         unitDtoComboBox.setItems(unitService.getAll());
         contractorDtoComboBox.setItems(contractorService.getAll());
