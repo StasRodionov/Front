@@ -69,7 +69,7 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @SpringComponent
 @UIScope
 public class SalesSubShipmentView extends VerticalLayout implements AfterNavigationObserver {
-
+    private final SalesSubMenuView salesSubMenuView;
     private final ProductService productService;
     ProjectService projectService;
     UnitService unitService;
@@ -98,12 +98,13 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
                                 ShipmentService invoiceService,
                                 ContractorService contractorService,
                                 CompanyService companyService,
-                                SalesEditShipmentView salesEditShipmentView,
+                                @Lazy SalesEditShipmentView salesEditShipmentView,
                                 ShipmentService shipmentService,
                                 ShipmentProductService shipmentProductService,
                                 ProductService productService,
                                 @Lazy Notifications notifications,
-                                SalesChannelService salesChannelService) {
+                                SalesChannelService salesChannelService,
+                                @Lazy SalesSubMenuView salesSubMenuView) {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
@@ -115,6 +116,7 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
         this.notifications = notifications;
         this.salesChannelService = salesChannelService;
         this.data = getData();
+        this.salesSubMenuView = salesSubMenuView;
 
         configureActions();
         configureGrid();
@@ -174,7 +176,7 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
                     invoiceService,
                     notifications,
                     unitService,
-                    shipmentProductService, salesChannelService);
+                    shipmentProductService, salesChannelService, salesSubMenuView);
             modalView.setReturnToShiptmentForEdit(dto);
             UI.getCurrent().navigate(SELLS_SELLS__SHIPMENT_EDIT);
             //modalView.open();
