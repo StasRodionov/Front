@@ -90,12 +90,14 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
     private final TextField filterCriteria = new TextField();
     private final PrintPriceListProductModalView view;
 
-    public GoodsPriceLayoutPriceListView(CompanyService companyService, PriceListService priceListService,
+    public GoodsPriceLayoutPriceListView(CompanyService companyService,
+                                         PriceListService priceListService,
                                          ProductService productService,
                                          ProductGroupService productGroupService,
                                          PriceProductSelectModal productSelectModal,
                                          PriceListProductService priceListProductService,
-                                         Notifications notifications, PrintPriceListProductModalView view) {
+                                         Notifications notifications,
+                                         PrintPriceListProductModalView view) {
         this.companyService = companyService;
         this.priceListService = priceListService;
         this.productService = productService;
@@ -389,7 +391,8 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
             } else {
-                view.setPriceListDto(priceListData);
+                PriceListDto priceListDto = priceListService.getById(priceListData.getId());
+                view.setPriceListDto(priceListDto);
                 view.setPriceListTemplate("priceListTags/");
                 view.open();
             }
@@ -399,7 +402,8 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
             } else {
-                view.setPriceListDto(priceListData);
+                PriceListDto priceListDto = priceListService.getById(priceListData.getId());
+                view.setPriceListDto(priceListDto);
                 view.setPriceListTemplate("priceListProduct/");
                 view.open();
             }
