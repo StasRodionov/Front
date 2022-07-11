@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.ShipmentProductService;
@@ -69,6 +70,7 @@ public class SalesEditShipmentView extends VerticalLayout{
     private final ProjectService projectService;
     private final WarehouseService warehouseService;
     private final ShipmentService invoiceService;
+    private final SalesChannelService salesChannelService;
     private final Notifications notifications;
     private final UnitService unitService;
     private final ShipmentProductService shipmentProductService;
@@ -103,7 +105,8 @@ public class SalesEditShipmentView extends VerticalLayout{
                                  ShipmentService invoiceService,
                                  Notifications notifications,
                                  UnitService unitService,
-                                 ShipmentProductService shipmentProductService) {
+                                 ShipmentProductService shipmentProductService,
+                                 SalesChannelService salesChannelService) {
         this.productService = productService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -113,6 +116,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         this.notifications = notifications;
         this.unitService = unitService;
         this.shipmentProductService = shipmentProductService;
+        this.salesChannelService = salesChannelService;
         configureCloseViewDialog();
         setSizeFull();
         tempShipmentProductDtoList = getData();
