@@ -2,6 +2,7 @@ package com.trade_accounting.components.money;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -19,6 +20,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -61,6 +63,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private final transient List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
+    private final GridConfigurer<PaymentDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<PaymentDto> paginator;
     private final GridFilter<PaymentDto> filter;
     private final CreditOrderModal creditOrderModal;
@@ -68,6 +71,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private final OutgoingPaymentModal outgoingPaymentModal;
     private final ExpenseOrderModal expenseOrderModal;
     private final Scroller scroller = new Scroller();
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     MoneySubPaymentsView(PaymentService paymentService,
                          CompanyService companyService,
@@ -131,47 +135,55 @@ public class MoneySubPaymentsView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.setItems(data);
-        grid.addColumn("typeOfDocument").setWidth("11em").setFlexGrow(0).setHeader("Тип документа").setId("Тип документа");
-        grid.addColumn("number").setWidth("6em").setFlexGrow(0).setHeader("№").setId("Номер платежа");
-        grid.addColumn("time").setWidth("12em").setFlexGrow(0).setHeader("Дата").setId("Дата");
-        grid.addColumn(pDto -> companyService.getById(pDto.getCompanyId()).getName()).setWidth("14em").setFlexGrow(0).setSortable(true)
-                .setKey("companyDto").setHeader("Компания").setId("Компания");
-        grid.addColumn(pDto -> contractorService.getById(pDto.getContractorId()).getName()).setWidth("19em").setFlexGrow(0).setSortable(true)
-                .setKey("contractorDto").setHeader("Контрагент").setId("Контрагент");
+        grid.addColumn("typeOfDocument").setHeader("Тип документа")
+                .setId("Тип документа");
+        grid.addColumn("number").setHeader("№")
+                .setId("№");
+        grid.addColumn("time").setHeader("Дата и время")
+                .setId("Дата и время");
+        grid.addColumn(pDto -> companyService.getById(pDto.getCompanyId()).getName()).setHeader("Компания")
+                .setKey("companyDto")
+                .setId("Компания");
+        grid.addColumn(pDto -> contractorService.getById(pDto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorDto")
+                .setId("Контрагент");
         grid.addColumn(paymentDto -> {
             if (paymentDto.getTypeOfPayment().equals("INCOMING")) {
                 return paymentDto.getSum();
             } else {
                 return "";
             }
-        }).setKey("sum").setSortable(true).setFlexGrow(4).setHeader("Приход").setId("Сумма");
+        }).setHeader("Приход").setTextAlign(ColumnTextAlign.END).setKey("sum").setId("Приход");
         grid.addColumn(paymentDto -> {
             if (paymentDto.getTypeOfPayment().equals("OUTGOING")) {
                 return paymentDto.getSum();
             } else {
                 return "";
             }
-        }).setKey("sumOut").setSortable(true).setFlexGrow(4).setHeader("Расход").setId("Расход");
-        grid.addColumn("paymentMethods").setFlexGrow(4).setHeader("Способ Оплаты").setId("Способ оплаты");
-        grid.addColumn("expenseItem").setFlexGrow(4).setHeader("Статья расходов").setId("Статья расходов");
-        grid.addColumn(pDto -> contractService.getById(pDto.getContractId()).getNumber()).setFlexGrow(3).setSortable(true)
-                .setKey("contractDto").setHeader("Договор").setId("Договор");
-//        grid.addColumn(pDto -> projectService.getById(pDto.getProjectId()).getName()).setFlexGrow(7).setSortable(true)
-//                .setKey("projectDto").setHeader("Проект").setId("Проект");
+        }).setHeader("Расход").setTextAlign(ColumnTextAlign.END).setKey("sumOut").setId("Расход");
+        grid.addColumn("paymentMethods").setHeader("Способ оплаты").setId("Способ оплаты");
+        grid.addColumn("expenseItem").setHeader("Статья расходов").setId("Статья расходов");
+        grid.addColumn(pDto -> contractService.getById(pDto.getContractId()).getNumber()).setHeader("Договор")
+                .setKey("contractDto").setId("Договор");
         grid.addColumn(pDto -> {
             Long projectId = pDto.getProjectId();
             return projectId != null && projectId != 0 ? projectService.getById(projectId).getName() : "";
-        }).setFlexGrow(7).setSortable(true).setKey("projectDto").setHeader("Проект").setId("Проект");
-        grid.setHeight("73vh");
+        }).setHeader("Проект").setKey("projectDto").setId("Проект");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.setClassNameGenerator(paymentDto -> {
             if (paymentDto.getConducted() == false) {
                 return "not-conducted";
             }
             return "";
         });
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemClickListener(event -> {
             PaymentDto editPaymentDto = event.getItem();
             switch (editPaymentDto.getTypeOfDocument()) {

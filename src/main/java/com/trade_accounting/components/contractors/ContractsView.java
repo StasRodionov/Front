@@ -2,6 +2,7 @@ package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -15,6 +16,7 @@ import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
@@ -61,8 +63,9 @@ public class ContractsView extends VerticalLayout implements AfterNavigationObse
     private final GridPaginator<ContractDto> paginator;
     private final TextField textField = new TextField();
     private final Grid<ContractDto> grid;
+    private final GridConfigurer<ContractDto> gridConfigurer;
     private final Notifications notifications;
-
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     ContractsView(LegalDetailService legalDetailService, BankAccountService bankAccountService, CompanyService companyService, ContractService contractService,
@@ -77,6 +80,7 @@ public class ContractsView extends VerticalLayout implements AfterNavigationObse
         this.contractModalWindow = contractModalWindow;
         this.notifications = notifications;
         grid = new Grid<>(ContractDto.class);
+        gridConfigurer = new GridConfigurer<>(grid);
         paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureGrid();
@@ -87,15 +91,13 @@ public class ContractsView extends VerticalLayout implements AfterNavigationObse
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addThemeVariants(GRID_STYLE);
         grid.setColumns("id", "contractDate", "amount", "comment", "number");
         grid.getColumnByKey("id").setHeader("ID").setId("ID");
         grid.getColumnByKey("contractDate").setHeader("Дата заключения").setId("Дата заключения");
-        grid.getColumnByKey("amount").setHeader("Сумма").setId("Сумма");
+        grid.getColumnByKey("amount").setHeader("Сумма").setTextAlign(ColumnTextAlign.END).setId("Сумма");
         grid.getColumnByKey("comment").setHeader("Комментарий").setId("Комментарий");
         grid.getColumnByKey("number").setHeader("Сортировочный номер").setId("Сортировочный номер");
-
 
         grid.addColumn(contractDto -> companyService.getById(contractDto.getCompanyId()).getName())
                 .setHeader("Компания").setKey("company").setId("Компания");
@@ -131,6 +133,12 @@ public class ContractsView extends VerticalLayout implements AfterNavigationObse
                 grid.getColumnByKey("comment"),
                 grid.getColumnByKey("number"));
 
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         grid.addItemDoubleClickListener(event -> {
             ContractDto сontractDto = event.getItem();
@@ -143,8 +151,6 @@ public class ContractsView extends VerticalLayout implements AfterNavigationObse
             сontractModalWindow.setContractDataForEdit(сontractDto);
             сontractModalWindow.open();
         });
-        grid.setHeight("66vh");
-        grid.getColumns().forEach(column -> column.setAutoWidth(true));
     }
 
     private void reloadGrid() {

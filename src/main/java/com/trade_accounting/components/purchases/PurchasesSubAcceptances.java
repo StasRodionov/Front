@@ -1,12 +1,11 @@
 package com.trade_accounting.components.purchases;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintAcceptancesXls;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
-import com.trade_accounting.components.util.configure.components.select.Action;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.AcceptanceDto;
@@ -29,11 +28,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -52,8 +53,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -71,8 +70,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
 //@Route(value = PURCHASES_ADMISSIONS_VIEW, layout = AppView.class)
@@ -92,6 +89,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final AcceptanceModalView modalView;
     private List<AcceptanceDto> data;
     private final Grid<AcceptanceDto> grid = new Grid<>(AcceptanceDto.class, false);
+    private final GridConfigurer<AcceptanceDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<AcceptanceDto> paginator;
     private final GridFilter<AcceptanceDto> filter;
     private final TextField textField = new TextField();
@@ -99,6 +97,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final AddFromDirectModalWin addFromDirectModalWin;
     private final ProductService productService;
     private final AcceptanceProductionService acceptanceProductionService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchases";
     private final String textForQuestionButton = "<div><p>Приемки позволяют учитывать закупки товаров." +
             "Приемку создают, когда покупают новый товар." +
@@ -175,27 +174,39 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> dto.getDate()).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
+        grid.addColumn(dto -> dto.getDate()).setKey("date").setHeader("Дата и время")
+                .setId("Дата и время");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("На склад")
-                .setKey("warehouseDto").setId("На склад");
-        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")
+                .setKey("warehouseDto")
+                .setId("На склад");
+        grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorDto")
                 .setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(contractService.getById(dto.getContractId()).getCompanyId()).getName()).setHeader("Организация")
-                .setKey("companyDto").setId("Организация");
+                .setKey("companyDto")
+                .setId("Организация");
         grid.addColumn(dto -> dto.getProjectId() != null ?
-                        projectService.getById(dto.getProjectId()).getName() : "")
-                .setSortable(true).setHeader("Проект").setKey("projectDto").setId("Проект");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setKey("send").setHeader("Отправлено")
+                        projectService.getById(dto.getProjectId()).getName() : "").setHeader("Проект")
+                .setKey("projectDto")
+                .setId("Проект");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedSend)).setHeader("Отправлено")
+                .setKey("send")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedPrint)).setHeader("Напечатано")
+                .setKey("print")
                 .setId("Напечатано");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemClickListener(event -> {
             AcceptanceDto acceptanceDto = event.getItem();
             AcceptanceModalView modalView = new AcceptanceModalView(

@@ -3,6 +3,7 @@ package com.trade_accounting.components.production;
 import com.trade_accounting.components.AppView;
 //import com.trade_accounting.components.purchases.print.PrintInvoicesXls;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -66,6 +68,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private final List<TechnicalOperationsDto> data;
     private final GridPaginator<TechnicalOperationsDto> paginator;
     private final Grid<TechnicalOperationsDto> grid = new Grid<>(TechnicalOperationsDto.class, false);
+    private final GridConfigurer<TechnicalOperationsDto> gridConfigurer = new GridConfigurer<>(grid);
     private final TechnicalCardService technicalCardService;
     private final TechnicalOperationsService technicalOperationsService;
     private final Notifications notifications;
@@ -73,6 +76,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private final TechnologicalOperationsModalView view;
     private final MenuItem print;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/technologicalOperations_templates/";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     TechnologicalOperationsViewTab(TechnicalCardService technicalCardService, TechnicalOperationsService technicalOperationsService,
                                    Notifications notifications, WarehouseService warehouseService, TechnologicalOperationsModalView view) {
@@ -94,20 +98,23 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(TechnicalOperationsDto::getDate).setKey("date").setHeader("время").setSortable(true).setId("Дата");
+        grid.addColumn(TechnicalOperationsDto::getDate).setHeader("Дата и время").setKey("date").setId("Дата и время");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(e -> warehouseService.getById(e.getWarehouse()).getName()).setHeader("организация").setId("организация");
-        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCard()).getName()).setHeader("Технологическая карта").setId("Технологическая карта");
-        grid.addColumn("volume").setHeader("Объем производства").setId("Объем производства");
+        grid.addColumn(e -> warehouseService.getById(e.getWarehouse()).getName()).setHeader("Организация").setId("Организация");
+        grid.addColumn(t -> technicalCardService.getById(t.getTechnicalCard()).getName()).setHeader("Технологическая карта")
+                .setId("Технологическая карта");
+        grid.addColumn("volume").setHeader("Объем производства").setTextAlign(ColumnTextAlign.END)
+                .setId("Объем производства");
         grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
                 .setId("Отправлено");
         grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
                 .setId("Напечатано");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
-
-
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(e -> {

@@ -2,6 +2,7 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -27,10 +28,12 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -55,8 +58,6 @@ import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.*;
@@ -82,11 +83,13 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
     private HorizontalLayout actions;
-    private Grid<ShipmentDto> grid;
+    private final Grid<ShipmentDto> grid = new Grid<>(ShipmentDto.class, false);;
+    private final GridConfigurer<ShipmentDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<ShipmentDto> paginator;
     private final GridFilter<ShipmentDto> filter;
     private final Notifications notifications;
     private final String typeOfInvoice = "RECEIPT";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public SalesSubShipmentView(WarehouseService warehouseService,
@@ -138,19 +141,26 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
     }
 
     private void configureGrid() {
-        grid = new Grid<>(ShipmentDto.class, false);
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
-                .setKey("date").setId("Дата");
+        grid.addColumn(ShipmentDto::getDate).setHeader("Дата и время")
+                .setKey("date").setId("Дата и время");
         grid.addColumn(dto -> warehouseService.getById(dto.getWarehouseId()).getName()).setHeader("Со склада")
-                .setKey("warehouseId").setId("Склад");
+                .setKey("warehouseId").setId("Со склада");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorId").setId("Контрагент");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Организация")
                 .setKey("companyId").setId("Организация");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addItemDoubleClickListener(e -> {
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addItemClickListener(e -> {
             ShipmentDto dto = e.getItem();
             SalesEditShipmentView modalView = new SalesEditShipmentView(productService,
                     contractorService,
@@ -165,10 +175,6 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
             UI.getCurrent().navigate(SELLS_SELLS__SHIPMENT_EDIT);
             //modalView.open();
         });
-        grid.setHeight("66vh");
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
     }
 
     private void configureFilter() {

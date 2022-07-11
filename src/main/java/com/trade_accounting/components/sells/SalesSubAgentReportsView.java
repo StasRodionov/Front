@@ -2,6 +2,7 @@ package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -20,10 +21,12 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -47,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -69,12 +71,14 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
     private final ContractService contractService;
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
+    private final GridConfigurer<InvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<InvoiceDto> paginator;
     private CommissionAgentReportModalView commissionAgentReportModalView;
 
     private final GridFilter<InvoiceDto> filter;
 
     private final String typeOfInvoice = "RECEIPT";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
@@ -135,25 +139,26 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setHeader("id").setId("id");
-        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Время")
-                .setKey("date").setId("Дата");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(dto -> formatDate(dto.getDate())).setHeader("Дата и время")
+                .setKey("date").setId("Дата и время");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Счет-фактура")
                 .setKey("typeOfInvoice").setId("Счет-фактура");
         grid.addColumn(dto -> companyService.getById(dto.getCompanyId()).getName()).setHeader("Компания")
                 .setKey("companyDto").setId("Компания");
         grid.addColumn(dto -> contractorService.getById(dto.getContractorId()).getName()).setHeader("Контрагент")
                 .setKey("contractorDto").setId("Контрагент");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
-                .setId("Проведена");
-        grid.setHeight("66vh");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setHeader("Проведена")
+                .setKey("spend").setId("Проведена");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
+        grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-
-        grid.addItemDoubleClickListener(event -> {
+        grid.addItemClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             CommissionAgentReportModalView commissionAgentReportModalView = new CommissionAgentReportModalView(
                     contractorService,

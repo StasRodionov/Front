@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -59,7 +61,9 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
 
     private final GridFilter<PrepaymentReturnDto> filter;
     private final Grid<PrepaymentReturnDto> grid = new Grid<>(PrepaymentReturnDto.class, false);
+    private final GridConfigurer<PrepaymentReturnDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<PrepaymentReturnDto> paginator;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public PrepaymentReturnView(PrepaymentReturnService prepaymentReturnService, ContractorService contractorService, RetailStoreService retailStoreService, CompanyService companyService) {
         this.prepaymentReturnService = prepaymentReturnService;
@@ -78,39 +82,36 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
-        grid.addColumn("id").setWidth("30px").setHeader("№").setId("№");
-        grid.addColumn("time").setFlexGrow(7).setHeader("Время").setId("time");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn("time").setHeader("Дата").setId("Дата");
         grid.addColumn(prepaymentReturnDto -> retailStoreService.getById(prepaymentReturnDto.getRetailStoreId())
-                .getName()).setHeader("Точка продаж").setId("retailStore");
+                .getName()).setHeader("Точка продаж").setId("Точка продаж");
         grid.addColumn(prepaymentReturnDto -> contractorService.getById(prepaymentReturnDto.getContractorId())
-                .getName()).setHeader("Контрагент").setId("contractor");
+                .getName()).setHeader("Контрагент").setId("Контрагент");
         grid.addColumn(prepaymentReturnDto -> companyService.getById(prepaymentReturnDto.getCompanyId())
-                .getName()).setHeader("Точка Организация").setId("company");
-        grid.addColumn("sumCash").setFlexGrow(5).setHeader("Сумма нал.").setId("sumCash");
-        grid.addColumn("sumNonСash").setFlexGrow(5).setHeader("Сумма безнал.").setId("sumNonСash");
-        grid.addColumn(this::getSum).setFlexGrow(5).setHeader("Итого").setId("sum");
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setFlexGrow(7).setWidth("35px").setKey("sent")
+                .getName()).setHeader("Точка Организация").setId("Точка Организация");
+        grid.addColumn("sumCash").setHeader("Сумма нал.").setTextAlign(ColumnTextAlign.END).setId("Сумма нал.");
+        grid.addColumn("sumNonСash").setHeader("Сумма безнал.").setTextAlign(ColumnTextAlign.END).setId("Сумма безнал.");
+        grid.addColumn(this::getSum).setHeader("Итого").setTextAlign(ColumnTextAlign.END).setId("Итого");
+        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setKey("sent")
                 .setHeader("Отправлена").setId("Отправлена");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setFlexGrow(7).setWidth("35px").setKey("printed")
+        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setKey("printed")
                 .setHeader("Напечатана").setId("Напечатана");
-        grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("comment");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         GridSortOrder<PrepaymentReturnDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
-        grid.setColumnReorderingAllowed(true);
     }
 
     private void configureFilter() {
-        grid.removeAllColumns();
-        grid.addColumn("time").setFlexGrow(10).setHeader("Время").setId("Время");
-        grid.addColumn("retailStoreId").setFlexGrow(5).setHeader("Точка продаж").setId("Точка продаж");
-        grid.addColumn("contractorId").setFlexGrow(5).setHeader("Контрагент").setId("Контрагент");
-        grid.addColumn("companyId").setFlexGrow(5).setHeader("Организация").setId("Организация");
-        grid.addColumn("sumCash").setFlexGrow(5).setHeader("Сумма нал.").setId("Сумма нал.");
-        grid.addColumn("sumNonСash").setFlexGrow(5).setHeader("Сумма безнал.").setId("Сумма безнал.");
-        grid.addColumn("sum").setFlexGrow(5).setHeader("Итого").setId("Итого");
+
     }
 
     private BigDecimal getSum(PrepaymentReturnDto prepaymentReturnDto) {

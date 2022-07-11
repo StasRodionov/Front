@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -61,6 +63,7 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
     private final CompanyService companyService;
 
     private final Grid<RetailMakingDto> grid = new Grid<>(RetailMakingDto.class, false);
+    private final GridConfigurer<RetailMakingDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<RetailMakingDto> paginator;
     private final Notifications notifications;
 
@@ -71,7 +74,7 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
     private final GridFilter<RetailMakingDto> filter;
 
     private final TextField textField = new TextField();
-
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailMakingView(RetailMakingService retailMakingService, RetailStoreService retailStoreService,
                             CompanyService companyService, Notifications notifications) {
@@ -92,30 +95,29 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-
-        grid.addColumn("id").setWidth("5%").setHeader("№").setId("№");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn(retailMakingDto -> formatDate(retailMakingDto.getDate()))
-                .setKey("date").setWidth("12%").setHeader("Время").setSortable(true).setId("Дата");
+                .setKey("date").setWidth("12%").setHeader("Дата и время").setId("Дата и время");
         grid.addColumn(retailMakingDto -> retailStoreService.getById(retailMakingDto.getRetailStoreId())
-                        .getName()).setKey("retail_store_id").setWidth("10%").setHeader("Точка продаж")
-                .setSortable(true).setId("Точка продаж");
-        grid.addColumn("fromWhom").setWidth("10%").setHeader("От кого").setId("От кого");
+                        .getName()).setKey("retail_store_id").setHeader("Точка продаж")
+                .setId("Точка продаж");
+        grid.addColumn("fromWhom").setHeader("От кого").setId("От кого");
         grid.addColumn(retailMakingDto -> companyService.getById(retailMakingDto.getCompanyId())
                         .getName()).setKey("company_id").setWidth("15%").setHeader("Организация")
-                .setSortable(true).setId("Организация");
-        grid.addColumn("sum").setWidth("10%").setHeader("Сумма").setId("Сумма");
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setWidth("10%").setKey("sent")
+                .setId("Организация");
+        grid.addColumn("sum").setHeader("Сумма").setTextAlign(ColumnTextAlign.END).setId("Сумма");
+        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setKey("sent")
                 .setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setWidth("10%").setKey("print")
+        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setKey("print")
                 .setHeader("Напечатано").setId("Напечатано");
-        grid.addColumn("comment").setWidth("18%").setHeader("Комментарий").setId("Комментарий");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
-        grid.setHeight("66vh");
-        grid.setMaxWidth("2500px");
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
     }
 
     private void configureFilter() {

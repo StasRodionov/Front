@@ -1,9 +1,9 @@
 package com.trade_accounting.components.purchases;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.purchases.print.PrintPurchasingManagementXls;
 import com.trade_accounting.components.sells.InformationView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.MenuBarIcon;
@@ -12,8 +12,6 @@ import com.trade_accounting.models.dto.TemplateDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
-import com.trade_accounting.models.dto.invoice.InvoiceDto;
-import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
 import com.trade_accounting.models.dto.invoice.TypeOfOrder;
 import com.trade_accounting.models.dto.purchases.PurchaseControlDto;
 import com.trade_accounting.models.dto.purchases.PurchaseCreateOrderDto;
@@ -74,8 +72,6 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -83,13 +79,11 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import retrofit2.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -119,6 +113,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final String typeOfInvoice = "EXPENSE";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private VerticalLayout toolbarWithFilters;
     private final CompanyService companyService;
@@ -149,6 +144,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private List<PurchaseControlDto> purchaseControl;
     private HorizontalLayout actions;
     private final Grid<PurchaseControlDto> grid = new Grid<>(PurchaseControlDto.class, false);
+    private final GridConfigurer<PurchaseControlDto> gridConfigurer = new GridConfigurer<>(grid);
     private GridPaginator<PurchaseControlDto> paginator;
     private final GridFilter<PurchaseControlDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchasesManagement/";
@@ -368,8 +364,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     }
 
 
-    private Grid<PurchaseControlDto> configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+    private void configureGrid() {
+        grid.addThemeVariants(GRID_STYLE);
 
 //        grid.addColumn("buttonSetting")         /*смотри в классе PurchaseControlDto*/
 //                .setHeader(buttonSettings())
@@ -381,144 +377,114 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         grid.addColumn(dto -> productService.getById(dto.getProductNameId()).getName())
                 .setHeader("Наименование")
                 .setKey("product_name")
-                .setResizable(true)
-                .setSortable(true)
-                .setId("Товар или группа");
+                .setId("Наименование");
 
         grid.addColumn(PurchaseControlDto::getProductCode)
                 .setHeader("Код")
                 .setKey("product_code")
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Код");
 
         grid.addColumn(PurchaseControlDto::getArticleNumber)
                 .setHeader("Артикул")
                 .setKey("article_number")
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Артикул");
 
         grid.addColumn(PurchaseControlDto::getProductMeasure)
                 .setHeader("Ед. изм.")
                 .setKey("product_measure")
-                .setResizable(true)
-                .setSortable(true)
-                .setId("Единица_измерения");
+                .setId("Единицы измерения");
 
         grid.addColumn(PurchaseControlDto::getProductQuantity)
                 .setHeader("Кол-во")
                 .setKey("product_quantity")
                 .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Количество");
 
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getSumOfProducts())
                 .setHeader("Сумма")
                 .setKey("sum_of_products")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Сумма");
 
         grid.addColumn(dto -> productPriceService.getById(dto.getHistoryOfSalesId()).getValue())
                 .setHeader("Себестоимость")
                 .setKey("product_price")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Себестоимость");
 
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductMargin())
                 .setHeader("Прибыль")
                 .setKey("product_margin")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Прибыль");
 
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductProfitMargin())
                 .setHeader("Рентабельность")
                 .setKey("product_profit_margin")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Рентабельность");
 
         grid.addColumn(dto -> purchaseHistoryOfSalesService.getById(dto.getHistoryOfSalesId()).getProductSalesPerDay())
                 .setHeader("Продаж в день")
                 .setKey("product_sales_per_day")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Продаж в день");
 
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getRestOfTheWarehouse())
                 .setHeader("Остаток")
                 .setKey("rest_of_the_warehouse")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Остаток");
 
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsReserve())
                 .setHeader("Резерв")
                 .setKey("products_reserve")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
-                .setId("Резерв товара");
+                .setId("Резерв");
 
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsAwaiting())
                 .setHeader("Ожидание")
                 .setKey("products_awaiting")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
-                .setId("Товар в ожидании");
+                .setId("Ожидание");
 
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getProductsAvailableForOrder())
                 .setHeader("Доступно")
                 .setKey("products_available_for_order")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
-                .setId("Товара доступно для заказа");
+                .setId("Доступно");
 
         grid.addColumn(dto -> purchaseCurrentBalanceService.getById(dto.getCurrentBalanceId()).getDaysStoreOnTheWarehouse())
                 .setHeader("Дней на складе")
                 .setKey("days_store_on_the_warehouse")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
-                .setId("Дни хранения на складе");
+                .setId("Дней на складе");
 
         grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getReservedDays())
-                .setHeader("Дней запаса")
+                .setHeader("Дней в запасе")
                 .setKey("reserved_days")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Дней в запасе");
 
         grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getReservedProducts())
                 .setHeader("Запас")
                 .setKey("reserved_products")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
-                .setId("Запас товара");
+                .setId("Запас");
 
         grid.addColumn(dto -> purchaseForecastService.getById(dto.getForecastId()).getOrdered())
                 .setHeader("Заказать")
                 .setKey("ordered")
-                .setTextAlign(ColumnTextAlign.END)
-                .setResizable(true)
-                .setSortable(true)
                 .setId("Заказать");
 
+        grid.getColumns().forEach(column -> column.setTextAlign(ColumnTextAlign.END)
+                .setResizable(true).setAutoWidth(true).setSortable(true));
+        grid.getColumnByKey("product_name").setTextAlign(ColumnTextAlign.START);
+        grid.getColumnByKey("product_code").setTextAlign(ColumnTextAlign.START);
+        grid.getColumnByKey("article_number").setTextAlign(ColumnTextAlign.START);
+        grid.getColumnByKey("product_measure").setTextAlign(ColumnTextAlign.START);
+
+        gridConfigurer.addConfigColumnToGrid();
+
         HeaderRow groupingHeader2 = grid.prependHeaderRow();
+
+        groupingHeader2.
+                join(
+                        groupingHeader2.getCell(grid.getColumnByKey("product_name")),
+                        groupingHeader2.getCell(grid.getColumnByKey("product_code")),
+                        groupingHeader2.getCell(grid.getColumnByKey("article_number")),
+                        groupingHeader2.getCell(grid.getColumnByKey("product_measure")),
+                        groupingHeader2.getCell(grid.getColumnByKey("product_quantity"))
+                )
+                .setComponent(new Label(""));
 
         groupingHeader2.
                 join(
@@ -548,12 +514,9 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 )
                 .setComponent(new Label("Прогноз"));
 
-
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-
-        return grid;
     }
 
     private void configurePaginator() {

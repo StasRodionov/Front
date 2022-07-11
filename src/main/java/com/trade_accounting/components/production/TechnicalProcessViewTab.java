@@ -2,6 +2,7 @@ package com.trade_accounting.components.production;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -56,6 +58,7 @@ public class TechnicalProcessViewTab extends VerticalLayout implements AfterNavi
     private final List<TechnicalProcessDto> data;
     private final GridPaginator<TechnicalProcessDto> paginator;
     private final Grid<TechnicalProcessDto> grid = new Grid<>(TechnicalProcessDto.class, false);
+    private final GridConfigurer<TechnicalProcessDto> gridConfigurer = new GridConfigurer<>(grid);
     private final TechnicalProcessService technicalProcessService;
     private final Notifications notifications;
     private final TechnicalProcessModalView view;
@@ -63,6 +66,7 @@ public class TechnicalProcessViewTab extends VerticalLayout implements AfterNavi
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
     private final StagesProductionService stagesProductionService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public TechnicalProcessViewTab(TechnicalProcessService technicalProcessService,
                                    Notifications notifications,
@@ -91,6 +95,7 @@ public class TechnicalProcessViewTab extends VerticalLayout implements AfterNavi
     }
 
     private void configureGrid() {
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
         grid.addColumn(new ComponentRenderer<>(this::getIsShared)).setKey("shared").setHeader("Общий доступ")
@@ -100,10 +105,13 @@ public class TechnicalProcessViewTab extends VerticalLayout implements AfterNavi
         grid.addColumn(e -> employeeService.getById(e.getEmployeeOwnerId()).getFirstName())
                 .setHeader("Владелец-сотрудник").setId("Владелец-сотрудник");
         grid.addColumn(TechnicalProcessDto::getDateOfChanged).setKey("date")
-                .setHeader("Когда изменен").setSortable(true).setId("Когда изменен");
+                .setHeader("Когда изменен").setId("Когда изменен");
         grid.addColumn(e -> employeeService.getById(e.getEmployeeWhoLastChangedId()))
                 .setHeader("Кто изменил").setId("Кто изменил");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
 
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(e -> {

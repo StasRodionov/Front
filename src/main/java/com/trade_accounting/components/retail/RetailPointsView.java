@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -13,6 +14,7 @@ import com.trade_accounting.services.interfaces.util.TaskService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -47,7 +49,6 @@ import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_POINTS
 @UIScope
 public class RetailPointsView extends VerticalLayout implements AfterNavigationObserver {
 
-
     private final RetailPointsService retailPointsService;
     private final BonusProgramService bonusProgramService;
     private final ContractorService contractorService;
@@ -55,8 +56,10 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
     private final RetailPointsModalWindow retailPointsModalWindow;
     private List<RetailPointsDto> data;
     private final Grid<RetailPointsDto> grid = new Grid<>(RetailPointsDto.class, false);
+    private final GridConfigurer<RetailPointsDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridFilter<RetailPointsDto> filter;
     private final GridPaginator<RetailPointsDto> paginator;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailPointsView(RetailPointsService retailPointsService, BonusProgramService bonusProgramService,
                             ContractorService contractorService, TaskService taskService) {
@@ -67,39 +70,45 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         this.data = retailPointsService.getAll();
         this.retailPointsModalWindow = new RetailPointsModalWindow(retailPointsService);
         this.paginator = new GridPaginator<>(grid, data, 100);
+        configureGrid();
+
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
         grid.setItems(data);
         configureFilter();
         this.filter = new GridFilter<>(grid);
         add(upperLayout(), filter);
         add(grid, paginator);
-        configureGrid();
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
+        grid.addThemeVariants(GRID_STYLE);
         grid.setItems(data);
-        grid.addColumn("id").setFlexGrow(1).setHeader("№").setId("№");
-        grid.addColumn("number").setFlexGrow(1).setHeader("Номер").setId("Номер");
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn("number").setHeader("Номер").setId("Номер");
         grid.addColumn("currentTime").setHeader("Дата создания").setId("Дата создания");
-        grid.addColumn("typeOperation").setFlexGrow(7).setHeader("Тип операции").setId("Тип операции");
-        grid.addColumn("numberOfPoints").setHeader("Бонусные баллы").setId("Бонусные баллы");
+        grid.addColumn("typeOperation").setHeader("Тип операции").setId("Тип операции");
+        grid.addColumn("numberOfPoints").setHeader("Бонусные баллы").setTextAlign(ColumnTextAlign.END)
+                .setId("Бонусные баллы");
         grid.addColumn("accrualDate").setHeader("Дата начисления").setId("Дата начисления");
-        grid.addColumn(retailPointsDto -> bonusProgramService.getById(retailPointsDto.getBonusProgramId())
-                .getName()).setFlexGrow(7).setHeader("Бонусная программа").setId("bonusProgram");
-        grid.addColumn(retailPointsDto -> contractorService.getById(retailPointsDto.getContractorId())
-                .getName()).setFlexGrow(7).setHeader("Контрагент").setId("contractor");
-
+        grid.addColumn(retailPointsDto -> bonusProgramService.getById(retailPointsDto.getBonusProgramId()))
+                .setHeader("Бонусная программа").setId("Бонусная программа");
+        grid.addColumn(retailPointsDto -> contractorService.getById(retailPointsDto.getContractorId()))
+                .setHeader("Контрагент").setId("Контрагент");
         grid.addColumn("taskId").setHeader("Номер случая").setId("Номер случая");
-        grid.setHeight("66vh");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(event -> {
             retailPointsModalWindow.addDetachListener(e -> updateList());
             retailPointsModalWindow.open();
         });
+
         GridSortOrder<RetailPointsDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
-        grid.setColumnReorderingAllowed(true);
     }
 
 
@@ -111,14 +120,7 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
     }
 
     private void configureFilter() {
-        grid.removeAllColumns();
-        grid.addColumn("number").setFlexGrow(1).setHeader("Номер").setId("Номер");
-        grid.addColumn("currentTime").setFlexGrow(10).setHeader("Дата создания").setId("Дата создания");
-        grid.addColumn("typeOperation").setFlexGrow(7).setHeader("Тип операции").setId("Тип операции");
-        grid.addColumn("numberOfPoints").setFlexGrow(7).setHeader("Бонусные баллы").setId("Бонусные баллы");
-        grid.addColumn("accrualDate").setFlexGrow(10).setHeader("Дата начисления").setId("Дата начисления");
-        grid.addColumn("bonusProgramId").setFlexGrow(1).setHeader("Бонусная программа").setId("Бонусная программа");
-        grid.addColumn("contractorId").setFlexGrow(1).setHeader("Контрагент").setId("Контрагент");
+
     }
 
     private H2 title() {

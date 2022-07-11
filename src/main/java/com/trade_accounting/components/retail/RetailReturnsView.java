@@ -2,6 +2,7 @@ package com.trade_accounting.components.retail;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -55,42 +57,46 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
     private final TextField textField = new TextField();
     private final GridFilter<RetailReturnsDto> filter;
     private final Grid<RetailReturnsDto> grid = new Grid<>(RetailReturnsDto.class, false);
+    private final GridConfigurer<RetailReturnsDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<RetailReturnsDto> paginator;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailReturnsView(RetailReturnsService retailReturnsService) {
         this.retailReturnsService = retailReturnsService;
         this.data = retailReturnsService.getAll();
-        grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("Время");
-        grid.addColumn("cashAmount").setFlexGrow(5).setHeader("Сумма нал.").setId("Сумма нал.");
-        grid.addColumn("cashlessAmount").setFlexGrow(5).setHeader("Сумма безнал.").setId("Сумма безнал.");
-        grid.addColumn("totalAmount").setFlexGrow(5).setHeader("Итого").setId("Итого");
+        configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();
         this.paginator = new GridPaginator<>(grid, data, 100);
-        configureGrid();
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
         add(upperLayout(), filter, grid, paginator);
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.removeAllColumns();
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn("date").setFlexGrow(10).setHeader("Время").setId("date");
-        grid.addColumn("retailStoreId").setFlexGrow(5).setHeader("Точка продаж").setId("retailStoreId");
-        grid.addColumn("cashAmount").setFlexGrow(5).setHeader("Сумма нал.").setId("cashAmount");
-        grid.addColumn("cashlessAmount").setFlexGrow(5).setHeader("Сумма безнал.").setId("cashlessAmount");
-        grid.addColumn("totalAmount").setFlexGrow(5).setHeader("Итого").setId("totalAmount");
-        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("sent")
+        grid.addColumn("date").setHeader("Дата").setId("Дата");
+        grid.addColumn("retailStoreId").setHeader("Точка продаж").setId("Точка продаж");
+        grid.addColumn("cashAmount").setHeader("Сумма нал.").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма нал.");
+        grid.addColumn("cashlessAmount").setHeader("Сумма безнал.").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма безнал.");
+        grid.addColumn("totalAmount").setHeader("Итого").setTextAlign(ColumnTextAlign.END)
+                .setId("Итого");
+        grid.addColumn(new ComponentRenderer<>(this::isSentCheckedIcon)).setKey("sent")
                 .setHeader("Отправлена").setId("Отправлена");
-        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setFlexGrow(10).setWidth("35px").setKey("printed")
+        grid.addColumn(new ComponentRenderer<>(this::isPrintedCheckedIcon)).setKey("printed")
                 .setHeader("Напечатана").setId("Напечатана");
-        grid.addColumn("comment").setFlexGrow(7).setHeader("Комментарий").setId("comment");
+        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
         GridSortOrder<RetailReturnsDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
-        grid.setColumnReorderingAllowed(true);
     }
 
     private Component isSentCheckedIcon(RetailReturnsDto retailReturnsDto) {

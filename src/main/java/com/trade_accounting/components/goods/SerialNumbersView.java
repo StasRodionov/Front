@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -43,9 +44,11 @@ public class SerialNumbersView extends VerticalLayout {
     private final WarehouseService warehouseService;
 
     private final Grid<SerialNumbersDto> grid = new Grid<>(SerialNumbersDto.class, false);
+    private final GridConfigurer<SerialNumbersDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridFilter<SerialNumbersDto> filter;
     private final GridPaginator<SerialNumbersDto> paginator;
     private final List<SerialNumbersDto> data;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public SerialNumbersView(SerialNumbersService serialNumbersService, ProductService productService, WarehouseService warehouseService, List<SerialNumbersDto> data) {
         this.serialNumbersService = serialNumbersService;
@@ -59,7 +62,6 @@ public class SerialNumbersView extends VerticalLayout {
         configureFilter();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         add(getTollBar(), filter, grid, paginator);
-
     }
 
     private HorizontalLayout getTollBar() {
@@ -71,7 +73,7 @@ public class SerialNumbersView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
         grid.addColumn("code").setHeader("Код").setId("Код");
         grid.addColumn("vendorCode").setHeader("Артикул").setId("Артикул");
@@ -81,6 +83,12 @@ public class SerialNumbersView extends VerticalLayout {
         grid.addColumn("documentNumber").setHeader("№ документа").setId("№ документа");
         grid.addColumn("description").setHeader("Описание").setId("Описание");
 
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("66vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private List<SerialNumbersDto> getData() {

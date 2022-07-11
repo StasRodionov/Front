@@ -2,6 +2,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -22,6 +23,7 @@ import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -46,6 +48,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -71,11 +74,13 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     private final EmployeeService employeeService;
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
+    private final GridConfigurer<MovementDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<MovementDto> paginator;
     private final GridFilter<MovementDto> filter;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public MovementView(MovementService movementService,
@@ -111,23 +116,33 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(MovementDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
+        grid.addColumn(MovementDto::getDate).setHeader("Дата").setKey("date").setId("Дата");
         grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseId())
-                .getName()).setKey("warehouseDto").setHeader("Со Склада").setId("Со Склада");
+                        .getName()).setHeader("Со Склада")
+                .setKey("warehouseDto")
+                .setId("Со Склада");
         grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseToId())
-                .getName()).setKey("warehouseToDto").setHeader("На Склад").setId("На Склад");
+                        .getName()).setHeader("На Склад")
+                .setKey("warehouseToDto")
+                .setId("На Склад");
         grid.addColumn(movementDto -> companyService.getById(movementDto.getCompanyId())
-                .getName()).setKey("companyDto").setHeader("Организация").setId("Организация");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn("comment").setSortable(true).setHeader("Комментарий").setId("Комментарий");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено")
+                        .getName()).setHeader("Организация")
+                .setKey("companyDto")
+                .setId("Организация");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn("comment").setHeader("Комментарий")
+                .setId("Комментарий");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено").setKey("sent")
                 .setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано")
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано").setKey("print")
                 .setId("Напечатано");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
-        grid.setMaxWidth("100%");
         GridSortOrder<MovementDto> order = new GridSortOrder<>(grid.getColumnByKey("id"), SortDirection.ASCENDING);
         grid.sort(Arrays.asList(order));
         grid.setColumnReorderingAllowed(true);

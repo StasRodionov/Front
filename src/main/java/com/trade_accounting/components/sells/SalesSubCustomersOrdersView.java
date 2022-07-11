@@ -1,7 +1,7 @@
 package com.trade_accounting.components.sells;
 
-import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -26,6 +26,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -49,8 +50,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -96,10 +95,12 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
+    private final GridConfigurer<InvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
     private final String typeOfInvoice = "RECEIPT";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/sales_templates/";
 
     @Autowired
@@ -134,30 +135,35 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         add(upperLayout(), filter, grid, paginator);
     }
 
-    private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(iDto -> formatDate(iDto.getDate())).setKey("date").setHeader("Дата").setSortable(true)
-                .setId("Дата");
-        grid.addColumn(iDto -> contractorService.getById(iDto.getContractorId()).getName()).setHeader("Контрагент").setKey("contractorDto")
-                .setId("Контрагент");
-        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания").setKey("companyDto")
-                .setId("Компания");
-        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setKey("spend").setHeader("Проведена")
-                .setId("Проведена");
-        grid.addColumn(iDto -> iDto.getProjectId() != null ?
-                                projectService.getById(iDto.getProjectId()).getName() : "")
-                .setSortable(true).setHeader("Проект").setKey("projectDto").setId("Проект");
-        grid.addColumn(iDto -> invoicesStatusService.getById(iDto.getInvoicesStatusId()).getStatusName()).setHeader("Статус").setKey("invoicesStatusDto")
-                .setId("Статус");
 
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+    private void configureGrid() {
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("№").setId("№");
+        grid.addColumn(iDto -> formatDate(iDto.getDate())).setHeader("Дата и время")
+                .setKey("date").setId("Дата и время");
+        grid.addColumn(iDto -> contractorService.getById(iDto.getContractorId()).getName()).setHeader("Контрагент")
+                .setKey("contractorDto").setId("Контрагент");
+        grid.addColumn(iDto -> companyService.getById(iDto.getCompanyId()).getName()).setHeader("Компания")
+                .setKey("companyDto").setId("Компания");
+        grid.addColumn(new ComponentRenderer<>(this::getIsCheckedIcon)).setHeader("Проведена")
+                .setKey("spend").setId("Проведена");
+        grid.addColumn(iDto -> iDto.getProjectId() != null ?
+                                projectService.getById(iDto.getProjectId()).getName() : "").setHeader("Проект")
+                .setKey("projectDto").setId("Проект");
+        grid.addColumn(iDto -> invoicesStatusService.getById(iDto.getInvoicesStatusId()).getStatusName()).setHeader("Статус")
+                .setKey("invoicesStatusDto").setId("Статус");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setTextAlign(ColumnTextAlign.END)
+                .setId("Сумма");
+        grid.addColumn("comment").setHeader("Комментарий")
+                .setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-        grid.addItemDoubleClickListener(event -> {
+        grid.addItemClickListener(event -> {
             InvoiceDto editInvoice = event.getItem();
             salesEditCreateInvoiceView.setInvoiceDataForEdit(editInvoice);
             salesEditCreateInvoiceView.setUpdateState(true);

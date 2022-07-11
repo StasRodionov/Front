@@ -3,6 +3,7 @@ package com.trade_accounting.components.goods;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -13,6 +14,7 @@ import com.trade_accounting.services.interfaces.warehouse.RemainService;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
@@ -48,13 +50,15 @@ public class RemainView extends VerticalLayout {
     private final Notifications notifications;
 
     private final Grid<RemainDto> grid = new Grid<>(RemainDto.class, false);
+    private final GridConfigurer<RemainDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<RemainDto> paginator;
-    private List<RemainDto> data;
+    private final List<RemainDto> data;
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final RemainModalWindow remainModalWindow;
     private final GridFilter<RemainDto> filter;
     private final String typeOfRemain = "EXPENSE";
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RemainView(RemainService remainService, UnitService unitService, Notifications notifications) {
         this.remainService = remainService;
@@ -71,30 +75,54 @@ public class RemainView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(RemainDto::getName).setKey("name").setHeader("Наименование").setId("Наименование");
-        grid.addColumn(RemainDto::getVendorCode).setKey("vendorCode").setHeader("Код Продавца").setId("Код Продавца");
-        grid.addColumn(RemainDto::getBalance).setKey("balance").setHeader("Баланс").setId("Баланс");
-        grid.addColumn(RemainDto::getIrreducibleBalance).setKey("irreducibleBalance").setHeader("Неснижаемый Остаток").setId("Неснижаемый Остаток");
-        grid.addColumn(RemainDto::getReserve).setKey("reserve").setHeader("Резерв").setId("Резерв");
-        grid.addColumn(RemainDto::getExpectation).setKey("expectation").setHeader("Ожидание").setId("Ожидание");
-        grid.addColumn(RemainDto::getAvailable).setKey("available").setHeader("Доступно").setId("Доступно");
-        grid.addColumn(remainDto -> unitService.getById(remainDto.getUnitId()).getFullName()).setKey("unitId").setHeader("Единицы измерения").setId("Единицы измерения");
-        grid.addColumn(RemainDto::getDaysOnWarehouse).setKey("daysOnWarehouse").setHeader("Дней на складе").setId("Дней на складе");
-        grid.addColumn(RemainDto::getCostPrice).setKey("costPrice").setHeader("Закупочная цена").setId("Закупочная цена");
-        grid.addColumn(RemainDto::getSumOfCostPrice).setKey("sumOfCostPrice").setHeader("Сумма Закупки").setId("Сумма Закупки");
-        grid.addColumn(RemainDto::getSalesCost).setKey("salesCost").setHeader("Цена на продажу").setId("Цена на продажу");
-        grid.addColumn(RemainDto::getSalesSum).setKey("salesSum").setHeader("Сумма продаж").setId("Сумма продаж");
+        grid.addColumn(RemainDto::getName).setHeader("Наименование").setKey("name").setId("Наименование");
+        grid.addColumn(RemainDto::getVendorCode).setHeader("Код Продавца").setKey("vendorCode").setId("Код Продавца");
+        grid.addColumn(RemainDto::getBalance).setHeader("Баланс").setKey("balance").setId("Баланс");
+        grid.addColumn(RemainDto::getIrreducibleBalance).setHeader("Неснижаемый Остаток")
+                .setKey("irreducibleBalance")
+                .setId("Неснижаемый Остаток");
+        grid.addColumn(RemainDto::getReserve).setHeader("Резерв")
+                .setKey("reserve")
+                .setId("Резерв");
+        grid.addColumn(RemainDto::getExpectation).setHeader("Ожидание")
+                .setKey("expectation")
+                .setId("Ожидание");
+        grid.addColumn(RemainDto::getAvailable).setHeader("Доступно")
+                .setKey("available")
+                .setId("Доступно");
+        grid.addColumn(remainDto -> unitService.getById(remainDto.getUnitId()).getFullName()).setHeader("Единицы измерения")
+                .setKey("unitId")
+                .setId("Единицы измерения");
+        grid.addColumn(RemainDto::getDaysOnWarehouse).setHeader("Дней на складе")
+                .setKey("daysOnWarehouse")
+                .setId("Дней на складе");
+        grid.addColumn(RemainDto::getCostPrice).setHeader("Закупочная цена")
+                .setKey("costPrice")
+                .setId("Закупочная цена");
+        grid.addColumn(RemainDto::getSumOfCostPrice).setHeader("Сумма Закупки")
+                .setKey("sumOfCostPrice")
+                .setId("Сумма Закупки");
+        grid.addColumn(RemainDto::getSalesCost).setHeader("Цена на продажу")
+                .setKey("salesCost")
+                .setId("Цена на продажу");
+        grid.addColumn(RemainDto::getSalesSum).setHeader("Сумма продаж")
+                .setKey("salesSum")
+                .setId("Сумма продаж");
+        grid.getColumns().forEach(column -> column.setResizable(true).setTextAlign(ColumnTextAlign.END)
+                .setAutoWidth(true).setSortable(true));
+        grid.getColumnByKey("unitId").setTextAlign(ColumnTextAlign.START);
+        grid.getColumnByKey("name").setTextAlign(ColumnTextAlign.START);
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("66vh");
-        grid.setMaxWidth("100%");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.addItemDoubleClickListener(event -> {
             remainModalWindow.addDetachListener(e -> updateList());
             remainModalWindow.open();
         });
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.getColumns().forEach(column -> column.setAutoWidth(true));
     }
 
     private List<RemainDto> getData() {

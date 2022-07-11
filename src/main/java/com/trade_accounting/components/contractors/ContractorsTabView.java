@@ -1,6 +1,7 @@
 package com.trade_accounting.components.contractors;
 
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -77,6 +78,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final AddressService addressService;
     private final List<ContractorDto> data;
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
+    private final GridConfigurer<ContractorDto> gridConfigurer = new GridConfigurer<>(grid);
     private final GridPaginator<ContractorDto> paginator;
     private final GridFilter<ContractorDto> filter;
     private final TextField textField = new TextField();
@@ -85,7 +87,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
     private final ContactService contactService;
     private final DadataAddressService dadataAddressService;
-
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public ContractorsTabView(Notifications notifications,
                               ContractorService contractorService,
@@ -125,27 +127,29 @@ public class ContractorsTabView extends VerticalLayout {
 
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("ID").setId("ID");
         grid.addColumn("name").setHeader("Наименование").setId("Наименование");
         grid.addColumn("shortname").setHeader("Краткое наименование").setId("Краткое наименование");
-        grid.addColumn("sortNumber").setHeader("номер").setId("номер");
-        grid.addColumn("phone").setHeader("телефон").setId("телефон");
-        grid.addColumn("fax").setHeader("факс").setId("факс");
-        grid.addColumn("email").setHeader("email").setId("email");
+        grid.addColumn("sortNumber").setHeader("Номер").setId("Номер");
+        grid.addColumn("phone").setHeader("Телефон").setId("Телефон");
+        grid.addColumn("fax").setHeader("Факс").setId("Факс");
+        grid.addColumn("email").setHeader("E-mail").setId("E-mail");
         grid.addColumn(iDto -> addressService.getById(iDto.getAddressId()).toString()).setHeader("Адрес").setKey("address")
                 .setId("Адрес");
-        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("комментарий к адресу").setKey("commentToAddress")
-                .setId("комментарий к адресу");
-        grid.addColumn(ContractorDto::getComment).setHeader("комментарий").setKey("comment").setId("комментарий");
+        grid.addColumn(ContractorDto::getCommentToAddress).setHeader("Комментарий к адресу").setKey("commentToAddress")
+                .setId("Комментарий к адресу");
+        grid.addColumn(ContractorDto::getComment).setHeader("Комментарий").setKey("comment").setId("Комментарий");
         grid.addColumn(iDto -> contractorGroupService.getById(iDto.getContractorGroupId()).getName()).setHeader("Группы")
                 .setKey("contractorGroupDto").setId("Группы");
         grid.addColumn(iDto -> typeOfPriceService.getById(iDto.getTypeOfPriceId()).getName()).setHeader("Скидки и цены").setKey("typeOfPriceDto").setId("Скидки и цены");
         grid.addColumn(iDto -> legalDetailService.getById(iDto.getLegalDetailId()).getInn()).setHeader("Реквизиты").setKey("legalDetailDto").setId("Реквизиты");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
         grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        grid.getColumns().forEach(column -> column.setAutoWidth(true));
 
         grid.addItemDoubleClickListener(event -> {
             ContractorDto contractorDto = event.getItem();
