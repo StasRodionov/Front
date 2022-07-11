@@ -6,6 +6,7 @@ import com.trade_accounting.models.dto.company.PriceListProductDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
+import com.trade_accounting.services.interfaces.units.CountryService;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class PrintPriceListProductTagsXls {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final UnitService unitService;
+    private final CountryService countryService;
     private final PriceListDto priceListDto;
 
     private final List<PriceListProductDto> list;
@@ -48,7 +50,7 @@ public class PrintPriceListProductTagsXls {
                                         ProductService productService,
                                         CompanyService companyService,
                                         EmployeeService employeeService,
-                                        UnitService unitService, PriceListDto priceListDto) {
+                                        UnitService unitService, CountryService countryService, PriceListDto priceListDto) {
         this.pathToXlsTemplate = pathToXlsTemplate;
         this.list = list;
         this.priceListProductPercentsService = priceListProductPercentsService;
@@ -56,6 +58,7 @@ public class PrintPriceListProductTagsXls {
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.unitService = unitService;
+        this.countryService = countryService;
         this.priceListDto = priceListDto;
     }
 
@@ -283,7 +286,8 @@ public class PrintPriceListProductTagsXls {
             Row row3 = sheet.createRow(count);
             Cell newCell3 = row3.createCell(1);
             newCell3.setCellStyle(rowList6.get(1));
-            newCell3.setCellValue((productService.getById(priceListProductDto.getProductId())).getCountryOrigin());
+            newCell3.setCellValue(countryService.getById(productService.getById(priceListProductDto
+                    .getProductId()).getCountryId()).getShortName());
             sheet.addMergedRegion(new CellRangeAddress(row3.getRowNum(), row3.getRowNum(), 1, 3));
             count++;
 

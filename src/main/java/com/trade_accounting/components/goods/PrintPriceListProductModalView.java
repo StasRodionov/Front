@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
 import com.trade_accounting.services.interfaces.company.PriceListProductService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
+import com.trade_accounting.services.interfaces.units.CountryService;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.button.Button;
@@ -47,6 +48,8 @@ public class PrintPriceListProductModalView extends Dialog {
     private final CompanyService companyService;
     private final EmployeeService employeeService;
     private final UnitService unitService;
+    private final CountryService countryService;
+
     private PriceListDto priceListDto = new PriceListDto();
     private String addTemplate = "";
 
@@ -55,7 +58,9 @@ public class PrintPriceListProductModalView extends Dialog {
                                           PriceListProductPercentsService priceListProductPercentsService,
                                           ProductService productService,
                                           CompanyService companyService,
-                                          EmployeeService employeeService, UnitService unitService) {
+                                          EmployeeService employeeService,
+                                          UnitService unitService,
+                                          CountryService countryService) {
         this.priceListService = priceListService;
         this.priceListProductService = priceListProductService;
         this.priceListProductPercentsService = priceListProductPercentsService;
@@ -63,6 +68,7 @@ public class PrintPriceListProductModalView extends Dialog {
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.unitService = unitService;
+        this.countryService = countryService;
 
         print = selectXlsTemplateButton.addItem("Выберите шаблон");
         add(header(), selectXlsTemplateButton);
@@ -161,6 +167,7 @@ public class PrintPriceListProductModalView extends Dialog {
                     companyService,
                     employeeService,
                     unitService,
+                    countryService,
                     priceListDto);
             return new Anchor(new StreamResource(templateName, printPriceListXls::createReport), "Печать в формате Excel: " + templateName);
         }
@@ -195,6 +202,7 @@ public class PrintPriceListProductModalView extends Dialog {
                     companyService,
                     employeeService,
                     unitService,
+                    countryService,
                     priceListDto);
             return new Anchor(new StreamResource(templateName, printPriceListXls::createReportPDF), "Печать в формате PDF: " + templateName);
         }
@@ -229,6 +237,7 @@ public class PrintPriceListProductModalView extends Dialog {
                     companyService,
                     employeeService,
                     unitService,
+                    countryService,
                     priceListDto);
             return new Anchor(new StreamResource(templateName, printPriceListXls::createReportODS), "Печать в формате Office Calc: " + templateName);
         }
