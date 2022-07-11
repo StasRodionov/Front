@@ -39,7 +39,6 @@ public class PrintPriceListProductTagsXls {
     private final UnitService unitService;
     private final CountryService countryService;
     private final PriceListDto priceListDto;
-
     private final List<PriceListProductDto> list;
     private final String pathToXlsTemplate;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -50,7 +49,9 @@ public class PrintPriceListProductTagsXls {
                                         ProductService productService,
                                         CompanyService companyService,
                                         EmployeeService employeeService,
-                                        UnitService unitService, CountryService countryService, PriceListDto priceListDto) {
+                                        UnitService unitService,
+                                        CountryService countryService,
+                                        PriceListDto priceListDto) {
         this.pathToXlsTemplate = pathToXlsTemplate;
         this.list = list;
         this.priceListProductPercentsService = priceListProductPercentsService;
@@ -260,7 +261,7 @@ public class PrintPriceListProductTagsXls {
             Cell newCell6 = row5.createCell(2);
             newCell6.setCellStyle(rowList3.get(2));
             newCell6.setCellValue(String.valueOf((unitService.getById(productService
-                    .getById(priceListProductDto.getProductId()).getId()).getShortName())));
+                    .getById(priceListProductDto.getProductId()).getUnitId()).getShortName())));
             count++;
 
             List<CellStyle> rowList4 = getCellStylesList(sheet.getRow(sheet.getFirstRowNum() + 11));
