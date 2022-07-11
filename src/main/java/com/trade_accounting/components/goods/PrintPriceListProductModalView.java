@@ -83,7 +83,7 @@ public class PrintPriceListProductModalView extends Dialog {
     private VerticalLayout header() {
         VerticalLayout header = new VerticalLayout();
         H2 title = new H2("Создание печатной формы");
-        H6 question = new H6("Создать печатную форму по шаблону 'Список прайс-листов'?");
+        H6 question = new H6("Создать печатную форму по шаблону?");
         header.add(title, question);
         return header;
     }
@@ -108,11 +108,7 @@ public class PrintPriceListProductModalView extends Dialog {
     }
 
     private void templatesXlsMenuItems(SubMenu subMenu) {
-        getXlsFiles().forEach(x -> subMenu.addItem(getLinkToHtmlTemplate(x))
-                .addClickListener(event -> {
-                    priceListDto.setIsPrint(true);
-                    priceListService.update(priceListDto);
-                }));
+
         getXlsFiles().forEach(x -> subMenu.addItem(getLinkToXlsTemplate(x))
                 .addClickListener(event -> {
                     priceListDto.setIsPrint(true);
@@ -235,40 +231,6 @@ public class PrintPriceListProductModalView extends Dialog {
                     unitService,
                     priceListDto);
             return new Anchor(new StreamResource(templateName, printPriceListXls::createReportODS), "Печать в формате Office Calc: " + templateName);
-        }
-    }
-
-    private Anchor getLinkToHtmlTemplate(File file) {
-        String templateName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".html";
-
-        if(addTemplate.equals("priceListProduct/")) {
-            List<PriceListProductDto> priceLists = priceListDto.getProductsIds()
-                    .stream().map(priceListProductService::getById).collect(Collectors.toList());
-            PrintPriceListProductXls printPriceListXls = new PrintPriceListProductXls(file.getPath(),
-                priceLists,
-                priceListProductPercentsService,
-                productService,
-                priceListDto);
-        return new Anchor(new StreamResource(templateName, printPriceListXls::createReportHTML), "Открыть в браузере: " + templateName);
-        } else if (addTemplate.equals("priceList/")){
-            List<PriceListDto> priceLists1 = priceListService.getAll();
-            PrintPriceListXls printPriceListXls = new PrintPriceListXls(file.getPath(),
-                    priceLists1,
-                    companyService
-            );
-            return new Anchor(new StreamResource(templateName, printPriceListXls::createReportHTML), "Открыть в браузере: " + templateName);
-        } else {
-            List<PriceListProductDto> priceLists = priceListDto.getProductsIds()
-                    .stream().map(priceListProductService::getById).collect(Collectors.toList());
-            PrintPriceListProductTagsXls printPriceListXls = new PrintPriceListProductTagsXls(file.getPath(),
-                    priceLists,
-                    priceListProductPercentsService,
-                    productService,
-                    companyService,
-                    employeeService,
-                    unitService,
-                    priceListDto);
-            return new Anchor(new StreamResource(templateName, printPriceListXls::createReportHTML), "Открыть в браузере: " + templateName);
         }
     }
 }
