@@ -89,6 +89,8 @@ public class SecurityConstants {
     public static final String GOODS_GOODS__REVENUE_EDIT = GOODS + SIGN_UP_URL + "revenue-edit";
     public static final String GOODS_GOODS__EDIT_VIEW = GOODS + SIGN_UP_URL + "edit";
 
+    public static final String GOODS_KITS__EDIT_VIEW = GOODS + SIGN_UP_URL + "kit-edit";
+
     //Раздел "Контрагенты"
     //URL 2 уровня
     public static final String CONTRACTORS = BODY_URL + SIGN_UP_URL + "contractors";

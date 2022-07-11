@@ -48,8 +48,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.trade_accounting.config.SecurityConstants.GOODS;
-import static com.trade_accounting.config.SecurityConstants.GOODS_GOODS__EDIT_VIEW;
+import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
 @SpringComponent
@@ -73,6 +72,7 @@ public class GoodsView extends VerticalLayout {
     private Optional<ProductGroupDto> optional = Optional.empty();
     private final GoodsEditAddView goodsEditAddView;
     private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final KitsEditAddView kitsEditAddView;
 
     @Autowired
     public GoodsView(ProductService productService,
@@ -80,7 +80,9 @@ public class GoodsView extends VerticalLayout {
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow,
                      SetModalWindow setModalWindow, Notifications notifications,
-                     ProductGroupModalWindow productGroupModalWindow, GoodsEditAddView goodsEditAddView) {
+                     ProductGroupModalWindow productGroupModalWindow, GoodsEditAddView goodsEditAddView,
+                     KitsEditAddView kitsEditAddView) {
+        this.kitsEditAddView = kitsEditAddView;
         this.goodsEditAddView = goodsEditAddView;
         this.setModalWindow = setModalWindow;
         this.productGroupModalWindow = productGroupModalWindow;
@@ -257,10 +259,10 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonQuestion() {
         return Buttons.buttonQuestion("В разделе представлены все ваши товары, услуги и комплекты. " +
-                        "артикулом по характеристикам (например, размеру или цвету) удобно с помощью модификаций. " +
-                        "Несколько единиц одного товара можно продавать упаковками. А комплекты позволяют продавать " +
-                        "наборы разных товаров и услуг как единое целое. " +
-                        "Каталог товаров можно импортировать и экспортировать.");
+                "артикулом по характеристикам (например, размеру или цвету) удобно с помощью модификаций. " +
+                "Несколько единиц одного товара можно продавать упаковками. А комплекты позволяют продавать " +
+                "наборы разных товаров и услуг как единое целое. " +
+                "Каталог товаров можно импортировать и экспортировать.");
     }
 
     private Button buttonRefresh() {
@@ -288,7 +290,10 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusSet() {
         Button addSetButton = new Button("Комплект", new Icon(VaadinIcon.PLUS_CIRCLE));
-        addSetButton.addClickListener(e -> setModalWindow.open());
+        addSetButton.addClickListener(e -> {
+            kitsEditAddView.setLocation(GOODS);
+            UI.getCurrent().navigate(GOODS_KITS__EDIT_VIEW);
+        });
         addSetButton.getStyle().set("cursor", "pointer");
         return addSetButton;
     }
