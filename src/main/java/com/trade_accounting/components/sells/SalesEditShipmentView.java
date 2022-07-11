@@ -471,4 +471,6 @@ public class SalesEditShipmentView extends VerticalLayout{
     public void setLocation(String location) {
         this.location = location;
     }
+
+
 }
