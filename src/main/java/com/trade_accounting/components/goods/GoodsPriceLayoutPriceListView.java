@@ -54,6 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.*;
@@ -390,6 +391,9 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
             if (priceListData.getProductsIds().isEmpty()) {
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
+            } else if (tempPriceListProducts.stream().map(PriceListProductDto::getId).anyMatch(Objects::isNull)) {
+                    notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары",
+                            priceListData.getNumber()));
             } else {
                 PriceListDto priceListDto = priceListService.getById(priceListData.getId());
                 view.setPriceListDto(priceListDto);
@@ -400,6 +404,9 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         printSubMenu.addItem("Прайс-лист").addClickListener(event -> {
             if (priceListData.getProductsIds().isEmpty()) {
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
+                        priceListData.getNumber()));
+            } else if (tempPriceListProducts.stream().map(PriceListProductDto::getId).anyMatch(Objects::isNull)) {
+                notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары",
                         priceListData.getNumber()));
             } else {
                 PriceListDto priceListDto = priceListService.getById(priceListData.getId());
