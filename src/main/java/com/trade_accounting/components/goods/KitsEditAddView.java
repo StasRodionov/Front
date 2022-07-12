@@ -9,6 +9,7 @@ import com.trade_accounting.components.AppView;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.company.TaxSystemDto;
 import com.trade_accounting.models.dto.company.TypeOfPriceDto;
+import com.trade_accounting.models.dto.units.CountryDto;
 import com.trade_accounting.models.dto.units.UnitDto;
 import com.trade_accounting.models.dto.util.FileDto;
 import com.trade_accounting.models.dto.util.ImageDto;
@@ -20,6 +21,7 @@ import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.TaxSystemService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.units.CountryService;
 import com.trade_accounting.services.interfaces.units.UnitService;
 import com.trade_accounting.services.interfaces.warehouse.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
@@ -102,6 +104,7 @@ public class KitsEditAddView extends VerticalLayout {
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
     private final EmployeeService employeeService;
+    private final CountryService countryService;
 
     private List<ImageDto> imageDtoList;
     private ProductDto productDto;
@@ -116,7 +119,7 @@ public class KitsEditAddView extends VerticalLayout {
     private final VerticalLayout tabsContent = new VerticalLayout();
     private final TextField productNameField = new TextField();
     private final TextArea descriptionField = new TextArea();
-    private final TextField countryOriginField = new TextField();
+    private final ComboBox<CountryDto> countryDtoComboBox = new ComboBox<>();
     private final TextField saleTax = new TextField();
     private final ComboBox<ProductGroupDto> productGroupDtoComboBox = new ComboBox<>();
     private final ComboBox<UnitDto> unitDtoComboBox = new ComboBox<>();
@@ -148,7 +151,7 @@ public class KitsEditAddView extends VerticalLayout {
                            ProductGroupService productGroupService,
                            AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                            TypeOfPriceService typeOfPriceService,
-                           EmployeeService employeeService) {
+                           EmployeeService employeeService, CountryService countryService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
@@ -158,6 +161,7 @@ public class KitsEditAddView extends VerticalLayout {
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
         this.employeeService = employeeService;
+        this.countryService = countryService;
 
         configureCloseViewDialog();
 
@@ -195,11 +199,6 @@ public class KitsEditAddView extends VerticalLayout {
         weightNumberField.setValue(productDto.getWeight());
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
-        if(productDto.getCountryOrigin()==null){
-            countryOriginField.setValue("нет данных");
-        } else {
-            countryOriginField.setValue(productDto.getCountryOrigin());
-        }
         minimumBalance.setValue(BigDecimal.valueOf(productDto.getMinimumBalance()));
         if(productDto.getSaleTax()==null){
             saleTax.setValue("нет данных");
@@ -209,6 +208,7 @@ public class KitsEditAddView extends VerticalLayout {
         itemNumber.setValue(BigDecimal.valueOf(productDto.getItemNumber()));
         unitDtoComboBox.setValue(unitService.getById(productDto.getUnitId()));
         contractorDtoComboBox.setValue(contractorService.getById(productDto.getContractorId()));
+        countryDtoComboBox.setValue(countryService.getById(productDto.getCountryId()));
         taxSystemDtoComboBox.setValue(taxSystemService.getById(productDto.getTaxSystemId()));
         productGroupDtoComboBox.setValue(productGroupService.getById(productDto.getProductGroupId()));
         attributeOfCalculationObjectComboBox.setValue(attributeOfCalculationObjectService
@@ -250,7 +250,7 @@ public class KitsEditAddView extends VerticalLayout {
         this.productDto.setContractorId(contractorDtoComboBox.getValue().getId());
         this.productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
         this.productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
-        this.productDto.setCountryOrigin(countryOriginField.getValue());
+        this.productDto.setCountryId(contractorDtoComboBox.getValue().getId());
         this.productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         this.productDto.setImageDtos(imageDtoList);
 
@@ -490,12 +490,10 @@ public class KitsEditAddView extends VerticalLayout {
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
         content.add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
 
-        countryOriginField.setPlaceholder("Введите страну происхождения");
-        productDtoBinder.forField(countryOriginField)
-                .withValidator(text-> text.length()>=3,"Не менее 3 Символов", ErrorLevel.ERROR)
-                .bind(ProductDto::getCountryOrigin, ProductDto::setCountryOrigin);
-        countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
-        content.add(getHorizontalLayout("Страна происхождения", countryOriginField));
+        countryDtoComboBox.setPlaceholder("Введите страну происхождения");
+        countryDtoComboBox.setItems(countryService.getAll());
+        countryDtoComboBox.setItemLabelGenerator(CountryDto::getShortName);
+        content.add(getHorizontalLayout("Страна", countryDtoComboBox));
 
         taxSystemDtoComboBox.setPlaceholder("Выберите систему налогообложения");
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
@@ -718,7 +716,7 @@ public class KitsEditAddView extends VerticalLayout {
         descriptionField.clear();
         weightNumberField.clear();
         volumeNumberField.clear();
-        countryOriginField.clear();
+        countryDtoComboBox.setItems(countryService.getAll());
         itemNumber.clear();
         minimumBalance.clear();
         saleTax.clear();
