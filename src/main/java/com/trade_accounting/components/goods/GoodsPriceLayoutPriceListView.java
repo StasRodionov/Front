@@ -90,6 +90,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
     private PriceListProductPercentsDto priceListProductPercentsDto = new PriceListProductPercentsDto();
     private final TextField filterCriteria = new TextField();
     private final PrintPriceListProductModalView view;
+    private boolean checkForPrint = false;
 
     public GoodsPriceLayoutPriceListView(CompanyService companyService,
                                          PriceListService priceListService,
@@ -136,12 +137,14 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         if (!isProductInList(priceListProductDto)) {
             tempPriceListProducts.add(priceListProductDto);
             paginator.setData(tempPriceListProducts);
+            checkForPrint = true;
 
         } else if (priceListProductDto.getId() != null) {
             for (PriceListProductDto priceListProduct : tempPriceListProducts) {
                 if (priceListProduct.getId().equals(priceListProductDto.getId())) {
                     tempPriceListProducts.remove(priceListProduct);
                     tempPriceListProducts.add(priceListProductDto);
+                    checkForPrint = true;
                     break;
                 }
             }
@@ -264,6 +267,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         }
         tempPriceListProducts.remove(found);
         paginator.setData(tempPriceListProducts);
+        checkForPrint = true;
     }
 
     private void configureGrid() {
@@ -323,6 +327,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 priceListDtoBinder.setValidatorsDisabled(true);
                 tempPriceListProducts = priceListProductService.getByPriceListId(priceListData.getId());
                 paginator.setData(tempPriceListProducts);
+                checkForPrint = false;
             }
         });
     }
@@ -388,11 +393,13 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         print.add("Печать");
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.addItem("Ценники").addClickListener(event -> {
-            if (priceListData.getProductsIds().isEmpty()) {
+            System.out.println(priceListData);
+            if (tempPriceListProducts.isEmpty()) {
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
-            } else if (tempPriceListProducts.stream().map(PriceListProductDto::getId).anyMatch(Objects::isNull)) {
-                    notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары",
+            } else if (checkForPrint) {
+                    notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары." +
+                                    " Сохраните изменения в прайс-лист",
                             priceListData.getNumber()));
             } else {
                 PriceListDto priceListDto = priceListService.getById(priceListData.getId());
@@ -402,10 +409,10 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
             }
         });
         printSubMenu.addItem("Прайс-лист").addClickListener(event -> {
-            if (priceListData.getProductsIds().isEmpty()) {
+            if (tempPriceListProducts.isEmpty()) {
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
-            } else if (tempPriceListProducts.stream().map(PriceListProductDto::getId).anyMatch(Objects::isNull)) {
+            } else if (checkForPrint) {
                 notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары",
                         priceListData.getNumber()));
             } else {
