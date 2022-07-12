@@ -287,8 +287,12 @@ public class PrintPriceListProductTagsXls {
             Row row3 = sheet.createRow(count);
             Cell newCell3 = row3.createCell(1);
             newCell3.setCellStyle(rowList6.get(1));
-            newCell3.setCellValue(countryService.getById(productService.getById(priceListProductDto
-                    .getProductId()).getCountryId()).getShortName());
+            if(productService.getById(priceListProductDto.getProductId()).getCountryId() != null) {
+                newCell3.setCellValue(countryService.getById(productService.getById(priceListProductDto
+                        .getProductId()).getCountryId()).getShortName());
+            } else {
+                newCell3.setCellValue("");
+            }
             sheet.addMergedRegion(new CellRangeAddress(row3.getRowNum(), row3.getRowNum(), 1, 3));
             count++;
 
