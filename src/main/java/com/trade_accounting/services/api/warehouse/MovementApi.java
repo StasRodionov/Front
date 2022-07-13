@@ -45,6 +45,11 @@ public interface MovementApi {
                                                   @QueryMap Map<String, String> queryMovement);
 
     @Headers("Accept: application/json")
+    @GET("{url}/searchByBetweenDataFilter")
+    Call<List<MovementDto>> searchByBetweenDataFilter(@Path(value = "url", encoded = true) String url,
+                                           @QueryMap Map<String, String> queryMovement);
+
+    @Headers("Accept: application/json")
     @PUT("{url}/restoreFromIsRecyclebin/{id}")
     Call<Void> restoreFromIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 

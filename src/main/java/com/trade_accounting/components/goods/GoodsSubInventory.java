@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_INVENTORY_VIEW;
 
@@ -200,9 +201,9 @@ public class GoodsSubInventory extends VerticalLayout implements AfterNavigation
     private void configureGrid() {
         grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(InventarizationDto::getDate).setHeader("Дата и время")
-                .setKey("date")
-                .setId("Дата и время");
+        grid.addColumn(InventarizationDto::getDate).setHeader("Время")
+                .setKey("dateAfter")
+                .setId("Время");
         grid.addColumn(inventarizationDto -> warehouseService.getById(inventarizationDto.getWarehouseId())
                         .getName()).setHeader("Со склада")
                 .setKey("warehouseId")
@@ -241,12 +242,19 @@ public class GoodsSubInventory extends VerticalLayout implements AfterNavigation
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
-        filter.setFieldToDatePicker("date");
+        filter.setFieldToDatePicker("dateAfter");
         filter.setFieldToComboBox("warehouseId", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToComboBox("companyId", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
-        filter.onSearchClick(e -> paginator.setData(inventarizationService.searchByFilter(filter.getFilterData())));
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterDataBetween();
+            if(map.get("dateAfter") != null && map.get("dateBefore") != null){
+                paginator.setData(inventarizationService.searchByBetweenDataFilter(map));
+            } else {
+                paginator.setData(inventarizationService.searchByFilter(map));
+            }
+        });
         filter.onClearClick(e -> paginator.setData(inventarizationService.getAll()));
     }
 

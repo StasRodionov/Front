@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static com.trade_accounting.config.SecurityConstants.*;
 
@@ -115,8 +116,8 @@ public class PostingTabView extends VerticalLayout implements AfterNavigationObs
     private void configureGrid() {
         grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(CorrectionDto::getDate).setHeader("Дата").setKey("date")
-                .setId("Дата");
+        grid.addColumn(CorrectionDto::getDate).setHeader("Время").setKey("dateAfter")
+                .setId("Время");
         grid.addColumn(correctionDto -> warehouseService.getById(correctionDto.getWarehouseId())
                         .getName()).setHeader("Склад").setKey("warehouseDto")
                 .setId("Склад");
@@ -156,10 +157,17 @@ public class PostingTabView extends VerticalLayout implements AfterNavigationObs
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
-        filter.setFieldToDatePicker("date");
+        filter.setFieldToDatePicker("dateAfter");
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
-        filter.onSearchClick(e -> paginator.setData(correctionService.search(filter.getFilterData())));
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterDataBetween();
+            if(map.get("dateAfter") != null && map.get("dateBefore") != null){
+                paginator.setData(correctionService.searchByBetweenDataFilter(map));
+            } else {
+                paginator.setData(correctionService.searchByFilter(map));
+            }
+        });
         filter.onClearClick(e -> paginator.setData(correctionService.getAll()));
     }
 

@@ -15,6 +15,7 @@ public interface MovementService {
     MovementDto create(MovementDto movementDto);
 
     List<MovementDto> searchByFilter(Map<String, String> queryMovement);
+    List<MovementDto> searchByBetweenDataFilter(Map<String, String> queryMovement);
 
     void update(MovementDto movementDto);
 

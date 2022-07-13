@@ -19,6 +19,7 @@ public interface InternalOrderService {
     List<InternalOrderDto> searchByTerm (String searchItem);
 
     List<InternalOrderDto> searchByFilter(Map<String, String> query);
+    List<InternalOrderDto> searchByBetweenDataFilter(Map<String, String> query);
 
     void moveToIsRecyclebin(Long id);
 

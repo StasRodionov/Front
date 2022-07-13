@@ -13,7 +13,9 @@ public interface CorrectionService {
 
     CorrectionDto create(CorrectionDto correctionDto);
 
-    List<CorrectionDto> search(Map<String, String> query);
+    List<CorrectionDto> searchByFilter(Map<String, String> query);
+
+    List<CorrectionDto> searchByBetweenDataFilter(Map<String, String> query);
 
     void update(CorrectionDto correctionDto);
 

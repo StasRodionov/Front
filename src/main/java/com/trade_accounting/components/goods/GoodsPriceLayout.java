@@ -147,9 +147,9 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private void configureGrid() {
         grid.addThemeVariants(GRID_STYLE);
         grid.addColumn(PriceListDto::getNumber).setHeader("№").setKey("number").setId("№");
-        grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getDate()))).setHeader("Начальная дата")
-                .setKey("date")
-                .setId("Начальная дата");
+        grid.addColumn(priceListDto -> dateTimeFormatter.format(LocalDateTime.parse(priceListDto.getDate()))).setHeader("Время")
+                .setKey("dateAfter")
+                .setId("Время");
         grid.addColumn(priceListDto -> companyService.getById(priceListDto.getCompanyId()).getName()).setHeader("Организация")
                 .setKey("company")
                 .setId("Организация");
@@ -224,7 +224,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
 
         filter.addFilterField(filterMap);
 
-        filter.setFieldToDatePicker("date");
+        filter.setFieldToDatePicker("dateAfter");
 
         filter.setFieldToComboBox("company", CompanyDto::getName, companyService.getAll());
         filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
@@ -235,7 +235,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
 
         filter.onSearchClick(e -> {
             Map<String, String> map = filter.getFilterDataBetween();
-            if(map.get("date") != null && map.get("dateBefore") != null){
+            if(map.get("dateAfter") != null && map.get("dateBefore") != null){
                 paginator.setData(priceListService.searchByBetweenDataFilter(map));
             } else {
                 paginator.setData(priceListService.searchByFilter(map));

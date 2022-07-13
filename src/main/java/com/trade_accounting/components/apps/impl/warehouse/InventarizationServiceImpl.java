@@ -1,5 +1,6 @@
 package com.trade_accounting.components.apps.impl.warehouse;
 
+import com.trade_accounting.models.dto.finance.CorrectionDto;
 import com.trade_accounting.models.dto.warehouse.InventarizationDto;
 import com.trade_accounting.components.apps.impl.CallExecuteService;
 import com.trade_accounting.services.interfaces.warehouse.InventarizationService;
@@ -64,6 +65,19 @@ public class InventarizationServiceImpl implements InventarizationService {
     public List<InventarizationDto> searchByFilter(Map<String, String> queryInventarization) {
         List<InventarizationDto> inventarizationDtoList = new ArrayList<>();
         Call<List<InventarizationDto>> callListInventarization = inventarizationApi.searchByFilter(inventarizationUrl, queryInventarization);
+        try {
+            inventarizationDtoList = callListInventarization.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение приемки по фильтру {}", queryInventarization);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск иполучение приемок {IOException}", e);
+        }
+        return inventarizationDtoList;
+    }
+
+    @Override
+    public List<InventarizationDto> searchByBetweenDataFilter(Map<String, String> queryInventarization) {
+        List<InventarizationDto> inventarizationDtoList = new ArrayList<>();
+        Call<List<InventarizationDto>> callListInventarization = inventarizationApi.searchByBetweenDataFilter(inventarizationUrl, queryInventarization);
         try {
             inventarizationDtoList = callListInventarization.execute().body();
             log.info("Успешно выполнен запрос на поиск и получение приемки по фильтру {}", queryInventarization);

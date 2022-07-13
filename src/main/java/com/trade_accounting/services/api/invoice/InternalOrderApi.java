@@ -45,6 +45,11 @@ public interface InternalOrderApi {
                                                 @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
+    @GET("{url}/searchByBetweenDataFilter")
+    Call<List<InternalOrderDto>> searchByBetweenDataFilter(@Path(value = "url", encoded = true) String url,
+                                                @QueryMap Map<String, String> query);
+
+    @Headers("Accept: application/json")
     @PUT("{url}/moveToIsRecyclebin/{id}")
     Call<Void> moveToIsRecyclebin(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 

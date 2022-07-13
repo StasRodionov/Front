@@ -52,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_MOVEMENT_VIEW;
 
@@ -118,7 +119,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     private void configureGrid() {
         grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(MovementDto::getDate).setHeader("Дата").setKey("date").setId("Дата");
+        grid.addColumn(MovementDto::getDate).setHeader("Время").setKey("dateAfter").setId("Время");
         grid.addColumn(movementDto -> warehouseService.getById(movementDto.getWarehouseId())
                         .getName()).setHeader("Со Склада")
                 .setKey("warehouseDto")
@@ -170,13 +171,20 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
 
     private void configureFilter() {
         filter.setFieldToIntegerField("id");
-        filter.setFieldToDatePicker("date");
+        filter.setFieldToDatePicker("dateAfter");
         filter.setFieldToComboBox("warehouseDto", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToComboBox("warehouseToDto", WarehouseDto::getName, warehouseService.getAll());
         filter.setFieldToComboBox("companyDto", CompanyDto::getName, companyService.getAll());
         filter.setFieldToCheckBox("sent");
         filter.setFieldToCheckBox("print");
-        filter.onSearchClick(e -> paginator.setData(movementService.searchByFilter(filter.getFilterData())));
+        filter.onSearchClick(e -> {
+            Map<String, String> map = filter.getFilterDataBetween();
+            if(map.get("dateAfter") != null && map.get("dateBefore") != null){
+                paginator.setData(movementService.searchByBetweenDataFilter(map));
+            } else {
+                paginator.setData(movementService.searchByFilter(map));
+            }
+        });
         filter.onClearClick(e -> paginator.setData(movementService.getAll()));
     }
 

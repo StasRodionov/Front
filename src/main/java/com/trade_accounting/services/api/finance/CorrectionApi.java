@@ -24,8 +24,12 @@ public interface CorrectionApi {
     Call<CorrectionDto> getById(@Path(value = "url", encoded = true) String url, @Path("id") Long id);
 
     @Headers("Accept: application/json")
-    @GET("{url}/search")
-    Call<List<CorrectionDto>> search(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+    @GET("{url}/searchByFilter")
+    Call<List<CorrectionDto>> searchByFilter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
+
+    @Headers("Accept: application/json")
+    @GET("{url}/searchByBetweenDataFilter")
+    Call<List<CorrectionDto>> searchByBetweenDataFilter(@Path(value = "url", encoded = true) String url, @QueryMap Map<String, String> query);
 
     @Headers("Accept: application/json")
     @POST("{url}")
