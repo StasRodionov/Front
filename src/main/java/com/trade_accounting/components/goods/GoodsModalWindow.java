@@ -1,6 +1,6 @@
 package com.trade_accounting.components.goods;
 
-import com.trade_accounting.components.sells.InformationView;
+import com.trade_accounting.models.dto.units.CountryDto;
 import com.trade_accounting.models.dto.warehouse.AttributeOfCalculationObjectDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.util.FileDto;
@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
 import com.trade_accounting.models.dto.company.TaxSystemDto;
 import com.trade_accounting.models.dto.company.TypeOfPriceDto;
 import com.trade_accounting.models.dto.units.UnitDto;
+import com.trade_accounting.services.interfaces.units.CountryService;
 import com.trade_accounting.services.interfaces.warehouse.AttributeOfCalculationObjectService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
@@ -65,7 +66,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS;
@@ -85,9 +85,11 @@ public class GoodsModalWindow extends Dialog {
     private final AttributeOfCalculationObjectService attributeOfCalculationObjectService;
     private final TypeOfPriceService typeOfPriceService;
     private final EmployeeService employeeService;
+    private final CountryService countryService;
+
     private final TextField nameTextField = new TextField();
     private final TextField descriptionField = new TextField();
-    private final TextField countryOriginField = new TextField();
+    private final ComboBox<CountryDto> countryDtoComboBox = new ComboBox<>();
     private final TextField saleTax = new TextField();
     private final BigDecimalField itemNumber = new BigDecimalField();
     private final BigDecimalField minimumBalance = new BigDecimalField();
@@ -127,7 +129,7 @@ public class GoodsModalWindow extends Dialog {
                             AttributeOfCalculationObjectService attributeOfCalculationObjectService,
                             TypeOfPriceService typeOfPriceService,
                             EmployeeService employeeService,
-                            FileService fileService) {
+                            CountryService countryService, FileService fileService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
@@ -138,6 +140,7 @@ public class GoodsModalWindow extends Dialog {
         this.attributeOfCalculationObjectService = attributeOfCalculationObjectService;
         this.typeOfPriceService = typeOfPriceService;
         this.employeeService = employeeService;
+        this.countryService = countryService;
         this.fileService = fileService;
 
 
@@ -193,12 +196,10 @@ public class GoodsModalWindow extends Dialog {
         descriptionField.setValueChangeMode(ValueChangeMode.EAGER);
         add(getHorizontalLayout("Описание", descriptionField));
 
-        countryOriginField.setPlaceholder("Введите страну происхождения");
-        productDtoBinder.forField(countryOriginField)
-                .withValidator(text-> text.length()>=3,"Не менее 3 Символов", ErrorLevel.ERROR)
-                .bind(ProductDto::getCountryOrigin, ProductDto::setCountryOrigin);
-        countryOriginField.setValueChangeMode(ValueChangeMode.EAGER);
-        add(getHorizontalLayout("Страна происхождения", countryOriginField));
+        countryDtoComboBox.setPlaceholder("Введите страну происхождения");
+        countryDtoComboBox.setItems(countryService.getAll());
+        countryDtoComboBox.setItemLabelGenerator(CountryDto::getShortName);
+        add(getHorizontalLayout("Страна", countryDtoComboBox));
 
         unitDtoComboBox.setPlaceholder("Выберите единицу измерения");
         unitDtoComboBox.setItems(unitService.getAll());
@@ -282,11 +283,7 @@ public class GoodsModalWindow extends Dialog {
         weightNumberField.setValue(productDto.getWeight());
         volumeNumberField.setValue(productDto.getVolume());
         purchasePriceNumberField.setValue(productDto.getPurchasePrice());
-        if(productDto.getCountryOrigin()==null){
-            countryOriginField.setValue("нет данных");
-        } else {
-            countryOriginField.setValue(productDto.getCountryOrigin());
-        }
+        countryDtoComboBox.setValue(countryService.getById(productDto.getCountryId()));
         minimumBalance.setValue(BigDecimal.valueOf(productDto.getMinimumBalance()));
         if(productDto.getSaleTax()==null){
             saleTax.setValue("нет данных");
@@ -320,7 +317,7 @@ public class GoodsModalWindow extends Dialog {
         descriptionField.clear();
         weightNumberField.clear();
         volumeNumberField.clear();
-        countryOriginField.clear();
+        countryDtoComboBox.setItems(countryService.getAll());
         itemNumber.clear();
         minimumBalance.clear();
         saleTax.clear();
@@ -548,7 +545,7 @@ public class GoodsModalWindow extends Dialog {
         productDto.setContractorId(contractorDtoComboBox.getValue().getId());
         productDto.setTaxSystemId(taxSystemDtoComboBox.getValue().getId());
         productDto.setProductGroupId(productGroupDtoComboBox.getValue().getId());
-        productDto.setCountryOrigin(countryOriginField.getValue());
+        productDto.setCountryId(countryDtoComboBox.getValue().getId());
         productDto.setAttributeOfCalculationObjectId(attributeOfCalculationObjectComboBox.getValue().getId());
         productDto.setImageDtos(imageDtoList);
 
