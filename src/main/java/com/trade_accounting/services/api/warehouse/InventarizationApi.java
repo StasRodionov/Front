@@ -41,6 +41,11 @@ public interface InventarizationApi {
                                                   @QueryMap Map<String, String> queryInventarization);
 
     @Headers("Accept: application/json")
+    @GET("{url}/searchByBetweenDataFilter")
+    Call<List<InventarizationDto>> searchByBetweenDataFilter(@Path(value = "url", encoded = true) String url,
+                                                             @QueryMap Map<String, String> queryInventarization);
+
+    @Headers("Accept: application/json")
     @GET("{url}/search/{search}")
     Call<List<InventarizationDto>> search(@Path(value = "url", encoded = true) String url,
                                           @Path(value = "search", encoded = true) String search);
