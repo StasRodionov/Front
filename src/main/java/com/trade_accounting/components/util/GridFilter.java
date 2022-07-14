@@ -63,15 +63,6 @@ public class GridFilter<T> extends HorizontalLayout {
         configureFilterField();
         configureButton();
 
-       }
-
-    public GridFilter(Grid<T> grid, Map<ValueProvider<T, ?>, List<String>> columnKeys) {
-        this.grid = grid;
-        this.filterData = new HashMap<>();
-        configureLayout();
-        configureFilterField(columnKeys);
-        configureButton();
-
     }
 
     /**
@@ -243,13 +234,13 @@ public class GridFilter<T> extends HorizontalLayout {
 
 
     public Map<String, String> getFilterDataBetween() {
-        String datetime = filterData.get("date");
+        String datetime = filterData.get("dateAfter");
         String datetimeBefore = filterData.get("dateBefore");
 
         if (datetime != null) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-                filterData.put("date", LocalDateTime.parse(datetime).format(formatter));
+                filterData.put("dateAfter", LocalDateTime.parse(datetime).format(formatter));
             } catch (Exception ignored) {
             }
         }
@@ -307,11 +298,11 @@ public class GridFilter<T> extends HorizontalLayout {
                     dialog.open();
                     del.addClickListener(d -> {
                         bookmarksButton.setVisible(false);
-                       edit.setVisible(false);
-                       dialog.close();
+                        edit.setVisible(false);
+                        dialog.close();
                     });
                     save1.addClickListener(s -> //кнопка сохранить при редактировании закладки
-                        dialog.close());
+                            dialog.close());
                 });
                 dialog.close();
             });
@@ -365,7 +356,8 @@ public class GridFilter<T> extends HorizontalLayout {
                 if (!e.getKey().equals("imageDto") && !e.getKey().equals("sumOut")) {
                     this.add(getFilterTextField(e.getKey()));
                 }
-                if (e.getKey().equals("date")) {
+                if (e.getKey().equals("dateAfter")) {
+                    grid.getColumnByKey("dateAfter").setId("Начальная дата");
                     grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
                     grid.getColumnByKey("dateBefore").setVisible(false);
                     this.add(getFilterDatePicker("dateBefore"));
@@ -375,24 +367,11 @@ public class GridFilter<T> extends HorizontalLayout {
         }
     }
 
-    private void configureFilterField(Map<ValueProvider<T, ?>, List<String>> columnKeys) {
+    public void addFilterField(Map<ValueProvider<T, ?>, List<String>> columnKeys) {
         for (Map.Entry<ValueProvider<T, ?>, List<String>> column : columnKeys.entrySet()) {
             grid.addColumn(column.getKey()).setKey(column.getValue().get(0)).setId(column.getValue().get(1));
             grid.getColumnByKey(column.getValue().get(0)).setVisible(false);
-        }
-        try {
-            grid.getColumns().forEach(e -> {
-                if (!e.getKey().equals("imageDto") && !e.getKey().equals("sumOut")) {
-                    this.add(getFilterTextField(e.getKey()));
-                }
-                if (e.getKey().equals("date")) {
-                    grid.addColumn(t -> "").setKey("dateBefore").setId("Конечная дата");
-                    grid.getColumnByKey("dateBefore").setVisible(false);
-                    this.add(getFilterDatePicker("dateBefore"));
-                }
-            });
-
-        } catch (NullPointerException e) {
+            this.add(getFilterTextField(grid.getColumnByKey(column.getValue().get(0)).getKey()));
         }
     }
 
