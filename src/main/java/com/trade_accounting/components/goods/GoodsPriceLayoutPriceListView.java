@@ -413,7 +413,8 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
             } else if (checkForPrint) {
-                notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары",
+                notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары." +
+                                " Сохраните изменения в прайс-лист",
                         priceListData.getNumber()));
             } else {
                 PriceListDto priceListDto = priceListService.getById(priceListData.getId());
