@@ -17,6 +17,7 @@ import com.trade_accounting.services.interfaces.company.PriceListProductPercents
 import com.trade_accounting.services.interfaces.company.PriceListProductService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -72,7 +73,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private List<PriceListDto> data;
     private final HorizontalLayout actions;
     private final Grid<PriceListDto> grid = new Grid<>(PriceListDto.class, false);
-    private final GridConfigurer<PriceListDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<PriceListDto> gridConfigurer;
     private final GridPaginator<PriceListDto> paginator;
     private final GridFilter<PriceListDto> filter;
     private final Notifications notifications;
@@ -80,7 +81,8 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
     private final PriceListProductPercentsService priceListProductPercentsService;
     private final TypeOfPriceService typeOfPriceService;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public GoodsPriceLayout(PriceListService priceListService,
@@ -88,6 +90,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
                             ProductService productService,
                             PriceListProductService priceListProductService,
                             Notifications notifications,
+                            ColumnsMaskService columnsMaskService,
                             @Qualifier("goodsPriceLayoutPriceListView") GoodsPriceLayoutPriceListView priceListContent,
                             PriceListProductPercentsService priceListProductPercentsService, TypeOfPriceService typeOfPriceService) {
         this.priceListService = priceListService;
@@ -97,6 +100,7 @@ public class GoodsPriceLayout extends VerticalLayout implements AfterNavigationO
         this.priceListProductPercentsService = priceListProductPercentsService;
         this.typeOfPriceService = typeOfPriceService;
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_PRICE_LIST);
         actions = new HorizontalLayout();
         paginator = new GridPaginator<>(grid, data, 50);
         this.priceListContent = priceListContent;

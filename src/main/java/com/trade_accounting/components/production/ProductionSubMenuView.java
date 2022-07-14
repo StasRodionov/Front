@@ -6,6 +6,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.client.DepartmentService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.production.OrdersOfProductionService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.production.StagesProductionService;
 import com.trade_accounting.services.interfaces.production.ProductionTargetsService;
@@ -47,6 +48,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     private final EmployeeService employeeService;
     private final ProductionTargetsService productionTargetsService;
     private final TechnicalProcessService technicalProcessService;
+    private final ColumnsMaskService columnsMaskService;
     private final TechnicalProcessModalView technicalProcessModalView;
 
 
@@ -68,6 +70,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                                  EmployeeService employeeService,
                                  ProductionTargetsService productionTargetsService,
                                  TechnicalProcessService technicalProcessService,
+                                 ColumnsMaskService columnsMaskService,
                                  TechnicalProcessModalView technicalProcessModalView) {
         this.notifications = notifications;
         this.technicalOperationsService = technicalOperationsService;
@@ -80,6 +83,7 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
         this.departmentService = departmentService;
         this.employeeService = employeeService;
         this.technicalProcessService = technicalProcessService;
+        this.columnsMaskService = columnsMaskService;
         this.technicalProcessModalView = technicalProcessModalView;
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
@@ -108,31 +112,39 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
                 case "Тех. карты":
                     div.removeAll();
                     div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, productService,
-                            technicalCardProductionService, notifications));
+                            technicalCardProductionService, columnsMaskService, notifications));
                     break;
                 case "Заказы на производство":
                     div.removeAll();
-                    div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService, technicalCardService,
-                            notifications));
+                    div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService,
+                            technicalCardService, columnsMaskService, notifications));
                     break;
                 case "Тех. операции":
                     div.removeAll();
                     div.add(new TechnologicalOperationsViewTab(technicalCardService, technicalOperationsService,
-                            notifications, warehouseService, view));
+                            notifications, warehouseService, view, columnsMaskService));
                     break;
                 case "Производственные Задания":
                     div.removeAll();
-                    div.add(new ProductionTargetsViewTab(productionTargetsService, notifications, companyService, warehouseService));
+                    div.add(new ProductionTargetsViewTab(productionTargetsService, notifications, companyService,
+                            warehouseService, columnsMaskService));
                     break;
 
                 case "Тех. процессы":
                     div.removeAll();
-                    div.add(new TechnicalProcessViewTab(technicalProcessService, notifications, technicalProcessModalView, departmentService, employeeService, stagesProductionService));
+                    div.add(new TechnicalProcessViewTab(
+                            technicalProcessService, notifications,
+                            technicalProcessModalView, departmentService,
+                            employeeService, stagesProductionService,
+                            columnsMaskService));
                     break;
 
                 case "Этапы":
                     div.removeAll();
-                    div.add(new StageProductionViewTab(stagesProductionService, notifications, stageProductionModalView, departmentService, employeeService));
+                    div.add(new StageProductionViewTab(
+                            stagesProductionService, notifications,
+                            stageProductionModalView, departmentService,
+                            employeeService, columnsMaskService));
                     break;
             }
         });
@@ -143,7 +155,8 @@ public class ProductionSubMenuView extends Div implements AfterNavigationObserve
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService, productService, technicalCardProductionService, notifications));
+        div.add(new FlowchartsViewTab(technicalCardService, technicalCardGroupService,
+                productService, technicalCardProductionService, columnsMaskService, notifications));
         //div.add(new OrdersOfProductionViewTab(ordersOfProductionService, companyService,technicalCardService, notifications, modalWindow));
     }
 }

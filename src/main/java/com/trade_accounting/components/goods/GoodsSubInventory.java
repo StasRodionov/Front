@@ -11,6 +11,7 @@ import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.warehouse.InventarizationDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.InventarizationService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_INVENTORY_VIEW;
+import static com.trade_accounting.config.SecurityConstants.GRID_GOODS_MAIN_INVENTORY;
 
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -64,17 +66,19 @@ public class GoodsSubInventory extends VerticalLayout implements AfterNavigation
     private final CompanyService companyService;
     private final InventarizationService inventarizationService;
     private final Grid<InventarizationDto> grid = new Grid<>(InventarizationDto.class, false);
-    private final GridConfigurer<InventarizationDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<InventarizationDto> gridConfigurer;
     private final GridPaginator<InventarizationDto> paginator;
     private final Notifications notifications;
     private final GoodsSubInventoryModalWindow modalWindow;
     private final GridFilter<InventarizationDto> filter;
     private final List<InventarizationDto> data;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public GoodsSubInventory(WarehouseService warehouseService,
                              CompanyService companyService, InventarizationService inventarizationService,
+                             ColumnsMaskService columnsMaskService,
                              Notifications notifications, GoodsSubInventoryModalWindow modalWindow) {
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -82,6 +86,7 @@ public class GoodsSubInventory extends VerticalLayout implements AfterNavigation
         this.notifications = notifications;
         this.modalWindow = modalWindow;
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_INVENTORY);
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);

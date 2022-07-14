@@ -12,6 +12,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectCo
 import com.trade_accounting.models.dto.production.TechnicalOperationsDto;
 import com.trade_accounting.services.interfaces.production.TechnicalCardService;
 import com.trade_accounting.services.interfaces.production.TechnicalOperationsService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PRODUCTION_MAIN_TECHNOLOGICAL_OPERATIONS;
 import static com.trade_accounting.config.SecurityConstants.PRODUCTION_TECHNOLOGICAL_VIEW;
 
 
@@ -68,7 +70,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private final List<TechnicalOperationsDto> data;
     private final GridPaginator<TechnicalOperationsDto> paginator;
     private final Grid<TechnicalOperationsDto> grid = new Grid<>(TechnicalOperationsDto.class, false);
-    private final GridConfigurer<TechnicalOperationsDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<TechnicalOperationsDto> gridConfigurer;
     private final TechnicalCardService technicalCardService;
     private final TechnicalOperationsService technicalOperationsService;
     private final Notifications notifications;
@@ -76,10 +78,12 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
     private final TechnologicalOperationsModalView view;
     private final MenuItem print;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/technologicalOperations_templates/";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     TechnologicalOperationsViewTab(TechnicalCardService technicalCardService, TechnicalOperationsService technicalOperationsService,
-                                   Notifications notifications, WarehouseService warehouseService, TechnologicalOperationsModalView view) {
+                                   Notifications notifications, WarehouseService warehouseService,
+                                   TechnologicalOperationsModalView view, ColumnsMaskService columnsMaskService) {
         this.technicalOperationsService = technicalOperationsService;
         this.notifications = notifications;
         this.warehouseService = warehouseService;
@@ -87,6 +91,7 @@ public class TechnologicalOperationsViewTab extends VerticalLayout implements Af
         this.technicalCardService = technicalCardService;
         this.data = getData();
         this.print = selectXlsTemplateButton.addItem("Печать");
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PRODUCTION_MAIN_TECHNOLOGICAL_OPERATIONS);
         paginator = new GridPaginator<>(grid, this.technicalOperationsService.getAll(), 100);
         setSizeFull();
         configureGrid();

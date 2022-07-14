@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.client.DepartmentService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.production.StagesProductionService;
 
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -45,6 +46,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PRODUCTION_MAIN_STAGE_PRODUCTION;
 import static com.trade_accounting.config.SecurityConstants.PRODUCTION_STAGES_VIEW;
 
 @SpringComponent
@@ -59,26 +61,29 @@ public class StageProductionViewTab extends VerticalLayout implements AfterNavig
     private final List<StagesProductionDto> data;
     private final GridPaginator<StagesProductionDto> paginator;
     private final Grid<StagesProductionDto> grid = new Grid<>(StagesProductionDto.class, false);
-    private final GridConfigurer<StagesProductionDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<StagesProductionDto> gridConfigurer;
     private final StagesProductionService stagesProductionService;
     private final Notifications notifications;
     private final StageProductionModalView view;
 
     private final DepartmentService departmentService;
     private final EmployeeService employeeService;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public StageProductionViewTab(StagesProductionService stagesProductionService,
                                   Notifications notifications,
                                   StageProductionModalView view,
                                   DepartmentService departmentService,
-                                  EmployeeService employeeService) {
+                                  EmployeeService employeeService,
+                                  ColumnsMaskService columnsMaskService) {
 
         this.stagesProductionService = stagesProductionService;
         this.notifications = notifications;
         this.view = view;
         this.data = getData();
         this.paginator = new GridPaginator<>(grid, this.stagesProductionService.getALl(), 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PRODUCTION_MAIN_STAGE_PRODUCTION);
         setSizeFull();
         configureGrid();
         this.filter = new GridFilter<>(grid);

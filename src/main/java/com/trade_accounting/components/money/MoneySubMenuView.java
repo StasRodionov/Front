@@ -11,6 +11,7 @@ import com.trade_accounting.services.interfaces.finance.MoneySubCashFlowService;
 import com.trade_accounting.services.interfaces.finance.MoneySubMutualSettlementsService;
 import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
@@ -41,6 +42,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     private final BalanceAdjustmentService balanceAdjustmentService;
     private final BalanceAdjustmentModalView modalView;
     private final EmployeeService employeeService;
+    private final ColumnsMaskService columnsMaskService;
 
     private final MoneySubProfitLossService moneySubProfitLossService;
 
@@ -59,7 +61,8 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
                             MoneySubProfitLossService moneySubProfitLossService,
                             ExpenseOrderModal expenseOrderModal,
                             OutgoingPaymentModal outgoingPaymentModal,
-                            EmployeeService employeeService) {
+                            EmployeeService employeeService,
+                            ColumnsMaskService columnsMaskService) {
         this.paymentService = paymentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -76,6 +79,7 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
         this.expenseOrderModal = expenseOrderModal;
         this.outgoingPaymentModal = outgoingPaymentModal;
         this.employeeService = employeeService;
+        this.columnsMaskService = columnsMaskService;
 
         div = new Div();
         add(configurationSubMenu(), div);
@@ -84,9 +88,13 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new MoneySubPaymentsView(paymentService, companyService,
-                contractorService, projectService, contractService, notifications, creditOrderModal,
-                incomingPaymentModal, expenseOrderModal, outgoingPaymentModal));
+        div.add(new MoneySubPaymentsView(
+                paymentService, companyService,
+                contractorService, projectService,
+                contractService, columnsMaskService,
+                notifications, creditOrderModal,
+                incomingPaymentModal, expenseOrderModal,
+                outgoingPaymentModal));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -110,23 +118,40 @@ public class MoneySubMenuView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Платежи":
                     div.removeAll();
-                    div.add(new MoneySubPaymentsView(paymentService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal, incomingPaymentModal, expenseOrderModal, outgoingPaymentModal));
+                    div.add(new MoneySubPaymentsView(
+                            paymentService, companyService,
+                            contractorService, projectService,
+                            contractService, columnsMaskService,
+                            notifications, creditOrderModal,
+                            incomingPaymentModal, expenseOrderModal,
+                            outgoingPaymentModal));
                     break;
                 case "Движение денежных средств":
                     div.removeAll();
-                    div.add(new MoneySubCashFlowView(moneySubCashFlowService, companyService, contractorService, projectService, contractService, notifications, creditOrderModal));
+                    div.add(new MoneySubCashFlowView(
+                            moneySubCashFlowService, companyService,
+                            contractorService, projectService,
+                            contractService, columnsMaskService,
+                            notifications, creditOrderModal));
                     break;
                 case "Прибыли и убытки":
                     div.removeAll();
-                    div.add(new MoneySubProfitLossView(moneySubProfitLossService, employeeService, companyService));
+                    div.add(new MoneySubProfitLossView(
+                            moneySubProfitLossService, employeeService,
+                            companyService, columnsMaskService));
                     break;
                 case "Взаиморасчеты":
                     div.removeAll();
-                    div.add(new MoneySubMutualSettlementsView(moneySubMutualSettlementsService));
+                    div.add(new MoneySubMutualSettlementsView(
+                            moneySubMutualSettlementsService, columnsMaskService));
                     break;
                 case "Корректировки":
                     div.removeAll();
-                    div.add(new MoneySubBalanceAdjustmentView(balanceAdjustmentService, companyService, contractorService, notifications, modalView, projectService, contractService, paymentService));
+                    div.add(new MoneySubBalanceAdjustmentView(
+                            balanceAdjustmentService, companyService,
+                            contractorService, notifications,
+                            modalView, projectService, contractService,
+                            paymentService, columnsMaskService));
                     break;
             }
         });

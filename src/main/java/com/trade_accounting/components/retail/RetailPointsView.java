@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.retail.RetailPointsDto;
 import com.trade_accounting.services.interfaces.util.BonusProgramService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.retail.RetailPointsService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.TaskService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -40,6 +41,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_POINTS;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_POINTS_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -56,13 +58,15 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
     private final RetailPointsModalWindow retailPointsModalWindow;
     private List<RetailPointsDto> data;
     private final Grid<RetailPointsDto> grid = new Grid<>(RetailPointsDto.class, false);
-    private final GridConfigurer<RetailPointsDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<RetailPointsDto> gridConfigurer;
     private final GridFilter<RetailPointsDto> filter;
     private final GridPaginator<RetailPointsDto> paginator;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailPointsView(RetailPointsService retailPointsService, BonusProgramService bonusProgramService,
-                            ContractorService contractorService, TaskService taskService) {
+                            ContractorService contractorService, TaskService taskService,
+                            ColumnsMaskService columnsMaskService) {
         this.retailPointsService = retailPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -70,6 +74,7 @@ public class RetailPointsView extends VerticalLayout implements AfterNavigationO
         this.data = retailPointsService.getAll();
         this.retailPointsModalWindow = new RetailPointsModalWindow(retailPointsService);
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_POINTS);
         configureGrid();
 
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);

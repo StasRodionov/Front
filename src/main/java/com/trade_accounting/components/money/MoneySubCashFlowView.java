@@ -15,6 +15,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.finance.MoneySubCashFlowService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 
 import com.vaadin.flow.component.button.Button;
@@ -37,6 +38,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_MONEY_MAIN_CASH_FLOW;
+
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = MONEY_MONEY_SUB_CASE_FLOW_VIEW, layout = AppView.class)
@@ -51,7 +54,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
 
     private List<MoneySubCashFlowDto> data;
     private final Grid<MoneySubCashFlowDto> grid = new Grid<>(MoneySubCashFlowDto.class, false);
-    private final GridConfigurer<MoneySubCashFlowDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<MoneySubCashFlowDto> gridConfigurer;
     private final GridPaginator<MoneySubCashFlowDto> paginator;
     private final CreditOrderModal creditOrderModal;
     private HorizontalLayout toolbarWithFilters;
@@ -61,7 +64,8 @@ public class MoneySubCashFlowView extends VerticalLayout {
     private Long contractorId;
     private LocalDate departureDate;
     private LocalDate returnDate;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private H2 title() {
         H2 title = new H2("Движение денежных средств");
@@ -74,6 +78,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
                                 ContractorService contractorService,
                                 ProjectService projectService,
                                 ContractService contractService,
+                                ColumnsMaskService columnsMaskService,
                                 Notifications notifications,
                                 CreditOrderModal creditOrderModal) {
         this.moneySubCashFlowService = moneySubCashFlowService;
@@ -83,6 +88,7 @@ public class MoneySubCashFlowView extends VerticalLayout {
         this.projectService = projectService;
         this.creditOrderModal = creditOrderModal;
         this.toolbarWithFilters = getToolbarWithFilters();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_MONEY_MAIN_CASH_FLOW);
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         //configureFilter();

@@ -13,6 +13,7 @@ import com.trade_accounting.models.dto.warehouse.AcceptanceProductionDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
@@ -71,6 +72,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PURCHASES_MAIN_ACCEPTANCES;
+
 @Slf4j
 //@Route(value = PURCHASES_ADMISSIONS_VIEW, layout = AppView.class)
 //@PageTitle("Приемки")
@@ -89,7 +92,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final AcceptanceModalView modalView;
     private List<AcceptanceDto> data;
     private final Grid<AcceptanceDto> grid = new Grid<>(AcceptanceDto.class, false);
-    private final GridConfigurer<AcceptanceDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<AcceptanceDto> gridConfigurer;
     private GridPaginator<AcceptanceDto> paginator;
     private final GridFilter<AcceptanceDto> filter;
     private final TextField textField = new TextField();
@@ -97,7 +100,8 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
     private final AddFromDirectModalWin addFromDirectModalWin;
     private final ProductService productService;
     private final AcceptanceProductionService acceptanceProductionService;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchases";
     private final String textForQuestionButton = "<div><p>Приемки позволяют учитывать закупки товаров." +
             "Приемку создают, когда покупают новый товар." +
@@ -117,7 +121,8 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
                                    AddFromDirectModalWin addFromDirectModalWin,
                                    ProductService productService,
                                    AcceptanceProductionService acceptanceProductionService,
-                                   ProjectService projectService) {
+                                   ProjectService projectService,
+                                   ColumnsMaskService columnsMaskService) {
         this.employeeService = employeeService;
         this.companyService = companyService;
         this.acceptanceService = acceptanceService;
@@ -130,6 +135,7 @@ public class PurchasesSubAcceptances extends VerticalLayout implements AfterNavi
         this.projectService = projectService;
         this.modalView = modalView;
         this.addFromDirectModalWin = addFromDirectModalWin;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PURCHASES_MAIN_ACCEPTANCES);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

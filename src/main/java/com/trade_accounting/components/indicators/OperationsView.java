@@ -16,6 +16,7 @@ import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -41,6 +42,7 @@ import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -148,6 +150,7 @@ public class OperationsView extends VerticalLayout implements AfterNavigationObs
     private final PriceListProductPercentsService priceListProductPercentsService;
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
+    private final GridConfigurer<OperationsDto> gridConfigurer;
     private final GridPaginator<OperationsDto> paginator;
     private final GridFilter<OperationsDto> filter;
     private final TextField textField = new TextField();
@@ -162,6 +165,9 @@ public class OperationsView extends VerticalLayout implements AfterNavigationObs
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
     private List<Long> priceListIds;
+
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public OperationsView(CreditOrderModal creditOrderModal,
@@ -183,6 +189,7 @@ public class OperationsView extends VerticalLayout implements AfterNavigationObs
                           InternalOrderProductsDtoService internalOrderProductsDtoService,
                           PaymentService paymentService, ContractorService contractorService,
                           CorrectionService correctionService,
+                          ColumnsMaskService columnsMaskService,
                           CorrectionProductService correctionProductService,
                           InventarizationService inventarizationService,
                           InventarizationProductService inventarizationProductService,
@@ -230,6 +237,7 @@ public class OperationsView extends VerticalLayout implements AfterNavigationObs
         this.priceListService = priceListService;
         this.priceListProductPercentsService = priceListProductPercentsService;
         this.notifications = notifications;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_INDICATORS_MAIN_DOCUMENTS);
         List<OperationsDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -259,20 +267,36 @@ public class OperationsView extends VerticalLayout implements AfterNavigationObs
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("40px").setHeader("ID").setResizable(true).setId("ID");
-        grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true).setId("Дата");
-        grid.addColumn(operationsDto->companyService.getById(operationsDto.getCompanyId()).getName()).setKey("company").setHeader("Организация").setResizable(true).setId("Организация");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано").setId("Напечатано");
-        grid.addColumn(this::getType).setHeader("Тип документа").setResizable(true).setSortable(true).setId("Тип документа");
-        grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true).setId("Сумма");
-        grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада").setSortable(true).setId("Со склада");
-        grid.addColumn(this::getDWarehouseTo).setHeader("На склад").setSortable(true).setId("На склад");
-        grid.addColumn(this::getContractor).setHeader("Контрагент").setResizable(true).setSortable(true).setId("Контрагент");
-        grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn(OperationsDto::getDate).setHeader("Дата и время").setKey("date").setId("Дата и время");
+        grid.addColumn(operationsDto->companyService.getById(operationsDto.getCompanyId()).getName()).setHeader("Организация")
+                .setKey("company").setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
+                .setKey("sent")
+                .setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
+                .setKey("print")
+                .setId("Напечатано");
+        grid.addColumn(this::getType).setHeader("Тип документа")
+                .setId("Тип документа");
+        grid.addColumn(this::getTotalPrice).setHeader("Сумма")
+                .setId("Сумма");
+        grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада")
+                .setId("Со склада");
+        grid.addColumn(this::getDWarehouseTo).setHeader("На склад")
+                .setId("На склад");
+        grid.addColumn(this::getContractor).setHeader("Контрагент")
+                .setId("Контрагент");
+        grid.addColumn("comment").setHeader("Комментарий")
+                .setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(e-> {
             OperationsDto dto = e.getItem();
             openModalWindow(dto);

@@ -13,6 +13,7 @@ import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.invoice.InternalOrderProductsDtoService;
 import com.trade_accounting.services.interfaces.invoice.InternalOrderService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -56,6 +57,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_INTERNAL_ORDER_VIEW;
+import static com.trade_accounting.config.SecurityConstants.GRID_GOODS_MAIN_INTERNAL_ORDER;
 
 @Slf4j
 @Route(value = GOODS_INTERNAL_ORDER_VIEW, layout = AppView.class)
@@ -71,7 +73,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final InternalOrderProductsDtoService internalOrderProductsDtoService;
     private final ProductService productService;
     private final Grid<InternalOrderDto> grid = new Grid<>(InternalOrderDto.class, false);
-    private final GridConfigurer<InternalOrderDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<InternalOrderDto> gridConfigurer;
     private final GridPaginator<InternalOrderDto> paginator;
     private final GridFilter<InternalOrderDto> filter;
     private final Notifications notifications;
@@ -80,12 +82,14 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private final TitleForModal titleForEdit;
     private final TitleForModal titleForСreate;
     private final TitleForModal titleForEditSelected;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public GoodsSubInternalOrder(CompanyService companyService,
                                  WarehouseService warehouseService,
                                  InternalOrderService internalOrderService,
+                                 ColumnsMaskService columnsMaskService,
                                  Notifications notifications, InternalOrderModalView modalView, GoodsModalWindow goodsModalWindow,
                                  InternalOrderProductsDtoService internalOrderProductsDtoService, ProductService productService
     ) {
@@ -97,6 +101,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
         this.modalView = modalView;
         this.goodsModalWindow = goodsModalWindow;
         this.notifications = notifications;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_INTERNAL_ORDER);
         titleForEdit = new TitleForModal("Редактирование внутреннего заказа");
         titleForСreate = new TitleForModal("Добавление внутреннего заказа");
         titleForEditSelected = new TitleForModal("Массовое редактирование заказов");

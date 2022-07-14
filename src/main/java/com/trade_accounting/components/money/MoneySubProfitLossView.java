@@ -9,6 +9,7 @@ import com.trade_accounting.models.dto.finance.MoneySubProfitLossDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.MoneySubProfitLossService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -36,6 +37,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_MONEY_MAIN_PROFIT_LOSS;
 import static com.trade_accounting.config.SecurityConstants.MONEY_MONEY_SUB_PROFIT_LOSS_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -57,18 +59,20 @@ public class MoneySubProfitLossView extends VerticalLayout {
     private GridConfigurer<MoneyArticleProfitLossDto> gridConfigurer;
     private final EmployeeService employeeService;
     private HorizontalLayout filter;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public MoneySubProfitLossView(MoneySubProfitLossService moneySubProfitLossService,
                                   EmployeeService employeeService,
-                                  CompanyService companyService) {
+                                  CompanyService companyService,
+                                  ColumnsMaskService columnsMaskService) {
         this.moneySubProfitLossService = moneySubProfitLossService;
         this.data = getData();
         this.companyService = companyService;
         this.employeeService = employeeService;
         this.listDataView = new ArrayList<>();
         this.grid = new Grid<>(MoneyArticleProfitLossDto.class, false);
-        this.gridConfigurer = new GridConfigurer<>(grid);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_MONEY_MAIN_PROFIT_LOSS);
         this.filter = new HorizontalLayout();
         configureListDataView();
         configureGrid();

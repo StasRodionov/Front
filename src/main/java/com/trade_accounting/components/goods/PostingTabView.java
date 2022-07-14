@@ -14,6 +14,7 @@ import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.CorrectionProductService;
 import com.trade_accounting.services.interfaces.finance.CorrectionService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
@@ -73,13 +74,14 @@ public class PostingTabView extends VerticalLayout implements AfterNavigationObs
     private final List<CorrectionDto> data;
 
     private final Grid<CorrectionDto> grid = new Grid<>(CorrectionDto.class, false);
-    private final GridConfigurer<CorrectionDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<CorrectionDto> gridConfigurer;
     private GridPaginator<CorrectionDto> paginator;
     private final GridFilter<CorrectionDto> filter;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public PostingTabView(CorrectionService correctionService,
@@ -91,6 +93,7 @@ public class PostingTabView extends VerticalLayout implements AfterNavigationObs
                           ProductService productService,
                           ProductSelectModal productSelectModal,
                           ProductPriceService productPriceService,
+                          ColumnsMaskService columnsMaskService,
                           PostingModal modalWindow) {
         this.correctionService = correctionService;
         this.warehouseService = warehouseService;
@@ -103,6 +106,7 @@ public class PostingTabView extends VerticalLayout implements AfterNavigationObs
         this.productPriceService = productPriceService;
         this.productSelectModal = productSelectModal;
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_POSTING);
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
         configureGrid();

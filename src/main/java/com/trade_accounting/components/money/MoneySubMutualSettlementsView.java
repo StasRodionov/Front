@@ -8,6 +8,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.finance.MoneySubMutualSettlementsDto;
 import com.trade_accounting.services.interfaces.finance.MoneySubMutualSettlementsService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -27,6 +28,7 @@ import com.vaadin.flow.router.Route;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_MONEY_MAIN_MUTUAL_SETTLEMENTS_WITH_CONTRACTORS;
 import static com.trade_accounting.config.SecurityConstants.MONEY_MONEY_SUB_MUTUAL_SETTLEMENTS_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -38,10 +40,11 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
 
     private final List<MoneySubMutualSettlementsDto> data;
     private final Grid<MoneySubMutualSettlementsDto> grid = new Grid<>(MoneySubMutualSettlementsDto.class, false);
-    private final GridConfigurer<MoneySubMutualSettlementsDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<MoneySubMutualSettlementsDto> gridConfigurer;
     private final GridFilter<MoneySubMutualSettlementsDto> filter;
     GridPaginator<MoneySubMutualSettlementsDto> paginator;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private H2 title() {
         H2 title = new H2("Взаиморасчеты");
@@ -49,8 +52,10 @@ public class MoneySubMutualSettlementsView extends VerticalLayout {
         return title;
     }
 
-    public MoneySubMutualSettlementsView(MoneySubMutualSettlementsService moneySubMutualSettlementsService) {
+    public MoneySubMutualSettlementsView(MoneySubMutualSettlementsService moneySubMutualSettlementsService,
+                                         ColumnsMaskService columnsMaskService) {
         this.moneySubMutualSettlementsService = moneySubMutualSettlementsService;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_MONEY_MAIN_MUTUAL_SETTLEMENTS_WITH_CONTRACTORS);
         configureGrid();
         this.data = moneySubMutualSettlementsService.getAll();
         this.paginator = new GridPaginator<>(grid, data, 100);

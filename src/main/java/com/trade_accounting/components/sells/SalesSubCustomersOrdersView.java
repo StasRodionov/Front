@@ -19,6 +19,7 @@ import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -95,18 +96,20 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
 
     private List<InvoiceDto> data;
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
-    private final GridConfigurer<InvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<InvoiceDto> gridConfigurer;
     private final GridPaginator<InvoiceDto> paginator;
     private final GridFilter<InvoiceDto> filter;
 
     private final String typeOfInvoice = "RECEIPT";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/sales_templates/";
 
     @Autowired
     public SalesSubCustomersOrdersView(CompanyService companyService, ContractorService contractorService,
                                        InvoiceService invoiceService, EmployeeService employeeService,
                                        InvoicesStatusService invoicesStatusService, ProjectService projectService,
+                                       ColumnsMaskService columnsMaskService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
                                        @Lazy Notifications notifications) {
         this.companyService = companyService;
@@ -117,6 +120,7 @@ public class SalesSubCustomersOrdersView extends VerticalLayout implements After
         this.invoicesStatusService = invoicesStatusService;
         this.notifications = notifications;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_SALES_MAIN_CUSTOMERS_ORDERS);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

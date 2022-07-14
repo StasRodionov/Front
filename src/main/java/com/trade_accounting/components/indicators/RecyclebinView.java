@@ -16,6 +16,7 @@ import com.trade_accounting.components.purchases.SupplierAccountModalView;
 import com.trade_accounting.components.sells.SalesEditCreateInvoiceView;
 import com.trade_accounting.components.sells.SalesEditShipmentView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -45,6 +46,7 @@ import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.company.SupplierAccountDto;
 import com.trade_accounting.services.interfaces.company.PriceListProductPercentsService;
 import com.trade_accounting.services.interfaces.company.PriceListService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceProductionService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
@@ -149,6 +151,7 @@ public class RecyclebinView extends VerticalLayout {
     private final PriceListProductPercentsService priceListProductPercentsService;
     private final Notifications notifications;
     private final Grid<OperationsDto> grid = new Grid<>(OperationsDto.class, false);
+    private final GridConfigurer<OperationsDto> gridConfigurer;
     private final GridPaginator<OperationsDto> paginator;
     private final GridFilter<OperationsDto> filter;
     private final TextField textField = new TextField();
@@ -164,6 +167,9 @@ public class RecyclebinView extends VerticalLayout {
     private List<Long> supplierAccountIds;
     private List<Long> shipmentIds;
     private List<Long> priceListIds;
+
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public RecyclebinView(CreditOrderModal creditOrderModal,
@@ -204,6 +210,7 @@ public class RecyclebinView extends VerticalLayout {
                           ShipmentProductService shipmentProductService,
                           PriceListService priceListService,
                           PriceListProductPercentsService priceListProductPercentsService,
+                          ColumnsMaskService columnsMaskService,
                           Notifications notifications) {
         this.creditOrderModal = creditOrderModal;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
@@ -244,6 +251,7 @@ public class RecyclebinView extends VerticalLayout {
         this.priceListService = priceListService;
         this.priceListProductPercentsService = priceListProductPercentsService;
         this.notifications = notifications;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_INDICATORS_MAIN_RECYCLEBIN);
         List<OperationsDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -278,20 +286,31 @@ public class RecyclebinView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn("id").setWidth("40px").setHeader("ID").setResizable(true).setId("ID");
-        grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата").setSortable(true);
-        grid.addColumn(operationsDto -> companyService.getById(operationsDto.getCompanyId()).getName()).setKey("company").setHeader("Организация").setResizable(true).setId("Организация");
-        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setKey("sent").setHeader("Отправлено").setId("Отправлено");
-        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setKey("print").setHeader("Напечатано").setId("Напечатано");
-        grid.addColumn(this::getType).setHeader("Тип документа").setSortable(true);
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn("id").setHeader("ID").setId("ID");
+        grid.addColumn(OperationsDto::getDate).setKey("date").setHeader("Дата и время").setId("Дата и время");
+        grid.addColumn(operationsDto -> companyService.getById(operationsDto.getCompanyId()).getName()).setHeader("Организация")
+                .setKey("company")
+                .setId("Организация");
+        grid.addColumn(new ComponentRenderer<>(this::getIsSentIcon)).setHeader("Отправлено")
+                .setKey("sent")
+                .setId("Отправлено");
+        grid.addColumn(new ComponentRenderer<>(this::getIsPrintIcon)).setHeader("Напечатано")
+                .setKey("print")
+                .setId("Напечатано");
+        grid.addColumn(this::getType).setHeader("Тип документа").setId("Тип документа");
         // grid.addColumn(this::getTotalPrice).setHeader("Сумма").setSortable(true);
-        grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада").setSortable(true);
-        grid.addColumn(this::getDWarehouseTo).setHeader("На склад").setSortable(true);
-        grid.addColumn(this::getContractor).setHeader("Контрагент").setSortable(true);
+        grid.addColumn(this::getDWarehouseFrom).setHeader("Со склада").setId("Со склада");
+        grid.addColumn(this::getDWarehouseTo).setHeader("На склад").setId("На склад");
+        grid.addColumn(this::getContractor).setHeader("Контрагент").setId("Контрагент");
         grid.addColumn("comment").setHeader("Комментарий").setId("Комментарий");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(e -> {
             OperationsDto dto = e.getItem();
             openModalWindow(dto);

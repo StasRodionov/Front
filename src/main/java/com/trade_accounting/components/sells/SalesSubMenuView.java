@@ -5,6 +5,7 @@ import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.services.interfaces.company.ContractorStatusService;
 import com.trade_accounting.services.interfaces.finance.FunnelService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
@@ -78,6 +79,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {  
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
     private final ContractorStatusService contractorStatusService;
     private final FunnelService funnelService;
+    private final ColumnsMaskService columnsMaskService;
 
     private final Tab customerOrdersLayout = new Tab("Заказы покупателей");
     private final Tab invoicesToBuyersLayout = new Tab("Счета покупателям");
@@ -105,6 +107,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {  
                             IssuedInvoiceService issuedInvoiceService,
                             PaymentService paymentService,
                             SalesSubGoodsForSaleService salesSubGoodsForSaleService,
+                            ColumnsMaskService columnsMaskService,
                             @Lazy SalesSubCustomersOrdersView salesSubCustomersOrdersView,
                             @Lazy SalesSubShipmentView salesSubShipmentView,
                             @Lazy SalesSubInvoicesToBuyersView salesSubInvoicesToBuyersView,
@@ -121,6 +124,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {  
                             ShipmentProductService shipmentProductService,
                             InvoicesStatusService invoicesStatusService, SalesEditCreateInvoiceView salesEditCreateInvoiceView, ContractorStatusService contractorStatusService, FunnelService funnelService) {
         this.contractService = contractService;
+        this.columnsMaskService = columnsMaskService;
         this.shipmentService = shipmentService;
         this.shipmentProductService = shipmentProductService;
         this.invoiceProductService = invoiceProductService;
@@ -222,28 +226,33 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {  
         } else if (shipmentLayout.equals(pressedTab)) {
             div.add(salesSubShipmentView);
         } else if (agentReportsLayout.equals(pressedTab)) {
-            div.add(new SalesSubAgentReportsView(invoiceService, contractorService, companyService, warehouseService, commissionAgentReportModalView, notifications, contractService));
+            div.add(new SalesSubAgentReportsView(
+                    invoiceService, contractorService,
+                    companyService, warehouseService,
+                    columnsMaskService, commissionAgentReportModalView,
+                    notifications, contractService));
         } else if (buyersReturnsLayout.equals(pressedTab)) {
             salesSubBuyersReturnsView.updateData();
             div.add(salesSubBuyersReturnsView);
         } else if (issuedInvoicesLayout.equals(pressedTab)) {
-            div.add(new SalesSubIssuedInvoicesView(issuedInvoiceService, companyService, contractorService, paymentService));
+            div.add(new SalesSubIssuedInvoicesView(
+                    issuedInvoiceService, companyService,
+                    contractorService, paymentService,
+                    columnsMaskService));
         } else if (profitabilityLayout.equals(pressedTab)) {
             div.add(new SalesSubProfitabilityView(
-                    invoiceService,
-                    companyService,
-                    contractorService,
-                    invoiceProductService,
-                    productService,
-                    buyersReturnService,
-                    returnAmountByProductService,
-                    employeeService,
-                    positionService,
-                    retailStoreService));
+                    invoiceService, companyService,
+                    contractorService, invoiceProductService,
+                    productService, buyersReturnService,
+                    returnAmountByProductService, employeeService,
+                    positionService, retailStoreService,
+                    columnsMaskService));
         } else if (goodsForSaleLayout.equals(pressedTab)) {
             div.add(new SalesSubGoodsForSaleView(salesSubGoodsForSaleService, productService));
         } else if (salesFunnelLayout.equals(pressedTab)) {
-            div.add(new SalesSubSalesFunnelView(contractorStatusService, invoicesStatusService, funnelService));
+            div.add(new SalesSubSalesFunnelView(
+                    contractorStatusService, invoicesStatusService,
+                    funnelService, columnsMaskService));
         }
 
         this.currentTab = pressedTab;

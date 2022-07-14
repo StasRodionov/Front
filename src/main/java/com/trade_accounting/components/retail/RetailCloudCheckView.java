@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.units.CurrencyService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.retail.RetailCloudCheckService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_CLOUD_CHECKS;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_CLOUD_CHECK_VIEW;
 
 @Slf4j
@@ -59,11 +61,17 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
     private List<RetailCloudCheckDto> data;
     private final GridFilter<RetailCloudCheckDto> filter;
     private final Grid<RetailCloudCheckDto> grid = new Grid<>(RetailCloudCheckDto.class, false);
-    private final GridConfigurer<RetailCloudCheckDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<RetailCloudCheckDto> gridConfigurer;
     private final GridPaginator<RetailCloudCheckDto> paginator;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService, CurrencyService currencyService, RetailStoreService retailStoreService, EmployeeService employeeService, RetailEventLogService retailEventLogService) {
+    public RetailCloudCheckView(RetailCloudCheckService retailCloudCheckService,
+                                CurrencyService currencyService,
+                                RetailStoreService retailStoreService,
+                                EmployeeService employeeService,
+                                RetailEventLogService retailEventLogService,
+                                ColumnsMaskService columnsMaskService) {
         this.retailCloudCheckService = retailCloudCheckService;
         this.data = getData();
         this.currencyService = currencyService;
@@ -71,6 +79,7 @@ public class RetailCloudCheckView extends VerticalLayout implements AfterNavigat
         this.employeeService = employeeService;
         this.paginator = new GridPaginator<>(grid, data, 100);
         this.retailEventLogService = retailEventLogService;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_CLOUD_CHECKS);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

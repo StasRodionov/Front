@@ -2,11 +2,13 @@ package com.trade_accounting.components.indicators;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.util.FileDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.FileService;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -58,14 +60,19 @@ import static com.trade_accounting.config.SecurityConstants.*;
 public class DocumentsView extends VerticalLayout {
 
     private final Grid<FileDto> grid = new Grid<>(FileDto.class, false);
+    private final GridConfigurer<FileDto> gridConfigurer;
     private final GridPaginator<FileDto> paginator;
     private final GridFilter<FileDto> filter;
     private final FileService fileService;
     private final EmployeeService employeeService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public DocumentsView(FileService fileService, EmployeeService employeeService) {
+    public DocumentsView(FileService fileService, EmployeeService employeeService,
+                         ColumnsMaskService columnsMaskService) {
         this.employeeService = employeeService;
         this.fileService = fileService;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_INDICATORS_MAIN_FILES);
         List<FileDto> files = fileService.getAll();
         configureGrid();
         this.filter = new GridFilter<>(grid);
@@ -76,7 +83,7 @@ public class DocumentsView extends VerticalLayout {
 
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.addThemeVariants(GRID_STYLE);
         grid.removeAllColumns();
         Grid.Column<FileDto> photoColumn = grid.addColumn(new ComponentRenderer<>() {
             @Override
@@ -117,8 +124,14 @@ public class DocumentsView extends VerticalLayout {
                 .setKey("uploadDateTime").setHeader("Добавлен").setSortable(true).setId("Добавлен");
         grid.addColumn(FileDto::getEmployee).setKey("employee").setHeader("Сотрудник").setSortable(true).setId("Сотрудник");
         grid.addComponentColumn(this::createRemoveButton).setHeader("Удалить");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        grid.getColumnByKey("content").setSortable(false);
+        grid.getColumnByKey("button").setSortable(false);
+
+        gridConfigurer.addConfigColumnToGrid();
         grid.setHeight("64vh");
         grid.setWidth("80%");
+        grid.setColumnReorderingAllowed(true);
     }
 
 

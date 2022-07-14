@@ -27,6 +27,7 @@ import com.trade_accounting.services.interfaces.purchases.PurchaseControlService
 import com.trade_accounting.services.interfaces.purchases.PurchaseCurrentBalanceService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseForecastService;
 import com.trade_accounting.services.interfaces.purchases.PurchaseHistoryOfSalesService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
@@ -95,6 +96,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PURCHASES_MAIN_PURCHASING_MANAGEMENT;
+
 @Slf4j
 @SpringComponent
 @UIScope
@@ -113,7 +116,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private final MenuItem print;
     private final MenuBar selectXlsTemplateButton = new MenuBar();
     private final String typeOfInvoice = "EXPENSE";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private VerticalLayout toolbarWithFilters;
     private final CompanyService companyService;
@@ -144,7 +148,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
     private List<PurchaseControlDto> purchaseControl;
     private HorizontalLayout actions;
     private final Grid<PurchaseControlDto> grid = new Grid<>(PurchaseControlDto.class, false);
-    private final GridConfigurer<PurchaseControlDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<PurchaseControlDto> gridConfigurer;
     private GridPaginator<PurchaseControlDto> paginator;
     private final GridFilter<PurchaseControlDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/purchasesManagement/";
@@ -165,7 +169,8 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                                             WarehouseService warehouseService,
                                             InvoicesStatusService invoicesStatusService,
                                             InvoiceService invoiceService,
-                                            InvoiceProductService invoiceProductService) {
+                                            InvoiceProductService invoiceProductService,
+                                            ColumnsMaskService columnsMaskService) {
         this.productService = productService;
         this.employeeService = employeeService;
         this.purchaseControlService = purchaseControlService;
@@ -182,6 +187,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         this.invoiceProductService = invoiceProductService;
         this.toolbarWithFilters = ToolbarFilters();
         print = selectXlsTemplateButton.addItem("Печать");
+        gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PURCHASES_MAIN_PURCHASING_MANAGEMENT);
 
         loadSupplierAccounts();
         configureActions();
@@ -225,7 +231,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 "несколько заказов на поставщиков, указанных в карточках " +
                 "товаров.");
     }
-
 
     public VerticalLayout ToolbarFilters() {
         VerticalLayout filterToolbar = new VerticalLayout();
@@ -472,8 +477,6 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
         grid.getColumnByKey("article_number").setTextAlign(ColumnTextAlign.START);
         grid.getColumnByKey("product_measure").setTextAlign(ColumnTextAlign.START);
 
-        gridConfigurer.addConfigColumnToGrid();
-
         HeaderRow groupingHeader2 = grid.prependHeaderRow();
 
         groupingHeader2.
@@ -514,6 +517,7 @@ public class PurchasesSubPurchasingManagement extends VerticalLayout implements 
                 )
                 .setComponent(new Label("Прогноз"));
 
+        gridConfigurer.addConfigColumnToGrid();
         grid.setHeight("66vh");
         grid.setColumnReorderingAllowed(true);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);

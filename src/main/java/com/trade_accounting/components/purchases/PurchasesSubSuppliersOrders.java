@@ -20,6 +20,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -33,7 +34,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -94,10 +94,12 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     private List<InvoiceDto> data;
 
     private final String typeOfInvoice = "EXPENSE";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private final Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
-    private final GridConfigurer<InvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<InvoiceDto> gridConfigurer;
+
     private GridPaginator<InvoiceDto> paginator;
     private GridFilter<InvoiceDto> filter;
     private final TextField textField = new TextField();
@@ -107,8 +109,9 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
     @Autowired
     public PurchasesSubSuppliersOrders(ContractorService contractorService, CompanyService companyService,
                                        InvoiceService invoiceService, ProjectService projectService,
+                                       EmployeeService employeeService, ColumnsMaskService columnsMaskService,
                                        @Lazy SalesEditCreateInvoiceView salesEditCreateInvoiceView,
-                                       @Lazy Notifications notifications, EmployeeService employeeService) {
+                                       @Lazy Notifications notifications) {
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.projectService = projectService;
@@ -116,6 +119,7 @@ public class PurchasesSubSuppliersOrders extends VerticalLayout implements After
         this.invoiceService = invoiceService;
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.notifications = notifications;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PURCHASES_MAIN_SUPPLIERS_ORDERS);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

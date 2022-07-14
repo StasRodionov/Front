@@ -16,6 +16,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -53,7 +54,7 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
 
-import static com.trade_accounting.config.SecurityConstants.SELLS_AGENT_REPORTS_VIEW;
+import static com.trade_accounting.config.SecurityConstants.*;
 
 @Slf4j
 @Route(value = SELLS_AGENT_REPORTS_VIEW, layout = AppView.class)
@@ -71,19 +72,21 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
     private final ContractService contractService;
     private HorizontalLayout actions;
     private Grid<InvoiceDto> grid = new Grid<>(InvoiceDto.class, false);
-    private final GridConfigurer<InvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<InvoiceDto> gridConfigurer;
     private final GridPaginator<InvoiceDto> paginator;
     private CommissionAgentReportModalView commissionAgentReportModalView;
 
     private final GridFilter<InvoiceDto> filter;
 
     private final String typeOfInvoice = "RECEIPT";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public SalesSubAgentReportsView(InvoiceService invoiceService,
                                     ContractorService contractorService,
                                     CompanyService companyService,
                                     WarehouseService warehouseService,
+                                    ColumnsMaskService columnsMaskService,
                                     CommissionAgentReportModalView commissionAgentReportModalView,
                                     Notifications notifications, ContractService contractService) {
         this.invoiceService = invoiceService;
@@ -95,6 +98,7 @@ public class SalesSubAgentReportsView extends VerticalLayout implements AfterNav
         this.contractService = contractService;
 
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_SALES_MAIN_AGENT_REPORTS);
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);

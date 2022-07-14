@@ -15,6 +15,7 @@ import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.MovementProductService;
 import com.trade_accounting.services.interfaces.warehouse.MovementService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
@@ -54,6 +55,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_MOVEMENT_VIEW;
+import static com.trade_accounting.config.SecurityConstants.GRID_GOODS_MAIN_MOVEMENT;
 
 @SpringComponent
 @PageTitle("Перемещения")
@@ -74,13 +76,14 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
     private final EmployeeService employeeService;
 
     private final Grid<MovementDto> grid = new Grid<>(MovementDto.class, false);
-    private final GridConfigurer<MovementDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<MovementDto> gridConfigurer;
     private final GridPaginator<MovementDto> paginator;
     private final GridFilter<MovementDto> filter;
 
     private final TextField textField = new TextField();
     private final MenuBar selectXlsTemplateButton = new MenuBar();
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public MovementView(MovementService movementService,
@@ -93,7 +96,8 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
                         ProductService productService,
                         LegalDetailService legalDetailService,
                         BankAccountService bankAccountService,
-                        EmployeeService employeeService) {
+                        EmployeeService employeeService,
+                        ColumnsMaskService columnsMaskService) {
         this.movementService = movementService;
         this.warehouseService = warehouseService;
         this.companyService = companyService;
@@ -105,6 +109,7 @@ public class MovementView extends VerticalLayout implements AfterNavigationObser
         this.legalDetailService = legalDetailService;
         this.bankAccountService = bankAccountService;
         this.employeeService = employeeService;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_MOVEMENT);
         List<MovementDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
