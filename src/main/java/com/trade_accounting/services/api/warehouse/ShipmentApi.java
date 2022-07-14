@@ -30,7 +30,7 @@ public interface ShipmentApi {
 
     @Headers("Accept: application/json")
     @POST("{url}")
-    Call<ShipmentDto> create(@Path(value = "url", encoded = true) String url, @Body ShipmentDto shipmentDto);
+    Call<Void> create(@Path(value = "url", encoded = true) String url, @Body ShipmentDto shipmentDto);
 
     @Headers("Accept: application/json")
     @PUT("{url}")

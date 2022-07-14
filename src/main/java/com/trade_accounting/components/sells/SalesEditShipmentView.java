@@ -1,16 +1,19 @@
 package com.trade_accounting.components.sells;
 
 import com.trade_accounting.components.AppView;
+import com.trade_accounting.components.profile.SalesChannelModalWindow;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
+import com.trade_accounting.models.dto.units.SalesChannelDto;
 import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentDto;
 import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.ShipmentProductService;
@@ -49,6 +52,8 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -63,17 +68,20 @@ import static com.trade_accounting.config.SecurityConstants.SELLS_SELLS__SHIPMEN
 @SpringComponent
 @UIScope
 public class SalesEditShipmentView extends VerticalLayout{
+    private final SalesSubMenuView salesSubMenuView;
     private final ProductService productService;
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final ProjectService projectService;
     private final WarehouseService warehouseService;
     private final ShipmentService invoiceService;
+    private final SalesChannelService salesChannelService;
     private final Notifications notifications;
     private final UnitService unitService;
     private final ShipmentProductService shipmentProductService;
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
+    private static final String SALES_CHANNEL_FIELD_WIDTH = "300px";
     private final TextField invoiceIdField = new TextField();
     private final DateTimePicker dateField = new DateTimePicker();
     private final Checkbox isSpend = new Checkbox("Проведено");
@@ -81,6 +89,7 @@ public class SalesEditShipmentView extends VerticalLayout{
     public final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
     public final ComboBox<ProjectDto> projectSelect = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
+    private final ComboBox<SalesChannelDto> salesChannelSelect = new ComboBox<>();
     private final Button buttonDelete = new Button("Удалить", new Icon(VaadinIcon.TRASH));
     private final H4 totalPrice = new H4();
     private final H2 title = new H2("Добавление отгрузки");
@@ -103,7 +112,9 @@ public class SalesEditShipmentView extends VerticalLayout{
                                  ShipmentService invoiceService,
                                  Notifications notifications,
                                  UnitService unitService,
-                                 ShipmentProductService shipmentProductService) {
+                                 ShipmentProductService shipmentProductService,
+                                 SalesChannelService salesChannelService,
+                                 @Lazy SalesSubMenuView salesSubMenuView) {
         this.productService = productService;
         this.contractorService = contractorService;
         this.companyService = companyService;
@@ -113,6 +124,8 @@ public class SalesEditShipmentView extends VerticalLayout{
         this.notifications = notifications;
         this.unitService = unitService;
         this.shipmentProductService = shipmentProductService;
+        this.salesChannelService = salesChannelService;
+        this.salesSubMenuView = salesSubMenuView;
         configureCloseViewDialog();
         setSizeFull();
         tempShipmentProductDtoList = getData();
@@ -164,6 +177,7 @@ public class SalesEditShipmentView extends VerticalLayout{
         warehouseSelect.setValue(warehouseService.getById(editDto.getWarehouseId()));
         isSpend.setValue(editDto.getIsSpend());
         contractorSelect.setValue(contractorService.getById(editDto.getContractorId()));
+        salesChannelSelect.setValue(salesChannelService.getById(editDto.getSalesChannelId()));
         configureGrid();
     }
 
@@ -178,7 +192,8 @@ public class SalesEditShipmentView extends VerticalLayout{
         VerticalLayout upper = new VerticalLayout();
         upper.add(horizontalLayout1(),
                 horizontalLayout2(),
-                horizontalLayout3()
+                horizontalLayout3(),
+                horizontalLayout4()
         );
         return upper;
     }
@@ -205,6 +220,13 @@ public class SalesEditShipmentView extends VerticalLayout{
                 configureContractField()
         );
         return horizontalLayout3;
+    }
+
+    private HorizontalLayout horizontalLayout4() {
+        HorizontalLayout horizontalLayout4 = new HorizontalLayout();
+        horizontalLayout4.add(
+                configureSalesChannelSelect());
+        return horizontalLayout4;
     }
 
     private HorizontalLayout configureDateField() {
@@ -283,6 +305,29 @@ public class SalesEditShipmentView extends VerticalLayout{
         return horizontalLayout;
     }
 
+    private HorizontalLayout configureSalesChannelSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<SalesChannelDto> salesChannels = salesChannelService.getAll();
+        if (salesChannels != null) {
+            salesChannelSelect.setItems(salesChannels);
+        }
+        salesChannelSelect.setItemLabelGenerator(SalesChannelDto::getName);
+        salesChannelSelect.setWidth(SALES_CHANNEL_FIELD_WIDTH);
+        Label label = new Label("Канал продаж");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, salesChannelSelect, buttonSalesChannel());
+        return horizontalLayout;
+    }
+
+    private Button buttonSalesChannel() {
+        Button salesChannelButton = new Button(new Icon(VaadinIcon.PLUS_CIRCLE));
+        salesChannelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        SalesChannelModalWindow salesChannelModalWindow = new SalesChannelModalWindow(new SalesChannelDto(), salesChannelService);
+        salesChannelButton.addClickListener(event -> salesChannelModalWindow.open());
+//        salesChannelModalWindow.addDetachListener(event -> updateList());
+        return salesChannelButton;
+    }
+
     private H2 title() {
         title.setHeight("2.0em");
         return title;
@@ -296,7 +341,7 @@ public class SalesEditShipmentView extends VerticalLayout{
 
     private Button buttonSave() {
         return new Button("Сохранить", buttonClickEvent -> {
-
+            ShipmentDto invoiceDto = new ShipmentDto();
             if (!binderShipmentDto.validate().isOk()) {
                 binderShipmentDto.validate().notifyBindingValidationStatusHandlers();
             } else {
@@ -304,7 +349,20 @@ public class SalesEditShipmentView extends VerticalLayout{
                 if (dateField.getValue() == null) {
                     dateField.setValue(LocalDateTime.now());
                 }
-                ShipmentDto invoiceDto = saveInvoice(type);
+
+                if (!invoiceIdField.getValue().equals("")) {
+                    invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
+                }
+                invoiceDto.setDate(dateField.getValue().toString());
+                invoiceDto.setCompanyId(companySelect.getValue().getId());
+                invoiceDto.setContractorId(contractorSelect.getValue().getId());
+                invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
+//        invoiceDto.setTypeOfInvoice(type);
+                invoiceDto.setIsSpend(isSpend.getValue());
+                invoiceDto.setComment("");
+                invoiceService.create(invoiceDto);
+
+//                ShipmentDto invoiceDto = saveInvoice(type);
                 UI.getCurrent().navigate(location);
                 notifications.infoNotification(String.format("Отгрузка № %s сохранена", invoiceDto.getId()));
             }
@@ -364,21 +422,21 @@ public class SalesEditShipmentView extends VerticalLayout{
         setTotalPrice();
     }
 
-    private ShipmentDto saveInvoice(String type) {
-        ShipmentDto invoiceDto = new ShipmentDto();
-        if (!invoiceIdField.getValue().equals("")) {
-            invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
-        }
-        invoiceDto.setDate(dateField.getValue().toString());
-        invoiceDto.setCompanyId(companySelect.getValue().getId());
-        invoiceDto.setContractorId(contractorSelect.getValue().getId());
-        invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
-//        invoiceDto.setTypeOfInvoice(type);
-        invoiceDto.setIsSpend(isSpend.getValue());
-        invoiceDto.setComment("");
-        ShipmentDto invoiceDtoResponse = invoiceService.create(invoiceDto);
-        return invoiceDtoResponse;
-    }
+//    private ShipmentDto saveInvoice(String type) {
+//        ShipmentDto invoiceDto = new ShipmentDto();
+//        if (!invoiceIdField.getValue().equals("")) {
+//            invoiceDto.setId(Long.parseLong(invoiceIdField.getValue()));
+//        }
+//        invoiceDto.setDate(dateField.getValue().toString());
+//        invoiceDto.setCompanyId(companySelect.getValue().getId());
+//        invoiceDto.setContractorId(contractorSelect.getValue().getId());
+//        invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
+////        invoiceDto.setTypeOfInvoice(type);
+//        invoiceDto.setIsSpend(isSpend.getValue());
+//        invoiceDto.setComment("");
+//        ShipmentDto invoiceDtoResponse = invoiceService.create(invoiceDto);
+//        return invoiceDtoResponse;
+//    }
 
     public void deleteInvoiceById(Long invoiceDtoId) {
         invoiceService.deleteById(invoiceDtoId);
@@ -413,4 +471,6 @@ public class SalesEditShipmentView extends VerticalLayout{
     public void setLocation(String location) {
         this.location = location;
     }
+
+
 }
