@@ -1,5 +1,6 @@
 package com.trade_accounting.models.dto.invoice;
 
+import com.trade_accounting.models.dto.units.SalesChannelDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
@@ -43,6 +44,8 @@ public class InvoiceDto {
 
     private Long projectId;
 
+    private Long salesChannelId;
+
     @Override
     public String toString() {
         return  "Заказ № = " + id +
@@ -55,7 +58,8 @@ public class InvoiceDto {
                 ", Отправлено = " + isSent +
                 ", Напечатано = " + isPrint +
                 ", Комментарий = '" + comment + '\'' +
-                ", Проект = " + projectId;
+                ", Проект = " + projectId +
+                ", Канал продаж = " + salesChannelId;
     }
 
     @EqualsAndHashCode.Exclude
@@ -66,4 +70,7 @@ public class InvoiceDto {
 
     @EqualsAndHashCode.Exclude
     private CompanyDto companyDto;
+
+    @EqualsAndHashCode.Exclude
+    private SalesChannelDto salesChannelDto;
 }
