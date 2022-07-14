@@ -54,6 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.trade_accounting.config.SecurityConstants.*;
@@ -88,13 +89,17 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
     private final Dialog cancelEditingView = new Dialog();
     private PriceListProductPercentsDto priceListProductPercentsDto = new PriceListProductPercentsDto();
     private final TextField filterCriteria = new TextField();
+    private final PrintPriceListProductModalView view;
+    private boolean checkForPrint = false;
 
-    public GoodsPriceLayoutPriceListView(CompanyService companyService, PriceListService priceListService,
+    public GoodsPriceLayoutPriceListView(CompanyService companyService,
+                                         PriceListService priceListService,
                                          ProductService productService,
                                          ProductGroupService productGroupService,
                                          PriceProductSelectModal productSelectModal,
                                          PriceListProductService priceListProductService,
-                                         Notifications notifications) {
+                                         Notifications notifications,
+                                         PrintPriceListProductModalView view) {
         this.companyService = companyService;
         this.priceListService = priceListService;
         this.productService = productService;
@@ -102,6 +107,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         this.productSelectModal = productSelectModal;
         this.priceListProductService = priceListProductService;
         this.notifications = notifications;
+        this.view = view;
         this.upperLayout = new VerticalLayout();
         grid = new Grid<>(PriceListProductDto.class, false);
         paginator = new GridPaginator<>(grid, tempPriceListProducts, 50);
@@ -131,12 +137,14 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         if (!isProductInList(priceListProductDto)) {
             tempPriceListProducts.add(priceListProductDto);
             paginator.setData(tempPriceListProducts);
+            checkForPrint = true;
 
         } else if (priceListProductDto.getId() != null) {
             for (PriceListProductDto priceListProduct : tempPriceListProducts) {
                 if (priceListProduct.getId().equals(priceListProductDto.getId())) {
                     tempPriceListProducts.remove(priceListProduct);
                     tempPriceListProducts.add(priceListProductDto);
+                    checkForPrint = true;
                     break;
                 }
             }
@@ -259,6 +267,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         }
         tempPriceListProducts.remove(found);
         paginator.setData(tempPriceListProducts);
+        checkForPrint = true;
     }
 
     private void configureGrid() {
@@ -318,6 +327,7 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 priceListDtoBinder.setValidatorsDisabled(true);
                 tempPriceListProducts = priceListProductService.getByPriceListId(priceListData.getId());
                 paginator.setData(tempPriceListProducts);
+                checkForPrint = false;
             }
         });
     }
@@ -382,7 +392,36 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         MenuItem print = menuBar.addItem(new Icon(VaadinIcon.PRINT));
         print.add("Печать");
         SubMenu printSubMenu = print.getSubMenu();
-        printSubMenu.addItem("Ценники");
+        printSubMenu.addItem("Ценники").addClickListener(event -> {
+            System.out.println(priceListData);
+            if (tempPriceListProducts.isEmpty()) {
+                notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
+                        priceListData.getNumber()));
+            } else if (checkForPrint) {
+                    notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары." +
+                                    " Сохраните изменения в прайс-лист",
+                            priceListData.getNumber()));
+            } else {
+                PriceListDto priceListDto = priceListService.getById(priceListData.getId());
+                view.setPriceListDto(priceListDto);
+                view.setPriceListTemplate("priceListTags/");
+                view.open();
+            }
+        });
+        printSubMenu.addItem("Прайс-лист").addClickListener(event -> {
+            if (tempPriceListProducts.isEmpty()) {
+                notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
+                        priceListData.getNumber()));
+            } else if (checkForPrint) {
+                notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары",
+                        priceListData.getNumber()));
+            } else {
+                PriceListDto priceListDto = priceListService.getById(priceListData.getId());
+                view.setPriceListDto(priceListDto);
+                view.setPriceListTemplate("priceListProduct/");
+                view.open();
+            }
+        });
 
         MenuItem send = menuBar.addItem(new Icon(VaadinIcon.ENVELOPE));
         send.add("Отправить");

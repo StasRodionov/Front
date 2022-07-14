@@ -17,6 +17,7 @@ import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.ShipmentProductService;
@@ -68,7 +69,7 @@ import static com.trade_accounting.config.SecurityConstants.*;
 @SpringComponent
 @UIScope
 public class SalesSubShipmentView extends VerticalLayout implements AfterNavigationObserver {
-
+    private final SalesSubMenuView salesSubMenuView;
     private final ProductService productService;
     ProjectService projectService;
     UnitService unitService;
@@ -82,6 +83,7 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
     private final List<ShipmentDto> data;
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
+    private final SalesChannelService salesChannelService;
     private HorizontalLayout actions;
     private final Grid<ShipmentDto> grid = new Grid<>(ShipmentDto.class, false);;
     private final GridConfigurer<ShipmentDto> gridConfigurer = new GridConfigurer<>(grid);
@@ -96,11 +98,13 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
                                 ShipmentService invoiceService,
                                 ContractorService contractorService,
                                 CompanyService companyService,
-                                SalesEditShipmentView salesEditShipmentView,
+                                @Lazy SalesEditShipmentView salesEditShipmentView,
                                 ShipmentService shipmentService,
                                 ShipmentProductService shipmentProductService,
                                 ProductService productService,
-                                @Lazy Notifications notifications) {
+                                @Lazy Notifications notifications,
+                                SalesChannelService salesChannelService,
+                                @Lazy SalesSubMenuView salesSubMenuView) {
         this.warehouseService = warehouseService;
         this.invoiceService = invoiceService;
         this.contractorService = contractorService;
@@ -110,7 +114,9 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
         this.shipmentProductService = shipmentProductService;
         this.productService = productService;
         this.notifications = notifications;
+        this.salesChannelService = salesChannelService;
         this.data = getData();
+        this.salesSubMenuView = salesSubMenuView;
 
         configureActions();
         configureGrid();
@@ -170,7 +176,7 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
                     invoiceService,
                     notifications,
                     unitService,
-                    shipmentProductService);
+                    shipmentProductService, salesChannelService, salesSubMenuView);
             modalView.setReturnToShiptmentForEdit(dto);
             UI.getCurrent().navigate(SELLS_SELLS__SHIPMENT_EDIT);
             //modalView.open();

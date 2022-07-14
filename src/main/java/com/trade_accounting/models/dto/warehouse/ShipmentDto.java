@@ -25,6 +25,8 @@ public class ShipmentDto  extends ReturnToSupplierDtoForValidation {
 
     private List<Long> shipmentProductsIds;
 
+    private Long salesChannelId;
+
     private BigDecimal sum;
 
     private BigDecimal paid;

@@ -12,7 +12,7 @@ public interface ShipmentService {
 
     ShipmentDto getById(Long id);
 
-    ShipmentDto create(ShipmentDto shipmentDto);
+    void create(ShipmentDto shipmentDto);
 
     void update(ShipmentDto shipmentDto);
 

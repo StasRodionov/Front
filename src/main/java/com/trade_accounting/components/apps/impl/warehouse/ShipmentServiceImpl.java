@@ -57,13 +57,15 @@ public class ShipmentServiceImpl implements ShipmentService {
     }
 
     @Override
-    public ShipmentDto create(ShipmentDto shipmentDto) {
-        return null;
+    public void create(ShipmentDto shipmentDto) {
+        Call<Void> shipmentDtoCall = shipmentApi.create(shipmentUrl, shipmentDto);
+        callExecuteService.callExecuteBodyCreate(shipmentDtoCall, ShipmentDto.class);
     }
 
     @Override
     public void update(ShipmentDto shipmentDto) {
-
+        Call<Void> shipmentDtoCall = shipmentApi.update(shipmentUrl, shipmentDto);
+        callExecuteService.callExecuteBodyUpdate(shipmentDtoCall, ShipmentDto.class);
     }
 
     @Override
