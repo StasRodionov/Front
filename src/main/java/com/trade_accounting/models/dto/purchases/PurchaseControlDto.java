@@ -42,6 +42,9 @@ public class PurchaseControlDto {
     private Long contractorId;
 
     @NotNull
+    private Long salesChannelId;
+
+    @NotNull
     private Long productQuantity;
 
     @NotNull

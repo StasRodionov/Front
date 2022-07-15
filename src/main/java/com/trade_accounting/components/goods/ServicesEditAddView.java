@@ -49,7 +49,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -85,15 +84,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.trade_accounting.config.SecurityConstants.GOODS_KITS__EDIT_VIEW;
+import static com.trade_accounting.config.SecurityConstants.GOODS_SERVICE__EDIT_VIEW;
 
 
 @Slf4j
 @SpringComponent
 @UIScope
-@Route(value = GOODS_KITS__EDIT_VIEW, layout = AppView.class)
-@PageTitle("Комплекты товаров")
-public class KitsEditAddView extends VerticalLayout {
+@Route(value = GOODS_SERVICE__EDIT_VIEW , layout = AppView.class)
+@PageTitle("Услуги")
+public class ServicesEditAddView extends VerticalLayout {
 
     private final ProductPriceService productPriceService;
     private final UnitService unitService;
@@ -132,8 +131,6 @@ public class KitsEditAddView extends VerticalLayout {
     private final BigDecimalField volumeNumberField = new BigDecimalField();
     private final BigDecimalField purchasePriceNumberField = new BigDecimalField();
     Tab prices = new Tab("Цены");
-    Tab components = new Tab("Компоненты");
-    Tab remains = new Tab("Остатки");
     Tab history = new Tab("История");
     Tab files = new Tab("Файлы");
     Button saveButton = new Button("Сохранить");
@@ -143,15 +140,15 @@ public class KitsEditAddView extends VerticalLayout {
     private final Dialog dialogOnCloseView = new Dialog();
 
 
-    public KitsEditAddView(ProductPriceService productPriceService,
-                           UnitService unitService,
-                           ContractorService contractorService,
-                           TaxSystemService taxSystemService,
-                           ProductService productService,
-                           ProductGroupService productGroupService,
-                           AttributeOfCalculationObjectService attributeOfCalculationObjectService,
-                           TypeOfPriceService typeOfPriceService,
-                           EmployeeService employeeService, CountryService countryService) {
+    public ServicesEditAddView(ProductPriceService productPriceService,
+                               UnitService unitService,
+                               ContractorService contractorService,
+                               TaxSystemService taxSystemService,
+                               ProductService productService,
+                               ProductGroupService productGroupService,
+                               AttributeOfCalculationObjectService attributeOfCalculationObjectService,
+                               TypeOfPriceService typeOfPriceService,
+                               EmployeeService employeeService, CountryService countryService) {
         this.productPriceService = productPriceService;
         this.unitService = unitService;
         this.contractorService = contractorService;
@@ -165,7 +162,7 @@ public class KitsEditAddView extends VerticalLayout {
 
         configureCloseViewDialog();
 
-        productNameField.setLabel("Наименование комплекта");
+        productNameField.setLabel("Наименование услуги");
         productNameField.setWidthFull();
         productDtoBinder.forField(productNameField)
                 .withValidator(text -> text.length() >= 3, "Не менее трёх символов", ErrorLevel.ERROR)
@@ -383,7 +380,7 @@ public class KitsEditAddView extends VerticalLayout {
     }
 
     private Tabs getTabs() {
-        Tabs tabs = new Tabs(prices, components, remains, history, files);
+        Tabs tabs = new Tabs(prices, history, files);
         tabs.addSelectedChangeListener(event ->
                 setTabsContent(event.getSelectedTab()));
         return tabs;
@@ -393,10 +390,6 @@ public class KitsEditAddView extends VerticalLayout {
         tabsContent.removeAll();
         if (selectedTab.equals(prices)) {
             tabsContent.add(getPricesTabContent());
-        } else if (selectedTab.equals(components)) {
-            tabsContent.add(getComponentsTabContent());
-        } else if (selectedTab.equals(remains)) {
-            tabsContent.add(getRemainsTabContent());
         } else if (selectedTab.equals(history)) {
             tabsContent.add(getHistoryTabContent());
         } else {
@@ -407,14 +400,6 @@ public class KitsEditAddView extends VerticalLayout {
     private VerticalLayout getPricesTabContent() {
         VerticalLayout content = new VerticalLayout();
         content.add(getTypeOfPriceForm(typeOfPriceService.getAll()));
-        return content;
-    }
-    private VerticalLayout getComponentsTabContent() {
-        VerticalLayout content = new VerticalLayout();
-        return content;
-    }
-    private VerticalLayout getRemainsTabContent() {
-        VerticalLayout content = new VerticalLayout();
         return content;
     }
     private VerticalLayout getHistoryTabContent() {
@@ -488,12 +473,7 @@ public class KitsEditAddView extends VerticalLayout {
         productGroupDtoComboBox.setPlaceholder("Выберите группу продуктов");
         productGroupDtoComboBox.setItems(productGroupService.getAll());
         productGroupDtoComboBox.setItemLabelGenerator(ProductGroupDto::getName);
-        content.add(getHorizontalLayout("Группа продуктов", productGroupDtoComboBox));
-
-        countryDtoComboBox.setPlaceholder("Введите страну происхождения");
-        countryDtoComboBox.setItems(countryService.getAll());
-        countryDtoComboBox.setItemLabelGenerator(CountryDto::getShortName);
-        content.add(getHorizontalLayout("Страна", countryDtoComboBox));
+        content.add(getHorizontalLayout("Группа", productGroupDtoComboBox));
 
         taxSystemDtoComboBox.setPlaceholder("Выберите систему налогообложения");
         taxSystemDtoComboBox.setItems(taxSystemService.getAll());
@@ -502,51 +482,10 @@ public class KitsEditAddView extends VerticalLayout {
 
         content.add(new Hr());
 
-        itemNumber.setPlaceholder("Введите Артикул");
-        productDtoBinder.forField(itemNumber)
-                .withValidator(Objects::nonNull, "Введите артикул")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999")))
-                .bind(productDto -> new BigDecimal(productDto.getItemNumber()), (productDto1, itemNumber1) -> productDto1.setItemNumber(itemNumber1.intValue()));
-        itemNumber.setValueChangeMode(ValueChangeMode.EAGER);
-        content.add(getHorizontalLayout("Артикул", itemNumber));
-
-        content.add(new Hr());
-
         attributeOfCalculationObjectComboBox.setPlaceholder("Выберите предмет расчета");
         attributeOfCalculationObjectComboBox.setItems(attributeOfCalculationObjectService.getAll());
         attributeOfCalculationObjectComboBox.setItemLabelGenerator(AttributeOfCalculationObjectDto::getName);
         content.add(getHorizontalLayout("Признак предмета расчета", attributeOfCalculationObjectComboBox));
-
-        unitDtoComboBox.setPlaceholder("Выберите единицу измерения");
-        unitDtoComboBox.setItems(unitService.getAll());
-        unitDtoComboBox.setItemLabelGenerator(UnitDto::getFullName);
-        content.add(getHorizontalLayout("Единицы измерения", unitDtoComboBox));
-
-        weightNumberField.setPlaceholder("Введите вес");
-        productDtoBinder.forField(weightNumberField)
-                .withValidator(Objects::nonNull, "Введите вес")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
-                .bind(ProductDto::getWeight, ProductDto::setWeight);
-        weightNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-        content.add(getHorizontalLayout("Вес", weightNumberField));
-
-        volumeNumberField.setPlaceholder("Введите объём");
-        productDtoBinder.forField(volumeNumberField)
-                .withValidator(Objects::nonNull, "Введите объём")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
-                .bind(ProductDto::getVolume, ProductDto::setVolume);
-        volumeNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-        content.add(getHorizontalLayout("Объем", volumeNumberField));
-
-        purchasePriceNumberField.setPlaceholder("Введите закупочную цену");
-        productDtoBinder.forField(purchasePriceNumberField)
-                .withValidator(Objects::nonNull, "Введите закупочную цену")
-                .withValidator(new BigDecimalRangeValidator("Не верное значение", BigDecimal.ZERO, new BigDecimal("99999999999999999999")))//                .withValidator(value -> value < 0, "Не может быть меньше 0")
-                .bind(ProductDto::getPurchasePrice, ProductDto::setPurchasePrice);
-        purchasePriceNumberField.setValueChangeMode(ValueChangeMode.EAGER);
-        content.add(getHorizontalLayout("Закупочная цена", purchasePriceNumberField));
-
-        content.add(new Hr());
 
         saleTax.setPlaceholder("Введите размер НДС");
         productDtoBinder.forField(saleTax)
@@ -662,7 +601,7 @@ public class KitsEditAddView extends VerticalLayout {
         Label label = new Label(labelText);
         field.setWidth("400px");
         label.setWidth("200px");
-        horizontalLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER, label);
+        horizontalLayout.setVerticalComponentAlignment(Alignment.CENTER, label);
         horizontalLayout.add(label, field);
         return horizontalLayout;
     }

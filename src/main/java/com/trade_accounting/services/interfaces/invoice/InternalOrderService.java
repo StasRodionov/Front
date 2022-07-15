@@ -20,6 +20,8 @@ public interface InternalOrderService {
 
     List<InternalOrderDto> searchByFilter(Map<String, String> query);
 
+    List<InternalOrderDto> searchByBetweenDataFilter(Map<String, String> query);
+
     void moveToIsRecyclebin(Long id);
 
     void restoreFromIsRecyclebin(Long id);

@@ -116,18 +116,25 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     }
 
     private void configureFilter() {
-        filter.setFieldToDatePicker("date");
+        filter.setFieldToDatePicker("dateAfter");
         filter.setFieldToComboBox("sent", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("print", Boolean.TRUE, Boolean.FALSE);
         filter.setFieldToComboBox("warehouse", WarehouseDto::getName,warehouseService.getAll());
         filter.setFieldToComboBox("company", CompanyDto::getName,companyService.getAll());
 
         filter.onSearchClick(e -> {
-            Map<String, String> map = filter.getFilterData2();
-            paginator.setData(internalOrderService.searchByFilter(map).stream()
-                    .filter(dto -> !map.containsKey("totalPrice") || getTotalPrice(dto).compareTo(new BigDecimal(map.get("totalPrice"))) == 0)
-                    .filter(dto -> !map.containsKey("totalAmount") || getTotalAmount(dto).compareTo(new BigDecimal(map.get("totalAmount"))) == 0)
-                    .collect(Collectors.toList()));
+            Map<String, String> map = filter.getFilterDataBetween();
+            if(map.get("dateAfter") != null && map.get("dateBefore") != null) {
+                paginator.setData(internalOrderService.searchByBetweenDataFilter(map).stream()
+                        .filter(dto -> !map.containsKey("totalPrice") || getTotalPrice(dto).compareTo(new BigDecimal(map.get("totalPrice"))) == 0)
+                        .filter(dto -> !map.containsKey("totalAmount") || getTotalAmount(dto).compareTo(new BigDecimal(map.get("totalAmount"))) == 0)
+                        .collect(Collectors.toList()));
+            } else {
+                paginator.setData(internalOrderService.searchByFilter(map).stream()
+                        .filter(dto -> !map.containsKey("totalPrice") || getTotalPrice(dto).compareTo(new BigDecimal(map.get("totalPrice"))) == 0)
+                        .filter(dto -> !map.containsKey("totalAmount") || getTotalAmount(dto).compareTo(new BigDecimal(map.get("totalAmount"))) == 0)
+                        .collect(Collectors.toList()));
+            }
         });
         filter.onClearClick(e -> paginator.setData(getData()));
     }
@@ -148,7 +155,7 @@ public class GoodsSubInternalOrder extends VerticalLayout implements AfterNaviga
     private void configureGrid() {
         grid.addThemeVariants(GRID_STYLE);
         grid.addColumn("id").setHeader("№").setId("№");
-        grid.addColumn(InternalOrderDto::getDate).setHeader("Дата и время").setKey("date").setId("Дата и время");
+        grid.addColumn(InternalOrderDto::getDate).setHeader("Время").setKey("dateAfter").setId("Время");
         grid.addColumn(internalOrderDto -> companyService.getById(internalOrderDto.getCompanyId())
                 .getName()).setHeader("Организация")
                 .setKey("company")

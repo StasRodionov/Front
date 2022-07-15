@@ -19,6 +19,8 @@ public interface InventarizationService {
 
     List<InventarizationDto> searchByFilter(Map<String, String> queryInventarization);
 
+    List<InventarizationDto> searchByBetweenDataFilter(Map<String, String> queryInventarization);
+
     List<InventarizationDto> search(String search);
 
     void moveToIsRecyclebin(Long id);

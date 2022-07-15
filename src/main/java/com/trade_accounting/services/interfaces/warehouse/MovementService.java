@@ -16,6 +16,7 @@ public interface MovementService {
 
     List<MovementDto> searchByFilter(Map<String, String> queryMovement);
 
+    List<MovementDto> searchByBetweenDataFilter(Map<String, String> queryMovement);
     void update(MovementDto movementDto);
 
     void deleteById(Long id);

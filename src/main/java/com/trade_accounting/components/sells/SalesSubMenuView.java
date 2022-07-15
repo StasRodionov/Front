@@ -77,6 +77,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {  
     private final SalesSubBuyersReturnsView salesSubBuyersReturnsView;
     private final InvoicesStatusService invoicesStatusService;
     private final SalesEditCreateInvoiceView salesEditCreateInvoiceView;
+    private final SalesEditShipmentView salesEditShipmentView;
     private final ContractorStatusService contractorStatusService;
     private final FunnelService funnelService;
     private final ColumnsMaskService columnsMaskService;
@@ -122,7 +123,11 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {  
                             RetailStoreService retailStoreService,
                             ShipmentService shipmentService,
                             ShipmentProductService shipmentProductService,
-                            InvoicesStatusService invoicesStatusService, SalesEditCreateInvoiceView salesEditCreateInvoiceView, ContractorStatusService contractorStatusService, FunnelService funnelService) {
+                            InvoicesStatusService invoicesStatusService,
+                            SalesEditCreateInvoiceView salesEditCreateInvoiceView,
+                            ContractorStatusService contractorStatusService,
+                            FunnelService funnelService,
+                            SalesEditShipmentView salesEditShipmentView) {
         this.contractService = contractService;
         this.columnsMaskService = columnsMaskService;
         this.shipmentService = shipmentService;
@@ -153,6 +158,7 @@ public class SalesSubMenuView extends Div implements AfterNavigationObserver {  
         this.salesEditCreateInvoiceView = salesEditCreateInvoiceView;
         this.contractorStatusService = contractorStatusService;
         this.funnelService = funnelService;
+        this.salesEditShipmentView = salesEditShipmentView;
 
 //        this.div = new Div();
 //        add(configurationSubMenu(), div);

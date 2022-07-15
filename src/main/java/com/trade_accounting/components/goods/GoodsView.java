@@ -75,6 +75,7 @@ public class GoodsView extends VerticalLayout {
     private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
             GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final KitsEditAddView kitsEditAddView;
+    private final ServicesEditAddView servicesEditAddView;
 
     @Autowired
     public GoodsView(ProductService productService,
@@ -84,7 +85,8 @@ public class GoodsView extends VerticalLayout {
                      ServiceModalWindow serviceModalWindow,
                      SetModalWindow setModalWindow, Notifications notifications,
                      ProductGroupModalWindow productGroupModalWindow, GoodsEditAddView goodsEditAddView,
-                     KitsEditAddView kitsEditAddView) {
+                     KitsEditAddView kitsEditAddView, ServicesEditAddView servicesEditAddView) {
+        this.servicesEditAddView = servicesEditAddView;
         this.kitsEditAddView = kitsEditAddView;
         this.goodsEditAddView = goodsEditAddView;
         this.setModalWindow = setModalWindow;
@@ -286,7 +288,10 @@ public class GoodsView extends VerticalLayout {
 
     private Button buttonPlusService() {
         Button addServiceButton = new Button("Услуга", new Icon(VaadinIcon.PLUS_CIRCLE));
-        addServiceButton.addClickListener(e -> serviceModalWindow.open());
+        addServiceButton.addClickListener(e -> {
+            servicesEditAddView.setLocation(GOODS);
+            UI.getCurrent().navigate(GOODS_SERVICE__EDIT_VIEW);
+        });
         addServiceButton.getStyle().set("cursor", "pointer");
         return addServiceButton;
     }
@@ -300,7 +305,6 @@ public class GoodsView extends VerticalLayout {
         addSetButton.getStyle().set("cursor", "pointer");
         return addSetButton;
     }
-
     private Button buttonPlusGroup() {
         Button addProductGroupButton = new Button("Группа", new Icon(VaadinIcon.PLUS_CIRCLE));
         addProductGroupButton.addClickListener(e -> productGroupModalWindow.open());

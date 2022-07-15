@@ -2,6 +2,7 @@ package com.trade_accounting.components.sells;
 
 
 import com.trade_accounting.components.general.ProductSelectModal;
+import com.trade_accounting.components.profile.SalesChannelModalWindow;
 import com.trade_accounting.components.purchases.PurchasesSubMenuView;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.Notifications;
@@ -10,6 +11,7 @@ import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
 import com.trade_accounting.models.dto.invoice.InvoicesStatusDto;
+import com.trade_accounting.models.dto.units.SalesChannelDto;
 import com.trade_accounting.models.dto.util.ProjectDto;
 import com.trade_accounting.models.dto.warehouse.ProductPriceDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
@@ -18,6 +20,7 @@ import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
+import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.ProductPriceService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
@@ -85,6 +88,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
     private final ContractorService contractorService;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
+    private final SalesChannelService salesChannelService;
     private final InvoiceService invoiceService;
     private final InvoicesStatusService invoicesStatusService;
     private final InvoiceProductService invoiceProductService;
@@ -96,6 +100,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
 
     private static final String LABEL_WIDTH = "100px";
     private static final String FIELD_WIDTH = "350px";
+    private static final String SALES_CHANNEL_FIELD_WIDTH = "300px";
     private final TextField invoiceIdField = new TextField();
     private final DateTimePicker dateField = new DateTimePicker();
     private final TextField typeOfInvoiceField = new TextField();
@@ -106,6 +111,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
     private final ComboBox<CompanyDto> companySelect = new ComboBox<>();
     private final ComboBox<ContractorDto> contractorSelect = new ComboBox<>();
     private final ComboBox<WarehouseDto> warehouseSelect = new ComboBox<>();
+    private final ComboBox<SalesChannelDto> salesChannelSelect = new ComboBox<>();
     private final ComboBox<InvoicesStatusDto> invoicesStatusSelect = new ComboBox<>();
     private final ComboBox<ProjectDto> projectSelect = new ComboBox<>();
 
@@ -136,6 +142,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
     public SalesEditCreateInvoiceView(ProductService productService, ContractorService contractorService,
                                       CompanyService companyService,
                                       WarehouseService warehouseService,
+                                      SalesChannelService salesChannelService,
                                       InvoiceService invoiceService,
                                       InvoicesStatusService invoicesStatusService, InvoiceProductService invoiceProductService,
                                       Notifications notifications,
@@ -148,6 +155,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
         this.contractorService = contractorService;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
+        this.salesChannelService = salesChannelService;
         this.invoiceService = invoiceService;
         this.invoicesStatusService = invoicesStatusService;
         this.invoiceProductService = invoiceProductService;
@@ -308,7 +316,8 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
         VerticalLayout upper = new VerticalLayout();
         upper.add(horizontalLayout1(),
                 horizontalLayout2(),
-                horizontalLayout3()
+                horizontalLayout3(),
+                horizontalLayout4()
         );
         return upper;
     }
@@ -337,6 +346,13 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
                 isSpend, isSent, isPrint, commentField
         );
         return horizontalLayout3;
+    }
+
+    private HorizontalLayout horizontalLayout4() {
+        HorizontalLayout horizontalLayout4 = new HorizontalLayout();
+        horizontalLayout4.add(
+                configureSalesChannelSelect());
+        return horizontalLayout4;
     }
 
     private HorizontalLayout configureDateField() {
@@ -427,6 +443,19 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
         Label label = new Label("Склад");
         label.setWidth(LABEL_WIDTH);
         horizontalLayout.add(label, warehouseSelect);
+        return horizontalLayout;
+    }
+    private HorizontalLayout configureSalesChannelSelect() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        List<SalesChannelDto> salesChannels = salesChannelService.getAll();
+        if (salesChannels != null) {
+            salesChannelSelect.setItems(salesChannels);
+        }
+        salesChannelSelect.setItemLabelGenerator(SalesChannelDto::getName);
+        salesChannelSelect.setWidth(SALES_CHANNEL_FIELD_WIDTH);
+        Label label = new Label("Канал продаж");
+        label.setWidth(LABEL_WIDTH);
+        horizontalLayout.add(label, salesChannelSelect, buttonSalesChannel());
         return horizontalLayout;
     }
 
@@ -525,6 +554,15 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
 //                    purchasesSubMenuView.resetTabSelection(location, true);
                     resetSourceTab(true);
                 });
+    }
+
+    private Button buttonSalesChannel() {
+        Button salesChannelButton = new Button(new Icon(VaadinIcon.PLUS_CIRCLE));
+        salesChannelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        SalesChannelModalWindow salesChannelModalWindow = new SalesChannelModalWindow(new SalesChannelDto(), salesChannelService);
+        salesChannelButton.addClickListener(event -> salesChannelModalWindow.open());
+//        salesChannelModalWindow.addDetachListener(event -> updateList());
+        return salesChannelButton;
     }
 
     private Button configureDeleteButton() {
@@ -694,6 +732,7 @@ public class SalesEditCreateInvoiceView extends VerticalLayout implements Before
         invoiceDto.setCompanyId(companySelect.getValue().getId());
         invoiceDto.setContractorId(contractorSelect.getValue().getId());
         invoiceDto.setWarehouseId(warehouseSelect.getValue().getId());
+        invoiceDto.setSalesChannelId(salesChannelSelect.getValue().getId());
         invoiceDto.setInvoicesStatusId(invoicesStatusSelect.getValue().getId());
         invoiceDto.setProjectId(projectSelect.getValue() == null ?
                 null : projectSelect.getValue().getId());
