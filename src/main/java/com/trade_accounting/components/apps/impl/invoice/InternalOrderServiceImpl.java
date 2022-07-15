@@ -106,6 +106,19 @@ public class InternalOrderServiceImpl implements InternalOrderService {
     }
 
     @Override
+    public List<InternalOrderDto> searchByBetweenDataFilter(Map<String, String> query) {
+        List<InternalOrderDto> internalOrderDtoList = new ArrayList<>();
+        Call<List<InternalOrderDto>> internalOrderDtoListCall = internalOrderApi.searchByBetweenDataFilter(internalOrderUrl, query);
+        try {
+            internalOrderDtoList = internalOrderDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка InternalOrderDto по ФИЛЬТРУ -{}", query);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса ФИЛЬТРА на поиск и получение списка InternalOrderDto - ", e);
+        }
+        return internalOrderDtoList;
+    }
+
+    @Override
     public void moveToIsRecyclebin(Long id) {
         Call<Void> dtoCall = internalOrderApi.moveToIsRecyclebin(internalOrderUrl, id);
         callExecuteService.callExecuteBodyMoveToIsRecyclebin(dtoCall, InternalOrderDto.class, id);

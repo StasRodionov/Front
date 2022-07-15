@@ -38,7 +38,7 @@ public class SettingsView extends AppLayout {
                 configureSalesChannelTab(),
                 configureCountry(),
                 configureProjectSettingsTab(),
-                configureUnitsTab()
+                configureOnlineStore()
                 );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         return tabs;
@@ -160,4 +160,14 @@ public class SettingsView extends AppLayout {
         });
         return tab;
     }
+
+    private Tab configureOnlineStore() {
+        Tab tab = new Tab();
+        tab.setLabel("Интернет-магазины");
+        tab.getElement().addEventListener("click", e -> {
+            this.getUI().ifPresent(ui -> ui.navigate(PROFILE_PROFILE__SETTINGS__ONLINE_STORES_SETTINGS));
+        });
+        return tab;
+    }
+
 }

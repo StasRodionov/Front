@@ -30,9 +30,24 @@ public class CorrectionServiceImpl implements CorrectionService {
     }
 
     @Override
-    public List<CorrectionDto> search(Map<String, String> query) {
+    public List<CorrectionDto> searchByFilter(Map<String, String> query) {
         List<CorrectionDto> correctionDtoList = new ArrayList<>();
-        Call<List<CorrectionDto>> correctionDtoListCall = correctionApi.search(correctionUrl, query);
+        Call<List<CorrectionDto>> correctionDtoListCall = correctionApi.searchByFilter(correctionUrl, query);
+
+        try {
+            correctionDtoList = correctionDtoListCall.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение списка CorrectionDto");
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение списка CorrectionDto - ", e);
+        }
+
+        return correctionDtoList;
+    }
+
+    @Override
+    public List<CorrectionDto> searchByBetweenDataFilter(Map<String, String> query) {
+        List<CorrectionDto> correctionDtoList = new ArrayList<>();
+        Call<List<CorrectionDto>> correctionDtoListCall = correctionApi.searchByBetweenDataFilter(correctionUrl, query);
 
         try {
             correctionDtoList = correctionDtoListCall.execute().body();
