@@ -90,6 +90,7 @@ public class SecurityConstants {
     public static final String GOODS_GOODS__EDIT_VIEW = GOODS + SIGN_UP_URL + "edit";
 
     public static final String GOODS_KITS__EDIT_VIEW = GOODS + SIGN_UP_URL + "kit-edit";
+    public static final String GOODS_SERVICE__EDIT_VIEW = GOODS + SIGN_UP_URL + "services-edit";
 
     //Раздел "Контрагенты"
     //URL 2 уровня
