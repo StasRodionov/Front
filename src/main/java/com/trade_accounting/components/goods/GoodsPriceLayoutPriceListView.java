@@ -393,7 +393,6 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
         print.add("Печать");
         SubMenu printSubMenu = print.getSubMenu();
         printSubMenu.addItem("Ценники").addClickListener(event -> {
-            System.out.println(priceListData);
             if (tempPriceListProducts.isEmpty()) {
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
@@ -413,7 +412,8 @@ public class GoodsPriceLayoutPriceListView extends VerticalLayout implements Aft
                 notifications.infoNotification(String.format("Прайс-лист № %s не содержит товаров",
                         priceListData.getNumber()));
             } else if (checkForPrint) {
-                notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары",
+                notifications.infoNotification(String.format("Прайс-лист № %s содержит не сохраненные товары." +
+                                " Сохраните изменения в прайс-лист",
                         priceListData.getNumber()));
             } else {
                 PriceListDto priceListDto = priceListService.getById(priceListData.getId());

@@ -92,6 +92,19 @@ public class MovementServiceImpl implements MovementService {
     }
 
     @Override
+    public List<MovementDto> searchByBetweenDataFilter(Map<String, String> queryMovement) {
+        List<MovementDto> movementDtoList = new ArrayList<>();
+        Call<List<MovementDto>> callSupplier = movementApi.searchByBetweenDataFilter(movementUrl, queryMovement);
+        try {
+            movementDtoList = callSupplier.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение перемещений по фильтру {}", movementDtoList);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск и получение перемещений {IOException}", e);
+        }
+        return movementDtoList;
+    }
+
+    @Override
     public void deleteById(Long id) {
         Call<Void> movementDtoCall = movementApi.deleteById(movementUrl, id);
         callExecuteService.callExecuteBodyDelete(movementDtoCall, MovementDto.class, id);

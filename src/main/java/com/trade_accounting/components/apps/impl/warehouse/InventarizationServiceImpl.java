@@ -74,6 +74,19 @@ public class InventarizationServiceImpl implements InventarizationService {
     }
 
     @Override
+    public List<InventarizationDto> searchByBetweenDataFilter(Map<String, String> queryInventarization) {
+        List<InventarizationDto> inventarizationDtoList = new ArrayList<>();
+        Call<List<InventarizationDto>> callListInventarization = inventarizationApi.searchByBetweenDataFilter(inventarizationUrl, queryInventarization);
+        try {
+            inventarizationDtoList = callListInventarization.execute().body();
+            log.info("Успешно выполнен запрос на поиск и получение приемки по фильтру {}", queryInventarization);
+        } catch (IOException e) {
+            log.error("Произошла ошибка при выполнении запроса на поиск иполучение приемок {IOException}", e);
+        }
+        return inventarizationDtoList;
+    }
+
+    @Override
     public List<InventarizationDto> search(String search) {
         List<InventarizationDto> inventarizationDtoList = new ArrayList<>();
         Call<List<InventarizationDto>> callListInventarization = inventarizationApi.search(inventarizationUrl, search);
