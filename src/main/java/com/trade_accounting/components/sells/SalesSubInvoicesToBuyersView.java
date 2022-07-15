@@ -17,6 +17,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.invoice.InvoiceProductService;
 import com.trade_accounting.services.interfaces.company.SupplierAccountService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -74,7 +75,7 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
 
     private HorizontalLayout actions;
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
-    private final GridConfigurer<SupplierAccountDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<SupplierAccountDto> gridConfigurer;
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
 
@@ -85,17 +86,19 @@ public class SalesSubInvoicesToBuyersView extends VerticalLayout {
     public SalesSubInvoicesToBuyersView(CompanyService companyService, WarehouseService warehouseService,
                                         ContractorService contractorService,
                                         InvoiceProductService invoiceProductService,
+                                        SupplierAccountService supplierAccountService,
+                                        ColumnsMaskService columnsMaskService,
                                         @Lazy Notifications notifications,
-                                        @Lazy SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView,
-                                        SupplierAccountService supplierAccountService) {
+                                        @Lazy SalesAddNewInvoicesToBuyersView salesAddNewInvoicesToBuyersView) {
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.contractorService = contractorService;
-        this.supplierAccountService = supplierAccountService;
         this.invoiceProductService = invoiceProductService;
+        this.supplierAccountService = supplierAccountService;
         this.salesAddNewInvoicesToBuyersView = salesAddNewInvoicesToBuyersView;
         this.notifications = notifications;
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_SALES_MAIN_INVOICES_TO_BUYERS);
 
         configureActions();
         configureGrid();

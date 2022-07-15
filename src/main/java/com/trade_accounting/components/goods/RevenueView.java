@@ -8,6 +8,7 @@ import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.warehouse.RevenueDto;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.RevenueService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_REVENUE_VIEW;
+import static com.trade_accounting.config.SecurityConstants.GRID_GOODS_MAIN_REVENUE;
 
 @SpringComponent
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -43,18 +45,21 @@ public class RevenueView extends VerticalLayout {
 
     private final RevenueService revenueService;
     private final Grid<RevenueDto> grid = new Grid<>(RevenueDto.class, false);
-    private final GridConfigurer<RevenueDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<RevenueDto> gridConfigurer;
     private final GridFilter<RevenueDto> filter;
     private final GridPaginator<RevenueDto> paginator;
     private final List<RevenueDto> data;
     private final RevenueModalWindow revenueModalWindow;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public RevenueView(RevenueService revenueService, @Lazy RevenueModalWindow revenueModalWindow) {
+    public RevenueView(RevenueService revenueService, ColumnsMaskService columnsMaskService,
+                       @Lazy RevenueModalWindow revenueModalWindow) {
         this.revenueService = revenueService;
         this.data = getData();
         this.revenueModalWindow = revenueModalWindow;
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_REVENUE);
         setSizeFull();
         configureGrid();
         this.filter = new GridFilter<>(grid);

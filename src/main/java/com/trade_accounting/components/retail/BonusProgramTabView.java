@@ -8,6 +8,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.models.dto.util.BonusProgramDto;
 import com.trade_accounting.services.interfaces.util.BonusProgramService;
 import com.trade_accounting.services.interfaces.company.ContractorGroupService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -36,6 +37,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_BONUS_PROGRAM;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_BONUS_PROGRAM_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -49,16 +51,20 @@ public class BonusProgramTabView  extends VerticalLayout implements AfterNavigat
     transient private List<BonusProgramDto> data;
 
     private final Grid<BonusProgramDto> grid = new Grid<>(BonusProgramDto.class, false);
-    private final GridConfigurer<BonusProgramDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<BonusProgramDto> gridConfigurer;
     private final GridPaginator<BonusProgramDto> paginator;
     static final String ACTION_4 = "Бонусная программа";
     private static final String ACTION_5 = "green";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public BonusProgramTabView(BonusProgramService bonusProgramService, ContractorGroupService contractorGroupService) {
+    public BonusProgramTabView(BonusProgramService bonusProgramService,
+                               ContractorGroupService contractorGroupService,
+                               ColumnsMaskService columnsMaskService) {
         this.bonusProgramService = bonusProgramService;
         this.data = bonusProgramService.getAll();
         this.contractorGroupService = contractorGroupService;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_BONUS_PROGRAM);
         configureGrid();
         this.paginator = new GridPaginator<>(grid, data, 100);
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);

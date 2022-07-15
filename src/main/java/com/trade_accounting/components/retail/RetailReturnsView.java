@@ -10,6 +10,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectCo
 import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.retail.RetailReturnsDto;
 import com.trade_accounting.services.interfaces.retail.RetailReturnsService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -43,6 +44,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_RETURNS;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_RETURNS_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -57,13 +59,16 @@ public class RetailReturnsView extends VerticalLayout implements AfterNavigation
     private final TextField textField = new TextField();
     private final GridFilter<RetailReturnsDto> filter;
     private final Grid<RetailReturnsDto> grid = new Grid<>(RetailReturnsDto.class, false);
-    private final GridConfigurer<RetailReturnsDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<RetailReturnsDto> gridConfigurer;
     private final GridPaginator<RetailReturnsDto> paginator;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public RetailReturnsView(RetailReturnsService retailReturnsService) {
+    public RetailReturnsView(RetailReturnsService retailReturnsService,
+                             ColumnsMaskService columnsMaskService) {
         this.retailReturnsService = retailReturnsService;
         this.data = retailReturnsService.getAll();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_RETURNS);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

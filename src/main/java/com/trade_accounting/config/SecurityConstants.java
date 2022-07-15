@@ -1,5 +1,7 @@
 package com.trade_accounting.config;
 
+import org.apache.poi.ss.formula.functions.T;
+
 public class SecurityConstants {
     public static final String SECRET = "SECRET_KEY";
     public static final long EXPIRATION_TIME = 86400000;    // 24hrs
@@ -10,6 +12,77 @@ public class SecurityConstants {
     public static final String AUTHENTICATION_URL = "/login";
     public static final String SIGN_UP_URL = "/";
     public static final String BODY_URL = "app";
+
+
+    // КОНСТАНТЫ ДЛЯ ИДЕНТИФИКАЦИИ ТАБЛИЦ (grid) ПРИ ОБМЕНЕ С БД МАСКАМИ ОТОБРАЖЕНИЯ КОЛОНОК
+    public static final int GRID_PURCHASES_MAIN_SUPPLIERS_ORDERS = 1;
+    public static final int GRID_PURCHASES_MAIN_VENDOR_ACCOUNTS = 2;
+    public static final int GRID_PURCHASES_MAIN_ACCEPTANCES = 3;
+    public static final int GRID_PURCHASES_MAIN_RETURN_TO_SUPPLIERS = 4;
+    public static final int GRID_PURCHASES_MAIN_INVOICES_RECEIVED = 5;
+    public static final int GRID_PURCHASES_MAIN_PURCHASING_MANAGEMENT = 6;
+
+    public static final int GRID_SALES_MAIN_CUSTOMERS_ORDERS = 7;
+    public static final int GRID_SALES_MAIN_INVOICES_TO_BUYERS = 8;
+    public static final int GRID_SALES_MAIN_SHIPMENT = 9;
+    public static final int GRID_SALES_MAIN_AGENT_REPORTS = 10;
+    public static final int GRID_SALES_MAIN_BUYERS_RETURNS = 11;
+    public static final int GRID_SALES_MAIN_ISSUED_INVOICES = 12;
+    public static final int GRID_SALES_MAIN_PROFITABILITY_BY_GOODS = 13;
+    public static final int GRID_SALES_MAIN_PROFITABILITY_BY_EMPLOYEES = 14;
+    public static final int GRID_SALES_MAIN_PROFITABILITY_BY_CUSTOMERS = 15;
+    public static final int GRID_SALES_MAIN_GOODS_FOR_SALE = 16;
+    public static final int GRID_SALES_MAIN_SALES_FUNNEL_BY_ORDERS = 17;
+    public static final int GRID_SALES_MAIN_SALES_FUNNEL_BY_CONTRACTORS = 18;
+
+    public static final int GRID_GOODS_MAIN_GOODS = 19;
+    public static final int GRID_GOODS_MAIN_POSTING = 20;
+    public static final int GRID_GOODS_MAIN_INVENTORY = 21;
+    public static final int GRID_GOODS_MAIN_INTERNAL_ORDER = 22;
+    public static final int GRID_GOODS_MAIN_LOSS = 23;
+    public static final int GRID_GOODS_MAIN_MOVEMENT = 24;
+    public static final int GRID_GOODS_MAIN_PRICE_LIST = 25;
+    public static final int GRID_GOODS_MAIN_REMAIN = 26;
+    public static final int GRID_GOODS_MAIN_REVENUE = 27;
+    public static final int GRID_GOODS_MAIN_SERIAL = 28;
+
+    public static final int GRID_CONTRACTORS_MAIN_CONTRACTORS = 29;
+    public static final int GRID_CONTRACTORS_MAIN_CONTRACTS = 30;
+
+    public static final int GRID_MONEY_MAIN_PAYMENTS = 31;
+    public static final int GRID_MONEY_MAIN_CASH_FLOW = 32;
+    public static final int GRID_MONEY_MAIN_PROFIT_LOSS = 33;
+    public static final int GRID_MONEY_MAIN_MUTUAL_SETTLEMENTS_WITH_CONTRACTORS = 34;
+    public static final int GRID_MONEY_MAIN_MUTUAL_SETTLEMENTS_WITH_EMPLOEES = 35;
+    public static final int GRID_MONEY_MAIN_BALANCE_ADJUSTMENT = 36;
+
+    public static final int GRID_RETAIL_MAIN_STORES = 37;
+    public static final int GRID_RETAIL_MAIN_SHIFT = 38;
+    public static final int GRID_RETAIL_MAIN_SALES = 39;
+    public static final int GRID_RETAIL_MAIN_RETURNS = 40;
+    public static final int GRID_RETAIL_MAIN_MAKING = 41;
+    public static final int GRID_RETAIL_MAIN_PAYOUT = 42;
+    public static final int GRID_RETAIL_MAIN_POINTS = 43;
+    public static final int GRID_RETAIL_MAIN_PREPAYOUT = 44;
+    public static final int GRID_RETAIL_MAIN_PREPAYMENT_RETURN = 45;
+    public static final int GRID_RETAIL_MAIN_CLOUD_CHECKS = 46;
+    public static final int GRID_RETAIL_MAIN_BONUS_PROGRAM = 47;
+
+    public static final int GRID_PRODUCTION_MAIN_FLOWCHART = 48;
+    public static final int GRID_PRODUCTION_MAIN_ORDERS = 49;
+    public static final int GRID_PRODUCTION_MAIN_TECHNOLOGICAL_OPERATIONS = 50;
+    public static final int GRID_PRODUCTION_MAIN_PRODUCTION_TARGETS = 51;
+    public static final int GRID_PRODUCTION_MAIN_TECHNICAL_PROCESS = 52;
+    public static final int GRID_PRODUCTION_MAIN_STAGE_PRODUCTION = 53;
+
+    public static final int GRID_INDICATORS_MAIN_DOCUMENTS = 54;
+    public static final int GRID_INDICATORS_MAIN_RECYCLEBIN = 55;
+    public static final int GRID_INDICATORS_MAIN_AUDIT = 56;
+    public static final int GRID_INDICATORS_MAIN_FILES = 57;
+
+
+
+
 
 
 

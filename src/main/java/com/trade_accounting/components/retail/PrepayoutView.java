@@ -8,6 +8,7 @@ import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
 import com.trade_accounting.models.dto.finance.PrepayoutDto;
 import com.trade_accounting.services.interfaces.finance.PrepayoutService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_PREPAYOUT;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_PREPAYMENT_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -55,13 +57,16 @@ public class PrepayoutView extends VerticalLayout implements AfterNavigationObse
 
     private final GridFilter<PrepayoutDto> filter;
     private final Grid<PrepayoutDto> grid = new Grid<>(PrepayoutDto.class, false);
-    private final GridConfigurer<PrepayoutDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<PrepayoutDto> gridConfigurer;
     private final GridPaginator<PrepayoutDto> paginator;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public PrepayoutView(PrepayoutService prepayoutService) {
+    public PrepayoutView(PrepayoutService prepayoutService,
+                         ColumnsMaskService columnsMaskService) {
         this.prepayoutService = prepayoutService;
         this.data = prepayoutService.getAll();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_PREPAYOUT);
         grid.setItems(data);
         configureFilter();
         this.filter = new GridFilter<>(grid);

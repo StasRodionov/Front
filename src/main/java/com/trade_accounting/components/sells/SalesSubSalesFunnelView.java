@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.invoice.InvoicesStatusDto;
 import com.trade_accounting.services.interfaces.company.ContractorStatusService;
 import com.trade_accounting.services.interfaces.finance.FunnelService;
 import com.trade_accounting.services.interfaces.invoice.InvoicesStatusService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -33,6 +34,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_SALES_MAIN_SALES_FUNNEL_BY_CONTRACTORS;
+import static com.trade_accounting.config.SecurityConstants.GRID_SALES_MAIN_SALES_FUNNEL_BY_ORDERS;
+
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = SELLS_SALES_SUB_SALES_FUNNEL_VIEW, layout = AppView.class)
@@ -46,8 +50,8 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private final List<FunnelDto> contractorData;
     private final Grid<FunnelDto> invoiceGrid = new Grid<>(FunnelDto.class, false);
     private final Grid<FunnelDto> contractorGrid = new Grid<>(FunnelDto.class, false);
-    private final GridConfigurer<FunnelDto> invoiceGridConfigurer = new GridConfigurer<>(invoiceGrid);
-    private final GridConfigurer<FunnelDto> contractorGridConfigurer = new GridConfigurer<>(contractorGrid);
+    private final GridConfigurer<FunnelDto> invoiceGridConfigurer;
+    private final GridConfigurer<FunnelDto> contractorGridConfigurer;
     private final GridPaginator<FunnelDto> invoicePaginator;
     private final GridPaginator<FunnelDto> contractorPaginator;
     private final GridFilter<FunnelDto> invoiceFilter;
@@ -62,7 +66,10 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
     private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
 
-    public SalesSubSalesFunnelView(ContractorStatusService contractorStatusService, InvoicesStatusService invoicesStatusService, FunnelService funnelService) {
+    public SalesSubSalesFunnelView(ContractorStatusService contractorStatusService,
+                                   InvoicesStatusService invoicesStatusService,
+                                   FunnelService funnelService,
+                                   ColumnsMaskService columnsMaskService) {
         this.contractorStatusService = contractorStatusService;
         this.invoicesStatusService = invoicesStatusService;
         this.funnelService = funnelService;
@@ -73,6 +80,10 @@ public class SalesSubSalesFunnelView extends VerticalLayout {
         print = selectXlsTemplateButton.addItem("Печать");
         invoicePaginator = new GridPaginator<>(invoiceGrid, invoiceData, 50);
         contractorPaginator = new GridPaginator<>(contractorGrid, contractorData, 50);
+
+        this.invoiceGridConfigurer = new GridConfigurer<>(invoiceGrid, columnsMaskService, GRID_SALES_MAIN_SALES_FUNNEL_BY_ORDERS);
+        this.contractorGridConfigurer = new GridConfigurer<>(contractorGrid, columnsMaskService, GRID_SALES_MAIN_SALES_FUNNEL_BY_CONTRACTORS);
+
         configureInvoiceGrid();
         configureContractorGrid();
         this.invoiceFilter = new GridFilter<>(invoiceGrid);

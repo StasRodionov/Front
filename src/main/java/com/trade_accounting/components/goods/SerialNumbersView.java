@@ -9,6 +9,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectCo
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.SerialNumbersDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.SerialNumbersService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.GOODS_SERIAL_NUMBERS_VIEW;
+import static com.trade_accounting.config.SecurityConstants.GRID_GOODS_MAIN_SERIAL;
 
 @SpringComponent
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -44,18 +46,22 @@ public class SerialNumbersView extends VerticalLayout {
     private final WarehouseService warehouseService;
 
     private final Grid<SerialNumbersDto> grid = new Grid<>(SerialNumbersDto.class, false);
-    private final GridConfigurer<SerialNumbersDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<SerialNumbersDto> gridConfigurer;
     private final GridFilter<SerialNumbersDto> filter;
     private final GridPaginator<SerialNumbersDto> paginator;
     private final List<SerialNumbersDto> data;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public SerialNumbersView(SerialNumbersService serialNumbersService, ProductService productService, WarehouseService warehouseService, List<SerialNumbersDto> data) {
+    public SerialNumbersView(SerialNumbersService serialNumbersService, ProductService productService,
+                             ColumnsMaskService columnsMaskService, WarehouseService warehouseService,
+                             List<SerialNumbersDto> data) {
         this.serialNumbersService = serialNumbersService;
         this.productService = productService;
         this.warehouseService = warehouseService;
         this.paginator = new GridPaginator<>(grid, data, 100);
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_SERIAL);
         configureGrid();
         setSizeFull();
         this.filter = new GridFilter<>(grid);

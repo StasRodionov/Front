@@ -11,6 +11,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectCo
 import com.trade_accounting.models.dto.production.ProductionTargetsDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.production.ProductionTargetsService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PRODUCTION_MAIN_PRODUCTION_TARGETS;
 import static com.trade_accounting.config.SecurityConstants.PRODUCTION_PRODUCTION_TARGETS_VIEW;
 
 @Slf4j
@@ -57,23 +59,26 @@ public class ProductionTargetsViewTab extends VerticalLayout implements AfterNav
     private final List<ProductionTargetsDto> data;
     private final GridPaginator<ProductionTargetsDto> paginator;
     private final Grid<ProductionTargetsDto> grid = new Grid<>(ProductionTargetsDto.class, false);
-    private final GridConfigurer<ProductionTargetsDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<ProductionTargetsDto> gridConfigurer;
     private final ProductionTargetsService productionTargetsService;
     private final Notifications notifications;
     private final CompanyService companyService;
     private final WarehouseService warehouseService;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     ProductionTargetsViewTab(ProductionTargetsService productionTargetsService,
                              Notifications notifications,
                              CompanyService companyService,
-                             WarehouseService warehouseService) {
+                             WarehouseService warehouseService,
+                             ColumnsMaskService columnsMaskService) {
         this.productionTargetsService = productionTargetsService;
         this.notifications = notifications;
         this.companyService = companyService;
         this.warehouseService = warehouseService;
         this.data = getData();
         this.paginator = new GridPaginator<>(grid, this.productionTargetsService.getAll(), 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PRODUCTION_MAIN_PRODUCTION_TARGETS);
         setSizeFull();
         configureGrid();
         this.filter = new GridFilter<>(grid);

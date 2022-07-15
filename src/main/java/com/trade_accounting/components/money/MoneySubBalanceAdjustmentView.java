@@ -16,6 +16,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -56,6 +57,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_MONEY_MAIN_BALANCE_ADJUSTMENT;
 import static com.trade_accounting.config.SecurityConstants.MONEY_BALANCE_ADJUSTMENT_VIEW;
 
 @Slf4j
@@ -75,7 +77,7 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private final List<BalanceAdjustmentDto> data;
 
     private final Grid<BalanceAdjustmentDto> grid = new Grid<>(BalanceAdjustmentDto.class, false);
-    private final GridConfigurer<BalanceAdjustmentDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<BalanceAdjustmentDto> gridConfigurer;
     private GridPaginator<BalanceAdjustmentDto> paginator;
     private final GridFilter<BalanceAdjustmentDto> filter;
 
@@ -83,14 +85,17 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
     private final transient ProjectService projectService;
     private final transient ContractService contractService;
     private final transient PaymentService paymentService;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private final TextField textField = new TextField();
 
     @Autowired
     public MoneySubBalanceAdjustmentView(BalanceAdjustmentService balanceAdjustmentService, CompanyService companyService,
                                          ContractorService contractorService, @Lazy Notifications notifications,
-                                         BalanceAdjustmentModalView modalView, ProjectService projectService, ContractService contractService, PaymentService paymentService) {
+                                         BalanceAdjustmentModalView modalView, ProjectService projectService,
+                                         ContractService contractService, PaymentService paymentService,
+                                         ColumnsMaskService columnsMaskService) {
         this.balanceAdjustmentService = balanceAdjustmentService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -100,6 +105,7 @@ public class MoneySubBalanceAdjustmentView extends VerticalLayout implements Aft
         this.contractService = contractService;
         this.paymentService = paymentService;
         this.data = loadBalanceAdjustments();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_MONEY_MAIN_BALANCE_ADJUSTMENT);
         paginator = new GridPaginator<>(grid, data, 50);
         configureGrid();
         this.filter = new GridFilter<>(grid);

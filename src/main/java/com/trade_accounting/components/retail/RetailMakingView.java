@@ -15,6 +15,7 @@ import com.trade_accounting.models.dto.retail.RetailStoreDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.retail.RetailMakingService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -48,6 +49,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_MAKING;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_MAKING_VIEW;
 
 @Slf4j
@@ -63,7 +65,7 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
     private final CompanyService companyService;
 
     private final Grid<RetailMakingDto> grid = new Grid<>(RetailMakingDto.class, false);
-    private final GridConfigurer<RetailMakingDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<RetailMakingDto> gridConfigurer;
     private final GridPaginator<RetailMakingDto> paginator;
     private final Notifications notifications;
 
@@ -74,10 +76,12 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
     private final GridFilter<RetailMakingDto> filter;
 
     private final TextField textField = new TextField();
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailMakingView(RetailMakingService retailMakingService, RetailStoreService retailStoreService,
-                            CompanyService companyService, Notifications notifications) {
+                            CompanyService companyService, ColumnsMaskService columnsMaskService,
+                            Notifications notifications) {
         this.retailMakingService = retailMakingService;
         this.retailStoreService = retailStoreService;
         this.companyService = companyService;
@@ -85,6 +89,7 @@ public class RetailMakingView extends VerticalLayout implements AfterNavigationO
         this.notifications = notifications;
 
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_MAKING);
         configureGrid();
 
         this.filter = new GridFilter<>(grid);

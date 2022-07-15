@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.warehouse.BuyersReturnDto;
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
@@ -70,6 +71,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_SALES_MAIN_BUYERS_RETURNS;
+
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = SELLS_BUYERS_RETURNS_VIEW, layout = AppView.class)
@@ -85,7 +88,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final Notifications notifications;
     //    private List<BuyersReturnDto> data;
     private final Grid<BuyersReturnDto> grid = new Grid<>(BuyersReturnDto.class, false);
-    private final GridConfigurer<BuyersReturnDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<BuyersReturnDto> gridConfigurer;
     private final GridPaginator<BuyersReturnDto> paginator;
     private final GridFilter<BuyersReturnDto> filter;
     ContractService contractService;
@@ -95,7 +98,8 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
     private final ShipmentService shipmentService;
     private final ShipmentProductService shipmentProductService;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/salesSubBuyersReturns_templates/";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final ReturnBuyersReturnModalView returnBuyersReturnModalView;
 
     @Autowired
@@ -107,6 +111,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
                                      ProductService productService,
                                      ShipmentService shipmentService,
                                      ShipmentProductService shipmentProductService,
+                                     ColumnsMaskService columnsMaskService,
                                      ReturnBuyersReturnModalView returnBuyersReturnModalView) {
         this.buyersReturnService = buyersReturnService;
         this.warehouseService = warehouseService;
@@ -121,6 +126,7 @@ public class SalesSubBuyersReturnsView extends VerticalLayout implements AfterNa
 
         List<BuyersReturnDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_SALES_MAIN_BUYERS_RETURNS);
         configureGrid();
         this.filter = new GridFilter<>(this.grid);
         configureFilter();

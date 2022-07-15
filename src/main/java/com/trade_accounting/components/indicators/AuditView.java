@@ -2,6 +2,7 @@ package com.trade_accounting.components.indicators;
 
 import com.trade_accounting.components.AppView;
 import com.trade_accounting.components.util.Buttons;
+import com.trade_accounting.components.util.GridConfigurer;
 import com.trade_accounting.components.util.GridFilter;
 import com.trade_accounting.components.util.GridPaginator;
 import com.trade_accounting.components.util.configure.components.select.SelectConfigurer;
@@ -9,6 +10,7 @@ import com.trade_accounting.models.dto.client.EmployeeDto;
 import com.trade_accounting.models.dto.indicators.AuditDto;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.indicators.AuditService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -44,14 +46,19 @@ import static com.trade_accounting.config.SecurityConstants.*;
 public class AuditView extends VerticalLayout {
 
     private final Grid<AuditDto> grid = new Grid<>(AuditDto.class, false);
+    private final GridConfigurer<AuditDto> gridConfigurer;
     private final GridFilter<AuditDto> filter;
     private final GridPaginator<AuditDto> paginator;
     transient private final EmployeeService employeeService;
     transient private final AuditService auditService;
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public AuditView(EmployeeService employeeService, AuditService auditService) {
+    public AuditView(EmployeeService employeeService, AuditService auditService,
+                     ColumnsMaskService columnsMaskService) {
         this.employeeService = employeeService;
         this.auditService = auditService;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_INDICATORS_MAIN_AUDIT);
         List<AuditDto> data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
         setSizeFull();
@@ -67,18 +74,29 @@ public class AuditView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn(AuditDto::getDate).setKey("date").setHeader("Время").setSortable(true).setId("Дата");
-        grid.addColumn(auditDto -> employeeService.getById(auditDto.getEmployeeId())).setKey("employee").setHeader("Сотрудник").setSortable(true).setId("Сотрудник");
-        grid.addColumn(AuditDto::getDescription).setKey("description").setHeader("Событие").setSortable(true).setId("Событие");
+        grid.addThemeVariants(GRID_STYLE);
+        grid.addColumn(AuditDto::getDate).setHeader("Дата и время")
+                .setKey("date")
+                .setId("Дата и время");
+        grid.addColumn(auditDto -> employeeService.getById(auditDto.getEmployeeId())).setHeader("Сотрудник")
+                .setKey("employee")
+                .setId("Сотрудник");
+        grid.addColumn(AuditDto::getDescription).setHeader("Событие")
+                .setKey("description")
+                .setId("Событие");
+        grid.getColumns().forEach(column -> column.setResizable(true).setAutoWidth(true).setSortable(true));
+        gridConfigurer.addConfigColumnToGrid();
+
+        grid.setHeight("64vh");
+        grid.setColumnReorderingAllowed(true);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
         grid.addItemDoubleClickListener(event -> {
             AuditDto openAudit = event.getItem();
             AuditModalWindow auditModalWindow = new AuditModalWindow(openAudit, auditService);
             auditModalWindow.addDetachListener(e -> updateList());
             auditModalWindow.open();
         });
-        grid.setColumnReorderingAllowed(true);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private Component getUpperLayout(){

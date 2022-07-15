@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.client.PositionService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_STORES;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_RETAIL_STORES_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -53,14 +55,14 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
     private final PositionService positionService;
 
     private final Grid<RetailStoreDto> grid = new Grid<>(RetailStoreDto.class, false);
-    private final GridConfigurer<RetailStoreDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<RetailStoreDto> gridConfigurer;
     private final GridPaginator<RetailStoreDto> paginator;
     private final GridFilter<RetailStoreDto> filter;
     private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailStoresTabView(RetailStoreService retailStoreService,
                                CompanyService companyService, EmployeeService employeeService,
-                               PositionService positionService) {
+                               PositionService positionService, ColumnsMaskService columnsMaskService) {
         this.retailStoreService = retailStoreService;
         this.data = retailStoreService.getAll();
         this.companyService = companyService;
@@ -68,6 +70,7 @@ public class RetailStoresTabView extends VerticalLayout implements AfterNavigati
         this.positionService = positionService;
         this.retailStoreModalWindow = new RetailStoreModalWindow(retailStoreService, companyService, employeeService,
                 positionService);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_STORES);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

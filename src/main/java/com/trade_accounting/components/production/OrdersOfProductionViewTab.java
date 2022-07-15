@@ -14,6 +14,7 @@ import com.trade_accounting.models.dto.production.TechnicalCardDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.production.OrdersOfProductionService;
 import com.trade_accounting.services.interfaces.production.TechnicalCardService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PRODUCTION_MAIN_ORDERS;
 import static com.trade_accounting.config.SecurityConstants.PRODUCTION_ORDERS_OF_PRODUCTION_VIEW;
 
 @Slf4j
@@ -79,7 +81,7 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
 
     private final GridPaginator<OrdersOfProductionDto> paginator;
     private final Grid<OrdersOfProductionDto> grid = new Grid<>(OrdersOfProductionDto.class, false);
-    private final GridConfigurer<OrdersOfProductionDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<OrdersOfProductionDto> gridConfigurer;
     private final OrdersOfProductionService ordersOfProductionService;
     private final CompanyService companyService;
     private final TechnicalCardService technicalCardService;
@@ -90,13 +92,17 @@ public class OrdersOfProductionViewTab extends VerticalLayout implements AfterNa
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/ordersOfProduction_templates/";
     private final String editString = "Изменение заказа на производство";
     private final String addString = "Добавление заказа на производство";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService, CompanyService companyService, TechnicalCardService technicalCardService, Notifications notifications) {
+    OrdersOfProductionViewTab(OrdersOfProductionService ordersOfProductionService,
+                              CompanyService companyService, TechnicalCardService technicalCardService,
+                              ColumnsMaskService columnsMaskService, Notifications notifications) {
             this.ordersOfProductionService = ordersOfProductionService;
             this.companyService = companyService;
         this.technicalCardService = technicalCardService;
         this.notifications = notifications;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PRODUCTION_MAIN_ORDERS);
         setSizeFull();
         print = selectXlsTemplateButton.addItem("Печать");
         this.data = getData();

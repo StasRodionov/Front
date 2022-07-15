@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.LegalDetailService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.trade_accounting.config.SecurityConstants.CONTRACTORS_CONTRACTS_VIEW;
+import static com.trade_accounting.config.SecurityConstants.GRID_CONTRACTORS_MAIN_CONTRACTS;
 
 @Slf4j
 @SpringComponent
@@ -65,11 +67,13 @@ public class ContractsView extends VerticalLayout implements AfterNavigationObse
     private final Grid<ContractDto> grid;
     private final GridConfigurer<ContractDto> gridConfigurer;
     private final Notifications notifications;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
-    ContractsView(LegalDetailService legalDetailService, BankAccountService bankAccountService, CompanyService companyService, ContractService contractService,
-                  ContractorService contractorService,
+    ContractsView(LegalDetailService legalDetailService, BankAccountService bankAccountService,
+                  CompanyService companyService, ContractService contractService,
+                  ContractorService contractorService, ColumnsMaskService columnsMaskService,
                   ContractModalWindow contractModalWindow,
                   Notifications notifications) {
         this.legalDetailService = legalDetailService;
@@ -80,7 +84,7 @@ public class ContractsView extends VerticalLayout implements AfterNavigationObse
         this.contractModalWindow = contractModalWindow;
         this.notifications = notifications;
         grid = new Grid<>(ContractDto.class);
-        gridConfigurer = new GridConfigurer<>(grid);
+        gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_CONTRACTORS_MAIN_CONTRACTS);
         paginator = new GridPaginator<>(grid, contractService.getAll(), 100);
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);
         configureGrid();

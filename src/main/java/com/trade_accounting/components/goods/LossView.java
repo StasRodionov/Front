@@ -10,6 +10,7 @@ import com.trade_accounting.models.dto.finance.LossDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.finance.LossProductService;
 import com.trade_accounting.services.interfaces.finance.LossService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -64,7 +65,7 @@ public class LossView extends VerticalLayout {
     private final TitleForModal titleForEditSelected;
 
     private final Grid<LossDto> grid = new Grid<>(LossDto.class, false);
-    private final GridConfigurer<LossDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<LossDto> gridConfigurer;
     private final GridPaginator<LossDto> paginator;
 
     private final TextField textField = new TextField();
@@ -72,15 +73,18 @@ public class LossView extends VerticalLayout {
     private List<LossDto> data;
     private final LossCreateView lossCreateView;
     private final LossModalWindow lossModalWindow;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public LossView(LossService lossService,
                     WarehouseService warehouseService,
                     CompanyService companyService,
                     LossProductService lossProductService,
+                    ProductService productService,
+                    ColumnsMaskService columnsMaskService,
                     Notifications notifications,
-                    ProductService productService, @Lazy LossCreateView lossCreateView,
+                    @Lazy LossCreateView lossCreateView,
                     LossModalWindow lossModalWindow) {
         this.lossService = lossService;
         this.warehouseService = warehouseService;
@@ -95,6 +99,7 @@ public class LossView extends VerticalLayout {
         titleForEditSelected = new TitleForModal("Массовое редактирование списания");
         data = getData();
         paginator = new GridPaginator<>(grid, data, 50);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_LOSS);
         setSizeFull();
         configureGrid();
         setHorizontalComponentAlignment(Alignment.CENTER, paginator);

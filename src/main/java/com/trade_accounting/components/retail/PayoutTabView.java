@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.finance.PayoutService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -63,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_PAYOUT;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_PAYOUT_VIEW;
 
 @Slf4j
@@ -79,7 +81,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     private final EmployeeService employeeService;
 
     private final Grid<PayoutDto> grid = new Grid<>(PayoutDto.class, false);
-    private final GridConfigurer<PayoutDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<PayoutDto> gridConfigurer;
     private final GridPaginator<PayoutDto> paginator;
     private final Notifications notifications;
 
@@ -89,14 +91,16 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
     private final PayoutModalWindow payoutModalWindow;
     private final String typeOfInvoice = "RECEIPT";
     private final String pathForSaveSalesXlsTemplate = "src/main/resources/xls_templates/payouts_templates/";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private final GridFilter<PayoutDto> filter;
 
     private final TextField textField = new TextField();
 
     public PayoutTabView(PayoutService payoutService, RetailStoreService retailStoreService,
-                         CompanyService companyService, EmployeeService employeeService, Notifications notifications) {
+                         CompanyService companyService, EmployeeService employeeService,
+                         ColumnsMaskService columnsMaskService, Notifications notifications) {
         this.payoutService = payoutService;
         this.retailStoreService = retailStoreService;
         this.companyService = companyService;
@@ -106,6 +110,7 @@ public class PayoutTabView extends VerticalLayout implements AfterNavigationObse
         this.notifications = notifications;
 
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_PAYOUT);
         configureGrid();
 
         this.filter = new GridFilter<>(grid);

@@ -11,6 +11,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.finance.PrepaymentReturnService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_PREPAYMENT_RETURN;
 import static com.trade_accounting.config.SecurityConstants.RETAIL_PREPAYMENT_RETURN_VIEW;
 
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
@@ -61,16 +63,22 @@ public class PrepaymentReturnView extends VerticalLayout implements AfterNavigat
 
     private final GridFilter<PrepaymentReturnDto> filter;
     private final Grid<PrepaymentReturnDto> grid = new Grid<>(PrepaymentReturnDto.class, false);
-    private final GridConfigurer<PrepaymentReturnDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<PrepaymentReturnDto> gridConfigurer;
     private final GridPaginator<PrepaymentReturnDto> paginator;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public PrepaymentReturnView(PrepaymentReturnService prepaymentReturnService, ContractorService contractorService, RetailStoreService retailStoreService, CompanyService companyService) {
+    public PrepaymentReturnView(PrepaymentReturnService prepaymentReturnService,
+                                ContractorService contractorService,
+                                RetailStoreService retailStoreService,
+                                CompanyService companyService,
+                                ColumnsMaskService columnsMaskService) {
         this.prepaymentReturnService = prepaymentReturnService;
         this.data = prepaymentReturnService.getAll();
         this.contractorService = contractorService;
         this.retailStoreService = retailStoreService;
         this.companyService = companyService;
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_PREPAYMENT_RETURN);
         grid.setItems(data);
         configureFilter();
         this.filter = new GridFilter<>(grid);

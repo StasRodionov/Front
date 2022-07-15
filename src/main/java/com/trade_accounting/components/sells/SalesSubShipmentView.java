@@ -17,6 +17,7 @@ import com.trade_accounting.models.dto.warehouse.ShipmentProductDto;
 import com.trade_accounting.models.dto.warehouse.WarehouseDto;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.units.SalesChannelService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
@@ -86,12 +87,13 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
     private final SalesChannelService salesChannelService;
     private HorizontalLayout actions;
     private final Grid<ShipmentDto> grid = new Grid<>(ShipmentDto.class, false);;
-    private final GridConfigurer<ShipmentDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<ShipmentDto> gridConfigurer;
     private GridPaginator<ShipmentDto> paginator;
     private final GridFilter<ShipmentDto> filter;
     private final Notifications notifications;
     private final String typeOfInvoice = "RECEIPT";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     @Autowired
     public SalesSubShipmentView(WarehouseService warehouseService,
@@ -102,6 +104,7 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
                                 ShipmentService shipmentService,
                                 ShipmentProductService shipmentProductService,
                                 ProductService productService,
+                                ColumnsMaskService columnsMaskService,
                                 @Lazy Notifications notifications,
                                 SalesChannelService salesChannelService,
                                 @Lazy SalesSubMenuView salesSubMenuView) {
@@ -116,6 +119,7 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
         this.notifications = notifications;
         this.salesChannelService = salesChannelService;
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_SALES_MAIN_SHIPMENT);
         this.salesSubMenuView = salesSubMenuView;
 
         configureActions();
@@ -176,7 +180,9 @@ public class SalesSubShipmentView extends VerticalLayout implements AfterNavigat
                     invoiceService,
                     notifications,
                     unitService,
-                    shipmentProductService, salesChannelService, salesSubMenuView);
+                    shipmentProductService,
+                    salesChannelService,
+                    salesSubMenuView);
             modalView.setReturnToShiptmentForEdit(dto);
             UI.getCurrent().navigate(SELLS_SELLS__SHIPMENT_EDIT);
             //modalView.open();

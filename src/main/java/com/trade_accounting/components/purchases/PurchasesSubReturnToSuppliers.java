@@ -18,6 +18,7 @@ import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.finance.ReturnToSupplierService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -97,10 +98,11 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     private final List<ReturnToSupplierDto> data;
 
     private final Grid<ReturnToSupplierDto> grid = new Grid<>(ReturnToSupplierDto.class, false);
-    private final GridConfigurer<ReturnToSupplierDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<ReturnToSupplierDto> gridConfigurer;
     private GridPaginator<ReturnToSupplierDto> paginator;
     private final GridFilter<ReturnToSupplierDto> filter;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/return/";
 
     private final TextField textField = new TextField();
@@ -109,7 +111,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
     public PurchasesSubReturnToSuppliers(EmployeeService employeeService, ReturnToSupplierService returnToSupplierService,
                                          WarehouseService warehouseService, CompanyService companyService,
                                          ContractorService contractorService, ContractService contractService,
-                                         ProjectService projectService,
+                                         ProjectService projectService, ColumnsMaskService columnsMaskService,
                                          @Lazy Notifications notifications, ReturnToSupplierModalView modalView,
                                          GoodsModalWindow goodsModalWindow) {
         this.employeeService = employeeService;
@@ -124,6 +126,7 @@ public class PurchasesSubReturnToSuppliers extends VerticalLayout implements Aft
         this.goodsModalWindow = goodsModalWindow;
         this.data = loadReturnToSuppliers();
         paginator = new GridPaginator<>(grid, data, 50);
+        gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PURCHASES_MAIN_RETURN_TO_SUPPLIERS);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

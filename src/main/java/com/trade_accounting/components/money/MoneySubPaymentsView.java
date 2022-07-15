@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.ProjectService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -46,6 +47,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_MONEY_MAIN_PAYMENTS;
 import static com.trade_accounting.config.SecurityConstants.MONEY_MONEY_PAYMENTS_VIEW;
 
 @Slf4j
@@ -63,7 +65,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
 
     private final transient List<PaymentDto> data;
     private final Grid<PaymentDto> grid = new Grid<>(PaymentDto.class, false);
-    private final GridConfigurer<PaymentDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<PaymentDto> gridConfigurer;
     private final GridPaginator<PaymentDto> paginator;
     private final GridFilter<PaymentDto> filter;
     private final CreditOrderModal creditOrderModal;
@@ -71,13 +73,15 @@ public class MoneySubPaymentsView extends VerticalLayout {
     private final OutgoingPaymentModal outgoingPaymentModal;
     private final ExpenseOrderModal expenseOrderModal;
     private final Scroller scroller = new Scroller();
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     MoneySubPaymentsView(PaymentService paymentService,
                          CompanyService companyService,
                          ContractorService contractorService,
                          ProjectService projectService,
                          ContractService contractService,
+                         ColumnsMaskService columnsMaskService,
                          Notifications notifications,
                          CreditOrderModal creditOrderModal,
                          IncomingPaymentModal incomingPaymentModal,
@@ -94,7 +98,7 @@ public class MoneySubPaymentsView extends VerticalLayout {
         this.incomingPaymentModal = incomingPaymentModal;
         this.expenseOrderModal = expenseOrderModal;
         this.outgoingPaymentModal = outgoingPaymentModal;
-
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_MONEY_MAIN_PAYMENTS);
 
         configureGrid();
         configureScroller();

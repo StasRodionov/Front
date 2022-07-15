@@ -14,6 +14,7 @@ import com.trade_accounting.services.interfaces.company.BankAccountService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.retail.RetailShiftService;
 import com.trade_accounting.services.interfaces.retail.RetailStoreService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -49,6 +50,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_RETAIL_MAIN_SHIFT;
+
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = RETAIL_RETAIL_SHIFT_VIEW, layout = AppView.class)
@@ -67,13 +70,14 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
 
     private final GridFilter<RetailShiftDto> filter;
     private final Grid<RetailShiftDto> grid = new Grid<>(RetailShiftDto.class, false);
-    private final GridConfigurer<RetailShiftDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<RetailShiftDto> gridConfigurer;
     private final GridPaginator<RetailShiftDto> paginator;
     private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public RetailShiftView(RetailShiftService retailShiftService, RetailStoreService retailStoreService,
                            WarehouseService warehouseService, CompanyService companyService,
-                           BankAccountService bankAccountService, Notifications notifications) {
+                           BankAccountService bankAccountService, ColumnsMaskService columnsMaskService,
+                           Notifications notifications) {
         this.retailShiftService = retailShiftService;
         this.data = retailShiftService.getAll();
         this.retailStoreService = retailStoreService;
@@ -82,6 +86,7 @@ public class RetailShiftView extends VerticalLayout implements AfterNavigationOb
         this.bankAccountService = bankAccountService;
         this.notifications = notifications;
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_RETAIL_MAIN_SHIFT);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

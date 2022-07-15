@@ -14,6 +14,7 @@ import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.services.interfaces.production.TechnicalCardGroupService;
 import com.trade_accounting.services.interfaces.production.TechnicalCardProductionService;
 import com.trade_accounting.services.interfaces.production.TechnicalCardService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -41,6 +42,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PRODUCTION_MAIN_FLOWCHART;
 import static com.trade_accounting.config.SecurityConstants.PRODUCTION_FLOWCHARTS_VIEW;
 
 @SpringComponent
@@ -52,7 +54,7 @@ public class FlowchartsViewTab extends VerticalLayout {
 
     private final TextField text = new TextField();
     private final Grid<TechnicalCardDto> grid = new Grid<>(TechnicalCardDto.class, false);
-    private final GridConfigurer<TechnicalCardDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<TechnicalCardDto> gridConfigurer;
     private final List<TechnicalCardDto> data;
     private final GridPaginator<TechnicalCardDto> paginator;
     private final TechnicalCardService technicalCardService;
@@ -64,11 +66,13 @@ public class FlowchartsViewTab extends VerticalLayout {
     private final List<ProductDto> productDtoList;
     private final TechnicalCardProductionService technicalCardProductionService;
     private final Notifications notifications;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public FlowchartsViewTab(TechnicalCardService technicalCardService,
                              TechnicalCardGroupService technicalCardGroupService,
-                             ProductService productService, TechnicalCardProductionService technicalCardProductionService, Notifications notifications) {
+                             ProductService productService, TechnicalCardProductionService technicalCardProductionService,
+                             ColumnsMaskService columnsMaskService, Notifications notifications) {
         this.technicalCardService = technicalCardService;
         this.technicalCardGroupService = technicalCardGroupService;
         this.productService = productService;
@@ -76,6 +80,7 @@ public class FlowchartsViewTab extends VerticalLayout {
         this.technicalCardGroupDto = new TechnicalCardGroupDto();
         this.technicalCardDto = new TechnicalCardDto();
         this.productDtoList = productService.getAll();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PRODUCTION_MAIN_FLOWCHART);
         configureGrid();
         this.filter = new GridFilter<>(grid);
         configureFilter();

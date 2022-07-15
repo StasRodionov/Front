@@ -228,5 +228,7 @@ price_list_product_percent_url: /api/priceList/product-percent
 
 type_of_packing_url: /api/typeofpacking
 
+columns_mask_url: /api/columns-mask
+
 online_store_url: api/online_store
 #debug: true

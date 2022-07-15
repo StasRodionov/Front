@@ -23,6 +23,7 @@ import com.trade_accounting.services.interfaces.retail.RetailStoreService;
 import com.trade_accounting.services.interfaces.units.CurrencyService;
 import com.trade_accounting.services.interfaces.units.ExportService;
 import com.trade_accounting.services.interfaces.util.BonusProgramService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.util.TaskService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.html.Div;
@@ -68,6 +69,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
     private final PositionService positionService;
     private final BankAccountService bankAccountService;
     private final RetailEventLogService retailEventLogService;
+    private final ColumnsMaskService columnsMaskService;
 
 
     @Autowired
@@ -93,7 +95,8 @@ public class RetailView extends Div implements AfterNavigationObserver {
                       WarehouseService warehouseService,
                       PositionService positionService,
                       BankAccountService bankAccountService,
-                      RetailEventLogService retailEventLogService) {
+                      RetailEventLogService retailEventLogService,
+                      ColumnsMaskService columnsMaskService) {
         this.retailOperationWithPointsService = retailOperationWithPointsService;
         this.bonusProgramService = bonusProgramService;
         this.taskService = taskService;
@@ -117,6 +120,7 @@ public class RetailView extends Div implements AfterNavigationObserver {
         this.positionService = positionService;
         this.bankAccountService = bankAccountService;
         this.retailEventLogService = retailEventLogService;
+        this.columnsMaskService = columnsMaskService;
         div = new Div();
         add(configurationSubMenu(), div);
     }
@@ -124,7 +128,10 @@ public class RetailView extends Div implements AfterNavigationObserver {
     @Override
     public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
         div.removeAll();
-        div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService, positionService));
+        div.add(new RetailStoresTabView(
+                retailStoreService, companyService,
+                employeeService, positionService,
+                columnsMaskService));
 
         AppView appView = (AppView) afterNavigationEvent.getActiveChain().get(1);
         appView.getChildren().forEach(e -> {
@@ -155,48 +162,72 @@ public class RetailView extends Div implements AfterNavigationObserver {
             switch (tabName) {
                 case "Точки продаж":
                     div.removeAll();
-                    div.add(new RetailStoresTabView(retailStoreService, companyService, employeeService, positionService));
+                    div.add(new RetailStoresTabView(
+                            retailStoreService, companyService,
+                            employeeService, positionService,
+                            columnsMaskService));
                     break;
                 case "Смены":
                     div.removeAll();
-                    div.add(new RetailShiftView(retailShiftService, retailStoreService, warehouseService, companyService, bankAccountService, notifications));
+                    div.add(new RetailShiftView(
+                            retailShiftService, retailStoreService,
+                            warehouseService, companyService,
+                            bankAccountService, columnsMaskService,
+                            notifications));
                     break;
                 case "Продажи":
                     div.removeAll();
-                    div.add(new RetailSalesTabView(retailSalesService, retailStoreService, companyService, contractorService));
+                    div.add(new RetailSalesTabView(
+                            retailSalesService, retailStoreService,
+                            companyService, contractorService,
+                            columnsMaskService));
                     break;
                 case "Возвраты":
                     div.removeAll();
-                    div.add(new RetailReturnsView(retailReturnsService));
+                    div.add(new RetailReturnsView(retailReturnsService, columnsMaskService));
                     break;
                 case "Внесения":
                     div.removeAll();
-                    div.add(new RetailMakingView(retailMakingService, retailStoreService, companyService, notifications));
+                    div.add(new RetailMakingView(
+                            retailMakingService, retailStoreService,
+                            companyService, columnsMaskService,
+                            notifications));
                     break;
                 case "Выплаты":
                     div.removeAll();
-                    div.add(new PayoutTabView(payoutService, retailStoreService, companyService, employeeService, notifications));
+                    div.add(new PayoutTabView(
+                            payoutService, retailStoreService,
+                            companyService, employeeService,
+                            columnsMaskService, notifications));
                     break;
                 case "Операции с баллами":
                     div.removeAll();
-                    div.add(new RetailPointsView(retailPointsService, bonusProgramService, contractorService, taskService));
-
+                    div.add(new RetailPointsView(
+                            retailPointsService, bonusProgramService,
+                            contractorService, taskService,
+                            columnsMaskService));
                     break;
                 case "Предоплаты":
                     div.removeAll();
-                    div.add(new PrepayoutView(prepayoutService));
+                    div.add(new PrepayoutView(prepayoutService, columnsMaskService));
                     break;
                 case "Возвраты предоплат":
                     div.removeAll();
-                    div.add(new PrepaymentReturnView(prepaymentReturnService, contractorService, retailStoreService, companyService));
+                    div.add(new PrepaymentReturnView(
+                            prepaymentReturnService, contractorService,
+                            retailStoreService, companyService,
+                            columnsMaskService));
                     break;
                 case "Очередь облачных чеков":
                     div.removeAll();
-                    div.add(new RetailCloudCheckView(retailCloudCheckService, currencyService, retailStoreService, employeeService, retailEventLogService));
+                    div.add(new RetailCloudCheckView(
+                            retailCloudCheckService, currencyService,
+                            retailStoreService, employeeService,
+                            retailEventLogService, columnsMaskService));
                     break;
                 case "Бонусные программы":
                     div.removeAll();
-                    div.add(new BonusProgramTabView(bonusProgramService, contractorGroupService));
+                    div.add(new BonusProgramTabView(bonusProgramService, contractorGroupService, columnsMaskService));
                     break;
             }
         });

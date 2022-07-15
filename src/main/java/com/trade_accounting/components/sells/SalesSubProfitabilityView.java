@@ -12,6 +12,7 @@ import com.trade_accounting.models.dto.invoice.InvoiceDto;
 import com.trade_accounting.models.dto.invoice.InvoiceProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.retail.RetailStoreDto;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.BuyersReturnService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -57,6 +58,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.*;
+
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = SELLS_PROFITABILITY_VIEW, layout = AppView.class)
@@ -81,9 +84,9 @@ public class SalesSubProfitabilityView extends VerticalLayout {
     private Grid<InvoiceProductDto> gridProducts = new Grid<>(InvoiceProductDto.class, false);
     private Grid<EmployeeDto> gridEmployees = new Grid<>(EmployeeDto.class, false);
 
-    private final GridConfigurer<ContractorDto> gridCustomersConfigurer = new GridConfigurer<>(gridCustomers);
-    private final GridConfigurer<InvoiceProductDto> gridProductsConfigurer = new GridConfigurer<>(gridProducts);
-    private final GridConfigurer<EmployeeDto> gridEmployeesConfigurer = new GridConfigurer<>(gridEmployees);
+    private final GridConfigurer<ContractorDto> gridCustomersConfigurer;
+    private final GridConfigurer<InvoiceProductDto> gridProductsConfigurer;
+    private final GridConfigurer<EmployeeDto> gridEmployeesConfigurer;
 
     private GridPaginator<EmployeeDto> paginatorEmployees;
     private GridPaginator<ContractorDto> paginatorCustomers;
@@ -112,7 +115,8 @@ public class SalesSubProfitabilityView extends VerticalLayout {
                                      ReturnAmountByProductService returnAmountByProductService,
                                      EmployeeService employeeService,
                                      PositionService positionService,
-                                     RetailStoreService retailStoreService) {
+                                     RetailStoreService retailStoreService,
+                                     ColumnsMaskService columnsMaskService) {
         this.companyService = companyService;
         this.contractorService = contractorService;
         this.invoiceService = invoiceService;
@@ -131,6 +135,10 @@ public class SalesSubProfitabilityView extends VerticalLayout {
         this.invoiceDtos = getInvoiceDtos();
         this.employeeDtos = getEmployeeDtos();
         this.retailStoreDtos = getRetailSoresDtos();
+
+        this.gridProductsConfigurer = new GridConfigurer<>(gridProducts, columnsMaskService, GRID_SALES_MAIN_PROFITABILITY_BY_GOODS);
+        this.gridEmployeesConfigurer = new GridConfigurer<>(gridEmployees, columnsMaskService, GRID_SALES_MAIN_PROFITABILITY_BY_EMPLOYEES);
+        this.gridCustomersConfigurer = new GridConfigurer<>(gridCustomers, columnsMaskService, GRID_SALES_MAIN_PROFITABILITY_BY_CUSTOMERS);
 
         paginatorCustomers = new GridPaginator<>(gridCustomers, contractorDtos, 50);
         paginatorProducts = new GridPaginator<>(gridProducts, invoiceProductDtos, 50);

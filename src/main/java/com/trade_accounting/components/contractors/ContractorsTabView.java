@@ -19,6 +19,7 @@ import com.trade_accounting.services.interfaces.company.LegalDetailService;
 import com.trade_accounting.services.interfaces.company.TypeOfContractorService;
 import com.trade_accounting.services.interfaces.company.TypeOfPriceService;
 import com.trade_accounting.services.interfaces.dadata.DadataAddressService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -58,6 +59,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_CONTRACTORS_MAIN_CONTRACTORS;
+
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = CONTRACTORS_CONTRACTORS_VIEW, layout = AppView.class)
@@ -78,7 +81,7 @@ public class ContractorsTabView extends VerticalLayout {
     private final AddressService addressService;
     private final List<ContractorDto> data;
     private final Grid<ContractorDto> grid = new Grid<>(ContractorDto.class, false);
-    private final GridConfigurer<ContractorDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<ContractorDto> gridConfigurer;
     private final GridPaginator<ContractorDto> paginator;
     private final GridFilter<ContractorDto> filter;
     private final TextField textField = new TextField();
@@ -87,7 +90,8 @@ public class ContractorsTabView extends VerticalLayout {
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/contractors_templates/";
     private final ContactService contactService;
     private final DadataAddressService dadataAddressService;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     public ContractorsTabView(Notifications notifications,
                               ContractorService contractorService,
@@ -97,7 +101,8 @@ public class ContractorsTabView extends VerticalLayout {
                               LegalDetailService legalDetailService, ContractorStatusService contractorStatusService,
                               DepartmentService departmentService, EmployeeService employeeService,
                               BankAccountService bankAccountService, AddressService addressService,
-                              ContactService contactService, DadataAddressService dadataAddressService) {
+                              ContactService contactService, ColumnsMaskService columnsMaskService,
+                              DadataAddressService dadataAddressService) {
         this.notifications = notifications;
         this.contractorService = contractorService;
         this.contractorGroupService = contractorGroupService;
@@ -114,6 +119,7 @@ public class ContractorsTabView extends VerticalLayout {
         print = selectXlsTemplateButton.addItem("печать");
 
         this.data = getData();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_CONTRACTORS_MAIN_CONTRACTORS);
         paginator = new GridPaginator<>(grid, data, 100);
         configureGrid();
 

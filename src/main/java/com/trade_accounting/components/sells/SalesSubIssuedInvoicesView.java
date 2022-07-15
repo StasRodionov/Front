@@ -10,6 +10,7 @@ import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.invoice.IssuedInvoiceService;
 import com.trade_accounting.services.interfaces.finance.PaymentService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,6 +44,8 @@ import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_SALES_MAIN_ISSUED_INVOICES;
+
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = SELLS_ISSUED_INVOICE_VIEW, layout = AppView.class)
@@ -59,11 +62,14 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
 
     private final GridFilter<IssuedInvoiceDto> filter;
     private final Grid<IssuedInvoiceDto> grid = new Grid<>(IssuedInvoiceDto.class, false);
-    private final GridConfigurer<IssuedInvoiceDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<IssuedInvoiceDto> gridConfigurer;
     private final GridPaginator<IssuedInvoiceDto> paginator;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
-    public SalesSubIssuedInvoicesView(IssuedInvoiceService issuedInvoiceService, CompanyService companyService, ContractorService contractorService, PaymentService paymentService) {
+    public SalesSubIssuedInvoicesView(IssuedInvoiceService issuedInvoiceService, CompanyService companyService,
+                                      ContractorService contractorService, PaymentService paymentService,
+                                      ColumnsMaskService columnsMaskService) {
         this.issuedInvoiceService = issuedInvoiceService;
         this.companyService = companyService;
         this.contractorService = contractorService;
@@ -72,6 +78,7 @@ public class SalesSubIssuedInvoicesView extends VerticalLayout implements AfterN
         this.filter = new GridFilter<>(grid);
         add(upperLayout(), filter);
         this.paginator = new GridPaginator<>(grid, data, 100);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_SALES_MAIN_ISSUED_INVOICES);
         configureGrid();
         setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, paginator);
         add(grid, paginator);

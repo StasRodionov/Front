@@ -10,6 +10,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectCo
 import com.trade_accounting.models.dto.company.CompanyDto;
 import com.trade_accounting.models.dto.company.ContractorDto;
 import com.trade_accounting.models.dto.invoice.InvoiceReceivedDto;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.AcceptanceService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
@@ -65,6 +66,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PURCHASES_MAIN_INVOICES_RECEIVED;
+
 @Slf4j
 //Если на страницу не ссылаются по URL или она не является отдельной страницей, а подгружается родительским классом, то URL и Title не нужен
 /*@Route(value = PURCHASES_INVOICE_RECEIVED_VIEW, layout = AppView.class)
@@ -83,10 +86,11 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
     private final List<InvoiceReceivedDto> data;
 
     private final Grid<InvoiceReceivedDto> grid = new Grid<>(InvoiceReceivedDto.class, false);
-    private final GridConfigurer<InvoiceReceivedDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<InvoiceReceivedDto> gridConfigurer;
     private GridPaginator<InvoiceReceivedDto> paginator;
     private final GridFilter<InvoiceReceivedDto> filter;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/invoices_received/";
     private final String typeOfInvoice = "RECEIPT";
 
@@ -97,6 +101,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
                                             CompanyService companyService,
                                             AcceptanceService acceptanceService,
                                             ContractorService contractorService,
+                                            ColumnsMaskService columnsMaskService,
                                             @Lazy Notifications notifications) {
         this.employeeService = employeeService;
         this.invoiceReceivedService = invoiceReceivedService;
@@ -105,6 +110,7 @@ public class PurchasesSubMenuInvoicesReceived extends VerticalLayout implements 
         this.contractorService = contractorService;
         this.notifications = notifications;
         this.data = getData();
+        gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PURCHASES_MAIN_INVOICES_RECEIVED);
 
         configureActions();
         configureGrid();

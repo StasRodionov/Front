@@ -19,6 +19,7 @@ import com.trade_accounting.services.interfaces.client.EmployeeService;
 import com.trade_accounting.services.interfaces.company.CompanyService;
 import com.trade_accounting.services.interfaces.company.ContractorService;
 import com.trade_accounting.services.interfaces.company.SupplierAccountService;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.SupplierAccountProductsListService;
 import com.trade_accounting.services.interfaces.warehouse.WarehouseService;
 import com.vaadin.flow.component.Component;
@@ -75,6 +76,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.trade_accounting.config.SecurityConstants.GRID_PURCHASES_MAIN_VENDOR_ACCOUNTS;
 import static com.trade_accounting.config.SecurityConstants.PURCHASES_SUPPLIERS_INVOICES_VIEW;
 
 @Slf4j
@@ -89,18 +91,19 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     private final WarehouseService warehouseService;
     private final CompanyService companyService;
     private final ContractorService contractorService;
+    private final SupplierAccountProductsListService supplierAccountProductsListService;
     private final Notifications notifications;
     private final TextField textField = new TextField();
     private final SupplierAccountModalView supplierAccountModalView;
-    private final SupplierAccountProductsListService supplierAccountProductsListService;
 
     private List<SupplierAccountDto> supplierAccount;
     private final String typeOfInvoice = "EXPENSE";
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
 
     private HorizontalLayout actions;
     private final Grid<SupplierAccountDto> grid = new Grid<>(SupplierAccountDto.class, false);
-    private final GridConfigurer<SupplierAccountDto> gridConfigurer = new GridConfigurer<>(grid);
+    private final GridConfigurer<SupplierAccountDto> gridConfigurer;
     private GridPaginator<SupplierAccountDto> paginator;
     private final GridFilter<SupplierAccountDto> filter;
     private final String pathForSaveXlsTemplate = "src/main/resources/xls_templates/purchases_templates/supplier";
@@ -108,7 +111,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
     @Autowired
     public PurchasesSubVendorAccounts(EmployeeService employeeService, SupplierAccountService supplierAccountService,
                                       WarehouseService warehouseService, CompanyService companyService,
-                                      ContractorService contractorService,
+                                      ContractorService contractorService, ColumnsMaskService columnsMaskService,
                                       @Lazy Notifications notifications,
                                       SupplierAccountModalView supplierAccountModalView,
                                       SupplierAccountProductsListService supplierAccountProductsListService) {
@@ -122,6 +125,7 @@ public class PurchasesSubVendorAccounts extends VerticalLayout implements AfterN
         this.supplierAccountProductsListService = supplierAccountProductsListService;
         loadSupplierAccounts();
         configureActions();
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_PURCHASES_MAIN_VENDOR_ACCOUNTS);
         configureGrid();
         configurePaginator();
         this.filter = new GridFilter<>(grid);

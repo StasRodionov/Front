@@ -12,6 +12,7 @@ import com.trade_accounting.components.util.configure.components.select.SelectCo
 import com.trade_accounting.components.util.configure.components.select.SelectExt;
 import com.trade_accounting.models.dto.warehouse.ProductDto;
 import com.trade_accounting.models.dto.warehouse.ProductGroupDto;
+import com.trade_accounting.services.interfaces.util.ColumnsMaskService;
 import com.trade_accounting.services.interfaces.warehouse.ProductGroupService;
 import com.trade_accounting.services.interfaces.warehouse.ProductService;
 import com.vaadin.flow.component.Component;
@@ -71,13 +72,15 @@ public class GoodsView extends VerticalLayout {
     private final ProductGroupModalWindow productGroupModalWindow;
     private Optional<ProductGroupDto> optional = Optional.empty();
     private final GoodsEditAddView goodsEditAddView;
-    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
+    private final GridVariant[] GRID_STYLE = {GridVariant.LUMO_ROW_STRIPES,
+            GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COLUMN_BORDERS};
     private final KitsEditAddView kitsEditAddView;
     private final ServicesEditAddView servicesEditAddView;
 
     @Autowired
     public GoodsView(ProductService productService,
                      ProductGroupService productGroupService,
+                     ColumnsMaskService columnsMaskService,
                      GoodsModalWindow goodsModalWindow,
                      ServiceModalWindow serviceModalWindow,
                      SetModalWindow setModalWindow, Notifications notifications,
@@ -89,7 +92,7 @@ public class GoodsView extends VerticalLayout {
         this.setModalWindow = setModalWindow;
         this.productGroupModalWindow = productGroupModalWindow;
         this.grid = new Grid<>(ProductDto.class);
-        this.gridConfigurer = new GridConfigurer<>(grid);
+        this.gridConfigurer = new GridConfigurer<>(grid, columnsMaskService, GRID_GOODS_MAIN_GOODS);
         this.productService = productService;
         this.productGroupService = productGroupService;
         this.goodsModalWindow = goodsModalWindow;
